@@ -1,0 +1,2 @@
+in_str="$@"
+python3 main.py $in_str

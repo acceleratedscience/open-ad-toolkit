@@ -1,0 +1,21 @@
+{
+	"fplugin": "rxn",
+	"command": "get rxn project",
+	"subject": "get_rxn_project",
+	"SINGLE_PARM": {},
+	"USING":{},
+	"SHOW": [],
+	"ESTIMATE_ONLY": {},
+	"SAVE_AS": {},
+	"exec_type": "standard_statement",
+	"exec_cmd": "get rxn project ",
+	"help": {
+		"name": "get rxn project",
+		"category": "Admin",
+		"command": "get rxn project",
+		"description": "Gets the current project for RXN",
+		"url": ""
+	},
+	"library": "rxn_get_project",
+	"method": "get_project"
+}
