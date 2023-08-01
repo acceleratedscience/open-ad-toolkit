@@ -35,15 +35,20 @@ _Note: if you're on Mac, please use `pip3` and `python3` instead of `pip` and `p
 
 -   **Enter the Shell Environment**
 
-        python main.py
-
-    Alternatively, you can:
-
         # Enable permissions (only once)
         chmod 777 adccl
 
-        # Lauch
+        # Launch
         ./adccl
+
+    Alternatively for jupyter lab, you can:
+
+        # Enable permissions (only once)
+        chmod 777 adccl-jupyter
+
+        # Launch
+        .
+        ./adccl-jupyter
 
     <br>
       
