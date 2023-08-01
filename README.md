@@ -25,7 +25,7 @@ _Note: if you're on Mac, please use `pip3` and `python3` instead of `pip` and `p
 
         pip install -r requirements.txt
 
-    If you plan to use it inside Jupyter Notebook of Jupyter Labs:
+    If you plan to use it inside Jupyter Notebook of Jupyter Labs:<br>
     `pip install -r jupyter_requirements.txt` <br>
      `python3 -m ipykernel --name ./myenv` (Note: you may need to ctrl-z our of this .. related to jupyter issue)<br>
 
