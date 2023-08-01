@@ -52,6 +52,7 @@ class run_cmd(Cmd):
     # PROMPT                      =   '(Cmd) '
     IDENTCHARS              = string.ascii_letters + string.digits + '_'
     intro                   = '/'  # This is defined in cmdloop() below.
+    home_dir                =_meta_dir
     current_statements      = statements
     current_statement_defs  = statements_def
     toolkit_dir             =_meta_dir_toolkits

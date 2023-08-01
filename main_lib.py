@@ -69,6 +69,9 @@ def lang_parse(cmd_pointer, parser):
     #Language Model How To
     elif parser.getName() == 'HOW_DO_I':
         result= how_do_i(cmd_pointer,parser)
+        if result == False:
+            
+            return False
         update_main_registry_env_var(cmd_pointer,'refresh_help_ai',False)
         write_registry(cmd_pointer.settings,cmd_pointer)
         return result
@@ -255,6 +258,11 @@ def list_all_toolkits(cmd_pointer, parser):
 def set_context(cmd_pointer, parser):
     if parser['toolkit_name'] is None:
         return return_context(cmd_pointer, parser)
+    
+    reset = False
+    if 'reset' in parser:
+        reset=True
+
     toolkit_name = parser['toolkit_name'].upper()
     toolkit_current = None
     
@@ -289,7 +297,8 @@ def set_context(cmd_pointer, parser):
             try:
                 
                 # raise BaseException('Error message') # For testing
-                login_success, expiry_datetime = login_manager.load_login_api(cmd_pointer, toolkit_name)
+
+                login_success, expiry_datetime = login_manager.load_login_api(cmd_pointer, toolkit_name,reset=reset)
 
             except BaseException as err:
                 # Error logging in.
@@ -381,7 +390,7 @@ def display_history(cmd_pointer, parser):
 
     # Display/return table.
     
-    return output_table(history, cmd_pointer, headers=['', '', 'Command History'])
+    return output_table(history, cmd_pointer, headers=['',  'Command History'])
 
     # Trash
     # if cmd_pointer.notebook_mode == False:

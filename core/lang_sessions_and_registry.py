@@ -114,6 +114,13 @@ def registry_add_toolkit(cmd_pointer, parser):
             full_original_directory_name = os.getcwd() + '/user_toolkits/' + toolkit_name.upper() + '/'
             # full_original_directory_name = os.path.dirname(os.path.realpath(sys.argv[0])) + '/user_toolkits/' + toolkit_name.upper() + '/' # Trash
             target_directory = _meta_dir_toolkits + '/' + toolkit_name.upper()
+            try:
+                
+                shutil.rmtree(target_directory+"/",ignore_errors=False)
+                
+            except Exception as e:
+                print(e)
+                pass
             shutil.copytree(full_original_directory_name, target_directory, dirs_exist_ok=True)
             settings['toolkits'].append(toolkit_name.upper())
             cmd_pointer.settings['toolkits'].append(toolkit_name.upper())

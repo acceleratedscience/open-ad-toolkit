@@ -14,7 +14,9 @@ config_blank = {"host": "None", "auth": {"username": "None", "api_key": "None"},
 
 # Initialize the Deep Search client from the config file
 # Input parameters for the example flow
-
+def reset(cmd_pointer):
+    if  os.path.isfile(os.path.expanduser(cmd_pointer.home_dir) + "/ds-auth.ext-v2.json"):
+        os.remove(os.path.expanduser(cmd_pointer.home_dir) + "/ds-auth.ext-v2.json")
 
 def login(cmd_pointer):
     # {'toolkits':[],'toolkits_details':{},'toolkits_api':[]}
@@ -40,11 +42,11 @@ def login(cmd_pointer):
             expiry_datetime = time.strftime('%a %b %e, %G  at %R', time.localtime(expiry_time))
             return True, expiry_datetime
 
-    if not os.path.isfile(os.path.expanduser("~/.adccl") + "/ds-auth.ext-v2.json"):
+    if not os.path.isfile(os.path.expanduser(cmd_pointer.home_dir) + "/ds-auth.ext-v2.json"):
         if cmd_pointer.notebook_mode == False:
             print('\n'.join((
                 "\n\u001b[31mConfiguration file for DS4SD not found:\u001b[0m",
-                os.path.expanduser("~/.adccl") + "/ds-auth.ext-v2.json",
+                os.path.expanduser(cmd_pointer.home_dir) + "/ds-auth.ext-v2.json",
                 "\nPlease enter the following details to generate a new config file.\n"
             )))
             import readline
@@ -56,9 +58,9 @@ def login(cmd_pointer):
             readline.remove_history_item(readline.get_current_history_length() - 1)
         else:
             from IPython.display import display,Markdown
-            display(Mardown('<br>'.join((
+            display(Markdown('<br>'.join((
                 "<br> ***Configuration file for DS4SD not found:***",
-                os.path.expanduser("~/.adccl") + "/ds-auth.ext-v2.json",
+                os.path.expanduser(cmd_pointer.home_dir) + "/ds-auth.ext-v2.json",
                 "\nPlease enter the following details to generate a new config file."
             ))))
             import readline
@@ -69,12 +71,12 @@ def login(cmd_pointer):
             config_blank['auth']['api_key'] = input("Api_key: ")
             readline.remove_history_item(readline.get_current_history_length() - 1)
         import json
-        with open(os.path.expanduser("~/.adccl") + "/ds-auth.ext-v2.json", 'w') as handle:
+        with open(os.path.expanduser(cmd_pointer.home_dir) + "/ds-auth.ext-v2.json", 'w') as handle:
             json.dump(config_blank, handle)
             handle.close()
         print('config file generated.')
     try:
-        CONFIG_FILE = Path(os.path.expanduser("~/.adccl") + "/ds-auth.ext-v2.json")
+        CONFIG_FILE = Path(os.path.expanduser(cmd_pointer.home_dir) + "/ds-auth.ext-v2.json")
 
         config = ds.DeepSearchConfig.parse_file(CONFIG_FILE)
 
@@ -107,14 +109,6 @@ def login(cmd_pointer):
         return True, expiry_datetime
     except BaseException as err:
         pass
-        # output_error(msg('err_login', 'DS4SD', err, split=True), cmd_pointer) # Don't have access to output_error here
-        # print('\n'.join((
-        #     '\n'
-        #     '\u001b[31mWe were unable to log you into Deep Search.\u001b[0m',
-        #     'Please check your credentials in your config file:',
-        #     os.path.expanduser("~/.adccl") + "/ds-auth.ext-v2.json\n",
-        #     f'\u001b[90mException: {err}\u001b[0m',
-        #     ''
-        # )))
+        
 
         return False, None

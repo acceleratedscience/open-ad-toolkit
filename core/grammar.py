@@ -305,12 +305,12 @@ grammar_help.append(adccl_help.help_dict_create(
 ))
 
 # Set a toolkit as the current context
-statements.append(Forward(s_et + context('context') + Word(alphas, alphanums + "_")('toolkit_name'))('set_context'))
+statements.append(Forward(s_et + context('context') + Word(alphas, alphanums + "_")('toolkit_name') +Optional(CaselessKeyword('reset'))('reset')  )('set_context'))
 grammar_help.append(adccl_help.help_dict_create(
     name="set context",
     category='Toolkits',
-    command="set context <toolkit_name>",
-    description='Set your function context to the chosen toolkit. The context dictates functions available to you.'
+    command="set context <toolkit_name> [reset]",
+    description='Set your function context to the chosen toolkit. The context dictates functions available to you. The optional parameter reset can be used to reset login information'
 ))
 
 # Unset a toolkit as the current context
@@ -835,21 +835,21 @@ def output_train_statements(cmd_pointer):
     toolkit_name=[]
     toolkit_description=[]
     i=0
-    
+    cmd_pointer.home_dir
     try:
 
-        if not os.path.exists(os.path.expanduser(os.path.expanduser("~/.adccl/prompt_train/"))):
-            os.mkdir(os.path.expanduser(os.path.expanduser("~/.adccl/prompt_train/")))
+        if not os.path.exists(os.path.expanduser(os.path.expanduser(cmd_pointer.home_dir+"/prompt_train/"))):
+            os.mkdir(os.path.expanduser(os.path.expanduser(cmd_pointer.home_dir+"/prompt_train/")))
     except:
-        raise Exception(f"unable to create prompt soc directory {str(os.path.expanduser('~/.adccl/prompt_train/'))}")
+        raise Exception(f"unable to create prompt soc directory {str(os.path.expanduser(cmd_pointer.home_dir+'/prompt_train/'))}")
     
-    for file in glob.glob(os.path.expanduser(str(os.path.expanduser('~/.adccl/prompt_train/'))+"/*")):  
+    for file in glob.glob(os.path.expanduser(str(os.path.expanduser(cmd_pointer.home_dir+'/prompt_train/'))+"/*")):  
         os.remove(file)
 
     while i < len(orig_statements):
         training_statements.append({'command_group':'base','command_name': grammar_help[i]['name'],'command_syntax': grammar_help[i]['command'],'command_help':grammar_help[i]['description']})
         i+=1
-    file =  open(os.path.expanduser('~/.adccl/prompt_train/base_commands.txt'), 'w',newline='\n') 
+    file =  open(os.path.expanduser(cmd_pointer.home_dir+'/prompt_train/base_commands.txt'), 'w',newline='\n') 
     file.write("""adccl client information
 
         For information in providing answers to how to or Help questions from users : 
@@ -891,7 +891,7 @@ def output_train_statements(cmd_pointer):
     for i in cmd_pointer.settings['toolkits']:
           token , a_toolkit=load_toolkit(i)
           training_statements=[]
-          file =  open(os.path.expanduser('~/.adccl/prompt_train/toolkit_'+i+'.txt'), 'w',newline='\n') 
+          file =  open(os.path.expanduser(cmd_pointer.home_dir+'/prompt_train/toolkit_'+i+'.txt'), 'w',newline='\n') 
           file.write('This file represents the description of the '+a_toolkit.toolkit_name+' \n\n')
           
           file.write('this is the description of the overall capability of the '+a_toolkit.toolkit_name+' \n \n')

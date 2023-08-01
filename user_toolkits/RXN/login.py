@@ -26,8 +26,9 @@ def get_include_lib(cmd_pointer):
     rxn_helper= rxn.rxn_helper
     return rxn_helper
 
-    
-
+def reset(cmd_pointer):
+    if  os.path.isfile(os.path.expanduser(cmd_pointer.home_dir) + "/rxn-auth.ext-v2.json"):
+        os.remove(os.path.expanduser(cmd_pointer.home_dir) + "/rxn-auth.ext-v2.json")
 
 def login(cmd_pointer):
   
@@ -64,12 +65,12 @@ def login(cmd_pointer):
         #    expiry_datetime = time.strftime('%a %b %e, %G  at %R', time.localtime(expiry_time))
         #    return True, expiry_datetime
 
-    if not os.path.isfile(os.path.expanduser("~/.adccl") + "/rxn-auth.ext-v2.json"):
+    if not os.path.isfile(os.path.expanduser(cmd_pointer.home_dir) + "/rxn-auth.ext-v2.json"):
 
         if cmd_pointer.notebook_mode == False:
             print('\n'.join((
                 "\n\u001b[31mConfiguration file for RXN not found:\u001b[0m",
-                os.path.expanduser("~/.adccl") + "/rxn-auth.ext-v2.json",
+                os.path.expanduser(cmd_pointer.home_dir) + "/rxn-auth.ext-v2.json",
                 "\nPlease enter the following details to generate a new config file.\n"
             )))
             import readline
@@ -81,7 +82,7 @@ def login(cmd_pointer):
             from IPython.display import display,Markdown
             display(Markdown(('<br>'.join((
                 "<br> ***Configuration file for RXN not found:***",
-                os.path.expanduser("~/.adccl") + "/rxn-auth.ext-v2.json",
+                os.path.expanduser(cmd_pointer.home_dir) + "/rxn-auth.ext-v2.json",
                 "<br> ***Please enter the following details to generate a new config file.***"
             )))))
             import readline
@@ -92,12 +93,12 @@ def login(cmd_pointer):
 
 
         
-        with open(os.path.expanduser("~/.adccl") + "/rxn-auth.ext-v2.json", 'w') as handle:
+        with open(os.path.expanduser(cmd_pointer.home_dir) + "/rxn-auth.ext-v2.json", 'w') as handle:
             json.dump(config_blank, handle)
             handle.close()
         print('config file generated.')
     try:
-        with open(os.path.expanduser("~/.adccl") + "/rxn-auth.ext-v2.json", 'r') as handle:
+        with open(os.path.expanduser(cmd_pointer.home_dir) + "/rxn-auth.ext-v2.json", 'r') as handle:
             CONFIG_FILE=json.load(handle)
             handle.close()
         

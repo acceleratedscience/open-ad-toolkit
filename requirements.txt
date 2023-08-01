@@ -11,6 +11,7 @@ imagehash==4.3.1
 ipython==8.12.0
 ipywidgets==7.7.5
 Jinja2==3.1.2
+npm
 numerize==0.12
 numpy==1.24.2
 pandas==2.0.0
@@ -36,4 +37,6 @@ traitlets==5.9
 deepsearch-toolkit
 rxn4chemistry
 tabulate
+faiss-cpu
+openai
 

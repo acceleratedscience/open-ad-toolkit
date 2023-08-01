@@ -62,7 +62,7 @@ def load_src(name, fpath):
     return imp.load_source(name, os.path.join(os.path.dirname(__file__), fpath))
 
 
-def load_login_api(cmd_pointer, toolkit_name):
+def load_login_api(cmd_pointer, toolkit_name,reset=False):
     import os
     from global_var_lib import _meta_dir_toolkits as _meta_dir_toolkits
     suppress = False
@@ -70,7 +70,9 @@ def load_login_api(cmd_pointer, toolkit_name):
         suppress = True
     if os.path.isfile(_meta_dir_toolkits + "/" + toolkit_name + "/login.py"):
         exec_link = load_src("login", _meta_dir_toolkits + "/" + toolkit_name + "/login.py")
-        
+        if reset==True:
+            func = getattr(exec_link, "reset")
+            func(cmd_pointer)
         func = getattr(exec_link, "login")
         try:
             login_success, expiry_datetime = func(cmd_pointer)

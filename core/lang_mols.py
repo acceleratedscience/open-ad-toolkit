@@ -1,8 +1,8 @@
 
 from rdkit.Chem import PandasTools
 import rdkit
-import molsviewer.mols2grid as mols2grid
-# import mols2grid
+#import molsviewer.mols2grid as mols2grid # interim until molsto grid updated for pip install
+import mols2grid
 import signal
 import os
 import pandas
