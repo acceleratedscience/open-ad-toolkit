@@ -1,0 +1,38 @@
+{
+	"about": "This is a demo file showcasing the help function and all different types of fields.",
+	"field_types": {
+		"boolean": true,
+		"string": "This is a string.",
+		"string_required": "This is a required field. You can't leave this blank",
+		"int": 3,
+		"int_with_minimum_value": 4,
+		"int_with_maximum_value": 5,
+		"int_with_minimum_and_maximum_value": 6,
+		"float": 0.3,
+		"float_with_minimum_value": 0.4,
+		"float_with_maximum_value": 0.5,
+		"float_with_minimum_and_maximum_value": 0.6,
+		"enum": "Option1",
+		"enum_case_insensitive": "option2",
+		"illegal_field": "This field is not defined by the schema. Type :f to remove it.",
+		"invalid_field": "This field is defined in the schema, but has an invalid value.",
+		"lists": {
+			"about": "Every data type can also be defined as a list. The same options (min, max, etc.) apply to lists as well.",
+			"list_of_booleans": [true, false, true, false],
+			"list_of_strings": ["This", "is", "an", "array", "of", "strings."],
+			"list_of_ints": [1, 2, 3, 4, 5],
+			"list_of_floats": [0.1, 0.2, 0.3, 0.4, 0.5],
+			"list_of_enums": ["Option1", "Option2", "Option3"],
+			"list_of_enums_case_insensitive": ["option1", "option2", "option3"]
+		},
+		"level0": {
+			"level1": {
+				"level2": {
+					"level3": {
+						"nested_value": "This is a nested value."
+					}
+				}
+			}
+		}
+	}
+}

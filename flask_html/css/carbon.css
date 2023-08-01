@@ -1,0 +1,26 @@
+/**
+* IBM Carbon Styling
+*/
+
+button {
+	height: 40px;
+	background: #0f62fe;
+	border: none;
+	color: #fff;
+	padding: 0 32px 0 16px;
+	font-family: 'IBM Plex Sans', sans-serif;
+	font-size: 14px;
+	cursor: pointer;
+}
+button:hover {
+	background: #0353e9;
+}
+button.secondary {
+	background: #393939;
+	color: #fff;
+}
+button.tertiary {
+	background: transparent;
+	color: #393939;
+	border: 1px solid #393939;
+}

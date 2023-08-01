@@ -1,0 +1,11 @@
+{
+	"banner": "DS4SD",
+	"title": "Deep Search for Scientific Discovery",
+	"author": "IBM Research",
+	"version": "0.0.1",
+	"intro": "Deep Search leverages state-of-the-art AI methods to continuously collect, convert, enrich, and link large document collections. You can use it for both public and proprietary PDF documents.",
+	"commands": {
+		"ds4sd ?": "See what you can do.",
+		"ds4sd docs": "Read the docs in your browser."
+	}
+}

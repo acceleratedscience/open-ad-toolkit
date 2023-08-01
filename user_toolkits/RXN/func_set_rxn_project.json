@@ -1,0 +1,21 @@
+{
+	"fplugin": "rxn",
+	"command": "set rxn project",
+	"subject": "set_rxn_project",
+	"SINGLE_PARM": {"project_name": "str"	},
+	"USING":{},
+	"SHOW": [],
+	"ESTIMATE_ONLY": {},
+	"SAVE_AS": {},
+	"exec_type": "standard_statement",
+	"exec_cmd": "set rxn project ",
+	"help": {
+		"name": "set rxn project",
+		"category": "Admin",
+		"command": "set rxn project",
+		"description": "sets the current project for RXN",
+		"url": ""
+	},
+	"library": "rxn_set_project",
+	"method": "set_project"
+}

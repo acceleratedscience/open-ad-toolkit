@@ -1,0 +1,21 @@
+{
+	"fplugin": "rxn",
+	"command": "interpret receipe",
+	"subject": "interpret_receipe",
+	"SINGLE_PARM": {"receipe": "desc"	},
+	"USING": {},
+	"SHOW": [],
+	"ESTIMATE_ONLY": {},
+	
+	"exec_type": "standard_statement",
+	"exec_cmd": "interpret receipe",
+	"help": {
+		"name": "interpret receipe",
+		"category": "Retrosynthesis",
+		"command": "interpret receipe 'receipe-paragraph' ",
+		"description": "This command builds a set of actions interpreted from a given receipe",
+		"url": ""
+	},
+	"library": "rxn_reciepe_interpret",
+	"method": "interpret_receipe"
+}
