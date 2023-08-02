@@ -26,30 +26,54 @@ def get_include_lib(cmd_pointer):
 
 
 def predict_reaction_batch(inputs: dict, toolkit_dir, cmd_pointer):
+    
+    print(1)
     if cmd_pointer.notebook_mode == True:
         import IPython
         from halo import HaloNotebook as Halo
     else:
         from halo import Halo
-
-
+    
+    rxn_helper=get_include_lib(cmd_pointer)
+    name,id,desc= rxn_helper.get_current_project(cmd_pointer)
+    if cmd_pointer.notebook_mode == True:
+        from IPython.display import display,Markdown
+    if name == None and cmd_pointer.api_mode==False:
+        if cmd_pointer.notebook_mode==True:
+            
+            display(Markdown(" No current RXN project selected ,`set rxn project <project name>` to set your project before proceeding."))
+            display(Markdown("Select from the Below Projects or create a new."))
+            display(rxn_helper.get_all_projects(cmd_pointer)[['name','description']])
+        else:
+            print(" No current RXN project selected ,`set rxn project <project name>` to set your project before proceeding. ")
+            print(" Select from the Below Projects or create a new.")
+            print(rxn_helper.get_all_projects(cmd_pointer)[['name','description']])
+        return False
+    
+ 
     class Spinner(Halo):
         def __init__(self):
             # Alternative spinners:
             # simpleDotsScrolling, interval=100
             super().__init__(spinner='dots', color='white')
+   
     
-    val='val'
     if 'from_list' not in inputs['from_source'][0]:
         print('lists are the only source type implemented current, dataframe and file are soon to be implemented')
         return True
-    if cmd_pointer.notebook_mode == True:
-        from IPython.display import display,Markdown
-    newspin =Spinner()
-    newspin.start("Starting Prediction")
+    else:
+        from_list= inputs['from_source'][0]['from_list']
     
-    rxn_helper = get_include_lib(cmd_pointer)
-    from_list= inputs['from_source'][0]['from_list']
+   
+    
+    
+    newspin =Spinner()
+  
+    newspin.start("Starting Prediction")
+   
+    
+    
+    val='val'
     if "ai_model" in inputs:
         ai_model= inputs['ai_model'][val]
     else:

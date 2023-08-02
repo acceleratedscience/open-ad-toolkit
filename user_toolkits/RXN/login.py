@@ -23,7 +23,7 @@ def get_include_lib(cmd_pointer):
     spec = ilu.spec_from_file_location(file, folder)
     rxn = ilu.module_from_spec(spec)
     spec.loader.exec_module(rxn)
-    rxn_helper= rxn.rxn_helper
+    rxn_helper= rxn.rxn_helper()
     return rxn_helper
 
 def reset(cmd_pointer):
@@ -38,7 +38,7 @@ def login(cmd_pointer):
     rxn_helper= get_include_lib(cmd_pointer)
     
    
-    expiry_time=None
+    expiry_time='No Expiry'
 
     if 'RXN' not in cmd_pointer.login_settings['toolkits']:
       
@@ -56,7 +56,19 @@ def login(cmd_pointer):
         from datetime import datetime, timezone
         now = datetime.now(timezone.utc)
         x = cmd_pointer.login_settings['toolkits'].index('RXN')
-     
+        
+        #edited out to stop double hitting
+        #name,id,desc = rxn_helper.get_current_project(cmd_pointer) 
+        
+        #if name == None and cmd_pointer.api_mode==False:
+        #    if cmd_pointer.notebook_mode==True:
+        #        from IPython.display import display, Markdown
+        #        display(Markdown(" No current RXN project selected ,`set rxn project <project name>` to set your project before proceeding. Or Create a new one and set it "))
+        #        display(rxn_helper.get_all_projects(cmd_pointer)[['name','description']])
+        #    else:
+        #        print(" No current RXN project selected ,`set rxn project <project name>` to set your project before proceeding. Or Create a new one and set it")
+        #        print(rxn_helper.get_all_projects(cmd_pointer)[['name','description']])
+
         now = datetime.timestamp(now)
         return True, expiry_time
         #expiry_time = cmd_pointer.login_settings['expiry'][x - 1]
@@ -105,9 +117,28 @@ def login(cmd_pointer):
      
         client=RXN4ChemistryWrapper(api_key= CONFIG_FILE['auth']['api_key'], base_url= CONFIG_FILE['host'])
         
-        client.list_all_projects()
+
+            
         cmd_pointer.login_settings['toolkits_api'][x] = config_blank['auth']['api_key']
         cmd_pointer.login_settings['client'][x] = client
+
+
+        name,id,desc = rxn_helper.get_current_project(cmd_pointer) 
+        if name == None and cmd_pointer.api_mode==False:
+            if cmd_pointer.notebook_mode==True:
+                from IPython.display import display, Markdown
+                display(Markdown(" No current RXN project selected ,`set rxn project <project name>` to set your project before proceeding."))
+                display(Markdown("Select from the Below Projects or create a new."))
+                
+                display(rxn_helper.get_all_projects(cmd_pointer)[['name','description']])
+                
+                
+                
+            else:
+                print(" No current RXN project selected ,`set rxn project <project name>` to set your project before proceeding. ")
+                print(" Select from the Below Projects or create a new.")
+                print(rxn_helper.get_all_projects(cmd_pointer)[['name','description']])
+            #return True,expiry_time
         
         return True, expiry_time
     except BaseException as err:
@@ -123,5 +154,5 @@ def login(cmd_pointer):
         #     ''
         # )))
 
-        return False, None
+        return False, expiry_time
 

@@ -76,12 +76,12 @@ class rxn_helper():
             return False
         return True
 
-    
+    #creates the Cache directory for results
     def create_cache(self,cmd_pointer):
         if not os.path.isdir(cmd_pointer.toolkit_dir+'/RXN/cache'):
             os.mkdir(cmd_pointer.toolkit_dir+'/RXN/cache')
         
-
+    #retrieves a matching result from the cache
     def retrieve_cache(self,cmd_pointer,chem_list:str,call_type:str):
         import sys
         try:
@@ -98,7 +98,7 @@ class rxn_helper():
             
             
             return False
-        
+    # checks to see if a smiles string is valid   
     def valid_smiles(self,input_molecule)->bool:
         from rdkit import Chem
         m = Chem.MolFromSmiles(input_molecule,sanitize=False)
@@ -111,7 +111,7 @@ class rxn_helper():
                 False
         return True  
     
-
+    # sets the current project
     def set_current_project(self,cmd_pointer,project_name:str)->bool:
         projects = self.get_all_projects
         project_id=1

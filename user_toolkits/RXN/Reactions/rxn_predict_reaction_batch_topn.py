@@ -28,11 +28,26 @@ def get_include_lib(cmd_pointer):
 
 def predict_reaction_batch_topn(inputs: dict, toolkit_dir, cmd_pointer):
     top_n=5
+    rxn_helper=get_include_lib(cmd_pointer)
+    name,id,desc= rxn_helper.get_current_project(cmd_pointer)
     if cmd_pointer.notebook_mode == True:
         import IPython
         from halo import HaloNotebook as Halo
     else:
         from halo import Halo
+
+    if name == None and cmd_pointer.api_mode==False:
+        if cmd_pointer.notebook_mode==True:
+            from IPython.display import display, Markdown
+            display(Markdown(" No current RXN project selected ,`set rxn project <project name>` to set your project before proceeding."))
+            display(Markdown("Select from the Below Projects or create a new."))
+            display(rxn_helper.get_all_projects(cmd_pointer)[['name','description']])
+        else:
+            print(" No current RXN project selected ,`set rxn project <project name>` to set your project before proceeding. ")
+            print(" Select from the Below Projects or create a new.")
+            print(rxn_helper.get_all_projects(cmd_pointer)[['name','description']])
+        return False
+    
     class Spinner(Halo):
         def __init__(self):
             # Alternative spinners:

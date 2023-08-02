@@ -23,7 +23,27 @@ def get_reaction_from_smiles(reaction_smiles: str) -> Chem.rdChemReactions.Chemi
 # https://cps.foc-deepsearch.zurich.ibm.com/projects/1234567890abcdefghijklmnopqrstvwyz123456/library
 
 def predict_reaction(inputs: dict, toolkit_dir, cmd_pointer):
-    
+    rxn_helper=get_include_lib(cmd_pointer)
+    name,id,desc= rxn_helper.get_current_project(cmd_pointer)
+    if cmd_pointer.notebook_mode == True:
+        import IPython
+        from halo import HaloNotebook as Halo
+    else:
+        from halo import Halo
+
+    if name == None and cmd_pointer.api_mode==False:
+        if cmd_pointer.notebook_mode==True:
+            from IPython.display import display, Markdown
+            display(Markdown(" No current RXN project selected ,`set rxn project <project name>` to set your project before proceeding."))
+            display(Markdown("Select from the Below Projects or create a new."))
+            display(rxn_helper.get_all_projects(cmd_pointer)[['name','description']])
+        else:
+            print(" No current RXN project selected ,`set rxn project <project name>` to set your project before proceeding. ")
+            print(" Select from the Below Projects or create a new.")
+            print(rxn_helper.get_all_projects(cmd_pointer)[['name','description']])
+        return False
+
+
     rxn4chemistry_wrapper = cmd_pointer.login_settings['client'][cmd_pointer.login_settings['toolkits'].index('RXN') ]
     # Prepare the data query
     rxn_helper = get_include_lib(cmd_pointer) 

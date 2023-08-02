@@ -66,14 +66,25 @@ def collect_reactions_from_retrosynthesis_text(tree: Dict) ->List[str]  :
 
 def predict_retro(inputs: dict, toolkit_dir, cmd_pointer):
     rxn_helper=get_include_lib(cmd_pointer)
-    
+    name,id,desc= rxn_helper.get_current_project(cmd_pointer)
     if cmd_pointer.notebook_mode == True:
         import IPython
         from halo import HaloNotebook as Halo
     else:
         from halo import Halo
 
-    
+    if name == None and cmd_pointer.api_mode==False:
+        if cmd_pointer.notebook_mode==True:
+            from IPython.display import display, Markdown
+            display(Markdown(" No current RXN project selected ,`set rxn project <project name>` to set your project before proceeding."))
+            display(Markdown("Select from the Below Projects or create a new."))
+            display(rxn_helper.get_all_projects(cmd_pointer)[['name','description']])
+        else:
+            print(" No current RXN project selected ,`set rxn project <project name>` to set your project before proceeding. ")
+            print(" Select from the Below Projects or create a new.")
+            print(rxn_helper.get_all_projects(cmd_pointer)[['name','description']])
+        return False
+
     class Spinner(Halo):
         def __init__(self):
             # Alternative spinners:
@@ -116,7 +127,7 @@ def predict_retro(inputs: dict, toolkit_dir, cmd_pointer):
         AllChem.MMFFOptimizeMolecule(mol, maxIters=200)
         mblock = Chem.MolToMolBlock(mol)
 
-        view = py3Dmol.view(width=400, height=300)
+        view = py3Dmol.view(width=700, height=500)
         view.addModel(mblock, 'mol')
         view.setStyle({style:{}})
         view.zoomTo()
@@ -218,6 +229,7 @@ def predict_retro(inputs: dict, toolkit_dir, cmd_pointer):
                     raise BaseException("Server unresponsive: Unable to complete processing for prediction id:'"+predict_retro_response['prediction_id']+"'after 20 retires"+str(e))
     except  BaseException as e:
             newspin.fail('Unable to Process')
+            newspin.start()
             newspin.stop()
             raise BaseException("Unable to complete processing "+str(e)    )#print(predict_automatic_retrosynthesis_results)
             
