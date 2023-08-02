@@ -33,6 +33,28 @@ _Note: if you're on Mac, please use `pip3` and `python3` instead of `pip` and `p
     create a kernel that can be used to run notebook commands inside the virtual environment <br>
         `python -m ipykernel install --user --name=my-env`
 
+##login details for RXN and Deepsearch, if you choose to use the Tell Me unction you will also need to obtain a Openai API account
+deep Search Rep on IBM Network
+
+###DeepSearch
+URL: https://cps.foc-deepsearch.zurich.ibm.com/
+login w3 id
+obtain API key when logged into webpage
+![Screenshot 2023-08-02 at 5 00 05 pm](https://media.github.ibm.com/user/225313/files/76807d43-262c-4ff0-969f-9086b15613ba)
+
+###RXN
+url  https://rxn.app.accelerate.science/rxn/home
+login w3id
+
+obtain API key by clicking the user profile in the top right hand corner
+![Screenshot 2023-08-02 at 5 03 01 pm](https://media.github.ibm.com/user/225313/files/26d30714-f028-4f97-844c-82a434f9e0d8)
+
+
+#OpenAI
+you will need the details from the openai API loging. there is a free 1 monthtrial
+https://platform.openai.com
+
+![Screenshot 2023-08-02 at 5 04 29 pm](https://media.github.ibm.com/user/225313/files/50f34891-dd0f-4650-9548-45631606a0d1)
 
 <br>
 
