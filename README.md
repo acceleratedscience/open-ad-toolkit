@@ -28,7 +28,7 @@ _Note: if you're on Mac, please use `pip3` and `python3` instead of `pip` and `p
     If you plan to use it inside Jupyter Notebook of Jupyter Labs:<br>
         `pip install -r jupyter_requirements.txt` <br>
     install ipykernel, which consists of IPython as well <br>
-        `pip install ipykernel`
+        `pip install ipykernel` <br>
     create a kernel that can be used to run notebook commands inside the virtual environment <br>
         `python -m ipykernel install --user --name=my-env`
 
