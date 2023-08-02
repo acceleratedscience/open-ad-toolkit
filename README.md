@@ -20,13 +20,14 @@ _Note: if you're on Mac, please use `pip3` and `python3` instead of `pip` and `p
     Download [the repository](https://github.ibm.com/Phil-Downey1/adccl) or clone it using ssh:
 
          `https://github.ibm.com/Accelerated-Discovery/ad4e-opentoolkit.git`
+     
 
     Install the requirements:
 
         pip install -r requirements.txt
 
     If you plan to use it inside Jupyter Notebook of Jupyter Labs:<br>
-        `pip install -r jupyter_requirements.txt` <br>
+        `pip install -r ./ad4e-opentoolkit/jupyter_requirements.txt` <br>
     install ipykernel, which consists of IPython as well <br>
         `pip install ipykernel` <br>
     create a kernel that can be used to run notebook commands inside the virtual environment <br>
@@ -40,19 +41,19 @@ _Note: if you're on Mac, please use `pip3` and `python3` instead of `pip` and `p
 -   **Enter the Shell Environment**
 
         # Enable permissions (only once)
-        chmod 777 adccl
+        chmod 777 ./ad4e-opentoolkit/adccl
 
         # Launch
-        ./adccl
+        ./ad4e-opentoolkit/adccl
 
     Alternatively for jupyter lab, you can:
 
         # Enable permissions (only once)
-        chmod 777 adccl-jupyter
+        chmod 777 ./ad4e-opentoolkit/adccl-jupyter
 
         # Launch
         .
-        ./adccl-jupyter
+        ./ad4e-opentoolkit/adccl-jupyter
 
     <br>
       
@@ -71,7 +72,7 @@ _Note: if you're on Mac, please use `pip3` and `python3` instead of `pip` and `p
 -   **Running as a Bash Command**<br>
     To run any commands as a bash command, make sure to prepend any quotes with `\`.
 
-        ./adccl show molecules using file \'base_molecules.sdf\'
+        ./ad4e-opentoolkit/adccl show molecules using file \'base_molecules.sdf\'
 
 -   **Working with Notebooks**
 
