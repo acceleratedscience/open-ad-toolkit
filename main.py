@@ -92,7 +92,9 @@ class run_cmd(Cmd):
         self.settings['paths'][workspace.upper()] = str
 
     # Initialises the Class for Run command
-    def __init__(self, completekey='Tab'):
+    def __init__(self, completekey='Tab',notebook=False,api=False):
+        self.notebook_mode=notebook
+        self.api_mode=api
         super().__init__()
         if sys.platform == 'darwin':
             if 'libedit' in readline.__doc__:
@@ -104,18 +106,23 @@ class run_cmd(Cmd):
         self.settings = load_registry(self, orig_reg=True)
         self.original_settings = load_registry(self, orig_reg=True)
         write_registry(self.settings, self)
+        
         self.prompt = refresh_prompt(self.settings)
+        
         if self.settings['context'] in self.settings['toolkits']:
             ok, toolkit_current = load_toolkit(self.settings['context'])
             if ok:
                 self.toolkit_current = toolkit_current
                 create_statements(self)
+        
         self.login_settings = login_manager.load_login_registry()
+        
         if self.settings['workspace'] is not None:
             self.histfile = os.path.expanduser(self.workspace_path(self.settings['workspace'].upper()) + '/.cmd_history')
+        
         if self.settings['context'] is not None:
             login_manager.load_login_api(self, self.settings['context'])
-       
+        
         try:
           if self.settings['env_vars']['refresh_help_ai']==True:
             self.refresh_vector=True
@@ -130,7 +137,7 @@ class run_cmd(Cmd):
             #print(e)
             #print("failed to load service llm")
             pass
-       
+        
         output_train_statements(self)
 
 
@@ -491,6 +498,7 @@ class run_cmd(Cmd):
             return x
         elif self.api_mode==False:
             if x not in (True,False,None):    
+                
                 print(x)
             else:
                 return
@@ -512,8 +520,9 @@ def api_remote(inp: str, connection_cache: dict = _meta_login_registry, api_cont
     arguments = inp.split()
     inp = ''
     a_space = ''
-    magic_prompt = run_cmd()
-
+    
+    magic_prompt = run_cmd(notebook=True)
+    
     connection_cache = magic_prompt.login_settings
     magic_prompt.notebook_mode = True
     if api_context['workspace'] is None:
@@ -527,7 +536,7 @@ def api_remote(inp: str, connection_cache: dict = _meta_login_registry, api_cont
     else:
         x = {'toolkit_name': api_context['toolkit']}
         set_context(magic_prompt, x)
-
+        
     magic_prompt.api_variables = api_var_list
     try:
         readline.read_history_file(magic_prompt.histfile)
@@ -588,6 +597,7 @@ if __name__ == "__main__":
             command_line.do_help(inp.strip())
         elif words[0].lower() == '-s':
             for i in words:
+                
                 print(i)
             set_workspace(command_line, {'Workspace_Name': words[1].upper()})
             set_context(command_line, {'toolkit_name': words[2].upper()})
