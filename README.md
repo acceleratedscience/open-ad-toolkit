@@ -76,7 +76,7 @@ https://platform.openai.com
         # Launch
         .
         ./ad4e-opentoolkit/adccl-jupyter
-
+    NOTE: by launching jupyter this way it will automatically launch the trial notebooks.
     <br>
       
     ![Landing](readme/screenshot-landing.png)
