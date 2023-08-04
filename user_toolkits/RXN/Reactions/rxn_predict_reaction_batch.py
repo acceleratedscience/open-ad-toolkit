@@ -26,30 +26,56 @@ def get_include_lib(cmd_pointer):
 
 
 def predict_reaction_batch(inputs: dict, toolkit_dir, cmd_pointer):
+    
+   
     if cmd_pointer.notebook_mode == True:
         import IPython
         from halo import HaloNotebook as Halo
     else:
         from halo import Halo
+    
+    rxn_helper=get_include_lib(cmd_pointer)
+    rxn_helper.sync_up_workspace_name(cmd_pointer)
 
-
+    name,id = rxn_helper.get_current_project(cmd_pointer)
+    if cmd_pointer.notebook_mode == True:
+        from IPython.display import display,Markdown
+    if name == None and cmd_pointer.api_mode==False:
+        if cmd_pointer.notebook_mode==True:
+            
+            display(Markdown(" No current RXN project selected ,`set rxn project <project name>` to set your project before proceeding."))
+            display(Markdown("Select from the Below Projects or create a new."))
+            display(rxn_helper.get_all_projects(cmd_pointer)[['name','description']])
+        else:
+            print(" No current RXN project selected ,`set rxn project <project name>` to set your project before proceeding. ")
+            print(" Select from the Below Projects or create a new.")
+            print(rxn_helper.get_all_projects(cmd_pointer)[['name','description']])
+        return False
+    
+ 
     class Spinner(Halo):
         def __init__(self):
             # Alternative spinners:
             # simpleDotsScrolling, interval=100
             super().__init__(spinner='dots', color='white')
+   
     
-    val='val'
     if 'from_list' not in inputs['from_source'][0]:
         print('lists are the only source type implemented current, dataframe and file are soon to be implemented')
         return True
-    if cmd_pointer.notebook_mode == True:
-        from IPython.display import display,Markdown
-    newspin =Spinner()
-    newspin.start("Starting Prediction")
+    else:
+        from_list= inputs['from_source'][0]['from_list']
     
-    rxn_helper = get_include_lib(cmd_pointer)
-    from_list= inputs['from_source'][0]['from_list']
+   
+    
+    
+    newspin =Spinner()
+  
+    newspin.start("Starting Prediction")
+   
+    
+    
+    val='val'
     if "ai_model" in inputs:
         ai_model= inputs['ai_model'][val]
     else:
@@ -75,7 +101,7 @@ def predict_reaction_batch(inputs: dict, toolkit_dir, cmd_pointer):
                 
                 display(Markdown("***Error:*** The following invalid were Smiles Supplied:"))
                 display(df)
-                display(Markdown("***info:*** This rection will be skipped  "+entry+" "))
+                display(Markdown("***info:*** This reaction will be skipped  "+entry+" "))
             else:
                 print("Error: The following invalid were Smiles Supplied:")
                 
@@ -89,7 +115,7 @@ def predict_reaction_batch(inputs: dict, toolkit_dir, cmd_pointer):
         for i in entry.split('.'):
             entry_2.append(Chem.MolToSmiles(Chem.MolFromSmiles(i),canonical=True))
             dot='.'
-
+       
         result = rxn_helper.retrieve_cache(cmd_pointer,entry_2,'predict_batch_Model-'+ai_model)
         
         
@@ -100,6 +126,7 @@ def predict_reaction_batch(inputs: dict, toolkit_dir, cmd_pointer):
             new_from_list.append(entry)    
 
     results_list=[]
+
     for reaction_prediction in cached_results:
         
         source=[]
@@ -107,10 +134,11 @@ def predict_reaction_batch(inputs: dict, toolkit_dir, cmd_pointer):
 
             source.append(i)
         x_y=reaction_prediction['smiles'].split('>>')[1]
-       
+        
         if cmd_pointer.notebook_mode == True:
             from IPython.display import display,Markdown
             display(Markdown('***Saved Result*** '))
+          
             display(rxn_helper.output(f'<success>Smiles:</success> {reaction_prediction["smiles"]}',cmd_pointer))
             sources=''
             for x in source:
@@ -121,6 +149,7 @@ def predict_reaction_batch(inputs: dict, toolkit_dir, cmd_pointer):
             
             display(rxn_helper.output(f'<success>Reaction:</success> '+sources+'    ---->    '+x_y ,cmd_pointer))
             display(rxn_helper.output(f'<success>Confidence:</success> {reaction_prediction["confidence"]}',cmd_pointer))
+        
             display(get_reaction_from_smiles(reaction_prediction['smiles']))
         else:
             results_list.append('CACHED RESULT')
@@ -135,7 +164,6 @@ def predict_reaction_batch(inputs: dict, toolkit_dir, cmd_pointer):
             results_list.append(f'Confidence: {reaction_prediction["confidence"]}')
             results_list.append('____________________________________________________')
     from time import sleep
-  
     if len(new_from_list) > 0:
         from_list=new_from_list
         rxn4chemistry_wrapper = cmd_pointer.login_settings['client'][cmd_pointer.login_settings['toolkits'].index('RXN') ]
@@ -183,7 +211,7 @@ def predict_reaction_batch(inputs: dict, toolkit_dir, cmd_pointer):
         
           
         for reaction_prediction in reaction_predictions['predictions']:
-            
+          
             rxn_helper.save_to_results_cache(cmd_pointer,reaction_prediction['smiles'].split('>>')[0].split('.'),reaction_prediction,'predict_batch_Model-'+ai_model)
             source=[]
             for i in reaction_prediction['smiles'].split(">>")[0].split('.'):

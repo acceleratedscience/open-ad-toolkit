@@ -66,14 +66,27 @@ def collect_reactions_from_retrosynthesis_text(tree: Dict) ->List[str]  :
 
 def predict_retro(inputs: dict, toolkit_dir, cmd_pointer):
     rxn_helper=get_include_lib(cmd_pointer)
-    
+    rxn_helper.sync_up_workspace_name(cmd_pointer)
+    name,id= rxn_helper.get_current_project(cmd_pointer)
+
     if cmd_pointer.notebook_mode == True:
         import IPython
         from halo import HaloNotebook as Halo
     else:
         from halo import Halo
-
     
+    if name == None and cmd_pointer.api_mode==False:
+        if cmd_pointer.notebook_mode==True:
+            from IPython.display import display, Markdown
+            display(Markdown(" No current RXN project selected ,`set rxn project <project name>` to set your project before proceeding."))
+            display(Markdown("Select from the Below Projects or create a new."))
+            display(rxn_helper.get_all_projects(cmd_pointer)[['name','description']])
+        else:
+            print(" No current RXN project selected ,`set rxn project <project name>` to set your project before proceeding. ")
+            print(" Select from the Below Projects or create a new.")
+            print(rxn_helper.get_all_projects(cmd_pointer)[['name','description']])
+        return False
+
     class Spinner(Halo):
         def __init__(self):
             # Alternative spinners:
@@ -106,7 +119,7 @@ def predict_retro(inputs: dict, toolkit_dir, cmd_pointer):
             print("Error: Invalid Smiles Supplied.")
         return False
     
-
+    
     if cmd_pointer.notebook_mode == True:
         import py3Dmol
         style='stick'
@@ -116,7 +129,7 @@ def predict_retro(inputs: dict, toolkit_dir, cmd_pointer):
         AllChem.MMFFOptimizeMolecule(mol, maxIters=200)
         mblock = Chem.MolToMolBlock(mol)
 
-        view = py3Dmol.view(width=400, height=300)
+        view = py3Dmol.view(width=700, height=500)
         view.addModel(mblock, 'mol')
         view.setStyle({style:{}})
         view.zoomTo()
@@ -158,13 +171,17 @@ def predict_retro(inputs: dict, toolkit_dir, cmd_pointer):
    
     rxn4chemistry_wrapper = cmd_pointer.login_settings['client'][cmd_pointer.login_settings['toolkits'].index('RXN') ]
     # Prepare the data query
+    
     from time import sleep
     predict_retro_responses=None
-    try:
-        print('\n')
-        newspin =Spinner()
+    print('\n')
+    newspin =Spinner()
         
-        newspin.start("Starting Retrosynthesis")
+    newspin.start("Starting Retrosynthesis")
+    try:
+        
+              
+        
         retries=0
         status=False
         while retries <10 and status==False:
@@ -176,7 +193,7 @@ def predict_retro(inputs: dict, toolkit_dir, cmd_pointer):
                 
             except Exception as e: 
                 sleep(2)
-                print(str(e))
+                #print(str(e))
                 retries=retries+1
                 if retries >=10:
                     raise BaseException("Server unresponsive: Unable to submit for processing after 10 retires"+str(e))
@@ -218,6 +235,7 @@ def predict_retro(inputs: dict, toolkit_dir, cmd_pointer):
                     raise BaseException("Server unresponsive: Unable to complete processing for prediction id:'"+predict_retro_response['prediction_id']+"'after 20 retires"+str(e))
     except  BaseException as e:
             newspin.fail('Unable to Process')
+            newspin.start()
             newspin.stop()
             raise BaseException("Unable to complete processing "+str(e)    )#print(predict_automatic_retrosynthesis_results)
             
@@ -239,6 +257,8 @@ def predict_retro(inputs: dict, toolkit_dir, cmd_pointer):
         newspin.start()
         newspin.stop()
         results_list=[]
+        
+        #rxn_helper.save_to_results_cache(cmd_pointer,id_list,predict_automatic_retrosynthesis_results,'-predict_RETRO')  
         for index, tree in enumerate(predict_automatic_retrosynthesis_results['retrosynthetic_paths']):
             if cmd_pointer.notebook_mode == True:
                 display(Markdown('***Showing path*** {} ***with confidence*** {}:'.format(index, tree['confidence'])))

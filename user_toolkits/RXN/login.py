@@ -23,7 +23,7 @@ def get_include_lib(cmd_pointer):
     spec = ilu.spec_from_file_location(file, folder)
     rxn = ilu.module_from_spec(spec)
     spec.loader.exec_module(rxn)
-    rxn_helper= rxn.rxn_helper
+    rxn_helper= rxn.rxn_helper()
     return rxn_helper
 
 def reset(cmd_pointer):
@@ -38,7 +38,7 @@ def login(cmd_pointer):
     rxn_helper= get_include_lib(cmd_pointer)
     
    
-    expiry_time=None
+    expiry_time='No Expiry'
 
     if 'RXN' not in cmd_pointer.login_settings['toolkits']:
       
@@ -56,7 +56,45 @@ def login(cmd_pointer):
         from datetime import datetime, timezone
         now = datetime.now(timezone.utc)
         x = cmd_pointer.login_settings['toolkits'].index('RXN')
-     
+        client = cmd_pointer.login_settings['client'][cmd_pointer.login_settings['toolkits'].index('RXN') ]
+        
+        name,id=rxn_helper.get_current_project(cmd_pointer)
+       
+        if name!=cmd_pointer.settings['workspace']:
+            rxn_helper.sync_up_workspace_name(cmd_pointer)
+            #try:
+            #    result =rxn_helper.set_current_project(cmd_pointer,cmd_pointer.settings['workspace'].upper())
+            #except BaseException as e:
+            #    raise BaseException("Unable to set current project due to API issue, check server connections Try Again: "+str(e))    
+            #if result==False:
+            #    try:
+            #        try:
+
+            #            rxn4chemistry_wrapper = cmd_pointer.login_settings['client'][cmd_pointer.login_settings['toolkits'].index('RXN') ]
+            #            x=rxn4chemistry_wrapper.create_project(cmd_pointer.settings['workspace'])
+            #            
+            #            result=True
+            #        except BaseException as e:
+            #            #result=False
+            #            raise BaseException("Unable to create project :"+str(e))
+            #        from time import sleep 
+            #        sleep(3)
+            #        result =rxn_helper.set_current_project(cmd_pointer,cmd_pointer.settings['workspace'])
+            #    except BaseException as e:
+            #            raise BaseException("Unable to set current project due to API issue, check server connections Try Again: "+str(e))
+            #    if cmd_pointer.notebook_mode==True:
+            #        from IPython.display import display, Markdown
+            #        display(Markdown("A new RXN Project has been setup for this Workspace"))
+            #    else:
+            #        print("A new RXN Project has been setup for this Workspace ")
+            #else:
+            #    if cmd_pointer.notebook_mode==True:
+            #        from IPython.display import display, Markdown
+            #        display(Markdown("RXN Project has been set to "+cmd_pointer.settings['workspace']+" for this Workspace"))
+            #    else:
+            #        print("\n RXN Project has been set to "+cmd_pointer.settings['workspace']+" for this Workspace ")
+                
+        
         now = datetime.timestamp(now)
         return True, expiry_time
         #expiry_time = cmd_pointer.login_settings['expiry'][x - 1]
@@ -105,9 +143,51 @@ def login(cmd_pointer):
      
         client=RXN4ChemistryWrapper(api_key= CONFIG_FILE['auth']['api_key'], base_url= CONFIG_FILE['host'])
         
-        client.list_all_projects()
+
+            
         cmd_pointer.login_settings['toolkits_api'][x] = config_blank['auth']['api_key']
         cmd_pointer.login_settings['client'][x] = client
+
+
+        
+        name,id=rxn_helper.get_current_project(cmd_pointer)
+    
+        
+        if name!=cmd_pointer.settings['workspace']:
+            rxn_helper.sync_up_workspace_name(cmd_pointer)
+            #try:
+            #    result =rxn_helper.set_current_project(cmd_pointer,cmd_pointer.settings['workspace'].upper())
+            #except BaseException as e:
+            #    raise BaseException("Unable to set current project due to API issue, check server connections Try Again: "+str(e))    
+            #if result==False:
+            #    try:
+            #        try:
+            #            rxn4chemistry_wrapper = cmd_pointer.login_settings['client'][cmd_pointer.login_settings['toolkits'].index('RXN') ]
+            #            x=rxn4chemistry_wrapper.create_project(cmd_pointer.settings['workspace'])
+            #            
+            
+            #            result=True
+            #        except BaseException as e:
+            #            #result=False
+            #            raise BaseException("Unable to create project :"+str(e))
+            #        from time import sleep 
+            #        sleep(3)
+            #        result =rxn_helper.set_current_project(cmd_pointer,cmd_pointer.settings['workspace'])
+            #    except BaseException as e:
+            #            raise BaseException("Unable to set current project due to API issue, check server connections Try Again: "+str(e))
+            #    if cmd_pointer.notebook_mode==True:
+            #        from IPython.display import display, Markdown
+            #        display(Markdown("A new RXN Project has been setup for this Workspace"))
+            #    else:
+            #        print("A new RXN Project has been setup for this Workspace ")
+            #else:
+            #    if cmd_pointer.notebook_mode==True:
+            #        from IPython.display import display, Markdown
+            #        display(Markdown("RXN Project has been set to "+cmd_pointer.settings['workspace']+" for this Workspace"))
+            #    else:
+            #        print("\n RXN Project has been set to "+cmd_pointer.settings['workspace']+" for this Workspace ")
+          
+        
         
         return True, expiry_time
     except BaseException as err:
@@ -123,5 +203,5 @@ def login(cmd_pointer):
         #     ''
         # )))
 
-        return False, None
+        return False, expiry_time
 

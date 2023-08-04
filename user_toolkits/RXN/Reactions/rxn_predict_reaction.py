@@ -23,14 +23,35 @@ def get_reaction_from_smiles(reaction_smiles: str) -> Chem.rdChemReactions.Chemi
 # https://cps.foc-deepsearch.zurich.ibm.com/projects/1234567890abcdefghijklmnopqrstvwyz123456/library
 
 def predict_reaction(inputs: dict, toolkit_dir, cmd_pointer):
-    
+    rxn_helper=get_include_lib(cmd_pointer)
+    rxn_helper.sync_up_workspace_name(cmd_pointer)
+    name,id = rxn_helper.get_current_project(cmd_pointer)
+    if cmd_pointer.notebook_mode == True:
+        import IPython
+        from halo import HaloNotebook as Halo
+    else:
+        from halo import Halo
+
+    if name == None and cmd_pointer.api_mode==False:
+        if cmd_pointer.notebook_mode==True:
+            from IPython.display import display, Markdown
+            display(Markdown(" No current RXN project selected ,`set rxn project <project name>` to set your project before proceeding."))
+            display(Markdown("Select from the Below Projects or create a new."))
+            display(rxn_helper.get_all_projects(cmd_pointer)[['name','description']])
+        else:
+            print(" No current RXN project selected ,`set rxn project <project name>` to set your project before proceeding. ")
+            print(" Select from the Below Projects or create a new.")
+            print(rxn_helper.get_all_projects(cmd_pointer)[['name','description']])
+        return False
+
+
     rxn4chemistry_wrapper = cmd_pointer.login_settings['client'][cmd_pointer.login_settings['toolkits'].index('RXN') ]
     # Prepare the data query
     rxn_helper = get_include_lib(cmd_pointer) 
     molecule = inputs["molecule"]
     val='val'
     predict_id=None
-    ai_model=None
+    ai_model='2020-08-10'
     if 'prediction_id' in inputs:
        predict_id = inputs["prediction_id"][val]
     if 'ai_model' in inputs:
@@ -38,7 +59,10 @@ def predict_reaction(inputs: dict, toolkit_dir, cmd_pointer):
     if cmd_pointer.notebook_mode == True:
         from IPython.display import display,Markdown
     error_list=[]
-    
+    if 'use_saved'in inputs:
+         use_saved = True
+    else:
+        use_saved=False
     
     
     for i in molecule.split('.'):
@@ -57,10 +81,55 @@ def predict_reaction(inputs: dict, toolkit_dir, cmd_pointer):
             import pandas as pd
             df = pd.DataFrame(error_list,columns=['smiles'])
             print(df)
+    ##################################################################################################################
+    # check for cached reaction
+    entry_2=[]
 
-            
+    for i in molecule.split('.'):
+        entry_2.append(Chem.MolToSmiles(Chem.MolFromSmiles(i),canonical=True))
+        dot='.'
+
+    result = rxn_helper.retrieve_cache(cmd_pointer,entry_2,'predict_Model-'+ai_model)
+    
+    if  result !=False and use_saved==True: 
+        predict_reaction_results=result
+        smiles=predict_reaction_results['response']['payload']['attempts'][0]['smiles']
+    
+        confidence=predict_reaction_results['response']['payload']['attempts'][0]['confidence']
+        x_y=smiles.split('>>')[1]
+        source=[]
         
-
+        if cmd_pointer.notebook_mode == True:
+            from IPython.display import display,Markdown
+            
+            display(Markdown('***Saved Result*** '))
+            
+            display(rxn_helper.output('<success>Smiles:</success>    '+smiles,cmd_pointer ))
+                    
+            sources=''
+            for x in source:
+                if len(sources) > 0:
+                    sources=sources+' + '+x
+                else: 
+                    sources=x
+            
+            display(rxn_helper.output('<success>Reaction:</success> '+sources+'    ---->    '+x_y ,cmd_pointer))
+            display(rxn_helper.output('<success>Confidence:</success> '+str(confidence),cmd_pointer))
+                    
+            return get_reaction_from_smiles(smiles)
+        else:
+            print(f'Smiles: {smiles}')
+            for x in source:
+                if len(sources) > 0:
+                    sources=sources+' + '+x
+                else: 
+                    sources=x
+            print('Reaction: '+sources+'    ---->    '+x_y )
+            print(f'Confidence: {confidence}')
+            print(smiles)
+            return True
+        
+   
     try:
         if predict_id==None and ai_model==None:
             
@@ -108,7 +177,8 @@ def predict_reaction(inputs: dict, toolkit_dir, cmd_pointer):
     smiles=predict_reaction_results['response']['payload']['attempts'][0]['smiles']
     
     confidence=predict_reaction_results['response']['payload']['attempts'][0]['confidence']
-
+    rxn_helper.save_to_results_cache(cmd_pointer,smiles.split('>>')[0].split('.'),predict_reaction_results,'predict_Model-'+ai_model)
+            
     source=[]
     for i in predict_reaction_results['response']['payload']['attempts'][0]['smiles'].split(">>")[0].split('.'):
         source.append(i)

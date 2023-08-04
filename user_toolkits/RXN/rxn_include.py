@@ -43,9 +43,74 @@ an invalid filename.
     return filename
 class rxn_helper():
     import pandas as pd
-    _RXN_VARS_TEMPLATE={'current_project':None,'current_project_id':None,'current_project_decription':None}
+    _RXN_VARS_TEMPLATE={'current_project':None,'current_project_id':None}
     def __init__(self) -> None:
         pass
+    #Creates_the Cache Key
+    def append_project(self,cmd_pointer,project_name,project_id):
+        
+        if not os.path.isdir(cmd_pointer.home_dir+'/RXN_Projects/'):
+            os.mkdir(cmd_pointer.home_dir+'/RXN_Projects/')
+        
+        
+        try:
+            with open(cmd_pointer.home_dir+'/RXN_Projects/rxn_projects.pkl', 'r') as handle:
+                  projects =  json.loads(handle.read())
+                  handle.close()
+            
+        except Exception as e:
+            
+            projects={}
+        
+        projects[project_name]=project_id
+        
+        
+        try:
+            with open(cmd_pointer.home_dir+'/RXN_Projects/rxn_projects.pkl', 'w') as handle:
+                
+                json.dump(dict(projects), handle)
+                handle.close()
+        except Exception as e:
+            #print(e)
+            return False
+        
+        
+        #print("Appending 3")
+        import shutil
+        from datetime import datetime
+        shutil.copyfile(cmd_pointer.home_dir+'/RXN_Projects/rxn_projects.pkl', cmd_pointer.home_dir+'/RXN_Projects/rxn_projects_'+datetime.now().strftime("%Y-%m-%d_%H%M%S")+'.bup')
+        return True
+
+    def get_all_projects(self,cmd_pointer):
+        try:
+            with open(cmd_pointer.home_dir+'/RXN_Projects/rxn_projects.pkl', 'r') as handle:
+                  projects =  json.loads(handle.read())
+                  handle.close()
+        except:
+            projects={}
+
+        return projects
+    
+    def get_project_id(self,cmd_pointer,project_name):
+        
+        try:
+            with open(cmd_pointer.home_dir+'/RXN_Projects/rxn_projects.pkl', 'r') as handle:
+                  projects =  json.loads(handle.read())
+                  handle.close()
+                  result=projects[project_name]
+        except Exception as e:
+            #print(e)
+            
+            result=False
+        
+        return result
+
+
+
+
+
+
+
     def gen_cache_key(self,chem_list:list)->str:
         
         chem_list.sort()
@@ -59,7 +124,7 @@ class rxn_helper():
         key=key
      
         return  key
-    
+    #saves cache_handle
     def save_to_results_cache(self,cmd_pointer,chem_list:str,payload,call_type:str)->bool:
         try:
             self.create_cache(cmd_pointer)
@@ -71,17 +136,18 @@ class rxn_helper():
             with open(payload_file, 'wb') as handle:
                 settings =  pickle.dump(dict(payload), handle)
         except BaseException as e:
-            print('failed to save result')
-            print(e)
+            #print('failed to save result')
+            #print(e)
             return False
         return True
 
-    
+    #creates the Cache directory for results
     def create_cache(self,cmd_pointer):
         if not os.path.isdir(cmd_pointer.toolkit_dir+'/RXN/cache'):
             os.mkdir(cmd_pointer.toolkit_dir+'/RXN/cache')
+            
         
-
+    #retrieves a matching result from the cache
     def retrieve_cache(self,cmd_pointer,chem_list:str,call_type:str):
         import sys
         try:
@@ -98,7 +164,7 @@ class rxn_helper():
             
             
             return False
-        
+    # checks to see if a smiles string is valid   
     def valid_smiles(self,input_molecule)->bool:
         from rdkit import Chem
         m = Chem.MolFromSmiles(input_molecule,sanitize=False)
@@ -111,43 +177,129 @@ class rxn_helper():
                 False
         return True  
     
-
+    # sets the current project
     def set_current_project(self,cmd_pointer,project_name:str)->bool:
-        projects = self.get_all_projects
-        project_id=1
-        project_description=1
-        result = self.validate_project(cmd_pointer,project_name)
+        #projects = self.get_all_projects(cmd_pointer)
+        #project_id=1
+        #project_description=1
+        #result = self.validate_project(cmd_pointer,project_name)
+        result = self.get_project_id(cmd_pointer,project_name)
+        #print("setting project")
+        #print(result)
         if result != False:
             
             rxn_position = cmd_pointer.login_settings['toolkits'].index('RXN')-1
             #cmd_pointer.login_settings['session_vars'][rxn_position]['env_vars']= self._RXN_VARS_TEMPLATE
-            cmd_pointer.login_settings['session_vars'][rxn_position]['current_project']=result['name']
+            cmd_pointer.login_settings['session_vars'][rxn_position]['current_project']=project_name
             
-            cmd_pointer.login_settings['session_vars'][rxn_position]['current_project_id']=result['id']
-            cmd_pointer.login_settings['session_vars'][rxn_position]['current_project_description']=result['description']
-        
+            cmd_pointer.login_settings['session_vars'][rxn_position]['current_project_id']=result
+            #cmd_pointer.login_settings['session_vars'][rxn_position]['current_project_description']=result['description']
+            rxn4chemistry_wrapper = cmd_pointer.login_settings['client'][cmd_pointer.login_settings['toolkits'].index('RXN') ]
+            #print('prj_id')
+            #print(result)
+            rxn4chemistry_wrapper.set_project(result)
             return result
         else:
             return False
+    ### only for function checks not for login.py 
+    def sync_up_workspace_name(self,cmd_pointer):
+        #print("syncing)")
+        name,id=self.get_current_project(cmd_pointer)
+        #print("current_project: "+str(name)+" "+str(id))
+        if name==cmd_pointer.settings['workspace']:
+            return True
+               
+                
+        try:
+            result =self.set_current_project(cmd_pointer,cmd_pointer.settings['workspace'].upper())
+        except BaseException as e:
+            raise BaseException("Unable to set current project due to API issue, check server connections Try Again: "+str(e))
 
+        if result==False:
+            retries=0
+            while retries<5 and result==False:
+                if retries >1:
+                    sleep(3)
+                retries=retries+1
+                import sys
+                #sys.stdout = open(os.devnull, "w")
+                #sys.stderr = open(os.devnull, "w")
+
+                try:
+                    rxn4chemistry_wrapper = cmd_pointer.login_settings['client'][cmd_pointer.login_settings['toolkits'].index('RXN') ]
+                    x=rxn4chemistry_wrapper.create_project(cmd_pointer.settings['workspace'])
+                    #print(x)
+                    if len(x)==0:
+                        #print("continuing")
+                        continue
+                    else:
+                        self.append_project(cmd_pointer,cmd_pointer.settings['workspace'].upper(),x['response']['payload']['id'])
+                    #print('here')
+                except BaseException as e:
+                    #result=False
+                    #sys.stdout = sys.__stdout__
+                    #sys.stderr = sys.__stderr__
+                    raise BaseException("Unable to create project :"+str(e))
+                try:
+                    from time import sleep 
+                    sleep(2)
+                    result =self.set_current_project(cmd_pointer,cmd_pointer.settings['workspace'])
+                    #print(cmd_pointer.settings['workspace'])
+                    #print(result)
+                except BaseException as e:
+                        #sys.stdout = sys.__stdout__
+                        #sys.stderr = sys.__stderr__
+                        raise BaseException("Unable to set current project due to API issue, check server connections Try Again: "+str(e))
+            
+            
+            #sys.stdout = sys.__stdout__
+            #sys.stderr = sys.__stderr__
+            if result==False:
+                if cmd_pointer.notebook_mode==True:
+                    from IPython.display import display, Markdown
+                    display(Markdown("Failed to setup RXN project for this Workspace "))
+                else:
+                    print("Failed to setup RXN project for this Workspace ")
+            
+            else:    
+
+                if cmd_pointer.notebook_mode==True:
+                    from IPython.display import display, Markdown
+                    display(Markdown("A new RXN Project has been setup for this Workspace"))
+                else:
+                    print("A new RXN Project has been setup for this Workspace ")
+        else:
+            if cmd_pointer.notebook_mode==True:
+                from IPython.display import display, Markdown
+                display(Markdown("RXN Project has been set to "+cmd_pointer.settings['workspace']+" for this Workspace"))
+            
+        return True
+                
     def validate_project(self,cmd_pointer,project_name):
-        projects = self.get_all_projects(cmd_pointer)
+        #print("validate_project")
+        #projects = self.get_all_projects(cmd_pointer)
+        projects=self.get_all_projects(cmd_pointer)
+        #print(projects)
         
         if project_name in projects['name'].values:
             result=projects[projects.name == project_name]
-            
-            return {'name':result['name'][:1].item(),'id':result['id'][:1].item(),'description':result['description'][:1].item(),'attempts':result['attempts'][:1].item()}
+            #print(result)
+            return {'name':result['name'],'id':result['id']}
+            #return {'name':result['name'][:1].item(),'id':result['id'][:1].item(),'description':result['description'][:1].item(),'attempts':result['attempts'][:1].item()}
         else:
             return False
 
     def get_current_project(self,cmd_pointer):
+        #print("get_current_project")
         rxn_position = cmd_pointer.login_settings['toolkits'].index('RXN')-1
         try:
-            return cmd_pointer.login_settings['session_vars'][rxn_position]['current_project'],cmd_pointer.login_settings['session_vars'][rxn_position]['current_project_id'],cmd_pointer.login_settings['session_vars'][rxn_position]['current_project_description']
+            return cmd_pointer.login_settings['session_vars'][rxn_position]['current_project'],cmd_pointer.login_settings['session_vars'][rxn_position]['current_project_id']
         except:
-            return None,None,None
-
-    def get_all_projects(self,cmd_pointer) -> pd.DataFrame:
+            return None,None
+    
+    
+    # Note get 
+    def get_all_projects_old(self,cmd_pointer) -> pd.DataFrame:
       
         api_key =  cmd_pointer.login_settings['toolkits_api'][cmd_pointer.login_settings['toolkits'].index('RXN') ]
       
@@ -160,6 +312,7 @@ class rxn_helper():
         while result==False:
             try:
                 x = rxn4chemistry_wrapper.list_all_projects()['response']['payload']['content']
+                #print(x)
                 result=True
             except BaseException as e:
                 retries=retries+1
@@ -172,6 +325,13 @@ class rxn_helper():
 
         df= df[['name','description','id','attempts']]
         return df
+
+
+
+
+
+
+
     def output(self,text, cmd_pointer=None):
         if cmd_pointer.notebook_mode== True:
             from IPython.display import Markdown, display
