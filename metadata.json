@@ -1,11 +1,13 @@
 {
-	"banner": "RXN",
-	"title": "Digital Chemical Synthesis",
-	"author": "IBM Research",
+	"banner": "ADCCL",
+	"title": "Welcome to the IBM Accelerated Discovery CLI",
 	"version": "0.0.1",
-	"intro": "The RXN toolkit helps you predict chemical reactions, retrosynthesis pathways and experimental procedures. You can train AI models with data for specific chemistry domains.",
 	"commands": {
-		"rxn ?": "See what you can do.",
-		"rxn docs": "Read the docs in your browser."
+		"intro": "If this is your first time, let us help you getting started.",
+		"list all toolkits": "See what toolkits are available.",
+		"?": "See what you can do.",
+		"??": "Open advanced help.",
+		"<soft>...</soft> ?": "Get help whenever you get stuck.",
+		"docs": "Read the docs in your browser."
 	}
 }
