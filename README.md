@@ -60,9 +60,30 @@ _Note: if you're on Mac, please use `pip3` and `python3` instead of `pip` and `p
         exit
 
 -   **Installing Toolkits**<br>
-    You can install the `DS4SD`, `GT4SD`, `ST4SD` and `RXN` toolkits, however please note that at this time, they are meant as placeholders and only `DS4SD` supports experimental functionality.
+    You can install the `DS4SD`, `GT4SD`, `ST4SD` and `RXN` toolkits, however please note that at this time, they are meant as placeholders and only `DS4SD` and `RXN` supports experimental functionality.
 
         add toolkit ds4sd
+        add toolkit rxn
+        
+        you will need to obtain login keys for both of these which cn be done at 
+ 
+ For Deep Search, you will need to log onto the Zurich system on the IBM VPN and logon then click the programming icon in the top right corner to get your API key
+        
+        `https://cps.foc-deepsearch.zurich.ibm.com`
+ 
+ ![Screenshot 2023-08-04 at 1 18 05 pm](https://media.github.ibm.com/user/225313/files/637e3cc6-6ae1-4d99-8b3c-294cb259df9e)
+
+       
+For RXN go to your Profile once you have created a logn and click in the top right hand corner to generate API key (profile)
+         `https://rxn.app.accelerate.science/rxn/home`
+        ![Screenshot 2023-08-04 at 1 14 26 pm](https://media.github.ibm.com/user/225313/files/14261abf-5839-4e6a-92f6-1dc6ed9803b7)
+
+
+For the "Tell Me" functionality we currently have OPENAI , you will need to setup an Open AI API account and create and Save a API key
+        
+        ![Screenshot 2023-08-02 at 5 04 29 pm](https://media.github.ibm.com/user/225313/files/3a1a83cc-b07e-4328-9035-e956a45e629d)
+
+        
 
 -   **Running as a Bash Command**<br>
     To run any commands as a bash command, make sure to prepend any quotes with `\`.
@@ -71,10 +92,6 @@ _Note: if you're on Mac, please use `pip3` and `python3` instead of `pip` and `p
 
 -   **Working with Notebooks**
 
-    -   From the installation directory, start Jupyter Lab or jupyter Notebooks:
-
-            jupyter lab
-            jupyter notebook
 
     -   Magic commands are implemented by the adccl.ipynb file and are invoked by the `%adccl` prefix. For example:
 
