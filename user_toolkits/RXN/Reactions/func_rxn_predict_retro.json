@@ -1,0 +1,20 @@
+{
+	"fplugin": "rxn",
+	"command": "predict retrosynthesis",
+	"subject": "predict_retrosynthesis",
+	"SINGLE_PARM": {"molecule": "desc"	},
+	"USING": {"availability_pricing_threshold": "int","available_smiles":"desc","exclude_smiles":"desc","exclude_substructures":"desc","exclude_target_molecule":"str","fap":"number","max_steps":"int","nbeams":"int","pruning_steps":"int","ai_model":"desc"	},
+	"SHOW": [],
+	"ESTIMATE_ONLY": {},
+	"use_saved":"True",
+	"exec_type": "standard_statement",
+	"exec_cmd": "predict retrosynthesis",
+	"help": {
+		"name": "predict retrosynthesis",
+		"category": "Retrosynthesis",
+		"command": "predict retrosynthesis 'product_smiles_string' [USING ( option=<valid_input> option2=<valid_input> )]",
+		"description": " This command performs automatic retro synthesis on a molecule.\n  \n Options for USING Clause are: \n -availability_pricing_threshold={int} maximum price in USD per g/ml of compounds. Default no threshold.\n         -available_smiles={quoted string} list of molecules available as precursors. delimiter '.' \n         -exclude_smiles={quoted string} list of molecules to exclude from the set of precursors. delimiter '.'  \n        -exclude_substructures={str} Substructures to exclude, delimiter '.'\n         -exclude_target_molecule={bool} excluded Target Molecule, default True \n         -fap={float} Every retrosynthetic step is evaluated with the FAP, a step is retained when forward confidence is greater than FAP, default  0.6  \n         -max_steps={int} The Maxi  steps, default is 3 \n         -nbeams={int} The maximum number of beams exploring the hypertree, default 10 \n         -pruning_steps={int} The number of steps to prune a hypertree, default 2 \n         -ai_model={quoted string} default '2020-07-01' \n \n An example command is: \n \" predict retrosynthesis 'BrCCc1cccc2c(Br)c3ccccc3cc12' \" using( max_steps=3 )",
+	"url":{}},
+	"library": "rxn_predict_retro",
+	"method": "predict_retro"
+}
