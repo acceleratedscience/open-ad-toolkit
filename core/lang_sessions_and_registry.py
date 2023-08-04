@@ -116,7 +116,7 @@ def registry_add_toolkit(cmd_pointer, parser):
             target_directory = _meta_dir_toolkits + '/' + toolkit_name.upper()
             try:
                 
-                shutil.rmtree(target_directory+"/",ignore_errors=False)
+                shutil.rmtree(target_directory+"/",ignore_errors=True)
                 
             except Exception as e:
                 print(e)
