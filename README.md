@@ -17,7 +17,7 @@ _Note: if you're on Mac, please use `pip3` and `python3` instead of `pip` and `p
         source ./myenv/bin/activate
 
 1.  **Step 2: Installation**<br>
-    Download [the repository](https://github.ibm.com/Phil-Downey1/adccl) or clone it using ssh:
+    Download [the repository](https://github.ibm.com/Accelerated-Discovery/ad4e-opentoolkit) or clone it using ssh:
 
          git clone git@github.ibm.com:Phil-Downey1/adccl.git
 
