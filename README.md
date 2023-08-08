@@ -19,15 +19,42 @@ _Note: if you're on Mac, please use `pip3` and `python3` instead of `pip` and `p
 1.  **Step 2: Installation**<br>
     Download [the repository](https://github.ibm.com/Accelerated-Discovery/ad4e-opentoolkit) or clone it using ssh:
 
-         git clone git@github.ibm.com:Phil-Downey1/adccl.git
+         `https://github.ibm.com/Accelerated-Discovery/ad4e-opentoolkit.git`
+     
 
     Install the requirements:
 
         pip install -r requirements.txt
 
     If you plan to use it inside Jupyter Notebook of Jupyter Labs:<br>
-    `pip install -r jupyter_requirements.txt` <br>
-     `python3 -m ipykernel --name ./myenv` (Note: you may need to ctrl-z our of this .. related to jupyter issue)<br>
+        `pip install -r ./ad4e-opentoolkit/jupyter_requirements.txt` <br>
+    install ipykernel, which consists of IPython as well <br>
+        `pip install ipykernel` <br>
+    create a kernel that can be used to run notebook commands inside the virtual environment <br>
+        `python -m ipykernel install --user --name=my-env`
+
+##login details for RXN and Deepsearch, if you choose to use the Tell Me unction you will also need to obtain a Openai API account
+deep Search Rep on IBM Network
+
+###DeepSearch
+URL: https://cps.foc-deepsearch.zurich.ibm.com/
+login w3 id
+obtain API key when logged into webpage
+![Screenshot 2023-08-02 at 5 00 05 pm](https://media.github.ibm.com/user/225313/files/76807d43-262c-4ff0-969f-9086b15613ba)
+
+###RXN
+url  https://rxn.app.accelerate.science/rxn/home
+login w3id
+
+obtain API key by clicking the user profile in the top right hand corner
+![Screenshot 2023-08-02 at 5 03 01 pm](https://media.github.ibm.com/user/225313/files/26d30714-f028-4f97-844c-82a434f9e0d8)
+
+
+#OpenAI
+you will need the details from the openai API loging. there is a free 1 monthtrial
+https://platform.openai.com
+
+![Screenshot 2023-08-02 at 5 04 29 pm](https://media.github.ibm.com/user/225313/files/50f34891-dd0f-4650-9548-45631606a0d1)
 
 <br>
 
@@ -36,20 +63,20 @@ _Note: if you're on Mac, please use `pip3` and `python3` instead of `pip` and `p
 -   **Enter the Shell Environment**
 
         # Enable permissions (only once)
-        chmod 777 adccl
+        chmod 777 ./ad4e-opentoolkit/adccl
 
         # Launch
-        ./adccl
+        ./ad4e-opentoolkit/adccl
 
     Alternatively for jupyter lab, you can:
 
         # Enable permissions (only once)
-        chmod 777 adccl-jupyter
+        chmod 777 ./ad4e-opentoolkit/adccl-jupyter
 
         # Launch
         .
-        ./adccl-jupyter
-
+        ./ad4e-opentoolkit/adccl-jupyter
+    NOTE: by launching jupyter this way it will automatically launch the trial notebooks.
     <br>
       
     ![Landing](readme/screenshot-landing.png)
@@ -88,7 +115,7 @@ For the "Tell Me" functionality we currently have OPENAI , you will need to setu
 -   **Running as a Bash Command**<br>
     To run any commands as a bash command, make sure to prepend any quotes with `\`.
 
-        ./adccl show molecules using file \'base_molecules.sdf\'
+        ./ad4e-opentoolkit/adccl show molecules using file \'base_molecules.sdf\'
 
 -   **Working with Notebooks**
 

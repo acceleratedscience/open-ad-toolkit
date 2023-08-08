@@ -64,9 +64,14 @@ class  chat_object( ):
              self.db_dir=db_dir_override    
        
         if self.vector_db == 'FAISS':
-            
-            self.db_handle  =  self.load_FAISS_db(refresh_vector)
-          
+            try:
+                self.db_handle  =  self.load_FAISS_db(refresh_vector)
+                if self.db_handle==False:
+                    
+                    return False
+            except  Exception as e:
+                
+                return False
         else:
             raise Exception(f"the vector db {self.db_handle} is not currently supported")
         
@@ -84,7 +89,8 @@ class  chat_object( ):
         if self.llm_service=='OPENAI' :
             try:
                 embeddings = OpenAIEmbeddings(openai_api_key=self.API_key)
-            except:
+            except Exception as e:
+                print(e)
                 raise Exception("Error: cannot initialise embeddings, check API Key")
         elif self.llm_service=='WATSONX':
             try:
@@ -132,6 +138,7 @@ class  chat_object( ):
         except Exception as e:
             print("error in creating vector database")
             print(e)
+            return False
        
         
         return main_db
@@ -142,14 +149,18 @@ class  chat_object( ):
  
         from langchain.chains import ConversationalRetrievalChain
         from langchain import PromptTemplate, LLMChain
+        
         retriever=self.db_handle.as_retriever()
+        
         if self.llm_service == 'OPENAI':
             try:
 
                 from langchain.chat_models import ChatOpenAI
                
                 model = ChatOpenAI(model_name=self.llm_model,openai_api_key=self.API_key)  # Other options 'ada' 'gpt-3.5-turbo' 'gpt-4',
+                
             except Exception as e:
+                
                 return  "Error Loading OPENAI Model see error Messsage : \n"+e
         elif  self.llm_service == 'WATSONX':
             try:
@@ -187,11 +198,15 @@ class  chat_object( ):
             print(e)
             return 'Fail'
 
-            
-        self.chat_history.append((question, result["answer"]))
-        if len(self.chat_history) > 3:
-         self.chat_history.remove(2)
-        answers=result["answer"]
-            
+        try:            
+            self.chat_history.append((question, result["answer"]))
+            if len(self.chat_history) > 3:
+                try:
+                    self.chat_history.remove(2)
+                except:
+                    pass
+            answers=result["answer"]
+        except  Exception as e:
+            print(e)
         return answers
 
