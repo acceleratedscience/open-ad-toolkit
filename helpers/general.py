@@ -127,7 +127,10 @@ def user_input(cmd_pointer, question):
 
 # Return list of available toolkit names.
 def get_toolkits():
-    folder_path = 'user_toolkits'  # Replace 'foo' with the actual path to the folder
+    import os
+    
+ 
+    folder_path = os.path.dirname(os.path.abspath(__file__))+'/../user_toolkits'  # Replace 'foo' with the actual path to the folder
     toolkit_names = [name.upper() for name in os.listdir(folder_path) if os.path.isdir(os.path.join(folder_path, name))]
     return toolkit_names
 

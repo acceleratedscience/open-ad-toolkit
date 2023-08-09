@@ -33,4 +33,5 @@ _meta_login_registry_settings = {
 # Other
 _all_toolkits = get_toolkits()
 _date_format = '%a %b %d, %G - %R'
-_repo_dir = os.getcwd()  # @Phil the only way I was able to get the repo directory. Feels a bit hacky but it works.
+#_repo_dir = os.getcwd()  # @Phil the only way I was able to get the repo directory. Feels a bit hacky but it works.
+_repo_dir = os.path.dirname(os.path.abspath(__file__))

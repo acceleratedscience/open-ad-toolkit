@@ -145,7 +145,7 @@ def display_mols(cmd_pointer, parser):
         # Spin up Flask server
         from flask import Flask, render_template, send_from_directory, request
         import webbrowser
-        template_dir = os.path.abspath('./flask_html')
+        template_dir = os.path.abspath(cmd_pointer.repo_dir+'/flask_html')
         app = Flask('Molecule Viewer', template_folder=template_dir)
 
         def kill_server():
@@ -167,18 +167,17 @@ def display_mols(cmd_pointer, parser):
             import copy
             m2g_params_copy = copy.deepcopy(m2g_params)
             m2g_instance = the_mols2grid.display(**m2g_params_copy)
-
             return render_template('/molsviewer/index.html', data=m2g_instance.data, available_params=available_params, m2g_params=m2g_params)
 
         # Make main CSS files available.
         @app.route('/css/<path>')
         def send_main_css(path):
-            return send_from_directory('flask_html/css', f'{path}')
+            return send_from_directory(cmd_pointer.repo_dir+'/flask_html/css', f'{path}')
 
         # Make page-specific CSS files available.
         @app.route('/molsviewer/<path>')
         def send_page_css(path):
-            return send_from_directory('flask_html/molsviewer', f'{path}')
+            return send_from_directory(cmd_pointer.repo_dir+'/flask_html/molsviewer', f'{path}')
 
         # Submit
         @app.route('/submit', methods=['POST'])

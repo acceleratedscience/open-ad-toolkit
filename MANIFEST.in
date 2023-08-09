@@ -1,0 +1,3 @@
+recursive-include ./user_toolkits *.py *.png *.sh *.txt *.ipynb *.json
+recursive-include ./notebooks *.py *.png *.sh *.txt *.ipynb *.json
+

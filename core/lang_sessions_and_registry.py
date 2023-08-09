@@ -111,7 +111,7 @@ def registry_add_toolkit(cmd_pointer, parser):
         with open(_meta_registry, 'rb') as handle:
             settings = pickle.loads(handle.read())
         if toolkit_name.upper() not in settings['toolkits']:
-            full_original_directory_name = os.getcwd() + '/user_toolkits/' + toolkit_name.upper() + '/'
+            full_original_directory_name = os.path.dirname(os.path.abspath(__file__)) + '/../user_toolkits/' + toolkit_name.upper() + '/'
             # full_original_directory_name = os.path.dirname(os.path.realpath(sys.argv[0])) + '/user_toolkits/' + toolkit_name.upper() + '/' # Trash
             target_directory = _meta_dir_toolkits + '/' + toolkit_name.upper()
             try:

@@ -28,6 +28,7 @@ from helpers.general import refresh_prompt
 from helpers.splash import splash
 
 # Globals
+from global_var_lib import _repo_dir as _repo_dir
 from global_var_lib import _meta_dir as _meta_dir
 from global_var_lib import _meta_workspaces as _meta_workspaces
 from global_var_lib import _meta_login_registry as _meta_login_registry
@@ -53,6 +54,7 @@ class run_cmd(Cmd):
     IDENTCHARS              = string.ascii_letters + string.digits + '_'
     intro                   = '/'  # This is defined in cmdloop() below.
     home_dir                =_meta_dir
+    repo_dir                =_repo_dir
     current_statements      = statements
     current_statement_defs  = statements_def
     toolkit_dir             =_meta_dir_toolkits
@@ -574,8 +576,7 @@ def api_remote(inp: str, connection_cache: dict = _meta_login_registry, api_cont
 
             return result
 
-
-if __name__ == "__main__":
+def cmd_line():
     initialise()
     inp = ''
     a_space = ''
@@ -628,3 +629,59 @@ if __name__ == "__main__":
                     command_line.do_exit('dummy do not remove')
             except BaseException as err:
                 output_error(msg('err_invalid_cmd', err, split=True), command_line)
+
+    
+if __name__ == "__main__":
+    cmd_line()
+    """initialise()
+    inp = ''
+    a_space = ''
+
+    for i in sys.argv[1:]:
+        inp = inp + a_space + i
+        a_space = ' '
+
+    command_line = run_cmd()
+    # Check for help from a command line request.
+    if len(inp.strip()) > 0:
+        words = inp.split()
+        if inp.split()[0] == '?' or inp.split()[-1] == '?' or inp.strip() == '??':
+            if inp.strip() == '?':
+                inp = ''
+            elif inp.strip() == '??':
+                inp = '?'
+        # if words[0] == '?' or words[-1] == '?':
+            command_line.do_help(inp.strip())
+        elif words[0].lower() == '-s':
+            for i in words:
+                
+                print(i)
+            set_workspace(command_line, {'Workspace_Name': words[1].upper()})
+            set_context(command_line, {'toolkit_name': words[2].upper()})
+            command_line.preloop()
+            command_line.add_history(str(' '.join(words[3:])).strip())
+            command_line.postloop()
+            command_line.default(str(' '.join(words[3:])).strip())
+        else:
+            # if there is a argument and it is not help attemt to run the command
+            # Note, may be possible add code completion here #revisit
+            command_line.preloop()
+            command_line.add_history(inp.strip())
+            command_line.postloop()
+            command_line.default(inp.strip())
+        command_line.do_exit('dummy do not remove')
+    else:
+        # If no argument passed then enter
+        exit = False
+        while exit == False:
+            try:
+                # The cmdloop parameter controls the startup screen, it overrides self.intro.
+                command_line.cmdloop(splash(command_line.settings['context'], command_line, startup=True))
+                exit = True
+            except KeyboardInterrupt:
+                command_line.postloop()
+                if confirm_prompt('Are you sure you wish to exit?'):
+                    exit = True
+                    command_line.do_exit('dummy do not remove')
+            except BaseException as err:
+                output_error(msg('err_invalid_cmd', err, split=True), command_line)"""

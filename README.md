@@ -23,15 +23,20 @@ _Note: if you're on Mac, please use `pip3` and `python3` instead of `pip` and `p
      
 
     Install the requirements:
-
-        pip install -r requirements.txt
+        cd into source directory then run 
+        pip install -e .'
 
     If you plan to use it inside Jupyter Notebook of Jupyter Labs:<br>
-        `pip install -r ./ad4e-opentoolkit/jupyter_requirements.txt` <br>
     install ipykernel, which consists of IPython as well <br>
         `pip install ipykernel` <br>
     create a kernel that can be used to run notebook commands inside the virtual environment <br>
-        `python -m ipykernel install --user --name=my-env`
+        `python -m ipykernel install --user --name=myenv`
+    then you can Have the Magic Commands Loaded by default by copying the magic commands into the ipython startup directory for your created profile using 
+        `cp ./magic/adccl.py ~/.ipython/profile_[name]/startup`
+
+    if you have not created any profiles pr you just want to use the default you can just use the following command.
+        `cp ./magic/adccl.py ~/.ipython/profile_default/startup`
+
 
 ##login details for RXN and Deepsearch, if you choose to use the Tell Me unction you will also need to obtain a Openai API account
 deep Search Rep on IBM Network
@@ -62,20 +67,14 @@ https://platform.openai.com
 
 -   **Enter the Shell Environment**
 
-        # Enable permissions (only once)
-        chmod 777 ./ad4e-opentoolkit/adccl
-
-        # Launch
-        ./ad4e-opentoolkit/adccl
+     Enter 'adccl' from any directory
 
     Alternatively for jupyter lab, you can:
+    run jupyter lab or jupyter notebooks and select a notebook under you virtual environment or from the install directory run
+    
+    `./notebooks/jupyter lab Table_of_Contents.ipynb`
 
-        # Enable permissions (only once)
-        chmod 777 ./ad4e-opentoolkit/adccl-jupyter
 
-        # Launch
-        .
-        ./ad4e-opentoolkit/adccl-jupyter
     NOTE: by launching jupyter this way it will automatically launch the trial notebooks.
     <br>
       

@@ -49,7 +49,7 @@ def load_toolkit_description(cmd_pointer, toolkit_name):
         # we need to be able to access the description before the toolkit is installed.
         # (list all toolkits)
         # desc_file = open(_meta_dir_toolkits + "/" + toolkit_name + "/oneline_desc.txt", "r")
-        desc_file = open(os.getcwd() + '/user_toolkits/' + toolkit_name + "/oneline_desc.txt", "r")
+        desc_file = open(os.path.dirname(os.path.abspath(__file__))+'/../user_toolkits/' + toolkit_name + "/oneline_desc.txt", "r")
         return str(desc_file.readline())
     except BaseException as err:
         return output_error(msg('err_workspace_description'), cmd_pointer, return_val=True)

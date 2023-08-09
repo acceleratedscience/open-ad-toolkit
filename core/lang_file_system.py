@@ -75,7 +75,7 @@ def list_files(cmd_pointer, parser):
 # External path to workspace path
 def import_file(cmd_pointer, parser):
     # Reset working directory as it can have changed.
-    os.chdir(_repo_dir)
+    #os.chdir(_repo_dir)
 
     workspace = cmd_pointer.workspace_path(cmd_pointer.settings['workspace'])
     source_file = parser['source']
@@ -108,7 +108,7 @@ def import_file(cmd_pointer, parser):
 # Workspace path to external path
 def export_file(cmd_pointer, parser):
     # Reset working directory as it can have changed.
-    os.chdir(_repo_dir)
+    #os.chdir(_repo_dir)
 
     workspace = cmd_pointer.workspace_path(cmd_pointer.settings['workspace'])
     source_file = parser['source']
@@ -139,7 +139,7 @@ def export_file(cmd_pointer, parser):
 # Workspace path to workspace name
 def copy_file(cmd_pointer, parser):
     # Reset working directory as it can have changed.
-    os.chdir(_repo_dir)
+    #os.chdir(_repo_dir)
 
     source_file = parser['source']
     source_file_path = cmd_pointer.workspace_path(cmd_pointer.settings['workspace']) + '/' + source_file
