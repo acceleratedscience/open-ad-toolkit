@@ -120,9 +120,10 @@ https://platform.openai.com  <br>
  ![Screenshot 2023-08-04 at 1 18 05 pm](https://media.github.ibm.com/user/225313/files/637e3cc6-6ae1-4d99-8b3c-294cb259df9e)
 
        
-For RXN go to your Profile once you have created a logn and click in the top right hand corner to generate API key (profile)
-         `https://rxn.app.accelerate.science/rxn/home`
-        ![Screenshot 2023-08-04 at 1 14 26 pm](https://media.github.ibm.com/user/225313/files/14261abf-5839-4e6a-92f6-1dc6ed9803b7)
+For RXN go to your Profile once you have created a logn and click in the top right hand corner to generate API key (profile)<br>
+
+        `https://rxn.app.accelerate.science/rxn/home`
+  ![Screenshot 2023-08-04 at 1 14 26 pm](https://media.github.ibm.com/user/225313/files/14261abf-5839-4e6a-92f6-1dc6ed9803b7)
 
 
 For the "Tell Me" functionality we currently have OPENAI, you will need to setup an Open AI API account and create and Save a API key www.openai.com <br>
@@ -139,15 +140,19 @@ For the "Tell Me" functionality we currently have OPENAI, you will need to setup
 
 -   **Working with Notebooks**
 
-
-    -   Magic commands are implemented by the adccl.ipynb file and are invoked by the `%adccl` prefix. For example:
+    -   To Start using the default Notebooks run the following command <br>
+        `jupyter lab ~/ad4e-opentoolkit/notebooks/Table_of_Contents.ipynb` <br>
+       
+    -   Magic commands are implemented by the adccl.py or adccl.ipynb file and are invoked by the `%adccl` prefix. For example:<br>
 
             %adccl list files
-
-    -   Open the table of contents to get an introduction and be taken through step by step how to use the tool.
+        
+        if you use your virtual envrinment kernel , as per above, they and ran the init_magic command the magic commands should be enabled already.<br>
+        
+    -   Open the table of contents to get an introduction and be taken through step by step how to use the tool.<br>
         ![Notebook table of contents](readme/notebook-toc.png)
 
-    -   Play with Deep Search using the magic comands
+    -   Play with Deep Search using the magic comands<br>
         ![Notebook DS4SD](readme/notebook-ds4sd.png)
 
-    -   You can also copy commands from a terminal version and work in your own terminal or the Jupyter Lab built-in Terminal
+    
