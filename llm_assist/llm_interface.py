@@ -60,7 +60,7 @@ def how_do_i(cmd_pointer,parser):
         chat_primer="Responding using Markdown format, Tell me "
         
     else:
-        chat_primer='Tell Me'
+        chat_primer='Tell Me '
     
     if cmd_pointer.notebook_mode==True:
         import IPython.display
