@@ -30,21 +30,21 @@ _Note: if you're on Mac, please use `pip3` and `python3` instead of `pip` and `p
     Install the requirements:<br>
         cd into source directory then run <br>
         `pip install -e   ~/ad4e-opentoolkit/` <br>
-
-    To enter the command Shell simply enter `adccl` from the command line or to run as a  bash command `adccl <ad4e toolkit command>`<br>
+        
+   To enter the command Shell simply enter `adccl` from the command line or to run as a  bash command `adccl <ad4e toolkit command>` <br>
     
-    Use `?` for help from the command line <br>
+   Use `?` for help from the command line <br>
     
     
     
-    If you plan to use it inside Jupyter Notebook of Jupyter Labs:<br>
+   If you plan to use it inside Jupyter Notebook of Jupyter Labs:<br>
     install ipykernel, which consists of IPython as well <br>
         `pip install ipykernel` <br>
         <br>
-    create a kernel that can be used to run notebook commands inside the virtual environment <br>
+    Create a kernel that can be used to run notebook commands inside the virtual environment <br>
         `python -m ipykernel install --user --name=myenv`
     
-    Then you can Have the Magic Commands Loaded by default by copying the magic commands into the ipython startup directory for your created profile using <br>
+   Then you can Have the Magic Commands Loaded by default by copying the magic commands into the ipython startup directory for your created profile using <br>
         `init_magic` <br>
         Or to copy it for use within only chose notebook do the following to copy it to the current directory and run with !run adccl.py to initiate Magic commands <br>
         `init_magic . ` <br>
