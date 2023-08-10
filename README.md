@@ -26,7 +26,7 @@ _Note: if you're on Mac, please use `pip3` and `python3` instead of `pip` and `p
        
        `git clone --branch clean-up-sk-pd git@github.ibm.com:Accelerated-Discovery/ad4e-opentoolkit.git  ~/ad4e-opentoolkit/`<br>
      
- **Step 3: Installation**<br>
+1.  **Step 3: Installation**<br>
     Install the requirements:<br>
         cd into source directory then run <br>
         `pip install -e   ~/ad4e-opentoolkit/` <br>
