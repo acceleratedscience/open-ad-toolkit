@@ -311,7 +311,8 @@ def tags_to_markdown(text: str):
     # We only replace <soft> and <underline> tags
     # when they don't appear inside <cmd> tags.
     text = re.sub(r'(?<!\<cmd\>)<soft>([^<]*)</soft>(?!\</cmd\>)', r'<span style="color: #ccc">\1</span>', text)
-    text = re.sub(r'(?<!\<cmd\>)<underline>([^<]*)<\/underline>(?!\</cmd\>)', r'<span style="text-decoration: underline">\1</span>', text)
+    #editing out below as jupyter lab does not support markdown within code blocks, so this will only work on jupyter notebook legacy not moving forward
+    #text = re.sub(r'(?<!\<cmd\>)<underline>([^<]*)<\/underline>(?!\</cmd\>)', r'<span style="text-decoration: underline">\1</span>', text)
     text = re.sub(r'<h1>(.*?)<\/h1>', r'## \1', text)
     text = re.sub(r'<h2>(.*?)<\/h2>', r'### \1', text)
     text = re.sub(r'<link>(.*?)<\/link>', r'<a target="_blank" href="\1">\1</a>', text)
