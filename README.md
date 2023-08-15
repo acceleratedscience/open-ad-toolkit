@@ -16,27 +16,16 @@ _Note: if you're on Mac, please use `pip3` and `python3` instead of `pip` and `p
        `python -m venv  ./myenv` <br> 
         `source ./myenv/bin/activate` <br>
 
-1.  **Step 2: Download Package**<br>
-    Download [the repository](https://github.ibm.com/Accelerated-Discovery/ad4e-opentoolkit) or clone it using ssh:<br>
-    
-       `rmdir -rf ~/ad4e-opentoolkit` <br>
-       
-       `mkdir ~/ad4e-opentoolkit` <br>
-       Note: we are pulling from a Repository Branch currently <br>
-       
-       `git clone --branch clean-up-sk-pd git@github.ibm.com:Accelerated-Discovery/ad4e-opentoolkit.git  ~/ad4e-opentoolkit/`<br>
-     
-1.  **Step 3: Installation**<br>
+1.  **Step 2: Installation**<br>
     Install the requirements:<br>
-        cd into source directory then run <br>
-        `pip install -e   ~/ad4e-opentoolkit/` <br>
+
+   `pip install   git+ssh://git@github.ibm.com/Accelerated-Discovery/ad4e-opentoolkit.git@clean-up-sk-pd` <br>
         
    To enter the command Shell simply enter `adccl` from the command line or to run as a  bash command `adccl <ad4e toolkit command>` <br>
     
-   Use `?` for help from the command line <br>
+   Use `?` for help from the command line <br><br>
     
-    
-    
+
    If you plan to use it inside Jupyter Notebook of Jupyter Labs:<br>
     install ipykernel, which consists of IPython as well <br>
         `pip install ipykernel` <br>
@@ -50,6 +39,7 @@ _Note: if you're on Mac, please use `pip3` and `python3` instead of `pip` and `p
         `init_magic . ` <br>
         Or to copy it to a ipython custom profile <br>
         `init_magic myprofile`
+    
 
    
 ## Getting access To RXN, DeepSearch and Tell Me founctionality
@@ -88,7 +78,7 @@ https://platform.openai.com  <br>
      Enter 'adccl' from any directory
 
     Alternatively for jupyter lab, you can:
-    run jupyter lab or jupyter notebooks and select a notebook under you virtual environment or from the install directory run<br>
+    run `jupyter lab` or `jupyter notebook` and select a notebook under you virtual environment <br>
 
     
     Make sure the python kernel used is your virtual envrionment kernel, you can select this in the top right hand corner of the browser. <br>
@@ -141,7 +131,9 @@ For the "Tell Me" functionality we currently have OPENAI, you will need to setup
 -   **Working with Notebooks**
 
     -   To Start using the default Notebooks run the following command <br>
-        `jupyter lab ~/ad4e-opentoolkit/notebooks/Table_of_Contents.ipynb` <br>
+        `init_notebooks`. this will create the directory ~/adccl_notebooks for you to work from <br>
+        run the below to start playing ! <br>
+        `jupyter lab ~/adccl_notebooks/Table_of_Contents.ipynb` <br>
        
     -   Magic commands are implemented by the adccl.py or adccl.ipynb file and are invoked by the `%adccl` prefix. For example:<br>
 
