@@ -53,7 +53,7 @@ login w3 id <br>
 to address this you will need to have your VPN available <br>
 obtain API key when logged into webpage <br>
 ![Screenshot 2023-08-02 at 5 00 05 pm](https://media.github.ibm.com/user/225313/files/76807d43-262c-4ff0-969f-9086b15613ba)
-
+<br>Note: to reset login delete the file `~/.adccl/ds-auth.ext-v2.json`<br>
 ### RXN <br>
 for rxn you can sign up to <br>
 url  https://rxn.app.accelerate.science/rxn/home <br>
@@ -61,7 +61,7 @@ login w3id <br>
 
 obtain API key by clicking the user profile in the top right hand corner <br>
 ![Screenshot 2023-08-02 at 5 03 01 pm](https://media.github.ibm.com/user/225313/files/26d30714-f028-4f97-844c-82a434f9e0d8)
-
+<br>Note: to reset login delete the file `~/.adccl/rxn-auth.ext-v2.json`<br>
 
 ### OpenAI
 you will need the details from the openai API loging. there is a free 1 month trial <br>
