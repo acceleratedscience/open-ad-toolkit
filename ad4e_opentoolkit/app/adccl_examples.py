@@ -14,5 +14,5 @@ def adccl_create_examps():
         shutil.copytree(_repo_dir+'/../notebooks', os.path.abspath(os.path.expanduser('~/adccl_notebooks')),dirs_exist_ok=True,symlinks=True)
         
     except Exception as e:
-        print("Error: Unable to copy magic file, desintation may not exist")
+        print("Error: Unable to copy magic file, destination may not exist")
         print(e)
