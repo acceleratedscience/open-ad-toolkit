@@ -29,7 +29,7 @@ def init_magic():
             shutil.copyfile(_repo_dir+'/magic/adccl.py',destination)
             print("Successully copied adccl.py to "+destination)
     except Exception as e:
-        print("Error: Unable to copy magic file, desintation may not exist")
+        print("Error: Unable to copy magic file, destination may not exist")
         print(destination)
         print(e)
     
