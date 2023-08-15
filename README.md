@@ -19,7 +19,7 @@ _Note: if you're on Mac, please use `pip3` and `python3` instead of `pip` and `p
 1.  **Step 2: Installation**<br>
     Install the requirements:<br>
 
-   `pip install   git+ssh://git@github.ibm.com/Accelerated-Discovery/ad4e-opentoolkit.git@clean-up-sk-pd` <br>
+   `pip install   git+ssh://git@github.ibm.com/Accelerated-Discovery/ad4e-opentoolkit.git` <br>
         
    To enter the command Shell simply enter `adccl` from the command line or to run as a  bash command `adccl <ad4e toolkit command>` <br>
     
