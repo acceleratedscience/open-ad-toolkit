@@ -1,3 +1,4 @@
-recursive-include ./user_toolkits *.py *.png *.sh *.txt *.ipynb *.json
-recursive-include ./notebooks *.py *.png *.sh *.txt *.ipynb *.json
 
+global-include *.py *.png *.sh *.txt *.ipynb *.json *.sdf *.csv *.jpg *.gif *.html *.xml *.css
+
+global-exclude *.pyc __pyc__

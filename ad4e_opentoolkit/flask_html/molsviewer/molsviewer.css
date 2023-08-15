@@ -1,0 +1,116 @@
+/**
+ * Header Styling
+ */
+#top {
+	display: flex;
+	flex-direction: row;
+}
+#header {
+	margin-bottom: 40px;
+	flex: 1;
+}
+#header form {
+	margin-top: 20px;
+}
+
+/**
+ * Settings Panel Styling
+ */
+
+#settings {
+	background: rgba(0, 0, 0, 0.05);
+	border-radius: 3px;
+	padding: 20px;
+	margin-bottom: 20px;
+	display: inline-block;
+	user-select: none;
+	flex: 0;
+}
+#settings h3 {
+	height: 40px;
+	line-height: 40px;
+	font-size: 20px;
+	font-weight: 600;
+	margin-bottom: 10px;
+	margin: -10px -20px 0px -20px;
+	padding: 0 20px;
+}
+#settings p {
+	margin-top: 0;
+	margin-bottom: 20px;
+	white-space: nowrap;
+}
+.multiselect-wrap {
+	display: flex;
+	flex-direction: row;
+	gap: 10px;
+	margin-bottom: 20px;
+}
+
+/* Toggle State */
+#settings:not(.show),
+#settings.show + button {
+	display: none;
+}
+
+/* Multiselect */
+.multiselect {
+	display: flex;
+	flex-direction: column;
+}
+.multiselect h4 {
+	font-size: 14px;
+	margin: 0;
+	margin-bottom: 5px;
+}
+.multiselect label {
+	display: block;
+	height: 16px;
+	line-height: 16px;
+	padding: 5px;
+	position: relative;
+	padding-left: 26px;
+	cursor: pointer;
+}
+.multiselect .cb {
+	content: '';
+	display: inline-block;
+	width: 16px;
+	height: 16px;
+	background: #fff;
+	border: 1px solid rgba(0, 0, 0, 0.2);
+	border-radius: 2px;
+	vertical-align: middle;
+	box-sizing: border-box;
+	position: absolute;
+	left: 5px;
+	top: 5px;
+}
+.multiselect input:checked + .cb::after {
+	content: '';
+	display: block;
+	width: 10px;
+	height: 10px;
+	border-radius: 2px;
+	margin: 2px;
+	background: #0f62fe;
+}
+.multiselect input[type='checkbox'] {
+	display: none;
+}
+
+/* Buttons */
+.button-wrap {
+	display: flex;
+	gap: 5px;
+}
+
+/**
+ * Hover states
+ */
+
+@media (hover: hover) {
+	.multiselect label:hover {
+		background: rgba(0, 0, 0, 0.07);
+	}
+}

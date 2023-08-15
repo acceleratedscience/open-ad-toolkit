@@ -1,4 +1,4 @@
-from setuptools import setup, find_packages
+from setuptools import setup, find_packages,find_namespace_packages
 import os
 
 
@@ -7,17 +7,15 @@ import os
         'project': '.',
         'project.submodule': './submodule1',
     }, """
-print (find_packages(where='.'))
-setup(
-    name='adccl',
-    version='0.1.0',
-    packages=find_packages(),
-    package_dir={"": "."},
-    
 
+setup(
+    name='ad4e_opentoolkit',
+    version='0.1.0',
+    #packages=find_packages(),
+    packages=find_namespace_packages(include=['ad4e_opentoolkit.*']),
+ 
     include_package_data=True,
     
-    #include_package_data=True,
     install_requires=[
         'joblib',
         'matplotlib',
@@ -74,7 +72,6 @@ setup(
         'traitlets==5.9.0',
     ],
     
-    entry_points={
-        'console_scripts': ['adccl=main:cmd_line','init_magic=init_magic:init_magic'],},
+    entry_points={'console_scripts': ['adccl=ad4e_opentoolkit.app.main:cmd_line','init_magic=ad4e_opentoolkit.app.init_magic:init_magic','init_examples=ad4e_opentoolkit.app.adccl_examples:adccl_create_examps'],},
 
 )
