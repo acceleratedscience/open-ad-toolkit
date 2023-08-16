@@ -253,7 +253,7 @@ def predict_retro(inputs: dict, toolkit_dir, cmd_pointer):
         raise BaseException ("The following Error message was received while trying to process results:"+str(e))
     i=0
     try:
-        newspin.succeed('Finsihed Processing')
+        newspin.succeed('Finished Processing')
         newspin.start()
         newspin.stop()
         results_list=[]
