@@ -210,7 +210,7 @@ def predict_reaction_batch_topn(inputs: dict, toolkit_dir, cmd_pointer):
                     results_list.append(f'        Product(s) {j}: {product_smiles}, with confidence {confidence}')
             results_list.append('____________________________________________________')
 
-        newspin.succeed('Finsihed Processing')
+        newspin.succeed('Finished Processing')
     newspin.start()
     newspin.stop()        
     if cmd_pointer.notebook_mode != True:
