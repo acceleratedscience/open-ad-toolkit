@@ -127,8 +127,8 @@ class  chat_object( ):
                 for j in self.document_types:
                     loader = DirectoryLoader(i,glob=j,loader_cls=TextLoader)
                     documents = loader.load()
-                    #text_splitter = CharacterTextSplitter(chunk_size=8000, chunk_overlap=0)
-                    text_splitter = CharacterTextSplitter(chunk_size=3000, chunk_overlap=0)
+                    #text_splitter = CharacterTextSplitter(chunk_size=3000, chunk_overlap=0)
+                    text_splitter = CharacterTextSplitter(chunk_size=3000, chunk_overlap=300)
                     docs.extend(text_splitter.split_documents(documents))
            
             main_db = FAISS.from_documents(docs, embeddings)

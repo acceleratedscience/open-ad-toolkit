@@ -77,7 +77,7 @@ def execute_tookit(cmd_pointer, parser):
             return x
         except BaseException as err:
             print(err)
-            print("Function call Failed")
+            print("Function call Failed: Likely Server Unresponsive check above error")
             logging.info('Failure ' + cmd_pointer.toolkit_current.methods[index] + ' From ' + cmd_pointer.toolkit_current.methods_library[index])
             return False
 

@@ -24,13 +24,20 @@ def display_mols(cmd_pointer, parser):
             return output_error(msg('fail_file_doesnt_exist', origin_file), cmd_pointer)
 
         # Invalid origin file type.
-        if origin_file and origin_file.split('.')[-1].lower() not in ['sdf', 'csv']:
+        if origin_file and len(origin_file.strip()) > 0:   
+            if origin_file.split('.')[-1].lower() not in ['sdf', 'csv']:
+                return output_error(msg('invalid_file_format', 'sdf', 'csv', split=True), cmd_pointer)
+        else:
             return output_error(msg('invalid_file_format', 'sdf', 'csv', split=True), cmd_pointer)
 
-        # Invalid destination file type.
-        if results_file and results_file.split('.')[-1].lower() not in ['sdf', 'csv']:
-            return output_error(msg('invalid_file_format_target', 'sdf', 'csv', split=True), cmd_pointer)
 
+        # Invalid destination file type.
+        if results_file != None:
+            if results_file and len(results_file.strip()) > 0:  
+                if results_file and results_file.split('.')[-1].lower() not in ['sdf', 'csv']:
+                    return output_error(msg('invalid_file_format_target', 'sdf', 'csv', split=True), cmd_pointer)
+            else:
+                return output_error(msg('invalid_file_format_target', 'sdf', 'csv', split=True), cmd_pointer)
     # Parameters used to initialize our instance.
     # Used with mols2grid.MolGrid()
     # https://mols2grid.readthedocs.io/en/latest/api/molgrid.html#molgrid-object

@@ -470,8 +470,9 @@ if is_notebook_mode():
     grammar_help.append(adccl_help.help_dict_create(
         name="show molecules",
         category='GUI',
-        command="show molecules using file <mols_file> [ save as '<sdf_or_csv_file>' ]",
-        description='Display a molecule selection grid inside Jypyter Notebooks or Jupyter Lab.'))
+        command="show molecules using file <mols_file> [  as molsobject ]",
+        description='This command shows 1 or more Molecules in selection grid using a dataset containing smiles molecule strings. It display a molecule selection grid inside Jypyter Notebooks or Jupyter Lab. \n example command:  "show molecules using dataframe mydata_frame as molsobject "  '
+    ))
 
     # Show molecules using dataframe.
     statements.append(Forward(show('show') + molecules + using + CaselessKeyword('dataframe') + Word(alphas, alphanums + "_")('in_dataframe') +
@@ -479,10 +480,9 @@ if is_notebook_mode():
     grammar_help.append(adccl_help.help_dict_create(
         name="show molecules",
         category='GUI',
-        command="show molecules using dataframe <dataframe> [ save as '<sdf_or_csv_file>' ]",
-        description='Display a molecule selection grid inside Jypyter Notebooks or Jupyter Lab.'
+        command="show molecules using dataframe <dataframe> [  as molsobject ]",
+        description='This command shows 1 or more Molecules in selection grid using a dataset containing smiles molecule strings. It display a molecule selection grid inside Jypyter Notebooks or Jupyter Lab. \n example command:  "show molecules using file \'base_molecules.sdf\' as molsobject "'
     ))
-
 else:
     # CLI
 
@@ -493,12 +493,12 @@ else:
         name="show molecules",
         category='GUI',
         command="show molecules using file '<mols_file>' [ save as '<sdf_or_csv_file>' ]",
-        description='''This command displays a smiles selection grid via browser when run from a command line and only accepts files of type .sdf or .csv. 
+        description='''This command shows 1 or more Molecules in selection grid using a dataset containing smiles molecule strings. It is displayed via browser when run from a command line and only accepts files of type .sdf or .csv. 
         Input files may only be of .type sdf or .csv and you can only save files as .sdf or .csv types. 
         Files referenced are from your local workspace, it does not support referencing files outside your workspace. If you wish to move a file into your workspace see the import command.
-        Example usage:
-               - show molecules using file 'my_molecules.sdf'
-               - show molecules using file 'my_molecules.sdf' Save as 'selection.csv' 
+        Examples:
+               - "show molecules using file 'my_molecules.sdf'"
+               - "show molecules using file 'my_molecules.sdf' Save as 'selection.csv' "
         
         Alternatively when run in jupyter notebooks can accept a dataframe. See help when in Notebooks for details. '''
     ))
@@ -882,7 +882,7 @@ def output_train_statements(cmd_pointer):
             run: list of sequential commands saved by the user') 
             ?: will display help and if positioned prior to a command will display help options for that command \n\n""")
             
-    file.write('The following dictionaries are the Domain Specific Language (DSL) commands available in the base adccl client.\n  The users Domain Specific Language commands will be interpreted from these command defintions which the application trainslates into the Domain specific Language (DSL) .. \n')
+    file.write('The following dictionaries are the Domain Specific Language (DSL) commands available in the base adccl client.\n  The users Domain Specific Language commands will be interpreted from these command definitions which the application trainslates into the Domain specific Language (DSL) .. for reference \n command_name : is the name of the command\n command_group : is the toolkit group the command belongs to, command_syntax : is the Syntax description for the command \n command_help : is the associated help instructions and examples on how to use the command.  \n')
     for i in training_statements:
         file.write(str(i)+'\n')
     file.close()
@@ -895,7 +895,7 @@ def output_train_statements(cmd_pointer):
           file.write('This file represents the description of the '+a_toolkit.toolkit_name+' \n\n')
           
           file.write('this is the description of the overall capability of the '+a_toolkit.toolkit_name+' \n \n')
-          file.write('The following are the  command definitions for the '+a_toolkit.toolkit_name+' toolkit with their  command defintion and description \n '+str(a_toolkit.toolkit_description)+' \n When displaying an answer  always interpret the command specified  \n')
+          file.write('The following are the  command definitions for the '+a_toolkit.toolkit_name+' toolkit with their  command definition and description \n '+str(a_toolkit.toolkit_description)+' \n When displaying an answer always interpret the command specified  \n')
           
           x=0
           while x < len(a_toolkit.methods):

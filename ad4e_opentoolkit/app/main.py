@@ -310,10 +310,12 @@ class run_cmd(Cmd):
 
                     yy = x.split(",")[0].split("'")[1]
                     readline.insert_text(yy[len(orig_word):])
+                    #readline.redisplay()
+
                     readline.insert_text(" ")
                     readline.redisplay()
 
-                    return
+                    return '' 
         for i in test_list:
             if error_col_grabber(str(i)) < best_fit:
                 continue
@@ -327,12 +329,14 @@ class run_cmd(Cmd):
 
                     if str(str(i[1]).split(",")[0].split("Keyword")[1].split("'")[1]).strip().upper() == str(
                             i[0] + x.split(',')[0].split("Keyword")[1].split("'")[1]).strip().upper():
-
+                        
                         readline.insert_text(x.split(',')[0].split("Keyword")[1].split("'")[1].strip())
+                        #readline.redisplay()
+
                         readline.insert_text(" ")
                         readline.redisplay()
 
-                        return
+                        return ''
                     continue
 
                 # print(x)
@@ -350,12 +354,17 @@ class run_cmd(Cmd):
                     spacing = ""
                     if len(orig_line) == len(i[0]):
                         spacing = " "
-
+                   
+                    if error_col_grabber(x)-1 < len(orig_line):
+                        if  len(orig_line[error_col_grabber(x)-1:len(orig_line)].strip())> 0:
+                            return []
                     readline.insert_text(spacing + x.split(',')[0].split("Keyword")[1].split("'")[1].strip())
+                    #readline.redisplay()
+
                     readline.insert_text(" ")
                     readline.redisplay()
 
-                    return
+                    return ''
 
         for i in test_list:
             if error_col_grabber(str(i)) < best_fit:
@@ -376,7 +385,7 @@ class run_cmd(Cmd):
 
                     readline.redisplay()
 
-                    return
+                    return ''
                 if x.split(',')[0].find("Expected string enclosed in '\"'"):
                     # print('here')
                     # print(x)
@@ -384,7 +393,7 @@ class run_cmd(Cmd):
                     readline.insert_text("'")
                     readline.redisplay()
 
-                    return
+                    return ''
                 else:
                     pass
                     # xx=x[x.find("{")+1:x.find('}')].split('|')
@@ -459,6 +468,7 @@ class run_cmd(Cmd):
                             if error_col < error_col_grabber(x):
                                 error_descriptor = x.replace("CaselessKeyword", "keyword").replace("ParseException:", "Syntax Error:: ")
                                 error_col = error_col_grabber(x)
+                                
                         elif x.find("found end of text") > -1 and x.find('at char 0') == -1:
                             if error_col < error_col_grabber(x):
                                 error_descriptor = x.replace("ParseException:", "Syntax Error:: ")
@@ -483,16 +493,28 @@ class run_cmd(Cmd):
                     error_msg=error_descriptor.split("Syntax")[0]
                     if self.notebook_mode is True:
                         from IPython.display import display
-                        display(output_error(msg('err_invalid_cmd', error_msg, split=True),return_val=True, cmd_pointer=self))
-                        display(output_text("Perhaps you could try one of the following:",return_val=True,cmd_pointer=self))
-                        display(self.do_help(inp[0:error_col_grabber(error_descriptor)-1]+' ?'))
+                        if error_col_grabber(error_descriptor) == 1:
+                            display(output_error(msg('err_invalid_cmd', error_msg.split('Parse')[0], split=True),return_val=True, cmd_pointer=self))
+                            display(output_text("Perhaps you could try one of the following:",return_val=True,cmd_pointer=self))
+                            display(self.do_help(error_first_word_grabber(error_descriptor)+' ?'))
+                        else:
+                            display(output_error(msg('err_invalid_cmd', error_msg, split=True),return_val=True, cmd_pointer=self))
+                            display(output_text("Perhaps you could try one of the following:",return_val=True,cmd_pointer=self))
+                            display(self.do_help(inp[0:error_col_grabber(error_descriptor)-1]+' ?'))
                         return output_text("If there is not an option that meets your requirement type '?' to list all command options",return_val=True,cmd_pointer=self)
                         
                     else:
                         
-                        output_error(msg('err_invalid_cmd', error_msg, split=True), self)
-                        output_text("Perhaps you could try one of the following:",self)
-                        self.do_help(inp[0:error_col_grabber(error_descriptor)-1]+' ?')
+                        
+                        if error_col_grabber(error_descriptor) == 1:
+                            output_error(msg('err_invalid_cmd', error_msg.split('Parse')[0], split=True), self)
+                            output_text("Perhaps you could try one of the following:",self)
+                            self.do_help(error_first_word_grabber(error_descriptor)+' ?')
+                        else:
+                            output_error(msg('err_invalid_cmd', error_msg, split=True), self)
+                            output_text("Perhaps you could try one of the following:",self)                     
+                            self.do_help(inp[0:error_col_grabber(error_descriptor)-1]+' ?')
+                        
                         output_text("If there is not an option that meets your requirement type '?' to list all command options",return_val=True,cmd_pointer=self)
                 return False
 
@@ -519,6 +541,11 @@ def error_col_grabber(error):
     e = error.split('col:')[1]
     e1 = e.replace(')', '')
     return int(e1)
+
+def error_first_word_grabber(error):
+    word = error.split('found ')[1].split("'")[1]
+   
+    return str(word)
 
 
 # Main execution application

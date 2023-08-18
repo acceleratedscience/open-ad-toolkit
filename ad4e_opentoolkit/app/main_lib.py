@@ -112,7 +112,7 @@ def lang_parse(cmd_pointer, parser):
 
     # File system commands
     elif parser.getName() == 'list_files':
-        print(111)
+    
         return list_files(cmd_pointer, parser)
     elif parser.getName() == 'import_file':
         return import_file(cmd_pointer, parser)
