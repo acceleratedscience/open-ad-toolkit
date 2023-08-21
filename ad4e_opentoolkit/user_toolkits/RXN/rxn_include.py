@@ -47,6 +47,21 @@ class rxn_helper():
     def __init__(self) -> None:
         pass
     #Creates_the Cache Key
+    def get_dataframe_from_file(self,cmd_pointer,filename):
+        import pandas
+        if not os.path.isfile(cmd_pointer.workspace_path(cmd_pointer.settings['workspace'].upper()) + "/"+filename):
+            raise BaseException("file does not exist")
+        else:
+            df = pandas.read_csv(cmd_pointer.workspace_path(cmd_pointer.settings['workspace'].upper()) + "/"+filename)
+        return df
+    
+    def get_column_as_list_from_dataframe(self,a_dataframe,column_name)->list:
+        import pandas
+        if column_name in a_dataframe:
+            return a_dataframe[column_name].tolist()
+        else:
+            return []
+
     def append_project(self,cmd_pointer,project_name,project_id):
         
         if not os.path.isdir(cmd_pointer.home_dir+'/RXN_Projects/'):

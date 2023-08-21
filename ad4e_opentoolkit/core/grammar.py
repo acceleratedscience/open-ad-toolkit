@@ -504,12 +504,12 @@ else:
     ))
 
     # Edit config file.
-    statements.append(Forward(CaselessKeyword('edit') + CaselessKeyword('config') + desc('json_file'))('edit_config'))
+    statements.append(Forward(CaselessKeyword('edit') + CaselessKeyword('config') + desc('json_file')+Optional(CaselessKeyword('template')+desc('template')))('edit_config'))
     grammar_help.append(adccl_help.help_dict_create(
         name="edit config",
         category='General',
-        command="edit config '<json_config_file>'",
-        description='edits a config card in a workspace'
+        command="edit config '<json_config_file>' [template '<template_file>']",
+        description='edits a config card in a workspace, if template specified will use template. All files assumed to be in the current workspace directory.'
     ))
 
 # endregion

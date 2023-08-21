@@ -5,7 +5,7 @@
 # __all__ = ['edit_json']  # set the default export of the module
 
 
-#import sys
-#from .edit_json import EditJson
+import sys
+from .edit_json import EditJson
 
-#sys.modules[__name__] = EditJson()
+sys.modules[__name__] = EditJson()

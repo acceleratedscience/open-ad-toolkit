@@ -72,11 +72,32 @@ def predict_reaction_batch_topn(inputs: dict, toolkit_dir, cmd_pointer):
         ai_model="2020-08-10"
 
     rxn_helper = get_include_lib(cmd_pointer)
-    if 'from_list' not in inputs['from_source'][0]:
-        print('lists are the only source type implemented current, dataframe and file are soon to be implemented')
-        return True
+    ###################################################################################################
+   # getting our input source for the reactions
     
-    from_list= inputs['from_source'][0]['from_list']
+    if 'from_list'  in inputs['from_source'][0]:
+        from_list= inputs['from_source'][0]['from_list']
+    elif 'from_dataframe' in inputs:
+        try:
+            react_frame = cmd_pointer.api_variables[inputs['from_dataframe']]
+            from_list=rxn_helper.get_column_as_list_from_dataframe(react_frame,'reactions')
+            if from_list == []:
+                raise BaseException
+        except BaseException as err:
+           print ("Could not load valid list from dataframe column 'reactions' ")
+           return True
+    elif 'from_file' in inputs:
+        from_file= inputs['from_file']
+        try:
+            react_frame = rxn_helper.get_dataframe_from_file(cmd_pointer,from_file)
+        
+            from_list=rxn_helper.get_column_as_list_from_dataframe(react_frame,'reactions')
+            if from_list == []:
+                raise BaseException
+        except BaseException as err:
+           
+           print ("Could not load valid list from file column 'reactions' ")
+           return True
     
     #print(inputs['use_saved'])
     if 'use_saved'in inputs:

@@ -20,9 +20,12 @@ def reset(cmd_pointer):
 
 def login(cmd_pointer):
     # {'toolkits':[],'toolkits_details':{},'toolkits_api':[]}
-    import jwt
+    
     import time
-   
+    if not os.path.isfile(os.path.expanduser(cmd_pointer.home_dir) + "/rxn-auth.ext-v2.json"):
+        login_reset = True
+    else:
+        login_reset= False
     if 'DS4SD' not in cmd_pointer.login_settings['toolkits']:
         cmd_pointer.login_settings['toolkits'].append('DS4SD')
         cmd_pointer.login_settings['toolkits_details'].append({"type": "config_file", "session": "handle"})
@@ -30,7 +33,7 @@ def login(cmd_pointer):
         cmd_pointer.login_settings['client'].append(None)
         cmd_pointer.login_settings['expiry'].append(None)
         x = cmd_pointer.login_settings['toolkits'].index('DS4SD')
-    else:
+    elif login_reset==False:
         import datetime
         from datetime import datetime, timezone
         now = datetime.now(timezone.utc)
@@ -77,7 +80,7 @@ def login(cmd_pointer):
         print('config file generated.')
     try:
         CONFIG_FILE = Path(os.path.expanduser(cmd_pointer.home_dir) + "/ds-auth.ext-v2.json")
-
+        x = cmd_pointer.login_settings['toolkits'].index('DS4SD')
         config = ds.DeepSearchConfig.parse_file(CONFIG_FILE)
 
         client = ds.CpsApiClient(config)

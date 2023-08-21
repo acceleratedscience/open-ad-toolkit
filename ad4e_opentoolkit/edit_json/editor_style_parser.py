@@ -36,7 +36,7 @@ To do:
 from collections import deque
 import textwrap
 import re
-print('\x1b[33mYou are using the included temp_lib version of style_parser.\x1b[0m')
+#print('\x1b[33mYou are using the included temp_lib version of style_parser.\x1b[0m')
 
 # Style tags.
 # - - -

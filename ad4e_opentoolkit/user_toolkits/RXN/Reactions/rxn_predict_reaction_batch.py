@@ -20,9 +20,6 @@ def get_include_lib(cmd_pointer):
     rxn_helper= rxn.rxn_helper()
     return rxn_helper
 
-# login
-
-# https://cps.foc-deepsearch.zurich.ibm.com/projects/1234567890abcdefghijklmnopqrstvwyz123456/library
 
 
 def predict_reaction_batch(inputs: dict, toolkit_dir, cmd_pointer):
@@ -58,22 +55,40 @@ def predict_reaction_batch(inputs: dict, toolkit_dir, cmd_pointer):
             # Alternative spinners:
             # simpleDotsScrolling, interval=100
             super().__init__(spinner='dots', color='white')
-   
+   ###################################################################################################
+   # getting our input source for the reactions
     
-    if 'from_list' not in inputs['from_source'][0]:
-        print('lists are the only source type implemented current, dataframe and file are soon to be implemented')
-        return True
-    else:
+    if 'from_list'  in inputs['from_source'][0]:
         from_list= inputs['from_source'][0]['from_list']
+    elif 'from_dataframe' in inputs:
+        try:
+            react_frame = cmd_pointer.api_variables[inputs['from_dataframe']]
+            from_list=rxn_helper.get_column_as_list_from_dataframe(react_frame,'reactions')
+            if from_list == []:
+                raise BaseException
+        except BaseException as err:
+           print ("Could not load valid list from dataframe column 'reactions' ")
+           return True
+    elif 'from_file' in inputs:
+        from_file= inputs['from_file']
+        try:
+            react_frame = rxn_helper.get_dataframe_from_file(cmd_pointer,from_file)
+            
+            from_list=rxn_helper.get_column_as_list_from_dataframe(react_frame,'reactions')
+            if from_list == []:
+                raise BaseException
+        except BaseException as err:
+           
+           print ("Could not load valid list from file column 'reactions' ")
+           return True
     
-   
     
     
     newspin =Spinner()
   
     newspin.start("Starting Prediction")
    
-    
+    ### setting up default values... note to put into json metdata file in future
     
     val='val'
     if "ai_model" in inputs:

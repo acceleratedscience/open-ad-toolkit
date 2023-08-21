@@ -2,7 +2,7 @@
 
 Accelerated Discovery Common Client<br>
 
-_Note: if you're on Mac, please use `pip3` and `python3` instead of `pip` and `python` respectively._
+_Note: if you're on Mac and not installing into a virtual environment you may need use `pip3` and `python3` instead of `pip` and `python` respectively._
 
 <br>
 
@@ -39,6 +39,8 @@ _Note: if you're on Mac, please use `pip3` and `python3` instead of `pip` and `p
         `init_magic . ` <br>
         Or to copy it to a ipython custom profile <br>
         `init_magic myprofile`
+        
+        **Note:** if you do not run this command you will need to run it he init_examples and use `init_examples` command and retrieve the file  `~/adccl_notebooks/adccl.ipynb` and executer it in each notebook you run with `!run adccl.ipynb` to activate the magic commands.
     
 
    

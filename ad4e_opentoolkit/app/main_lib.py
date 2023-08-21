@@ -443,14 +443,36 @@ def display_data(cmd_pointer, parser):
 
 
 def edit_card(cmd_pointer, parser):
+    from time import sleep
+    print("###   Please Note this is in sample implementation only and requires Templates to be included ###")
+    sleep(2)
     if cmd_pointer.notebook_mode == True:
         print('Json Editor only available from command line')
         return True
-    import  ad4e_opentoolkit.edit_json.edit_json as edit_json
+    template=None
+    if 'template' in parser.as_dict():
+        template = cmd_pointer.workspace_path(
+        cmd_pointer.settings['workspace'].upper()) + '/' + parser.as_dict()['template']
+        if not os.path.isfile(template):
+            return output_error(msg('fail_file_doesnt_exist', template), cmd_pointer)
+    import    ad4e_opentoolkit.edit_json as editor
+    
     file_to_edit = cmd_pointer.workspace_path(
         cmd_pointer.settings['workspace'].upper()) + '/' + parser.as_dict()['json_file']
+    #editor = EditJson()
+    #edit_json(file_to_edit, template, new=True, title="JSON Editor Preview")
     if not os.path.isfile(file_to_edit):
-        print('file does not exist')
-        return False
-    edit_json(file_to_edit)
+        
+        if template == None:
+            #editor(file_to_edit)
+            print("currently a scehma is required to run against a new json file")
+        else:
+            editor(file_to_edit,template,new=True,title="JSON Editor Preview")
+    else:
+        
+        if template == None:
+            editor(file_to_edit)
+            #print("currently a scehma is required to run")
+        else:
+            editor(file_to_edit,template,title="JSON Editor Preview")
     return True
