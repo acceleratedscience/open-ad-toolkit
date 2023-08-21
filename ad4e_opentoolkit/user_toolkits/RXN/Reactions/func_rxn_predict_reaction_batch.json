@@ -1,0 +1,24 @@
+{
+	"fplugin": "rxn",
+	"command": "predict reaction in batch",
+	"subject": "predict_reaction_in_batch",
+    "from":["file","dataframe","list"],
+	"SINGLE_PARM": {},
+	"USING": {"prediction_id": "desc","ai_model":"desc"	},
+	"SHOW": [],
+	"ESTIMATE_ONLY": {},
+	"SAVE_AS": {},
+    "async":"",
+	"use_saved":"True",
+	"exec_type": "standard_statement",
+	"exec_cmd": "predict reaction in batch",
+	"help": {
+		"name": "predict reaction in batch",   
+		"category": "Prediction",
+		"command": "predict reaction in batch from [dataframe < dataframe_name > ] | [file '<file_name.csv>'] | [list ['#smiles','#smiles']]  [USING ( ai_model='<existing_model>']) [use_saved]",
+		"description": "This command forward predictions reactions allowing a list from a file or data frame or string list to be processed for predictions in batch displaying the result, all results are saved to the toolkit directory and the [use_saved] clause tells the command to use any already saved reaction predictions . \n e.g. \n \"predict reaction batch  from list ['BrBr.c1ccc2cc3ccccc3cc2c1CCO' ,'BrBr.c1ccc2cc3ccccc3cc2c1']\" \n  it will also support multiple forward reactions using the follwing command:\n \"predict reaction in batch  from list ['BrBr.c1ccc2cc3ccccc3cc2c1CCO' ,'BrBr.c1ccc2cc3ccccc3cc2c1','Cl.CCC(=O)NCCC.O']\" \nThe valid Options for the USING Clause  ai_model=<quoted string>  model release. Defaults to '2020-07-01' \n files and data frames can be used to specify the list of reactions to process, the column with 'reactions' as it's header will only be read from the data frame or header.\n",
+		"url": ""
+	},
+	"library": "rxn_predict_reaction_batch",
+	"method": "predict_reaction_batch"
+}
