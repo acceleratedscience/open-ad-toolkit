@@ -4,6 +4,13 @@ Accelerated Discovery Common Client<br>
 
 _Note: if you're on Mac and not installing into a virtual environment you may need use `pip3` and `python3` instead of `pip` and `python` respectively._
 
+Limitations:<br>
+-Currently only OPENAI API's available for Teel Me Function<br>
+-edit config editor function is currently in final prototyping<br>
+-Only available for Linux and Macos<br>
+<br>
+Before pip installing from git ensure you have ssh setup for git install, otherwise download repository and run `pip install .` from the ad4e-opentoolkit top directory.<br>
+<br>
 <br>
 
 ## Preparation
