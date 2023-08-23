@@ -1,0 +1,61 @@
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>ADCCL</title>
+
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono&family=IBM+Plex+Sans:wght@400;600&display=swap" rel="stylesheet" />
+		<link href="sub_pages/sub_page.css" rel="stylesheet" />
+	</head>
+	<body>
+		<div id="page-wrap">
+			<div id="left">
+				<h1>Base Concepts</h1>
+				<div>Accelerated Discovery <br class="hide-400" />Open toolkit Framework</div>
+				<div class="version">v0.01 - <a target="_blank" href="https://github.ibm.com/Accelerated-Discovery/ad4e-opentoolkit">IBM Github</a></div>
+
+				<div class="btn-wrap">
+					<a href="https://github.ibm.com/Accelerated-Discovery/ad4e-opentoolkit#readme"><button id="get-started">Get started</button></a>
+					<a href="#" onclick="alert('Coming soon'); return false"><button class="secondary">Documentation</button></a>
+				</div>
+
+
+				<p>
+					The Open toolkit Framework is designed to provide a foundation for aggregating scientific tools together into one API that can be accessed by Command Line, Jupyter Notebook Magic Commands, and a Python API. The API allows users no, matter their entry point, to define commands via a Domain Specific Language (DSL) that is common across all API interfaces. Like SQL is to Databases it is providing a simple DSL for traversing workspaces, calling functions from different services as well as working with molecular python projects such as rdkit, mols2grid, gt4sd, ST4SD and rxn for Chemistry.
+					<br><br>
+					 The goal of the Framework is to make it easy for scientists to go about their day to day work with a common language to use end ot end in their molecular AI driven projects.
+				</p>
+				<h2>Workspaces</h2>
+				<p> 
+				Workspaces are a space where you can conduct activities that grouped together and have their own runs, files and history of commands. Files can be imported and exported out of workspaces. Workspaces can be created int the default workspace directory <pre>~/.adccl/workspaces/CAPITALISED_WORKSPACE_NAME </workspace></pre>  or their location can be defined at time of creation. the toolkit will start with a default Workspace to begin with. All operations run within a workspace.
+
+				Workspace Related Commands are:<br>
+				    <pre>	set workspace &lt;workspace_name&gt;<br>	create workspace &lt;workspace_name&gt; [ description('&lt;workspace_description&gt;') on path '&lt;path&gt;' ]<br>	remove workspace &lt;workspace_name&gt;<br>	list workspaces<br>	get workspace &lt;workspace_name&gt; </pre>
+				</p>
+
+				<h2>Context</h2>
+				<p> 
+				Context defines the User Toolkit that is current to be used up and above the base commands in the framework. the concept is that if a user sets the current context to RXN then the toolkit ensures there is a connection to RXN and all the latest commands for RXN are loaded for the user to use. If then the user wants to move to Deep search they need to set the context to another User Toolkit <pre> set context DS4SD </workspace></pre>  for example. this would then switch the user to DeepSearch toolkit and try to log the user on to their current DeepSearch Service. If it is the first time the sets the context to that service it will request the user to enter their login details. If the user needs to change those details they can set context with the 'reset' option which will have the user re-enter their logon details.
+
+				Context Related Commands are:<br>
+				    <pre>	set context &lt;user_toolkit_name&gt; | reset<br>	unset context  </pre>
+				</p>
+				
+				<p>information on the base commands are available here. <b><a href= "docs/base_commands.html">adccl commands.</a></b></p>
+
+				<h2>User Toolkits</h2>
+				<p> 
+				A user toolkit is a toolkit that has been defined to provide a logon and commands to a Accelerated Discovery Service such as RXN for chemistry or Deep Search. The Framework Ships IBM Toolkits for RXN and Deep Search Currently with the Framework and plans to add ST4SD and GT4SD shortly. To add a toolkit such as Deepsearch you simply would enter or call the following command.<pre> add toolkit DS4SD </workspace></pre>  for example. <br> In future Users will be able to add their own Toolkits or create their own customised versions of the IBM Toolkits, and run them. <br>
+				For toolkits that are not Service specific, an extension will also be added to cater for these types of toolkits, e.g. tools that display or working with molecules.
+
+
+				Toolkit Related Commands are:<br>
+				    <pre>	add toolkit &lt;user_toolkit_name&gt; <br>	remove toolkit &lt;user_toolkit_name&gt; <br> 	list toolkits <br> 	list all toolkits</pre>
+				</p>
+				
+				<p>information on the base commands are available here. <b><a href= "docs/base_commands.html">adccl commands.</a></b></p>
+
+				
