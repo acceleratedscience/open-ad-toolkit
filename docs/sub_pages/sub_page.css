@@ -111,7 +111,7 @@ ul {
 	 padding: 1px;
 	 text-transform: uppercase;
 	 content: attr(data-lang);
-	 background: Blue;
+	 /*background: Blue;*/
    }
  }
 .version {
