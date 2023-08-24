@@ -96,7 +96,13 @@ h6 {
 p {
   margin: 10px 0 15px 0;
 }
-
+p1 {
+	font-size: 15px;
+	display: block;
+	/*margin: 0 0 10px 0;*/
+	margin-left: 10em;
+	
+}
 footer p {
   color: #f2f2f2;
 }

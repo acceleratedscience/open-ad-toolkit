@@ -84,6 +84,10 @@ p {
 }
 ul {
 	padding-inline-start: 16px;
+	font-size: 15px;
+	display: block;
+	/*margin: 0 0 10px 0;*/
+	margin-left: 3em;
 }
 /* #endregion */
 
@@ -116,7 +120,13 @@ ul {
 .nug i {
 	display: block;
 }
-
+p1 {
+	font-size: 15px;
+	display: block;
+	/*margin: 0 0 10px 0;*/
+	margin-left: 3em;
+	
+}
 /* CLI preview */
 pre.code {
 	display: inline-block;
