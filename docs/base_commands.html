@@ -105,15 +105,22 @@
                     This command will execute a run, as each command in the run completes it will display the out put from that command.
                     <br><br>
                     <h2>File System commands</h2>
-                    <h3>Set Workspace:</h3><span><code>set workspace &lt;workspace_name&gt;  </code></span><br>
-                    Sets the current workspace the user will work in.
+                    <h3>List Files:</h3><span><code>list files </code></span><br>
+                    Lists the files in the current workspace.
                     <br><br>
-                    <h3>Set Workspace:</h3><span><code>set workspace &lt;workspace_name&gt;  </code></span><br>
-                    Sets the current workspace the user will work in.
+                    <h3>Import Files:</h3><span><code>import from  '&lt;source_file_path&gt;' to  '&lt;destination_filename&gt;' </code></span><br>
+                    this command imports a file defined with an absolute source file path to a destination file in the current workspace. For example:
+                    <pre>import from '/home/user1/documents/molecules.sdf' to 'source_mols.sdf'</pre>
                     <br><br>
+                    <h3>Import Files:</h3><span><code>import from  '&lt;destination_file_path&gt;' to  '&lt;source_filename&gt;' </code></span><br>
+                    this command imports a file defined with an absolute source file path to a destination file in the current workspace. For example:
+                    <pre>import from '/home/user1/documents/molecules.sdf' to 'source_mols.sdf'</pre>
+                    <br><br>
+
+
                     File System:
         list files
-        import from '<external_source_file>' to '<workspace_file>'
+        
         export from '<workspace_file>' to '<external_file>'
         copy from '<workspace_file>' to '<other_workspace_name>'
         remove '<filename>'

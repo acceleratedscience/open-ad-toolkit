@@ -76,11 +76,18 @@ h1 {
 	margin: 0 0 10px 0;
 }
 h2 {
-	font-size: 20px;
+	font-size: 25px;
 	margin: 48px 0 10px 0;
 }
+h3 {
+	font-size: 17px;
+	margin: 48px 0 10px 0;
+	color: var(--c-blue);
+}
 p {
-	margin: 0 0 10px 0;
+	font-size: 15px;
+	/*margin: 0 0 10px 0;*/
+	margin-left:  55px;
 }
 ul {
 	padding-inline-start: 16px;
@@ -100,7 +107,7 @@ ul {
    font-family: 'Courier New';
    background: lightgrey;
    color: black;
-   font-size: 16px;
+   font-size: 15px;
    padding: 0;
    padding: 1px;
    /*&:before {
