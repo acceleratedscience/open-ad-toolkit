@@ -86,8 +86,14 @@ h3 {
 }
 p {
 	font-size: 15px;
+	margin: 0 0 10px 0;
+	
+}
+p1 {
+	font-size: 15px;
 	/*margin: 0 0 10px 0;*/
-	margin-left:  55px;
+	margin-left: 5em;
+	
 }
 ul {
 	padding-inline-start: 16px;
