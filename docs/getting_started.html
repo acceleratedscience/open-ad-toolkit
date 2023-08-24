@@ -1,0 +1,71 @@
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>ADCCL</title>
+
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono&family=IBM+Plex+Sans:wght@400;600&display=swap" rel="stylesheet" />
+		<link href="sub_pages/sub_page.css" rel="stylesheet" />
+	</head>
+	
+
+	<body>
+		<div id="page-wrap">
+			<div id="body">
+				<h1>Getting Started</h1>
+				<div>Accelerated Discovery <br class="hide-400" />Open toolkit Framework</div>
+				<div class="version">v0.01 - <a target="_blank" href="https://github.ibm.com/Accelerated-Discovery/ad4e-opentoolkit">IBM Github</a></div>
+
+				<div class="btn-wrap">
+					<a href="https://github.ibm.com/Accelerated-Discovery/ad4e-opentoolkit#readme"><button id="get-started">ReadMe</button></a>
+					</div>
+
+
+				<p>Note: if you're on Mac and not installing into a virtual environment you may need use `pip3` and `python3` instead of `pip` and `python` respectively</p>
+				
+                <h2>Preparation</h2>
+				<p1 > 
+                    <h3>Before You Start:</h3>
+                    Ensure you are running python verions 3.10.10 or above.
+                    
+                    <h3>Step1: Setup a Virtual Enviroment</h3>Run the following to setup a virtual environment to deploy your Open toolkit in.<br>
+					<span><code> python -m venv ~/myenv</code></span><br>
+					<span><code> source ~/myenv/bin/activate</code></span><br>
+                    displays command history for the current workspace.
+                    <h3>Step2: Install your Open Toolkit Environment</h3>
+					The following will install the Open Toolkit Framework and all it's dependancies.<br>
+                    <span><code> pip install   git+ssh://git@github.ibm.com/Accelerated-Discovery/ad4e-opentoolkit.git</code></span><br>
+                    
+                    
+					<h3>Starting the Client</h3>
+					Now you can deploy the adccl client simply by running <span><code></code>adccl </code></span> or to simply run a <command>
+					you can run <span><code>adccl &lt;toolkit_command&gt;</code></span>
+						<br>
+					Once in the commnd shell you can look at what commands are available by simply typing '?' as a command and you will see all available commands in the shell envrionment.
+					<h3> Working with Jupyter Notebooks</h3>
+					If you plan to use it inside Jupyter Notebook of Jupyter Labs:<br>
+    -install ipykernel <br>
+	<span><code>pip install ipykernel</code></span> <br>
+        <br>
+    -Create a kernel that can be used to run notebook commands inside the virtual environment <br>
+	<span><code>python -m ipykernel install --user --name=myenv</code></span> <br>
+    
+	<br>Then you can Have the Magic Commands Loaded by default by copying the magic commands into the ipython startup directory for your created profile using: <br>
+   <span><code>init_magic</code></span> <br>
+        Or to copy it for use within only chose notebook do the following to copy it to the current directory and run with !run adccl.py to initiate Magic commands
+		:<br><br
+        <span><code>init_magic . </code></span> <br>
+        Or to copy it to a ipython custom profile <br><br>
+        <span><code>init_magic &lt;myprofile&gt;</code></span><br>
+        
+        <br><b>Note:</b> if you do not run this command you will need to run it he init_examples and use <span><code>init_examples</code></span> command and retrieve the file  <span><code>~/adccl_notebooks/adccl.ipynb</code></span> and executer it in each notebook you run with <span><code>!run adccl.ipynb</code></span> to activate the magic commands.
+				<br><br>
+				
+				</p1>
+			</div>
+		</div>
+	</body>
+</html>
