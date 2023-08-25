@@ -51,7 +51,7 @@ setup(
         'mols2grid',
         'deepsearch-toolkit',
         'tiktoken',
-        'langchain',
+        'langchain==0.0.272',
         'traitlets==5.9',
         'deepsearch-toolkit',
         'rxn4chemistry',
