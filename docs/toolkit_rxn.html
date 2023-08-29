@@ -36,7 +36,7 @@ The Toolkit  is based on molecular transformer models that understand the natura
 				<p1 > 
                     <h3>list Models</h3>
                     This lists the available rxn models.<br>
-                    <span><code>list rxn models</code></span><br><br>
+                    <span><code>list rxn models</code></span><br><br> </p1>
 				<h2> Reaction Prediction Commands:</h2>
 					<p1 > 
 						<h3>Predict Reaction</h3>
@@ -46,7 +46,7 @@ The Toolkit  is based on molecular transformer models that understand the natura
 						<h3>Predict Reaction in Batch</h3>
 						This command forward predictions reactions allowing a list from a file or data
     					frame or string list to be processed for predictions in batch displaying the
-    					result, all resulta are saved to the toolkit directory and the [use_saved]
+    					result, all results are saved to the toolkit directory and the [use_saved]
     					clause tells the command to use any already saved reaction predictions .<br>
 						<span><code>predict reaction in batch from [dataframe %lt;dataframe_name&gt;] |[file '&lt;file_name.csv&gt;'] | list ['#smiles','#smiles'...]  [USING ( ai_model='&lt;valid_ai_model&gt;')] [use_saved]</code></span><br><br>
 						For example:
@@ -55,7 +55,7 @@ The Toolkit  is based on molecular transformer models that understand the natura
 							<h3>Predict Reaction in Batch topn</h3>
 							This command forward predictions reactions allowing a list from a file or data
 							frame or string list to be processed for predictions in batch displaying the
-							result, all resulta are saved to the toolkit directory and the [use_saved]
+							result, all results are saved to the toolkit directory and the [use_saved]
 							clause tells the command to use any already saved reaction predictions .<br>
 							<span><code>predict reaction in batch from [dataframe %lt;dataframe_name&gt;] |[file '&lt;file_name.csv&gt;'] | list ['#smiles','#smiles'...]  [USING ( topn=&lt;integer&gt; ai_model='&lt;valid_ai_model&gt;')] [use_saved]</code></span><br><br>
 							For example:
@@ -64,18 +64,20 @@ The Toolkit  is based on molecular transformer models that understand the natura
 								- topn=&lt;integer&gt; top number of reactions.<br>
 								- ai_model=&lt;quoted string&gt;  model release, the model defaults to '2020-07-01'	<br><br>
 
-
+					</p1 >
 
 
     <h2>Retrosynthesis</h2>
+	<p1>
 		<h3>Interpret Recipe</h3><br>
 		This command builds a set of actions interpreted from a given recipe.<br>
         <span><code>interpret recipe '&lt;recipe-paragraph&gt;' </code></span>
-
-    <h3>Predict Retrosynthesis</h3> 
+	</p1>
+    <h3>Predict Retrosynthesis</h3>  
+	<p1>
 	This command performs automatic retro synthesis on a molecule.
 			<span><code>   predict retrosynthesis '&lt;product_smiles_string&gt;' [USING ( option=&lt;valid_input&gt; option2=&lt;valid_input&gt; )]</code></span><br><br>
-			<b> for USING Clause are:</b><br><br>
+			<b>Options for USING Clause are:</b><br><br>
 			-availability_pricing_threshold={int} maximum price in USD per g/ml of
 			compounds. Default no threshold.<br>
 					<b>-available_smiles={quoted string} </b>list of molecules available as precursors.
@@ -93,3 +95,4 @@ The Toolkit  is based on molecular transformer models that understand the natura
 			
 			An example command is:<br>
 			<span><code>predict retrosynthesis 'BrCCc1cccc2c(Br)c3ccccc3cc12' " using( max_steps=3 )</code></span><br> <br>
+		</p1>
