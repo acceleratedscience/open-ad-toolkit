@@ -161,10 +161,10 @@ def search(inputs: dict, toolkit_dir, cmd_pointer):
                 inputs['results_file'] +
                 '.csv',
                 index=False)
-
-        head = ["Name", "Type", "Num entries", "Date", "Coords"]
-        pdtabulate = tabulate(collectives.replace(np.nan, '', regex=True), tablefmt=_tableformat, headers="keys", showindex=False)
-        print('\n' + pdtabulate + '\n')
+        else:
+            head = ["Name", "Type", "Num entries", "Date", "Coords"]
+            pdtabulate = tabulate(collectives.replace(np.nan, '', regex=True), tablefmt=_tableformat, headers="keys", showindex=False)
+            print('\n' + pdtabulate + '\n')
 
 
 def confirm_prompt(question: str) -> bool:

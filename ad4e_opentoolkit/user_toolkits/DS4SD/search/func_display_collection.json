@@ -11,7 +11,7 @@
 		"name": "display_collection",
 		"category": "Execution",
 		"command": "exec display_collection()",
-		"description": "display collection",
+		"description": "This function enables you to display available collections to query.",
 		"url": ""
 	},
 	"library": "ds4sd_display_collection",
