@@ -1,7 +1,7 @@
 # Contributor License Agreement
 
 International Business Machines, Inc. (IBM) Individual Contributor License Agreement ("Agreement")
-Thank you for your interest in GT4SD ("the Project").
+Thank you for your interest in Accelerated Discovery Open FrameWork Project.
 
 You accept and agree to the following terms and conditions for Your present and future Contributions submitted to the Project. Except for the license granted herein to IBM and recipients of software distributed by IBM, You reserve all right, title, and interest in and to Your Contributions.
 
