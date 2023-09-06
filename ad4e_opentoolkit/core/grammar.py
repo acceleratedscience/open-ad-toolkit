@@ -657,10 +657,11 @@ def statement_builder(toolkit_pointer, statement):
         if statement['USING'] is not None and len(statement['USING']) >0:
             expression = expression + '+ Optional( (CaselessKeyword ("USING")+ Suppress("(") +' + optional_parameter_list(statement, 'USING') + '+Suppress(")") )("USING"))'
         
+        if "RETURN_AS_DATA" in statement:
+           expression = expression + '+ Optional(Suppress(CaselessKeyword ("return")) + Suppress(CaselessKeyword ("as"))+Suppress(CaselessKeyword ("data")))("return_as_data") '
         
         if "SAVE_AS" in statement:
            expression = expression + '+ Optional(Suppress(CaselessKeyword ("save")) + Suppress(CaselessKeyword ("as"))+desc("results_file") )("save_as") '
-
         if 'use_saved' in statement and len(statement['use_saved']) >0:
             if statement['use_saved']=='True':
                 expression = expression + '+'+ "Optional(CaselessKeyword('use_saved'))('use_saved')"
@@ -717,10 +718,13 @@ def statement_builder(toolkit_pointer, statement):
         if "ESTIMATE_ONLY" in statement:
             expression = expression + \
                 '+ Optional(Suppress(CaselessKeyword ("ESTIMATE")) +Suppress(CaselessKeyword ("ONLY")) )("estimate_only") '
+        if "RETURN_AS_DATA" in statement:
+           expression = expression + '+ Optional(Suppress(CaselessKeyword ("return")) + Suppress(CaselessKeyword ("as"))+Suppress(CaselessKeyword ("data")))("return_as_data") '
+        
         if "SAVE_AS" in statement:
             expression = expression + \
                 '+ Optional(Suppress(CaselessKeyword ("save")) + Suppress(CaselessKeyword ("as"))+desc("results_file") )("save_as") '
-
+     
         expression = expression + ')'
 
     try:

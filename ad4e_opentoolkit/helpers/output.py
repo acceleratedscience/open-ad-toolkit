@@ -252,16 +252,17 @@ def output_table(data, cmd_pointer=None, headers=None, note=None, tablefmt='simp
         for i, row in enumerate(data):
             for j, cell in enumerate(row):
                 data[i][j] = parse_tags(cell)
+               
         table = tabulate(data, headers=headers,  tablefmt=tablefmt,showindex=False,numalign="left")
 
     # Crop table if it's wider than the terminal.
     max_row_length = max(list(map(lambda row: len(row), table.splitlines())))
     if max_row_length > cli_width:
-        for i, line in enumerate(table.splitlines()):
+        for i, line in enumerate(table.splitlines()):           
             if i == 1:
                 table = table.replace(line, line[:cli_width])
             elif len(line) > cli_width:
-                table = table.replace(line, line[:cli_width - 3] + '...')
+               table = table.replace(line, line[:cli_width - 3] + '...\u001b[0m') # updated with reset \u001b[0m for color tags which may be found later
 
     # Make line yellow
     lines = table.splitlines()
