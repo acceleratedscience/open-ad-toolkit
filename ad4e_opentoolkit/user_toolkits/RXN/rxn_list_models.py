@@ -1,13 +1,8 @@
 
 
 _tableformat = 'simple'
+from  ad4e_opentoolkit.helpers.output import output_table as output_table
 
-from rxn4chemistry import RXN4ChemistryWrapper
-
-
-# login
-
-# https://cps.foc-deepsearch.zurich.ibm.com/projects/1234567890abcdefghijklmnopqrstvwyz123456/library
 
 def list_models(inputs: dict, toolkit_dir, cmd_pointer):
 
@@ -38,8 +33,8 @@ def list_models(inputs: dict, toolkit_dir, cmd_pointer):
     if cmd_pointer.notebook_mode == True:
         from IPython.display import display, HTML
         return HTML(df.to_html(index=False))
-       
-
-    from tabulate import tabulate
-    return '\n'+tabulate(df, tablefmt=_tableformat, headers=['Models','Versions'], showindex=False)+'\n'
+   
+    output_table(df, tablefmt=_tableformat, headers=['Models','Versions'])
+    #from tabulate import tabulate
+    #return '\n'+tabulate(df, tablefmt=_tableformat, headers=['Models','Versions'], showindex=False)+'\n'
     

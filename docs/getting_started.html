@@ -1,0 +1,104 @@
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>ADCCL</title>
+
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono&family=IBM+Plex+Sans:wght@400;600&display=swap" rel="stylesheet" />
+		<link href="sub_pages/sub_page.css" rel="stylesheet" />
+	</head>
+
+
+	<body>
+		<div id="page-wrap">
+			<div id="body">
+				<h1>Getting Started</h1>
+				<div>Accelerated Discovery <br class="hide-400" />Open Toolkit</div>
+				<div class="version">v0.01 - <a target="_blank" href="https://github.ibm.com/Accelerated-Discovery/ad4e-opentoolkit">IBM Github</a></div>
+
+				<div class="btn-wrap">
+					<a href="https://github.ibm.com/Accelerated-Discovery/ad4e-opentoolkit#readme"><button id="get-started">ReadMe</button></a>
+					<a href="https://pages.github.ibm.com/Accelerated-Discovery/ad4e-opentoolkit/"> <button id="secondary">Documentation</button></a>
+					</div>
+
+				<p><em>Note: On a Mac, if <code>pip</code> and <code>python</code> yield "command not found", use <code>pip</code> and <code>python3</code> .</em></p>
+				
+                <h2>Preparation</h2>
+				<p1> 
+                    <h3>Before You Start</h3>
+                    Ensure your version of python is 3.10.10 or greater.<br>
+					<code>
+						python3 --version<br>
+					Python 3.11.4
+					</code>
+                    
+                    <h3>Set up virtual environment</h3>
+					Set up and activate a virtual environment for Open Toolkit.<br>
+					<span><code> python -m venv ~/openad</code></span><br>
+					<span><code> source ~/openad/bin/activate</code></span><br>
+                  
+                    <h3>Install Open Toolkit</h3>
+					Install Open Toolkit Framework and its dependencies.<br>
+                    <span><code>pip install git+ssh://git@github.ibm.com/Accelerated-Discovery/ad4e-opentoolkit.git</code></span><br>
+                    
+					<h3>Start the client</h3>
+					Open a command shell in the client:<br>
+					<span><code>adccl</code></span> <br/><br/>
+
+
+					Or run a single command:<br>
+					<span><code>adccl &lt;toolkit_command&gt;</code></span>
+						<br>
+					    <br/>
+					In the command shell, you can print available commands 
+					with a single question mark:<br>
+					<span><code>?</code></span>
+
+
+					<h3>Use Jupyter Notebooks</h3>
+					If you plan to use it inside a Jupyter notebook or Jupyter Labs:<br>
+					<ol>
+						<li>Install ipykernel <br>
+							<span><code>pip install ipykernel</code></span> 
+						</li>
+						<li>
+							Create a kernel that makes this environment available inside Jupyter:<br>
+							<span><code>python -m ipykernel install --user --name=openad</code></span> <br>
+						</li>
+						<li>
+							Copy the Toolkit's Jupyter-specific <em>magic commands</em> into the environment:<br>
+							<code>init_magic</code> <br>
+							</li>
+						<li>
+							<em>Optional.</em> To copy Jupyter magic commands for use only for a particular notebook,
+							change to the directory with the notebook and run this command:<br>
+							<code>init_magic .</code><br>
+						
+						</li>
+						<li>
+							<em>Optional, expert.</em> To copy magic commands to an ipython custom profile:<br>
+							<span><code>init_magic &lt;myprofile&gt;</code></span>
+						</li>
+						<li>
+							<em>Optional, expert.</em> To activate the magic commands in a notebook
+							without running <code>init_magic</code> in the environment:<br>
+							Run the command,<br>
+							<code>init_examples</code><br>
+							Copy the file 
+							<span> <code>~/adccl_notebooks/adccl.ipynb</code> </span> 
+							to the same directory as your other notebook.<br>
+							In your other notebook, run this shell command in a Jupyter Notebook code cell,<br>
+							<span><code>!run adccl.ipynb</code></span><br>
+							This activates the magic commands in that notebook.
+
+						</li>
+					</ol>
+					<br><br>	
+				</p1>
+			</div>
+		</div>
+	</body>
+</html>

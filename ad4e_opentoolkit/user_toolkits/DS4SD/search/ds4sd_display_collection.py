@@ -3,6 +3,7 @@ import numerize
 from deepsearch.cps.client.components.elastic import ElasticDataCollectionSource
 from deepsearch.cps.queries import DataQuery
 from deepsearch.cps.client.components.queries import RunQueryError
+from  ad4e_opentoolkit.helpers.output import output_table as output_table
 _tableformat = 'simple'
 
 
@@ -33,5 +34,7 @@ def display_collection(inputs: dict, toolkit_dir,cmd_pointer):
         import pandas as pd
         collectives = pd.DataFrame(results)
         head = ["Name", "Type", "Num entries", "Date", "Coords"]
-        pdtabulate = tabulate(collectives, tablefmt=_tableformat, headers=head, showindex=False)
-        print('\n' + pdtabulate + '\n')
+        #pdtabulate = tabulate(collectives, tablefmt=_tableformat, headers=head, showindex=False)
+        #print('\n' + pdtabulate + '\n')
+        output_table(collectives,cmd_pointer,tablefmt=_tableformat   )
+           

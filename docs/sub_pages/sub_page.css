@@ -76,18 +76,28 @@ h1 {
 	margin: 0 0 10px 0;
 }
 h2 {
-	font-size: 20px;
+	font-size: 25px;
 	margin: 48px 0 10px 0;
 }
-p {
-	margin: 0 0 10px 0;
+h3 {
+	font-size: 17px;
+	margin: 48px 0 10px 0;
+	color: var(--c-blue);
 }
-ul {
-	padding-inline-start: 16px;
+p {
+	font-size: 15px;
+	margin: 0 0 10px 0;
+	
+}
+p1 {
 	font-size: 15px;
 	display: block;
 	/*margin: 0 0 10px 0;*/
-	margin-left: 3em;
+	margin-left: 5em;
+	
+}
+ul {
+	padding-inline-start: 16px;
 }
 /* #endregion */
 
@@ -100,7 +110,24 @@ ul {
  **
  * Base Elements
  */
-
+ code {
+   font-family: 'Courier New';
+   background: lightgrey;
+   color: black;
+   font-size: 15px;
+   padding: 0;
+   padding: 1px;
+   /*&:before {
+	 display: block;
+	 width: 100%;
+	 margin-top: -10px;
+	 margin-left: -10px;
+	 padding: 1px;
+	 text-transform: uppercase;
+	 content: attr(data-lang);
+	 background: Blue;
+   }*/
+ }
 .version {
 	font-style: italic;
 	font-size: var(--small);
@@ -120,13 +147,7 @@ ul {
 .nug i {
 	display: block;
 }
-p1 {
-	font-size: 15px;
-	display: block;
-	/*margin: 0 0 10px 0;*/
-	margin-left: 3em;
-	
-}
+
 /* CLI preview */
 pre.code {
 	display: inline-block;
@@ -190,7 +211,11 @@ pre.code .yellow {
 br.hide-400 {
 	display: none;
 }
-pre.code.inline,
+pre.code.inline{ 
+	display: inline;
+    background-color: #80b3FF;
+    border-radius: 4px;
+    padding: 3px}
 pre.code.image {
 	display: none;
 	margin-bottom: 48px;
