@@ -1,20 +1,18 @@
 """
 Parse XML tags for easy styling of CLI text output.
 ---------------------------------------------------
-Author: Moenen Erbuer
-v0.0.0-beta1 / Last update: Aug 18, 2023
+Author: Moenen Erbuer - moenen.erbuer@ibm.com
+v0.0.0-beta1 / Last update: Sep 12, 2023
 
 Description:
     This module parses XML style tags into ANSI escape codes,
     allowing for easy styling of CLI text output (color, bold, etc.)
 
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-
 Available functions:
     style()                 Returns styled text
     print_s()               Print styled text
     strip_tags()            Remove style tags
-    tags_to_markdown()      Convert tags to iPython Markdown (Jupyter)
+    tags_to_markdown()      Convert tags to iPython Markdown (for use in Jupyter)
     wrap_text()             Limit paragraph width
 
 Basic usage:
@@ -33,10 +31,10 @@ To do:
     Update wrap_text to account for ANSI escape codes - see function in JSON editor.
 
 """
-from collections import deque
-import textwrap
+
 import re
-#print('\x1b[33mYou are using the included temp_lib version of style_parser.\x1b[0m')
+import textwrap
+from collections import deque
 
 # Style tags.
 # - - -

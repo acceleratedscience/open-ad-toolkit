@@ -17,7 +17,7 @@ from ad4e_opentoolkit.toolkit.toolkit_main import load_toolkit
 # Core
 # from core.grammar import *
 import ad4e_opentoolkit.core.help as adccl_help
-from ad4e_opentoolkit.core.grammar import grammar_help, statements, statements_def, create_statements,output_train_statements
+from ad4e_opentoolkit.core.grammar import grammar_help, statements, statements_def, create_statements, output_train_statements
 from ad4e_opentoolkit.core.lang_sessions_and_registry import write_registry, load_registry, delete_session_registry
 from ad4e_opentoolkit.core.lang_workspaces import set_workspace
 import ad4e_opentoolkit.app.login_manager as login_manager
@@ -33,8 +33,7 @@ from ad4e_opentoolkit.app.global_var_lib import _meta_dir as _meta_dir
 from ad4e_opentoolkit.app.global_var_lib import _meta_workspaces as _meta_workspaces
 from ad4e_opentoolkit.app.global_var_lib import _meta_login_registry as _meta_login_registry
 from ad4e_opentoolkit.app.global_var_lib import _all_toolkits as _all_toolkits
-from ad4e_opentoolkit.app.global_var_lib import  _meta_dir_toolkits as _meta_dir_toolkits
-
+from ad4e_opentoolkit.app.global_var_lib import _meta_dir_toolkits as _meta_dir_toolkits
 
 
 sys.ps1 = '\x01\033[31m\x02>>> \x01\033[0m\x02'
@@ -51,40 +50,41 @@ class run_cmd(Cmd):
     space = " "
     # __all__                     =   ["Cmd"]
     # PROMPT                      =   '(Cmd) '
-    IDENTCHARS              = string.ascii_letters + string.digits + '_'
-    intro                   = '/'  # This is defined in cmdloop() below.
-    home_dir                =_meta_dir
-    repo_dir                =_repo_dir
-    current_statements      = statements
-    current_statement_defs  = statements_def
-    toolkit_dir             =_meta_dir_toolkits
-    complete_index          = None
-    complete_orig_line      = None
-    
-    settings                = None
-    original_settings       = None
-    session_id              = '_session_' + str(uuid.uuid4()).replace("-", "")
-    toolkit_current         = None
-    prompt                  = None
-    histfile                = os.path.expanduser(_meta_dir + '/.cmd_history')
-    histfile_size           = 1000
-    current_help            = adccl_help.adccl_help()
-    current_help.help_orig  = grammar_help.copy()
+    IDENTCHARS = string.ascii_letters + string.digits + '_'
+    intro = '/'  # This is defined in cmdloop() below.
+    home_dir = _meta_dir
+    repo_dir = _repo_dir
+    current_statements = statements
+    current_statement_defs = statements_def
+    toolkit_dir = _meta_dir_toolkits
+    complete_index = None
+    complete_orig_line = None
+
+    settings = None
+    original_settings = None
+    session_id = '_session_' + str(uuid.uuid4()).replace("-", "")
+    toolkit_current = None
+    prompt = None
+    histfile = os.path.expanduser(_meta_dir + '/.cmd_history')
+    histfile_size = 1000
+    current_help = adccl_help.adccl_help()
+    current_help.help_orig = grammar_help.copy()
     current_help.reset_help()
-    notebook_mode           = False
-    api_mode                = False
-    login_settings          = None
-    api_variables           = {}
-    llm_handle              = None
-    refresh_vector          = False
-    refresh_train           = False
-    llm_service             = 'OPENAI'
-    llm_model               = 'gpt-3.5-turbo'
-    llm_models              =   {'OPENAI':'gpt-3.5-turbo','WATSONX':'mosaicml/mpt-7b'}
+    notebook_mode = False
+    api_mode = False
+    login_settings = None
+    api_variables = {}
+    llm_handle = None
+    refresh_vector = False
+    refresh_train = False
+    llm_service = 'OPENAI'
+    llm_model = 'gpt-3.5-turbo'
+    llm_models = {'OPENAI': 'gpt-3.5-turbo', 'WATSONX': 'mosaicml/mpt-7b'}
 
     def workspace_path(self, workspace: str):
         try:
-            x = os.path.expanduser(self.settings['paths'][workspace.upper()] + '/' + workspace.upper())
+            x = os.path.expanduser(
+                self.settings['paths'][workspace.upper()] + '/' + workspace.upper())
 
             return x
         except BaseException:
@@ -94,9 +94,9 @@ class run_cmd(Cmd):
         self.settings['paths'][workspace.upper()] = str
 
     # Initialises the Class for Run command
-    def __init__(self, completekey='Tab',notebook=False,api=False):
-        self.notebook_mode=notebook
-        self.api_mode=api
+    def __init__(self, completekey='Tab', notebook=False, api=False):
+        self.notebook_mode = notebook
+        self.api_mode = api
         super().__init__()
         if sys.platform == 'darwin':
             if 'libedit' in readline.__doc__:
@@ -104,45 +104,44 @@ class run_cmd(Cmd):
             else:
                 readline.parse_and_bind("tab: complete")
         readline.set_completer(self.complete)
-        
+
         self.settings = load_registry(self, orig_reg=True)
         self.original_settings = load_registry(self, orig_reg=True)
         write_registry(self.settings, self)
-        
+
         self.prompt = refresh_prompt(self.settings)
-        
+
         if self.settings['context'] in self.settings['toolkits']:
             ok, toolkit_current = load_toolkit(self.settings['context'])
             if ok:
                 self.toolkit_current = toolkit_current
                 create_statements(self)
-        
+
         self.login_settings = login_manager.load_login_registry()
-        
+
         if self.settings['workspace'] is not None:
-            self.histfile = os.path.expanduser(self.workspace_path(self.settings['workspace'].upper()) + '/.cmd_history')
-        
+            self.histfile = os.path.expanduser(self.workspace_path(
+                self.settings['workspace'].upper()) + '/.cmd_history')
+
         if self.settings['context'] is not None:
             login_manager.load_login_api(self, self.settings['context'])
-        
+
         try:
-          if self.settings['env_vars']['refresh_help_ai']==True:
-            self.refresh_vector=True
-            self.refresh_train=True
+            if self.settings['env_vars']['refresh_help_ai'] == True:
+                self.refresh_vector = True
+                self.refresh_train = True
         except:
             pass
         try:
-            self.llm_service= self.settings['env_vars']['llm_service']
-            self.llm_model=self.llm_models[self.llm_service]
-                  
+            self.llm_service = self.settings['env_vars']['llm_service']
+            self.llm_model = self.llm_models[self.llm_service]
+
         except Exception as e:
-            #print(e)
-            #print("failed to load service llm")
+            # print(e)
+            # print("failed to load service llm")
             pass
-        
+
         output_train_statements(self)
-
-
 
     def do_help(self, inp):
         """
@@ -157,7 +156,7 @@ class run_cmd(Cmd):
         """
 
         # `??` --> Advanced help.
-        starts_with =False
+        starts_with = False
         if inp.strip() == '?':
             return output_text(adccl_help.advanced_help(), self, pad=1)
 
@@ -168,18 +167,19 @@ class run_cmd(Cmd):
             inp = inp.lstrip('?')
         elif len(inp.strip()) > 0 and inp.split()[-1] == '?':
             inp = inp.rstrip('?')
-            starts_with=True
-        
+            starts_with = True
+
         inp = inp.lower().strip()
         one_word_cmd = len(inp.split()) == 1
         all_commands = self.current_help.help_current
-        
+
         matching_commands = []
 
         # `?` --> Display all commands.
         if len(inp.split()) == 0:
             return output_text(
-                adccl_help.all_commands(all_commands, toolkit_current=self.toolkit_current, cmd_pointer=self),
+                adccl_help.all_commands(
+                    all_commands, toolkit_current=self.toolkit_current, cmd_pointer=self),
                 self,
                 pad=2,
                 tabs=1,
@@ -191,7 +191,8 @@ class run_cmd(Cmd):
             toolkit_name = inp.upper()
             ok, toolkit = load_toolkit(toolkit_name)
             return output_text(
-                adccl_help.all_commands(toolkit.methods_help, toolkit_name, cmd_pointer=self),
+                adccl_help.all_commands(
+                    toolkit.methods_help, toolkit_name, cmd_pointer=self),
                 self,
                 pad=2,
                 tabs=1,
@@ -203,9 +204,9 @@ class run_cmd(Cmd):
                     all_commands.append(i)
         except:
             pass
-      
+
         # Look for commands that include this exact word singular/plural.
-        if one_word_cmd and starts_with==False:
+        if one_word_cmd and starts_with == False:
             for command in all_commands:
                 command_str = str(command['command']).strip().lower()
                 words = command_str.split()
@@ -217,7 +218,7 @@ class run_cmd(Cmd):
 
         # Look for commands that start with this string.
         if not len(matching_commands):
-            
+
             for command in all_commands:
                 command_str = str(command['command']).strip().lower()
                 if command_str.upper().startswith(inp.upper()):
@@ -253,7 +254,7 @@ class run_cmd(Cmd):
             readline.write_history_file(self.histfile)
 
     def add_history(self, inp):
-        #readline.add_history('\001'+inp+'\002')
+        # readline.add_history('\001'+inp+'\002')
         readline.add_history(inp)
 
     #####################################################################################################################
@@ -287,7 +288,8 @@ class run_cmd(Cmd):
 
         while len(yy) == 0 and i_s < len(self.current_statements):
 
-            a, b = self.current_statements[i_s].run_tests(orig_line, printResults=False, fullDump=False)
+            a, b = self.current_statements[i_s].run_tests(
+                orig_line, printResults=False, fullDump=False)
             test_list.append(b[0])
             i_s = i_s + 1
         best_fit = 0
@@ -310,12 +312,12 @@ class run_cmd(Cmd):
 
                     yy = x.split(",")[0].split("'")[1]
                     readline.insert_text(yy[len(orig_word):])
-                    #readline.redisplay()
+                    # readline.redisplay()
 
                     readline.insert_text(" ")
                     readline.redisplay()
 
-                    return '' 
+                    return ''
         for i in test_list:
             if error_col_grabber(str(i)) < best_fit:
                 continue
@@ -329,9 +331,10 @@ class run_cmd(Cmd):
 
                     if str(str(i[1]).split(",")[0].split("Keyword")[1].split("'")[1]).strip().upper() == str(
                             i[0] + x.split(',')[0].split("Keyword")[1].split("'")[1]).strip().upper():
-                        
-                        readline.insert_text(x.split(',')[0].split("Keyword")[1].split("'")[1].strip())
-                        #readline.redisplay()
+
+                        readline.insert_text(x.split(',')[0].split(
+                            "Keyword")[1].split("'")[1].strip())
+                        # readline.redisplay()
 
                         readline.insert_text(" ")
                         readline.redisplay()
@@ -354,12 +357,13 @@ class run_cmd(Cmd):
                     spacing = ""
                     if len(orig_line) == len(i[0]):
                         spacing = " "
-                   
+
                     if error_col_grabber(x)-1 < len(orig_line):
-                        if  len(orig_line[error_col_grabber(x)-1:len(orig_line)].strip())> 0:
+                        if len(orig_line[error_col_grabber(x)-1:len(orig_line)].strip()) > 0:
                             return []
-                    readline.insert_text(spacing + x.split(',')[0].split("Keyword")[1].split("'")[1].strip())
-                    #readline.redisplay()
+                    readline.insert_text(
+                        spacing + x.split(',')[0].split("Keyword")[1].split("'")[1].strip())
+                    # readline.redisplay()
 
                     readline.insert_text(" ")
                     readline.redisplay()
@@ -402,7 +406,7 @@ class run_cmd(Cmd):
 
     # Catches the exit command
 
-    def do_exit(self,dummy_inp_do_not_remove):
+    def do_exit(self, dummy_inp_do_not_remove):
         write_registry(self.settings, self, True)
         delete_session_registry(self.session_id)
         # readline.remove_history_item(readline.get_current_history_length()-1)
@@ -417,27 +421,29 @@ class run_cmd(Cmd):
     # Default method call on hitting of the return Key, it tries to parse and execute the statements.
     def default(self, inp):
         x = None
-       
+
         if convert(inp).split()[-1] == '?' and not convert(inp).upper().startswith('TELL ME'):
-            
+
             return self.do_help(inp)
-        
+
         try:
             try:
                 self.settings = load_registry(self)
             except:
                 # Brutal situation where someone hit clear sessions in another session , shut down abruptly so as not to kill registry file
-                print('fatal error session registry not avaiable, performing emergency shutdown !')
+                print(
+                    'fatal error session registry not avaiable, performing emergency shutdown !')
                 self.do_exit('exit emergency')
-            
-            y = self.current_statement_defs.parseString(convert(inp), parseAll=True)
-            
+
+            y = self.current_statement_defs.parseString(
+                convert(inp), parseAll=True)
+
             x = lang_parse(self, y)
-        
+
             self.prompt = refresh_prompt(self.settings)
             logging.info('Ran: ' + inp)
         except BaseException as err1:
-            #print(err1)
+            # print(err1)
             # Removing due to usability being able to recall item and correct:
             # try:
             #    readline.remove_history_item(readline.get_current_history_length()-1) # Does not save an incorrect instruction
@@ -448,7 +454,8 @@ class run_cmd(Cmd):
             invalid_command = False
             i_s = 0
             while i_s < len(self.current_statements):
-                a, b = self.current_statements[i_s].runTests(convert(inp), printResults=False, fullDump=False, parseAll=True)
+                a, b = self.current_statements[i_s].runTests(
+                    convert(inp), printResults=False, fullDump=False, parseAll=True)
 
                 for i in b:
                     if len(i) > 1:
@@ -462,23 +469,24 @@ class run_cmd(Cmd):
                         except:
                             print("unknown Error: ")
                             print(err1)
-                        
 
                         if x.find("Expected CaselessKeyword") > -1 and x.find('at char 0') == -1:
                             if error_col < error_col_grabber(x):
-                                error_descriptor = x.replace("CaselessKeyword", "keyword").replace("ParseException:", "Syntax Error:: ")
+                                error_descriptor = x.replace("CaselessKeyword", "keyword").replace(
+                                    "ParseException:", "Syntax Error:: ")
                                 error_col = error_col_grabber(x)
-                                
+
                         elif x.find("found end of text") > -1 and x.find('at char 0') == -1:
                             if error_col < error_col_grabber(x):
-                                error_descriptor = x.replace("ParseException:", "Syntax Error:: ")
+                                error_descriptor = x.replace(
+                                    "ParseException:", "Syntax Error:: ")
                                 error_col = error_col_grabber(x)
                         # @Phil these general errors tend to be unhelpful.
-                        #@moenen, on back log to improve but for a lot of users familiar from database command line errors
+                        # @moenen, on back log to improve but for a lot of users familiar from database command line errors
                         else:
                             if error_col < error_col_grabber(x):
-                                 error_descriptor = x
-                                 error_col = error_col_grabber(x)
+                                error_descriptor = x
+                                error_col = error_col_grabber(x)
                 i_s = i_s + 1
 
             # Print error
@@ -488,49 +496,61 @@ class run_cmd(Cmd):
                     if self.notebook_mode is True:
                         return output_error(msg('err_invalid_cmd', 'Not a Valid Command, try "?" to list valid commands', split=True), self)
                     else:
-                        output_error(msg('err_invalid_cmd', 'Not a Valid Command, try "?" to list valid commands', split=True), self)
+                        output_error(msg(
+                            'err_invalid_cmd', 'Not a Valid Command, try "?" to list valid commands', split=True), self)
                 else:
-                    error_msg=error_descriptor.split("Syntax")[0]
+                    error_msg = error_descriptor.split("Syntax")[0]
                     if self.notebook_mode is True:
                         from IPython.display import display
                         if error_col_grabber(error_descriptor) == 1:
-                            display(output_error(msg('err_invalid_cmd', error_msg.split('Parse')[0], split=True),return_val=True, cmd_pointer=self))
-                            display(output_text("Perhaps you could try one of the following:",return_val=True,cmd_pointer=self))
-                            display(self.do_help(error_first_word_grabber(error_descriptor)+' ?'))
+                            display(output_error(msg('err_invalid_cmd', error_msg.split(
+                                'Parse')[0], split=True), return_val=True, cmd_pointer=self))
+                            display(output_text(
+                                "Perhaps you could try one of the following:", return_val=True, cmd_pointer=self))
+                            display(self.do_help(
+                                error_first_word_grabber(error_descriptor)+' ?'))
                         else:
-                            display(output_error(msg('err_invalid_cmd', error_msg, split=True),return_val=True, cmd_pointer=self))
-                            display(output_text("Perhaps you could try one of the following:",return_val=True,cmd_pointer=self))
-                            display(self.do_help(inp[0:error_col_grabber(error_descriptor)-1]+' ?'))
-                        return output_text("If there is not an option that meets your requirement type '?' to list all command options",return_val=True,cmd_pointer=self)
-                        
-                    else:
-                        
-                        
-                        if error_col_grabber(error_descriptor) == 1:
-                            output_error(msg('err_invalid_cmd', error_msg.split('Parse')[0], split=True), self)
-                            output_text("Perhaps you could try one of the following:",self)
-                            self.do_help(error_first_word_grabber(error_descriptor)+' ?')
-                        else:
-                            output_error(msg('err_invalid_cmd', error_msg, split=True), self)
-                            output_text("Perhaps you could try one of the following:",self)                     
-                            self.do_help(inp[0:error_col_grabber(error_descriptor)-1]+' ?')
-                        
-                        output_text("If there is not an option that meets your requirement type '?' to list all command options",return_val=True,cmd_pointer=self)
-                return False
+                            display(output_error(
+                                msg('err_invalid_cmd', error_msg, split=True), return_val=True, cmd_pointer=self))
+                            display(output_text(
+                                "Perhaps you could try one of the following:", return_val=True, cmd_pointer=self))
+                            display(self.do_help(
+                                inp[0:error_col_grabber(error_descriptor)-1]+' ?'))
+                        return output_text("If there is not an option that meets your requirement type '?' to list all command options", return_val=True, cmd_pointer=self)
 
+                    else:
+
+                        if error_col_grabber(error_descriptor) == 1:
+                            output_error(msg('err_invalid_cmd', error_msg.split(
+                                'Parse')[0], split=True), self)
+                            output_text(
+                                "Perhaps you could try one of the following:", self)
+                            self.do_help(error_first_word_grabber(
+                                error_descriptor)+' ?')
+                        else:
+                            output_error(
+                                msg('err_invalid_cmd', error_msg, split=True), self)
+                            output_text(
+                                "Perhaps you could try one of the following:", self)
+                            self.do_help(
+                                inp[0:error_col_grabber(error_descriptor)-1]+' ?')
+
+                        output_text(
+                            "If there is not an option that meets your requirement type '?' to list all command options", return_val=True, cmd_pointer=self)
+                return False
 
             else:
                 output_error(msg('err_invalid_cmd', x, split=True), self)
                 return False
-                #return output_error(msg('err_unknown', err1, split=True), self) # @moenen this was not catching the error returned by the function and re-issuing splash screen
-        if self.refresh_train ==True:
+                # return output_error(msg('err_unknown', err1, split=True), self) # @moenen this was not catching the error returned by the function and re-issuing splash screen
+        if self.refresh_train == True:
             output_train_statements(self)
-            self.refresh_train=False
+            self.refresh_train = False
         if self.notebook_mode is True:
             return x
-        elif self.api_mode==False:
-            if x not in (True,False,None):    
-                
+        elif self.api_mode == False:
+            if x not in (True, False, None):
+
                 print(x)
             else:
                 return
@@ -542,9 +562,10 @@ def error_col_grabber(error):
     e1 = e.replace(')', '')
     return int(e1)
 
+
 def error_first_word_grabber(error):
     word = error.split('found ')[1].split("'")[1]
-   
+
     return str(word)
 
 
@@ -557,9 +578,9 @@ def api_remote(inp: str, connection_cache: dict = _meta_login_registry, api_cont
     arguments = inp.split()
     inp = ''
     a_space = ''
-    
+
     magic_prompt = run_cmd(notebook=True)
-    
+
     connection_cache = magic_prompt.login_settings
     magic_prompt.notebook_mode = True
     if api_context['workspace'] is None:
@@ -573,7 +594,7 @@ def api_remote(inp: str, connection_cache: dict = _meta_login_registry, api_cont
     else:
         x = {'toolkit_name': api_context['toolkit']}
         set_context(magic_prompt, x)
-        
+
     magic_prompt.api_variables = api_var_list
     try:
         readline.read_history_file(magic_prompt.histfile)
@@ -611,6 +632,7 @@ def api_remote(inp: str, connection_cache: dict = _meta_login_registry, api_cont
 
             return result
 
+
 def cmd_line():
     initialise()
     inp = ''
@@ -633,7 +655,7 @@ def cmd_line():
             command_line.do_help(inp.strip())
         elif words[0].lower() == '-s':
             for i in words:
-                
+
                 print(i)
             set_workspace(command_line, {'Workspace_Name': words[1].upper()})
             set_context(command_line, {'toolkit_name': words[2].upper()})
@@ -655,7 +677,8 @@ def cmd_line():
         while exit == False:
             try:
                 # The cmdloop parameter controls the startup screen, it overrides self.intro.
-                command_line.cmdloop(splash(command_line.settings['context'], command_line, startup=True))
+                command_line.cmdloop(
+                    splash(command_line.settings['context'], command_line, startup=True))
                 exit = True
             except KeyboardInterrupt:
                 command_line.postloop()
@@ -663,9 +686,9 @@ def cmd_line():
                     exit = True
                     command_line.do_exit('dummy do not remove')
             except BaseException as err:
-                output_error(msg('err_invalid_cmd', err, split=True), command_line)
+                output_error(msg('err_invalid_cmd', err,
+                             split=True), command_line)
 
-    
+
 if __name__ == "__main__":
     cmd_line()
-    

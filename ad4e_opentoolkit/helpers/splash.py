@@ -1,8 +1,11 @@
 import json
 
 from ad4e_opentoolkit.helpers.output import msg, output_text, output_error
-from ad4e_opentoolkit.helpers.style_parser import style, wrap_text, parse_tags, strip_tags, print_s
 from ad4e_opentoolkit.helpers.ascii_type import ascii_type
+
+# Importing our own plugins.
+# This is temporary until every plugin is available as a public pypi package.
+from ad4e_opentoolkit.plugins.style_parser import style, wrap_text, strip_tags
 
 
 def splash(toolkit_name=None, cmd_pointer=None, startup=False, raw=False):
@@ -25,10 +28,10 @@ def splash(toolkit_name=None, cmd_pointer=None, startup=False, raw=False):
     else:
         json_file_path = f'user_toolkits/{toolkit_name}/metadata.json'
     try:
-        with open(os.path.dirname(os.path.abspath(__file__))+'/../'+json_file_path) as json_file:
+        with open(os.path.dirname(os.path.abspath(__file__)) + '/../' + json_file_path) as json_file:
             data = json.load(json_file)
     except FileNotFoundError:
-        return output_error(msg('fail_file_not_found', os.path.dirname(os.path.abspath(__file__))+'/'+json_file_path, split=True))
+        return output_error(msg('fail_file_not_found', os.path.dirname(os.path.abspath(__file__)) + '/' + json_file_path, split=True))
 
     # Make up for missing data.
     required_fields = 'banner title intro author version commands'.split()
