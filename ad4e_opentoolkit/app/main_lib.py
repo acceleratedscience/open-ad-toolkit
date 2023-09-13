@@ -35,7 +35,7 @@ from ad4e_opentoolkit.helpers.output_content import adccl_intro
 
 # Importing our own plugins.
 # This is temporary until every plugin is available as a public pypi package.
-from ad4e_opentoolkit.plugins.style_parser import tags_to_markdown
+# from ad4e_opentoolkit.plugins.style_parser import tags_to_markdown
 
 
 # This is called by the default run_cmd method, for executing current commands.

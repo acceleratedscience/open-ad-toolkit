@@ -130,7 +130,7 @@ class run_cmd(Cmd):
             if self.settings['env_vars']['refresh_help_ai'] == True:
                 self.refresh_vector = True
                 self.refresh_train = True
-        except:
+        except BaseException:
             pass
         try:
             self.llm_service = self.settings['env_vars']['llm_service']
@@ -202,7 +202,7 @@ class run_cmd(Cmd):
             for i in self.toolkit_current.methods_help:
                 if i not in all_commands:
                     all_commands.append(i)
-        except:
+        except BaseException:
             pass
 
         # Look for commands that include this exact word singular/plural.
@@ -358,8 +358,8 @@ class run_cmd(Cmd):
                     if len(orig_line) == len(i[0]):
                         spacing = " "
 
-                    if error_col_grabber(x)-1 < len(orig_line):
-                        if len(orig_line[error_col_grabber(x)-1:len(orig_line)].strip()) > 0:
+                    if error_col_grabber(x) - 1 < len(orig_line):
+                        if len(orig_line[error_col_grabber(x) - 1:len(orig_line)].strip()) > 0:
                             return []
                     readline.insert_text(
                         spacing + x.split(',')[0].split("Keyword")[1].split("'")[1].strip())
@@ -429,7 +429,7 @@ class run_cmd(Cmd):
         try:
             try:
                 self.settings = load_registry(self)
-            except:
+            except BaseException:
                 # Brutal situation where someone hit clear sessions in another session , shut down abruptly so as not to kill registry file
                 print(
                     'fatal error session registry not avaiable, performing emergency shutdown !')
@@ -466,7 +466,7 @@ class run_cmd(Cmd):
                         c = i[1]
                         try:
                             x = c.explain()
-                        except:
+                        except BaseException:
                             print("unknown Error: ")
                             print(err1)
 
@@ -496,53 +496,46 @@ class run_cmd(Cmd):
                     if self.notebook_mode is True:
                         return output_error(msg('err_invalid_cmd', 'Not a Valid Command, try "?" to list valid commands', split=True), self)
                     else:
-                        output_error(msg(
-                            'err_invalid_cmd', 'Not a Valid Command, try "?" to list valid commands', split=True), self)
+                        output_error(msg('err_invalid_cmd', 'Not a Valid Command, try "?" to list valid commands', split=True), self)
                 else:
                     error_msg = error_descriptor.split("Syntax")[0]
                     if self.notebook_mode is True:
                         from IPython.display import display
                         if error_col_grabber(error_descriptor) == 1:
-                            display(output_error(msg('err_invalid_cmd', error_msg.split(
-                                'Parse')[0], split=True), return_val=True, cmd_pointer=self))
-                            display(output_text(
-                                "Perhaps you could try one of the following:", return_val=True, cmd_pointer=self))
-                            display(self.do_help(
-                                error_first_word_grabber(error_descriptor)+' ?'))
+                            display(output_error(msg('err_invalid_cmd', error_msg.split('Parse')[0], split=True), return_val=True, cmd_pointer=self))
+                            display(output_text("Perhaps you could try one of the following:", return_val=True, cmd_pointer=self))
+                            display(self.do_help(error_first_word_grabber(error_descriptor) + ' ?'))
                         else:
-                            display(output_error(
-                                msg('err_invalid_cmd', error_msg, split=True), return_val=True, cmd_pointer=self))
-                            display(output_text(
-                                "Perhaps you could try one of the following:", return_val=True, cmd_pointer=self))
-                            display(self.do_help(
-                                inp[0:error_col_grabber(error_descriptor)-1]+' ?'))
-                        return output_text("If there is not an option that meets your requirement type '?' to list all command options", return_val=True, cmd_pointer=self)
+                            display(output_error(msg('err_invalid_cmd', error_msg, split=True), return_val=True, cmd_pointer=self))
+                            display(output_text("Perhaps you could try one of the following:", return_val=True, cmd_pointer=self))
+                            display(self.do_help(inp[0:error_col_grabber(error_descriptor) - 1] + ' ?'))
+                        return output_text("If there is not an option that meets your requirement type '?' to list all command options",
+                                           return_val=True, cmd_pointer=self)
 
                     else:
 
                         if error_col_grabber(error_descriptor) == 1:
-                            output_error(msg('err_invalid_cmd', error_msg.split(
-                                'Parse')[0], split=True), self)
+                            output_error(msg('err_invalid_cmd', error_msg.split('Parse')[0], split=True), self)
                             output_text(
                                 "Perhaps you could try one of the following:", self)
-                            self.do_help(error_first_word_grabber(
-                                error_descriptor)+' ?')
+                            self.do_help(error_first_word_grabber(error_descriptor) + ' ?')
                         else:
-                            output_error(
-                                msg('err_invalid_cmd', error_msg, split=True), self)
-                            output_text(
-                                "Perhaps you could try one of the following:", self)
-                            self.do_help(
-                                inp[0:error_col_grabber(error_descriptor)-1]+' ?')
+                            output_error(msg('err_invalid_cmd', error_msg, split=True), self)
+                            output_text("Perhaps you could try one of the following:", self)
+                            self.do_help(inp[0:error_col_grabber(error_descriptor) - 1] + ' ?')
 
                         output_text(
-                            "If there is not an option that meets your requirement type '?' to list all command options", return_val=True, cmd_pointer=self)
+                            "If there is not an option that meets your requirement type '?' to list all command options",
+                            return_val=True,
+                            cmd_pointer=self)
                 return False
 
             else:
                 output_error(msg('err_invalid_cmd', x, split=True), self)
                 return False
-                # return output_error(msg('err_unknown', err1, split=True), self) # @moenen this was not catching the error returned by the function and re-issuing splash screen
+                # return output_error(msg('err_unknown', err1, split=True), self) #
+                # @moenen this was not catching the error returned by the function and
+                # re-issuing splash screen
         if self.refresh_train == True:
             output_train_statements(self)
             self.refresh_train = False

@@ -15,12 +15,25 @@ from blessed import Terminal
 
 # Importing our own plugins.
 # - - -
-# Make sure that all plugins have their own folder and
-# are cousins through their parent folder. This is temporary
-# until every plugin is available as a public pypi package.
-import sys
-sys.path.append('../')
-from style_parser.style_parser import print_s, style, strip_tags
+# This is a temporary solution until every plugin is
+# available as a public pypi package.
+# - - -
+# In production, every plugin has its own package directory
+# with __init__.py included, which all live inside the plugin
+# directory. The plugin directory has an __init__.py itself
+# which lets our plugins import eachother via the parent package
+# using ..cousin_module.
+# In development mode, each plugin directore lives in its
+# develoment directory, which are meant to be sibling dirs so
+# they can import one another using sys.path.append('../')
+try:
+    # Used in production setup.
+    from ..style_parser import print_s, style, strip_tags
+except BaseException:
+    # Used in isolated plugin development setup.
+    import sys
+    sys.path.append('../')
+    from style_parser import print_s, style, strip_tags
 
 # Debug modes:
 # 1: Display logger
@@ -38,7 +51,7 @@ class EditJson:
     Edit a JSON file within the CLI.
     --------------------------------
     Author: Moenen Erbuer - moenen.erbuer@ibm.com
-    v0.0.0-beta3 / Last update: Sep 12, 2023
+    v0.0.0-beta4 / Last update: Sep 13, 2023
 
     Description:
         This module lets you edit JSON from within the CLI with an

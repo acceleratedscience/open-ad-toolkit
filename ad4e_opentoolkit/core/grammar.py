@@ -154,34 +154,31 @@ grammar_help.append(adccl_help.help_dict_create(
     description='Clears any other sessions that may be running.'
 ))
 
-#How do I chat 
+# How do I chat
 
-statements.append(Forward( CaselessKeyword('tell') +CaselessKeyword('me') + ZeroOrMore(Word(alphas, alphanums + "_"+'?'+"."+" "+","+"'"))('Chat_String'))('HOW_DO_I'))
+statements.append(Forward(CaselessKeyword('tell') + CaselessKeyword('me') + ZeroOrMore(Word(alphas, alphanums + "_" + '?' + "." + " " + "," + "'"))('Chat_String'))('HOW_DO_I'))
 grammar_help.append(adccl_help.help_dict_create(
     name="tell me",
     category='LLM',
     command="tell me  <chat string>",
     description='This command asks chatgpt how to do set of tasks in the adccl client '
-    ))
+))
 
-statements.append(Forward( CaselessKeyword('set') +CaselessKeyword('llm') + ZeroOrMore(Word(alphas, alphanums + "_"+'?'+"."+" "+","+"'"))('llm_name'))('set_llm'))
+statements.append(Forward(CaselessKeyword('set') + CaselessKeyword('llm') + ZeroOrMore(Word(alphas, alphanums + "_" + '?' + "." + " " + "," + "'"))('llm_name'))('set_llm'))
 grammar_help.append(adccl_help.help_dict_create(
     name="set llm",
     category='LLM',
     command="set llm  <name of language model>",
     description='This command sets the target language model type for the "tell me" command '
-    ))
+))
 
-statements.append(Forward( CaselessKeyword('clear') +CaselessKeyword('llm') + CaselessKeyword('auth'))('clear_llm_auth'))
+statements.append(Forward(CaselessKeyword('clear') + CaselessKeyword('llm') + CaselessKeyword('auth'))('clear_llm_auth'))
 grammar_help.append(adccl_help.help_dict_create(
     name="clear llm auth",
     category='LLM',
     command="clear llm auth",
     description='This command clears the llm authority file. '
-    ))
-
-
-
+))
 
 
 # endregion
@@ -305,7 +302,7 @@ grammar_help.append(adccl_help.help_dict_create(
 ))
 
 # Set a toolkit as the current context
-statements.append(Forward(s_et + context('context') + Word(alphas, alphanums + "_")('toolkit_name') +Optional(CaselessKeyword('reset'))('reset')  )('set_context'))
+statements.append(Forward(s_et + context('context') + Word(alphas, alphanums + "_")('toolkit_name') + Optional(CaselessKeyword('reset'))('reset'))('set_context'))
 grammar_help.append(adccl_help.help_dict_create(
     name="set context",
     category='Toolkits',
@@ -448,8 +445,6 @@ grammar_help.append(adccl_help.help_dict_create(
 # endregion
 
 
-
-
 # Define The Concepts of Jobs
 # statements.append( Forward(lister +jobs('job') )('list_jobs'))
 
@@ -465,8 +460,7 @@ if is_notebook_mode():
     # Jupyter
 
     # Show molecules using file.
-    statements.append(Forward(show('show') + molecules + using + file + desc('moles_file') +
-                      Optional(CaselessKeyword('as') + CaselessKeyword('molsobject')('object')))('show_molecules'))
+    statements.append(Forward(show('show') + molecules + using + file + desc('moles_file') + Optional(CaselessKeyword('as') + CaselessKeyword('molsobject')('object')))('show_molecules'))
     grammar_help.append(adccl_help.help_dict_create(
         name="show molecules",
         category='GUI',
@@ -475,8 +469,7 @@ if is_notebook_mode():
     ))
 
     # Show molecules using dataframe.
-    statements.append(Forward(show('show') + molecules + using + CaselessKeyword('dataframe') + Word(alphas, alphanums + "_")('in_dataframe') +
-                      Optional(CaselessKeyword('as') + CaselessKeyword('molsobject')('object')))('show_api_molecules'))
+    statements.append(Forward(show('show') + molecules + using + CaselessKeyword('dataframe') + Word(alphas, alphanums + "_")('in_dataframe') + Optional(CaselessKeyword('as') + CaselessKeyword('molsobject')('object')))('show_api_molecules'))
     grammar_help.append(adccl_help.help_dict_create(
         name="show molecules",
         category='GUI',
@@ -487,28 +480,27 @@ else:
     # CLI
 
     # Show molecules using file.
-    statements.append(Forward(show('show') + molecules + using + file + desc('moles_file') + Optional(
-        CaselessKeyword('Save') + CaselessKeyword('as') + desc('results_file')))('show_molecules'))
+    statements.append(Forward(show('show') + molecules + using + file + desc('moles_file') + Optional(CaselessKeyword('Save') + CaselessKeyword('as') + desc('results_file')))('show_molecules'))
     grammar_help.append(adccl_help.help_dict_create(
         name="show molecules",
         category='GUI',
         command="show molecules using file '<mols_file>' [ save as '<sdf_or_csv_file>' ]",
-        description='''This command shows 1 or more Molecules in selection grid using a dataset containing smiles molecule strings. It is displayed via browser when run from a command line and only accepts files of type .sdf or .csv. 
-        Input files may only be of .type sdf or .csv and you can only save files as .sdf or .csv types. 
+        description='''This command shows 1 or more Molecules in selection grid using a dataset containing smiles molecule strings. It is displayed via browser when run from a command line and only accepts files of type .sdf or .csv.
+        Input files may only be of .type sdf or .csv and you can only save files as .sdf or .csv types.
         Files referenced are from your local workspace, it does not support referencing files outside your workspace. If you wish to move a file into your workspace see the import command.
         Examples:
                - "show molecules using file 'my_molecules.sdf'"
                - "show molecules using file 'my_molecules.sdf' Save as 'selection.csv' "
-        
+
         Alternatively when run in jupyter notebooks can accept a dataframe. See help when in Notebooks for details. '''
     ))
 
     # Edit config file.
-    statements.append(Forward(CaselessKeyword('edit') + CaselessKeyword('config') + desc('json_file')+Optional(CaselessKeyword('schema')+desc('schema')))('edit_config'))
+    statements.append(Forward(CaselessKeyword('edit') + CaselessKeyword('config') + desc('json_file') + Optional(CaselessKeyword('schema') + desc('schema')))('edit_config'))
     grammar_help.append(adccl_help.help_dict_create(
         name="edit config",
         category='General',
-        command="edit config '<json_config_file>' [schema '<schema_file>']",
+        command="edit config '<json_config_file>' [schema '<json_schema_file>']",
         description='Edits a config card (JSON) from within the CLI. If a schema is specified, it will be used to validate the input. All files are assumed to be in the current workspace directory.'
     ))
 
@@ -561,7 +553,6 @@ grammar_help.append(adccl_help.help_dict_create(
 ))
 
 
-
 # endregion
 # Packaging Section
 orig_statements = statements.copy()
@@ -588,44 +579,41 @@ def create_statements(cmd_pointer):
         cmd_pointer.current_statement_defs |= i
         cmd_pointer.current_statements.append(i)
     statements_zom = ZeroOrMore(statements_def)
-def or_builder(options:list)->str:
-    expression='('
-    the_or=''
+
+
+def or_builder(options: list) -> str:
+    expression = '('
+    the_or = ''
     for i in options:
-        expression=expression+the_or+i
-        the_or='|'
+        expression = expression + the_or + i
+        the_or = '|'
 
-    return expression+')'
+    return expression + ')'
 
-def from_builder(options:list)->str:
-    clause="CaselessKeyword('from')+"
-    option_exp=[]
+
+def from_builder(options: list) -> str:
+    clause = "CaselessKeyword('from')+"
+    option_exp = []
     if not is_notebook_mode() and 'dataframe' in options:
 
         options.remove('dataframe')
-    
+
     for i in options:
         if i == 'file':
             option_exp.append('(Suppress(CaselessKeyword("file"))+desc("from_file"))')
-        elif i=='dataframe':
-            option_exp.append('(Suppress(CaselessKeyword("dataframe"))+'+'Word(alphas, alphanums + "_")("from_dataframe"))' )
-        elif i=='list':
-            option_exp.append('(Suppress(CaselessKeyword("list"))+ Group(Suppress("[")+delimitedList(desc)("from_list")+Suppress("]")))' )
-    if len(option_exp) >0:
-        clause=clause+or_builder(option_exp)
+        elif i == 'dataframe':
+            option_exp.append('(Suppress(CaselessKeyword("dataframe"))+' + 'Word(alphas, alphanums + "_")("from_dataframe"))')
+        elif i == 'list':
+            option_exp.append('(Suppress(CaselessKeyword("list"))+ Group(Suppress("[")+delimitedList(desc)("from_list")+Suppress("]")))')
+    if len(option_exp) > 0:
+        clause = clause + or_builder(option_exp)
 
-    #elif len(option_exp) ==1:
+    # elif len(option_exp) ==1:
     #    clause=clause+option_exp[0]
     else:
-        raise("invalid 'From' clause structure")
-    
-    
-    
-    
-    return clause
+        raise ("invalid 'From' clause structure")
 
-     
-        
+    return clause
 
 
 def statement_builder(toolkit_pointer, statement):
@@ -638,42 +626,41 @@ def statement_builder(toolkit_pointer, statement):
         expression = expression + '+ Suppress("(") +' + optional_parameter_list(statement, 'fixed_parameters') + ' +Suppress(")"))'
 
     elif statement["exec_type"] == 'standard_statement':
-        key_leading_words=statement['command'].split()
-        expression=''
-        plus=''
-        
+        key_leading_words = statement['command'].split()
+        expression = ''
+        plus = ''
+
         for i in key_leading_words:
-            expression=expression + plus+'CaselessKeyword ("' + i + '")'
-            plus='+'
-       
+            expression = expression + plus + 'CaselessKeyword ("' + i + '")'
+            plus = '+'
+
         if 'SINGLE_PARM' in statement:
-            if len(statement['SINGLE_PARM']) >0:
-                expression = expression + '+'+actual_parameter_list(statement, 'SINGLE_PARM')
-        
+            if len(statement['SINGLE_PARM']) > 0:
+                expression = expression + '+' + actual_parameter_list(statement, 'SINGLE_PARM')
+
         if 'from' in statement:
-            if len(statement['from']) >0:
-                expression = expression + '+'+(from_builder(statement['from']))+"('from_source')"
-        
-        if statement['USING'] is not None and len(statement['USING']) >0:
+            if len(statement['from']) > 0:
+                expression = expression + '+' + (from_builder(statement['from'])) + "('from_source')"
+
+        if statement['USING'] is not None and len(statement['USING']) > 0:
             expression = expression + '+ Optional( (CaselessKeyword ("USING")+ Suppress("(") +' + optional_parameter_list(statement, 'USING') + '+Suppress(")") )("USING"))'
-        
+
         if "RETURN_AS_DATA" in statement:
-           expression = expression + '+ Optional(Suppress(CaselessKeyword ("return")) + Suppress(CaselessKeyword ("as"))+Suppress(CaselessKeyword ("data")))("return_as_data") '
-        
+            expression = expression + '+ Optional(Suppress(CaselessKeyword ("return")) + Suppress(CaselessKeyword ("as"))+Suppress(CaselessKeyword ("data")))("return_as_data") '
+
         if "SAVE_AS" in statement:
-           expression = expression + '+ Optional(Suppress(CaselessKeyword ("save")) + Suppress(CaselessKeyword ("as"))+desc("results_file") )("save_as") '
-        if 'use_saved' in statement and len(statement['use_saved']) >0:
-            if statement['use_saved']=='True':
-                expression = expression + '+'+ "Optional(CaselessKeyword('use_saved'))('use_saved')"
-        if 'async' in statement and len(statement['async']) >0:
-            if statement['async']=='both':
-                 expression = expression + '+'+ "Optional(CaselessKeyword('async'))('do_async')"
-            if statement['async']=='only':
-                 expression = expression + '+'+ "CaselessKeyword('async')"
-        
-        expression=expression +')'
-       
-        
+            expression = expression + '+ Optional(Suppress(CaselessKeyword ("save")) + Suppress(CaselessKeyword ("as"))+desc("results_file") )("save_as") '
+        if 'use_saved' in statement and len(statement['use_saved']) > 0:
+            if statement['use_saved'] == 'True':
+                expression = expression + '+' + "Optional(CaselessKeyword('use_saved'))('use_saved')"
+        if 'async' in statement and len(statement['async']) > 0:
+            if statement['async'] == 'both':
+                expression = expression + '+' + "Optional(CaselessKeyword('async'))('do_async')"
+            if statement['async'] == 'only':
+                expression = expression + '+' + "CaselessKeyword('async')"
+
+        expression = expression + ')'
+
     #####################################################################
     #
     # This section deals with search type statements.
@@ -719,26 +706,26 @@ def statement_builder(toolkit_pointer, statement):
             expression = expression + \
                 '+ Optional(Suppress(CaselessKeyword ("ESTIMATE")) +Suppress(CaselessKeyword ("ONLY")) )("estimate_only") '
         if "RETURN_AS_DATA" in statement:
-           expression = expression + '+ Optional(Suppress(CaselessKeyword ("return")) + Suppress(CaselessKeyword ("as"))+Suppress(CaselessKeyword ("data")))("return_as_data") '
-        
+            expression = expression + '+ Optional(Suppress(CaselessKeyword ("return")) + Suppress(CaselessKeyword ("as"))+Suppress(CaselessKeyword ("data")))("return_as_data") '
+
         if "SAVE_AS" in statement:
             expression = expression + \
                 '+ Optional(Suppress(CaselessKeyword ("save")) + Suppress(CaselessKeyword ("as"))+desc("results_file") )("save_as") '
-     
+
         expression = expression + ')'
 
     try:
-        
+
         toolkit_pointer.methods_grammar.append(eval(" Forward( " + expression + ' ("toolkit_exec_' + statement['command'] + '")'))
-        
+
         toolkit_pointer.methods.append(statement['command'])
-        
+
         toolkit_pointer.methods_execute.append(statement['method'])
-        
+
         toolkit_pointer.methods_library.append(statement['library'])
-        
+
         toolkit_pointer.methods_dict.append(statement)
-        
+
         toolkit_pointer.methods_help.append(statement['help'])
 
     except BaseException as err:
@@ -803,6 +790,8 @@ def optional_parameter_list(statement: dict, clause: str):
                     i + "'))" + " "
         ii = 1
     return expression
+
+
 def actual_parameter_list(statement: dict, clause: str):
     ii = 0
     expression = " "
@@ -832,31 +821,33 @@ def actual_parameter_list(statement: dict, clause: str):
         ii = 1
     return expression
 
+
 def output_train_statements(cmd_pointer):
-    import os,glob
-    training_statements=[]
-    toolkit_lists=[]
-    toolkit_name=[]
-    toolkit_description=[]
-    i=0
+    import os
+    import glob
+    training_statements = []
+    toolkit_lists = []
+    toolkit_name = []
+    toolkit_description = []
+    i = 0
     cmd_pointer.home_dir
     try:
 
-        if not os.path.exists(os.path.expanduser(os.path.expanduser(cmd_pointer.home_dir+"/prompt_train/"))):
-            os.mkdir(os.path.expanduser(os.path.expanduser(cmd_pointer.home_dir+"/prompt_train/")))
-    except:
+        if not os.path.exists(os.path.expanduser(os.path.expanduser(cmd_pointer.home_dir + "/prompt_train/"))):
+            os.mkdir(os.path.expanduser(os.path.expanduser(cmd_pointer.home_dir + "/prompt_train/")))
+    except BaseException:
         raise Exception(f"unable to create prompt soc directory {str(os.path.expanduser(cmd_pointer.home_dir+'/prompt_train/'))}")
-    
-    for file in glob.glob(os.path.expanduser(str(os.path.expanduser(cmd_pointer.home_dir+'/prompt_train/'))+"/*")):  
+
+    for file in glob.glob(os.path.expanduser(str(os.path.expanduser(cmd_pointer.home_dir + '/prompt_train/')) + "/*")):
         os.remove(file)
 
     while i < len(orig_statements):
-        training_statements.append({'command_group':'base','command_name': grammar_help[i]['name'],'command_syntax': grammar_help[i]['command'],'command_help':grammar_help[i]['description']})
-        i+=1
-    file =  open(os.path.expanduser(cmd_pointer.home_dir+'/prompt_train/base_commands.txt'), 'w',newline='\n') 
+        training_statements.append({'command_group': 'base', 'command_name': grammar_help[i]['name'], 'command_syntax': grammar_help[i]['command'], 'command_help': grammar_help[i]['description']})
+        i += 1
+    file = open(os.path.expanduser(cmd_pointer.home_dir + '/prompt_train/base_commands.txt'), 'w', newline='\n')
     file.write("""adccl client information
 
-        For information in providing answers to how to or Help questions from users : 
+        For information in providing answers to how to or Help questions from users :
 
 
 
@@ -876,44 +867,42 @@ def output_train_statements(cmd_pointer):
             Show:  Show a data set using a utility that enables you to manipulate or diagramatically view it.
             Backup: backup a plugin or workspace
             Add: add a function or plugin
-            Remove: delete an object 
+            Remove: delete an object
             Save: Save a run or file of some kind
             Load: load a file from project directory to Target system
             pyparsing_statement: a statement defined using pyparsing for the domain specific language
             help_text: description of the Domain Specific language statement defined in a pyparsing_statement
-            toolkit: these are contextual plugins that are available one at a time for providing specific functionality to the user. Valid toolkits are DS4SD (deepSearch), GT4SD(generative AI toolkit), RXN (retro synthesis), ST4SD(simulation toolkit) 
+            toolkit: these are contextual plugins that are available one at a time for providing specific functionality to the user. Valid toolkits are DS4SD (deepSearch), GT4SD(generative AI toolkit), RXN (retro synthesis), ST4SD(simulation toolkit)
             History: History of DSL commands for a given Workspace
-            run: list of sequential commands saved by the user') 
+            run: list of sequential commands saved by the user')
             ?: will display help and if positioned prior to a command will display help options for that command \n\n""")
-            
+
     file.write('The following dictionaries are the Domain Specific Language (DSL) commands available in the base adccl client.\n  The users Domain Specific Language commands will be interpreted from these command definitions which the application trainslates into the Domain specific Language (DSL) .. for reference \n command_name : is the name of the command\n command_group : is the toolkit group the command belongs to, command_syntax : is the Syntax description for the command \n command_help : is the associated help instructions and examples on how to use the command.  \n')
     for i in training_statements:
-        file.write(str(i)+'\n')
+        file.write(str(i) + '\n')
     file.close()
 
-    
     for i in cmd_pointer.settings['toolkits']:
-          token , a_toolkit=load_toolkit(i)
-          training_statements=[]
-          file =  open(os.path.expanduser(cmd_pointer.home_dir+'/prompt_train/toolkit_'+i+'.txt'), 'w',newline='\n') 
-          file.write('This file represents the description of the '+a_toolkit.toolkit_name+' \n\n')
-          
-          file.write('this is the description of the overall capability of the '+a_toolkit.toolkit_name+' \n \n')
-          file.write('The following are the  command definitions for the '+a_toolkit.toolkit_name+' toolkit with their  command definition and description \n '+str(a_toolkit.toolkit_description)+' \n When displaying an answer always interpret the command specified  \n')
-          
-          x=0
-          while x < len(a_toolkit.methods):
-              training_statements.append({'toolkit group':a_toolkit.toolkit_name,'command_name': a_toolkit.methods_help[x]['name'],'command': a_toolkit.methods_help[x]['command'],'command_help': a_toolkit.methods_help[x]['description']})
-              x+=1
-          for i in   training_statements:
-            file.write(str(i)+'\n',)
-          file.close()
+        token, a_toolkit = load_toolkit(i)
+        training_statements = []
+        file = open(os.path.expanduser(cmd_pointer.home_dir + '/prompt_train/toolkit_' + i + '.txt'), 'w', newline='\n')
+        file.write('This file represents the description of the ' + a_toolkit.toolkit_name + ' \n\n')
+
+        file.write('this is the description of the overall capability of the ' + a_toolkit.toolkit_name + ' \n \n')
+        file.write('The following are the  command definitions for the ' + a_toolkit.toolkit_name + ' toolkit with their  command definition and description \n ' +
+                   str(a_toolkit.toolkit_description) + ' \n When displaying an answer always interpret the command specified  \n')
+
+        x = 0
+        while x < len(a_toolkit.methods):
+            training_statements.append({'toolkit group': a_toolkit.toolkit_name, 'command_name': a_toolkit.methods_help[x]['name'], 'command': a_toolkit.methods_help[x]['command'], 'command_help': a_toolkit.methods_help[x]['description']})
+            x += 1
+        for i in training_statements:
+            file.write(str(i) + '\n',)
+        file.close()
     return
 
 
-
-####### Need to fix later
-
+# Need to fix later
 #!/usr/local/opt/python@3.9/bin/python3.9
 import os
 import imp
@@ -926,6 +915,7 @@ from ad4e_opentoolkit.helpers.output import msg, output_error
 # Globals
 from ad4e_opentoolkit.app.global_var_lib import _meta_dir_toolkits
 from ad4e_opentoolkit.app.global_var_lib import _meta_workspaces
+
 
 class Toolkit:
     def __init__(self, name) -> None:
@@ -948,10 +938,10 @@ def load_toolkit(toolkit_name):
         x = json.load(func_file)
         statement_builder(the_toolkit, x)
     try:
-        with open( _meta_dir_toolkits + "/" + toolkit_name + "/description.txt", 'r')as file:
+        with open(_meta_dir_toolkits + "/" + toolkit_name + "/description.txt", 'r')as file:
             the_toolkit.toolkit_description = file.read()
             file.close()
-    except:
-        #print('no description')
-        the_toolkit.toolkit_description=None
+    except BaseException:
+        # print('no description')
+        the_toolkit.toolkit_description = None
     return True, the_toolkit
