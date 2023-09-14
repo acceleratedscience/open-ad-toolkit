@@ -25,9 +25,9 @@
         python -m venv  ./openad
         source ./openad/bin/activate
 
-    > **Note:** To exit the virtual environment, you cam run `deactivate`
+    > **Note:** To exit the virtual environment, you can run `deactivate`
 
-    ![](https://placehold.co/20x20/dd0000/dd0000.png) <span style="color:#d00">Internal note: we should change the virtual env name to something that's descriptive, because just calling it "openad" obfuscates what is happening here. Kept is as is to avoid inconsistencies with other content.</span>
+    ![](https://placehold.co/20x20/dd0000/dd0000.png) <span style="color:#d00">Internal note: we should change the virtual env name to something that's descriptive, because just calling it "openad" obfuscates what is happening here. I kept is as-is to avoid inconsistencies with other content. - Moenen</span>
 
 1.  **Step 2: Installation**<br>
 
