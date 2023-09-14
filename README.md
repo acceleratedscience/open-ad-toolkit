@@ -6,34 +6,46 @@
 ---
 
 <br>
+
 ## Notes
-- Only available for Linux and MacOS
-- Currently only the OpenAi API is available for the _Tell Me_ Function (WatsonX coming soon)
-- If you're on Mac and not installing into a virtual environment, you may need use `pip3` and `python3` instead of `pip` and `python` respectively. <span style="color: red">(does venv affect this?)</span><br>
+
+-   Only available for Linux and MacOS
+-   Currently only the OpenAi API is available for the _Tell Me_ Function (WatsonX coming soon)
+-   If you're on Mac and not installing into a virtual environment, you may need use `pip3` and `python3` instead of `pip` and `python` respectively.<br>
 
 <br>
+
 ## Installation
 
 1.  **Step 0: Before you start**<br>
     Ensure you're running Python 3.10.10 or above.
 
 1.  **Step 1: Set up virtual environment** (optional)<br>
-    `python -m venv  ./myenv`<br>
-    `source ./myenv/bin/activate`
+
+        python -m venv  ./openad
+        source ./openad/bin/activate
+
+    > **Note:** To exit the virtual environment, you cam run `deactivate`
+
+    ![](https://placehold.co/20x20/dd0000/dd0000.png) <span style="color:#d00">Internal note: we should change the virtual env name to something that's descriptive, because just calling it "openad" obfuscates what is happening here. Kept is as is to avoid inconsistencies with other content.</span>
 
 1.  **Step 2: Installation**<br>
-    `pip install   git+ssh://git@github.ibm.com/Accelerated-Discovery/ad4e-opentoolkit.git`
+
+        pip install   git+ssh://git@github.ibm.com/Accelerated-Discovery/ad4e-opentoolkit.git
 
     > _**Note:** Before pip installing from git, ensure you have ssh set up for git install, otherwise you can download the repository and run `pip install .` from the ad4e-opentoolkit top directory._
 
 1.  **Launch**<br>
-    To enter the command shell, simply enter `adccl` from the command line.<br>
+    To enter the command shell, simply enter `adccl` from the command line.
+
     > _**Notes:**<br>
     > • Alternatively, you can run bash commands as such: `adccl <command>`<br>
     > • To see available commands, run `?`_
 
 <br>
+
 ## Installation for Development
+
 Only follow these instructions if you're contributing to the codebase.
 
 1.  **Step 0 & 1**<br>
@@ -60,18 +72,19 @@ Only follow these instructions if you're contributing to the codebase.
         > This way you can make changes to the source code of the package, and those changes are immediately reflected in your Python environment. You don't need to reinstall the package every time you make a change.
 
 <br>
+
 ## Getting Access to RXN, DeepSearch and Tell Me Functionality
 
 Below you find login instructions for RXN and DeepSearch. If you choose to use the `Tell Me` function, you will also need to obtain a OpenAI API account.<br>
 
-<span style="color: red">(((deep Search Rep on IBM Network)))</span><br>
-
 <br>
-### DeepSearch<br>
+
+### DeepSearch
 
 1. First, you'll need to generate an API key on the DeepSearch website.
 
-    - Activate the Cisco Secure Client VPN to access the IBM-internal edge version of DeepSearch: [cps.foc-deepsearch.zurich.ibm.com](https://cps.foc-deepsearch.zurich.ibm.com) <span style="color: red">(Do we want to also provide instructions for the public DS?)</span><br>
+    - **IBM Users:** Activate the Cisco Secure Client VPN to access the IBM-internal edge version of DeepSearch: [cps.foc-deepsearch.zurich.ibm.com](https://cps.foc-deepsearch.zurich.ibm.com)
+    - **Non-IBM Users:** Access the public version of DeepSearch: [deepsearch-experience.res.ibm.com](https://deepsearch-experience.res.ibm.com)
     - Once logged in, click the Toolkit/API icon, then open the HTTP section
     - Click the "Generate new API key" button<br>
       <br>
@@ -88,12 +101,12 @@ Below you find login instructions for RXN and DeepSearch. If you choose to use t
     > **Note:** Your DS4SD auth config file is saved as `~/.adccl/ds-auth.ext-v2.json`. If you ever want to reset your DS4SD login information, simply delete this file.<br>
 
 <br>
-### RXN <br>
+
+### RXN
 
 1. First, you'll need to generate an API key on the RXN website.
 
     - Sign up for an RXN account at [rxn.app.accelerate.science](https://rxn.app.accelerate.science)
-      <span style="color: red">(((using your w3id login)))</span>
     - Obtain your API key by clicking the user profile icon in the top right hand corner and select "My profile".<br>
       <br>
       ![Landing](readme/rxn-api-key.png)
@@ -108,6 +121,7 @@ Below you find login instructions for RXN and DeepSearch. If you choose to use t
     > **Note:** Your RXN auth config file is saved as `~/.adccl/rxn-auth.ext-v2.json`. If you ever want to reset your RXN login information, simply delete this file.<br>
 
 <br>
+
 ### OpenAI
 
 To be able to use the "Tell me" functionality, you will need to create an account with OpenAI. There is a one month free trial.<br>
@@ -123,6 +137,7 @@ To be able to use the "Tell me" functionality, you will need to create an accoun
 ![Landing](readme/openai-api-key.png)
 
 <br>
+
 ## Getting Started - CLI
 
 -   **Entering the Shell Environment**<br>
@@ -149,11 +164,16 @@ To be able to use the "Tell me" functionality, you will need to create an accoun
         adccl show molecules using file \'base_molecules.sdf\'
 
 <br>
+
 ## Getting Started - Jupyter
 
 ### Jupyter Setup
 
 If you plan to use this application inside Jupyter Notebook of JupyterLab, you should set it up as follows:
+
+1.  Activate your virtual environment, as described under [Installation](#installation) on top.
+
+        source ./openad/bin/activate
 
 1.  Install ipykernel, which includes IPython:
 
@@ -161,43 +181,50 @@ If you plan to use this application inside Jupyter Notebook of JupyterLab, you s
 
 1.  Create a kernel that can be used to run Notebook commands inside the virtual environment:
 
-        python -m ipykernel install --user --name=myenv
+        python -m ipykernel install --user --name=openad
 
-1.  Initiate the magic commands across all Notebooks. This copies the magic commands into the iPython startup directory for your created profile:
+1.  Initiate the magic commands.
 
-        init_magic
+    -   **Option A: Across all notebooks** (recommended)<br>
+        This copies the magic commands into the iPython startup directory for your created profile:
 
-    If you wish to use the magic commands in a single notebook only, you can instead run instead:
+            init_magic
 
-        init_magic .
+    -   **Option B: Within a single notebook**<br>
+        If you wish to use the magic commands in a single notebook only, you can run instead:
 
-    Then to initiate the magic commands, run:
+            init_magic .
 
-        run adccl.py
+        Then to initiate the magic commands, run:
 
-    Or to copy it to a custom iPython profile:
+            run adccl.py
 
-        init_magic myprofile
+    -   **Option C: Within a custom iPython profile**<br>
+        This would install the magic commands within the iPhython custom profile called 'myprofile'
 
-    > **Note:** If you don't want to install magic commands in your jupyter default profile, you can initiate the magic commands per notebook.<br>
-    > • Run `init_examples` <span style="color: red">(This command doesn't seem to exist?)</span> to copy the Jupyter example files to your home directory.<br>
+            init_magic myprofile
+
+    > **Note:** If you don't want to install magic commands in your jupyter default profile, you can initiate the magic commands manually per notebook.<br>
+    > • Run `init_examples` to copy the Jupyter example files to your home directory.<br>
     > • In each Notebook where you wish to use the magic commands, run `run adccl.ipynb` first. This executes the file `~/adccl_notebooks/adccl.ipynb` which activates the magic commands.
 
 <br>
+
 ### Jupyter Launch
 
--   Get started by creating the `~/adccl_notebooks` directory with example Notebooks for you to work from:
-    <span style="color: red">This command doesn't seem to exist? Should be `init examples` anyways?</span><br>
+> **Note:** The commands described below should be run from the regular CLI, not from openad command shell.
 
-        init_notebooks
+-   Get started by creating the `~/adccl_notebooks` directory with example Notebooks for you to work from.
+
+        init_examples
 
 -   Open the table of contents to get an introduction and be taken through step by step how to use the tool.
 
         jupyter lab ~/adccl_notebooks/Table_of_Contents.ipynb
 
--   Make sure to select your virtual environment as the Python kernel. In JupyterLab, you can select this in the top right-hand corner. In Juyter Notebook, you can select this under _Kernel > Change Kernel_. If you don't see your virtual environment, make sure you followed the Jupyter Setup instructions listed above.
+    > **NOTE:** By launching Jupyter this way it will automatically launch the trial notebooks.
 
-    > **NOTE:** by launching Jupyter this way it will automatically launch the trial notebooks. <span style="color: red">???<span>
+-   Make sure to select your virtual environment as the Python kernel. In JupyterLab, you can select this in the top right-hand corner. In Juyter Notebook, you can select this under _Kernel > Change Kernel_. If you don't see your virtual environment, make sure you followed the Jupyter Setup instructions listed above.
 
 <br>
 <figure>
@@ -220,9 +247,9 @@ If you plan to use this application inside Jupyter Notebook of JupyterLab, you s
 
         %adccl exec display_collection(domain='Material Science')
 
--   Some example magic commands to play with RXN <span style="color: red">(example missing)</span>
+-   Some example magic commands to play with RXN
 
-        %adccl foobar
+        %adccl list rxn models
 
 <!--
 

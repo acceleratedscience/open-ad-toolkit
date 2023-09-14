@@ -143,7 +143,7 @@ class run_cmd(Cmd):
 
         output_train_statements(self)
 
-    def do_help(self, inp):
+    def do_help(self, inp, return_val=False):
         """
         Displaying help.
 
@@ -152,7 +152,6 @@ class run_cmd(Cmd):
             list ?                   --> This goes via the run_cmd.default() function
             python3 main.py '? list' --> This goes via __main__
             %adccl ? list            --> Notebook and API requests go via api_remote()
-
         """
 
         # `??` --> Advanced help.
@@ -178,8 +177,7 @@ class run_cmd(Cmd):
         # `?` --> Display all commands.
         if len(inp.split()) == 0:
             return output_text(
-                adccl_help.all_commands(
-                    all_commands, toolkit_current=self.toolkit_current, cmd_pointer=self),
+                adccl_help.all_commands(all_commands, toolkit_current=self.toolkit_current, cmd_pointer=self),
                 self,
                 pad=2,
                 tabs=1,
@@ -198,6 +196,8 @@ class run_cmd(Cmd):
                 tabs=1,
                 nowrap=True
             )
+
+        # Add toolkit commands to the list of all commands.
         try:
             for i in self.toolkit_current.methods_help:
                 if i not in all_commands:
@@ -205,7 +205,7 @@ class run_cmd(Cmd):
         except BaseException:
             pass
 
-        # Look for commands that include this exact word singular/plural.
+        # Filter commands that include this exact word singular/plural.
         if one_word_cmd and starts_with == False:
             for command in all_commands:
                 command_str = str(command['command']).strip().lower()
@@ -216,9 +216,8 @@ class run_cmd(Cmd):
                     query_type = 'word_match'
                     matching_commands.append(command)
 
-        # Look for commands that start with this string.
+        # Filter commands that start with this string.
         if not len(matching_commands):
-
             for command in all_commands:
                 command_str = str(command['command']).strip().lower()
                 if command_str.upper().startswith(inp.upper()):
@@ -226,11 +225,11 @@ class run_cmd(Cmd):
                     matching_commands.append(command)
 
         if len(matching_commands) > 1:
-            return output_text(adccl_help.queried_commands(matching_commands, inp=inp, query_type=query_type), self, pad=1, nowrap=True)
+            return output_text(adccl_help.queried_commands(matching_commands, inp=inp, query_type=query_type), self, pad=1, nowrap=True, return_val=return_val)
         elif len(matching_commands) == 1:
-            return output_text(adccl_help.command_details(matching_commands[0]), self, pad=2, tabs=1)
+            return output_text(adccl_help.command_details(matching_commands[0]), self, pad=2, tabs=1, return_val=return_val)
         else:
-            return output_error(msg('err_invalid_cmd', None, split=True), self)
+            return output_error(msg('err_invalid_cmd', None, split=True), self, return_val=return_val)
 
     # Preloop is called by cmd to get an update the history file
     # Each History File
@@ -513,21 +512,27 @@ class run_cmd(Cmd):
                                            return_val=True, cmd_pointer=self)
 
                     else:
+                        # Isolate part of the error message with command & arrow.
+                        error_msg = error_msg.splitlines()
+                        error_msg = error_msg[0] + '\n' + error_msg[1]
 
+                        # Isolate the string we want to use for help.
                         if error_col_grabber(error_descriptor) == 1:
-                            output_error(msg('err_invalid_cmd', error_msg.split('Parse')[0], split=True), self)
-                            output_text(
-                                "Perhaps you could try one of the following:", self)
-                            self.do_help(error_first_word_grabber(error_descriptor) + ' ?')
+                            # Not full word recognized.
+                            help_ref = error_first_word_grabber(error_descriptor)
                         else:
-                            output_error(msg('err_invalid_cmd', error_msg, split=True), self)
-                            output_text("Perhaps you could try one of the following:", self)
-                            self.do_help(inp[0:error_col_grabber(error_descriptor) - 1] + ' ?')
+                            # At least one word recognized.
+                            help_ref = inp[0:error_col_grabber(error_descriptor) - 1]
 
-                        output_text(
-                            "If there is not an option that meets your requirement type '?' to list all command options",
-                            return_val=True,
-                            cmd_pointer=self)
+                        # Check if we found some alternative commands to suggest.
+                        show_suggestions = 'Not a valid command.' not in self.do_help(help_ref + ' ?', return_val=True)
+
+                        # Display error
+                        output_error(msg('err_invalid_cmd', error_msg, split=True), self)
+                        if show_suggestions:
+                            output_text("You may want to try:", self)
+                            self.do_help(help_ref + ' ?')
+                            output_text("<soft>Type <cmd>?</cmd> to list all command options.</soft>", self, pad_btm=1)
                 return False
 
             else:
@@ -549,7 +554,7 @@ class run_cmd(Cmd):
                 return
 
 
-# this function retuns the errror positioning in the statement tht has been parsed.
+# Retuns the error positioning in the statement that has been parsed.
 def error_col_grabber(error):
     e = error.split('col:')[1]
     e1 = e.replace(')', '')

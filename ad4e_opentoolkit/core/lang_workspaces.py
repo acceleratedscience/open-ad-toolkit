@@ -3,7 +3,7 @@ from time import sleep
 
 import readline
 # Core
-from ad4e_opentoolkit.core.lang_sessions_and_registry import write_registry,update_main_registry_env_var
+from ad4e_opentoolkit.core.lang_sessions_and_registry import write_registry, update_main_registry_env_var
 
 # Global variables
 from ad4e_opentoolkit.app.global_var_lib import _meta_dir as _meta_dir
@@ -22,7 +22,7 @@ from ad4e_opentoolkit.helpers.spinner import spinner
 
 # Sets the current workspace from the fgiven workspaces available
 def set_workspace(cmd_pointer, parser):
-  
+
     readline.write_history_file(cmd_pointer.histfile)
     current_workspace_name = cmd_pointer.settings['workspace'].upper()
     new_workspace_name = parser['Workspace_Name'].upper()
@@ -93,10 +93,10 @@ def get_workspace(cmd_pointer, parser):
 # Remove workspace and all its metadata files.
 def remove_workspace(cmd_pointer, parser):
     other, error_msg = other_sessions_exist(cmd_pointer)
-    cmd_pointer.refresh_vector=True
-    cmd_pointer.refresh_train=True
-    cmd_pointer.settings['env_vars']['refresh_help_ai']=True
-    update_main_registry_env_var(cmd_pointer,'refresh_help_ai',True)
+    cmd_pointer.refresh_vector = True
+    cmd_pointer.refresh_train = True
+    cmd_pointer.settings['env_vars']['refresh_help_ai'] = True
+    update_main_registry_env_var(cmd_pointer, 'refresh_help_ai', True)
     if other == True:
         return error_msg
 
@@ -118,14 +118,14 @@ def remove_workspace(cmd_pointer, parser):
 
 
 def create_workspace(cmd_pointer, parser):
-    # Make sure existing workspace History file is saved.
-   
+    # Make sure existing workspace history file is saved.
     readline.write_history_file(cmd_pointer.histfile)
-    cmd_pointer.refresh_vector=True
-    cmd_pointer.refresh_train=True
-    
-    cmd_pointer.settings['env_vars']['refresh_help_ai']=True
-    update_main_registry_env_var(cmd_pointer,'refresh_help_ai',True)
+    cmd_pointer.refresh_vector = True
+    cmd_pointer.refresh_train = True
+
+    cmd_pointer.settings['env_vars']['refresh_help_ai'] = True
+    update_main_registry_env_var(cmd_pointer, 'refresh_help_ai', True)
+
     # Abort if other sessions are running.
     other, error_msg = other_sessions_exist(cmd_pointer)
     if other == True:
@@ -148,9 +148,9 @@ def create_workspace(cmd_pointer, parser):
             # From input.
             output_text(msg('enter_to_skip'), cmd_pointer, pad_top=1)  # force_print=True
             description = user_input(cmd_pointer, 'Workspace description')
-            if description ==None or len(description.strip()) ==0:
-                description=" No Workspace Description"
-                
+            if description is None or len(description.strip()) == 0:
+                description = " No Workspace Description"
+
         cmd_pointer.settings['descriptions'][workspace_name] = description
         write_registry(cmd_pointer.settings, cmd_pointer, True)  # Create registry
         write_registry(cmd_pointer.settings, cmd_pointer)  # Create session registry
@@ -192,7 +192,7 @@ def create_workspace(cmd_pointer, parser):
         # Main and session registry writes
         write_registry(cmd_pointer.settings, cmd_pointer, True)
         write_registry(cmd_pointer.settings, cmd_pointer)
-        
+
         readline.clear_history()
         readline.write_history_file(cmd_pointer.histfile)
         # raise ValueError('This is a test error.\n') @Phil this causes the app to break permamenently.

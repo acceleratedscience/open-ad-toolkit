@@ -23,14 +23,14 @@ output_text()
     Simple usage: output_text('Hello world', cmd_pointer, pad=2)
     Note: you can pass additional parameters which will be passed
     onto the style_parser, eg. pad=2. See documentation for style().
-_output_status()
-    This is a wrapper around output_text() which take care of
-    some templated styling making sure error/waring/success outputs
-    are always treated consistently. It is not to be
 output_error()
 output_warning()
 output_success()
-    These are all wrappers around output_status().
+    These are all wrappers around _output_status().
+_output_status()
+    This is a wrapper around output_text() which takes care of
+    some templated styling to make sure error/waring/success outputs
+    are always treated consistently.
 output_table()
     Displays a table in the CLI, or returns a panda dataframe when
     called from Jupyter or the API.
