@@ -3,16 +3,14 @@ import os
 import re
 import readline
 from IPython.display import display
-
 from ad4e_opentoolkit.helpers.output import msg, output_text, output_error
-from ad4e_opentoolkit.helpers.style_parser import strip_tags
 
 
 # Refreshes the command prompt when in the shell.
 def refresh_prompt(settings):
     if settings['context'] is not None:
-        #prompt = ' \u001b[7m ' + settings['context'] + ' \u001b[0m '  # Reverse & reset
-        prompt = settings['context']+'->'   # Reverse & reset
+        # prompt = ' \u001b[7m ' + settings['context'] + ' \u001b[0m '  # Reverse & reset
+        prompt = settings['context'] + '->'   # Reverse & reset
     else:
         prompt = 'ADCCL:'
     if settings['workspace'] is not None:
@@ -128,9 +126,8 @@ def user_input(cmd_pointer, question):
 # Return list of available toolkit names.
 def get_toolkits():
     import os
-    
- 
-    folder_path = os.path.dirname(os.path.abspath(__file__))+'/../user_toolkits'  # Replace 'foo' with the actual path to the folder
+
+    folder_path = os.path.dirname(os.path.abspath(__file__)) + '/../user_toolkits'  # Replace 'foo' with the actual path to the folder
     toolkit_names = [name.upper() for name in os.listdir(folder_path) if os.path.isdir(os.path.join(folder_path, name))]
     if '__PYCACHE__' in toolkit_names:
         toolkit_names.remove('__PYCACHE__')

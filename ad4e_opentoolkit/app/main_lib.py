@@ -5,7 +5,7 @@ import readline
 
 # Core
 from ad4e_opentoolkit.core.lang_file_system import import_file, export_file, copy_file, remove_file, list_files
-from ad4e_opentoolkit.core.lang_sessions_and_registry import clear_other_sessions, write_registry, registry_add_toolkit, registry_deregister_toolkit, initialise_registry,update_main_registry_env_var
+from ad4e_opentoolkit.core.lang_sessions_and_registry import clear_other_sessions, write_registry, registry_add_toolkit, registry_deregister_toolkit, initialise_registry, update_main_registry_env_var
 from ad4e_opentoolkit.core.lang_workspaces import create_workspace, remove_workspace, list_workspaces, set_workspace, get_workspace
 from ad4e_opentoolkit.core.lang_mols import display_mols
 from ad4e_opentoolkit.core.grammar import create_statements
@@ -15,7 +15,7 @@ from ad4e_opentoolkit.core.lang_runs import display_run, execute_run, save_run, 
 from ad4e_opentoolkit.toolkit.toolkit_main import load_toolkit
 from ad4e_opentoolkit.toolkit.toolkit_main import execute_tookit
 from ad4e_opentoolkit.toolkit.toolkit_main import load_toolkit_description
-from  ad4e_opentoolkit.llm_assist.llm_interface import how_do_i,set_llm,clear_llm_auth
+from ad4e_opentoolkit.llm_assist.llm_interface import how_do_i, set_llm, clear_llm_auth
 
 # Global variables
 from ad4e_opentoolkit.app.global_var_lib import _meta_dir as _meta_dir
@@ -28,15 +28,19 @@ from ad4e_opentoolkit.app.global_var_lib import _all_toolkits as _all_toolkits
 
 # Helpers
 from ad4e_opentoolkit.helpers.output import msg, output_text, output_error, output_warning, output_success, output_table
-from ad4e_opentoolkit.helpers.style_parser import tags_to_markdown
 from ad4e_opentoolkit.helpers.general import refresh_prompt
 from ad4e_opentoolkit.helpers.splash import splash
 from ad4e_opentoolkit.helpers.output_content import adccl_intro
 
 
+# Importing our own plugins.
+# This is temporary until every plugin is available as a public pypi package.
+# from ad4e_opentoolkit.plugins.style_parser import tags_to_markdown
+
+
 # This is called by the default run_cmd method, for executing current commands.
 def lang_parse(cmd_pointer, parser):
-    
+
     # Workspace commands
     if parser.getName() == 'create_workspace_statement':
         return create_workspace(cmd_pointer, parser)  # Addressed
@@ -55,7 +59,7 @@ def lang_parse(cmd_pointer, parser):
 
     # Toolkit commands
     elif parser.getName() == 'add_toolkit':
-        
+
         return registry_add_toolkit(cmd_pointer, parser)
     elif parser.getName() == 'remove_toolkit':
         return registry_deregister_toolkit(cmd_pointer, parser)
@@ -67,30 +71,31 @@ def lang_parse(cmd_pointer, parser):
         return set_context(cmd_pointer, parser)
     elif parser.getName() == 'unset_context':
         return unset_context(cmd_pointer, parser)
-    
-    #Language Model How To
+
+    # Language Model How To
     elif parser.getName() == 'HOW_DO_I':
-        result= how_do_i(cmd_pointer,parser)
+        result = how_do_i(cmd_pointer, parser)
         if result == False:
-            
+
             return False
-        update_main_registry_env_var(cmd_pointer,'refresh_help_ai',False)
-        write_registry(cmd_pointer.settings,cmd_pointer)
+        update_main_registry_env_var(cmd_pointer, 'refresh_help_ai', False)
+        write_registry(cmd_pointer.settings, cmd_pointer)
         return result
     elif parser.getName() == 'set_llm':
         try:
-            result= set_llm(cmd_pointer,parser)          
-            cmd_pointer.llm_model=cmd_pointer.llm_models[cmd_pointer.llm_service] 
-            update_main_registry_env_var(cmd_pointer,'llm_service',cmd_pointer.llm_service)
-            cmd_pointer.refresh_vector=True
-            cmd_pointer.refresh_train=True
-            write_registry(cmd_pointer.settings,cmd_pointer,False)
-            write_registry(cmd_pointer.settings,cmd_pointer,True)
+            result = set_llm(cmd_pointer, parser)
+            cmd_pointer.llm_model = cmd_pointer.llm_models[cmd_pointer.llm_service]
+            update_main_registry_env_var(
+                cmd_pointer, 'llm_service', cmd_pointer.llm_service)
+            cmd_pointer.refresh_vector = True
+            cmd_pointer.refresh_train = True
+            write_registry(cmd_pointer.settings, cmd_pointer, False)
+            write_registry(cmd_pointer.settings, cmd_pointer, True)
         except Exception as e:
             print(e)
         return result
     elif parser.getName() == 'clear_llm_auth':
-        result= clear_llm_auth(cmd_pointer,parser)
+        result = clear_llm_auth(cmd_pointer, parser)
         return result
 
     # Run commands
@@ -112,7 +117,7 @@ def lang_parse(cmd_pointer, parser):
 
     # File system commands
     elif parser.getName() == 'list_files':
-    
+
         return list_files(cmd_pointer, parser)
     elif parser.getName() == 'import_file':
         return import_file(cmd_pointer, parser)
@@ -141,7 +146,7 @@ def lang_parse(cmd_pointer, parser):
     elif parser.getName() == 'clear_sessions':
         return clear_other_sessions(cmd_pointer, parser)
     elif parser.getName() == 'edit_config':
-        return edit_card(cmd_pointer, parser)
+        return edit_config(cmd_pointer, parser)
 
     # Help commands
     elif parser.getName() == 'intro':
@@ -167,7 +172,7 @@ def lang_parse(cmd_pointer, parser):
         except BaseException as err:
             err = err + '\n' + str(parser.asList())
             return output_error(msg('fail_toolkit_exec_cmd'), cmd_pointer)
-    
+
     return
 
 
@@ -214,7 +219,8 @@ def welcome(cmd_pointer, parser):
 
 
 def return_context(cmd_pointer, parser):
-    status = msg('status', cmd_pointer.settings['workspace'], str(cmd_pointer.settings['context']))
+    status = msg('status', cmd_pointer.settings['workspace'], str(
+        cmd_pointer.settings['context']))
     return output_text(status, cmd_pointer, nowrap=True, pad=1)
 
 
@@ -265,32 +271,32 @@ def list_all_toolkits(cmd_pointer, parser):
 def set_context(cmd_pointer, parser):
     if parser['toolkit_name'] is None:
         return return_context(cmd_pointer, parser)
-    
+
     reset = False
     if 'reset' in parser:
-        reset=True
+        reset = True
 
     toolkit_name = parser['toolkit_name'].upper()
     toolkit_current = None
-    
+
     if toolkit_name.upper() not in cmd_pointer.settings['toolkits']:
-       
+
         if toolkit_name is None:
             return return_context(cmd_pointer, parser)
-        
+
         # Toolkit doesn't exist.
         return output_error(
             msg('fail_toolkit_not_installed', toolkit_name, split=True),
             cmd_pointer,
             nowrap=True
         )
-       
+
     else:
-        
+
         old_cmd_pointer_context = cmd_pointer.settings['context']
         old_toolkit_current = cmd_pointer.toolkit_current
         load_ok, toolkit_current = load_toolkit(toolkit_name)
-        
+
         if load_ok:
             cmd_pointer.settings['context'] = toolkit_name
             cmd_pointer.toolkit_current = toolkit_current
@@ -298,29 +304,32 @@ def set_context(cmd_pointer, parser):
             write_registry(cmd_pointer.settings, cmd_pointer)
             create_statements(cmd_pointer)
             cmd_pointer.current_help.reset_help()
-            #cmd_pointer.current_help.help_current.extend(toolkit_current.methods_help)
+            # cmd_pointer.current_help.help_current.extend(toolkit_current.methods_help)
             login_success = False
             expiry_datetime = None
             try:
-                
+
                 # raise BaseException('Error message') # For testing
 
-                login_success, expiry_datetime = login_manager.load_login_api(cmd_pointer, toolkit_name,reset=reset)
+                login_success, expiry_datetime = login_manager.load_login_api(
+                    cmd_pointer, toolkit_name, reset=reset)
 
             except BaseException as err:
                 # Error logging in.
-                output_error(msg('err_login', toolkit_name, err, split=True), cmd_pointer)
+                output_error(msg('err_login', toolkit_name,
+                             err, split=True), cmd_pointer)
                 cmd_pointer.settings['context'] = old_cmd_pointer_context
                 cmd_pointer.toolkit_current = old_toolkit_current
                 return
-            
+
             if not login_success:
                 # Failed to log in.
-                output_error(msg('err_login', toolkit_name, split=True), cmd_pointer)
+                output_error(msg('err_login', toolkit_name,
+                             split=True), cmd_pointer)
                 cmd_pointer.settings['context'] = old_cmd_pointer_context
                 cmd_pointer.toolkit_current = old_toolkit_current
                 return
-            
+
             # Success switching context & loggin in.
             if cmd_pointer.notebook_mode or not cmd_pointer.api_mode:
                 return output_success(msg('success_login', toolkit_name, expiry_datetime, split=True), cmd_pointer)
@@ -378,45 +387,30 @@ def display_history(cmd_pointer, parser):
             else:
                 entry_str = '<soft>Workspace created</soft>'
             history.append((line_nr, entry_str))
-            
-            
+
             # Reached bottom.
             if not entry:
                 reached_bottom = True
                 break
         except BaseException as err:
-            output_error(msg('err_fetch_history', err, split=True), cmd_pointer)
+            output_error(msg('err_fetch_history', err,
+                         split=True), cmd_pointer)
             i = 31
-
-    # history = list(map(lambda t: [f'<soft>{t[0]}</soft>{t[1]}{t[2]}'], history)) # Using table - trash
 
     # Add ellipsis if history is longer than 30 items.
     if not reached_bottom:
-        history.append((line_nr - 1,  '<soft>...</soft>'))
+        history.append((line_nr - 1, '<soft>...</soft>'))
     history.reverse()
 
     # Display/return table.
-    
-    return output_table(history, cmd_pointer, headers=['',  'Command History'])
-
-    # Trash
-    # if cmd_pointer.notebook_mode == False:
-    #     history = list(map(lambda t: f'<soft>{t[0]}</soft>{t[1]}{t[2]}', history))
-    #     history = '<h1>Command History</h1>\n' + '\n'.join(history)
-    #     return output_text(history, cmd_pointer, pad=1, nowrap=True)
-
-    # else:
-    #     import pandas
-    #     from helpers.style_parser import strip_tags
-    #     pandas.set_option('display.max_colwidth', None)
-    #     history = list(map(lambda x: [x[0], x[1], strip_tags(x[2])], history))
-    #     return pandas.DataFrame(history, columns=['', '', 'Command History'], index=None)
+    return output_table(history, cmd_pointer, headers=['', 'Command History'])
 
 
 # Display a csv file in a table.
 def display_data(cmd_pointer, parser):
     import pandas
-    workspace_path = cmd_pointer.workspace_path(cmd_pointer.settings['workspace'].upper()) + '/'
+    workspace_path = cmd_pointer.workspace_path(
+        cmd_pointer.settings['workspace'].upper()) + '/'
     file_path = parser['file_path']
     filename = file_path.split('/')[-1]
 
@@ -442,37 +436,36 @@ def display_data(cmd_pointer, parser):
         output_error(msg('err_unknown', err, split=True), cmd_pointer)
 
 
-def edit_card(cmd_pointer, parser):
-    from time import sleep
-    print("###   Please Note this is in sample implementation only and requires Templates to be included ###")
-    sleep(2)
+def edit_config(cmd_pointer, parser):
+    from ad4e_opentoolkit.plugins import edit_json
+
+    workspace_path = cmd_pointer.workspace_path(cmd_pointer.settings['workspace'].upper()) + '/'
+
+    # Abort in Jupyter.
     if cmd_pointer.notebook_mode == True:
-        print('Json Editor only available from command line')
+        print('Editing JSON files is only available from command line.')
         return True
-    template=None
-    if 'template' in parser.as_dict():
-        template = cmd_pointer.workspace_path(
-        cmd_pointer.settings['workspace'].upper()) + '/' + parser.as_dict()['template']
-        if not os.path.isfile(template):
-            return output_error(msg('fail_file_doesnt_exist', template), cmd_pointer)
-    import    ad4e_opentoolkit.edit_json as editor
-    
-    file_to_edit = cmd_pointer.workspace_path(
-        cmd_pointer.settings['workspace'].upper()) + '/' + parser.as_dict()['json_file']
-    #editor = EditJson()
-    #edit_json(file_to_edit, template, new=True, title="JSON Editor Preview")
-    if not os.path.isfile(file_to_edit):
-        
-        if template == None:
-            #editor(file_to_edit)
-            print("currently a scehma is required to run against a new json file")
-        else:
-            editor(file_to_edit,template,new=True,title="JSON Editor Preview")
+
+    # Load schema.
+    schema = None
+    if 'schema' in parser.as_dict():
+        # From parameter.
+        schema = workspace_path + parser.as_dict()['schema']
     else:
-        
-        if template == None:
-            editor(file_to_edit)
-            #print("currently a scehma is required to run")
-        else:
-            editor(file_to_edit,template,title="JSON Editor Preview")
+        # Scan for same filename with -schema suffix.
+        import re
+        schema = workspace_path + re.sub(r'\.json$', '', parser.as_dict()['json_file']) + '-schema.json'
+        if not os.path.isfile(schema):
+            schema = None
+
+    # Load JSON file.
+    file_to_edit = workspace_path + parser.as_dict()['json_file']
+    if os.path.isfile(file_to_edit):
+        edit_json(file_to_edit, schema)
+    elif schema:
+        # JSON file not found, create new from schema.
+        edit_json(file_to_edit, schema, new=True)
+    else:
+        return output_error(msg('fail_file_doesnt_exist', parser.as_dict()['json_file']), cmd_pointer)
+
     return True

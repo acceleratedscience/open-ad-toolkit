@@ -853,7 +853,7 @@ def output_train_statements(cmd_pointer):
     while i < len(orig_statements):
         training_statements.append({'command_group':'base','command_name': grammar_help[i]['name'],'command_syntax': grammar_help[i]['command'],'command_help':grammar_help[i]['description']})
         i+=1
-    file =  open(os.path.expanduser(cmd_pointer.home_dir+'/prompt_train/base_commands.txt'), 'w',newline='\n') 
+    file =  open(os.path.expanduser(cmd_pointer.home_dir+'/prompt_train/base_commands.cdoc'), 'w',newline='\n') 
     file.write("""adccl client information
 
         For information in providing answers to how to or Help questions from users : 
@@ -884,31 +884,32 @@ def output_train_statements(cmd_pointer):
             toolkit: these are contextual plugins that are available one at a time for providing specific functionality to the user. Valid toolkits are DS4SD (deepSearch), GT4SD(generative AI toolkit), RXN (retro synthesis), ST4SD(simulation toolkit) 
             History: History of DSL commands for a given Workspace
             run: list of sequential commands saved by the user') 
-            ?: will display help and if positioned prior to a command will display help options for that command \n\n""")
+            ?: will display help and if positioned prior to a command will display help options for that command \@ \n\n""")
             
-    file.write('The following dictionaries are the Domain Specific Language (DSL) commands available in the base adccl client.\n  The users Domain Specific Language commands will be interpreted from these command definitions which the application trainslates into the Domain specific Language (DSL) .. for reference \n command_name : is the name of the command\n command_group : is the toolkit group the command belongs to, command_syntax : is the Syntax description for the command \n command_help : is the associated help instructions and examples on how to use the command.  \n')
+    file.write('The following dictionaries are the Domain Specific Language (DSL) commands available in the base adccl client.\n  The users Domain Specific Language commands will be interpreted from these command definitions which the application trainslates into the Domain specific Language (DSL) .. for reference \n command_name : is the name of the command\n command_group : is the toolkit group the command belongs to, command_syntax : is the Syntax description for the command \n command_help : is the associated help instructions and examples on how to use the command.  \@\n')
     for i in training_statements:
-        file.write(str(i)+'\n')
+        file.write(str(i)+'\@\n')
     file.close()
 
     
     for i in cmd_pointer.settings['toolkits']:
           token , a_toolkit=load_toolkit(i)
           training_statements=[]
-          file =  open(os.path.expanduser(cmd_pointer.home_dir+'/prompt_train/toolkit_'+i+'.txt'), 'w',newline='\n') 
+          file =  open(os.path.expanduser(cmd_pointer.home_dir+'/prompt_train/toolkit_'+i+'.cdoc'), 'w',newline='\n') 
           file.write('This file represents the description of the '+a_toolkit.toolkit_name+' \n\n')
           
           file.write('this is the description of the overall capability of the '+a_toolkit.toolkit_name+' \n \n')
-          file.write('The following are the  command definitions for the '+a_toolkit.toolkit_name+' toolkit with their  command definition and description \n '+str(a_toolkit.toolkit_description)+' \n When displaying an answer always interpret the command specified  \n')
+          file.write('The following are the  command definitions for the '+a_toolkit.toolkit_name+' toolkit with their  command definition and description \n '+str(a_toolkit.toolkit_description)+' \n When displaying an answer always interpret the command specified \@ \n')
           
           x=0
           while x < len(a_toolkit.methods):
               training_statements.append({'toolkit group':a_toolkit.toolkit_name,'command_name': a_toolkit.methods_help[x]['name'],'command': a_toolkit.methods_help[x]['command'],'command_help': a_toolkit.methods_help[x]['description']})
               x+=1
           for i in   training_statements:
-            file.write(str(i)+'\n',)
+            file.write(str(i)+'\n\@',)
           file.close()
     return
+
 
 
 

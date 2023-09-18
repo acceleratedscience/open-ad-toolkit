@@ -23,14 +23,14 @@ output_text()
     Simple usage: output_text('Hello world', cmd_pointer, pad=2)
     Note: you can pass additional parameters which will be passed
     onto the style_parser, eg. pad=2. See documentation for style().
-_output_status()
-    This is a wrapper around output_text() which take care of
-    some templated styling making sure error/waring/success outputs
-    are always treated consistently. It is not to be
 output_error()
 output_warning()
 output_success()
-    These are all wrappers around output_status().
+    These are all wrappers around _output_status().
+_output_status()
+    This is a wrapper around output_text() which takes care of
+    some templated styling to make sure error/waring/success outputs
+    are always treated consistently.
 output_table()
     Displays a table in the CLI, or returns a panda dataframe when
     called from Jupyter or the API.
@@ -43,8 +43,11 @@ output_text(msg('workspace_description', workspace_name, description), cmd_point
 """
 
 from IPython.display import Markdown, display
-from ad4e_opentoolkit.helpers.style_parser import style, print_s, strip_tags, tags_to_markdown, parse_tags
 from ad4e_opentoolkit.helpers.output_msgs import messages
+
+# Importing our own plugins.
+# This is temporary until every plugin is available as a public pypi package.
+from ad4e_opentoolkit.plugins.style_parser import style, print_s, strip_tags, tags_to_markdown
 
 
 # Print or return styled text.
@@ -79,10 +82,10 @@ def output_text(text, cmd_pointer=None, return_val=None, jup_return_format=None,
 
     if api_mode:
         # API
-        
+
         return strip_tags(text)
     elif notebook_mode:
-        
+
         # Jupyter
         if return_val:
             if jup_return_format == 'plain':
@@ -90,7 +93,7 @@ def output_text(text, cmd_pointer=None, return_val=None, jup_return_format=None,
             if jup_return_format == 'markdown_data':
                 return Markdown(tags_to_markdown(text)).data
             else:
-                
+
                 return Markdown(tags_to_markdown(text))
         else:
             display(Markdown(tags_to_markdown(text)))
@@ -186,7 +189,6 @@ def output_success(msg, *args, **kwargs):
 
 # Print or return a table.
 def output_table(data, cmd_pointer=None, headers=None, note=None, tablefmt='simple'):
-    
     """
     Display a table:
     - CLI:      Print using tabulate with some custom home-made styling
@@ -230,7 +232,7 @@ def output_table(data, cmd_pointer=None, headers=None, note=None, tablefmt='simp
         # pandas.options.display.max_colwidth = 5
         # pandas.set_option('display.max_colwidth', 5)
         if (is_df):
-            
+
             return data
         else:
             # Remove styling tags from headers.
@@ -240,33 +242,34 @@ def output_table(data, cmd_pointer=None, headers=None, note=None, tablefmt='simp
             for i, row in enumerate(data):
                 for j, cell in enumerate(row):
                     data[i][j] = strip_tags(cell)
-            
+
             return pandas.DataFrame(data, columns=headers)
 
     # - -
     # Display data in terminal.
     if (is_df):
-        table = tabulate(data, headers="keys", tablefmt=tablefmt,showindex=False,numalign="left")
+        table = tabulate(data, headers="keys", tablefmt=tablefmt, showindex=False, numalign="left")
     else:
         # Parse styling tags.
         for i, row in enumerate(data):
             for j, cell in enumerate(row):
-                data[i][j] = parse_tags(cell)
-               
-        table = tabulate(data, headers=headers,  tablefmt=tablefmt,showindex=False,numalign="left")
+                data[i][j] = style(cell, nowrap=True)
+
+        table = tabulate(data, headers=headers, tablefmt=tablefmt, showindex=False, numalign="left")
 
     # Crop table if it's wider than the terminal.
     max_row_length = max(list(map(lambda row: len(row), table.splitlines())))
     if max_row_length > cli_width:
-        for i, line in enumerate(table.splitlines()):           
+        for i, line in enumerate(table.splitlines()):
             if i == 1:
                 table = table.replace(line, line[:cli_width])
             elif len(line) > cli_width:
-               table = table.replace(line, line[:cli_width - 3] + '...\u001b[0m') # updated with reset \u001b[0m for color tags which may be found later
+                # updated with reset \u001b[0m for color tags which may be found later
+                table = table.replace(line, line[:cli_width - 3] + '...\u001b[0m')
 
     # Make line yellow
     lines = table.splitlines()
-    lines[1] = parse_tags(f'<yellow>{lines[1]}</yellow>')
+    lines[1] = style(f'<yellow>{lines[1]}</yellow>', nowrap=True)
 
     # List next commands
     msg = (

@@ -1,6 +1,9 @@
-from ad4e_opentoolkit.helpers.style_parser import add_tabs
 from ad4e_opentoolkit.helpers.general import singular, is_toolkit_installed
 from ad4e_opentoolkit.helpers.output import msg, output_error
+
+# Importing our own plugins.
+# This is temporary until every plugin is available as a public pypi package.
+from ad4e_opentoolkit.plugins.style_parser import style
 
 line_break = "<br>"
 heading = "<h3>"
@@ -60,7 +63,7 @@ def all_commands(commands: list, toolkit_name: str = None, toolkit_current: obje
             for category, commands in commands_organized.items():
                 text.append(f"{category}:")
                 for command in commands:
-                    text.append(add_tabs(f"<cmd>{command}</cmd>", 1))
+                    text.append(style(f"<cmd>{command}</cmd>", tabs=1, nowrap=True))
                 text.append('')
         else:
             text.append('<error>No commands found.</error>')

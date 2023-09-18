@@ -9,9 +9,31 @@ from functools import reduce
 from threading import Timer
 from collections import deque, OrderedDict
 
-# Required modules
+# Core
 import jsonschema
 from blessed import Terminal
+
+# Importing our own plugins.
+# - - -
+# This is a temporary solution until every plugin is
+# available as a public pypi package.
+# - - -
+# In production, every plugin has its own package directory
+# with __init__.py included, which all live inside the plugin
+# directory. The plugin directory has an __init__.py itself
+# which lets our plugins import eachother via the parent package
+# using ..cousin_module.
+# In development mode, each plugin directore lives in its
+# develoment directory, which are meant to be sibling dirs so
+# they can import one another using sys.path.append('../')
+try:
+    # Used in production setup.
+    from ..style_parser import print_s, style, strip_tags
+except BaseException:
+    # Used in isolated plugin development setup.
+    import sys
+    sys.path.append('../')
+    from style_parser import print_s, style, strip_tags
 
 # Debug modes:
 # 1: Display logger
@@ -24,17 +46,12 @@ from blessed import Terminal
 DEBUG = []
 
 
-# Import styleparser from the addccl repo (local dev only)
-# or default to the included fallback version.
-from ad4e_opentoolkit.edit_json.editor_style_parser import print_s, style, strip_tags
-    
-
 class EditJson:
     """
     Edit a JSON file within the CLI.
     --------------------------------
-    Author: Moenen Erbuer
-    v0.0.0-beta1 / Last update: Aug 18, 2023
+    Author: Moenen Erbuer - moenen.erbuer@ibm.com
+    v0.0.0-beta4 / Last update: Sep 13, 2023
 
     Description:
         This module lets you edit JSON from within the CLI with an
@@ -55,7 +72,7 @@ class EditJson:
             and description per field. Used for validation & instructions.
         template:str, default=None
             When set and no JSON file was found, a new file will be created with
-            the template're content.
+            the template's content.
         title:str, default=None
             Custom title on top of the JSON editor.
         new:bool, default=False
@@ -114,7 +131,6 @@ class EditJson:
 
     def __init__(self):
         # Screen management (help, confirm_exit, maybe more later)
-        
         self.active_screen = None  # To store an active screen's class.
         screen_classes = [ConfirmExitScreen, AllCommandsScreen]
         for ScreenClass in screen_classes:
@@ -190,7 +206,7 @@ class EditJson:
         # Dev
         self.log_values = []  # Used by self.log()
         self.og_display_lines = []  # Used to store display lines before self.log() manipulates them.
-        
+
     def __call__(self, *args, **kwargs):
         success = self.open_json_file(*args, **kwargs)
         if success:
@@ -214,7 +230,6 @@ class EditJson:
             read_only=False,
             demo=False,
     ):
-        
         self.json_path = json
         self.schema_path = schema
         template_path = template
@@ -285,7 +300,7 @@ class EditJson:
         self.store_addresses()
         self.set_left_col_width()
         self.validate()
-        
+
         # For debugging.
         # Print data & key addresses (replaces UI).
         # - - - - - - - - - - - - - -
@@ -386,7 +401,6 @@ class EditJson:
         return schema
 
     # Load JSON file.
-
     def load_json_file(self, json_path):
         data = None
         file_exists = False
@@ -605,7 +619,7 @@ class EditJson:
         self.instructions_main = get_instructions_main()
         self.instructions_read_only = get_instructions_read_only()
         exit_msg = None
-        
+
         with self.term.fullscreen(), self.term.cbreak(), self.term.hidden_cursor():
             while True:
                 self.render_one_frame()
@@ -1536,18 +1550,9 @@ class EditJson:
 
         #
         #
-        # @Moenen, fix for when schema not specified getting None_type errors as schema is none.
-        if self.schema != None:
-            if  'required' in self.schema:
-                required_keys = self.schema['required']
-            else:
-                required_keys = []
-            missing_keys = _recursion(self.data, self.schema['properties'], required_keys)
-        else:
-            required_keys = []
-            missing_keys=[]
-        #required_keys = self.schema['required'] if 'required' in self.schema else []
-        #missing_keys = _recursion(self.data, self.schema['properties'], required_keys)
+
+        required_keys = self.schema['required'] if (self.schema and 'required' in self.schema) else []
+        missing_keys = _recursion(self.data, self.schema['properties'], required_keys) if (self.schema and 'properties' in self.schema) else False
         illegal_keys = len(self.illegal_errors)
 
         return missing_keys, illegal_keys
@@ -1636,7 +1641,7 @@ class EditJson:
                 else:
                     return True
             except BaseException:
-                return False
+                return True
 
         #
         #
@@ -1682,7 +1687,7 @@ class EditJson:
 
             #
             #
-            print(address)
+
             result = _recursion(data, deque(address))
 
         return result
@@ -1845,9 +1850,9 @@ class ConfirmExitScreen():
             self.ej.error = 'Some of your changes are invalid.'
         else:
             try:
-                # raise ValueError("Invalid input.")  # To simulate error.
+                # raise ValueError("Fake error for debugging")
                 if self.ej.demo:
-                    return self.ej.term.green('Changes saved to JSON file.') + self.ej.term.yellow('\nNote: your were in demo mode so your changes have not really been saved.')  # noqa
+                    return self.ej.term.green('Changes saved to JSON file.') + self.ej.term.yellow('\nNote: you were in demo mode so your changes have not really been saved.')  # noqa
                 else:
                     with open(self.ej.json_path, 'w', encoding='UTF-8') as f:
                         json.dump(self.ej.data, f, indent=4)
