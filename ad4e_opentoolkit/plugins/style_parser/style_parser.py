@@ -2,7 +2,7 @@
 Parse XML tags for easy styling of CLI text output.
 ---------------------------------------------------
 Author: Moenen Erbuer - moenen.erbuer@ibm.com
-v0.0.0-beta1 / Last update: Sep 12, 2023
+v0.0.0-beta2 / Last update: Sep 19, 2023
 
 Description:
     This module parses XML style tags into ANSI escape codes,
@@ -219,8 +219,7 @@ def strip_tags(text: str):
 
         # Strip any nested tags.
         if re.findall(pattern, inner_text):
-            inner_text = re.sub(pattern, lambda match: _strip(
-                match, pattern), inner_text)
+            inner_text = re.sub(pattern, lambda match: _strip(match, pattern), inner_text)
 
         return inner_text
 
@@ -234,8 +233,10 @@ def strip_tags(text: str):
     text = _expand_error_success_tags(text, False)
 
     # Strip tags.
-    pattern = fr"<({'|'.join(list(tags))})>(.*?)</\1>"
-    text = re.sub(pattern, lambda match: _strip(match, pattern), text)
+    pattern1 = fr"<({'|'.join(list(tags))})>(.*?)</\1>"
+    text = re.sub(pattern1, lambda match: _strip(match, pattern1), text)
+    # pattern2 = fr"<span(.*?)>(.*?)</span>" # trash
+    # text = re.sub(pattern2, lambda match: _strip(match, pattern2), text) # trash
 
     # Restore line breaks.
     text = text.replace('---LINEBREAK2---', '\n')
@@ -284,13 +285,11 @@ def tags_to_markdown(text: str):
     # Expand error and success tags.
     text = _expand_error_success_tags(text, True)
 
-    # Replace tags
-    # We only replace <soft> and <underline> tags.
+    # Replace <soft> and <underline> tags only
     # when they don't appear inside <cmd> tags.
-    text = re.sub(r'(?<!\<cmd\>)<soft>([^<]*)</soft>(?!\</cmd\>)',
-                  r'<span style="color: #ccc">\1</span>', text)
-    text = re.sub(r'(?<!\<cmd\>)<underline>([^<]*)<\/underline>(?!\</cmd\>)',
-                  r'<span style="text-decoration: underline">\1</span>', text)
+    text = _replace_soft_and_underline(text)
+
+    # Replace all other tags.
     text = re.sub(r'<h1>(.*?)<\/h1>', r'## \1', text)
     text = re.sub(r'<h2>(.*?)<\/h2>', r'### \1', text)
     text = re.sub(r'<link>(.*?)<\/link>',
@@ -312,6 +311,19 @@ def tags_to_markdown(text: str):
     text = text.replace('---LINEBREAKSOFT---', '\n')
     text = text.replace('---LINEBREAK3---', '<br>')
 
+    return text
+
+
+# Replace <soft> and <underline> tags only
+# when they don't appear inside <cmd> tags.
+def _replace_soft_and_underline(text):
+    # Remove the tags within <cmd> tags.
+    text = re.sub(r'<cmd>(.*?)<\/cmd>', lambda x: x.group(0).replace('<underline>', '').replace('</underline>', ''), text)
+    text = re.sub(r'<cmd>(.*?)<\/cmd>', lambda x: x.group(0).replace('<soft>', '').replace('</soft>', ''), text)
+
+    # Replace the tags outside of <cmd> tags.
+    text = re.sub(r'<underline>(.*?)<\/underline>', r'<span style="text-decoration: underline">\1</span>', text)
+    text = re.sub(r'<soft>(.*?)<\/soft>', r'<span style="color: #ccc">\1</span>', text)
     return text
 
 

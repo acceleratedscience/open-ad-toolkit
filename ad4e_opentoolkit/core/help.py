@@ -1,6 +1,5 @@
 from ad4e_opentoolkit.helpers.general import singular, is_toolkit_installed
-from ad4e_opentoolkit.helpers.output import msg, output_error
-from ad4e_opentoolkit.plugins.style_parser import _add_tabs as add_tabs
+from ad4e_opentoolkit.helpers.output import msg, output_text, output_error
 # Importing our own plugins.
 # This is temporary until every plugin is available as a public pypi package.
 from ad4e_opentoolkit.plugins.style_parser import style
@@ -50,25 +49,24 @@ def all_commands(commands: list, toolkit_name: str = None, toolkit_current: obje
                 commands_organized[category] = [command]
 
         # Compile text.
-        text = [f'<h1>Available Commands - {toolkit_name if toolkit_name else "Main"}</h1>']
+        output = [f'<h1>Available Commands - {toolkit_name if toolkit_name else "Main"}</h1>']
         if toolkit_name and not is_toolkit_installed(toolkit_name, cmd_pointer):
             err_msg = output_error(
                 msg('fail_toolkit_not_installed', toolkit_name, split=True),
                 cmd_pointer, return_val=True, nowrap=True)
-            text.append(err_msg)
+            output.append(err_msg)
         elif len(commands_organized):
-            text.append('')
+            output.append('')
 
         if len(commands_organized):
             for category, commands in commands_organized.items():
-                text.append(f"{category}:")
+                output.append(f"{category}:")
                 for command in commands:
-                    #text.append(style(f"<cmd>{command}</cmd>", tabs=1, nowrap=True)) @@Moenen this caused issue in notebooks   
-                     text.append(add_tabs(f"<cmd>{command}</cmd>", 1))
-                text.append('')
+                    output.append(f'<cmd>{command}</cmd>')
+                output.append('')
         else:
-            text.append('<error>No commands found.</error>')
-        return '\n'.join(text)
+            output.append('<error>No commands found.</error>')
+        return '\n'.join(output)
 
     #
     #
@@ -107,8 +105,8 @@ def queried_commands(command_results: list, inp: str = None, query_type: str = N
     output = [f'<yellow>{title}</yellow>']
     for command in command_results:
         command_str = command['command']
-        #if query_type == 'word_match': @disabled for Moenen to address display in notebook
-        #    command_str = re.sub(fr'(?<!<){inp}(s?)(?![^<>]*?>)', fr'<underline>{inp}\1</underline>', command_str)
+        if query_type == 'word_match':
+            command_str = re.sub(fr'(?<!<){inp}(s?)(?![^<>]*?>)', fr'<underline>{inp}\1</underline>', command_str)
         output.append(f"<cmd>{command_str}</cmd>")
     return '\n'.join(output)
 

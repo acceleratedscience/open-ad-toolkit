@@ -22,7 +22,7 @@
 
 1.  **Step 1: Set up virtual environment** (optional)<br>
 
-        python -m venv  ./openad
+        python -m venv ./openad
         source ./openad/bin/activate
 
     > **Note:** To exit the virtual environment, you can run `deactivate`
@@ -31,7 +31,7 @@
 
 1.  **Step 2: Installation**<br>
 
-        pip install   git+ssh://git@github.ibm.com/Accelerated-Discovery/ad4e-opentoolkit.git
+        pip install git+ssh://git@github.ibm.com/Accelerated-Discovery/ad4e-opentoolkit.git
 
     > _**Note:** Before pip installing from git, ensure you have ssh set up for git install, otherwise you can download the repository and run `pip install .` from the ad4e-opentoolkit top directory._
 
@@ -70,6 +70,117 @@ Only follow these instructions if you're contributing to the codebase.
         > The `-e` flag stands for "editable". This means that instead of copying the package's files to the Python site-packages directory as in a regular installation, pip creates a symbolic link (symlink) from your package's source code directory into your Python environment.
 
         > This way you can make changes to the source code of the package, and those changes are immediately reflected in your Python environment. You don't need to reinstall the package every time you make a change.
+
+<br>
+
+## Getting Started - CLI
+
+-   **Entering the Shell Environment**<br>
+    Run from any directory:
+
+        adccl
+
+    ![Landing](readme/screenshot-landing.png)
+
+-   **Exiting the Shell Environment**<br>
+    Hit `ctrl+c` or run:
+
+        exit
+
+-   **Installing Toolkits**<br>
+    You can install the `DS4SD`, `GT4SD`, `ST4SD` and `RXN` toolkits, however please note that at this time, only `DS4SD` and `RXN` support experimental functionality while the others are meant as placeholders.
+
+        add toolkit ds4sd
+        add toolkit rxn
+
+-   **Running Bash Commands**<br>
+    To run any commands as a bash command, make sure to prepend any quotes with `\`.
+
+        adccl show molecules using file \'base_molecules.sdf\'
+
+<br>
+
+## Getting Started - Jupyter
+
+### Jupyter Setup
+
+If you plan to use this application inside Jupyter Notebook of JupyterLab, you should set it up as follows:
+
+1.  Make sure your virtual environment was activated (`source ./openad/bin/activate`), as described under [Installation](#installation) on top.
+
+1.  Install ipykernel, which includes IPython:
+
+        pip install ipykernel
+
+1.  Create a kernel that can be used to run Notebook commands inside the virtual environment:
+
+        python -m ipykernel install --user --name=openad
+
+1.  Initiate the magic commands.
+
+    -   **Option A: Across all notebooks** (recommended)<br>
+        This copies the magic commands into the iPython startup directory for your created profile:
+
+            init_magic
+
+    -   **Option B: Within a single notebook**<br>
+        If you wish to use the magic commands in a single notebook only, you can run instead:
+
+            init_magic .
+
+        Then to initiate the magic commands, run:
+
+            run adccl.py
+
+    -   **Option C: Within a custom iPython profile**<br>
+        This would install the magic commands within the iPhython custom profile called 'myprofile'
+
+            init_magic myprofile
+
+    > **Note:** If you don't want to install magic commands in your jupyter default profile, you can initiate the magic commands manually per notebook.<br>
+    > • Run `init_examples` to copy the Jupyter example files to your home directory.<br>
+    > • In each Notebook where you wish to use the magic commands, run `run adccl.ipynb` first. This executes the file `~/adccl_notebooks/adccl.ipynb` which activates the magic commands.
+
+<br>
+
+### Jupyter Launch
+
+> **Note:** The commands described below should be run from the regular CLI, not from openad command shell.
+
+-   Make sure the `~/adccl_notebooks` directory with example Notebooks exists (it was created by running `init_magic` or `init_examples` earlier).
+
+-   Open the table of contents to get an introduction and be taken through step by step how to use the tool.
+
+        jupyter lab ~/adccl_notebooks/Table_of_Contents.ipynb
+
+    > **NOTE:** By launching Jupyter this way it will automatically launch the trial notebooks.
+
+-   Make sure to select your virtual environment as the Python kernel. In JupyterLab, you can select this in the top right-hand corner. In Juyter Notebook, you can select this under _Kernel > Change Kernel_. If you don't see your virtual environment, make sure you followed the Jupyter Setup instructions listed above.
+
+<br>
+<figure>
+    <figcaption align="center" style="font-size:0.9em;opacity:.6;margin-bottom:-15px"><i>Jupyter Lab</i></figcaption>
+    <img src="readme/jupyter-lab-kernel.png">
+</figure>
+
+<figure>
+    <figcaption align="center" style="font-size:0.9em;opacity:.6;margin-bottom:-15px"><i>Jupyter Notebook</i></figcaption>
+    <img src="readme/jupyter-notebook-kernel.png">
+</figure>
+
+-   Magic commands are implemented by the _adccl.py_ or _adccl.ipynb_ file and are invoked by the `%adccl` prefix. For example:<br>
+
+        %adccl list files
+
+    If you are using your virtual envrinment kernel as per instructions above, and if you've run the `init_magic` command, the magic commands should be enabled already.<br>
+
+-   Some example magic comands to play with Deep Search:<br>
+
+        %adccl exec display_collection(domain='Material Science')
+
+-   Some example magic commands to play with RXN
+
+        %adccl list rxn models
 
 <br>
 
@@ -135,121 +246,6 @@ To be able to use the "Tell me" functionality, you will need to create an accoun
 > **Note:** WatsonX coming soon
 
 ![Landing](readme/openai-api-key.png)
-
-<br>
-
-## Getting Started - CLI
-
--   **Entering the Shell Environment**<br>
-    Run from any directory:
-
-        adccl
-
-    ![Landing](readme/screenshot-landing.png)
-
--   **Exiting the Shell Environment**<br>
-    Hit `ctrl+c` or run:
-
-        exit
-
--   **Installing Toolkits**<br>
-    You can install the `DS4SD`, `GT4SD`, `ST4SD` and `RXN` toolkits, however please note that at this time, only `DS4SD` and `RXN` support experimental functionality while the others are meant as placeholders.
-
-        add toolkit ds4sd
-        add toolkit rxn
-
--   **Running Bash Commands**<br>
-    To run any commands as a bash command, make sure to prepend any quotes with `\`.
-
-        adccl show molecules using file \'base_molecules.sdf\'
-
-<br>
-
-## Getting Started - Jupyter
-
-### Jupyter Setup
-
-If you plan to use this application inside Jupyter Notebook of JupyterLab, you should set it up as follows:
-
-1.  Activate your virtual environment, as described under [Installation](#installation) on top.
-
-        source ./openad/bin/activate
-
-1.  Install ipykernel, which includes IPython:
-
-        pip install ipykernel
-
-1.  Create a kernel that can be used to run Notebook commands inside the virtual environment:
-
-        python -m ipykernel install --user --name=openad
-
-1.  Initiate the magic commands.
-
-    -   **Option A: Across all notebooks** (recommended)<br>
-        This copies the magic commands into the iPython startup directory for your created profile:
-
-            init_magic
-
-    -   **Option B: Within a single notebook**<br>
-        If you wish to use the magic commands in a single notebook only, you can run instead:
-
-            init_magic .
-
-        Then to initiate the magic commands, run:
-
-            run adccl.py
-
-    -   **Option C: Within a custom iPython profile**<br>
-        This would install the magic commands within the iPhython custom profile called 'myprofile'
-
-            init_magic myprofile
-
-    > **Note:** If you don't want to install magic commands in your jupyter default profile, you can initiate the magic commands manually per notebook.<br>
-    > • Run `init_examples` to copy the Jupyter example files to your home directory.<br>
-    > • In each Notebook where you wish to use the magic commands, run `run adccl.ipynb` first. This executes the file `~/adccl_notebooks/adccl.ipynb` which activates the magic commands.
-
-<br>
-
-### Jupyter Launch
-
-> **Note:** The commands described below should be run from the regular CLI, not from openad command shell.
-
--   Get started by creating the `~/adccl_notebooks` directory with example Notebooks for you to work from.
-
-        init_examples
-
--   Open the table of contents to get an introduction and be taken through step by step how to use the tool.
-
-        jupyter lab ~/adccl_notebooks/Table_of_Contents.ipynb
-
-    > **NOTE:** By launching Jupyter this way it will automatically launch the trial notebooks.
-
--   Make sure to select your virtual environment as the Python kernel. In JupyterLab, you can select this in the top right-hand corner. In Juyter Notebook, you can select this under _Kernel > Change Kernel_. If you don't see your virtual environment, make sure you followed the Jupyter Setup instructions listed above.
-
-<br>
-<figure>
-    <figcaption align="center" style="font-size:0.9em;opacity:.6;margin-bottom:-15px"><i>Jupyter Lab</i></figcaption>
-    <img src="readme/jupyter-lab-kernel.png">
-</figure>
-
-<figure>
-    <figcaption align="center" style="font-size:0.9em;opacity:.6;margin-bottom:-15px"><i>Jupyter Notebook</i></figcaption>
-    <img src="readme/jupyter-notebook-kernel.png">
-</figure>
-
--   Magic commands are implemented by the _adccl.py_ or _adccl.ipynb_ file and are invoked by the `%adccl` prefix. For example:<br>
-
-        %adccl list files
-
-    If you are using your virtual envrinment kernel as per instructions above, and if you've run the `init_magic` command, the magic commands should be enabled already.<br>
-
--   Some example magic comands to play with Deep Search:<br>
-
-        %adccl exec display_collection(domain='Material Science')
-
--   Some example magic commands to play with RXN
-
-        %adccl list rxn models
 
 <!--
 
