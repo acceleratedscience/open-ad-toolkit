@@ -214,7 +214,7 @@ class run_cmd(Cmd):
                 inp_plural = inp_singular + 's'
                 if inp_singular in words or inp_plural in words:
                     query_type = 'word_match'
-                    matching_commands.append(command)
+                    matching_commands.append(command) 
 
         # Filter commands that start with this string.
         if not len(matching_commands):

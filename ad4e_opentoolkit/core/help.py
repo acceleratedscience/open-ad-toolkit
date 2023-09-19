@@ -1,6 +1,6 @@
 from ad4e_opentoolkit.helpers.general import singular, is_toolkit_installed
 from ad4e_opentoolkit.helpers.output import msg, output_error
-
+from ad4e_opentoolkit.plugins.style_parser import _add_tabs as add_tabs
 # Importing our own plugins.
 # This is temporary until every plugin is available as a public pypi package.
 from ad4e_opentoolkit.plugins.style_parser import style
@@ -63,7 +63,8 @@ def all_commands(commands: list, toolkit_name: str = None, toolkit_current: obje
             for category, commands in commands_organized.items():
                 text.append(f"{category}:")
                 for command in commands:
-                    text.append(style(f"<cmd>{command}</cmd>", tabs=1, nowrap=True))
+                    #text.append(style(f"<cmd>{command}</cmd>", tabs=1, nowrap=True)) @@Moenen this caused issue in notebooks   
+                     text.append(add_tabs(f"<cmd>{command}</cmd>", 1))
                 text.append('')
         else:
             text.append('<error>No commands found.</error>')
@@ -106,8 +107,8 @@ def queried_commands(command_results: list, inp: str = None, query_type: str = N
     output = [f'<yellow>{title}</yellow>']
     for command in command_results:
         command_str = command['command']
-        if query_type == 'word_match':
-            command_str = re.sub(fr'(?<!<){inp}(s?)(?![^<>]*?>)', fr'<underline>{inp}\1</underline>', command_str)
+        #if query_type == 'word_match': @disabled for Moenen to address display in notebook
+        #    command_str = re.sub(fr'(?<!<){inp}(s?)(?![^<>]*?>)', fr'<underline>{inp}\1</underline>', command_str)
         output.append(f"<cmd>{command_str}</cmd>")
     return '\n'.join(output)
 
