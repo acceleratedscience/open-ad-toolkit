@@ -1,12 +1,10 @@
 #prime_chat
 
-import os,sys,glob
+import os,sys
 
 import langchain 
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.text_splitter import CharacterTextSplitter
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.document_loaders import NotebookLoader
 from langchain.vectorstores import FAISS
 from langchain.document_loaders import TextLoader,DirectoryLoader
 class my_creds:
@@ -44,10 +42,11 @@ class  chat_object( ):
     chat_history    =   []
     db_dir          =   "~/.vector_embed"
     document_folders=   ["./"]
-    document_types  =["**/*.txt","**/*.ipynb","**/*.run","**/*.cdoc"]
+    document_types  ="**/*.txt"
+
 
     
-    def __init__(self,target='OPENAPI',organisation='org-V3VSRAXasFUnufPII8o1DIIk',API_key=None,vector_db='FAISS',document_folders=["./"],document_types=document_types,db_dir_override=None,refresh_vector=False,llm_model='gpt-4',llm_service='OPENAI'):
+    def __init__(self,target='OPENAPI',organisation='org-V3VSRAXasFUnufPII8o1DIIk',API_key=None,vector_db='FAISS',document_folders=["./"],document_types=['**/*.txt'],db_dir_override=None,refresh_vector=False,llm_model='gpt-4',llm_service='OPENAI'):
         self.organisation       =   organisation
         self.target             =   target
         self.API_key            =   API_key   
@@ -126,37 +125,11 @@ class  chat_object( ):
         try:
             for i in self.document_folders:
                 for j in self.document_types:
-                    if j =="**/*.ipynb":
-                        for file in glob.glob(i+'/*.ipynb' ):
-                            
-                            
-                            loader = NotebookLoader(file,include_outputs=False,max_output_length=20,remove_newline=False,)
-                            
-                            try:
-                                documents = loader.load()
-                            
-                                #text_splitter = CharacterTextSplitter(chunk_size=3000, chunk_overlap=300,separators=[ "\n"])
-                                text_splitter = RecursiveCharacterTextSplitter(chunk_size=3000, chunk_overlap=0, separators=[","])
-                                docs.extend(text_splitter.split_documents(documents))
-                            except:
-                                pass
-                    elif j=="**/*.cdoc":
-                        loader = DirectoryLoader(i,glob=j,loader_cls=TextLoader)
-                        documents = loader.load()
+                    loader = DirectoryLoader(i,glob=j,loader_cls=TextLoader)
+                    documents = loader.load()
                     #text_splitter = CharacterTextSplitter(chunk_size=3000, chunk_overlap=0)
-                        #text_splitter = CharacterTextSplitter(chunk_size=3000, chunk_overlap=300,separators=[ "\n"])
-                        text_splitter = RecursiveCharacterTextSplitter ( chunk_size=3000, chunk_overlap=0, separators=["\@"])
-                        
-                        docs.extend(text_splitter.split_documents(documents))
-                    
-                    else:
-                        loader = DirectoryLoader(i,glob=j,loader_cls=TextLoader)
-                        documents = loader.load()
-                    #text_splitter = CharacterTextSplitter(chunk_size=3000, chunk_overlap=0)
-                        #text_splitter = CharacterTextSplitter(chunk_size=3000, chunk_overlap=300,separators=[ "\n"])
-                        text_splitter = RecursiveCharacterTextSplitter(chunk_size=3000, chunk_overlap=0, separators=["\n"])
-                        docs.extend(text_splitter.split_documents(documents))
-          
+                    text_splitter = CharacterTextSplitter(chunk_size=3000, chunk_overlap=300)
+                    docs.extend(text_splitter.split_documents(documents))
            
             main_db = FAISS.from_documents(docs, embeddings)
            
