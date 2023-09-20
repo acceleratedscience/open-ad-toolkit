@@ -104,7 +104,7 @@ def output_text(text, cmd_pointer=None, return_val=None, jup_return_format=None,
             print_s(text, **kwargs)
 
 
-def _output_status(msg, status, cmd_pointer=None, return_val=None, pad_top=False, pad_btm=False, **kwargs):
+def _output_status(msg, status, cmd_pointer=None, return_val=None, pad=1, pad_top=False, pad_btm=False, **kwargs):
     """
     Print or return styled error/warning/success message according
     to the relevant display context (API/Jupyter/CLI).
@@ -148,7 +148,7 @@ def _output_status(msg, status, cmd_pointer=None, return_val=None, pad_top=False
     msg2 = f'\n<soft>{msg2}</soft>' if msg2 else ''
 
     # Set padding.
-    pad = 0 if pad_top or pad_btm else 1
+    pad = 0 if pad_top or pad_btm else pad
 
     # Print.
     return output_text(

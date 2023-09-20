@@ -58,7 +58,8 @@ tags = {
     # Styles
     'reset': '\x1b[0m',
     'bold': '\x1b[1m',
-    'soft': '\x1b[2m',
+    'dim': '\x1b[2m',  # Current color but dimmed
+    'soft': '\x1b[90m',  # Gray
     'italic': '\x1b[3m',
     'underline': '\x1b[4m',
     'blink': '\x1b[5m',

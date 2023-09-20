@@ -55,11 +55,10 @@ def lang_parse(cmd_pointer, parser):
 
     # Toolkit welcome screens
     elif parser.getName() in _all_toolkits:
-        return output_text(splash(parser.getName(), cmd_pointer, raw=True), nowrap=True)
+        return output_text(splash(parser.getName(), cmd_pointer), nowrap=True)
 
     # Toolkit commands
     elif parser.getName() == 'add_toolkit':
-
         return registry_add_toolkit(cmd_pointer, parser)
     elif parser.getName() == 'remove_toolkit':
         return registry_deregister_toolkit(cmd_pointer, parser)
@@ -136,7 +135,7 @@ def lang_parse(cmd_pointer, parser):
         # print('- - - - - - - - - - - - - -')
         # print(tags_to_markdown(splash(raw=True)))
         # print('- - - - - - - - - - - - - -')
-        return output_text(splash(raw=True), nowrap=True)
+        return output_text(splash(), nowrap=True)
     elif parser.getName() == 'get_status':
         return return_context(cmd_pointer, parser)
     elif parser.getName() == 'display_history':  # Addressed
@@ -308,9 +307,7 @@ def set_context(cmd_pointer, parser):
             login_success = False
             expiry_datetime = None
             try:
-
                 # raise BaseException('Error message') # For testing
-
                 login_success, expiry_datetime = login_manager.load_login_api(
                     cmd_pointer, toolkit_name, reset=reset)
 
@@ -331,7 +328,7 @@ def set_context(cmd_pointer, parser):
                 return
 
             # Success switching context & loggin in.
-            if cmd_pointer.notebook_mode or not cmd_pointer.api_mode:
+            if cmd_pointer.notebook_mode or cmd_pointer.api_mode:
                 return output_success(msg('success_login', toolkit_name, expiry_datetime, split=True), cmd_pointer)
             else:
                 return output_text(splash(toolkit_name, cmd_pointer), nowrap=True)

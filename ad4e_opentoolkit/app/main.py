@@ -429,15 +429,11 @@ class run_cmd(Cmd):
                 self.settings = load_registry(self)
             except BaseException:
                 # Brutal situation where someone hit clear sessions in another session , shut down abruptly so as not to kill registry file
-                print(
-                    'fatal error session registry not avaiable, performing emergency shutdown !')
+                print('Fatal error: the session registry is not avaiable, performing emergency shutdown')
                 self.do_exit('exit emergency')
 
-            y = self.current_statement_defs.parseString(
-                convert(inp), parseAll=True)
-
+            y = self.current_statement_defs.parseString(convert(inp), parseAll=True)
             x = lang_parse(self, y)
-
             self.prompt = refresh_prompt(self.settings)
             logging.info('Ran: ' + inp)
         except BaseException as err1:
@@ -464,8 +460,8 @@ class run_cmd(Cmd):
                         try:
                             x = c.explain()
                         except BaseException:
-                            print("unknown Error: ")
-                            print(err1)
+                            print('***')
+                            return output_error(msg('err_unknown', err1, split=True), self, return_val=False)
 
                         if x.find("Expected CaselessKeyword") > -1 and x.find('at char 0') == -1:
                             if error_col < error_col_grabber(x):

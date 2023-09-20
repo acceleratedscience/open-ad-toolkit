@@ -43,7 +43,7 @@ def splash(toolkit_name=None, cmd_pointer=None, startup=False, raw=False):
             data[req_field] = '(not available)'
 
     # Compile output.
-    output = '\n'
+    output = ''
 
     # Startup message.
     # When you start the application with the context set to one of the toolkits,
@@ -54,7 +54,7 @@ def splash(toolkit_name=None, cmd_pointer=None, startup=False, raw=False):
         output += 'To see the main splash page, run <cmd>adccl</cmd>.\n'
         output += f'To exit {toolkit_name}, run <cmd>unset context</cmd>.\n\n- - -\n\n'
 
-    # Header.
+    # Header
     if main_splash or toolkit_is_active:
         output += '<pre>' + ascii_type(data['banner'], reverse=not main_splash, char=char) + '</pre>' + '\n\n'
         output += f'<h1>{data["title"]}</h1>\n'
@@ -82,21 +82,19 @@ def splash(toolkit_name=None, cmd_pointer=None, startup=False, raw=False):
     elif cmd_pointer:
         # Installed
         if toolkit_name in cmd_pointer.settings['toolkits']:
-            output += msg('this_toolkit_installed', toolkit_name, split=True)
+            output += msg('toolkit_installed', toolkit_name)
 
         # Not installed
         else:
             output += output_error(
                 msg('fail_this_toolkit_not_installed', toolkit_name, split=True),
-                cmd_pointer, return_val=True, return_format='markdown_data', nowrap=True
+                cmd_pointer, return_val=True, jup_return_format='markdown_data', nowrap=True, pad=0
             )
-
-    output += '\n'
 
     if raw:
         return output
     else:
-        return style(output, pad=3, tabs=1, edge=True, nowrap=True)
+        return style(output, pad=3, edge=True, nowrap=True)
 
 
 # Calculate columns width.

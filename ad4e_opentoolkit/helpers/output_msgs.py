@@ -100,7 +100,7 @@ messages = {
     ),
     'toolkit_installed': lambda toolkit_name: (
         '<on_green> This toolkit is installed. </on_green>',
-        f'Run <cmd>set context {toolkit_name}</cmd> to activate it.</soft>'  # Repeat B1
+        f'Run <cmd>set context {toolkit_name}</cmd> to activate it.'  # Repeat B1
     ),
 
     # Negative
