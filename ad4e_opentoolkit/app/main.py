@@ -143,9 +143,9 @@ class run_cmd(Cmd):
 
         output_train_statements(self)
 
-    def do_help(self, inp, return_val=False):
+    def do_help(self, inp, **kwargs):
         """
-        Displaying help.
+        Display help about a command, for example 'list'.
 
         The different entry points:
             ? list                   --> The questionmark is interpreted and stripped by the language parser
@@ -189,8 +189,7 @@ class run_cmd(Cmd):
             toolkit_name = inp.upper()
             ok, toolkit = load_toolkit(toolkit_name)
             return output_text(
-                adccl_help.all_commands(
-                    toolkit.methods_help, toolkit_name, cmd_pointer=self),
+                adccl_help.all_commands(toolkit.methods_help, toolkit_name, cmd_pointer=self),
                 self,
                 pad=2,
                 tabs=1,
@@ -214,7 +213,7 @@ class run_cmd(Cmd):
                 inp_plural = inp_singular + 's'
                 if inp_singular in words or inp_plural in words:
                     query_type = 'word_match'
-                    matching_commands.append(command) 
+                    matching_commands.append(command)
 
         # Filter commands that start with this string.
         if not len(matching_commands):
@@ -225,11 +224,11 @@ class run_cmd(Cmd):
                     matching_commands.append(command)
 
         if len(matching_commands) > 1:
-            return output_text(adccl_help.queried_commands(matching_commands, inp=inp, query_type=query_type), self, pad=1, nowrap=True, return_val=return_val)
+            return output_text(adccl_help.queried_commands(matching_commands, inp=inp, query_type=query_type), self, nowrap=True, **kwargs)
         elif len(matching_commands) == 1:
-            return output_text(adccl_help.command_details(matching_commands[0]), self, pad=2, tabs=1, return_val=return_val)
+            return output_text(adccl_help.command_details(matching_commands[0]), self, edge=True, **kwargs)
         else:
-            return output_error(msg('err_invalid_cmd', None, split=True), self, return_val=return_val)
+            return output_error(msg('err_invalid_cmd', None, split=True), self, **kwargs)
 
     # Preloop is called by cmd to get an update the history file
     # Each History File
@@ -442,7 +441,6 @@ class run_cmd(Cmd):
             self.prompt = refresh_prompt(self.settings)
             logging.info('Ran: ' + inp)
         except BaseException as err1:
-            # print(err1)
             # Removing due to usability being able to recall item and correct:
             # try:
             #    readline.remove_history_item(readline.get_current_history_length()-1) # Does not save an incorrect instruction
@@ -497,50 +495,36 @@ class run_cmd(Cmd):
                     else:
                         output_error(msg('err_invalid_cmd', 'Not a Valid Command, try "?" to list valid commands', split=True), self)
                 else:
-                    error_msg = error_descriptor.split("Syntax")[0]
-                    if self.notebook_mode is True:
-                        from IPython.display import display
-                        if error_col_grabber(error_descriptor) == 1:
-                            display(output_error(msg('err_invalid_cmd', error_msg.split('Parse')[0], split=True), return_val=True, cmd_pointer=self))
-                            display(output_text("Perhaps you could try one of the following:", return_val=True, cmd_pointer=self))
-                            display(self.do_help(error_first_word_grabber(error_descriptor) + ' ?'))
-                        else:
-                            display(output_error(msg('err_invalid_cmd', error_msg, split=True), return_val=True, cmd_pointer=self))
-                            display(output_text("Perhaps you could try one of the following:", return_val=True, cmd_pointer=self))
-                            display(self.do_help(inp[0:error_col_grabber(error_descriptor) - 1] + ' ?'))
-                        return output_text("If there is not an option that meets your requirement type '?' to list all command options",
-                                           return_val=True, cmd_pointer=self)
+                    # Isolate part of the error message with command & arrow.
+                    error_msg = error_descriptor.split('Syntax')[0].splitlines()
+                    error_msg = error_msg[0] + '\n' + error_msg[1]
 
+                    # Isolate the string we want to use to search for related commands.
+                    if error_col_grabber(error_descriptor) == 1:
+                        # No full word recognized.
+                        help_ref = error_first_word_grabber(error_descriptor)
                     else:
-                        # Isolate part of the error message with command & arrow.
-                        error_msg = error_msg.splitlines()
-                        error_msg = error_msg[0] + '\n' + error_msg[1]
+                        # One of more words recognized.
+                        help_ref = inp[0:error_col_grabber(error_descriptor) - 1]
 
-                        # Isolate the string we want to use for help.
-                        if error_col_grabber(error_descriptor) == 1:
-                            # Not full word recognized.
-                            help_ref = error_first_word_grabber(error_descriptor)
-                        else:
-                            # At least one word recognized.
-                            help_ref = inp[0:error_col_grabber(error_descriptor) - 1]
+                    # Check if we found any alternative commands to suggest.
+                    show_suggestions = 'Not a valid command.' not in self.do_help(help_ref + ' ?', return_val=True, jup_return_format='plain')
 
-                        # Check if we found some alternative commands to suggest.
-                        show_suggestions = 'Not a valid command.' not in self.do_help(help_ref + ' ?', return_val=True)
-
-                        # Display error
-                        output_error(msg('err_invalid_cmd', error_msg, split=True), self)
-                        if show_suggestions:
-                            output_text("You may want to try:", self)
-                            self.do_help(help_ref + ' ?')
-                            output_text("<soft>Type <cmd>?</cmd> to list all command options.</soft>", self, pad_btm=1)
-                return False
+                    # Display error.
+                    output_error(msg('err_invalid_cmd', error_msg, split=True), self, return_val=False)
+                    if show_suggestions:
+                        output_text('<yellow>You may want to try:</yellow>', self, return_val=False)
+                        self.do_help(help_ref + ' ?', return_val=False)
+                        output_text("<soft>Type <cmd>?</cmd> to list all command options.</soft>", self, return_val=False, pad=1)
+                return
 
             else:
-                output_error(msg('err_invalid_cmd', x, split=True), self)
-                return False
-                # return output_error(msg('err_unknown', err1, split=True), self) #
+                output_error(msg('err_unknown'), self, return_val=False)
+                return
                 # @moenen this was not catching the error returned by the function and
                 # re-issuing splash screen
+                # @Phil wasn't able to reproduce, not sure how to even trigger this error.
+                # I reduced it to a mininal unknown error.
         if self.refresh_train == True:
             output_train_statements(self)
             self.refresh_train = False

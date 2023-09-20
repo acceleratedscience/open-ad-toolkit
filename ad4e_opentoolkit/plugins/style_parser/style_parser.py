@@ -2,7 +2,7 @@
 Parse XML tags for easy styling of CLI text output.
 ---------------------------------------------------
 Author: Moenen Erbuer - moenen.erbuer@ibm.com
-v0.0.0-beta2 / Last update: Sep 19, 2023
+v0.0.0-beta3 / Last update: Sep 20, 2023
 
 Description:
     This module parses XML style tags into ANSI escape codes,
@@ -519,9 +519,9 @@ def _edge(text, edge):
     lines = text.splitlines()
     placc = ''  # Previous line ANSI color character
     for i, line in enumerate(lines):
-        edge_str = tags[edge_color] + edge_str + placc
         placc = re.findall(r'\x1b\[\d+m', line)
         placc = placc[len(placc) - 1] if len(placc) > 0 else ''
+        edge_str = tags[edge_color] + edge_str + placc
         lines[i] = edge_str + line
 
     return '\n'.join(lines)

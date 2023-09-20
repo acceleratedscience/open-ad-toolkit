@@ -4,7 +4,7 @@ Use this instead of print() which should always be avoided.
 
 Under the Hood
 --------------
-- The style_parser module takes care of parsing xml tags into ANSI
+- The style_parser plugin takes care of parsing xml tags into ANSI
   escape codes, which lets us print different colors in the CLI.
   It also takes care of some extra layout fluff, like padding,
   indentation, etc. The main functions are style() and print_s()
@@ -93,7 +93,6 @@ def output_text(text, cmd_pointer=None, return_val=None, jup_return_format=None,
             if jup_return_format == 'markdown_data':
                 return Markdown(tags_to_markdown(text)).data
             else:
-
                 return Markdown(tags_to_markdown(text))
         else:
             display(Markdown(tags_to_markdown(text)))
@@ -290,7 +289,7 @@ def output_table(data, cmd_pointer=None, headers=None, note=None, tablefmt='simp
 
 
 # Procure a display message from output_msgs.py.
-def msg(message, *args, split=False):
+def msg(msg_name, *args, split=False):
     """
     Fetches the correct output message from the messages dictionary.
 
@@ -302,23 +301,23 @@ def msg(message, *args, split=False):
 
     Parameters
     ----------
-    message (str):
+    msg_name (str):
         The name of the message to fetch.
     args:
         Any number of variables that are required for the lambda function.
     split (bool):
-        Instead of parsing a tuple as different lines of the same message,
+        Instead of parsing a tuple as different lines of the same string,
         you can return it as a list of separate messages. This is used for
         the error/warning/success messages, where the first message is the
         main message, and the second message is a secondary message.
     """
-    message = messages[message]
-    if callable(message):
-        message = message(*args)
-    if isinstance(message, tuple):
+    msg_name = messages[msg_name]
+    if callable(msg_name):
+        msg_name = msg_name(*args)
+    if isinstance(msg_name, tuple):
         if not split:
             # For output_error/warning/success we sometimes need to send
             # None as second message, eg. load_toolkit_description().
-            message = [x for x in message if x is not None]
-            message = '\n'.join(message)
-    return message
+            msg_name = [x for x in msg_name if x is not None]
+            msg_name = '\n'.join(msg_name)
+    return msg_name
