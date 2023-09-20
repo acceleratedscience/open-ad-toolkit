@@ -1,3 +1,4 @@
+import textwrap
 from ad4e_opentoolkit.helpers.general import singular, is_toolkit_installed
 from ad4e_opentoolkit.helpers.output import msg, output_text, output_error
 # Importing our own plugins.
@@ -107,7 +108,7 @@ def queried_commands(command_results: list, inp: str = None, query_type: str = N
         command_str = command['command']
         if query_type == 'word_match':
             command_str = re.sub(fr'(?<!<){inp}(s?)(?![^<>]*?>)', fr'<underline>{inp}\1</underline>', command_str)
-        output.append(f"<cmd>{command_str}</cmd>")
+        output.append(f"- <cmd>{command_str}</cmd>")
     return '\n'.join(output)
 
 
@@ -119,12 +120,15 @@ def command_details(command: list):
     """
 
     # Style command
-    the_command = f"<cmd>{command['command']}</cmd>\n"
+    the_command = f"<cmd>{command['command']}</cmd>"
+
+    # Separator
+    sep = '<soft>' + len(command['command']) * '-' + '</soft>'
 
     # Style description
-    description = command['description']
+    description = textwrap.fill(command['description'], width=80)
 
-    return the_command + description
+    return '\n'.join([the_command, sep, description])
 
 
 # Display advanced help

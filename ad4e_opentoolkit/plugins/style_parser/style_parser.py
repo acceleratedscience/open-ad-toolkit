@@ -2,7 +2,7 @@
 Parse XML tags for easy styling of CLI text output.
 ---------------------------------------------------
 Author: Moenen Erbuer - moenen.erbuer@ibm.com
-v0.0.0-beta3 / Last update: Sep 20, 2023
+v0.0.0-beta5 / Last update: Sep 20, 2023
 
 Description:
     This module parses XML style tags into ANSI escape codes,
@@ -281,6 +281,7 @@ def tags_to_markdown(text: str):
     # blocks, we have to do some trickery here.
     text = re.sub(r'(</h[123]>)(\n+)', lambda match: match.group(1) + len(match.group(2)) * '---LINEBREAKSOFT---', text)  # noqa
     text = re.sub(r'(\n+)(<h[123]>)', lambda match: len(match.group(1)) * '---LINEBREAKSOFT---' + match.group(2), text)  # noqa
+    text = _replace_linebreaks_inside_cmdblocks(text, '---LINEBREAK3---')
     text = text.replace('\n', '---LINEBREAK3---')
 
     # Expand error and success tags.
@@ -312,6 +313,17 @@ def tags_to_markdown(text: str):
     text = text.replace('---LINEBREAKSOFT---', '\n')
     text = text.replace('---LINEBREAK3---', '<br>')
 
+    return text
+
+
+# In Jupyter, when you render codeblocks using `` quotes,
+# the <br> linebreaks are rendered as raw text. To fix this,
+# we replace `foo<br>bar` with `foo`<br>`bar`.
+# This function is run before we replace \n with <br>, so
+# we replace \n instead of <br>
+def _replace_linebreaks_inside_cmdblocks(text, break_str):
+    pattern = r'<cmd>([^<]*?)\n([^<]*?)</cmd>'
+    text = re.sub(pattern, rf'<cmd>\1</cmd>{break_str}<cmd>\2</cmd>', text)
     return text
 
 
@@ -518,11 +530,11 @@ def _edge(text, edge):
     edge_color = 'soft' if edge == True else edge
     edge_str = '|'
     lines = text.splitlines()
-    placc = ''  # Previous line ANSI color character
+    placc = '\x1b[0m'  # Previous line ANSI color character
     for i, line in enumerate(lines):
-        placc = re.findall(r'\x1b\[\d+m', line)
-        placc = placc[len(placc) - 1] if len(placc) > 0 else ''
         edge_str = tags[edge_color] + edge_str + placc
+        placc = re.findall(r'\x1b\[\d+m', line)
+        placc = placc.pop() if len(placc) else ''
         lines[i] = edge_str + line
 
     return '\n'.join(lines)

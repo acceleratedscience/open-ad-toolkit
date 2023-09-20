@@ -226,7 +226,15 @@ class run_cmd(Cmd):
         if len(matching_commands) > 1:
             return output_text(adccl_help.queried_commands(matching_commands, inp=inp, query_type=query_type), self, nowrap=True, **kwargs)
         elif len(matching_commands) == 1:
-            return output_text(adccl_help.command_details(matching_commands[0]), self, edge=True, **kwargs)
+            # This lets us pass a custom pad value.
+            # Used by do_help()
+            if 'pad' in kwargs:
+                pad = kwargs['pad']
+                del kwargs['pad']
+            else:
+                pad = 1
+
+            return output_text(adccl_help.command_details(matching_commands[0]), self, edge=True, pad=pad, nowrap=True, **kwargs)
         else:
             return output_error(msg('err_invalid_cmd', None, split=True), self, **kwargs)
 
@@ -428,7 +436,7 @@ class run_cmd(Cmd):
             try:
                 self.settings = load_registry(self)
             except BaseException:
-                # Brutal situation where someone hit clear sessions in another session , shut down abruptly so as not to kill registry file
+                # Brutal situation where someone hit clear sessions in another session, shut down abruptly so as not to kill registry file.
                 print('Fatal error: the session registry is not avaiable, performing emergency shutdown')
                 self.do_exit('exit emergency')
 
@@ -504,14 +512,17 @@ class run_cmd(Cmd):
                         help_ref = inp[0:error_col_grabber(error_descriptor) - 1]
 
                     # Check if we found any alternative commands to suggest.
-                    show_suggestions = 'Not a valid command.' not in self.do_help(help_ref + ' ?', return_val=True, jup_return_format='plain')
+                    do_help_output = self.do_help(help_ref + ' ?', return_val=True, jup_return_format='plain')
+                    show_suggestions = 'Not a valid command.' not in do_help_output
+                    multiple_suggestions = 'Commands starting with' in do_help_output
 
                     # Display error.
                     output_error(msg('err_invalid_cmd', error_msg, split=True), self, return_val=False)
                     if show_suggestions:
-                        output_text('<yellow>You may want to try:</yellow>', self, return_val=False)
-                        self.do_help(help_ref + ' ?', return_val=False)
-                        output_text("<soft>Type <cmd>?</cmd> to list all command options.</soft>", self, return_val=False, pad=1)
+                        if not multiple_suggestions:
+                            output_text('<yellow>You may want to try:</yellow>', self, return_val=False)
+                        self.do_help(help_ref + ' ?', return_val=False, pad=0)
+                        output_text("<soft>Run <cmd>?</cmd> to list all command options.</soft>", self, return_val=False, pad=1)
                 return
 
             else:
