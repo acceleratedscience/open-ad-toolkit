@@ -235,13 +235,17 @@ Below you find login instructions for RXN and DeepSearch. If you choose to use t
 
 ### OpenAI
 
-To be able to use the "Tell me" functionality, you will need to create an account with OpenAI. There is a one month free trial.<br>
+In order to use the "Tell me" functionality, you will need to create an account with OpenAI. There is a one month free trial.<br>
 
 1. Go to [platform.openai.com](https://platform.openai.com) and create an account
 
-2. Click on the profile icon in the top right and choose "View API keys"
+1. Click on the profile icon in the top right and choose "View API keys"
 
-3. Create a new key
+1. Create a new key
+
+1. Run `tell me` to be prompted for your OpenAI API credentials
+
+1. Your hostname is [](https://api.openai.com/v1/models)
 
 > **Note:** WatsonX coming soon
 
