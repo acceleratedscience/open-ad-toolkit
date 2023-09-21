@@ -245,7 +245,7 @@ In order to use the "Tell me" functionality, you will need to create an account 
 
 1. Run `tell me` to be prompted for your OpenAI API credentials
 
-1. Your hostname is [](https://api.openai.com/v1/models)
+1. Your hostname is [https://api.openai.com/v1/models](https://api.openai.com/v1/models)
 
 > **Note:** WatsonX coming soon
 
