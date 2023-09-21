@@ -145,8 +145,17 @@ grammar_help.append(adccl_help.help_dict_create(
     description='Display the data from a csv file.'
 ))
 
-# --> Save (as csv)
+# --> save --> Save data as csv
 statements.append(Forward(save + Optional(CaselessKeyword('as') + desc('file_path')))('display_data__save'))
+grammar_help.append(adccl_help.help_dict_create(
+    name="save",
+    category='General',
+    command="save [as '<csv_filename>']",
+    description='Store table data into a csv file.'
+))
+
+# --> open --> Explore data in browser
+statements.append(Forward(CaselessKeyword('open'))('display_data__open'))
 grammar_help.append(adccl_help.help_dict_create(
     name="save",
     category='General',

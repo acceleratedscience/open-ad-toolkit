@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Document</title>
+	<link rel="stylesheet" href="../css/carbon.css" />
+	<link rel="stylesheet" href="../css/main.css" />
+	<style>
+		#table {
+			display: flex;
+			flex-direction: column;
+			
+			border: solid 1px rgba(0,0,0,.1);
+			border-right: none;
+			border-bottom: none;
+		}
+		#table > div {
+			display: flex;
+			flex-direction: row;
+		}
+		#table > div > div {
+			flex: 1;
+
+			padding: 3px 5px;
+			min-height: 20px;
+			border: solid 1px rgba(0,0,0,.1);
+			border-left: none;
+			border-top: none;
+			box-sizing: border-box;
+		}
+	</style>
+</head>
+<body>
+
+	<h1>Table Viewer</h1>
+	<p class="soft">Some subtitle here</p>
+	<br>
+
+	<div id="table" data="{{data}}">
+		<!-- <div>
+			<div>A</div>
+			<div>B</div>
+			<div>C</div>
+		</div>
+		<div>
+			<div>1</div>
+			<div>2</div>
+			<div>3</div>
+		</div>
+		<div>
+			<div>4</div>
+			<div>5</div>
+			<div>6</div>
+		</div> -->
+	</div>
+
+	
+
+	<script>
+
+		displayData()
+
+		//
+		//
+		
+		function displayData() {
+			// // Store URL query into data object.
+			// queryItems = window.location.search.replace(/^\?/,'').split('&')
+			// query = {}
+			// for (var i = 0; i < queryItems.length; i++) {
+			// 	[key, val] = queryItems[i].split('=')
+			// 	console.log(queryItems[i])
+			// 	console.log(key, '=', val)
+			// 	query[key] = val
+			// }
+			
+			// console.log(666, window.location.search)
+			// console.log(777, queryItems)
+			// console.log(888, query)
+
+			// // If no data is provided, redirect to sample data.
+			// if (!query.data) {
+			// 	window.location.search = '?data=[["One","Two","Three"],["This is some sample data","sample","sample"],[4,5,6]]'
+			// }
+
+			// Generate table.
+			var data = document.getElementById('table').attributes.data.value
+			console.log(999, data)
+			data = JSON.parse(data)
+			console.log(1000, data)
+			for (var row = 0; row < data.length; row++) {
+				let row_div = document.getElementById('table').appendChild(document.createElement('div'))
+				for (var col = 0; col < data[row].length; col++) {
+					row_div.appendChild(document.createElement('div')).innerHTML = data[row][col]
+				}
+			}
+		}
+	</script>
+</body>
+</html>

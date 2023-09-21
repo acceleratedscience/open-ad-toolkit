@@ -144,6 +144,8 @@ def lang_parse(cmd_pointer, parser):
         return display_data(cmd_pointer, parser)
     elif parser.getName() == 'display_data__save':
         return display_data__save(cmd_pointer, parser)
+    elif parser.getName() == 'display_data__open':
+        return display_data__open(cmd_pointer, parser)
     elif parser.getName() == 'clear_sessions':
         return clear_other_sessions(cmd_pointer, parser)
     elif parser.getName() == 'edit_config':
@@ -209,11 +211,10 @@ def docs(cmd_pointer, parser):
         cmd_pointer,
     )
 
+
 # adds a registry Toolkit Directory
 # in future it will take a tar file and explode it into the directory...
 # future work on packaging etc...
-
-
 def welcome(cmd_pointer, parser):
     """ Display welcome screen """
     return output_text(splash(), nowrap=True)
@@ -468,15 +469,52 @@ def display_data__save(cmd_pointer, parser):
     else:
         output_error(msg('fail_save_data'), cmd_pointer)
 
+
 # --> Open data in browser UI.
+def display_data__open(cmd_pointer, parser):
+    # Preserve memory for further follow-ups.
+    cmd_pointer.preserve_memory['data'] = True
 
+    # Abort if memory is empty.
+    if cmd_pointer.memory['data'] is None:
+        output_error(msg('no_data_memory'), cmd_pointer)
+        return
 
-def display_data__explore(cmd_pointer, parser):
-    pass
+    # Parse dataframe.
+    # This uses the equivalent of encodeURIComponent in JS.
+    import json
+    from urllib.parse import quote
+    data_str = cmd_pointer.memory['data'].values.tolist()
+    data_str = json.dumps(data_str)
+    # data_str = quote(str(data_str))
+
+    from ad4e_opentoolkit.flask_html import launcher
+    from flask import render_template
+
+    def home():
+        return render_template('/dataviewer/index.html', data=data_str)
+
+    def test():
+        return render_template('/dataviewer/test.html')
+
+    routes = {
+        '/': home,
+        '/test': test
+    }
+
+    launcher.launch(routes)
+
+    # # Open browser.
+    # import webbrowser
+    # parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    # # html_page = f'file://{parent_dir}/flask_html/dataviewer/index.html?data={data_str}'
+    # html_page = f'file://{parent_dir}/flask_html/dataviewer/index.html#data={data_str}'
+    # webbrowser.open(html_page)
+    # print('\n---')
+    # print(html_page)
+
 
 # Edit a JSON config file.
-
-
 def edit_config(cmd_pointer, parser):
     from ad4e_opentoolkit.plugins import edit_json
 
