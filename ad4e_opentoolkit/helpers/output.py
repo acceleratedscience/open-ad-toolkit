@@ -187,7 +187,7 @@ def output_success(msg, *args, **kwargs):
 
 
 # Print or return a table.
-def output_table(data, cmd_pointer=None, headers=None, note=None, tablefmt='simple'):
+def output_table(data, cmd_pointer=None, is_data=False, headers=None, note=None, tablefmt='simple'):
     """
     Display a table:
     - CLI:      Print using tabulate with some custom home-made styling
@@ -197,11 +197,16 @@ def output_table(data, cmd_pointer=None, headers=None, note=None, tablefmt='simp
     Parameters
     ----------
     data (list, required)
-        An array of tuples, where each tuple is a row in the table.
+        A dataframe or an array of tuples, where each tuple is a row in the table.
     cmd_pointer (object):
         The run_cmd class instance which is used to determine the display context.
+    is_data (bool):
+        This enables the follow-up commands to open/edit/save the table data.
+        Some tables are just displaying information and don't need this (eg workspace list.)
     headers (list):
         A list of strings, where each string is a column header.
+    note (str):
+        A footnote to display at the bottom of the table.
     tablefmt (str):
         The table format used for tabulate (CLI only) - See https://github.com/astanin/python-tabulate#table-format
     """
@@ -266,18 +271,26 @@ def output_table(data, cmd_pointer=None, headers=None, note=None, tablefmt='simp
                 # updated with reset \u001b[0m for color tags which may be found later
                 table = table.replace(line, line[:cli_width - 3] + '...\u001b[0m')
 
-    # Make line yellow
+    # Make line yellow.
     lines = table.splitlines()
     lines[1] = style(f'<yellow>{lines[1]}</yellow>', nowrap=True)
 
-    # List next commands
-    msg = (
-        '<cmd>show full table</cmd>',
-        '<cmd>remove table columns</cmd>',
-        '<cmd>edit table</cmd>',
-        '<cmd>save table as \'<filename.csv>\'</cmd>',
-    )
-    lines.append('\n<soft>Next up you can: </soft>' + ' / '.join(msg) + ' <green># Coming soon</green>')
+    # Enable follow-up commands.
+    if is_data:
+        if not cmd_pointer:
+            raise Exception('cmd_pointer is required in display_data() to enable follow-up commands.')
+
+        # Store data in memory so we can access it with follow-up commands.
+        cmd_pointer.memory['data'] = data
+        cmd_pointer.preserve_memory['data'] = True
+
+        # Display follow-up commands.
+        msg = (
+            '<cmd>open</cmd>',
+            '<cmd>edit</cmd>',
+            '<cmd>save [as \'<filename.csv>\']</cmd>',
+        )
+        lines.append('\n<soft>Next up, you can run: </soft>' + ' / '.join(msg))
 
     # Add footnote.
     if note:

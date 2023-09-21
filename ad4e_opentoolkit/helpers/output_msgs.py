@@ -1,15 +1,15 @@
 import os
 
 messages = {
-    ###################
-    # FILE SYSTEM
-    ###################
+    ##########################################################################
+    # region - FILE SYSTEM
 
     # Success
     'success_import': lambda source_file, workspace_name: f'Imported the file {source_file} to your {workspace_name} workspace.',
     'success_export': lambda source_file, workspace_name, dest_file: f'Copied the file {source_file} from your {workspace_name} workspace to {dest_file}.',
     'success_copy': lambda source_file, source_workspace_name, dest_workspace_name: f'Copied the file {source_file} from your {source_workspace_name} to your {dest_workspace_name} workspace.',
     'success_delete': lambda file_name, workspace_name: f'Deleted the file {file_name} from your {workspace_name} workspace.',
+    'success_save_data': lambda file_path: f'Your data was successfully stored as <yellow>{file_path}</yellow>.',
 
     # Error
     'invalid_file_format': lambda *args: ('Invalid file format', f'Allowed file types: <yellow>{ "</yellow>, <yellow>".join(args) }</yellow>.'),
@@ -17,6 +17,7 @@ messages = {
     'fail_file_doesnt_exist': lambda *args: f'The selected file <yellow>{args[0]}</yellow> does not exist.',
     'fail_path_doesnt_exist': lambda path: f'The path <yellow>{path}</yellow> does not exist.',  # ?
     'fail_file_not_found': lambda path: (f'File not found.', path),
+    'fail_save_data': 'No data was stored.',
     'err_import': lambda err: ('Import failed.', err),
     'err_export': lambda err: ('Export failed.', err),
     'err_copy': lambda err: ('Copying file failed.', err),
@@ -25,12 +26,10 @@ messages = {
     'err_load_sdf': lambda err: ('Unable to load sdf file.', err),
     'err_load_csv': lambda err: ('Unable to load csv file.', err),
 
+    # endregion
 
-
-
-    ###################
-    # WORKSPACES
-    ###################
+    ##########################################################################
+    # region - WORKSPACES
 
     # General
     'workspace_description': lambda workspace_name, description: (
@@ -59,12 +58,10 @@ messages = {
     'err_workspace_description': lambda err=None: ('Something went wrong fetching the workspace description.', err),
     'err_workspace_create': lambda err: ('Something went wrong creating the workspace.', err),
 
+    # endregion
 
-
-
-    ###################
-    # RUNS
-    ###################
+    ##########################################################################
+    # region - RUNS
 
     # General
     'create_run_started': (
@@ -86,12 +83,10 @@ messages = {
     'fail_run_create': 'No <cmd>create run</cmd> found in history.',
     'fail_run_execute': lambda run_line: f'Unable to execute <cmd>{run_line}</cmd>',
 
+    # endregion
 
-
-
-    ###################
-    # TOOLKITS
-    ###################
+    ##########################################################################
+    # region - TOOLKITS
 
     # General
     'all_toolkits_currently_installed': (
@@ -139,12 +134,10 @@ messages = {
     'err_toolkit_remove': lambda toolkit_name, err: (f'There was an error removing the <yellow>{toolkit_name}</yellow> toolkit.', err),
     'err_add_command': lambda command, fwd_expr, err: ('Unable to load the function ' + command + '\n<yellow>' + fwd_expr + '</yellow>', err),
 
+    # endregion
 
-
-
-    ###################
-    # MOLECULE VIEWER
-    ###################
+    ##########################################################################
+    # region - MOLECULE VIEWER
 
     # General
     'm2g_tip': (
@@ -169,12 +162,10 @@ messages = {
     'fail_m2g_smiles_col_missing': 'SMILES column missing from input file.',
     'err_m2g_open': lambda err: ('There was an error opening the molecule viewer.', err),
 
+    # endregion
 
-
-
-    ###################
-    # SESSIONS
-    ###################
+    ##########################################################################
+    # region - SESSIONS
 
     # General
     'confirm_clear_sessions': (
@@ -192,12 +183,10 @@ messages = {
     # Error
     'err_clear_sessions': lambda err: ('Something went wrong clearing the other sessions.', err),
 
+    # endregion
 
-
-
-    ###################
-    # LOGIN
-    ###################
+    ##########################################################################
+    # region - LOGIN
 
     # Success
     'success_login': lambda toolkit_name, expiry_datetime: (f'You successfully logged in to <yellow>{toolkit_name}</yellow>.', f'Your access token does not have an expiration date' if expiry_datetime == 'No Expiry' else f'Your access token expires on {expiry_datetime}'),
@@ -205,10 +194,10 @@ messages = {
     # Error
     'err_login': lambda toolkit_name, err='': (f'Something went wrong logging you in to {toolkit_name}.\n<reset>Please check your credentials in your config file:</reset>\n<yellow>' + os.path.expanduser("~/.adccl") + '/ds-auth.ext-v2.json</yellow>', err),
 
+    # endregion
 
-    ###################
-    # OTHER
-    ###################
+    ##########################################################################
+    # region - OTHER
 
     # General
     'status': lambda *args: (
@@ -221,10 +210,13 @@ messages = {
 
     # Negative
     'table_headers_dont_match_columns': lambda headers, col_count: (f'The provided headers ({len(headers)}) don\'t match the number of columns in the data ({col_count}).', headers),
+    'no_data_memory': 'No data stored in memory.',
 
     # Error
     # 'invalid_cmd': 'Not a valid command.',
     'err_invalid_cmd': lambda err: ('Not a valid command.', err),
     'err_unknown': lambda err: ('Unknown error.', err),
     'err_fetch_history': lambda err: ('There was an error fetching the history.', err),
+
+    # endregion
 }

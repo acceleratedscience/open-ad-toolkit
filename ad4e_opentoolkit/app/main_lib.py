@@ -28,7 +28,7 @@ from ad4e_opentoolkit.app.global_var_lib import _all_toolkits as _all_toolkits
 
 # Helpers
 from ad4e_opentoolkit.helpers.output import msg, output_text, output_error, output_warning, output_success, output_table
-from ad4e_opentoolkit.helpers.general import refresh_prompt
+from ad4e_opentoolkit.helpers.general import refresh_prompt, user_input, validate_file_path, ensure_file_path
 from ad4e_opentoolkit.helpers.splash import splash
 from ad4e_opentoolkit.helpers.output_content import adccl_intro
 
@@ -142,6 +142,8 @@ def lang_parse(cmd_pointer, parser):
         return display_history(cmd_pointer, parser)
     elif parser.getName() == 'display_data':
         return display_data(cmd_pointer, parser)
+    elif parser.getName() == 'display_data__save':
+        return display_data__save(cmd_pointer, parser)
     elif parser.getName() == 'clear_sessions':
         return clear_other_sessions(cmd_pointer, parser)
     elif parser.getName() == 'edit_config':
@@ -406,8 +408,7 @@ def display_history(cmd_pointer, parser):
 # Display a csv file in a table.
 def display_data(cmd_pointer, parser):
     import pandas
-    workspace_path = cmd_pointer.workspace_path(
-        cmd_pointer.settings['workspace'].upper()) + '/'
+    workspace_path = cmd_pointer.workspace_path(cmd_pointer.settings['workspace'].upper()) + '/'
     file_path = parser['file_path']
     filename = file_path.split('/')[-1]
 
@@ -416,21 +417,64 @@ def display_data(cmd_pointer, parser):
         filename = filename + '.csv'
         file_path = file_path + '.csv'
 
+    # Open file
     try:
         if filename.split('.')[-1].lower() == 'csv':
             # From csv file.
             try:
                 df = pandas.read_csv(workspace_path + file_path)
-                return output_table(df)
+                return output_table(df, cmd_pointer, is_data=True)
             except FileNotFoundError:
                 return output_error(msg('fail_file_doesnt_exist', file_path), cmd_pointer)
             except BaseException as err:
                 return output_error(msg('err_load_csv', err, split=True), cmd_pointer)
         else:
+            # Other file formats --> error.
             return output_error(msg('invalid_file_format', 'csv', split=True), cmd_pointer)
 
     except BaseException as err:
         output_error(msg('err_unknown', err, split=True), cmd_pointer)
+
+
+# --> Save data to a csv file.
+def display_data__save(cmd_pointer, parser):
+    # Preserve memory for further follow-ups.
+    cmd_pointer.preserve_memory['data'] = True
+
+    # Abort if memory is empty.
+    if cmd_pointer.memory['data'] is None:
+        output_error(msg('no_data_memory'), cmd_pointer)
+        return
+
+    # Set variables.
+    workspace_path = cmd_pointer.workspace_path(cmd_pointer.settings['workspace'].upper()) + '/'
+    file_path = parser['file_path'] if 'file_path' in parser else None  # Parser as_dict?
+    file_path = validate_file_path(file_path, ['csv'], cmd_pointer)
+
+    # Prompt file path if missing.
+    while not file_path:
+        file_path = user_input(cmd_pointer, 'Filename')
+        file_path = validate_file_path(file_path, ['csv'], cmd_pointer)
+
+    # Ensure the file_path is kosher:
+    # - Make sure we won't override an existing file
+    # - Create folder structure if it doesn't exist yet
+    file_path_ok = ensure_file_path(workspace_path + file_path)
+
+    # Save data to file.
+    if file_path_ok:
+        cmd_pointer.memory['data'].to_csv(workspace_path + file_path, index=False)
+        output_success(msg('success_save_data', file_path), cmd_pointer)
+    else:
+        output_error(msg('fail_save_data'), cmd_pointer)
+
+# --> Open data in browser UI.
+
+
+def display_data__explore(cmd_pointer, parser):
+    pass
+
+# Edit a JSON config file.
 
 
 def edit_config(cmd_pointer, parser):

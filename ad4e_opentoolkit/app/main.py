@@ -81,6 +81,26 @@ class run_cmd(Cmd):
     llm_model = 'gpt-3.5-turbo'
     llm_models = {'OPENAI': 'gpt-3.5-turbo', 'WATSONX': 'mosaicml/mpt-7b'}
 
+    # Short-term memory
+    # - - -
+    # Used to store data which can be manipulated by follow-up commands.
+    # If the next command is not one of the approved follow-up commands,
+    # the memory is wiped to avoid performance impact.
+    # - - -
+    # Examples:
+    # >> display data 'table1.csv' # Data is stored in short term memory.
+    # >> save data as 'table2.csv' # Data is exported to file.
+    memory = {
+        'data': None
+    }
+
+    # By default, the memory is wiped after each command.
+    # Unless the command is one of the approved follow-up commands,
+    # in which case the memory is preserved via this dictionary.
+    preserve_memory = {
+        'data': False
+    }
+
     def workspace_path(self, workspace: str):
         try:
             x = os.path.expanduser(
@@ -411,7 +431,6 @@ class run_cmd(Cmd):
         return []
 
     # Catches the exit command
-
     def do_exit(self, dummy_inp_do_not_remove):
         write_registry(self.settings, self, True)
         delete_session_registry(self.session_id)
@@ -420,7 +439,6 @@ class run_cmd(Cmd):
         return True
 
     # prevents on return on a blank line default receiving the previous input to run
-
     def emptyline(self):
         pass
 
@@ -429,7 +447,6 @@ class run_cmd(Cmd):
         x = None
 
         if convert(inp).split()[-1] == '?' and not convert(inp).upper().startswith('TELL ME'):
-
             return self.do_help(inp)
 
         try:
@@ -444,6 +461,13 @@ class run_cmd(Cmd):
             x = lang_parse(self, y)
             self.prompt = refresh_prompt(self.settings)
             logging.info('Ran: ' + inp)
+
+            # Wipe short term memory, unless we're
+            # listening to follow-up commands.
+            if self.preserve_memory['data']:
+                self.preserve_memory['data'] = False
+            else:
+                self.memory['data'] = None
         except BaseException as err1:
             # Removing due to usability being able to recall item and correct:
             # try:
@@ -468,7 +492,6 @@ class run_cmd(Cmd):
                         try:
                             x = c.explain()
                         except BaseException:
-                            print('***')
                             return output_error(msg('err_unknown', err1, split=True), self, return_val=False)
 
                         if x.find("Expected CaselessKeyword") > -1 and x.find('at char 0') == -1:

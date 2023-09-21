@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Document</title>
+	<style>
+		#table {
+			display: flex;
+			border: solid 1px rgba(0,0,0,.1)
+			flex-wrap: wrap;
+		}
+		#table > div {
+			flex: 1 1 33%;
+			border: solid 1px rgba(255,0,0,.1)
+		}
+	</style>
+</head>
+<body>
+	This is a successful test
+
+	<div id="table">
+		<div>A</div>
+		<div>B</div>
+		<div>C</div>
+		<div>1</div>
+		<div>2</div>
+		<div>3</div>
+		<div>4</div>
+		<div>5</div>
+		<div>6</div>
+	</div>
+
+	
+
+	<script>
+
+		// Store URL query into data object.
+		queryItems = window.location.search.replace(/^\?/,'').split('&')
+		query = {}
+		for (var i = 0; i < queryItems.length; i++) {
+			[key, val] = queryItems[i].split('=')
+			console.log(queryItems[i])
+			console.log(key, '=', val)
+			query[key] = val
+		}
+		// document.getElementById('table').innerHTML = JSON.stringify(data)
+
+
+		data = query.data
+		for (var row = 0; row < data.length; row++) {
+			for (var col = 0; col < data[row].length; col++) {
+				// data[row][col] = data[row][col].replace(/_/g, ' ')
+			}
+		}
+
+		// document.getElementById('table').innerHTML = query.data
+	</script>
+</body>
+</html>

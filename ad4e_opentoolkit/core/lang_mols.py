@@ -1,7 +1,7 @@
 
 from rdkit.Chem import PandasTools
 import rdkit
-#import molsviewer.mols2grid as mols2grid # interim until molsto grid updated for pip install
+# import molsviewer.mols2grid as mols2grid # interim until molsto grid updated for pip install
 import mols2grid
 import signal
 import os
@@ -24,16 +24,15 @@ def display_mols(cmd_pointer, parser):
             return output_error(msg('fail_file_doesnt_exist', origin_file), cmd_pointer)
 
         # Invalid origin file type.
-        if origin_file and len(origin_file.strip()) > 0:   
+        if origin_file and len(origin_file.strip()) > 0:
             if origin_file.split('.')[-1].lower() not in ['sdf', 'csv']:
                 return output_error(msg('invalid_file_format', 'sdf', 'csv', split=True), cmd_pointer)
         else:
             return output_error(msg('invalid_file_format', 'sdf', 'csv', split=True), cmd_pointer)
 
-
         # Invalid destination file type.
-        if results_file != None:
-            if results_file and len(results_file.strip()) > 0:  
+        if results_file is not None:
+            if results_file and len(results_file.strip()) > 0:
                 if results_file and results_file.split('.')[-1].lower() not in ['sdf', 'csv']:
                     return output_error(msg('invalid_file_format_target', 'sdf', 'csv', split=True), cmd_pointer)
             else:
@@ -152,8 +151,7 @@ def display_mols(cmd_pointer, parser):
         # Spin up Flask server
         from flask import Flask, render_template, send_from_directory, request
         import webbrowser
-        template_dir = os.path.abspath(cmd_pointer.repo_dir+'/../flask_html')
-        print(template_dir)
+        template_dir = os.path.abspath(cmd_pointer.repo_dir + '/../flask_html')
         app = Flask('Molecule Viewer', template_folder=template_dir)
 
         def kill_server():
@@ -180,19 +178,19 @@ def display_mols(cmd_pointer, parser):
         # Make main CSS files available.
         @app.route('/css/<path>')
         def send_main_css(path):
-            return send_from_directory(cmd_pointer.repo_dir+'/../flask_html/css', f'{path}')
+            return send_from_directory(cmd_pointer.repo_dir + '/../flask_html/css', f'{path}')
 
         # Make page-specific CSS files available.
         @app.route('/molsviewer/<path>')
         def send_page_css(path):
-            return send_from_directory(cmd_pointer.repo_dir+'/../flask_html/molsviewer', f'{path}')
+            return send_from_directory(cmd_pointer.repo_dir + '/../flask_html/molsviewer', f'{path}')
 
         # Submit
         @app.route('/submit', methods=['POST'])
         def submit():
             import json
             indexes = json.loads(request.data.decode('utf-8'))
-            if indexes!=None:
+            if indexes is not None:
                 filtered_df = the_mols2grid.dataframe.iloc[indexes]
 
             if 'results_file' in parser:
