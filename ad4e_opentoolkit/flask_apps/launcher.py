@@ -7,7 +7,7 @@ from ad4e_opentoolkit.helpers.output import msg, output_text, output_error
 from ad4e_opentoolkit.helpers.general import next_avail_port
 
 
-def launch(cmd_pointer, routes=None):
+def launch(cmd_pointer=None, routes=None):
     if not routes:
         output_error('Routes are required to launch Flask server.')
         return
@@ -18,7 +18,7 @@ def launch(cmd_pointer, routes=None):
 
     # Make main CSS files available.
     @app.route('/css/<path>')
-    def send_main_css(path):
+    def css(path):
         return send_from_directory(_repo_dir + '/../flask_apps/_css', f'{path}')
 
     # Unpack routes.
@@ -32,10 +32,36 @@ def launch(cmd_pointer, routes=None):
         # def home():
         #     return render_template('/home.html')
 
-    # Open browser.
+    # Determine port and host.
     port, host = next_avail_port()
-    socket.setdefaulttimeout(1)
-    webbrowser.open(f'http://{host}:{port}', new=1)
+
+    # Launch the UI
+    if cmd_pointer.notebook_mode:
+        # Jupyter --> Render iframe.
+
+        # Rendering the iframe in the traditional way doesn't let us
+        # style it, so we have to use a little hack. Jupyter doesn't
+        # like our hack, so we have to suppress the warning.
+        # The "regular" way of rendering the iframe would be:
+        #
+        #   from IPython.display import IFrame, display
+        #   iframe = IFrame(src=f'http://{host}:{port}', width='100%', height=700)
+        #   display(iframe)
+
+        import warnings
+        from IPython.display import HTML, display
+
+        width = '100%'
+        height = 700
+
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=UserWarning)
+            iframe_html = f'<iframe src="http://{host}:{port}" width="{width}" height="{height}" style="border: solid 1px #ddd;"></iframe>'
+            display(HTML(iframe_html))
+    else:
+        # CLI --> Open browser.
+        socket.setdefaulttimeout(1)
+        webbrowser.open(f'http://{host}:{port}', new=1)
 
     # Remove Flask startup message.
     import sys
@@ -51,5 +77,16 @@ def launch(cmd_pointer, routes=None):
     output_text(msg('flask_launch', 'Data Viewer', port), cmd_pointer, pad_top=1)
 
     # Launch server.
-    app.run(host=host, port=port)
-    return True
+    if cmd_pointer.notebook_mode:
+        # Jupyter --> Start the Flask app in a separate thread.
+        from threading import Thread
+        thread = Thread(target=lambda: app.run(host=host, port=port))
+        thread.start()
+
+        # app.run(host=host, port=port)
+
+        # return {'foo': 666}
+    else:
+        # CLI --> Start the Flask app in the main thread.
+        app.run(host=host, port=port)
+        return True

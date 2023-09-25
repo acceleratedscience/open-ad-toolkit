@@ -8,6 +8,6 @@ def display_mols(cmd_pointer, parser):
     # Load routes and launch browser UI.
     routes, the_mols2grid = fetchRoutes(cmd_pointer, parser)
     if routes and not cmd_pointer.notebook_mode:
-        launcher.launch(cmd_pointer, routes, 5000)
+        launcher.launch(cmd_pointer, routes)
     else:
         return the_mols2grid

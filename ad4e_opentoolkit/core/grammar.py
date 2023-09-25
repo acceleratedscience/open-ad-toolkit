@@ -1,3 +1,9 @@
+# Note: this file is organized in regions, which collapse in VS Code:
+# - Collapse all regions:       hold cmd, then hit K followed by 1
+# - Expand all regions:         hold cmd, then hit K followed by J
+# - Collapse to any level:      first expand everything, then hold cmd, then hit K followed by any number
+
+
 from pyparsing import (
     Word,
     delimitedList,
@@ -30,10 +36,6 @@ from ad4e_opentoolkit.helpers.output import output_error, msg
 
 # Global variables
 from ad4e_opentoolkit.app.global_var_lib import _all_toolkits
-
-# @Phil can be deleted ?
-# from pyparsing import *
-# from operator import ior
 
 
 get, lister, description, using, create, s_et, unset, workspace, workspaces, context, jobs, e_xec, a_s, optimize, w_ith, toolkits, toolkit, GPU, experiment, add, run, save, runs, show, molecules, file, d_isplay, history, data, remove = \
@@ -459,7 +461,7 @@ grammar_help.append(openad_help.help_dict_create(
 # endregion
 
 ##########################################################################
-# region - Internal Vocabulary
+# region - Development Vocabulary
 # The commands in this section are not intended for general use,
 # and are not documented by the help system.
 ##########################################################################
@@ -467,13 +469,7 @@ grammar_help.append(openad_help.help_dict_create(
 # Launches the demo flask app.
 statements.append(Forward(CaselessKeyword('flask') + CaselessKeyword('example'))('flask_example'))
 
-
-# Define The Concepts of Jobs
-# statements.append( Forward(lister +jobs('job') )('list_jobs'))
-
-# This is a space that will require further thought whether to run jobs
-# asynchronously from the client and how to track and save their results
-
+# endregion
 
 ##########################################################################
 # region - Global viewers
@@ -577,6 +573,12 @@ grammar_help.append(openad_help.help_dict_create(
 ))
 
 # endregion
+
+# Define The Concepts of Jobs
+# statements.append( Forward(lister +jobs('job') )('list_jobs'))
+
+# This is a space that will require further thought whether to run jobs
+# asynchronously from the client and how to track and save their results
 
 # Packaging Section
 orig_statements = statements.copy()

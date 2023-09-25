@@ -10,14 +10,15 @@
 			input {
 				margin: 10px 0;
 			}
+			body > ul > li {
+				margin-bottom: 30px;
+			}
 		</style>
 		<script>
 			// Create a new XMLHttpRequest object
 			var xhr = new XMLHttpRequest()
 
 			function submitAjax() {
-				console.log(333, 'submitAjax')
-
 				// Assemble data
 				data = {}
 				data[document.getElementById('someAjaxInput').id] = document.getElementById('someAjaxInput').value
@@ -30,7 +31,7 @@
 				xhr.onload = function () {
 					if (xhr.status === 200) {
 						// Success
-						alert(`Success! You submitted: "${data['someAjaxInput']}"\nReturned value: "${xhr.response}"`)
+						alert(xhr.response)
 					} else {
 						// Error
 						alert('Submit request failed with status code ' + xhr.status)
@@ -48,23 +49,39 @@
 	<body>
 		<h1>Example Flask App</h1>
 		<br />
-		<p>This is a simple flask application to demonstrate the architecture without bloat.</p>
-		<p>You can have multiple pages per app, for example <a href="/foo">Foo</a> and <a href="/bar">Bar</a>.</p>
-		<p>You can also submit data:</p>
+		<p>This is a simple flask application to demonstrate the architecture without bloat.<br />Some basic things you can do:</p>
+		<ul>
+			<li>
+				Pass data to the template:<br />
+				<ul>
+					{% for person in data %}
+					<li>{{ person }}: {{ data[person] }}</li>
+					{% endfor %}
+				</ul>
+			</li>
 
-		<ol>
-			<li>Using a regular form:</li>
-			<form method="POST" action="/submit">
-				<input type="text" name="someInput" value="hello world" /><br />
-				<button>SUBMIT</button>
-			</form>
-		</ol>
-		<ol>
-			<li>Using an ajax request:</li>
-			<form onsubmit="submitAjax(); return false">
-				<input type="text" id="someAjaxInput" value="hello ajax world" /><br />
-				<button>SUBMIT</button>
-			</form>
-		</ol>
+			<li>Have multiple pages per app, for example <a href="/foo">Foo</a> and <a href="/bar">Bar</a>.</li>
+			<li>
+				<p>Submit data back to the server:</p>
+				<ol>
+					<li>
+						Using a regular form
+						<form method="POST" action="/submit">
+							<input type="text" name="someInput" value="hello world" /><br />
+							<button>SUBMIT</button>
+						</form>
+						<br />
+					</li>
+					<li>
+						Using an ajax request
+						<form onsubmit="submitAjax(); return false">
+							<input type="text" id="someAjaxInput" value="hello ajax world" /><br />
+							<button>SUBMIT</button>
+						</form>
+						<br />
+					</li>
+				</ol>
+			</li>
+		</ul>
 	</body>
 </html>

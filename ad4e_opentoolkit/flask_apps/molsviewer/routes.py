@@ -168,9 +168,10 @@ def fetchRoutes(cmd_pointer, parser):
             m2g_instance = the_mols2grid.display(**m2g_params_copy)
             return render_template('/molsviewer/index.html', data=m2g_instance.data, available_params=available_params, m2g_params=m2g_params)
 
-        # Make page-specific CSS files available.
+        # Make files in the molsviewer directory available.
+        # used to load the app-specxific CSS files.
         # @app.route('/molsviewer/<path>')
-        def send_page_css(path):
+        def app_dir(path):
             return send_from_directory(cmd_pointer.repo_dir + '/../flask_apps/molsviewer', f'{path}')
 
         # @app.route('/exit', methods=['POST'])
@@ -260,7 +261,7 @@ def fetchRoutes(cmd_pointer, parser):
                 'method': 'GET'
             },
             '/molsviewer/<path>': {
-                'func': send_page_css,
+                'func': app_dir,
                 'method': 'GET'
             },
             '/exit': {

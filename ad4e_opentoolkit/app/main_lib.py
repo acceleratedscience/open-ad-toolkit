@@ -15,7 +15,7 @@ from ad4e_opentoolkit.core.lang_sessions_and_registry import clear_other_session
 from ad4e_opentoolkit.core.lang_workspaces import create_workspace, remove_workspace, list_workspaces, set_workspace, get_workspace
 from ad4e_opentoolkit.core.lang_mols import display_mols
 from ad4e_opentoolkit.core.lang_runs import display_run, execute_run, save_run, list_runs
-from ad4e_opentoolkit.core.lang_various import flask_example
+from ad4e_opentoolkit.core.lang_dev import flask_example
 from ad4e_opentoolkit.core.grammar import create_statements
 
 # Toolkits
@@ -181,7 +181,7 @@ def lang_parse(cmd_pointer, parser):
             err = err + '\n' + str(parser.asList())
             return output_error(msg('fail_toolkit_exec_cmd'), cmd_pointer)
 
-    # Internal commands (unpuhblished in help)
+    # Development commands (unpublished in help)
     elif parser.getName() == 'flask_example':
         return flask_example(cmd_pointer, parser)
 
@@ -485,7 +485,7 @@ def display_data__open(cmd_pointer, parser):
 
     # Load routes and launch browser UI.
     routes = fetchRoutes(data_str)
-    launcher.launch(cmd_pointer, routes, 5001)
+    launcher.launch(cmd_pointer, routes)
 
 
 # Edit a JSON config file.
