@@ -19,7 +19,7 @@ def initialise_toolkit_login():
         with open(_meta_login_registry, 'wb') as handle:
             settings = pickle.dump(_meta_login_registry_settings, handle)
             handle.close()
-        print("Login registry initiaized.")
+        print("Login registry initialized.")
         return True
     except BaseException:
         return False
@@ -46,7 +46,8 @@ def write_login_registry(login_registry: dict):
         print(login_registry)
         # flush_dict= login_registry.copy()
         with open(_meta_login_registry, 'wb') as handle:
-            settings = pickle.dump(login_registry, handle, protocol=None, fix_imports=True, buffer_callback=None)
+            settings = pickle.dump(
+                login_registry, handle, protocol=None, fix_imports=True, buffer_callback=None)
             handle.close()
         print('wrote Registry')
     except BaseException as err:
@@ -62,15 +63,16 @@ def load_src(name, fpath):
     return imp.load_source(name, os.path.join(os.path.dirname(__file__), fpath))
 
 
-def load_login_api(cmd_pointer, toolkit_name,reset=False):
+def load_login_api(cmd_pointer, toolkit_name, reset=False):
     import os
     from ad4e_opentoolkit.app.global_var_lib import _meta_dir_toolkits as _meta_dir_toolkits
     suppress = False
     if toolkit_name.upper() in cmd_pointer.settings['toolkits']:
         suppress = True
     if os.path.isfile(_meta_dir_toolkits + "/" + toolkit_name + "/login.py"):
-        exec_link = load_src("login", _meta_dir_toolkits + "/" + toolkit_name + "/login.py")
-        if reset==True:
+        exec_link = load_src("login", _meta_dir_toolkits +
+                             "/" + toolkit_name + "/login.py")
+        if reset == True:
             func = getattr(exec_link, "reset")
             func(cmd_pointer)
         func = getattr(exec_link, "login")

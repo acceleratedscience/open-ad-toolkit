@@ -6,8 +6,8 @@ import json
 
 # Flask
 from flask import render_template
-from ad4e_opentoolkit.flask_html import launcher
-from ad4e_opentoolkit.flask_html.dataviewer.routes import fetchRoutes
+from ad4e_opentoolkit.flask_apps import launcher
+from ad4e_opentoolkit.flask_apps.dataviewer.routes import fetchRoutes
 
 # Core
 from ad4e_opentoolkit.core.lang_file_system import import_file, export_file, copy_file, remove_file, list_files

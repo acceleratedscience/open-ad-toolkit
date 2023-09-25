@@ -1,5 +1,5 @@
-from ad4e_opentoolkit.flask_html import launcher
-from ad4e_opentoolkit.flask_html.molsviewer.routes import fetchRoutes
+from ad4e_opentoolkit.flask_apps import launcher
+from ad4e_opentoolkit.flask_apps.molsviewer.routes import fetchRoutes
 
 mol_name_cache = {}  # caches molecule names
 

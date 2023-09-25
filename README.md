@@ -63,7 +63,11 @@ Only follow these instructions if you're contributing to the codebase.
 
             git clone -b <branch_name> git@github.ibm.com:Accelerated-Discovery/ad4e-opentoolkit.git
 
-        Then, from the _ad4e-opentoolkit_ top directory, run:
+        Then, enter the _ad4e-opentoolkit_ directory...
+
+            cd ad4e-opentoolkit
+
+        ...and run:
 
             pip install -e .
 

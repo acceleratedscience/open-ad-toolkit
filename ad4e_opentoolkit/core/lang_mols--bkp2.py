@@ -12,7 +12,6 @@ from ad4e_opentoolkit.helpers.spinner import spinner
 mol_name_cache = {}  # caches molecule names
 
 
-
 def display_mols(cmd_pointer, parser):
     # File and directory references.
     workspace_path = cmd_pointer.workspace_path(cmd_pointer.settings['workspace'].upper()) + '/'
@@ -152,7 +151,7 @@ def display_mols(cmd_pointer, parser):
         # Spin up Flask server
         from flask import Flask, render_template, send_from_directory, request
         import webbrowser
-        template_dir = os.path.abspath(cmd_pointer.repo_dir + '/../flask_html')
+        template_dir = os.path.abspath(cmd_pointer.repo_dir + '/../flask_apps')
         app = Flask('Molecule Viewer', template_folder=template_dir)
 
         def kill_server():
@@ -179,12 +178,12 @@ def display_mols(cmd_pointer, parser):
         # Make main CSS files available.
         @app.route('/css/<path>')
         def send_main_css(path):
-            return send_from_directory(cmd_pointer.repo_dir + '/../flask_html/css', f'{path}')
+            return send_from_directory(cmd_pointer.repo_dir + '/../flask_apps/_css', f'{path}')
 
         # Make page-specific CSS files available.
         @app.route('/molsviewer/<path>')
         def send_page_css(path):
-            return send_from_directory(cmd_pointer.repo_dir + '/../flask_html/molsviewer', f'{path}')
+            return send_from_directory(cmd_pointer.repo_dir + '/../flask_apps/molsviewer', f'{path}')
 
         # Submit
         @app.route('/submit', methods=['POST'])
