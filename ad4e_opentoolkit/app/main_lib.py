@@ -14,8 +14,9 @@ from ad4e_opentoolkit.core.lang_file_system import import_file, export_file, cop
 from ad4e_opentoolkit.core.lang_sessions_and_registry import clear_other_sessions, write_registry, registry_add_toolkit, registry_deregister_toolkit, initialise_registry, update_main_registry_env_var
 from ad4e_opentoolkit.core.lang_workspaces import create_workspace, remove_workspace, list_workspaces, set_workspace, get_workspace
 from ad4e_opentoolkit.core.lang_mols import display_mols
-from ad4e_opentoolkit.core.grammar import create_statements
 from ad4e_opentoolkit.core.lang_runs import display_run, execute_run, save_run, list_runs
+from ad4e_opentoolkit.core.lang_various import flask_example
+from ad4e_opentoolkit.core.grammar import create_statements
 
 # Toolkits
 from ad4e_opentoolkit.toolkit.toolkit_main import load_toolkit
@@ -81,7 +82,6 @@ def lang_parse(cmd_pointer, parser):
     elif parser.getName() == 'HOW_DO_I':
         result = how_do_i(cmd_pointer, parser)
         if result == False:
-
             return False
         update_main_registry_env_var(cmd_pointer, 'refresh_help_ai', False)
         write_registry(cmd_pointer.settings, cmd_pointer)
@@ -96,7 +96,7 @@ def lang_parse(cmd_pointer, parser):
             cmd_pointer.refresh_train = True
             write_registry(cmd_pointer.settings, cmd_pointer, False)
             write_registry(cmd_pointer.settings, cmd_pointer, True)
-        except Exception as e:
+        except BaseException as e:
             print(e)
         return result
     elif parser.getName() == 'clear_llm_auth':
@@ -110,7 +110,7 @@ def lang_parse(cmd_pointer, parser):
     elif parser.getName() == 'save_run':
         try:
             save_run(cmd_pointer, parser)
-        except Exception as e:
+        except BaseException:
             return False
         return True
     elif parser.getName() == 'list_runs':
@@ -122,7 +122,6 @@ def lang_parse(cmd_pointer, parser):
 
     # File system commands
     elif parser.getName() == 'list_files':
-
         return list_files(cmd_pointer, parser)
     elif parser.getName() == 'import_file':
         return import_file(cmd_pointer, parser)
@@ -181,6 +180,10 @@ def lang_parse(cmd_pointer, parser):
         except BaseException as err:
             err = err + '\n' + str(parser.asList())
             return output_error(msg('fail_toolkit_exec_cmd'), cmd_pointer)
+
+    # Internal commands (unpuhblished in help)
+    elif parser.getName() == 'flask_example':
+        return flask_example(cmd_pointer, parser)
 
     return
 

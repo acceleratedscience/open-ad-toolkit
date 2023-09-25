@@ -173,6 +173,30 @@ def ensure_file_path(file_path):
     return True
 
 
+# Check is a port is open.
+# Only used by next_avail_port below.
+def is_port_open(host, port):
+    import socket
+    try:
+        # Create a socket object and attempt to connect
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.settimeout(1)  # Set a timeout for the connection attempt
+            s.connect((host, port))
+        return False  # Port is occupied
+    except (ConnectionRefusedError, socket.timeout):
+        return True  # Port is available
+
+
+# Return the next available port starting with 5000.
+# This is used by the flask app launcher, we want to
+# avoid a situation where multiple apps are trying to
+# run on the same port.
+def next_avail_port(port=5000, host='127.0.0.1'):
+    while not is_port_open(host, port):
+        port += 1
+    return port, host
+
+
 #
 #
 #

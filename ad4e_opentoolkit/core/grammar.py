@@ -458,6 +458,15 @@ grammar_help.append(openad_help.help_dict_create(
 
 # endregion
 
+##########################################################################
+# region - Internal Vocabulary
+# The commands in this section are not intended for general use,
+# and are not documented by the help system.
+##########################################################################
+
+# Launches the demo flask app.
+statements.append(Forward(CaselessKeyword('flask') + CaselessKeyword('example'))('flask_example'))
+
 
 # Define The Concepts of Jobs
 # statements.append( Forward(lister +jobs('job') )('list_jobs'))

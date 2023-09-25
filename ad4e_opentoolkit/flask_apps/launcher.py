@@ -1,12 +1,13 @@
 import os
 import socket
 import webbrowser
-from flask import Flask, render_template, send_from_directory, request
+from flask import Flask, send_from_directory
 from ad4e_opentoolkit.app.global_var_lib import _repo_dir
 from ad4e_opentoolkit.helpers.output import msg, output_text, output_error
+from ad4e_opentoolkit.helpers.general import next_avail_port
 
 
-def launch(cmd_pointer, routes=None, port=5000, host='127.0.0.1'):
+def launch(cmd_pointer, routes=None):
     if not routes:
         output_error('Routes are required to launch Flask server.')
         return
@@ -32,6 +33,7 @@ def launch(cmd_pointer, routes=None, port=5000, host='127.0.0.1'):
         #     return render_template('/home.html')
 
     # Open browser.
+    port, host = next_avail_port()
     socket.setdefaulttimeout(1)
     webbrowser.open(f'http://{host}:{port}', new=1)
 
@@ -51,7 +53,3 @@ def launch(cmd_pointer, routes=None, port=5000, host='127.0.0.1'):
     # Launch server.
     app.run(host=host, port=port)
     return True
-
-
-if __name__ == "__main__":
-    launch()

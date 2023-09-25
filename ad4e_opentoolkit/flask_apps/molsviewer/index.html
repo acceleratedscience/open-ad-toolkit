@@ -10,16 +10,12 @@
 		<link rel="stylesheet" href="molsviewer/molsviewer.css" />
 		<script>
 			// Note: we are submitting the form with an ajax request,
-			// otherwise we can't call window.close()
+			// because otherwise we can't call window.close()
 
 			// Create a new XMLHttpRequest object
 			var xhr = new XMLHttpRequest()
 
 			function submitForm() {
-				console.log(11, TEST1)
-				console.log(12, TEST2)
-				console.log(10, SELECTION)
-
 				// Get the selection.
 				// Note: SELECTION is defined within mols2grid -> interactive.js
 				keys = SELECTION.to_keys()
