@@ -9,14 +9,19 @@
 		<link rel="stylesheet" href="css/main.css" />
 		<link rel="stylesheet" href="molsviewer/molsviewer.css" />
 		<script>
-			// We submit the form with an ajax request,
+			// Note: we are submitting the form with an ajax request,
 			// otherwise we can't call window.close()
 
 			// Create a new XMLHttpRequest object
 			var xhr = new XMLHttpRequest()
 
 			function submitForm() {
+				console.log(11, TEST1)
+				console.log(12, TEST2)
+				console.log(10, SELECTION)
+				
 				// Get the selection.
+				// Note: SELECTION is defined within mols2grid -> interactive.js
 				keys = SELECTION.to_keys()
 
 				if (!keys.length) {
@@ -64,7 +69,7 @@
 			}
 
 			// // Not sure if it is possible to differentiate between navigating
-			// // away or closing the window, disabling this for now.
+			// // away or closing the window, disabling this for now - moe
 			// //
 			// // Shut down server when closing the window.
 			// window.onbeforeunload = function (e) {
@@ -125,6 +130,10 @@
 		</div>
 
 		<!-- Grid -->
+		<!--
+			Mols2grid HTML gets loaded in here
+			together with all JS and CSS referenced
+		-->
 		{% block content %}
 		<div class="container">
 			<div>{{data|safe}}</div>

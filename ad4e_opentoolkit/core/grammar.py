@@ -157,10 +157,10 @@ grammar_help.append(openad_help.help_dict_create(
 # --> open --> Explore data in browser
 statements.append(Forward(CaselessKeyword('open'))('display_data__open'))
 grammar_help.append(openad_help.help_dict_create(
-    name="save",
+    name="open",
     category='General',
-    command="save [as '<csv_filename>']",
-    description='Store table data into a csv file.'
+    command="open",
+    description='Explore table data in the browser.'
 ))
 
 # Clear sessions
@@ -478,13 +478,12 @@ if is_notebook_mode():
     grammar_help.append(openad_help.help_dict_create(
         name="show molecules",
         category='GUI',
-        command="show molecules using file <mols_file> [  as molsobject ]",
+        command="show molecules using file '<mols_file>' [  as molsobject ]",
         description='This command shows 1 or more Molecules in selection grid using a dataset containing smiles molecule strings. It display a molecule selection grid inside Jypyter Notebooks or Jupyter Lab. \n example command:  "show molecules using dataframe mydata_frame as molsobject "  '
     ))
 
     # Show molecules using dataframe.
-    statements.append(Forward(show('show') + molecules + using + CaselessKeyword('dataframe') + Word(alphas, alphanums + "_")('in_dataframe') +
-                      Optional(CaselessKeyword('as') + CaselessKeyword('molsobject')('object')))('show_api_molecules'))
+    statements.append(Forward(show('show') + molecules + using + CaselessKeyword('dataframe') + Word(alphas, alphanums + "_")('in_dataframe') + Optional(CaselessKeyword('as') + CaselessKeyword('molsobject')('object')))('show_api_molecules'))
     grammar_help.append(openad_help.help_dict_create(
         name="show molecules",
         category='GUI',
@@ -495,8 +494,7 @@ else:
     # CLI
 
     # Show molecules using file.
-    statements.append(Forward(show('show') + molecules + using + file + desc('moles_file') + Optional(
-        CaselessKeyword('Save') + CaselessKeyword('as') + desc('results_file')))('show_molecules'))
+    statements.append(Forward(show('show') + molecules + using + file + desc('moles_file') + Optional(CaselessKeyword('Save') + CaselessKeyword('as') + desc('results_file')))('show_molecules'))
     grammar_help.append(openad_help.help_dict_create(
         name="show molecules",
         category='GUI',

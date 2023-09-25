@@ -101,6 +101,17 @@ class run_cmd(Cmd):
         'data': False
     }
 
+    # This is run at the beginning of any follow up function
+    # to check and preserve the memory content.
+    def init_followup(cmd_pointer, memory_key):
+        # Preserve memory for further follow-ups.
+        cmd_pointer.preserve_memory[memory_key] = True
+
+        # Abort if memory is empty.
+        if cmd_pointer.memory[memory_key] is None:
+            output_error(msg('no_data_memory'), cmd_pointer)
+            return
+
     def workspace_path(self, workspace: str):
         try:
             x = os.path.expanduser(

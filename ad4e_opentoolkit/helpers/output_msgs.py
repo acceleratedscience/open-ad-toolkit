@@ -146,7 +146,11 @@ messages = {
         '',
         'For more options, see: https://mols2grid.readthedocs.io/en/latest/notebooks/customization.html'
     ),
-    'm2g_launch': (
+    'flask_launch': lambda app_name, port: (
+        f'<yellow>Launching the {app_name}.</yellow> Press ctrl+c to abort.',
+        f'<link>http://127.0.0.1:{port}</link>'
+    ),
+    'm2g_launch': (  # LEGACY – can be deleted after flask centralization is complete.
         '<yellow>Launching the Molecule Viewer.</yellow> Press ctrl+c to abort.',
         '<link>http://127.0.0.1:5000</link>'
     ),

@@ -2,6 +2,12 @@
 import os
 import ad4e_opentoolkit.app.login_manager as login_manager
 import readline
+import json
+
+# Flask
+from flask import render_template
+from ad4e_opentoolkit.flask_html import launcher
+from ad4e_opentoolkit.flask_html.dataviewer.routes import fetchRoutes
 
 # Core
 from ad4e_opentoolkit.core.lang_file_system import import_file, export_file, copy_file, remove_file, list_files
@@ -439,13 +445,8 @@ def display_data(cmd_pointer, parser):
 
 # --> Save data to a csv file.
 def display_data__save(cmd_pointer, parser):
-    # Preserve memory for further follow-ups.
-    cmd_pointer.preserve_memory['data'] = True
-
-    # Abort if memory is empty.
-    if cmd_pointer.memory['data'] is None:
-        output_error(msg('no_data_memory'), cmd_pointer)
-        return
+    # Initialize memory.
+    cmd_pointer.init_followup('data')
 
     # Set variables.
     workspace_path = cmd_pointer.workspace_path(cmd_pointer.settings['workspace'].upper()) + '/'
@@ -472,46 +473,16 @@ def display_data__save(cmd_pointer, parser):
 
 # --> Open data in browser UI.
 def display_data__open(cmd_pointer, parser):
-    # Preserve memory for further follow-ups.
-    cmd_pointer.preserve_memory['data'] = True
-
-    # Abort if memory is empty.
-    if cmd_pointer.memory['data'] is None:
-        output_error(msg('no_data_memory'), cmd_pointer)
-        return
+    # Initialize memory.
+    cmd_pointer.init_followup('data')
 
     # Parse dataframe.
-    # This uses the equivalent of encodeURIComponent in JS.
-    import json
-    from urllib.parse import quote
     data_str = cmd_pointer.memory['data'].values.tolist()
     data_str = json.dumps(data_str)
-    # data_str = quote(str(data_str))
 
-    from ad4e_opentoolkit.flask_html import launcher
-    from flask import render_template
-
-    def home():
-        return render_template('/dataviewer/index.html', data=data_str)
-
-    def test():
-        return render_template('/dataviewer/test.html')
-
-    routes = {
-        '/': home,
-        '/test': test
-    }
-
-    launcher.launch(routes)
-
-    # # Open browser.
-    # import webbrowser
-    # parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    # # html_page = f'file://{parent_dir}/flask_html/dataviewer/index.html?data={data_str}'
-    # html_page = f'file://{parent_dir}/flask_html/dataviewer/index.html#data={data_str}'
-    # webbrowser.open(html_page)
-    # print('\n---')
-    # print(html_page)
+    # Load routes and launch browser UI.
+    routes = fetchRoutes(data_str)
+    launcher.launch(cmd_pointer, routes, 5001)
 
 
 # Edit a JSON config file.
