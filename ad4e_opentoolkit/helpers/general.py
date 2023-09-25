@@ -12,7 +12,7 @@ def refresh_prompt(settings):
         # prompt = ' \u001b[7m ' + settings['context'] + ' \u001b[0m '  # Reverse & reset
         prompt = settings['context'] + '->'   # Reverse & reset
     else:
-        prompt = 'ADCCL:'
+        prompt = 'OpenAD:'
     if settings['workspace'] is not None:
         prompt = prompt + settings['workspace']
     prompt = prompt + ' >>  '

@@ -22,7 +22,7 @@ from pyparsing import (
 )
 
 # Core
-import ad4e_opentoolkit.core.help as adccl_help
+import ad4e_opentoolkit.core.help as openad_help
 
 # Helpers
 from ad4e_opentoolkit.helpers.general import is_notebook_mode
@@ -110,17 +110,17 @@ grammar_help = []  # Help text stored here
 ##########################################################################
 
 # General splash screen
-statements.append(Forward(CaselessKeyword('adccl'))('welcome'))
-grammar_help.append(adccl_help.help_dict_create(
+statements.append(Forward(CaselessKeyword('openad'))('welcome'))
+grammar_help.append(openad_help.help_dict_create(
     name="welcome",
     category='General',
-    command="adccl",
-    description='Display the ADCCL splash screen'
+    command="openad",
+    description='Display the openad splash screen'
 ))
 
 # Get status
 statements.append(Forward(get + CaselessKeyword('status'))('get_status'))
-grammar_help.append(adccl_help.help_dict_create(
+grammar_help.append(openad_help.help_dict_create(
     name="get status",
     category='General',
     command="get status",
@@ -129,7 +129,7 @@ grammar_help.append(adccl_help.help_dict_create(
 
 # Display history
 statements.append(Forward(d_isplay + history('history'))('display_history'))
-grammar_help.append(adccl_help.help_dict_create(
+grammar_help.append(openad_help.help_dict_create(
     name="Display History",
     category='General',
     command="display history ",
@@ -138,7 +138,7 @@ grammar_help.append(adccl_help.help_dict_create(
 
 # Display data
 statements.append(Forward(d_isplay + data('data') + desc('file_path'))('display_data'))
-grammar_help.append(adccl_help.help_dict_create(
+grammar_help.append(openad_help.help_dict_create(
     name="display data",
     category='General',
     command="display data '<csv_filename>'",
@@ -147,7 +147,7 @@ grammar_help.append(adccl_help.help_dict_create(
 
 # --> save --> Save data as csv
 statements.append(Forward(save + Optional(CaselessKeyword('as') + desc('file_path')))('display_data__save'))
-grammar_help.append(adccl_help.help_dict_create(
+grammar_help.append(openad_help.help_dict_create(
     name="save",
     category='General',
     command="save [as '<csv_filename>']",
@@ -156,7 +156,7 @@ grammar_help.append(adccl_help.help_dict_create(
 
 # --> open --> Explore data in browser
 statements.append(Forward(CaselessKeyword('open'))('display_data__open'))
-grammar_help.append(adccl_help.help_dict_create(
+grammar_help.append(openad_help.help_dict_create(
     name="save",
     category='General',
     command="save [as '<csv_filename>']",
@@ -165,7 +165,7 @@ grammar_help.append(adccl_help.help_dict_create(
 
 # Clear sessions
 statements.append(Forward(CaselessKeyword('clear') + CaselessKeyword('sessions'))('clear_sessions'))
-grammar_help.append(adccl_help.help_dict_create(
+grammar_help.append(openad_help.help_dict_create(
     name="Clear Sessions",
     category='General',
     command="clear sessions",
@@ -174,15 +174,15 @@ grammar_help.append(adccl_help.help_dict_create(
 
 # How do I chat
 statements.append(Forward(CaselessKeyword('tell') + CaselessKeyword('me') + ZeroOrMore(Word(alphas, alphanums + "_" + '?' + "." + " " + "," + "'"))('Chat_String'))('HOW_DO_I'))
-grammar_help.append(adccl_help.help_dict_create(
+grammar_help.append(openad_help.help_dict_create(
     name="tell me",
     category='LLM',
     command="tell me  <chat string>",
-    description='This command asks chatgpt how to do set of tasks in the adccl client '
+    description='This command asks chatgpt how to do set of tasks in the openad client '
 ))
 
 statements.append(Forward(CaselessKeyword('set') + CaselessKeyword('llm') + ZeroOrMore(Word(alphas, alphanums + "_" + '?' + "." + " " + "," + "'"))('llm_name'))('set_llm'))
-grammar_help.append(adccl_help.help_dict_create(
+grammar_help.append(openad_help.help_dict_create(
     name="set llm",
     category='LLM',
     command="set llm  <name of language model>",
@@ -190,7 +190,7 @@ grammar_help.append(adccl_help.help_dict_create(
 ))
 
 statements.append(Forward(CaselessKeyword('clear') + CaselessKeyword('llm') + CaselessKeyword('auth'))('clear_llm_auth'))
-grammar_help.append(adccl_help.help_dict_create(
+grammar_help.append(openad_help.help_dict_create(
     name="clear llm auth",
     category='LLM',
     command="clear llm auth",
@@ -209,7 +209,7 @@ grammar_help.append(adccl_help.help_dict_create(
 
 # Set workspaces
 statements.append(Forward(s_et + workspace('workspace') + Word(alphas, alphanums + "_")('Workspace_Name'))('set_workspace_statement'))
-grammar_help.append(adccl_help.help_dict_create(
+grammar_help.append(openad_help.help_dict_create(
     name="set workspace",
     category='Workspaces',
     command="set workspace <workspace_name>",
@@ -220,7 +220,7 @@ grammar_help.append(adccl_help.help_dict_create(
 statements.append(Forward(create + workspace('workspace') + Word(alphas, alphanums + "_")('Workspace_Name') +
                           Optional(description('description') + Suppress("(") + desc("proj_desc") + Suppress(")"))('description_option') +
                           Optional(CaselessKeyword('on') + CaselessKeyword('path') + desc("w_path"))('workspace_path'))('create_workspace_statement'))
-grammar_help.append(adccl_help.help_dict_create(
+grammar_help.append(openad_help.help_dict_create(
     name="create workspace",
     category='Workspaces',
     command="create workspace <workspace_name> [ description('<workspace_description>') on path '<path>' ]",
@@ -230,18 +230,18 @@ grammar_help.append(adccl_help.help_dict_create(
 
 # Remove workspaces
 statements.append(Forward(remove + workspace('workspace') + Word(alphas, alphanums + "_")('Workspace_Name'))('remove_workspace_statement'))
-grammar_help.append(adccl_help.help_dict_create(
+grammar_help.append(openad_help.help_dict_create(
     name="remove workspace",
     category='Workspaces',
     command='remove workspace <workspace_name> ',
     description=('Remove a workspace from your registry. This doesn\'t remove the workspace\'s directory '
-                 'from the adccl home directory ($HOME/.addcl/workspaces). '
+                 'from the openad home directory ($HOME/.addcl/workspaces). '
                  'To learn more about what a workspace is, run <cmd>workspace ?</cmd>')
 ))
 
 # list workspaces
 statements.append(Forward(lister + workspaces('workspaces'))('list_workspaces'))
-grammar_help.append(adccl_help.help_dict_create(
+grammar_help.append(openad_help.help_dict_create(
     name="list workspaces",
     category='Workspaces',
     command="list workspaces",
@@ -250,7 +250,7 @@ grammar_help.append(adccl_help.help_dict_create(
 
 # Get workspace
 statements.append(Forward(get + workspace('workspace') + Word(alphas, alphanums + "_")('Workspace_Name'))('get_workspace'))
-grammar_help.append(adccl_help.help_dict_create(
+grammar_help.append(openad_help.help_dict_create(
     name="get workspace",
     category='Workspaces',
     command="get workspace <workspace_name>",
@@ -267,7 +267,7 @@ grammar_help.append(adccl_help.help_dict_create(
 # Splash screens for toolkits
 for tk in _all_toolkits:
     statements.append(Forward(CaselessKeyword(tk))(tk))
-    grammar_help.append(adccl_help.help_dict_create(
+    grammar_help.append(openad_help.help_dict_create(
         name=f'{tk} splash',
         category='Toolkits',
         command=tk.lower(),
@@ -278,7 +278,7 @@ for tk in _all_toolkits:
 
 # Remove toolkit
 statements.append(Forward(remove + toolkit + Word(alphas, alphanums + "_")('toolkit_name'))('remove_toolkit'))
-grammar_help.append(adccl_help.help_dict_create(
+grammar_help.append(openad_help.help_dict_create(
     name="remove toolkit",
     category='Toolkits',
     command="remove toolkit <toolkit_name>",
@@ -286,14 +286,14 @@ grammar_help.append(adccl_help.help_dict_create(
     #              'If the toolkit is added again, a backup of the directories containing the code is placed in the main toolkit directory.')
 
     # REVIEW
-    description="Remove a toolkit from the registry. This affects all workspaces. A backup of the toolkit directory is stored in '~/.adccl/toolkits_archive'."
+    description="Remove a toolkit from the registry. This affects all workspaces. A backup of the toolkit directory is stored in '~/.openad/toolkits_archive'."
 
 ))
 
 # Install toolkit
 # Note: Update toolkit yet to be implemented (currently de-register, then add toolkit with new source)
 statements.append(Forward(add + toolkit('workspace') + Word(alphas, alphanums + "_")('toolkit_name'))('add_toolkit'))
-grammar_help.append(adccl_help.help_dict_create(
+grammar_help.append(openad_help.help_dict_create(
     name="add toolkit",
     category='Toolkits',
     command="add toolkit <toolkit_name>",
@@ -302,7 +302,7 @@ grammar_help.append(adccl_help.help_dict_create(
 
 # List toolkits
 statements.append(Forward(lister + toolkits('toolkits'))('list_toolkits'))
-grammar_help.append(adccl_help.help_dict_create(
+grammar_help.append(openad_help.help_dict_create(
     name="list toolkits",
     category='Toolkits',
     command="list toolkits",
@@ -311,7 +311,7 @@ grammar_help.append(adccl_help.help_dict_create(
 
 # List all toolkits
 statements.append(Forward(lister + CaselessKeyword('all') + toolkits('toolkits'))('list_all_toolkits'))
-grammar_help.append(adccl_help.help_dict_create(
+grammar_help.append(openad_help.help_dict_create(
     name="list all toolkits",
     category='Toolkits',
     command="list all toolkits",
@@ -320,7 +320,7 @@ grammar_help.append(adccl_help.help_dict_create(
 
 # Set a toolkit as the current context
 statements.append(Forward(s_et + context('context') + Word(alphas, alphanums + "_")('toolkit_name') + Optional(CaselessKeyword('reset'))('reset'))('set_context'))
-grammar_help.append(adccl_help.help_dict_create(
+grammar_help.append(openad_help.help_dict_create(
     name="set context",
     category='Toolkits',
     command="set context <toolkit_name> [reset]",
@@ -329,7 +329,7 @@ grammar_help.append(adccl_help.help_dict_create(
 
 # Unset a toolkit as the current context
 statements.append(Forward(unset + context('context'))('unset_context'))
-grammar_help.append(adccl_help.help_dict_create(
+grammar_help.append(openad_help.help_dict_create(
     name="unset context",
     category='Toolkits',
     command="unset context",
@@ -344,7 +344,7 @@ grammar_help.append(adccl_help.help_dict_create(
 
 # Create run
 statements.append(Forward(create + run('run'))('create_run'))
-grammar_help.append(adccl_help.help_dict_create(
+grammar_help.append(openad_help.help_dict_create(
     name="create run",
     category='Runs',
     command="create run",
@@ -353,7 +353,7 @@ grammar_help.append(adccl_help.help_dict_create(
 
 # Save run
 statements.append(Forward(save + run('run') + a_s + Word(alphas, alphanums + "_")('run_name'))('save_run'))
-grammar_help.append(adccl_help.help_dict_create(
+grammar_help.append(openad_help.help_dict_create(
     name="save run",
     category='Runs',
     command="save run as <run_name>",
@@ -362,7 +362,7 @@ grammar_help.append(adccl_help.help_dict_create(
 
 # Execute run
 statements.append(Forward(run('run') + Word(alphas, alphanums + "_")('run_name'))('exec_run'))
-grammar_help.append(adccl_help.help_dict_create(
+grammar_help.append(openad_help.help_dict_create(
     name="run",
     category='Runs',
     command="run <run_name>",
@@ -371,7 +371,7 @@ grammar_help.append(adccl_help.help_dict_create(
 
 # List runs
 statements.append(Forward(lister + runs('runs'))('list_runs'))
-grammar_help.append(adccl_help.help_dict_create(
+grammar_help.append(openad_help.help_dict_create(
     name="list runs",
     category='Runs',
     command="list runs",
@@ -380,7 +380,7 @@ grammar_help.append(adccl_help.help_dict_create(
 
 # Display run
 statements.append(Forward(d_isplay + run('run') + Word(alphas, alphanums + "_")('run_name'))('display_run'))
-grammar_help.append(adccl_help.help_dict_create(
+grammar_help.append(openad_help.help_dict_create(
     name="display run",
     category='Runs',
     command="display run <run_name>",
@@ -395,7 +395,7 @@ grammar_help.append(adccl_help.help_dict_create(
 
 # List files
 statements.append(Forward(lister + CaselessKeyword('files'))('list_files'))
-grammar_help.append(adccl_help.help_dict_create(
+grammar_help.append(openad_help.help_dict_create(
     name="list files",
     category='File System',
     command="list files",
@@ -410,11 +410,11 @@ statements.append(
         desc('source') +
         CaselessKeyword('to') +
         desc('destination'))('import_file'))
-grammar_help.append(adccl_help.help_dict_create(
+grammar_help.append(openad_help.help_dict_create(
     name="import",
     category='File System',
     command="import from '<external_source_file>' to '<workspace_file>'",
-    description='Import files from outside adccl into the current workspace'
+    description='Import files from outside openad into the current workspace'
 ))
 
 # Export file
@@ -425,7 +425,7 @@ statements.append(
         desc('source') +
         CaselessKeyword('to') +
         desc('destination'))('export_file'))
-grammar_help.append(adccl_help.help_dict_create(
+grammar_help.append(openad_help.help_dict_create(
     name="export",
     category='File System',
     command="export from '<workspace_file>' to '<external_file>'",
@@ -440,7 +440,7 @@ statements.append(
         desc('source') +
         CaselessKeyword('to') +
         desc('destination'))('copy_file'))
-grammar_help.append(adccl_help.help_dict_create(
+grammar_help.append(openad_help.help_dict_create(
     name="copy",
     category='File System',
     command="copy from '<workspace_file>' to '<other_workspace_name>'",
@@ -449,7 +449,7 @@ grammar_help.append(adccl_help.help_dict_create(
 
 # Remove file
 statements.append(Forward(CaselessKeyword('remove') + desc('file'))('remove_file'))
-grammar_help.append(adccl_help.help_dict_create(
+grammar_help.append(openad_help.help_dict_create(
     name="rm",
     category='File System',
     command="remove '<filename>'",
@@ -475,7 +475,7 @@ if is_notebook_mode():
 
     # Show molecules using file.
     statements.append(Forward(show('show') + molecules + using + file + desc('moles_file') + Optional(CaselessKeyword('as') + CaselessKeyword('molsobject')('object')))('show_molecules'))
-    grammar_help.append(adccl_help.help_dict_create(
+    grammar_help.append(openad_help.help_dict_create(
         name="show molecules",
         category='GUI',
         command="show molecules using file <mols_file> [  as molsobject ]",
@@ -485,7 +485,7 @@ if is_notebook_mode():
     # Show molecules using dataframe.
     statements.append(Forward(show('show') + molecules + using + CaselessKeyword('dataframe') + Word(alphas, alphanums + "_")('in_dataframe') +
                       Optional(CaselessKeyword('as') + CaselessKeyword('molsobject')('object')))('show_api_molecules'))
-    grammar_help.append(adccl_help.help_dict_create(
+    grammar_help.append(openad_help.help_dict_create(
         name="show molecules",
         category='GUI',
         command="show molecules using dataframe <dataframe> [  as molsobject ]",
@@ -497,7 +497,7 @@ else:
     # Show molecules using file.
     statements.append(Forward(show('show') + molecules + using + file + desc('moles_file') + Optional(
         CaselessKeyword('Save') + CaselessKeyword('as') + desc('results_file')))('show_molecules'))
-    grammar_help.append(adccl_help.help_dict_create(
+    grammar_help.append(openad_help.help_dict_create(
         name="show molecules",
         category='GUI',
         command="show molecules using file '<mols_file>' [ save as '<sdf_or_csv_file>' ]",
@@ -513,7 +513,7 @@ else:
 
     # Edit config file.
     statements.append(Forward(CaselessKeyword('edit') + CaselessKeyword('config') + desc('json_file') + Optional(CaselessKeyword('template') + desc('template')))('edit_config'))
-    grammar_help.append(adccl_help.help_dict_create(
+    grammar_help.append(openad_help.help_dict_create(
         name="edit config",
         category='General',
         command="edit config '<json_config_file>' [template '<template_file>']",
@@ -528,7 +528,7 @@ else:
 
 # Display intro.
 statements.append(Forward(CaselessKeyword('intro'))('intro'))
-grammar_help.append(adccl_help.help_dict_create(
+grammar_help.append(openad_help.help_dict_create(
     name="intro",
     category='Help',
     command="intro",
@@ -536,7 +536,7 @@ grammar_help.append(adccl_help.help_dict_create(
 ))
 # Open documentation webpage.
 statements.append(Forward(CaselessKeyword('docs'))('docs'))
-grammar_help.append(adccl_help.help_dict_create(
+grammar_help.append(openad_help.help_dict_create(
     name="docs",
     category='Help',
     command="docs",
@@ -544,7 +544,7 @@ grammar_help.append(adccl_help.help_dict_create(
 ))
 # List available commands
 # Note - this is controlled directly from do_help.
-grammar_help.append(adccl_help.help_dict_create(
+grammar_help.append(openad_help.help_dict_create(
     name="help",
     category='Help',
     command="?",
@@ -553,7 +553,7 @@ grammar_help.append(adccl_help.help_dict_create(
 
 # Open advanced help.
 # Note - this is controlled directly from do_help.
-grammar_help.append(adccl_help.help_dict_create(
+grammar_help.append(openad_help.help_dict_create(
     name="advanced help",
     category='Help',
     command="??",
@@ -562,7 +562,7 @@ grammar_help.append(adccl_help.help_dict_create(
 
 # Display command help
 # Note - this is controlled directly from do_help.
-grammar_help.append(adccl_help.help_dict_create(
+grammar_help.append(openad_help.help_dict_create(
     name="command help",
     category='Help',
     command="<soft>...</soft> ?",
@@ -862,7 +862,7 @@ def output_train_statements(cmd_pointer):
         training_statements.append({'command_group': 'base', 'command_name': grammar_help[i]['name'], 'command_syntax': grammar_help[i]['command'], 'command_help': grammar_help[i]['description']})
         i += 1
     file = open(os.path.expanduser(cmd_pointer.home_dir + '/prompt_train/base_commands.cdoc'), 'w', newline='\n')
-    file.write("""adccl client information
+    file.write("""openad client information
 
         For information in providing answers to how to or Help questions from users :
 
@@ -871,7 +871,7 @@ def output_train_statements(cmd_pointer):
         The below describes cdccl clients domain specific language (DSL) for managing science activities using the DSL
 
         Vocabulary:
-            DSL: Domain Specific Language or DSL  that is implemented for the ADCCL client and all commands are formatted in
+            DSL: Domain Specific Language or DSL  that is implemented for the openad client and all commands are formatted in
             Set: set the current status of a system variable e.g. Workspace or Context(current toolkit )
             Login: login into a Plugins target system if requires manual login
             Logout: logout of a system if required
@@ -894,7 +894,7 @@ def output_train_statements(cmd_pointer):
             run: list of sequential commands saved by the user')
             ?: will display help and if positioned prior to a command will display help options for that command \\@ \n\n""")
 
-    file.write('The following dictionaries are the Domain Specific Language (DSL) commands available in the base adccl client.\n  The users Domain Specific Language commands will be interpreted from these command definitions which the application trainslates into the Domain specific Language (DSL) .. for reference \n command_name : is the name of the command\n command_group : is the toolkit group the command belongs to, command_syntax : is the Syntax description for the command \n command_help : is the associated help instructions and examples on how to use the command.  \\@\n')
+    file.write('The following dictionaries are the Domain Specific Language (DSL) commands available in the base openad client.\n  The users Domain Specific Language commands will be interpreted from these command definitions which the application trainslates into the Domain specific Language (DSL) .. for reference \n command_name : is the name of the command\n command_group : is the toolkit group the command belongs to, command_syntax : is the Syntax description for the command \n command_help : is the associated help instructions and examples on how to use the command.  \\@\n')
     for i in training_statements:
         file.write(str(i) + '\\@\n')
     file.close()

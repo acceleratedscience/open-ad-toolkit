@@ -1,5 +1,5 @@
 # This is a list of commands you can run successively to quickly test all functionality at once.
-# Delete .adccl directory for optimal results
+# Delete .openad directory for optimal results
 # Re-initiate it by executing first cell in all_command.ipynb
 
 
@@ -39,5 +39,5 @@ import from '_for_testing/func_display_collection.json' to 'func_display_collect
 edit config 'func_display_collection.json'
 
 # Help
-adccl
+openad
 intro

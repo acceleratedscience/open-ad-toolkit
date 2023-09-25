@@ -30,7 +30,7 @@ from ad4e_opentoolkit.app.global_var_lib import _all_toolkits as _all_toolkits
 from ad4e_opentoolkit.helpers.output import msg, output_text, output_error, output_warning, output_success, output_table
 from ad4e_opentoolkit.helpers.general import refresh_prompt, user_input, validate_file_path, ensure_file_path
 from ad4e_opentoolkit.helpers.splash import splash
-from ad4e_opentoolkit.helpers.output_content import adccl_intro
+from ad4e_opentoolkit.helpers.output_content import openad_intro
 
 
 # Importing our own plugins.
@@ -129,7 +129,7 @@ def lang_parse(cmd_pointer, parser):
 
     # General commands
     elif parser.getName() == 'welcome':
-        # Triggered by `adccl`
+        # Triggered by `openad`
         # For testing
         # print(splash(raw=True))
         # print('- - - - - - - - - - - - - -')
@@ -154,11 +154,11 @@ def lang_parse(cmd_pointer, parser):
     # Help commands
     elif parser.getName() == 'intro':
         # For testing
-        # print(adccl_intro)
+        # print(openad_intro)
         # print('- - - - - - - - - - - - - -')
-        # print(tags_to_markdown(adccl_intro))
+        # print(tags_to_markdown(openad_intro))
         # print('- - - - - - - - - - - - - -')
-        return output_text(adccl_intro)
+        return output_text(openad_intro)
     elif parser.getName() == 'docs':
         return docs(cmd_pointer, parser)
 
@@ -203,7 +203,7 @@ def initialise():
 # Open documentation webpage.
 def docs(cmd_pointer, parser):
     import webbrowser
-    # url = 'data:text/html,<html style="height:100%"><body contenteditable style="height:100%;font-family:sans-serif;font-size:13px;color:dimgray;display:flex;align-items:center;justify-content:center">This is a placeholder for the adccl documentation.</body></html>'
+    # url = 'data:text/html,<html style="height:100%"><body contenteditable style="height:100%;font-family:sans-serif;font-size:13px;color:dimgray;display:flex;align-items:center;justify-content:center">This is a placeholder for the openad documentation.</body></html>'
     url = 'https://research.ibm.com/topics/accelerated-discovery'
     webbrowser.open_new(url)
     return output_warning(

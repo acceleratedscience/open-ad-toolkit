@@ -136,7 +136,7 @@ def advanced_help():
     return '<warning>Advanced help is yet to be implemented.</warning>'
 
 
-class adccl_help():
+class openad_help():
     help_orig = []
     help_current = []
 

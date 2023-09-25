@@ -9,10 +9,10 @@ from ad4e_opentoolkit.plugins.style_parser import style, wrap_text, strip_tags
 
 
 def splash(toolkit_name=None, cmd_pointer=None, startup=False, raw=False):
-    """ Display the splash page for ADCCL or any of the toolkits."""
+    """ Display the splash page for OpenAD or any of the toolkits."""
     toolkit_name = toolkit_name.upper() if toolkit_name else None
 
-    # If no toolkit name is given, display the ADCCL welcome splash.
+    # If no toolkit name is given, display the OpenAD welcome splash.
     main_splash = toolkit_name is None
 
     # Splash is minimized if toolkit is not active.
@@ -51,7 +51,7 @@ def splash(toolkit_name=None, cmd_pointer=None, startup=False, raw=False):
     # is not the main splash page, we add a note on top clarifying this.
     if startup and not main_splash:
         output += f'<on_green> Your context is set to {toolkit_name}. </on_green>\n'
-        output += 'To see the main splash page, run <cmd>adccl</cmd>.\n'
+        output += 'To see the main splash page, run <cmd>openad</cmd>.\n'
         output += f'To exit {toolkit_name}, run <cmd>unset context</cmd>.\n\n- - -\n\n'
 
     # Header
@@ -74,7 +74,7 @@ def splash(toolkit_name=None, cmd_pointer=None, startup=False, raw=False):
     if main_splash or toolkit_is_active:
         # Commands
         if not main_splash:
-            data['commands']['adccl'] = 'Display the main splash page.'  # Add to commands for every toolkit.
+            data['commands']['openad'] = 'Display the main splash page.'  # Add to commands for every toolkit.
         left_column_width, right_column_width = _calc_col_width(data['commands'])
         output += '\n' + _compile_commands(data['commands'], left_column_width, right_column_width)
 

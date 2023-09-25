@@ -1,6 +1,6 @@
-# ADCCL
+# OpenAD
 
-**Accelerated Discovery Common Client**<br>
+**Open Accelerated Discovery Client**<br>
 [Project homepage](https://pages.github.ibm.com/Accelerated-Discovery/ad4e-opentoolkit/)
 
 ---
@@ -36,10 +36,10 @@
     > _**Note:** Before pip installing from git, ensure you have ssh set up for git install, otherwise you can download the repository and run `pip install .` from the ad4e-opentoolkit top directory._
 
 1.  **Launch**<br>
-    To enter the command shell, simply enter `adccl` from the command line.
+    To enter the command shell, simply enter `openad` from the command line.
 
     > _**Notes:**<br>
-    > • Alternatively, you can run bash commands as such: `adccl <command>`<br>
+    > • Alternatively, you can run bash commands as such: `openad <command>`<br>
     > • To see available commands, run `?`_
 
 <br>
@@ -78,7 +78,7 @@ Only follow these instructions if you're contributing to the codebase.
 -   **Entering the Shell Environment**<br>
     Run from any directory:
 
-        adccl
+        openad
 
     ![Landing](readme/screenshot-landing.png)
 
@@ -96,7 +96,7 @@ Only follow these instructions if you're contributing to the codebase.
 -   **Running Bash Commands**<br>
     To run any commands as a bash command, make sure to prepend any quotes with `\`.
 
-        adccl show molecules using file \'base_molecules.sdf\'
+        openad show molecules using file \'base_molecules.sdf\'
 
 <br>
 
@@ -130,7 +130,7 @@ If you plan to use this application inside Jupyter Notebook of JupyterLab, you s
 
         Then to initiate the magic commands, run:
 
-            run adccl.py
+            run openad.py
 
     -   **Option C: Within a custom iPython profile**<br>
         This would install the magic commands within the iPhython custom profile called 'myprofile'
@@ -139,7 +139,7 @@ If you plan to use this application inside Jupyter Notebook of JupyterLab, you s
 
     > **Note:** If you don't want to install magic commands in your jupyter default profile, you can initiate the magic commands manually per notebook.<br>
     > • Run `init_examples` to copy the Jupyter example files to your home directory.<br>
-    > • In each Notebook where you wish to use the magic commands, run `run adccl.ipynb` first. This executes the file `~/adccl_notebooks/adccl.ipynb` which activates the magic commands.
+    > • In each Notebook where you wish to use the magic commands, run `run openad.ipynb` first. This executes the file `~/openad_notebooks/openad.ipynb` which activates the magic commands.
 
 <br>
 
@@ -147,11 +147,11 @@ If you plan to use this application inside Jupyter Notebook of JupyterLab, you s
 
 > **Note:** The commands described below should be run from the regular CLI, not from openad command shell.
 
--   Make sure the `~/adccl_notebooks` directory with example Notebooks exists (it was created by running `init_magic` or `init_examples` earlier).
+-   Make sure the `~/openad_notebooks` directory with example Notebooks exists (it was created by running `init_magic` or `init_examples` earlier).
 
 -   Open the table of contents to get an introduction and be taken through step by step how to use the tool.
 
-        jupyter lab ~/adccl_notebooks/Table_of_Contents.ipynb
+        jupyter lab ~/openad_notebooks/Table_of_Contents.ipynb
 
     > **NOTE:** By launching Jupyter this way it will automatically launch the trial notebooks.
 
@@ -168,19 +168,19 @@ If you plan to use this application inside Jupyter Notebook of JupyterLab, you s
     <img src="readme/jupyter-notebook-kernel.png">
 </figure>
 
--   Magic commands are implemented by the _adccl.py_ or _adccl.ipynb_ file and are invoked by the `%adccl` prefix. For example:<br>
+-   Magic commands are implemented by the _openad.py_ or _openad.ipynb_ file and are invoked by the `%openad` prefix. For example:<br>
 
-        %adccl list files
+        %openad list files
 
     If you are using your virtual envrinment kernel as per instructions above, and if you've run the `init_magic` command, the magic commands should be enabled already.<br>
 
 -   Some example magic comands to play with Deep Search:<br>
 
-        %adccl exec display_collection(domain='Material Science')
+        %openad exec display_collection(domain='Material Science')
 
 -   Some example magic commands to play with RXN
 
-        %adccl list rxn models
+        %openad list rxn models
 
 <br>
 
@@ -209,7 +209,7 @@ Below you find login instructions for RXN and DeepSearch. If you choose to use t
 
 1. You should get a message saying you successfully logged in.
 
-    > **Note:** Your DS4SD auth config file is saved as `~/.adccl/ds-auth.ext-v2.json`. If you ever want to reset your DS4SD login information, simply delete this file.<br>
+    > **Note:** Your DS4SD auth config file is saved as `~/.openad/ds-auth.ext-v2.json`. If you ever want to reset your DS4SD login information, simply delete this file.<br>
 
 <br>
 
@@ -229,7 +229,7 @@ Below you find login instructions for RXN and DeepSearch. If you choose to use t
 
 1. You should get a message saying you successfully logged in.
 
-    > **Note:** Your RXN auth config file is saved as `~/.adccl/rxn-auth.ext-v2.json`. If you ever want to reset your RXN login information, simply delete this file.<br>
+    > **Note:** Your RXN auth config file is saved as `~/.openad/rxn-auth.ext-v2.json`. If you ever want to reset your RXN login information, simply delete this file.<br>
 
 <br>
 

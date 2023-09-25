@@ -16,7 +16,7 @@ from ad4e_opentoolkit.toolkit.toolkit_main import load_toolkit
 
 # Core
 # from core.grammar import *
-import ad4e_opentoolkit.core.help as adccl_help
+import ad4e_opentoolkit.core.help as openad_help
 from ad4e_opentoolkit.core.grammar import grammar_help, statements, statements_def, create_statements, output_train_statements
 from ad4e_opentoolkit.core.lang_sessions_and_registry import write_registry, load_registry, delete_session_registry
 from ad4e_opentoolkit.core.lang_workspaces import set_workspace
@@ -67,7 +67,7 @@ class run_cmd(Cmd):
     prompt = None
     histfile = os.path.expanduser(_meta_dir + '/.cmd_history')
     histfile_size = 1000
-    current_help = adccl_help.adccl_help()
+    current_help = openad_help.openad_help()
     current_help.help_orig = grammar_help.copy()
     current_help.reset_help()
     notebook_mode = False
@@ -171,13 +171,13 @@ class run_cmd(Cmd):
             ? list                   --> The questionmark is interpreted and stripped by the language parser
             list ?                   --> This goes via the run_cmd.default() function
             python3 main.py '? list' --> This goes via __main__
-            %adccl ? list            --> Notebook and API requests go via api_remote()
+            %openad ? list            --> Notebook and API requests go via api_remote()
         """
 
         # `??` --> Advanced help.
         starts_with = False
         if inp.strip() == '?':
-            return output_text(adccl_help.advanced_help(), self, pad=1)
+            return output_text(openad_help.advanced_help(), self, pad=1)
 
         # Strip question marks at the beginning and end.
         if len(inp.strip()) > 0 and inp.split()[0] == '?':
@@ -197,7 +197,7 @@ class run_cmd(Cmd):
         # `?` --> Display all commands.
         if len(inp.split()) == 0:
             return output_text(
-                adccl_help.all_commands(all_commands, toolkit_current=self.toolkit_current, cmd_pointer=self),
+                openad_help.all_commands(all_commands, toolkit_current=self.toolkit_current, cmd_pointer=self),
                 self,
                 pad=2,
                 tabs=1,
@@ -209,7 +209,7 @@ class run_cmd(Cmd):
             toolkit_name = inp.upper()
             ok, toolkit = load_toolkit(toolkit_name)
             return output_text(
-                adccl_help.all_commands(toolkit.methods_help, toolkit_name, cmd_pointer=self),
+                openad_help.all_commands(toolkit.methods_help, toolkit_name, cmd_pointer=self),
                 self,
                 pad=2,
                 tabs=1,
@@ -244,7 +244,7 @@ class run_cmd(Cmd):
                     matching_commands.append(command)
 
         if len(matching_commands) > 1:
-            return output_text(adccl_help.queried_commands(matching_commands, inp=inp, query_type=query_type), self, nowrap=True, **kwargs)
+            return output_text(openad_help.queried_commands(matching_commands, inp=inp, query_type=query_type), self, nowrap=True, **kwargs)
         elif len(matching_commands) == 1:
             # This lets us pass a custom pad value.
             # Used by do_help()
@@ -254,7 +254,7 @@ class run_cmd(Cmd):
             else:
                 pad = 1
 
-            return output_text(adccl_help.command_details(matching_commands[0]), self, edge=True, pad=pad, nowrap=True, **kwargs)
+            return output_text(openad_help.command_details(matching_commands[0]), self, edge=True, pad=pad, nowrap=True, **kwargs)
         else:
             return output_error(msg('err_invalid_cmd', None, split=True), self, **kwargs)
 

@@ -4,12 +4,12 @@ import os
 from ad4e_opentoolkit.helpers.general import get_toolkits
 
 # client metadata directory
-_meta_dir = os.path.expanduser("~/.adccl")
-_meta_dir_toolkits = os.path.expanduser("~/.adccl/toolkits")
-_meta_registry = os.path.expanduser("~/.adccl/registry.pkl")
-_meta_login_registry = os.path.expanduser("~/.adccl/login_registry.pkl")
-_meta_registry_session = os.path.expanduser("~/.adccl/sessions/registry.pkl")
-_meta_workspaces = os.path.expanduser("~/.adccl/workspaces")
+_meta_dir = os.path.expanduser("~/.openad")
+_meta_dir_toolkits = os.path.expanduser("~/.openad/toolkits")
+_meta_registry = os.path.expanduser("~/.openad/registry.pkl")
+_meta_login_registry = os.path.expanduser("~/.openad/login_registry.pkl")
+_meta_registry_session = os.path.expanduser("~/.openad/sessions/registry.pkl")
+_meta_workspaces = os.path.expanduser("~/.openad/workspaces")
 
 _meta_registry_settings = {
     'workspace': 'DEFAULT',
