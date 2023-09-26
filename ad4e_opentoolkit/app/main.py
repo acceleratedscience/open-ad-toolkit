@@ -469,7 +469,9 @@ class run_cmd(Cmd):
                 self.do_exit('exit emergency')
 
             y = self.current_statement_defs.parseString(convert(inp), parseAll=True)
+            
             x = lang_parse(self, y)
+           
             self.prompt = refresh_prompt(self.settings)
             logging.info('Ran: ' + inp)
 
@@ -497,8 +499,7 @@ class run_cmd(Cmd):
                     if len(i) > 1:
                         invalid_command = True
 
-                        # Fetch error description
-                        # @Phil, these are not very helpful, is the idea here to make suggestions for longer almost-correct commands?
+                       
                         c = i[1]
                         try:
                             x = c.explain()
@@ -516,8 +517,7 @@ class run_cmd(Cmd):
                                 error_descriptor = x.replace(
                                     "ParseException:", "Syntax Error:: ")
                                 error_col = error_col_grabber(x)
-                        # @Phil these general errors tend to be unhelpful.
-                        # @moenen, on back log to improve but for a lot of users familiar from database command line errors
+                       
                         else:
                             if error_col < error_col_grabber(x):
                                 error_descriptor = x
@@ -562,14 +562,12 @@ class run_cmd(Cmd):
             else:
                 output_error(msg('err_unknown'), self, return_val=False)
                 return
-                # @moenen this was not catching the error returned by the function and
-                # re-issuing splash screen
-                # @Phil wasn't able to reproduce, not sure how to even trigger this error.
-                # I reduced it to a mininal unknown error.
+               
         if self.refresh_train == True:
             output_train_statements(self)
             self.refresh_train = False
         if self.notebook_mode is True:
+            
             return x
         elif self.api_mode == False:
             if x not in (True, False, None):
