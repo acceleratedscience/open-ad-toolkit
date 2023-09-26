@@ -268,7 +268,7 @@ def strip_tags(text: str):
 def tags_to_markdown(text: str):
     if text is None:
         return ''
- 
+
     # Enforce string type.
     text = str(text)
     # Replace leading spaces with non-breaking spaces.

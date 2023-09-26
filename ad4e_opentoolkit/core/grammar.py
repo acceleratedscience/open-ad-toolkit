@@ -148,20 +148,20 @@ grammar_help.append(openad_help.help_dict_create(
 ))
 
 # --> save --> Save data as csv
-statements.append(Forward(save +CaselessKeyword('result') +Optional(CaselessKeyword('as') + desc('file_path')))('display_data__save'))
+statements.append(Forward(CaselessKeyword('result') + save + Optional(CaselessKeyword('as') + desc('file_path')))('display_data__save'))
 grammar_help.append(openad_help.help_dict_create(
-   name="save",
-   category='General',
-    command="save [as '<csv_filename>']",
+    name="save",
+    category='General',
+    command="  -> result save [as '<csv_filename>']",
     description='Store table data into a csv file.'
 ))
 
 # --> open --> Explore data in browser
-statements.append(Forward(CaselessKeyword('open'))('display_data__open'))
+statements.append(Forward(CaselessKeyword('result') + CaselessKeyword('open'))('display_data__open'))
 grammar_help.append(openad_help.help_dict_create(
     name="open",
     category='General',
-    command="open",
+    command="  -> result open",
     description='Explore table data in the browser.'
 ))
 

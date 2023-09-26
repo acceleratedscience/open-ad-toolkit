@@ -120,6 +120,10 @@ def command_details(command: list):
 
     paragraph_width = 100
 
+    print(111)
+    print(style(f"<cmd>{command['command']}</cmd>", width=200))
+    print(style("edit config '<json_config_file>' [template '<template_file>']", width=100))
+
     # Style command
     the_command = style(f"<cmd>{command['command']}</cmd>", width=paragraph_width)
 
