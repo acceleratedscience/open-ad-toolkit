@@ -19,7 +19,7 @@
 			var xhr = new XMLHttpRequest()
 
 			function submitAjax() {
-				// Assemble data
+				// Assemble data.
 				data = {}
 				data[document.getElementById('someAjaxInput').id] = document.getElementById('someAjaxInput').value
 				console.log('Submitted data: ', data)
@@ -31,7 +31,8 @@
 				xhr.onload = function () {
 					if (xhr.status === 200) {
 						// Success
-						alert(xhr.response)
+						alert(`You submitted: ${xhr.response}`)
+						window.location.href = `/success?someInput=${xhr.response}`
 					} else {
 						// Error
 						alert('Submit request failed with status code ' + xhr.status)
@@ -40,9 +41,6 @@
 
 				// Send the request
 				xhr.send(JSON.stringify(data))
-
-				// Make sure the form is not submitted via the native channel.
-				return false
 			}
 		</script>
 	</head>

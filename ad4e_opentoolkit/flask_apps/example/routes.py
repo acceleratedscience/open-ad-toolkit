@@ -2,6 +2,7 @@ import os
 import signal
 import json
 from flask import render_template, request, redirect, url_for
+from urllib.parse import parse_qs
 
 
 def fetchRoutes(data):
@@ -9,7 +10,7 @@ def fetchRoutes(data):
     # This is the object that is returned when launching the Flask app.
     # When submitting the form, the data is stored here and can be accessed
     # within Jupyter or the CLI.
-    return_data = {}
+    result = {}
 
     #
     #
@@ -23,41 +24,45 @@ def fetchRoutes(data):
     def bar():
         return render_template('/example/bar.html')
 
+    # Traditional form submit.
     def submit():
         # Fetch the submitte data.
-        # - - -
-        # Note: you can also do this:
-        # request.form.get('someInput')
-        # return_data = dict(request.form)
-        return_data['form'] = dict(request.form)
+        result['form'] = dict(request.form)
 
-        # Kill the Flask app.
-        os.kill(os.getpid(), signal.SIGINT)
+        # Alternative way to get a specific field's data.
+        value = request.form.get('someInput')
+
+        # Redirect to success page.
+        return redirect(url_for('success', someInput=value))
+
+    # Ajax form submit.
+    # - - - - - - - - -
+    # Generall this way is preferred because if you use a regular
+    # form submit, the url will change causing window.close() to
+    # no longer work.
+    def submit_ajax():
+        # Fetch submitted data.
+        result['form'] = json.loads(request.data.decode('utf-8'))
+        value = result["form"]["someAjaxInput"]
 
         # Success message.
-        return f'You submitted: {return_data["form"]["someInput"]}'
+        return value
 
     def success():
-        print(1111111)
-        return_data['form'] = json.loads(request.data.decode('utf-8'))
-        return f'You submitted: {return_data["form"]["someAjaxInput"]}'
-
-    def submit_ajax():
-        # return redirect(url_for('success'))
-
-        # Fetch submitted data.
-        return_data['form'] = json.loads(request.data.decode('utf-8'))
-
-        # Kill the Flask app.
+        # Kill server
         os.kill(os.getpid(), signal.SIGINT)
 
-        # Success message.
-        return f'You submitted: {return_data["form"]["someAjaxInput"]}'
+        # Fetch submitted value.
+        query_string = request.query_string.decode('utf-8')
+        query = dict(parse_qs(query_string))
+        value = query['someInput'][0] if 'someInput' in query else ''
+
+        return render_template('/example/success.html', value=value)
 
     routes = {
         '/': {
             'func': home,
-            'method': 'GET'  # Default methos GET doesn't need to be specified, just here for clarity.
+            'method': 'GET'  # Default methos GET doesn't *have* to be specified, just here for clarity.
         },
         '/foo': {
             'func': foo,
@@ -81,4 +86,4 @@ def fetchRoutes(data):
         }
     }
 
-    return routes, return_data
+    return routes, result
