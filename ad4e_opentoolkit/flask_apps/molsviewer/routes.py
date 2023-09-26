@@ -8,7 +8,7 @@ import pandas
 from ad4e_opentoolkit.helpers.output import msg, output_text, output_error, output_warning, output_success, output_table
 from ad4e_opentoolkit.helpers.general import parse_path_tree, confirm_prompt
 from ad4e_opentoolkit.helpers.spinner import spinner
-
+mol_name_cache = {}
 # Flask
 from flask import render_template, send_from_directory, request
 
@@ -51,6 +51,8 @@ def fetchRoutes(cmd_pointer, parser):
     # Render the gmol2grid and return:
     # - the_mol2grid: The mols2grid object
     # - mol_frame: The dataframe used to render the grid
+ 
+    
     def render_mols2grid():
         try:
             if parser.getName() == 'show_api_molecules':
@@ -68,9 +70,11 @@ def fetchRoutes(cmd_pointer, parser):
                 try:
                     name = origin_file.split('/')[-1]
                     SDFFile = workspace_path + origin_file
+                    
                     mol_frame = PandasTools.LoadSDF(SDFFile)
                     the_mols2grid = mols2grid.MolGrid(mol_frame, name=name, **m2g_params_init)
                 except BaseException as err:
+                    
                     output_error(msg('err_load_sdf', err, split=True), cmd_pointer, return_val=False)
                     return False
             elif origin_file.split('.')[-1].lower() == 'csv':
@@ -107,15 +111,16 @@ def fetchRoutes(cmd_pointer, parser):
                 if confirm_prompt('Directory does not exist. Create it?'):
                     create_missing_dirs = True
                 else:
-                    return output_error(msg('abort'), cmd_pointer)
+                    return None, output_error(msg('abort'), cmd_pointer)
 
         # If the user has specified a file that already
         # exists, we need to get permission to overwrite it.
         if os.path.exists(workspace_path + results_file):
             if not confirm_prompt('Destination file already exists. Overwrite?'):
-                return output_error(msg('abort'), cmd_pointer)
+                return None, output_error(msg('abort'), cmd_pointer)
 
     # Create the mols2grid object.
+   
     m2g = render_mols2grid()
     if not m2g or not isinstance(m2g, tuple):
         return
@@ -130,7 +135,9 @@ def fetchRoutes(cmd_pointer, parser):
         else:
             # Display the grid.
             m2g_params = _compile_default_m2g_params(mol_frame)
-            return the_mols2grid.display(**m2g_params)
+            
+            return None,the_mols2grid.display(**m2g_params)
+            
 
     # Render grid in Flask.
     else:
@@ -144,7 +151,7 @@ def fetchRoutes(cmd_pointer, parser):
 
         # If SMILES column is missing from the input file, we abort.
         if 'SMILES' not in available_params:
-            return output_error(msg('fail_m2g_smiles_col_missing'), cmd_pointer)
+            return None,  output_error(msg('fail_m2g_smiles_col_missing'), cmd_pointer)
 
         #
         # ROUTES
@@ -318,7 +325,7 @@ def _normalize_mol_df(mol_df: pandas.DataFrame, cmd_pointer):
         spinner.stop()
         print(err)
 
-    return mol_df
+    return  mol_df
 
 
 def _smiles_to_iupac(smiles):
