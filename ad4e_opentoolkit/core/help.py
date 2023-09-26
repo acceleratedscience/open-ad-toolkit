@@ -1,4 +1,3 @@
-import textwrap
 from ad4e_opentoolkit.helpers.general import singular, is_toolkit_installed
 from ad4e_opentoolkit.helpers.output import msg, output_text, output_error
 # Importing our own plugins.
@@ -119,14 +118,17 @@ def command_details(command: list):
     Command: `<command> ?`
     """
 
+    paragraph_width = 100
+
     # Style command
-    the_command = f"<cmd>{command['command']}</cmd>"
+    the_command = style(f"<cmd>{command['command']}</cmd>", width=paragraph_width)
 
     # Separator
-    sep = '<soft>' + len(command['command']) * '-' + '</soft>'
+    sep_len = min(len(command['command']), paragraph_width)
+    sep = '<soft>' + sep_len * '-' + '</soft>'
 
     # Style description
-    description = textwrap.fill(command['description'], width=80)
+    description = style(command['description'], width=paragraph_width)
 
     return '\n'.join([the_command, sep, description])
 

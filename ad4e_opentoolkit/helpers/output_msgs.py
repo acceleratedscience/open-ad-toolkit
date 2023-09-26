@@ -207,7 +207,7 @@ messages = {
     'status': lambda *args: (
         '<yellow>Current workspace</yellow>: ' + args[0],
         '<yellow>Current context</yellow>: ' + args[1],
-        'To see more details, run <cmd>get workspace</cmd> or <cmd>get context</cmd>.'
+        '<soft>To see more details, run <cmd>get workspace</cmd> or <cmd>get context</cmd>.</soft>'
     ),
     'enter_to_skip': '<soft>Press enter to skip.</soft>',
     'abort': 'Aborted',
