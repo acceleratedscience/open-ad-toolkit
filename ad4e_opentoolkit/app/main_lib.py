@@ -134,12 +134,13 @@ def lang_parse(cmd_pointer, parser):
 
     # General commands
     elif parser.getName() == 'welcome':
-        # Triggered by `openad`
-        # For testing
+        # # Triggered by `openad`
+        # # For testing
         # print(splash(raw=True))
         # print('- - - - - - - - - - - - - -')
         # print(tags_to_markdown(splash(raw=True)))
         # print('- - - - - - - - - - - - - -')
+        # print(splash())
         return output_text(splash(), nowrap=True)
     elif parser.getName() == 'get_status':
         return return_context(cmd_pointer, parser)
@@ -169,7 +170,7 @@ def lang_parse(cmd_pointer, parser):
 
     # Show molecules commands
     elif parser.getName() == 'show_molecules':
-        
+
         return display_mols(cmd_pointer, parser)
     elif parser.getName() == 'show_api_molecules':
         return display_mols(cmd_pointer, parser)
