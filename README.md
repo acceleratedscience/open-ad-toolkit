@@ -44,38 +44,7 @@
 
 <br>
 
-## Installation for Development
 
-Only follow these instructions if you're contributing to the codebase.
-
-1.  **Step 0 & 1**<br>
-    See main installation instructions above.
-
-1.  **Step 2: Installation**<br>
-
-    -   **Option A:** Install a particular branch:
-
-            pip install git+ssh://git@github.ibm.com/Accelerated-Discovery/ad4e-opentoolkit.git@<branch_name>
-
-    -   **Option B:** Install the entire git repository, ready for contributing:
-
-        [Download](https://github.ibm.com/Accelerated-Discovery/ad4e-opentoolkit) or clone the right branch from GitHub:
-
-            git clone -b <branch_name> git@github.ibm.com:Accelerated-Discovery/ad4e-opentoolkit.git
-
-        Then, enter the _ad4e-opentoolkit_ directory...
-
-            cd ad4e-opentoolkit
-
-        ...and run:
-
-            pip install -e .
-
-        > The `-e` flag stands for "editable". This means that instead of copying the package's files to the Python site-packages directory as in a regular installation, pip creates a symbolic link (symlink) from your package's source code directory into your Python environment.
-
-        > This way you can make changes to the source code of the package, and those changes are immediately reflected in your Python environment. You don't need to reinstall the package every time you make a change.
-
-<br>
 
 ## Getting Started - CLI
 
@@ -254,6 +223,43 @@ In order to use the "Tell me" functionality, you will need to create an account 
 1. Your hostname is [https://api.openai.com/v1/models](https://api.openai.com/v1/models)
 
 ![Landing](readme/openai-api-key.png)
+
+
+
+
+## Installation for Development
+
+Only follow these instructions if you're contributing to the codebase.
+
+1.  **Step 0 & 1**<br>
+    See main installation instructions above.
+
+1.  **Step 2: Installation**<br>
+
+    -   **Option A:** Install a particular branch:
+
+            pip install git+ssh://git@github.ibm.com/Accelerated-Discovery/ad4e-opentoolkit.git@<branch_name>
+
+    -   **Option B:** Install the entire git repository, ready for contributing:
+
+        [Download](https://github.ibm.com/Accelerated-Discovery/ad4e-opentoolkit) or clone the right branch from GitHub:
+
+            git clone -b <branch_name> git@github.ibm.com:Accelerated-Discovery/ad4e-opentoolkit.git
+
+        Then, enter the _ad4e-opentoolkit_ directory...
+
+            cd ad4e-opentoolkit
+
+        ...and run:
+
+            pip install -e .
+
+        > The `-e` flag stands for "editable". This means that instead of copying the package's files to the Python site-packages directory as in a regular installation, pip creates a symbolic link (symlink) from your package's source code directory into your Python environment.
+
+        > This way you can make changes to the source code of the package, and those changes are immediately reflected in your Python environment. You don't need to reinstall the package every time you make a change.
+
+<br>
+
 
 <!--
 
