@@ -801,17 +801,17 @@ def optional_parameter_list(statement: dict, clause: str):
 
             if statement[clause][i] == 'str':
                 expression = expression + \
-                    "+ Optional(Group( CaselessKeyword ('" + i + \
+                    "& Optional(Group( CaselessKeyword ('" + i + \
                     "') +Suppress('=')+key_val_expr('val'))('" + \
                     i + "'))" + " "
             elif statement[clause][i] == 'desc':
                 expression = expression + \
-                    "+ Optional(Group( CaselessKeyword ('" + i + \
+                    "& Optional(Group( CaselessKeyword ('" + i + \
                     "') +Suppress('=')+desc('val'))('" + \
                     i + "'))" + " "
             else:
                 expression = expression + \
-                    "+ Optional(Group( CaselessKeyword ('" + i + \
+                    "& Optional(Group( CaselessKeyword ('" + i + \
                     "') +Suppress('=')+key_val_expr_num('val'))('" + \
                     i + "'))" + " "
         ii = 1

@@ -2,7 +2,11 @@
 
 _tableformat = 'simple'
 
-from rxn4chemistry import RXN4ChemistryWrapper
+try:
+    from rxn4chemistry import RXN4ChemistryWrapper
+except:
+    print("error loading rxn4chemistry")
+    raise BaseException("error loading rxn4chemistry")
 from time import sleep
 def get_include_lib(cmd_pointer):
     import importlib.util as ilu

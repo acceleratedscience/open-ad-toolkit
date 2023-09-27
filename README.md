@@ -22,8 +22,8 @@
 
 1.  **Step 1: Set up virtual environment** (optional)<br>
 
-        python -m venv ./openad
-        source ./openad/bin/activate
+        python -m venv ~/openad
+        source ~/openad/bin/activate
 
     > **Note:** To exit the virtual environment, you can run `deactivate`
 
@@ -79,11 +79,7 @@
 
 If you plan to use this application inside Jupyter Notebook of JupyterLab, you should set it up as follows:
 
-1.  Make sure your virtual environment was activated (`source ./openad/bin/activate`), as described under [Installation](#installation) on top.
-
-1.  Install ipykernel, which includes IPython:
-
-        pip install ipykernel
+1.  Make sure your virtual environment was activated (`source ~/openad/bin/activate`), as described under [Installation](#installation) on top.
 
 1.  Create a kernel that can be used to run Notebook commands inside the virtual environment:
 

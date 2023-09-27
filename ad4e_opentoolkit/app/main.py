@@ -528,6 +528,7 @@ class run_cmd(Cmd):
             if invalid_command:
                 # Note: error_descriptor is optional.
                 if error_col_grabber(error_descriptor) == 0:
+                    
                     if self.notebook_mode is True:
                         return output_error(msg('err_invalid_cmd', 'Not a Valid Command, try "?" to list valid commands', split=True), self)
                     else:

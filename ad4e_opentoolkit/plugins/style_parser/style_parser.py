@@ -116,7 +116,7 @@ def style(
     pad_btm: int = 0,
     tabs: int = 0,
     edge: bool | str = False,
-    width: int = 80,
+    width: int = None,
     nowrap: bool = False,
     xml_tags: bool = True,
     trim: bool = False
@@ -139,7 +139,15 @@ def style(
     Returns:
         Text encoded with ANSI escapse codes ready to be printed to the CLI.
     """
+    if width==None:
+        try:
+            import shutil
+            width, rows = shutil.get_terminal_size()
+        except:
+            width = 60
 
+            
+              
     if text is None:
         return ''
 
