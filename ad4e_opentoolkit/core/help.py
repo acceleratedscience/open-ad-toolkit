@@ -111,7 +111,7 @@ def queried_commands(command_results: list, inp: str = None, query_type: str = N
     return '\n'.join(output)
 
 
-def command_details(command: list):
+def command_details(command: list,cmd_pointer):
     """
     Return xml string listing listing a single command with its description.
 
@@ -120,19 +120,29 @@ def command_details(command: list):
 
     paragraph_width = 100
 
-    print(111)
-    print(style(f"<cmd>{command['command']}</cmd>", width=200))
-    print(style("edit config '<json_config_file>' [template '<template_file>']", width=100))
+    #print(111)
+    #print(style(f"<cmd>{command['command']}</cmd>", width=200))
+    #print(style("edit config '<json_config_file>' [template '<template_file>']", width=100))
 
     # Style command
-    the_command = style(f"<cmd>{command['command']}</cmd>", width=paragraph_width)
+    if cmd_pointer.notebook_mode:
+        the_command = f"<cmd>{command['command']}</cmd>"
+        description = command['description']
+    else:
+        try:
+            import shutil
+            paragraph_width, rows = shutil.get_terminal_size()
+        except:
+            paragraph_width = 100   
+        the_command = style(f"<cmd>{command['command']}</cmd>", width=paragraph_width-5)
+        description = style(command['description'], width=paragraph_width-5)
 
     # Separator
     sep_len = min(len(command['command']), paragraph_width)
     sep = '<soft>' + sep_len * '-' + '</soft>'
 
     # Style description
-    description = style(command['description'], width=paragraph_width)
+    
 
     return '\n'.join([the_command, sep, description])
 

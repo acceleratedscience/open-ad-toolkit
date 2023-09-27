@@ -57,7 +57,7 @@ def search(inputs: dict, toolkit_dir, cmd_pointer):
     if 'elastic_id' in inputs:
         val_elastic_id = inputs["elastic_id"][val]
     if 'page_size' in inputs:
-        page_size = inputs["page_size"][val]
+        page_size = int(inputs["page_size"][val])
     if 'edit_distance' in inputs:
         edit_distance = int(inputs["edit_distance"][val])
     else:

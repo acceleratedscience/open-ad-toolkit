@@ -265,7 +265,7 @@ class run_cmd(Cmd):
             else:
                 pad = 1
 
-            return output_text(openad_help.command_details(matching_commands[0]), self, edge=True, pad=pad, nowrap=True, **kwargs)
+            return output_text(openad_help.command_details(matching_commands[0],self), self, edge=True, pad=pad, nowrap=True, **kwargs)
         else:
             return output_error(msg('err_invalid_cmd', None, split=True), self, **kwargs)
 
