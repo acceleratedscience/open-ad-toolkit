@@ -52,7 +52,8 @@ exec display_collection(domain='Materials Science')
 
 
 #RXN
-
+add toolkit RXN
+set contet rxn
 predict retrosynthesis 'CC(=O)N1CCC2(CC1)C3=C(C=CC(=C3)C#CC4C(C(C(C(O4)CO)O)O)O)C5=C2C=C(C=C5)C#CC6C(C(C(C(O6)CO)O)O)O' using( max_steps=3 )
 interpret recipe 'To a stirred solution of 7-(difluoromethylsulfonyl)-4-fluoro-indan-1-one (110 mg, 0.42 mmol) in methanol (4 mL) was added sodium borohydride (24 mg, 0.62 mmol). The reaction mixture was stirred at ambient temperature for 1 hour.'
 predict reaction 'Cl.CCC(=O)NCCC.O'
