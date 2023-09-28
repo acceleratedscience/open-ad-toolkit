@@ -752,6 +752,16 @@ def statement_builder(toolkit_pointer, statement):
 
         toolkit_pointer.methods_dict.append(statement)
 
+        ####### Clause Amendment
+        clause_Amendment=''
+        if 'USING' in statement:
+            if statement['USING'] is not None:
+                clause_Amendment=clause_Amendment+'\n\n NOTE: The Using Clause Requires all the Parameters added to the Using Clause be in the defined order as per in the above help documentation'
+
+        if clause_Amendment!= '':
+            
+            statement['help']['description']=statement['help']['description']+clause_Amendment
+            
         toolkit_pointer.methods_help.append(statement['help'])
 
     except BaseException as err:
@@ -935,7 +945,6 @@ import imp
 import glob
 import json
 import logging
-from ad4e_opentoolkit.core.grammar import statement_builder
 from ad4e_opentoolkit.helpers.output import msg, output_error
 
 # Globals
