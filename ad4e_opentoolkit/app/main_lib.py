@@ -364,7 +364,7 @@ def unset_context(cmd_pointer, parser):
     write_registry(cmd_pointer.settings, cmd_pointer)
     refresh_prompt(cmd_pointer.settings)
     create_statements(cmd_pointer)
-    print('')
+   
 
 
 # Display history of commands.

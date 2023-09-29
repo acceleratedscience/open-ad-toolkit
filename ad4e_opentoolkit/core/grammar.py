@@ -593,18 +593,24 @@ statements_zom = ZeroOrMore(statements_def)
 
 # Used to package up statements
 def create_statements(cmd_pointer):
-    if cmd_pointer.toolkit_current is None:
-        return
+    
+    #if cmd_pointer.toolkit_current is None: # move down further to adress unset issue
+    #    return
     global statements_zom
-
+    
     cmd_pointer.current_statements_def = Forward()
     cmd_pointer.current_statements = orig_statements.copy()
+    
+    
     for i in orig_statements:
         cmd_pointer.current_statement_defs |= i
-    for i in cmd_pointer.toolkit_current.methods_grammar:
-        cmd_pointer.current_statement_defs |= i
-        cmd_pointer.current_statements.append(i)
+    if cmd_pointer.toolkit_current != None:
+        for i in cmd_pointer.toolkit_current.methods_grammar:
+            cmd_pointer.current_statement_defs |= i
+            cmd_pointer.current_statements.append(i)
     statements_zom = ZeroOrMore(statements_def)
+    
+
 
 
 def or_builder(options: list) -> str:
@@ -794,37 +800,39 @@ def optional_parameter_list(statement: dict, clause: str):
             expression = expression + " "
             if statement[clause][i] == 'str':
                 expression = expression + \
-                    " Optional(Group( CaselessKeyword ('" + i + \
+                    " ZeroOrMore(Group( CaselessKeyword ('" + i + \
                     "') +Suppress('=')+key_val_expr('val'))('" + \
                     i + "'))" + " "
             elif statement[clause][i] == 'desc':
                 expression = expression + \
-                    " Optional(Group( CaselessKeyword ('" + i + \
+                    " ZeroOrMore(Group( CaselessKeyword ('" + i + \
                     "') +Suppress('=')+desc('val'))('" + \
                     i + "'))" + " "
             else:
                 expression = expression + \
-                    " Optional(Group( CaselessKeyword ('" + i + \
+                    " ZeroOrMore(Group( CaselessKeyword ('" + i + \
                     "') +Suppress('=')+key_val_expr_num('val'))('" + \
                     i + "'))" + " "
         else:
 
             if statement[clause][i] == 'str':
                 expression = expression + \
-                    "& Optional(Group( CaselessKeyword ('" + i + \
+                    " & ZeroOrMore(Group( CaselessKeyword ('" + i + \
                     "') +Suppress('=')+key_val_expr('val'))('" + \
                     i + "'))" + " "
             elif statement[clause][i] == 'desc':
                 expression = expression + \
-                    "& Optional(Group( CaselessKeyword ('" + i + \
+                    " & ZeroOrMore(Group( CaselessKeyword ('" + i + \
                     "') +Suppress('=')+desc('val'))('" + \
                     i + "'))" + " "
             else:
                 expression = expression + \
-                    "& Optional(Group( CaselessKeyword ('" + i + \
+                    " & ZeroOrMore(Group( CaselessKeyword ('" + i + \
                     "') +Suppress('=')+key_val_expr_num('val'))('" + \
                     i + "'))" + " "
         ii = 1
+
+    
     return expression
 
 

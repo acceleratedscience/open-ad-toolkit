@@ -43,6 +43,7 @@ edit config 'func_display_collection.json'
 intro
 
 #DeepSearch
+remove toolkit DS4SD
 add toolkit DS4SD
 set context DS4SD
 search for 'identifiers._name:"smiles#ccc(coc(=o)cs)(c(=o)c(=o)cs)c(=o)c(=o)cs" ' using (index_key='patent-uspto-smiles') show (data) return as data save as 'test'
@@ -52,8 +53,9 @@ exec display_collection(domain='Materials Science')
 
 
 #RXN
+remove toolkit rxn
 add toolkit RXN
-set contet rxn
+set context rxn
 predict retrosynthesis 'CC(=O)N1CCC2(CC1)C3=C(C=CC(=C3)C#CC4C(C(C(C(O4)CO)O)O)O)C5=C2C=C(C=C5)C#CC6C(C(C(C(O6)CO)O)O)O' using( max_steps=3 )
 interpret recipe 'To a stirred solution of 7-(difluoromethylsulfonyl)-4-fluoro-indan-1-one (110 mg, 0.42 mmol) in methanol (4 mL) was added sodium borohydride (24 mg, 0.62 mmol). The reaction mixture was stirred at ambient temperature for 1 hour.'
 predict reaction 'Cl.CCC(=O)NCCC.O'
@@ -61,3 +63,10 @@ import  from '~/openad_notebooks/examples/reactions.csv' to 'reactions.csv'
 predict reaction in batch from file 'reactions.csv'
 predict reaction in batch from list ['BrBr.c1ccc2cc3ccccc3cc2c1CCO' ,'Cl.CCC(=O)NCCC.O'] 
 predict reaction in batch  from list ['BrBr.c1ccc2cc3ccccc3cc2c1CCO' ,'BrBr.c1ccc2cc3ccccc3cc2c1','Cl.CCC(=O)NCCC.O'] use_saved
+
+
+#help
+?
+? pred
+? predict re
+? predict ret
