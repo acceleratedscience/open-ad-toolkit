@@ -4,7 +4,7 @@ Use this instead of print() which should always be avoided.
 
 Under the Hood
 --------------
-- The style_parser module takes care of parsing xml tags into ANSI
+- The style_parser plugin takes care of parsing xml tags into ANSI
   escape codes, which lets us print different colors in the CLI.
   It also takes care of some extra layout fluff, like padding,
   indentation, etc. The main functions are style() and print_s()
@@ -23,14 +23,14 @@ output_text()
     Simple usage: output_text('Hello world', cmd_pointer, pad=2)
     Note: you can pass additional parameters which will be passed
     onto the style_parser, eg. pad=2. See documentation for style().
-_output_status()
-    This is a wrapper around output_text() which take care of
-    some templated styling making sure error/waring/success outputs
-    are always treated consistently. It is not to be
 output_error()
 output_warning()
 output_success()
-    These are all wrappers around output_status().
+    These are all wrappers around _output_status().
+_output_status()
+    This is a wrapper around output_text() which takes care of
+    some templated styling to make sure error/waring/success outputs
+    are always treated consistently.
 output_table()
     Displays a table in the CLI, or returns a panda dataframe when
     called from Jupyter or the API.
@@ -43,8 +43,11 @@ output_text(msg('workspace_description', workspace_name, description), cmd_point
 """
 
 from IPython.display import Markdown, display
-from ad4e_opentoolkit.helpers.style_parser import style, print_s, strip_tags, tags_to_markdown, parse_tags
 from ad4e_opentoolkit.helpers.output_msgs import messages
+
+# Importing our own plugins.
+# This is temporary until every plugin is available as a public pypi package.
+from ad4e_opentoolkit.plugins.style_parser import style, print_s, strip_tags, tags_to_markdown
 
 
 # Print or return styled text.
@@ -79,10 +82,10 @@ def output_text(text, cmd_pointer=None, return_val=None, jup_return_format=None,
 
     if api_mode:
         # API
-        
+
         return strip_tags(text)
     elif notebook_mode:
-        
+
         # Jupyter
         if return_val:
             if jup_return_format == 'plain':
@@ -90,7 +93,6 @@ def output_text(text, cmd_pointer=None, return_val=None, jup_return_format=None,
             if jup_return_format == 'markdown_data':
                 return Markdown(tags_to_markdown(text)).data
             else:
-                
                 return Markdown(tags_to_markdown(text))
         else:
             display(Markdown(tags_to_markdown(text)))
@@ -102,7 +104,7 @@ def output_text(text, cmd_pointer=None, return_val=None, jup_return_format=None,
             print_s(text, **kwargs)
 
 
-def _output_status(msg, status, cmd_pointer=None, return_val=None, pad_top=False, pad_btm=False, **kwargs):
+def _output_status(msg, status, cmd_pointer=None, return_val=None, pad=1, pad_top=False, pad_btm=False, **kwargs):
     """
     Print or return styled error/warning/success message according
     to the relevant display context (API/Jupyter/CLI).
@@ -146,7 +148,7 @@ def _output_status(msg, status, cmd_pointer=None, return_val=None, pad_top=False
     msg2 = f'\n<soft>{msg2}</soft>' if msg2 else ''
 
     # Set padding.
-    pad = 0 if pad_top or pad_btm else 1
+    pad = 0 if pad_top or pad_btm else pad
 
     # Print.
     return output_text(
@@ -185,8 +187,7 @@ def output_success(msg, *args, **kwargs):
 
 
 # Print or return a table.
-def output_table(data, cmd_pointer=None, headers=None, note=None, tablefmt='simple'):
-    
+def output_table(data, cmd_pointer=None, is_data=False, headers=None, note=None, tablefmt='simple'):
     """
     Display a table:
     - CLI:      Print using tabulate with some custom home-made styling
@@ -196,11 +197,16 @@ def output_table(data, cmd_pointer=None, headers=None, note=None, tablefmt='simp
     Parameters
     ----------
     data (list, required)
-        An array of tuples, where each tuple is a row in the table.
+        A dataframe or an array of tuples, where each tuple is a row in the table.
     cmd_pointer (object):
         The run_cmd class instance which is used to determine the display context.
+    is_data (bool):
+        This enables the follow-up commands to open/edit/save the table data.
+        Some tables are just displaying information and don't need this (eg workspace list.)
     headers (list):
         A list of strings, where each string is a column header.
+    note (str):
+        A footnote to display at the bottom of the table.
     tablefmt (str):
         The table format used for tabulate (CLI only) - See https://github.com/astanin/python-tabulate#table-format
     """
@@ -230,7 +236,7 @@ def output_table(data, cmd_pointer=None, headers=None, note=None, tablefmt='simp
         # pandas.options.display.max_colwidth = 5
         # pandas.set_option('display.max_colwidth', 5)
         if (is_df):
-            
+
             return data
         else:
             # Remove styling tags from headers.
@@ -240,42 +246,51 @@ def output_table(data, cmd_pointer=None, headers=None, note=None, tablefmt='simp
             for i, row in enumerate(data):
                 for j, cell in enumerate(row):
                     data[i][j] = strip_tags(cell)
-            
+
             return pandas.DataFrame(data, columns=headers)
 
     # - -
     # Display data in terminal.
     if (is_df):
-        table = tabulate(data, headers="keys", tablefmt=tablefmt,showindex=False,numalign="left")
+        table = tabulate(data, headers="keys", tablefmt=tablefmt, showindex=False, numalign="left")
     else:
         # Parse styling tags.
         for i, row in enumerate(data):
             for j, cell in enumerate(row):
-                data[i][j] = parse_tags(cell)
-               
-        table = tabulate(data, headers=headers,  tablefmt=tablefmt,showindex=False,numalign="left")
+                data[i][j] = style(cell, nowrap=True)
+
+        table = tabulate(data, headers=headers, tablefmt=tablefmt, showindex=False, numalign="left")
 
     # Crop table if it's wider than the terminal.
     max_row_length = max(list(map(lambda row: len(row), table.splitlines())))
     if max_row_length > cli_width:
-        for i, line in enumerate(table.splitlines()):           
+        for i, line in enumerate(table.splitlines()):
             if i == 1:
                 table = table.replace(line, line[:cli_width])
             elif len(line) > cli_width:
-               table = table.replace(line, line[:cli_width - 3] + '...\u001b[0m') # updated with reset \u001b[0m for color tags which may be found later
+                # updated with reset \u001b[0m for color tags which may be found later
+                table = table.replace(line, line[:cli_width - 3] + '...\u001b[0m')
 
-    # Make line yellow
+    # Make line yellow.
     lines = table.splitlines()
-    lines[1] = parse_tags(f'<yellow>{lines[1]}</yellow>')
+    lines[1] = style(f'<yellow>{lines[1]}</yellow>', nowrap=True)
 
-    # List next commands
-    msg = (
-        '<cmd>show full table</cmd>',
-        '<cmd>remove table columns</cmd>',
-        '<cmd>edit table</cmd>',
-        '<cmd>save table as \'<filename.csv>\'</cmd>',
-    )
-    lines.append('\n<soft>Next up you can: </soft>' + ' / '.join(msg) + ' <green># Coming soon</green>')
+    # Enable follow-up commands.
+    if is_data:
+        if not cmd_pointer:
+            raise Exception('cmd_pointer is required in display_data() to enable follow-up commands.')
+
+        # Store data in memory so we can access it with follow-up commands.
+        cmd_pointer.memory['data'] = data
+        cmd_pointer.preserve_memory['data'] = True
+
+        # Display follow-up commands.
+        msg = (
+            '<cmd>open</cmd>',
+            '<cmd>edit</cmd>',
+            '<cmd>save [as \'<filename.csv>\']</cmd>',
+        )
+        lines.append('\n<soft>Next up, you can run: </soft>' + ' / '.join(msg))
 
     # Add footnote.
     if note:
@@ -287,7 +302,7 @@ def output_table(data, cmd_pointer=None, headers=None, note=None, tablefmt='simp
 
 
 # Procure a display message from output_msgs.py.
-def msg(message, *args, split=False):
+def msg(msg_name, *args, split=False):
     """
     Fetches the correct output message from the messages dictionary.
 
@@ -299,23 +314,23 @@ def msg(message, *args, split=False):
 
     Parameters
     ----------
-    message (str):
+    msg_name (str):
         The name of the message to fetch.
     args:
         Any number of variables that are required for the lambda function.
     split (bool):
-        Instead of parsing a tuple as different lines of the same message,
+        Instead of parsing a tuple as different lines of the same string,
         you can return it as a list of separate messages. This is used for
         the error/warning/success messages, where the first message is the
         main message, and the second message is a secondary message.
     """
-    message = messages[message]
-    if callable(message):
-        message = message(*args)
-    if isinstance(message, tuple):
+    msg_name = messages[msg_name]
+    if callable(msg_name):
+        msg_name = msg_name(*args)
+    if isinstance(msg_name, tuple):
         if not split:
             # For output_error/warning/success we sometimes need to send
             # None as second message, eg. load_toolkit_description().
-            message = [x for x in message if x is not None]
-            message = '\n'.join(message)
-    return message
+            msg_name = [x for x in msg_name if x is not None]
+            msg_name = '\n'.join(msg_name)
+    return msg_name

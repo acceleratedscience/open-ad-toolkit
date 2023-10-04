@@ -2,7 +2,11 @@
 
 _tableformat = 'simple'
 
-from rxn4chemistry import RXN4ChemistryWrapper
+try:
+    from rxn4chemistry import RXN4ChemistryWrapper
+except:
+    print("error loading rxn4chemistry")
+    raise BaseException("error loading rxn4chemistry")
 from time import sleep
 def get_include_lib(cmd_pointer):
     import importlib.util as ilu
@@ -90,7 +94,7 @@ def predict_reaction(inputs: dict, toolkit_dir, cmd_pointer):
         dot='.'
 
     result = rxn_helper.retrieve_cache(cmd_pointer,entry_2,'predict_Model-'+ai_model)
-    
+    sources=''
     if  result !=False and use_saved==True: 
         predict_reaction_results=result
         smiles=predict_reaction_results['response']['payload']['attempts'][0]['smiles']
@@ -106,7 +110,7 @@ def predict_reaction(inputs: dict, toolkit_dir, cmd_pointer):
             
             display(rxn_helper.output('<success>Smiles:</success>    '+smiles,cmd_pointer ))
                     
-            sources=''
+            
             for x in source:
                 if len(sources) > 0:
                     sources=sources+' + '+x
@@ -118,7 +122,7 @@ def predict_reaction(inputs: dict, toolkit_dir, cmd_pointer):
                     
             return get_reaction_from_smiles(smiles)
         else:
-            print(f'Smiles: {smiles}')
+            print(f'\nSmiles: {smiles}')
             for x in source:
                 if len(sources) > 0:
                     sources=sources+' + '+x
@@ -204,7 +208,7 @@ def predict_reaction(inputs: dict, toolkit_dir, cmd_pointer):
                 
         return get_reaction_from_smiles(predict_reaction_results['response']['payload']['attempts'][0]['smiles'])
     else:
-        print(f'Smiles: {smiles}')
+        print(f'\nSmiles: {smiles}')
         for x in source:
             if len(sources) > 0:
                 sources=sources+' + '+x
@@ -214,53 +218,6 @@ def predict_reaction(inputs: dict, toolkit_dir, cmd_pointer):
         print(f'Confidence: {confidence}')
         print(smiles)
         return True
-
-    
-
-
-
-
-    import pandas as pd
-    df = pd.DataFrame(x)
-    #df['createdOn'] = pd.to_datetime(df['createdOn'], format='mixed')
-    #df['modifiedOn'] = pd.to_datetime(df['modifiedOn'], format='mixed')
-    #df= df[['name','description','attempts']]
-    
-    if cmd_pointer.notebook_mode == True:
-        return df
-
-    from tabulate import tabulate
-    print('\n'+tabulate(df, tablefmt=_tableformat, headers="keys", showindex=False)+'\n')
-    
-    return True
-    if result is None:
-        print("Search returned no result")
-        return None
-
-    if cmd_pointer.notebook_mode == True:
-        import pandas as pd
-        df = pd.DataFrame(results_table)
-        import numpy as np
-        if 'save_as' in inputs:
-            df.to_csv(cmd_pointer.workspace_path(cmd_pointer.settings['workspace'].upper()) + "/" + inputs['results_file'] + '.csv',)
-        return (df. replace(np.nan, '', regex=True))
-
-    else:
-        from tabulate import tabulate
-        import pandas as pd
-        import numpy as np
-        collectives = pd.DataFrame(results_table)
-
-        if 'save_as' in inputs:
-
-            collectives.to_csv(
-                cmd_pointer.workspace_path(
-                    cmd_pointer.settings['workspace'].upper()) +
-                "/" +
-                inputs['results_file'] +
-                '.csv',
-                index=False)
-
        
 
 

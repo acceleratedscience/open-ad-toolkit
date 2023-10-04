@@ -1,6 +1,8 @@
-from ad4e_opentoolkit.helpers.style_parser import add_tabs
 from ad4e_opentoolkit.helpers.general import singular, is_toolkit_installed
-from ad4e_opentoolkit.helpers.output import msg, output_error
+from ad4e_opentoolkit.helpers.output import msg, output_text, output_error
+# Importing our own plugins.
+# This is temporary until every plugin is available as a public pypi package.
+from ad4e_opentoolkit.plugins.style_parser import style
 
 line_break = "<br>"
 heading = "<h3>"
@@ -47,24 +49,24 @@ def all_commands(commands: list, toolkit_name: str = None, toolkit_current: obje
                 commands_organized[category] = [command]
 
         # Compile text.
-        text = [f'<h1>Available Commands - {toolkit_name if toolkit_name else "Main"}</h1>']
+        output = [f'<h1>Available Commands - {toolkit_name if toolkit_name else "Main"}</h1>']
         if toolkit_name and not is_toolkit_installed(toolkit_name, cmd_pointer):
             err_msg = output_error(
                 msg('fail_toolkit_not_installed', toolkit_name, split=True),
                 cmd_pointer, return_val=True, nowrap=True)
-            text.append(err_msg)
+            output.append(err_msg)
         elif len(commands_organized):
-            text.append('')
+            output.append('')
 
         if len(commands_organized):
             for category, commands in commands_organized.items():
-                text.append(f"{category}:")
+                output.append(f"{category}:")
                 for command in commands:
-                    text.append(add_tabs(f"<cmd>{command}</cmd>", 1))
-                text.append('')
+                    output.append(f'<cmd>{command}</cmd>')
+                output.append('')
         else:
-            text.append('<error>No commands found.</error>')
-        return '\n'.join(text)
+            output.append('<error>No commands found.</error>')
+        return '\n'.join(output)
 
     #
     #
@@ -105,24 +107,44 @@ def queried_commands(command_results: list, inp: str = None, query_type: str = N
         command_str = command['command']
         if query_type == 'word_match':
             command_str = re.sub(fr'(?<!<){inp}(s?)(?![^<>]*?>)', fr'<underline>{inp}\1</underline>', command_str)
-        output.append(f"<cmd>{command_str}</cmd>")
+        output.append(f"- <cmd>{command_str}</cmd>")
     return '\n'.join(output)
 
 
-def command_details(command: list):
+def command_details(command: list,cmd_pointer):
     """
     Return xml string listing listing a single command with its description.
 
     Command: `<command> ?`
     """
 
+    paragraph_width = 100
+
+    #print(111)
+    #print(style(f"<cmd>{command['command']}</cmd>", width=200))
+    #print(style("edit config '<json_config_file>' [template '<template_file>']", width=100))
+
     # Style command
-    the_command = f"<cmd>{command['command']}</cmd>\n"
+    if cmd_pointer.notebook_mode:
+        the_command = f"<cmd>{command['command']}</cmd>"
+        description = command['description']
+    else:
+        try:
+            import shutil
+            paragraph_width, rows = shutil.get_terminal_size()
+        except:
+            paragraph_width = 100   
+        the_command = style(f"<cmd>{command['command']}</cmd>", width=paragraph_width-5)
+        description = style(command['description'], width=paragraph_width-5)
+
+    # Separator
+    sep_len = min(len(command['command']), paragraph_width)
+    sep = '<soft>' + sep_len * '-' + '</soft>'
 
     # Style description
-    description = command['description']
+    
 
-    return the_command + description
+    return '\n'.join([the_command, sep, description])
 
 
 # Display advanced help
@@ -130,7 +152,7 @@ def advanced_help():
     return '<warning>Advanced help is yet to be implemented.</warning>'
 
 
-class adccl_help():
+class openad_help():
     help_orig = []
     help_current = []
 

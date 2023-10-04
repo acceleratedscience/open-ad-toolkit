@@ -14,20 +14,20 @@ def init_magic():
         else:
             inp=None
             if len(sys.argv)==1:
-                destination=os.path.expanduser('~/.ipython/profile_default/startup/adccl.py')
+                destination=os.path.expanduser('~/.ipython/profile_default/startup/openad.py')
                 
             else:
                 inp=sys.argv[1]
-                destination = os.path.expanduser(f'~/.ipython/profile_{inp}/startup/adccl.py')
+                destination = os.path.expanduser(f'~/.ipython/profile_{inp}/startup/openad.py')
                 
             if inp == '.':
-                destination=os.getcwd()+'/adccl.py'
+                destination=os.getcwd()+'/openad.py'
 
             
             if os.path.exists(destination):
                 os.remove(destination)
-            shutil.copyfile(_repo_dir+'/magic/adccl.py',destination)
-            print("Successully copied adccl.py to "+destination)
+            shutil.copyfile(_repo_dir+'/magic/openad.py',destination)
+            print("Successully copied openad.py to "+destination)
     except Exception as e:
         print("Error: Unable to copy magic file, destination may not exist")
         print(destination)

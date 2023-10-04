@@ -1,15 +1,18 @@
 from  ad4e_opentoolkit.llm_assist.prime_chat import chat_object
 import os,shutil,glob
-from  ad4e_opentoolkit.core.help import adccl_help
+from  ad4e_opentoolkit.core.help import openad_help
 from ad4e_opentoolkit.helpers.output import msg, output_text, output_error, output_warning, output_success, output_table
-import pickle
+from  ad4e_opentoolkit.app.global_var_lib import _repo_dir
+import pickle,re
 import readline
+from ad4e_opentoolkit.app.global_var_lib import _meta_dir 
 
 _training_dir =   '/prompt_train/'
 _supported_llms = ['WATSONX','OPENAI']
-    
-def create_train_repo(included_sources=[],location_for_documents='~/.chat_embedded',document_types=['*.txt']):
-    
+_prompt_dir='~/.chat_embedded'
+_standard_types=['*.txt','*.ipynb','*.run','*.cdoc']
+_extended_types=['**/*.txt','**/*.ipynb','**/*.run','**/*.cdoc']
+def create_train_repo(included_sources=[],location_for_documents=_prompt_dir,document_types=_standard_types):
     try:
 
         if not os.path.exists(os.path.expanduser(location_for_documents)):
@@ -31,18 +34,21 @@ def create_train_repo(included_sources=[],location_for_documents='~/.chat_embedd
 def how_do_i(cmd_pointer,parser):
     cmd_pointer.settings['env_vars']['llm_service']=cmd_pointer.llm_service
    
-    included_dirs=[os.path.expanduser(cmd_pointer.home_dir+_training_dir)]
+    included_dirs=[os.path.expanduser(_prompt_dir)]
     try:
-        os.mkdir(os.path.expanduser(cmd_pointer.home_dir+_training_dir))
+        os.mkdir(os.path.expanduser(_prompt_dir))
     except:
         pass
+    included_dirs.append(os.path.expanduser( _repo_dir+'/../notebooks'))
+    included_dirs.append(os.path.expanduser(_meta_dir+_training_dir))
     for name in cmd_pointer.settings['workspaces']:
          included_dirs.append(f'{cmd_pointer.home_dir}/{name}')
     if cmd_pointer.llm_handle==None or cmd_pointer.refresh_vector==True:
-        create_train_repo(included_sources=included_dirs,document_types=['*.txt','*.csv'])
+        create_train_repo(included_sources=included_dirs,document_types=_standard_types)
         try:
                 
-                cmd_pointer.llm_handle=chat_object(API_key=get_api_key(cmd_pointer.llm_service,cmd_pointer)['auth']['api_key'],organisation=get_api_key(cmd_pointer.llm_service,cmd_pointer)['host'], document_folders=[os.path.expanduser(cmd_pointer.home_dir+_training_dir)],document_types=['**/*.txt'],refresh_vector=cmd_pointer.refresh_vector,llm_service=cmd_pointer.llm_service,llm_model=cmd_pointer.llm_model)
+                cmd_pointer.llm_handle=chat_object(API_key=get_api_key(cmd_pointer.llm_service,cmd_pointer)['auth']['api_key'],\
+                    organisation=get_api_key(cmd_pointer.llm_service,cmd_pointer)['host'], document_folders=[os.path.expanduser(_prompt_dir)],document_types=_extended_types,refresh_vector=cmd_pointer.refresh_vector,llm_service=cmd_pointer.llm_service,llm_model=cmd_pointer.llm_model)
                 if cmd_pointer.llm_handle==False:
                     return False
         except:
@@ -52,15 +58,15 @@ def how_do_i(cmd_pointer,parser):
         cmd_pointer.refresh_vector=False
         cmd_pointer.settings['env_vars']['refresh_help_ai']=False
         cmd_pointer.llm_handle.prime_chat_history('When answering questions in the following chats, Answer like a technical help writer \
-        ,and always show the Command description and syntax including options. ')
+        ,and always show the Command description and syntax including options. Note: %openad is the notebook magic command prompt. If an answer includes "%openad" note that these commands are for use in Notebooks ')
         #cmd_pointer.llm_handle.prime_chat_history('When answering questions in the following chats, Answer like a technical help writer Showing Syntax and examples. When answering always interpret  all Pyparsing_Command_Definitions using python pyparsing  and display only the matching user syntax without mentioning pyparsing at all, never mention pyparsing in answers\
         # , and always show the full command  then underneath bullet point syntax clauses highlighting required and optional syntax.')
     
     if cmd_pointer.notebook_mode==True:
-        chat_primer="Responding using Markdown format, Tell me "
+        chat_primer="Responding using Markdown format as if you are a Helpful Technical Writer, Tell me "
         
     else:
-        chat_primer='Tell Me '
+        chat_primer='Responding assuming a command Line output format as if you are a Helpful Technical Writer,  Tell Me '
     
     if cmd_pointer.notebook_mode==True:
         import IPython.display
@@ -70,7 +76,11 @@ def how_do_i(cmd_pointer,parser):
 
     #interperate=' and in answer like a technical help writer and interperate all python pyparsing statements as Domain specific language should be entered by the user, never show the pyparsing syntax, and always show the full command and bullet point syntax clauses highlighting required and optional syntax'
     #print(cmd_pointer.llm_handle.how_to_search(chat_primer +" ".join(parser['Chat_String'])))
-    return output_text( cmd_pointer.llm_handle.how_to_search(chat_primer +" ".join(parser['Chat_String'])), cmd_pointer, pad=1, edge=True)
+    if not cmd_pointer.notebook_mode and not cmd_pointer.api_mode:
+        text = re.sub(r'```(.*?)```', r'<cmd>\1</cmd>', cmd_pointer.llm_handle.how_to_search(chat_primer +" ".join(parser['Chat_String'])))
+    else:
+        text = cmd_pointer.llm_handle.how_to_search(chat_primer +" ".join(parser['Chat_String']))
+    return output_text( text,return_val=True,cmd_pointer= cmd_pointer, pad=1, edge=True)
     
 #sets the support llm model to use
 def set_llm(cmd_pointer,parser):

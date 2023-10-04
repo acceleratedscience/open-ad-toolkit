@@ -22,10 +22,12 @@ def login(cmd_pointer):
     # {'toolkits':[],'toolkits_details':{},'toolkits_api':[]}
     
     import time
-    if not os.path.isfile(os.path.expanduser(cmd_pointer.home_dir) + "/rxn-auth.ext-v2.json"):
+    if not os.path.isfile(os.path.expanduser(cmd_pointer.home_dir) + "/ds-auth.ext-v2.json"):
         login_reset = True
     else:
         login_reset= False
+
+        
     if 'DS4SD' not in cmd_pointer.login_settings['toolkits']:
         cmd_pointer.login_settings['toolkits'].append('DS4SD')
         cmd_pointer.login_settings['toolkits_details'].append({"type": "config_file", "session": "handle"})

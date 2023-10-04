@@ -1,4 +1,4 @@
-the below is a description of the DeepSearch toolkit capabilities that is implemented through statements in the Adccl client
+the below is a description of the DeepSearch toolkit capabilities that is implemented through statements in the OpenAD client
 
 Deep Search uses natural language processing to ingest and analyze massive amounts of data—structured and unstructured. Researchers can then extract, explore, and make connections faster than ever.
 Solutions that once took months to find are now being discovered in a matter of days.

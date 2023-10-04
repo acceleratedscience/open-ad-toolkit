@@ -1,11 +1,11 @@
 """Welcome messages for each module."""
 
 
-adccl_intro: str = """
+openad_intro: str = """
 
-<h1>Introduction to the ADCCL</h1>
+<h1>Introduction to the OpenAD</h1>
 
-ADCCL (Accelerated Discovery Common Client) is a CLI providing centralized access to a number of open-source scientific toolkits developed by IBM Research. These toolkits let you combine the power of artificial intelligence, computational chemistry and cloud computing to supercharge your discovery process and drastically accelerate your development timelines.
+OpenAD  is a CLI providing centralized access to a number of open-source scientific toolkits developed by IBM Research. These toolkits let you combine the power of artificial intelligence, computational chemistry and cloud computing to supercharge your discovery process and drastically accelerate your development timelines.
 
 <link>http://accelerate.science</link>
 
@@ -17,7 +17,7 @@ ADCCL (Accelerated Discovery Common Client) is a CLI providing centralized acces
         <cmd>workspace ?</cmd>
 
 <h2>Toolkits</h2>
-    ADCCL supports 4 different toolkits as of now.
+    OpenAD supports 4 different toolkits as of now.
     • DS4SD - Deep Search
     • GT4SD - Generative Toolkit
     • ST4SD - Simulation Toolkit
@@ -56,4 +56,4 @@ ADCCL (Accelerated Discovery Common Client) is a CLI providing centralized acces
 #     <cmd>project ?</cmd>
 #     <cmd>pull ?</cmd>
 #     <cmd>push ?</cmd>
-# adccl_intro = style(adccl_intro, pad=2, tabs=1, edge=True)
+# openad_intro = style(openad_intro, pad=2, tabs=1, edge=True)

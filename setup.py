@@ -71,8 +71,9 @@ setup(
         'nbformat==5.8.0',
         'notebook==6.5.4',
         'traitlets==5.9.0',
+        'ipykernel'
     ],
     
-    entry_points={'console_scripts': ['adccl=ad4e_opentoolkit.app.main:cmd_line','init_magic=ad4e_opentoolkit.app.init_magic:init_magic','init_examples=ad4e_opentoolkit.app.adccl_examples:adccl_create_examps'],},
+    entry_points={'console_scripts': ['openad=ad4e_opentoolkit.app.main:cmd_line','init_magic=ad4e_opentoolkit.app.init_magic:init_magic','init_examples=ad4e_opentoolkit.app.openad_examples:openad_create_examps'],},
 
 )

@@ -1,7 +1,7 @@
 
 
 _tableformat = 'simple'
-
+from ad4e_opentoolkit.helpers.output import output_text as output_text
 from rxn4chemistry import RXN4ChemistryWrapper
 list_of_reactions =[]
 
@@ -48,7 +48,7 @@ def interpret_recipe(inputs: dict, toolkit_dir, cmd_pointer):
         if cmd_pointer.notebook_mode==True:
             return Markdown(''.join(return_result))
         else:
-            return return_result
+            return output_text('\n'+''.join(return_result),cmd_pointer=cmd_pointer)
     except  BaseException as e:
             raise BaseException("unable to to turn paragraph to actions:" +str(e)    )
             

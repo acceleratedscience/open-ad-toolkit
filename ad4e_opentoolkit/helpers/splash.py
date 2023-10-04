@@ -1,15 +1,18 @@
 import json
 
 from ad4e_opentoolkit.helpers.output import msg, output_text, output_error
-from ad4e_opentoolkit.helpers.style_parser import style, wrap_text, parse_tags, strip_tags, print_s
 from ad4e_opentoolkit.helpers.ascii_type import ascii_type
+
+# Importing our own plugins.
+# This is temporary until every plugin is available as a public pypi package.
+from ad4e_opentoolkit.plugins.style_parser import style, wrap_text, strip_tags
 
 
 def splash(toolkit_name=None, cmd_pointer=None, startup=False, raw=False):
-    """ Display the splash page for ADCCL or any of the toolkits."""
+    """ Display the splash page for OpenAD or any of the toolkits."""
     toolkit_name = toolkit_name.upper() if toolkit_name else None
 
-    # If no toolkit name is given, display the ADCCL welcome splash.
+    # If no toolkit name is given, display the OpenAD welcome splash.
     main_splash = toolkit_name is None
 
     # Splash is minimized if toolkit is not active.
@@ -25,10 +28,10 @@ def splash(toolkit_name=None, cmd_pointer=None, startup=False, raw=False):
     else:
         json_file_path = f'user_toolkits/{toolkit_name}/metadata.json'
     try:
-        with open(os.path.dirname(os.path.abspath(__file__))+'/../'+json_file_path) as json_file:
+        with open(os.path.dirname(os.path.abspath(__file__)) + '/../' + json_file_path) as json_file:
             data = json.load(json_file)
     except FileNotFoundError:
-        return output_error(msg('fail_file_not_found', os.path.dirname(os.path.abspath(__file__))+'/'+json_file_path, split=True))
+        return output_error(msg('fail_file_not_found', os.path.dirname(os.path.abspath(__file__)) + '/' + json_file_path, split=True))
 
     # Make up for missing data.
     required_fields = 'banner title intro author version commands'.split()
@@ -40,7 +43,7 @@ def splash(toolkit_name=None, cmd_pointer=None, startup=False, raw=False):
             data[req_field] = '(not available)'
 
     # Compile output.
-    output = '\n'
+    output = ''
 
     # Startup message.
     # When you start the application with the context set to one of the toolkits,
@@ -48,10 +51,10 @@ def splash(toolkit_name=None, cmd_pointer=None, startup=False, raw=False):
     # is not the main splash page, we add a note on top clarifying this.
     if startup and not main_splash:
         output += f'<on_green> Your context is set to {toolkit_name}. </on_green>\n'
-        output += 'To see the main splash page, run <cmd>adccl</cmd>.\n'
+        output += 'To see the main splash page, run <cmd>openad</cmd>.\n'
         output += f'To exit {toolkit_name}, run <cmd>unset context</cmd>.\n\n- - -\n\n'
 
-    # Header.
+    # Header
     if main_splash or toolkit_is_active:
         output += '<pre>' + ascii_type(data['banner'], reverse=not main_splash, char=char) + '</pre>' + '\n\n'
         output += f'<h1>{data["title"]}</h1>\n'
@@ -71,7 +74,7 @@ def splash(toolkit_name=None, cmd_pointer=None, startup=False, raw=False):
     if main_splash or toolkit_is_active:
         # Commands
         if not main_splash:
-            data['commands']['adccl'] = 'Display the main splash page.'  # Add to commands for every toolkit.
+            data['commands']['openad'] = 'Display the main splash page.'  # Add to commands for every toolkit.
         left_column_width, right_column_width = _calc_col_width(data['commands'])
         output += '\n' + _compile_commands(data['commands'], left_column_width, right_column_width)
 
@@ -79,21 +82,19 @@ def splash(toolkit_name=None, cmd_pointer=None, startup=False, raw=False):
     elif cmd_pointer:
         # Installed
         if toolkit_name in cmd_pointer.settings['toolkits']:
-            output += msg('this_toolkit_installed', toolkit_name, split=True)
+            output += msg('toolkit_installed', toolkit_name)
 
         # Not installed
         else:
             output += output_error(
                 msg('fail_this_toolkit_not_installed', toolkit_name, split=True),
-                cmd_pointer, return_val=True, return_format='markdown_data', nowrap=True
+                cmd_pointer, return_val=True, jup_return_format='markdown_data', nowrap=True, pad=0
             )
-
-    output += '\n'
 
     if raw:
         return output
     else:
-        return style(output, pad=3, tabs=1, edge=True, nowrap=True)
+        return style(output, pad=3, edge=True, nowrap=True)
 
 
 # Calculate columns width.

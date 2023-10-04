@@ -1,6 +1,6 @@
 {
-	"banner": "ADCCL",
-	"title": "Welcome to the IBM Accelerated Discovery CLI",
+	"banner": "OPENAD",
+	"title": "Welcome to the Open Accelerated Discovery CLI",
 	"version": "0.0.1",
 	"commands": {
 		"intro": "If this is your first time, let us help you getting started.",

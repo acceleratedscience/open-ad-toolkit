@@ -2,7 +2,11 @@
 
 _tableformat = 'simple'
 
-from rxn4chemistry import RXN4ChemistryWrapper
+try:
+    from rxn4chemistry import RXN4ChemistryWrapper
+except:
+    print("error loading rxn4chemistry")
+    raise BaseException("error loading rxn4chemistry")
 from rdkit import Chem
 from rdkit.Chem import AllChem
 
@@ -31,7 +35,7 @@ def predict_reaction_batch_topn(inputs: dict, toolkit_dir, cmd_pointer):
     rxn_helper=get_include_lib(cmd_pointer)
     rxn_helper.sync_up_workspace_name(cmd_pointer)
     name,id= rxn_helper.get_current_project(cmd_pointer)
-
+ 
     if cmd_pointer.notebook_mode == True:
         import IPython
         from halo import HaloNotebook as Halo
@@ -74,9 +78,12 @@ def predict_reaction_batch_topn(inputs: dict, toolkit_dir, cmd_pointer):
     rxn_helper = get_include_lib(cmd_pointer)
     ###################################################################################################
    # getting our input source for the reactions
-    
+   
     if 'from_list'  in inputs['from_source'][0]:
-        from_list= inputs['from_source'][0]['from_list']
+            try:
+                from_list= inputs['from_source'][0]['from_list']
+            except:
+                print("unexpected pyparsing error. Please report circumstand to OpenAD team")
     elif 'from_dataframe' in inputs:
         try:
             react_frame = cmd_pointer.api_variables[inputs['from_dataframe']]

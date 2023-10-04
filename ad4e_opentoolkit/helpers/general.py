@@ -3,18 +3,16 @@ import os
 import re
 import readline
 from IPython.display import display
-
 from ad4e_opentoolkit.helpers.output import msg, output_text, output_error
-from ad4e_opentoolkit.helpers.style_parser import strip_tags
 
 
 # Refreshes the command prompt when in the shell.
 def refresh_prompt(settings):
     if settings['context'] is not None:
-        #prompt = ' \u001b[7m ' + settings['context'] + ' \u001b[0m '  # Reverse & reset
-        prompt = settings['context']+'->'   # Reverse & reset
+        # prompt = ' \u001b[7m ' + settings['context'] + ' \u001b[0m '  # Reverse & reset
+        prompt = settings['context'] + '->'   # Reverse & reset
     else:
-        prompt = 'ADCCL:'
+        prompt = 'OpenAD:'
     if settings['workspace'] is not None:
         prompt = prompt + settings['workspace']
     prompt = prompt + ' >>  '
@@ -128,9 +126,8 @@ def user_input(cmd_pointer, question):
 # Return list of available toolkit names.
 def get_toolkits():
     import os
-    
- 
-    folder_path = os.path.dirname(os.path.abspath(__file__))+'/../user_toolkits'  # Replace 'foo' with the actual path to the folder
+
+    folder_path = os.path.dirname(os.path.abspath(__file__)) + '/../user_toolkits'  # Replace 'foo' with the actual path to the folder
     toolkit_names = [name.upper() for name in os.listdir(folder_path) if os.path.isdir(os.path.join(folder_path, name))]
     if '__PYCACHE__' in toolkit_names:
         toolkit_names.remove('__PYCACHE__')
@@ -140,6 +137,65 @@ def get_toolkits():
 # Return boolean if toolkit is installed.
 def is_toolkit_installed(toolkit_name, cmd_pointer=None):
     return cmd_pointer and toolkit_name and toolkit_name.upper() in cmd_pointer.settings['toolkits']
+
+
+# Validate a file path.
+# - - -
+# Add a default file extension when one is missing,
+# or verify if the file extension is correct.
+def validate_file_path(file_path: str, allowed_extensions: list, cmd_pointer):
+    if not file_path:
+        return
+
+    default_extension = allowed_extensions[0]
+    if len(file_path.split('.')) == 1:
+        return file_path + '.' + default_extension
+    elif file_path.split('.')[-1].lower() not in allowed_extensions:
+        output_error(msg('invalid_file_format', 'csv', split=True), cmd_pointer)
+        return
+    else:
+        return file_path
+
+
+# Ensure a file_path is kosher:
+# - Make sure we won't override an existing file
+# - Create folder structure if it doesn't exist yet
+def ensure_file_path(file_path):
+    if os.path.exists(file_path):
+        # File already exists --> overwrite?
+        if not confirm_prompt('The destination file already exists, overwrite?'):
+            return False
+    elif not os.path.isdir(os.path.dirname(file_path)):
+        # Path doesn't exist --> create?
+        if not confirm_prompt('The destination file path does not exist, create it?'):
+            return False
+        os.makedirs(os.path.dirname(file_path))
+    return True
+
+
+# Check is a port is open.
+# Only used by next_avail_port below.
+def is_port_open(host, port):
+    import socket
+    try:
+        # Create a socket object and attempt to connect
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.settimeout(1)  # Set a timeout for the connection attempt
+            s.connect((host, port))
+        return False  # Port is occupied
+    except (ConnectionRefusedError, socket.timeout):
+        return True  # Port is available
+
+
+# Return the next available port starting with 5000.
+# This is used by the flask app launcher, we want to
+# avoid a situation where multiple apps are trying to
+# run on the same port.
+def next_avail_port(port=5000, host='127.0.0.1'):
+    while not is_port_open(host, port):
+        port += 1
+    return port, host
+
 
 #
 #

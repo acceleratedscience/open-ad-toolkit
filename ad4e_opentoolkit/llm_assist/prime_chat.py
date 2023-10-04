@@ -1,10 +1,12 @@
 #prime_chat
 
-import os,sys
+import os,sys,glob
 
 import langchain 
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.text_splitter import CharacterTextSplitter
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain.document_loaders import NotebookLoader
 from langchain.vectorstores import FAISS
 from langchain.document_loaders import TextLoader,DirectoryLoader
 class my_creds:
@@ -42,11 +44,23 @@ class  chat_object( ):
     chat_history    =   []
     db_dir          =   "~/.vector_embed"
     document_folders=   ["./"]
-    document_types  ="**/*.txt"
+    document_types  =["**/*.txt","**/*.ipynb","**/*.run","**/*.cdoc"]
+    chat_template ="""
+    You are the Tell Me assistant that responds in a Helpful manner with responses like a Technical Documentation Writer.
+    Here is the users current Request.
+    ####
 
+    {Question}
 
+    ####
+
+    Please consider the following Chat History as possible Context, If the same question is repeated see it as a request for more verbosity.
+    ####
+    {chat_history}
+    ####
+    """
     
-    def __init__(self,target='OPENAPI',organisation='org-V3VSRAXasFUnufPII8o1DIIk',API_key=None,vector_db='FAISS',document_folders=["./"],document_types=['**/*.txt'],db_dir_override=None,refresh_vector=False,llm_model='gpt-4',llm_service='OPENAI'):
+    def __init__(self,target='OPENAPI',organisation='org-V3VSRAXasFUnufPII8o1DIIk',API_key=None,vector_db='FAISS',document_folders=["./"],document_types=document_types,db_dir_override=None,refresh_vector=False,llm_model='gpt-4',llm_service='OPENAI'):
         self.organisation       =   organisation
         self.target             =   target
         self.API_key            =   API_key   
@@ -125,11 +139,37 @@ class  chat_object( ):
         try:
             for i in self.document_folders:
                 for j in self.document_types:
-                    loader = DirectoryLoader(i,glob=j,loader_cls=TextLoader)
-                    documents = loader.load()
+                    if j =="**/*.ipynb":
+                        for file in glob.glob(i+'/*.ipynb' ):
+                            
+                            
+                            loader = NotebookLoader(file,include_outputs=False,max_output_length=20,remove_newline=False,)
+                            
+                            try:
+                                documents = loader.load()
+                            
+                                #text_splitter = CharacterTextSplitter(chunk_size=3000, chunk_overlap=300,separators=[ "\n"])
+                                text_splitter = RecursiveCharacterTextSplitter(chunk_size=400, chunk_overlap=0, separators=[","])
+                                docs.extend(text_splitter.split_documents(documents))
+                            except:
+                                pass
+                    elif j=="**/*.cdoc":
+                        loader = DirectoryLoader(i,glob=j,loader_cls=TextLoader)
+                        documents = loader.load()
                     #text_splitter = CharacterTextSplitter(chunk_size=3000, chunk_overlap=0)
-                    text_splitter = CharacterTextSplitter(chunk_size=3000, chunk_overlap=300)
-                    docs.extend(text_splitter.split_documents(documents))
+                        #text_splitter = CharacterTextSplitter(chunk_size=3000, chunk_overlap=300,separators=[ "\n"])
+                        text_splitter = RecursiveCharacterTextSplitter( chunk_size=2000, chunk_overlap=100, separators=["\@"],keep_separator=False)
+                        
+                        docs.extend(text_splitter.split_documents(documents))
+                    
+                    else:
+                        loader = DirectoryLoader(i,glob=j,loader_cls=TextLoader)
+                        documents = loader.load()
+                    #text_splitter = CharacterTextSplitter(chunk_size=3000, chunk_overlap=0)
+                        #text_splitter = CharacterTextSplitter(chunk_size=3000, chunk_overlap=300,separators=[ "\n"])
+                        text_splitter = RecursiveCharacterTextSplitter(chunk_size=700, chunk_overlap=100, separators=["\n"])
+                        docs.extend(text_splitter.split_documents(documents))
+          
            
             main_db = FAISS.from_documents(docs, embeddings)
            
@@ -147,7 +187,7 @@ class  chat_object( ):
     def how_to_search(self,search:str):
         
  
-        from langchain.chains import ConversationalRetrievalChain
+        from langchain.chains import ConversationalRetrievalChain,RetrievalQA
         from langchain import PromptTemplate, LLMChain
         
         retriever=self.db_handle.as_retriever()
@@ -157,7 +197,7 @@ class  chat_object( ):
 
                 from langchain.chat_models import ChatOpenAI
                
-                model = ChatOpenAI(model_name=self.llm_model,openai_api_key=self.API_key)  # Other options 'ada' 'gpt-3.5-turbo' 'gpt-4',
+                model = ChatOpenAI(model_name=self.llm_model,openai_api_key=self.API_key,)  # Other options 'ada' 'gpt-3.5-turbo' 'gpt-4',
                 
             except Exception as e:
                 
@@ -173,7 +213,7 @@ class  chat_object( ):
                 from genai.schemas import  GenerateParams
                 creds = Credentials(api_key=self.API_key, api_endpoint=self.organisation)
                 params = GenerateParams(decoding_method="greedy",max_new_tokens=None)
-                model = LangChainInterface(model=self.llm_model,params=params  ,credentials=creds)
+                model = LangChainInterface(model=self.llm_model,params=params  ,credentials=creds,verbose=True)
                 sys.stdout = sys.__stdout__
                 sys.stderr = sys.__stderr__
             except Exception as e:
@@ -183,6 +223,7 @@ class  chat_object( ):
             
         try:    
             qa = ConversationalRetrievalChain.from_llm(model, retriever=retriever)
+            
             questions=[search]
             answers=None
             
@@ -191,6 +232,7 @@ class  chat_object( ):
                 
                 try:
                     result = qa({"question": question, "chat_history": self.chat_history})
+                    
                 except Exception as e:
                     print(e)
                     return 'Fail'
