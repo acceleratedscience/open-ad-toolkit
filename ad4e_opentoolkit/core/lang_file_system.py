@@ -13,13 +13,16 @@ from ad4e_opentoolkit.app.global_var_lib import _meta_workspaces as _meta_worksp
 from ad4e_opentoolkit.app.global_var_lib import _date_format as _date_format
 from ad4e_opentoolkit.app.global_var_lib import _repo_dir as _repo_dir
 
+# Importing our own plugins.
+# This is temporary until every plugin is available as a public pypi package.
+from ad4e_opentoolkit.plugins.style_parser import style
+
 
 def list_files(cmd_pointer, parser):
     workspace_path = cmd_pointer.workspace_path(cmd_pointer.settings['workspace'])
 
     import pandas as pd
     from datetime import datetime
-    from ad4e_opentoolkit.helpers.style_parser import parse_tags
 
     files = []
     table_headers = ('File Name', 'Size', 'Last Edited')
@@ -57,8 +60,11 @@ def list_files(cmd_pointer, parser):
     # Assemble table data.
     for name, size, timestamp in sorted(files_data, key=lambda x: x[1], reverse=True):
         if name.startswith('.'):
-            continue  # @moenen lets jump over hidden files
-            name = parse_tags(f'<soft>{name}</soft>')
+            # For now we're jumping over hidden files, though
+            # I would like to add an option to display them.
+            # Probably `list all files` - moenen
+            continue
+            name = style(f'<soft>{name}</soft>')
         if size < (1024 * 1024) / 10:
             size = f'{round(size / 1024, 2)} kB'
         else:
@@ -75,7 +81,7 @@ def list_files(cmd_pointer, parser):
 # External path to workspace path
 def import_file(cmd_pointer, parser):
     # Reset working directory as it can have changed.
-    #os.chdir(_repo_dir)
+    # os.chdir(_repo_dir)
 
     workspace = cmd_pointer.workspace_path(cmd_pointer.settings['workspace'])
     source_file = parser['source']
@@ -108,7 +114,7 @@ def import_file(cmd_pointer, parser):
 # Workspace path to external path
 def export_file(cmd_pointer, parser):
     # Reset working directory as it can have changed.
-    #os.chdir(_repo_dir)
+    # os.chdir(_repo_dir)
 
     workspace = cmd_pointer.workspace_path(cmd_pointer.settings['workspace'])
     source_file = parser['source']
@@ -139,7 +145,7 @@ def export_file(cmd_pointer, parser):
 # Workspace path to workspace name
 def copy_file(cmd_pointer, parser):
     # Reset working directory as it can have changed.
-    #os.chdir(_repo_dir)
+    # os.chdir(_repo_dir)
 
     source_file = parser['source']
     source_file_path = cmd_pointer.workspace_path(cmd_pointer.settings['workspace']) + '/' + source_file

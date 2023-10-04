@@ -193,7 +193,7 @@ messages = {
     # region - LOGIN
 
     # Success
-    'success_login': lambda toolkit_name, expiry_datetime: (f'You successfully logged in to <yellow>{toolkit_name}</yellow>.', f'Your access token expires on {expiry_datetime}'),
+    'success_login': lambda toolkit_name, expiry_datetime: (f'You successfully logged in to <yellow>{toolkit_name}</yellow>.', f'Your access token does not have an expiration date' if expiry_datetime == 'No Expiry' else f'Your access token expires on {expiry_datetime}'),
 
     # Error
     'err_login': lambda toolkit_name, err='': (f'Something went wrong logging you in to {toolkit_name}.\n<reset>Please check your credentials in your config file:</reset>\n<yellow>' + os.path.expanduser("~/.openad") + '/ds-auth.ext-v2.json</yellow>', err),
