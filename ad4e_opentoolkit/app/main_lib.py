@@ -14,7 +14,7 @@ from ad4e_opentoolkit.core.lang_file_system import import_file, export_file, cop
 from ad4e_opentoolkit.core.lang_sessions_and_registry import clear_other_sessions, write_registry, registry_add_toolkit, registry_deregister_toolkit, initialise_registry, update_main_registry_env_var
 from ad4e_opentoolkit.core.lang_workspaces import create_workspace, remove_workspace, list_workspaces, set_workspace, get_workspace
 from ad4e_opentoolkit.core.lang_mols import display_mols
-from ad4e_opentoolkit.core.lang_runs import display_run, execute_run, save_run, list_runs
+from ad4e_opentoolkit.core.lang_runs import display_run, exec_run, save_run, list_runs
 from ad4e_opentoolkit.core.lang_dev import flask_example
 from ad4e_opentoolkit.core.grammar import create_statements
 
@@ -118,7 +118,7 @@ def lang_parse(cmd_pointer, parser):
     elif parser.getName() == 'display_run':
         return display_run(cmd_pointer, parser)
     elif parser.getName() == 'exec_run':
-        execute_run(cmd_pointer, parser)
+        exec_run(cmd_pointer, parser)
 
     # File system commands
     elif parser.getName() == 'list_files':

@@ -10,6 +10,7 @@ from ad4e_opentoolkit.plugins.style_parser import style, wrap_text, strip_tags
 
 def splash(toolkit_name=None, cmd_pointer=None, startup=False, raw=False):
     """ Display the splash page for OpenAD or any of the toolkits."""
+
     toolkit_name = toolkit_name.upper() if toolkit_name else None
 
     # If no toolkit name is given, display the OpenAD welcome splash.
@@ -91,7 +92,7 @@ def splash(toolkit_name=None, cmd_pointer=None, startup=False, raw=False):
                 cmd_pointer, return_val=True, jup_return_format='markdown_data', nowrap=True, pad=0
             )
 
-    if raw:
+    if raw or cmd_pointer.notebook_mode:
         return output
     else:
         return style(output, pad=3, edge=True, nowrap=True)

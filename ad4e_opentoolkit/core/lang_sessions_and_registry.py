@@ -2,7 +2,7 @@ import pickle
 import os
 
 # Core
-from  ad4e_opentoolkit.core.grammar import create_statements
+from ad4e_opentoolkit.core.grammar import create_statements
 
 # Global variables
 from ad4e_opentoolkit.app.global_var_lib import _meta_dir as _meta_dir
@@ -26,12 +26,15 @@ def initialise_registry():
     except BaseException:
         return False
 
-def update_main_registry_env_var(cmd_pointer,var_name,value):
+
+def update_main_registry_env_var(cmd_pointer, var_name, value):
     registry = load_registry(cmd_pointer, orig_reg=True)
-    registry['env_vars'][var_name]=value
+    registry['env_vars'][var_name] = value
     write_registry(registry, cmd_pointer, orig_reg=True)
 
 # Load the user's registry data.
+
+
 def load_registry(cmd_pointer, orig_reg=False):
     if orig_reg == True:
         registry_file = _meta_registry
@@ -42,15 +45,13 @@ def load_registry(cmd_pointer, orig_reg=False):
             registry = pickle.loads(handle.read())
     except BaseException:
         registry = _meta_registry_settings
-    ### New Section to test for updated Registry elements and add them
+    # New Section to test for updated Registry elements and add them
     try:
         dummy = registry['env_vars']
-    except:
-        registry['env_vars']={}
-        
-    
-    return registry
+    except BaseException:
+        registry['env_vars'] = {}
 
+    return registry
 
 
 # Write the user's registry data.
@@ -70,7 +71,7 @@ def write_registry(registry: dict, cmd_pointer, orig_reg=False):
 # Delete a individual session registry when the session ends.
 def delete_session_registry(session_id: str):
     os.remove(_meta_registry_session + session_id)
-    #os.remove('*' + session_id)
+    # os.remove('*' + session_id)
     return
 # Determine when Other Sessions Exist
 
@@ -93,11 +94,11 @@ def clear_other_sessions(cmd_pointer, parser):
 
 
 def registry_add_toolkit(cmd_pointer, parser):
-   
-    cmd_pointer.refresh_vector=True
-    cmd_pointer.refresh_train=True
-    cmd_pointer.settings['env_vars']['refresh_help_ai']=True
-    update_main_registry_env_var(cmd_pointer,'refresh_help_ai',True)
+
+    cmd_pointer.refresh_vector = True
+    cmd_pointer.refresh_train = True
+    cmd_pointer.settings['env_vars']['refresh_help_ai'] = True
+    update_main_registry_env_var(cmd_pointer, 'refresh_help_ai', True)
     other, error_msg = other_sessions_exist(cmd_pointer)
     if other == True:
         return error_msg
@@ -106,7 +107,7 @@ def registry_add_toolkit(cmd_pointer, parser):
     import datetime
     import tarfile
     import shutil
-    
+
     toolkit_name = parser['toolkit_name']
     try:
         with open(_meta_registry, 'rb') as handle:
@@ -116,13 +117,13 @@ def registry_add_toolkit(cmd_pointer, parser):
             # full_original_directory_name = os.path.dirname(os.path.realpath(sys.argv[0])) + '/user_toolkits/' + toolkit_name.upper() + '/' # Trash
             target_directory = _meta_dir_toolkits + '/' + toolkit_name.upper()
             try:
-                
-                shutil.rmtree(target_directory+"/",ignore_errors=True)
-                
+
+                shutil.rmtree(target_directory + "/", ignore_errors=True)
+
             except Exception as e:
                 print(e)
                 pass
-            
+
             shutil.copytree(full_original_directory_name, target_directory, dirs_exist_ok=True)
             settings['toolkits'].append(toolkit_name.upper())
             cmd_pointer.settings['toolkits'].append(toolkit_name.upper())
@@ -138,7 +139,7 @@ def registry_add_toolkit(cmd_pointer, parser):
                     archive.close
 
             # raise Exception('This is a test exception')
-            return output_success(msg('success_toolkit_install', toolkit_name.upper(), split=True), cmd_pointer)
+            return output_success(msg('success_toolkit_install', toolkit_name.upper()), cmd_pointer)
         else:
             return output_text(msg('toolkit_already_installed', toolkit_name.upper()), cmd_pointer, pad=1)
 
@@ -151,10 +152,10 @@ def registry_add_toolkit(cmd_pointer, parser):
 
 def registry_deregister_toolkit(cmd_pointer, parser):
     other, error_msg = other_sessions_exist(cmd_pointer)
-    cmd_pointer.refresh_vector=True
-    cmd_pointer.refresh_train=True
-    cmd_pointer.settings['env_vars']['refresh_help_ai']=True
-    update_main_registry_env_var(cmd_pointer,'refresh_help_ai',True)
+    cmd_pointer.refresh_vector = True
+    cmd_pointer.refresh_train = True
+    cmd_pointer.settings['env_vars']['refresh_help_ai'] = True
+    update_main_registry_env_var(cmd_pointer, 'refresh_help_ai', True)
     if other == True:
         return error_msg
 

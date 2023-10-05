@@ -1,5 +1,5 @@
 from ad4e_opentoolkit.flask_apps import launcher
-from ad4e_opentoolkit.flask_apps.example.routes import fetchRoutes
+from ad4e_opentoolkit.flask_apps.example.routes import fetchRoutesExample
 
 
 def flask_example(cmd_pointer, parser):
@@ -11,7 +11,7 @@ def flask_example(cmd_pointer, parser):
     }
 
     # Load routes and launch browser UI.
-    routes, return_data = fetchRoutes(data)
+    routes, return_data = fetchRoutesExample(data)
 
     if routes and not cmd_pointer.notebook_mode:
         # CLI

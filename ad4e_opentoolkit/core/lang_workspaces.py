@@ -77,7 +77,12 @@ def list_workspaces(cmd_pointer, parser):
 # get the details of a workspace
 # needs to be fixed up as workspace metadata plan is built out
 def get_workspace(cmd_pointer, parser):
-    workspace_name = parser.as_dict()['Workspace_Name'].upper()
+    if 'Workspace_Name' in parser.as_dict():
+        workspace_name = parser.as_dict()['Workspace_Name'].upper()
+        active = False
+    else:
+        workspace_name = cmd_pointer.settings['workspace'].upper()
+        active = True
     if workspace_name in cmd_pointer.settings['descriptions']:
         description = cmd_pointer.settings['descriptions'][workspace_name]
     else:
@@ -87,7 +92,7 @@ def get_workspace(cmd_pointer, parser):
     if workspace_name not in cmd_pointer.settings['workspaces']:
         return output_error(msg('invalid_workpace', workspace_name), cmd_pointer)
     else:
-        return output_text(msg('workspace_description', workspace_name, description), cmd_pointer, pad=1, edge=True)
+        return output_text(msg('workspace_description', workspace_name, description, active), cmd_pointer, pad=1, edge=True)
 
 
 # Remove workspace and all its metadata files.
