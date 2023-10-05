@@ -19,14 +19,12 @@ Clauses:
 <cmd>return as data</cmd> - For Notebook or API mode. Removes all styling from the Pandas DataFrame, ready for further processing.
 
 Examples:
-- Look for documents that contain discussions on power conversion efficiency:
 
+    <soft># Look for documents that contain discussions on power conversion efficiency:</soft>
     <cmd>search for 'ide(\"power conversion efficiency\" OR PCE) AND organ*' using (index_key='arxiv' elastic_id=default) show (docs)</cmd>
 
-- Search the pubchem archive for 'Ibuprofen' and display related molecules' data:
-
+    <soft># Search the pubchem archive for 'Ibuprofen' and display related molecules' data:</soft>
     <cmd>search for 'Ibuprofen' USING (index_key='pubchem') show (data)</cmd>
 
-- Search for patents which mention a specific smiles molecule:
-
+    <soft>Search for patents which mention a specific smiles molecule:</soft>
     <cmd>search for 'identifiers._name:\"smiles#ccc(coc(=o)cs)(c(=o)c(=o)cs)c(=o)c(=o)cs\"' using (index_key='patent-uspto-smiles') show (data)</cmd>

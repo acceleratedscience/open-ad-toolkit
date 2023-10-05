@@ -1,6 +1,7 @@
 # python 3.8
 from ad4e_opentoolkit.app.global_var_lib import _meta_login_registry as _meta_login_registry
 from ad4e_opentoolkit.app.global_var_lib import _meta_login_registry_settings as _meta_login_registry_settings
+from ad4e_opentoolkit.helpers.output import msg, output_success, output_error
 
 # Initialise  Login Pickle
 import pickle
@@ -19,9 +20,10 @@ def initialise_toolkit_login():
         with open(_meta_login_registry, 'wb') as handle:
             settings = pickle.dump(_meta_login_registry_settings, handle)
             handle.close()
-        print("Login registry initialized.")
+        output_success(msg('success_login_init'), return_val=False)
         return True
-    except BaseException:
+    except BaseException as err:
+        output_error(msg('error_login_init', err, split=True), return_val=False)
         return False
 
 

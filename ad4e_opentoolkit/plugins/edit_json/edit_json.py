@@ -28,12 +28,12 @@ from blessed import Terminal
 # they can import one another using sys.path.append('../')
 try:
     # Used in production setup.
-    from ..style_parser import print_s, style, strip_tags
+    from ..style_parser import print_s, style, strip_tags, a_len, a_textwrap
 except BaseException:
     # Used in isolated plugin development setup.
     import sys
     sys.path.append('../')
-    from style_parser import print_s, style, strip_tags
+    from style_parser import print_s, style, strip_tags, a_len, a_textwrap
 
 # Debug modes:
 # 1: Display logger
@@ -51,7 +51,7 @@ class EditJson:
     Edit a JSON file within the CLI.
     --------------------------------
     Author: Moenen Erbuer - moenen.erbuer@ibm.com
-    v0.0.0-beta4 / Last update: Sep 13, 2023
+    v0.0.0-beta5 / Last update: Sep 29, 2023
 
     Description:
         This module lets you edit JSON from within the CLI with an
@@ -659,7 +659,7 @@ class EditJson:
                 return
 
             width = self.width if full_width else self.ui_width
-            lines = self.textwrap(output, width=width, drop_whitespace=False).splitlines()
+            lines = a_textwrap(output, width=width, drop_whitespace=False).splitlines()
             for line in lines:
                 display.append(line)
                 self.first_line += 1
@@ -831,7 +831,7 @@ class EditJson:
         if (10 in DEBUG):
             for i, val in enumerate(self.log_values):
                 val = style(f'<reverse> {val} </reverse>', nowrap=True)
-                # val = style(f'{"":>{self.width - self.len(val) - 2}}<reverse> {val} </reverse>', nowrap=True) ???
+                # val = style(f'{"":>{self.width - a_len(val) - 2}}<reverse> {val} </reverse>', nowrap=True) ???
                 if (len(display) > i):
                     display[i] = val
 
@@ -925,7 +925,7 @@ class EditJson:
                         line_output = style(key_str + value_str, nowrap=True)
 
                         # In case the key is wider than the left column, we trim it to fit in edit mode.
-                        key_str_len = self.len(style(key_str))
+                        key_str_len = a_len(style(key_str))
                         if key_str_len > self.left_col_width:
                             trimmed_key = key[:self.left_col_width - indent_len - 3] + '…'
                             key_str = line_nr_debug + indent + f"{(trimmed_key + ':'):<{line_gap}}"
@@ -957,7 +957,7 @@ class EditJson:
                         line_output = style(key_str + value_str, nowrap=True)
 
                         # In case the key + value don't fit on one line, we trim the key.
-                        line_output_len = self.len(line_output.splitlines()[0])
+                        line_output_len = a_len(line_output.splitlines()[0])
                         if line_output_len > self.width:
                             trim = self.width - line_output_len - 2
                             trimmed_key = key[:trim] + '…'
@@ -978,7 +978,7 @@ class EditJson:
         #
 
         def __render_edit_mode(left_col_filler, right_col_width):
-            value_str = self.textwrap(self.text_input, width=right_col_width, drop_whitespace=False)  # noqa
+            value_str = a_textwrap(self.text_input, width=right_col_width, drop_whitespace=False)  # noqa
             lines = value_str.splitlines()
             chars_before_cursor = 0
 
@@ -1045,7 +1045,7 @@ class EditJson:
         def __render_editable(value, left_col_filler, right_col_width):
             nonlocal help_str_new_line
             show_help_str = '' if not self.selected_help else style(' <yellow>▼</yellow>') if self.show_help else style(' <yellow>▶</yellow>')
-            value_str = self.textwrap(str(value), width=right_col_width)
+            value_str = a_textwrap(str(value), width=right_col_width)
             lines = value_str.splitlines()
             last_line = lines[len(lines) - 1] if len(lines) else None
             if last_line and len(last_line) + 2 > right_col_width:
@@ -1059,7 +1059,7 @@ class EditJson:
             help_str_lines = style(self.selected_help, nowrap=True).splitlines()
             # When there's line breaks in the help string,
             # we need to apply wrapping per individual line.
-            help_str = [self.textwrap(line, width=right_col_width) for line in help_str_lines]
+            help_str = [a_textwrap(line, width=right_col_width) for line in help_str_lines]
             help_str = '\n'.join(help_str)
             first_line_filler = f'\n{left_col_filler} <yellow>' if help_str_new_line else ' <yellow>'
             help_str = first_line_filler + f'</yellow>\n{left_col_filler} <yellow>'.join(help_str.splitlines()) + '</yellow>'
@@ -1068,24 +1068,24 @@ class EditJson:
 
         def __render_illegal(illegal_flag, value, left_col_filler, right_col_width):
             illegal_flag_placeholder = '~' * 7  # Just a random character that is unlikely to be repreated in the value.
-            value_str = self.textwrap(f'{illegal_flag_placeholder} {value}', width=right_col_width)
+            value_str = a_textwrap(f'{illegal_flag_placeholder} {value}', width=right_col_width)
             value_str = style('<soft><strikethrough>' + f'</strikethrough></soft>\n{left_col_filler} <soft><strikethrough>'.join(value_str.splitlines()) + '</strikethrough></soft>', nowrap=True)  # noqa
             value_str = illegal_flag + value_str.replace(illegal_flag_placeholder, '')
             return value_str
 
         def __render_invalid(value, left_col_filler, right_col_width):
-            value_str = self.textwrap(str(value), width=right_col_width)
+            value_str = a_textwrap(str(value), width=right_col_width)
             value_str = style('<error>' + f'</error>\n{left_col_filler} <error>'.join(value_str.splitlines()) + '</error>', nowrap=True)  # noqa
             return value_str
 
         def __render_regular(value, left_col_filler, right_col_width):
-            value_str = self.textwrap(str(value), width=right_col_width)
+            value_str = a_textwrap(str(value), width=right_col_width)
             value_str = f"\n{left_col_filler} ".join(value_str.splitlines())
             return value_str
 
         def __render_error_msg(left_col_filler, right_col_width):
             error_msg = f'^ {self.inline_errors[self.addresses[index]]}'  # noqa
-            error_msg = self.textwrap(error_msg, width=right_col_width)
+            error_msg = a_textwrap(error_msg, width=right_col_width)
             error_msg = style(left_col_filler + '<error_reverse> ' + f' </error_reverse>\n{left_col_filler}<error_reverse> '.join(error_msg.splitlines()) + ' </error_reverse>', nowrap=True)  # noqa
             return error_msg
 
@@ -1190,7 +1190,7 @@ class EditJson:
             if ks.name == 'KEY_UP':
                 # Edit mode: move cursor one line up.
                 if self.edit_mode:
-                    lines = self.textwrap(self.text_input, width=self.right_col_width, drop_whitespace=False).splitlines()
+                    lines = a_textwrap(self.text_input, width=self.right_col_width, drop_whitespace=False).splitlines()
                     lines_len = 0
                     jump_to = 0
                     for i, line in enumerate(lines):
@@ -1212,7 +1212,7 @@ class EditJson:
                     self.go_to_prev_field()
             elif ks.name == 'KEY_DOWN':
                 # Move cursor one line down.
-                lines = self.textwrap(self.text_input, width=self.right_col_width, drop_whitespace=False).splitlines()
+                lines = a_textwrap(self.text_input, width=self.right_col_width, drop_whitespace=False).splitlines()
                 lines_len = 0
                 jump_to = 0
                 for i, line in enumerate(lines):
@@ -1243,7 +1243,7 @@ class EditJson:
                 self.cursor_pos = len(self.text_input) - 1
             elif ks.name == 'KEY_HOME':
                 # Jump to beginning of line.
-                lines = self.textwrap(self.text_input, width=self.right_col_width, drop_whitespace=False).splitlines()
+                lines = a_textwrap(self.text_input, width=self.right_col_width, drop_whitespace=False).splitlines()
                 jump_to = 0
                 for line in lines:
                     if jump_to + len(line) < self.cursor_pos:
@@ -1253,7 +1253,7 @@ class EditJson:
                 self.cursor_pos = jump_to
             elif ks.name == 'KEY_END':
                 # Jump to end of line.
-                lines = self.textwrap(self.text_input, width=self.right_col_width, drop_whitespace=False).splitlines()
+                lines = a_textwrap(self.text_input, width=self.right_col_width, drop_whitespace=False).splitlines()
                 jump_to = 0
                 for line in lines:
                     # xx += '--' + line
@@ -1699,77 +1699,16 @@ class EditJson:
             schema_address.extend(('properties', item))
         return tuple(schema_address)
 
-    # An alternative to len() which measures a string's length without ANSI codes.
-    def len(self, text):
-        pattern_ansi = r'\x1b\[[0-9;]*[m]'
-        return len(re.sub(pattern_ansi, '', text))
-
     # Returns the total length of the ANSI escape codes.
     # Useful when we want to stuff an ANSI code containing
     # string with filler characters (:<) and we need to know
     # by how much we need to extend the filler length.
+
     def len_ansi(self, text):
         pattern_ansi = r'\x1b\[[0-9;]*[m]'
         ansi_codes = re.findall(pattern_ansi, text)
         total_length = sum(len(code) for code in ansi_codes)
         return total_length
-
-    # An alternative to textwrap.fill() that accounts for ANSI codes.
-    def textwrap(self, text, width=100, drop_whitespace=True):
-        # Split by ANSI characters and spaces.
-        # By using capturing groups, the separators are included in the list.
-        pattern_ansi_or_space_captured = r'(\x1b\[[0-9;]*[m])|([\s]+)'
-        split_text = re.split(pattern_ansi_or_space_captured, text)
-        split_text = list(filter(None, split_text))  # Remove the empty strings.
-
-        output = []
-        output_clean = []  # For testing
-        line = ''  # With ansi codes, used for output.
-        line_clean = ''  # Without ansi codes, used to measure line width.
-        open_ansi = None  # Lets us check if we're between eg. <red> and </red>.
-
-        def _linebreak():
-            nonlocal output, output_clean, line, line_clean
-            output.append(line)
-            output_clean.append(line_clean)
-            line = ''
-            line_clean = ''
-
-        for i, string in enumerate(split_text):
-            pattern_ansi = r'\x1b\[[0-9;]*[m]'
-            is_ansi = re.match(pattern_ansi, string)
-            str_len_clean = len(re.sub(pattern_ansi, '', string))
-            reset_ansi_code = '\x1b[0m'
-
-            if string == '\n':
-                # Add linebreak.
-                _linebreak()
-            elif is_ansi:
-                # Add ANSI code to line, add linebreak before if the line is full.
-                if len(line_clean) == width and string != reset_ansi_code:
-                    _linebreak()
-                line += string
-                open_ansi = None if string == reset_ansi_code else string
-            elif len(line_clean) + str_len_clean <= width:
-                # Add string to line when there's room,
-                # but only if the string is not a space,
-                # or a space under certain circumstances.
-                # if not string.isspace() or len(line_clean) > 0 or not drop_whitespace or len(output) == 0 or open_ansi: # %%% don't need?!
-                line += string
-                line_clean += string
-            else:
-                # Start new line.
-                _linebreak()
-                if string and (not string.isspace() or not drop_whitespace):
-                    line += string
-                    line_clean += string
-
-            # Wrap up last line.
-            if i == len(split_text) - 1:
-                output.append(line)
-                output_clean.append(line_clean)
-
-        return '\n'.join(output)
 
     ##
     # Development
@@ -1852,11 +1791,13 @@ class ConfirmExitScreen():
             try:
                 # raise ValueError("Fake error for debugging")
                 if self.ej.demo:
-                    return self.ej.term.green('Changes saved to JSON file.') + self.ej.term.yellow('\nNote: you were in demo mode so your changes have not really been saved.')  # noqa
+                    return style('<green>Changes saved to JSON file.</green>\n<soft>Note: you were in demo mode so your changes have not really been saved.</soft>', pad=1)
+                    # return self.ej.term.green('Changes saved to JSON file.') + self.ej.term.yellow('\nNote: you were in demo mode so your changes have not really been saved.')  # noqa
                 else:
                     with open(self.ej.json_path, 'w', encoding='UTF-8') as f:
                         json.dump(self.ej.data, f, indent=4)
-                    return self.ej.term.green('Changes saved to JSON file.')
+                    # return self.ej.term.green('Changes saved to JSON file.')
+                    return style('<green>Changes saved to JSON file.</green>', pad=1)
             except ValueError as err:
                 self.ej.error = 'There was an error saving your changes.'
 

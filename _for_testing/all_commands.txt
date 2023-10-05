@@ -1,55 +1,108 @@
 # This is a list of commands you can run successively to quickly test all functionality at once.
-# Delete .openad directory for optimal results
-# Re-initiate it by executing first cell in all_command.ipynb
+# Delete .openad directory for optimal results.
+# Then run `openad` to recreate it, and drop your auth files in there before continuing.
 
 
-
-# Toolkits
-list toolkits
-list all toolkits
-add toolkit DS4SD
-list all toolkits
-set context DS4SD
+# Prep
+remove workspace jupytest
+remove workspace jupytest1
+remove workspace keeper
 remove toolkit DS4SD
+remove toolkit GT4SD
+remove toolkit ST4SD
+remove toolkit RXN
+import from '_for_testing/sample_data.csv' to 'sample_data.csv'
+import from '_for_testing/sample_config.json' to 'sample_config.json'
+import from '_for_testing/sample_config-schema.json' to 'sample_config-schema.json'
+import from '_for_testing/base_molecules.sdf' to 'base_molecules.sdf'
+
+
+# General
+openad
+get status
+display history
+clear sessions
+
 
 # Workspaces
 create workspace cli_test1
 create workspace cli_test2 description('We keep this one') on path '~/Desktop'
 create workspace keeper description('We keep this one')
-list workspaces
-get workspace keeper
-set workspace default
+set workspace cli_test1
+get workspace
+get workspace cli_test1
 remove workspace cli_test1
 remove workspace cli_test2
+list workspaces
+
+
+# Toolkits
+gt4sd
+st4sd
+ds4sd
+rxn
+list toolkits
+list all toolkits
+add toolkit DS4SD
+list all toolkits
+set context DS4SD
+get context
+unset context
+remove toolkit DS4SD
+
+
+# Runs
+create run
+    get status
+save run as testrun
+run testrun
+list runs
+display run testrun
+
+
+# Utility
+display data 'sample_data.csv'
+result save
+result save as 'test'
+result open
+result edit
+edit config 'sample_config.json'
+show molecules using file 'base_molecules.sdf'
+show molecules using file 'base_molecules.csv' save as 'test.sdf'
+
+
+# LLM
+tell me how to use this software
+# set llm <model_name>
+clear llm auth
+
 
 # File system
 list files
 import from '_for_testing/base_molecules.sdf' to 'base_molecules.sdf'
-import from '_for_testing/base_molecules.csv' to 'base_molecules.csv'
 export from 'base_molecules.sdf' to '~/Desktop/exported_molecules.sdf'
 import from '~/Desktop/exported_molecules.sdf' to 'imported_molecules.sdf'
 copy file 'imported_molecules.sdf' to 'keeper'
 remove 'imported_molecules.sdf'
 
-# General
-get status
-display history
-clear sessions
-import from '_for_testing/func_display_collection.json' to 'func_display_collection.json'
-edit config 'func_display_collection.json'
 
 # Help
-
 intro
+docs
+?
+list ?
+? lis
+? list
+? list f
 
-#DeepSearch
+
+# DeepSearch
 remove toolkit DS4SD
 add toolkit DS4SD
 set context DS4SD
 search for 'identifiers._name:"smiles#ccc(coc(=o)cs)(c(=o)c(=o)cs)c(=o)c(=o)cs" ' using (index_key='patent-uspto-smiles') show (data) return as data save as 'test'
-show molecules using file 'test.csv' 
+show molecules using file 'test.csv'
 exec display_collection(domain='Materials Science')
-
 
 
 #RXN
@@ -63,10 +116,3 @@ import  from '~/openad_notebooks/examples/reactions.csv' to 'reactions.csv'
 predict reaction in batch from file 'reactions.csv'
 predict reaction in batch from list ['BrBr.c1ccc2cc3ccccc3cc2c1CCO' ,'Cl.CCC(=O)NCCC.O'] 
 predict reaction in batch  from list ['BrBr.c1ccc2cc3ccccc3cc2c1CCO' ,'BrBr.c1ccc2cc3ccccc3cc2c1','Cl.CCC(=O)NCCC.O'] use_saved
-
-
-#help
-?
-? pred
-? predict re
-? predict ret

@@ -8,13 +8,13 @@ CLI      --> all_commands.txt
 To Test:
 Step 0: Remove ~/.openad and ~/openad_notebooks
 
-Step 1: Follow installation steps in ../Readme.md Including installing All Notebooks and examples
+Step 1: Follow installation steps in ../README.md Including installing All Notebooks and examples
 
 Step 2: Gather your Host Logins/API keys
 
 Step 3: Add the Toolkits and check logins work
 
-step 4: Run through Command Line Commnds in All_commands.txt
+step 4: Run through all commands by copy-pasting from all_commands.txt
 
 step 5: Run through all_commands.ipynb
 
