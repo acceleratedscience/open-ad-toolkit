@@ -7,7 +7,7 @@ import json
 # Flask
 from flask import render_template
 from ad4e_opentoolkit.flask_apps import launcher
-from ad4e_opentoolkit.flask_apps.dataviewer.routes import fetchRoutes
+from ad4e_opentoolkit.flask_apps.dataviewer.routes import fetchRoutesDataViewer
 
 # Core
 from ad4e_opentoolkit.core.lang_file_system import import_file, export_file, copy_file, remove_file, list_files
@@ -60,10 +60,6 @@ def lang_parse(cmd_pointer, parser):
     elif parser.getName() == 'get_workspace':
         return get_workspace(cmd_pointer, parser)
 
-    # Toolkit welcome screens
-    elif parser.getName() in _all_toolkits:
-        return output_text(splash(parser.getName(), cmd_pointer), nowrap=True)
-
     # Toolkit commands
     elif parser.getName() == 'add_toolkit':
         return registry_add_toolkit(cmd_pointer, parser)
@@ -75,11 +71,16 @@ def lang_parse(cmd_pointer, parser):
         return list_all_toolkits(cmd_pointer, parser)
     elif parser.getName() == 'set_context':
         return set_context(cmd_pointer, parser)
+    elif parser.getName() == 'get_context':
+        return get_context(cmd_pointer, parser)
     elif parser.getName() == 'unset_context':
         return unset_context(cmd_pointer, parser)
+    elif parser.getName() in _all_toolkits:
+        # Toolkit welcome screens
+        return output_text(splash(parser.getName(), cmd_pointer), nowrap=True)
 
     # Language Model How To
-    elif parser.getName() == 'HOW_DO_I':
+    elif parser.getName() == 'how_do_i':
         result = how_do_i(cmd_pointer, parser)
         if result == False:
             return False
@@ -109,10 +110,9 @@ def lang_parse(cmd_pointer, parser):
         return output_text(msg('create_run_started'), cmd_pointer, pad=1, nowrap=True)
     elif parser.getName() == 'save_run':
         try:
-            save_run(cmd_pointer, parser)
+            return save_run(cmd_pointer, parser)
         except BaseException:
             return False
-        return True
     elif parser.getName() == 'list_runs':
         return list_runs(cmd_pointer, parser)
     elif parser.getName() == 'display_run':
@@ -141,9 +141,9 @@ def lang_parse(cmd_pointer, parser):
         # print(tags_to_markdown(splash(raw=True)))
         # print('- - - - - - - - - - - - - -')
         # print(splash())
-        return output_text(splash(), nowrap=True)
+        return output_text(splash(cmd_pointer=cmd_pointer), nowrap=True)
     elif parser.getName() == 'get_status':
-        return return_context(cmd_pointer, parser)
+        return get_status(cmd_pointer, parser)
     elif parser.getName() == 'display_history':  # Addressed
         return display_history(cmd_pointer, parser)
     elif parser.getName() == 'display_data':
@@ -152,6 +152,8 @@ def lang_parse(cmd_pointer, parser):
         return display_data__save(cmd_pointer, parser)
     elif parser.getName() == 'display_data__open':
         return display_data__open(cmd_pointer, parser)
+    elif parser.getName() == 'display_data__edit':
+        return display_data__open(cmd_pointer, parser, True)
     elif parser.getName() == 'clear_sessions':
         return clear_other_sessions(cmd_pointer, parser)
     elif parser.getName() == 'edit_config':
@@ -164,15 +166,14 @@ def lang_parse(cmd_pointer, parser):
         # print('- - - - - - - - - - - - - -')
         # print(tags_to_markdown(openad_intro))
         # print('- - - - - - - - - - - - - -')
-        return output_text(openad_intro)
+        return output_text(openad_intro, edge=True, pad=3)
     elif parser.getName() == 'docs':
         return docs(cmd_pointer, parser)
 
     # Show molecules commands
     elif parser.getName() == 'show_molecules':
-
         return display_mols(cmd_pointer, parser)
-    elif parser.getName() == 'show_api_molecules':
+    elif parser.getName() == 'show_molecules_df':
         return display_mols(cmd_pointer, parser)
 
     # Toolkit execution
@@ -231,9 +232,13 @@ def welcome(cmd_pointer, parser):
     return output_text(splash(), nowrap=True)
 
 
-def return_context(cmd_pointer, parser):
-    status = msg('status', cmd_pointer.settings['workspace'], str(
-        cmd_pointer.settings['context']))
+# Display the current context and workspace.
+def get_status(cmd_pointer, parser):
+    status = '\n'.join((
+        f'<yellow>Current workspace</yellow>: {cmd_pointer.settings["workspace"]}',
+        f'<yellow>Current context</yellow>: {str(cmd_pointer.settings["context"])}',
+        '<soft>To see more details, run <cmd>get workspace</cmd> or <cmd>get context</cmd>.</soft>'
+    ))
     return output_text(status, cmd_pointer, nowrap=True, pad=1)
 
 
@@ -282,8 +287,8 @@ def list_all_toolkits(cmd_pointer, parser):
 # This means the user will only receive access to base commands
 # and the toolkit commands of the toolkit currently in context.
 def set_context(cmd_pointer, parser):
-    if parser['toolkit_name'] is None:
-        return return_context(cmd_pointer, parser)
+    # if parser['toolkit_name'] is None: # Trash, without toolkit_name the command is invalidated
+    #     return get_context(cmd_pointer, parser)
 
     reset = False
     if 'reset' in parser:
@@ -293,9 +298,8 @@ def set_context(cmd_pointer, parser):
     toolkit_current = None
 
     if toolkit_name.upper() not in cmd_pointer.settings['toolkits']:
-
-        if toolkit_name is None:
-            return return_context(cmd_pointer, parser)
+        # if toolkit_name is None: # Trash, without toolkit_name the command is invalidated
+        #     return get_context(cmd_pointer, parser)
 
         # Toolkit doesn't exist.
         return output_error(
@@ -322,8 +326,7 @@ def set_context(cmd_pointer, parser):
             expiry_datetime = None
             try:
                 # raise BaseException('Error message') # For testing
-                login_success, expiry_datetime = login_manager.load_login_api(
-                    cmd_pointer, toolkit_name, reset=reset)
+                login_success, expiry_datetime = login_manager.load_login_api(cmd_pointer, toolkit_name, reset=reset)
 
             except BaseException as err:
                 # Error logging in.
@@ -354,17 +357,22 @@ def set_context(cmd_pointer, parser):
             return output_error(msg('fail_toolkit_loading', toolkit_name), cmd_pointer)
 
 
+# Display your current context.
+def get_context(cmd_pointer, parser):
+    current_toolkit = cmd_pointer.settings['context']
+    return output_text(splash(current_toolkit, cmd_pointer), nowrap=True)
+
+
 # Unset the context of the application.
 def unset_context(cmd_pointer, parser):
     if cmd_pointer.settings['context'] is None:
-        return output_text(msg('no_context_set'), cmd_pointer, pad_btm=1)
+        return output_text(msg('no_context_set'), cmd_pointer, pad=1)
     cmd_pointer.settings['context'] = None
     cmd_pointer.toolkit_current = None
     cmd_pointer.current_help.reset_help()
     write_registry(cmd_pointer.settings, cmd_pointer)
     refresh_prompt(cmd_pointer.settings)
     create_statements(cmd_pointer)
-   
 
 
 # Display history of commands.
@@ -471,23 +479,26 @@ def display_data__save(cmd_pointer, parser):
     # Save data to file.
     if file_path_ok:
         cmd_pointer.memory['data'].to_csv(workspace_path + file_path, index=False)
-        output_success(msg('success_save_data', file_path), cmd_pointer)
+        return output_success(msg('success_save_data', file_path), cmd_pointer)
     else:
-        output_error(msg('fail_save_data'), cmd_pointer)
+        return output_error(msg('fail_save_data'), cmd_pointer)
 
 
 # --> Open data in browser UI.
-def display_data__open(cmd_pointer, parser):
+def display_data__open(cmd_pointer, parser, edit_mode=False):
     # Initialize memory.
     cmd_pointer.init_followup('data')
 
     # Parse dataframe.
-    data_str = cmd_pointer.memory['data'].values.tolist()
-    data_str = json.dumps(data_str)
+    data = cmd_pointer.memory['data'].values.tolist()
+    data = json.dumps(data)
+    headers = cmd_pointer.memory['data'].columns.tolist()
+    headers = json.dumps(headers)
 
     # Load routes and launch browser UI.
-    routes = fetchRoutes(data_str)
-    launcher.launch(cmd_pointer, routes)
+    routes = fetchRoutesDataViewer(data, headers)
+    hash = '#edit' if edit_mode else ''
+    launcher.launch(cmd_pointer, routes, hash=hash)
 
 
 # Edit a JSON config file.

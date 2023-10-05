@@ -7,7 +7,7 @@ from ad4e_opentoolkit.helpers.output import msg, output_text, output_error
 from ad4e_opentoolkit.helpers.general import next_avail_port
 
 
-def launch(cmd_pointer=None, routes=None):
+def launch(cmd_pointer=None, routes=None, query='', hash=''):
     if not routes:
         output_error('Routes are required to launch Flask server.')
         return
@@ -56,12 +56,12 @@ def launch(cmd_pointer=None, routes=None):
 
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=UserWarning)
-            iframe_html = f'<iframe src="http://{host}:{port}" width="{width}" height="{height}" style="border: solid 1px #ddd;"></iframe>'
+            iframe_html = f'<iframe src="http://{host}:{port}{query}{hash}" width="{width}" height="{height}" style="border: solid 1px #ddd;"></iframe>'
             display(HTML(iframe_html))
     else:
         # CLI --> Open browser.
         socket.setdefaulttimeout(1)
-        webbrowser.open(f'http://{host}:{port}', new=1)
+        webbrowser.open(f'http://{host}:{port}{query}{hash}', new=1)
 
     # Remove Flask startup message.
     import sys
@@ -82,10 +82,6 @@ def launch(cmd_pointer=None, routes=None):
         from threading import Thread
         thread = Thread(target=lambda: app.run(host=host, port=port))
         thread.start()
-
-        # app.run(host=host, port=port)
-
-        # return {'foo': 666}
     else:
         # CLI --> Start the Flask app in the main thread.
         app.run(host=host, port=port)

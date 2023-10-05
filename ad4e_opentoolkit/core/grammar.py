@@ -28,7 +28,7 @@ from pyparsing import (
 )
 
 # Core
-import ad4e_opentoolkit.core.help as openad_help
+from ad4e_opentoolkit.core.help import help_dict_create
 
 # Helpers
 from ad4e_opentoolkit.helpers.general import is_notebook_mode
@@ -38,8 +38,8 @@ from ad4e_opentoolkit.helpers.output import output_error, msg
 from ad4e_opentoolkit.app.global_var_lib import _all_toolkits
 
 
-get, lister, description, using, create, s_et, unset, workspace, workspaces, context, jobs, e_xec, a_s, optimize, w_ith, toolkits, toolkit, GPU, experiment, add, run, save, runs, show, molecules, file, d_isplay, history, data, remove = \
-    map(CaselessKeyword, "get list description using create set unset workspace workspaces context jobs exec as optimize with toolkits toolkit gpu experiment add run save runs show molecules file display history data remove".split())
+get, lister, description, using, create, s_et, unset, workspace, workspaces, context, jobs, e_xec, a_s, optimize, w_ith, toolkits, toolkit, GPU, experiment, add, run, save, runs, show, molecules, file, d_isplay, history, data, remove, result = \
+    map(CaselessKeyword, "get list description using create set unset workspace workspaces context jobs exec as optimize with toolkits toolkit gpu experiment add run save runs show molecules file display history data remove result".split())
 string_value = alphanums
 
 ##########################################################################
@@ -103,301 +103,374 @@ delim_value = Group(delimitedList(string_value))("list")
 
 statement = Forward()
 
-statements = []  # Statement Definitions stored here
-grammar_help = []  # Help text stored here
+statements = []  # Statement definitions
+grammar_help = []  # Help text
 
 
 ##########################################################################
-# region - General Vocabulary
+# region - General
 ##########################################################################
 
 # General splash screen
 statements.append(Forward(CaselessKeyword('openad'))('welcome'))
-grammar_help.append(openad_help.help_dict_create(
+grammar_help.append(help_dict_create(
     name="welcome",
     category='General',
     command="openad",
-    description='Display the openad splash screen'
+    description='Display the openad splash screen.'
 ))
 
 # Get status
 statements.append(Forward(get + CaselessKeyword('status'))('get_status'))
-grammar_help.append(openad_help.help_dict_create(
+grammar_help.append(help_dict_create(
     name="get status",
     category='General',
     command="get status",
-    description='Return the current workspace and toolkit for the Utility'
+    description='Display the currently selected workspace and toolkit.'
 ))
 
 # Display history
 statements.append(Forward(d_isplay + history('history'))('display_history'))
-grammar_help.append(openad_help.help_dict_create(
+grammar_help.append(help_dict_create(
     name="Display History",
     category='General',
     command="display history ",
-    description='This command displays the last 30 commands run in the Workspace'
-))
-
-# Display data
-statements.append(Forward(d_isplay + data('data') + desc('file_path'))('display_data'))
-grammar_help.append(openad_help.help_dict_create(
-    name="display data",
-    category='General',
-    command="display data '<csv_filename>'",
-    description='Display the data from a csv file.'
-))
-
-# --> save --> Save data as csv
-statements.append(Forward(CaselessKeyword('result') + save + Optional(CaselessKeyword('as') + desc('file_path')))('display_data__save'))
-grammar_help.append(openad_help.help_dict_create(
-    name="save",
-    category='General',
-    command="  -> result save [as '<csv_filename>']",
-    description='Store table data into a csv file.'
-))
-
-# --> open --> Explore data in browser
-statements.append(Forward(CaselessKeyword('result') + CaselessKeyword('open'))('display_data__open'))
-grammar_help.append(openad_help.help_dict_create(
-    name="open",
-    category='General',
-    command="  -> result open",
-    description='Explore table data in the browser.'
+    description='Display the last 30 commands run in your current workspace.'
 ))
 
 # Clear sessions
 statements.append(Forward(CaselessKeyword('clear') + CaselessKeyword('sessions'))('clear_sessions'))
-grammar_help.append(openad_help.help_dict_create(
+grammar_help.append(help_dict_create(
     name="Clear Sessions",
     category='General',
     command="clear sessions",
-    description='Clears any other sessions that may be running.'
+    description='Clear any other sessions that may be running.'
 ))
-
-# How do I chat
-statements.append(Forward(CaselessKeyword('tell') + CaselessKeyword('me') + ZeroOrMore(Word(alphas, alphanums + "_" + '?' + "." + " " + "," + "'"))('Chat_String'))('HOW_DO_I'))
-grammar_help.append(openad_help.help_dict_create(
-    name="tell me",
-    category='LLM',
-    command="tell me  <chat string>",
-    description='This command asks chatgpt how to do set of tasks in the openad client '
-))
-
-statements.append(Forward(CaselessKeyword('set') + CaselessKeyword('llm') + ZeroOrMore(Word(alphas, alphanums + "_" + '?' + "." + " " + "," + "'"))('llm_name'))('set_llm'))
-grammar_help.append(openad_help.help_dict_create(
-    name="set llm",
-    category='LLM',
-    command="set llm  <name of language model>",
-    description='This command sets the target language model type for the "tell me" command '
-))
-
-statements.append(Forward(CaselessKeyword('clear') + CaselessKeyword('llm') + CaselessKeyword('auth'))('clear_llm_auth'))
-grammar_help.append(openad_help.help_dict_create(
-    name="clear llm auth",
-    category='LLM',
-    command="clear llm auth",
-    description='This command clears the llm authority file. '
-))
-
 
 # endregion
 
 ##########################################################################
-# region - Workspace Vocabulary
+# region - Workspaces
 ##########################################################################
 
-# Wildcard - this lets us catch any unrecognized commands.
-# statements.append(Forward(Word(string.printable))('_'))
+info_workspaces = '\n<soft>To learn more about workspaces, run <cmd>workspace ?</cmd></soft>'
 
 # Set workspaces
 statements.append(Forward(s_et + workspace('workspace') + Word(alphas, alphanums + "_")('Workspace_Name'))('set_workspace_statement'))
-grammar_help.append(openad_help.help_dict_create(
+grammar_help.append(help_dict_create(
     name="set workspace",
     category='Workspaces',
     command="set workspace <workspace_name>",
-    description='Change the current workspace.'
+    description=f'Change the current workspace.{info_workspaces}'
+))
+
+# Get workspace
+statements.append(Forward(get + workspace('workspace') + Optional(Word(alphas, alphanums + "_")('Workspace_Name')))('get_workspace'))
+grammar_help.append(help_dict_create(
+    name="get workspace",
+    category='Workspaces',
+    command="get workspace [ <workspace_name> ]",
+    description=f'Display details a workspace. When no workspace name is passed, details of your current workspace are displayed.{info_workspaces}'
 ))
 
 # Create workspaces
-statements.append(Forward(create + workspace('workspace') + Word(alphas, alphanums + "_")('Workspace_Name') +
-                          Optional(description('description') + Suppress("(") + desc("proj_desc") + Suppress(")"))('description_option') +
-                          Optional(CaselessKeyword('on') + CaselessKeyword('path') + desc("w_path"))('workspace_path'))('create_workspace_statement'))
-grammar_help.append(openad_help.help_dict_create(
+statements.append(Forward(
+    create + workspace('workspace') + Word(alphas, alphanums + "_")('Workspace_Name') +
+    Optional(description('description') + Suppress("(") + desc("proj_desc") + Suppress(")"))('description_option') +
+    Optional(CaselessKeyword('on') + CaselessKeyword('path') + desc("w_path"))('workspace_path')
+)('create_workspace_statement'))
+grammar_help.append(help_dict_create(
     name="create workspace",
     category='Workspaces',
-    command="create workspace <workspace_name> [ description('<workspace_description>') on path '<path>' ]",
-    description=('Create a new workspace with an optional description. '
-                 'To learn more about what a workspace is, run <cmd>workspace ?</cmd>')
+    command="create workspace <workspace_name> [ description('<description>') on path '<path>' ]",
+    description=f'Create a new workspace with an optional description and path.{info_workspaces}'
 ))
 
 # Remove workspaces
 statements.append(Forward(remove + workspace('workspace') + Word(alphas, alphanums + "_")('Workspace_Name'))('remove_workspace_statement'))
-grammar_help.append(openad_help.help_dict_create(
+grammar_help.append(help_dict_create(
     name="remove workspace",
     category='Workspaces',
     command='remove workspace <workspace_name> ',
-    description=('Remove a workspace from your registry. This doesn\'t remove the workspace\'s directory '
-                 'from the openad home directory ($HOME/.addcl/workspaces). '
-                 'To learn more about what a workspace is, run <cmd>workspace ?</cmd>')
+    description=f'Remove a workspace from your registry. Note that this doesn\'t remove the workspace\'s directory.{info_workspaces}'
 ))
 
 # list workspaces
 statements.append(Forward(lister + workspaces('workspaces'))('list_workspaces'))
-grammar_help.append(openad_help.help_dict_create(
+grammar_help.append(help_dict_create(
     name="list workspaces",
     category='Workspaces',
     command="list workspaces",
-    description='This command lists all workspaces '
-))
-
-# Get workspace
-statements.append(Forward(get + workspace('workspace') + Word(alphas, alphanums + "_")('Workspace_Name'))('get_workspace'))
-grammar_help.append(openad_help.help_dict_create(
-    name="get workspace",
-    category='Workspaces',
-    command="get workspace <workspace_name>",
-    description='This command retrieves details about the workspace '
+    description=f'Lists all your workspaces.{info_workspaces}'
 ))
 
 # endregion
 
 ##########################################################################
-# region - Toolkit Vocabulary
+# region - Toolkits
 # Note toolkits is the Caseless key word now .. simply changed in metadata
 ##########################################################################
 
-# Splash screens for toolkits
+info_toolkits_see_all = '\n<soft>To see all available toolkits, run <cmd>list all toolkits</cmd>.</soft>'
+info_toolkits = '\n<soft>To learn more about toolkits, run <cmd>toolkit ?</cmd>.</soft>'
+
+
+# Available commands per toolkit.
 for tk in _all_toolkits:
     statements.append(Forward(CaselessKeyword(tk))(tk))
-    grammar_help.append(openad_help.help_dict_create(
+    grammar_help.append(help_dict_create(
         name=f'{tk} splash',
         category='Toolkits',
         command=tk.lower(),
 
-        # We display the full toolkit help when you type `<toolkit_name> ?`
+        # This description is never read. Inside main.py -> do_help()
+        # there is a clause that intercepts this command and displays
+        # the available commands for the toolkit instead.
         description=f'Display the splash screen for the {tk} toolkit.'
     ))
 
-# Remove toolkit
-statements.append(Forward(remove + toolkit + Word(alphas, alphanums + "_")('toolkit_name'))('remove_toolkit'))
-grammar_help.append(openad_help.help_dict_create(
-    name="remove toolkit",
+# List toolkits
+statements.append(Forward(lister + toolkits('toolkits'))('list_toolkits'))
+grammar_help.append(help_dict_create(
+    name="list toolkits",
     category='Toolkits',
-    command="remove toolkit <toolkit_name>",
-    # description=('De-register a toolkit from the registry. This doesn\'t delete the toolkit code. '
-    #              'If the toolkit is added again, a backup of the directories containing the code is placed in the main toolkit directory.')
+    command="list toolkits",
+    description=f'List all installed toolkits. To see all available toolkits, run <cmd>list all toolkits</cmd>.{info_toolkits_see_all}{info_toolkits}'
+))
 
-    # REVIEW
-    description="Remove a toolkit from the registry. This affects all workspaces. A backup of the toolkit directory is stored in '~/.openad/toolkits_archive'."
-
+# List all toolkits
+statements.append(Forward(lister + CaselessKeyword('all') + toolkits('toolkits'))('list_all_toolkits'))
+grammar_help.append(help_dict_create(
+    name="list all toolkits",
+    category='Toolkits',
+    command="list all toolkits",
+    description=f'List all available toolkits.{info_toolkits}'
 ))
 
 # Install toolkit
 # Note: Update toolkit yet to be implemented (currently de-register, then add toolkit with new source)
 statements.append(Forward(add + toolkit('workspace') + Word(alphas, alphanums + "_")('toolkit_name'))('add_toolkit'))
-grammar_help.append(openad_help.help_dict_create(
+grammar_help.append(help_dict_create(
     name="add toolkit",
     category='Toolkits',
     command="add toolkit <toolkit_name>",
-    description='Install a toolkit. To see all available toolkits, run <cmd>list all toolkits</cmd>.'
+    description=f'Install a toolkit.{info_toolkits_see_all}{info_toolkits}'
 ))
 
-# List toolkits
-statements.append(Forward(lister + toolkits('toolkits'))('list_toolkits'))
-grammar_help.append(openad_help.help_dict_create(
-    name="list toolkits",
+# Remove toolkit
+statements.append(Forward(remove + toolkit + Word(alphas, alphanums + "_")('toolkit_name'))('remove_toolkit'))
+grammar_help.append(help_dict_create(
+    name="remove toolkit",
     category='Toolkits',
-    command="list toolkits",
-    description='Display a list of installed toolkits. To see all available toolkits, run <cmd>list all toolkits</cmd>.'
-))
-
-# List all toolkits
-statements.append(Forward(lister + CaselessKeyword('all') + toolkits('toolkits'))('list_all_toolkits'))
-grammar_help.append(openad_help.help_dict_create(
-    name="list all toolkits",
-    category='Toolkits',
-    command="list all toolkits",
-    description='Display a list of all available toolkits.'
+    command="remove toolkit <toolkit_name>",
+    description=('Remove a toolkit from the registry.\n'
+                 'Note: This doesn\'t delete the toolkit code. If the toolkit is added again, a backup of the previous install is created in the toolkit directory at <yellow>~/.openad/toolkits</yellow>.'
+                 f'{info_toolkits}')
+    # Correct description but we have to update the functionality first.
+    # description="Remove a toolkit from the registry. This affects all workspaces. A backup of the toolkit directory is stored in <yellow>~/.openad/toolkits_archive</yellow>.{info_toolkits}"
 ))
 
 # Set a toolkit as the current context
 statements.append(Forward(s_et + context('context') + Word(alphas, alphanums + "_")('toolkit_name') + Optional(CaselessKeyword('reset'))('reset'))('set_context'))
-grammar_help.append(openad_help.help_dict_create(
+grammar_help.append(help_dict_create(
     name="set context",
     category='Toolkits',
-    command="set context <toolkit_name> [reset]",
-    description='Set your function context to the chosen toolkit. The context dictates functions available to you. The optional parameter reset can be used to reset login information'
+    command="set context <toolkit_name> [ reset ]",
+    description=f'Set your context to the chosen toolkit. By setting the context, the selected toolkit functions become available to you. The optional parameter \'reset\' can be used to reset your login information.{info_toolkits}'
+))
+
+# Get the current context
+statements.append(Forward(get + context('context'))('get_context'))
+grammar_help.append(help_dict_create(
+    name="get context",
+    category='Toolkits',
+    command="get context",
+    description='Display the currently selected toolkit.'
 ))
 
 # Unset a toolkit as the current context
 statements.append(Forward(unset + context('context'))('unset_context'))
-grammar_help.append(openad_help.help_dict_create(
+grammar_help.append(help_dict_create(
     name="unset context",
     category='Toolkits',
     command="unset context",
-    description='Exit your toolkit context. You will no longer have access to toolkit-specific functions.'
+    description=f'Exit your toolkit context. You will no longer have access to toolkit-specific functions.{info_toolkits}'
 ))
 
 # endregion
 
 ##########################################################################
-# region - Run Vocabulary
+# region - Runs
 ##########################################################################
+
+info_runs = '\n<soft>To learn more about runs, run <cmd>run ?</cmd>.</soft>'
 
 # Create run
 statements.append(Forward(create + run('run'))('create_run'))
-grammar_help.append(openad_help.help_dict_create(
+grammar_help.append(help_dict_create(
     name="create run",
     category='Runs',
     command="create run",
-    description='This command flags a position for the beginning of a run recording.'
+    description=f'Start recording a run.{info_runs}'
 ))
 
 # Save run
 statements.append(Forward(save + run('run') + a_s + Word(alphas, alphanums + "_")('run_name'))('save_run'))
-grammar_help.append(openad_help.help_dict_create(
+grammar_help.append(help_dict_create(
     name="save run",
     category='Runs',
     command="save run as <run_name>",
-    description='This command saves a run up until the last point in time a "create run" has been called'
+    description=f'Stop recording a run and save it.{info_runs}'
 ))
 
 # Execute run
 statements.append(Forward(run('run') + Word(alphas, alphanums + "_")('run_name'))('exec_run'))
-grammar_help.append(openad_help.help_dict_create(
+grammar_help.append(help_dict_create(
     name="run",
     category='Runs',
     command="run <run_name>",
-    description='This command iterates through a previously recorded run. It will execute every command and continue whether there is a failure or not'
+    description=f'Execute a previously recorded run. This will execute every command and continue regardless of any failures.{info_runs}'
 ))
 
 # List runs
 statements.append(Forward(lister + runs('runs'))('list_runs'))
-grammar_help.append(openad_help.help_dict_create(
+grammar_help.append(help_dict_create(
     name="list runs",
     category='Runs',
     command="list runs",
-    description='This command lists all runs for the current workspace'
+    description=f'List all runs saved in the current workspace.{info_runs}'
 ))
 
 # Display run
 statements.append(Forward(d_isplay + run('run') + Word(alphas, alphanums + "_")('run_name'))('display_run'))
-grammar_help.append(openad_help.help_dict_create(
+grammar_help.append(help_dict_create(
     name="display run",
     category='Runs',
     command="display run <run_name>",
-    description='This command displays the contents of a run files'
+    description=f'Display the commands stored in a certain run.{info_runs}'
 ))
 
 # endregion
 
 ##########################################################################
-# region - File System Vocabulary
+# region - Utility
+##########################################################################
+
+# Display data
+statements.append(Forward(d_isplay + data('data') + desc('file_path'))('display_data'))
+grammar_help.append(help_dict_create(
+    name="display data",
+    category='Utility',
+    command="display data '<csv_filename>'",
+    description='Display data from a csv file.'
+))
+
+# --> result save --> Save data as csv
+statements.append(Forward(result + save + Optional(a_s + desc('file_path')))('display_data__save'))
+grammar_help.append(help_dict_create(
+    name="save",
+    category='Utility',
+    command="result save [as '<csv_filename>']",
+    description='Save table data to csv file.',
+    parent="display data"
+))
+
+# --> result open --> Explore data in browser
+statements.append(Forward(result + CaselessKeyword('open'))('display_data__open'))
+grammar_help.append(help_dict_create(
+    name="open",
+    category='Utility',
+    command="result open",
+    description='Explore table data in the browser.',
+    parent="display data"
+))
+
+# --> result edit --> Edit data in browser
+statements.append(Forward(result + CaselessKeyword('edit'))('display_data__edit'))
+grammar_help.append(help_dict_create(
+    name="edit",
+    category='Utility',
+    command="result edit",
+    description='Edit table data in the browser.',
+    parent="display data"
+))
+
+# Edit config file (CLI-only)
+if not is_notebook_mode():
+    statements.append(Forward(CaselessKeyword('edit') + CaselessKeyword('config') + desc('json_file') + Optional(CaselessKeyword('schema') + desc('schema')))('edit_config'))
+    grammar_help.append(help_dict_create(
+        name="edit config",
+        category='Utility',
+        command="edit config '<json_config_file>' [ schema '<schema_file>']",
+        description='Edit any JSON file in your workspace directly from the CLI. If a schema is specified, it will be used for validation and documentation.'
+    ))
+
+# Show molecules.
+# Note: we don't allow dashes in dataframe names because it's a substraction operator and causes issues in Jupyter.
+statements.append(Forward(
+    show('show') + molecules + using + CaselessKeyword('dataframe') + Word(alphas, alphanums + "_")('in_dataframe')  # From dataframe
+    + Optional(a_s + CaselessKeyword('molsobject')('object'))  # Return as molsobject
+    + Optional(save + a_s + desc('results_file'))  # Save as csv/sdf
+)('show_molecules_df'))
+statements.append(Forward(
+    show('show') + molecules + using + file + desc('moles_file')  # From mols file
+    + Optional(a_s + CaselessKeyword('molsobject')('object'))  # Return as molsobject
+    + Optional(save + a_s + desc('results_file'))  # Save as csv/sdf
+)('show_molecules'))
+grammar_help.append(help_dict_create(
+    name="show molecules",
+    category='Utility',
+    command="show molecules using ( file '<mols_file>' | dataframe <dataframe> )\n    [ save as '<sdf_or_csv_file>' | as molsobject ]",
+    description=f"""Launch the molecule viewer { 'in your browser ' if is_notebook_mode() else '' }to examine and select molecules from a SMILES sdf/csv dataset.
+
+Examples:
+
+    <cmd>show molecules using file 'base_molecules.sdf' as molsobject</cmd>
+    <cmd>show molecules using dataframe my_dataframe save as 'selection.sdf'</cmd>
+"""
+))
+
+# endregion
+
+##########################################################################
+# region - LLMs
+##########################################################################
+
+# Tell me chatbot
+statements.append(Forward(CaselessKeyword('tell') + CaselessKeyword('me') + ZeroOrMore(Word(alphas, alphanums + "_" + '?' + "." + " " + "," + "'"))('Chat_String'))('how_do_i'))
+grammar_help.append(help_dict_create(
+    name="tell me",
+    category='LLM',
+    command="tell me <how to do xyz>",
+    description='Ask your AI assistant how to do anything in OpenAD.'
+))
+
+statements.append(Forward(CaselessKeyword('set') + CaselessKeyword('llm') + ZeroOrMore(Word(alphas, alphanums + "_" + '?' + "." + " " + "," + "'"))('llm_name'))('set_llm'))
+grammar_help.append(help_dict_create(
+    name="set llm",
+    category='LLM',
+    command="set llm  <language_model_name>",
+    description='Set the target language model name for the "tell me" command.'
+))
+
+statements.append(Forward(CaselessKeyword('clear') + CaselessKeyword('llm') + CaselessKeyword('auth'))('clear_llm_auth'))
+grammar_help.append(help_dict_create(
+    name="clear llm auth",
+    category='LLM',
+    command="clear llm auth",
+    description='Clear the language model\'s authentication file.'
+))
+
+
+# endregion
+
+##########################################################################
+# region - File System
 ##########################################################################
 
 # List files
 statements.append(Forward(lister + CaselessKeyword('files'))('list_files'))
-grammar_help.append(openad_help.help_dict_create(
+grammar_help.append(help_dict_create(
     name="list files",
     category='File System',
     command="list files",
@@ -405,141 +478,58 @@ grammar_help.append(openad_help.help_dict_create(
 ))
 
 # Import file
-statements.append(
-    Forward(
-        CaselessKeyword('import') +
-        CaselessKeyword('from') +
-        desc('source') +
-        CaselessKeyword('to') +
-        desc('destination'))('import_file'))
-grammar_help.append(openad_help.help_dict_create(
+statements.append(Forward(CaselessKeyword('import') + CaselessKeyword('from') + desc('source') + CaselessKeyword('to') + desc('destination'))('import_file'))
+grammar_help.append(help_dict_create(
     name="import",
     category='File System',
     command="import from '<external_source_file>' to '<workspace_file>'",
-    description='Import files from outside openad into the current workspace'
+    description='Import a file from outside OpenAD into your current workspace.'
 ))
 
 # Export file
-statements.append(
-    Forward(
-        CaselessKeyword('export') +
-        CaselessKeyword('from') +
-        desc('source') +
-        CaselessKeyword('to') +
-        desc('destination'))('export_file'))
-grammar_help.append(openad_help.help_dict_create(
+statements.append(Forward(CaselessKeyword('export') + CaselessKeyword('from') + desc('source') + CaselessKeyword('to') + desc('destination'))('export_file'))
+grammar_help.append(help_dict_create(
     name="export",
     category='File System',
     command="export from '<workspace_file>' to '<external_file>'",
-    description='exports a file from current workspace to an external file'
+    description='Export a file from your current workspace to anywhere on your hard drive.'
 ))
 
 # Copy file
-statements.append(
-    Forward(
-        CaselessKeyword('copy') +
-        CaselessKeyword('file') +
-        desc('source') +
-        CaselessKeyword('to') +
-        desc('destination'))('copy_file'))
-grammar_help.append(openad_help.help_dict_create(
+statements.append(Forward(CaselessKeyword('copy') + CaselessKeyword('file') + desc('source') + CaselessKeyword('to') + desc('destination'))('copy_file'))
+grammar_help.append(help_dict_create(
     name="copy",
     category='File System',
-    command="copy from '<workspace_file>' to '<other_workspace_name>'",
-    description='exports a file from current workspace to another workspace'
+    command="copy file '<workspace_file>' to '<other_workspace_name>'",
+    description='Export a file from your current workspace to another workspace.'
 ))
 
 # Remove file
 statements.append(Forward(CaselessKeyword('remove') + desc('file'))('remove_file'))
-grammar_help.append(openad_help.help_dict_create(
-    name="rm",
+grammar_help.append(help_dict_create(
+    name="remove",
     category='File System',
     command="remove '<filename>'",
-    description='remove files from workspaces'
+    description='Remove a file from your current workspace.'
 ))
 
 # endregion
 
 ##########################################################################
-# region - Development Vocabulary
-# The commands in this section are not intended for general use,
-# and are not documented by the help system.
-##########################################################################
-
-# Launches the demo flask app.
-statements.append(Forward(CaselessKeyword('flask') + CaselessKeyword('example'))('flask_example'))
-
-# endregion
-
-##########################################################################
-# region - Global viewers
-##########################################################################
-
-if is_notebook_mode():
-    # Jupyter
-
-    # Show molecules using file.
-    statements.append(Forward(show('show') + molecules + using + file + desc('moles_file') + Optional(CaselessKeyword('as') + CaselessKeyword('molsobject')('object')))('show_molecules'))
-    grammar_help.append(openad_help.help_dict_create(
-        name="show molecules",
-        category='GUI',
-        command="show molecules using file '<mols_file>' [  as molsobject ]",
-        description='This command shows 1 or more Molecules in selection grid using a dataset containing smiles molecule strings. It display a molecule selection grid inside Jypyter Notebooks or Jupyter Lab. \n example command:  "show molecules using dataframe mydata_frame as molsobject "  '
-    ))
-
-    # Show molecules using dataframe.
-    statements.append(Forward(show('show') + molecules + using + CaselessKeyword('dataframe') + Word(alphas, alphanums + "_")('in_dataframe') + Optional(CaselessKeyword('as') + CaselessKeyword('molsobject')('object')))('show_api_molecules'))
-    grammar_help.append(openad_help.help_dict_create(
-        name="show molecules",
-        category='GUI',
-        command="show molecules using dataframe <dataframe> [  as molsobject ]",
-        description='This command shows 1 or more Molecules in selection grid using a dataset containing smiles molecule strings. It display a molecule selection grid inside Jypyter Notebooks or Jupyter Lab. \n example command:  "show molecules using file \'base_molecules.sdf\' as molsobject "'
-    ))
-else:
-    # CLI
-
-    # Show molecules using file.
-    statements.append(Forward(show('show') + molecules + using + file + desc('moles_file') + Optional(CaselessKeyword('Save') + CaselessKeyword('as') + desc('results_file')))('show_molecules'))
-    grammar_help.append(openad_help.help_dict_create(
-        name="show molecules",
-        category='GUI',
-        command="show molecules using file '<mols_file>' [ save as '<sdf_or_csv_file>' ]",
-        description='''This command shows 1 or more Molecules in selection grid using a dataset containing smiles molecule strings. It is displayed via browser when run from a command line and only accepts files of type .sdf or .csv.
-        Input files may only be of .type sdf or .csv and you can only save files as .sdf or .csv types.
-        Files referenced are from your local workspace, it does not support referencing files outside your workspace. If you wish to move a file into your workspace see the import command.
-        Examples:
-               - "show molecules using file 'my_molecules.sdf'"
-               - "show molecules using file 'my_molecules.sdf' Save as 'selection.csv' "
-
-        Alternatively when run in jupyter notebooks can accept a dataframe. See help when in Notebooks for details. '''
-    ))
-
-    # Edit config file.
-    statements.append(Forward(CaselessKeyword('edit') + CaselessKeyword('config') + desc('json_file') + Optional(CaselessKeyword('template') + desc('template')))('edit_config'))
-    grammar_help.append(openad_help.help_dict_create(
-        name="edit config",
-        category='General',
-        command="edit config '<json_config_file>' [template '<template_file>']",
-        description='edits a config card in a workspace, if template specified will use template. All files assumed to be in the current workspace directory.'
-    ))
-
-# endregion
-
-##########################################################################
-# region - Help Vocabulary
+# region - Help
 ##########################################################################
 
 # Display intro.
 statements.append(Forward(CaselessKeyword('intro'))('intro'))
-grammar_help.append(openad_help.help_dict_create(
+grammar_help.append(help_dict_create(
     name="intro",
     category='Help',
     command="intro",
-    description='Displays Introduction Help Text'
+    description='Display an introduction to the OpenAD CLI.'
 ))
 # Open documentation webpage.
 statements.append(Forward(CaselessKeyword('docs'))('docs'))
-grammar_help.append(openad_help.help_dict_create(
+grammar_help.append(help_dict_create(
     name="docs",
     category='Help',
     command="docs",
@@ -547,30 +537,42 @@ grammar_help.append(openad_help.help_dict_create(
 ))
 # List available commands
 # Note - this is controlled directly from do_help.
-grammar_help.append(openad_help.help_dict_create(
+grammar_help.append(help_dict_create(
     name="help",
     category='Help',
     command="?",
-    description='Lists all available commands.'
+    description='List all available commands.'
 ))
 
-# Open advanced help.
-# Note - this is controlled directly from do_help.
-grammar_help.append(openad_help.help_dict_create(
-    name="advanced help",
-    category='Help',
-    command="??",
-    description='Displays interactive help interface in the CLI.'
-))
+# # TO BE IMPLEMENTED LATER
+# # Open advanced help.
+# # Note - this is controlled directly from do_help.
+# grammar_help.append(help_dict_create(
+#     name="advanced help",
+#     category='Help',
+#     command="??",
+#     description='Displays interactive help interface in the CLI.'
+# ))
 
 # Display command help
 # Note - this is controlled directly from do_help.
-grammar_help.append(openad_help.help_dict_create(
+grammar_help.append(help_dict_create(
     name="command help",
     category='Help',
     command="<soft>...</soft> ?",
-    description='Explains what a command does, or lists all commands that either contain this word or start with this string.'
+    description='Display what a command does, or list all commands that contain this string.'
 ))
+
+# endregion
+
+##########################################################################
+# region - Development
+# The commands in this section are not intended for general use,
+# and are not documented by the help system.
+##########################################################################
+
+# Launches the demo flask app.
+statements.append(Forward(CaselessKeyword('flask') + CaselessKeyword('example'))('flask_example'))
 
 # endregion
 
@@ -593,24 +595,21 @@ statements_zom = ZeroOrMore(statements_def)
 
 # Used to package up statements
 def create_statements(cmd_pointer):
-    
-    #if cmd_pointer.toolkit_current is None: # move down further to adress unset issue
+
+    # if cmd_pointer.toolkit_current is None: # move down further to adress unset issue
     #    return
     global statements_zom
-    
+
     cmd_pointer.current_statements_def = Forward()
     cmd_pointer.current_statements = orig_statements.copy()
-    
-    
+
     for i in orig_statements:
         cmd_pointer.current_statement_defs |= i
-    if cmd_pointer.toolkit_current != None:
+    if cmd_pointer.toolkit_current is not None:
         for i in cmd_pointer.toolkit_current.methods_grammar:
             cmd_pointer.current_statement_defs |= i
             cmd_pointer.current_statements.append(i)
     statements_zom = ZeroOrMore(statements_def)
-    
-
 
 
 def or_builder(options: list) -> str:
@@ -758,16 +757,16 @@ def statement_builder(toolkit_pointer, statement):
 
         toolkit_pointer.methods_dict.append(statement)
 
-        ####### Clause Amendment
-        clause_Amendment=''
+        # Clause Amendment
+        clause_Amendment = ''
         if 'USING' in statement:
             if statement['USING'] is not None:
-                clause_Amendment=clause_Amendment+'\n\n NOTE: The Using Clause Requires all the Parameters added to the Using Clause be in the defined order as per in the above help documentation'
+                clause_Amendment = clause_Amendment + '\n\n NOTE: The Using Clause Requires all the Parameters added to the Using Clause be in the defined order as per in the above help documentation'
 
-        if clause_Amendment!= '':
-            
-            statement['help']['description']=statement['help']['description']+clause_Amendment
-            
+        if clause_Amendment != '':
+
+            statement['help']['description'] = statement['help']['description'] + clause_Amendment
+
         toolkit_pointer.methods_help.append(statement['help'])
 
     except BaseException as err:
@@ -832,7 +831,6 @@ def optional_parameter_list(statement: dict, clause: str):
                     i + "'))" + " "
         ii = 1
 
-    
     return expression
 
 
@@ -875,8 +873,8 @@ def output_train_statements(cmd_pointer):
     toolkit_description = []
     i = 0
     cmd_pointer.home_dir
-    try:
 
+    try:
         if not os.path.exists(os.path.expanduser(os.path.expanduser(cmd_pointer.home_dir + "/prompt_train/"))):
             os.mkdir(os.path.expanduser(os.path.expanduser(cmd_pointer.home_dir + "/prompt_train/")))
     except BaseException:
@@ -885,9 +883,11 @@ def output_train_statements(cmd_pointer):
     for file in glob.glob(os.path.expanduser(str(os.path.expanduser(cmd_pointer.home_dir + '/prompt_train/')) + "/*")):
         os.remove(file)
 
-    while i < len(orig_statements):
+    # while i < len(orig_statements): @Phil this causes issues when statements and help are out of sync, eg. for display molecules.
+    while i < len(grammar_help):
         training_statements.append({'command_group': 'base', 'command_name': grammar_help[i]['name'], 'command_syntax': grammar_help[i]['command'], 'command_help': grammar_help[i]['description']})
         i += 1
+
     file = open(os.path.expanduser(cmd_pointer.home_dir + '/prompt_train/base_commands.cdoc'), 'w', newline='\n')
     file.write("""openad client information
 

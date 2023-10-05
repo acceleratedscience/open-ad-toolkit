@@ -5,6 +5,7 @@ import os
 import logging
 import sys
 import readline
+import re
 import ad4e_opentoolkit.app.login_manager
 import string
 import uuid
@@ -15,17 +16,18 @@ from ad4e_opentoolkit.app.main_lib import lang_parse, initialise, set_context
 from ad4e_opentoolkit.toolkit.toolkit_main import load_toolkit
 
 # Core
-# from core.grammar import *
 import ad4e_opentoolkit.core.help as openad_help
 from ad4e_opentoolkit.core.grammar import grammar_help, statements, statements_def, create_statements, output_train_statements
 from ad4e_opentoolkit.core.lang_sessions_and_registry import write_registry, load_registry, delete_session_registry
 from ad4e_opentoolkit.core.lang_workspaces import set_workspace
 import ad4e_opentoolkit.app.login_manager as login_manager
+
 # Helpers
 from ad4e_opentoolkit.helpers.general import singular, confirm_prompt
 from ad4e_opentoolkit.helpers.output import msg, output_text, output_error, output_warning
 from ad4e_opentoolkit.helpers.general import refresh_prompt
 from ad4e_opentoolkit.helpers.splash import splash
+from ad4e_opentoolkit.helpers.output_content import info_workspaces, info_toolkits, info_runs, info_context
 
 # Globals
 from ad4e_opentoolkit.app.global_var_lib import _repo_dir as _repo_dir
@@ -67,7 +69,7 @@ class run_cmd(Cmd):
     prompt = None
     histfile = os.path.expanduser(_meta_dir + '/.cmd_history')
     histfile_size = 1000
-    current_help = openad_help.openad_help()
+    current_help = openad_help.OpenadHelp()
     current_help.help_orig = grammar_help.copy()
     current_help.reset_help()
     notebook_mode = False
@@ -103,13 +105,13 @@ class run_cmd(Cmd):
 
     # This is run at the beginning of any follow up function
     # to check and preserve the memory content.
-    def init_followup(cmd_pointer, memory_key):
+    def init_followup(self, memory_key):
         # Preserve memory for further follow-ups.
-        cmd_pointer.preserve_memory[memory_key] = True
+        self.preserve_memory[memory_key] = True
 
         # Abort if memory is empty.
-        if cmd_pointer.memory[memory_key] is None:
-            output_error(msg('no_data_memory'), cmd_pointer)
+        if self.memory[memory_key] is None:
+            output_error(msg('no_data_memory'), self)
             return
 
     def workspace_path(self, workspace: str):
@@ -174,36 +176,44 @@ class run_cmd(Cmd):
 
         output_train_statements(self)
 
-    def do_help(self, inp, **kwargs):
+    def do_help(self, inp, display_info=False, **kwargs):
         """
         Display help about a command, for example 'list'.
+
+        Parameters:
+            inp: The input string.
+            display_info: If True, display info text when relevant.
+                Eg. `workspaces ?`, `toolkits ?`, `runs ?`, etc.
 
         The different entry points:
             ? list                   --> The questionmark is interpreted and stripped by the language parser
             list ?                   --> This goes via the run_cmd.default() function
             python3 main.py '? list' --> This goes via __main__
-            %openad ? list            --> Notebook and API requests go via api_remote()
+            %openad ? list           --> Notebook and API requests go via api_remote()
         """
 
-        # `??` --> Advanced help.
-        starts_with = False
+        # `??` --> Advanced help (to be implemented)
         if inp.strip() == '?':
             return output_text(openad_help.advanced_help(), self, pad=1)
 
-        # Strip question marks at the beginning and end.
+        # Strip question marks at the beginning and end of input.
         if len(inp.strip()) > 0 and inp.split()[0] == '?':
+            # Beginning
+            # - - -
             # Note: Usually the language parser will strip the question mark,
             # but this is still needed you run ```python3 main.py '? list'```.
             inp = inp.lstrip('?')
         elif len(inp.strip()) > 0 and inp.split()[-1] == '?':
+            # End
             inp = inp.rstrip('?')
-            starts_with = True
 
         inp = inp.lower().strip()
-        one_word_cmd = len(inp.split()) == 1
         all_commands = self.current_help.help_current
-
-        matching_commands = []
+        matching_commands = {
+            'match_word': [],
+            'match_start': [],
+            'match_anywhere': [],
+        }
 
         # `?` --> Display all commands.
         if len(inp.split()) == 0:
@@ -211,9 +221,19 @@ class run_cmd(Cmd):
                 openad_help.all_commands(all_commands, toolkit_current=self.toolkit_current, cmd_pointer=self),
                 self,
                 pad=2,
-                tabs=1,
-                nowrap=True
+                tabs=1
             )
+
+        # Display info text about important key concepts.
+        if display_info:
+            if inp.lower() == 'workspace' or inp.lower() == 'workspaces':
+                output_text('<h1>About Workspaces</h1>\n' + info_workspaces, self, edge=True, pad=1, return_val=False)
+            elif inp.lower() == 'toolkit' or inp.lower() == 'toolkits':
+                output_text('<h1>About Toolkits</h1>\n' + info_toolkits, self, edge=True, pad=1, return_val=False)
+            elif inp.lower() == 'run' or inp.lower() == 'runs':
+                output_text('<h1>About Runs</h1>\n' + info_runs, self, edge=True, pad=1, return_val=False)
+            elif inp.lower() == 'context' or inp.lower() == 'contexts':
+                output_text('<h1>About Context</h1>\n' + info_context, self, edge=True, pad=1, return_val=False)
 
         # `<toolkit_name> ?` --> Display all toolkkit commands.
         if inp.upper() in _all_toolkits:
@@ -223,11 +243,10 @@ class run_cmd(Cmd):
                 openad_help.all_commands(toolkit.methods_help, toolkit_name, cmd_pointer=self),
                 self,
                 pad=2,
-                tabs=1,
-                nowrap=True
+                tabs=1
             )
 
-        # Add toolkit commands to the list of all commands.
+        # Add the current toolkit's commands to the list of all commands.
         try:
             for i in self.toolkit_current.methods_help:
                 if i not in all_commands:
@@ -235,42 +254,56 @@ class run_cmd(Cmd):
         except BaseException:
             pass
 
-        # Filter commands that include this exact word singular/plural.
-        if one_word_cmd and starts_with == False:
-            for command in all_commands:
-                command_str = str(command['command']).strip().lower()
-                words = command_str.split()
-                inp_singular = singular(inp)
-                inp_plural = inp_singular + 's'
-                if inp_singular in words or inp_plural in words:
-                    query_type = 'word_match'
-                    matching_commands.append(command)
+        # First list commands with full word matches.
+        for command in all_commands:
+            words = command['command'].split()
+            inp_singular = singular(inp)
+            inp_plural = inp_singular + 's'
+            if inp_singular in words or inp_plural in words:
+                matching_commands['match_word'].append(command)
 
-        # Filter commands that start with this string.
-        if not len(matching_commands):
-            for command in all_commands:
-                command_str = str(command['command']).strip().lower()
-                if command_str.upper().startswith(inp.upper()):
-                    query_type = 'starts_with'
-                    matching_commands.append(command)
+        # Then list commands starting with the input string.
+        for command in all_commands:
+            if re.match(inp, command['command']) \
+                    and command not in matching_commands['match_word']:
+                matching_commands['match_start'].append(command)
 
-        if len(matching_commands) > 1:
-            return output_text(openad_help.queried_commands(matching_commands, inp=inp, query_type=query_type), self, nowrap=True, **kwargs)
-        elif len(matching_commands) == 1:
-            # This lets us pass a custom pad value.
-            # Used by do_help()
-            if 'pad' in kwargs:
-                pad = kwargs['pad']
-                del kwargs['pad']
-            else:
-                pad = 1
+        # Then list command containing the input string.
+        for command in all_commands:
+            if re.search(inp, command['command']) \
+                    and command not in matching_commands['match_word'] \
+                    and command not in matching_commands['match_start']:
+                matching_commands['match_anywhere'].append(command)
 
-            return output_text(openad_help.command_details(matching_commands[0],self), self, edge=True, pad=pad, nowrap=True, **kwargs)
+        all_matching_commands = matching_commands['match_word'] + matching_commands['match_start'] + matching_commands['match_anywhere']
+        result_count = len(all_matching_commands)
+
+        # Check if there is an exact match.
+        # This is for case like `run <run_name> ?` which would otherwise
+        # display `run <run_name>` as well as `display run <run_name>`
+        all_matching_commands_str = [item['command'] for item in all_matching_commands]
+        exact_match = inp in all_matching_commands_str
+
+        # This lets us pass a custom padding value.
+        # This is used when suggesting commands after your input was not recognized.
+        # After "You may want to try:" we don't want a linebreak
+        # the suggestions
+        if 'pad' in kwargs:
+            pad = kwargs['pad']
+            del kwargs['pad']
         else:
-            return output_error(msg('err_invalid_cmd', None, split=True), self, **kwargs)
+            pad = 1
+
+        if result_count == 0:
+            return output_error(msg('err_no_matching_cmds', inp), self, **kwargs)
+        elif result_count == 1 or exact_match:
+            return output_text(openad_help.command_details(all_matching_commands[0], self), self, edge=True, pad=pad, nowrap=True, **kwargs)
+        else:
+            return output_text(openad_help.queried_commands(matching_commands, inp=inp), self, pad=pad, nowrap=True, **kwargs)
 
     # Preloop is called by cmd to get an update the history file
     # Each History File
+
     def preloop(self):
         if readline and os.path.exists(self.histfile):
             try:
@@ -456,9 +489,8 @@ class run_cmd(Cmd):
     # Default method call on hitting of the return Key, it tries to parse and execute the statements.
     def default(self, inp):
         x = None
-
-        if convert(inp).split()[-1] == '?' and not convert(inp).upper().startswith('TELL ME'):
-            return self.do_help(inp)
+        if convert(inp).split()[-1] == '?' and (not convert(inp).lower().startswith('tell me') or convert(inp).lower() == 'tell me ?'):
+            return self.do_help(inp, display_info=True)
 
         try:
             try:
@@ -469,9 +501,8 @@ class run_cmd(Cmd):
                 self.do_exit('exit emergency')
 
             y = self.current_statement_defs.parseString(convert(inp), parseAll=True)
-            
             x = lang_parse(self, y)
-           
+
             self.prompt = refresh_prompt(self.settings)
             logging.info('Ran: ' + inp)
 
@@ -499,7 +530,6 @@ class run_cmd(Cmd):
                     if len(i) > 1:
                         invalid_command = True
 
-                       
                         c = i[1]
                         try:
                             x = c.explain()
@@ -517,7 +547,7 @@ class run_cmd(Cmd):
                                 error_descriptor = x.replace(
                                     "ParseException:", "Syntax Error:: ")
                                 error_col = error_col_grabber(x)
-                       
+
                         else:
                             if error_col < error_col_grabber(x):
                                 error_descriptor = x
@@ -528,7 +558,6 @@ class run_cmd(Cmd):
             if invalid_command:
                 # Note: error_descriptor is optional.
                 if error_col_grabber(error_descriptor) == 0:
-                    
                     if self.notebook_mode is True:
                         return output_error(msg('err_invalid_cmd', 'Not a Valid Command, try "?" to list valid commands', split=True), self)
                     else:
@@ -548,8 +577,8 @@ class run_cmd(Cmd):
 
                     # Check if we found any alternative commands to suggest.
                     do_help_output = self.do_help(help_ref + ' ?', return_val=True, jup_return_format='plain')
-                    show_suggestions = 'Not a valid command.' not in do_help_output
-                    multiple_suggestions = 'Commands starting with' in do_help_output
+                    show_suggestions = 'No commands containing' not in do_help_output
+                    multiple_suggestions = 'Commands containing' in do_help_output
 
                     # Display error.
                     output_error(msg('err_invalid_cmd', error_msg, split=True), self, return_val=False)
@@ -563,12 +592,12 @@ class run_cmd(Cmd):
             else:
                 output_error(msg('err_unknown'), self, return_val=False)
                 return
-               
+
         if self.refresh_train == True:
             output_train_statements(self)
             self.refresh_train = False
         if self.notebook_mode is True:
-            
+
             return x
         elif self.api_mode == False:
             if x not in (True, False, None):
@@ -630,17 +659,17 @@ def api_remote(inp: str, connection_cache: dict = _meta_login_registry, api_cont
 
     # Check for Help from a command line request
     if len(inp.strip()) > 0:
-        if inp.split()[0] == '?' or (inp.split()[-1] == '?' and not convert(inp).upper().startswith('TELL ME')) or inp.strip() == '??':
+        if inp.split()[0] == '?' or (inp.split()[-1] == '?' and (not convert(inp).lower().startswith('tell me') or convert(inp).lower() == 'tell me ?')) or inp.strip() == '??':
             if inp.strip() == '?':
                 inp = ''
             elif inp.strip() == '??':
                 inp = '?'
 
-            return magic_prompt.do_help(inp)
-        else:
-            # if there is a argument and it is not help attemt to run the command
-            # Note, may be possible add code completion here #revisit
+            return magic_prompt.do_help(inp, display_info=True)
 
+        # If there is a argument and it is not a help attempt to run the command.
+        # Note, may be possible add code completion here #revisit
+        else:
             magic_prompt.preloop()
             magic_prompt.add_history(inp)
             magic_prompt.postloop()

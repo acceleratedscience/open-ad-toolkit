@@ -13,32 +13,32 @@ mol_name_cache = {}
 from flask import render_template, send_from_directory, request
 
 
-def fetchRoutes(cmd_pointer, parser):
+def fetchRoutesMols2Grid(cmd_pointer, parser):
     # File and directory references.
     workspace_path = cmd_pointer.workspace_path(cmd_pointer.settings['workspace'].upper()) + '/'
     origin_file = parser.as_dict()['moles_file'] if 'moles_file' in parser.as_dict() else None
     results_file = parser['results_file'] if 'results_file' in parser else None  # Parser as_dict?
 
     # Validate input.
-    if parser.getName() != 'show_api_molecules':
+    if parser.getName() != 'show_molecules_df':
         # Origin file doesn't exist.
         if origin_file and not os.path.exists(workspace_path + origin_file):
-            return output_error(msg('fail_file_doesnt_exist', origin_file), cmd_pointer)
+            return None, output_error(msg('fail_file_doesnt_exist', origin_file), cmd_pointer)
 
         # Invalid origin file type.
         if origin_file and len(origin_file.strip()) > 0:
             if origin_file.split('.')[-1].lower() not in ['sdf', 'csv']:
-                return output_error(msg('invalid_file_format', 'sdf', 'csv', split=True), cmd_pointer)
+                return None, output_error(msg('invalid_file_format', 'sdf', 'csv', split=True), cmd_pointer)
         else:
-            return output_error(msg('invalid_file_format', 'sdf', 'csv', split=True), cmd_pointer)
+            return None, output_error(msg('invalid_file_format', 'sdf', 'csv', split=True), cmd_pointer)
 
         # Invalid destination file type.
         if results_file is not None:
             if results_file and len(results_file.strip()) > 0:
                 if results_file and results_file.split('.')[-1].lower() not in ['sdf', 'csv']:
-                    return output_error(msg('invalid_file_format_target', 'sdf', 'csv', split=True), cmd_pointer)
+                    return None, output_error(msg('invalid_file_format_target', 'sdf', 'csv', split=True), cmd_pointer)
             else:
-                return output_error(msg('invalid_file_format_target', 'sdf', 'csv', split=True), cmd_pointer)
+                return None, output_error(msg('invalid_file_format_target', 'sdf', 'csv', split=True), cmd_pointer)
 
     # Parameters used to initialize our instance.
     # Used with mols2grid.MolGrid()
@@ -48,14 +48,12 @@ def fetchRoutes(cmd_pointer, parser):
         # 'size': (150, 100),
     }
 
-    # Render the gmol2grid and return:
+    # Render the mol2grid and return:
     # - the_mol2grid: The mols2grid object
     # - mol_frame: The dataframe used to render the grid
- 
-    
     def render_mols2grid():
         try:
-            if parser.getName() == 'show_api_molecules':
+            if parser.getName() == 'show_molecules_df':
                 # From dataframe.
                 try:
                     name = parser.getName() + '_' + parser.as_dict()['in_dataframe']
@@ -70,11 +68,11 @@ def fetchRoutes(cmd_pointer, parser):
                 try:
                     name = origin_file.split('/')[-1]
                     SDFFile = workspace_path + origin_file
-                    
+
                     mol_frame = PandasTools.LoadSDF(SDFFile)
                     the_mols2grid = mols2grid.MolGrid(mol_frame, name=name, **m2g_params_init)
                 except BaseException as err:
-                    
+
                     output_error(msg('err_load_sdf', err, split=True), cmd_pointer, return_val=False)
                     return False
             elif origin_file.split('.')[-1].lower() == 'csv':
@@ -98,32 +96,38 @@ def fetchRoutes(cmd_pointer, parser):
         except BaseException as err:
             output_error(msg('err_m2g_open', err, split=True), cmd_pointer)
 
-    # If the user has specified a non-existing directory path
-    # for the result file, we first need to get permission
-    # to create the missing dirs as it could be a mistake.
-    if not cmd_pointer.notebook_mode and results_file:
-        path_tree = parse_path_tree(results_file)
-        dir_path = ''
-        create_missing_dirs = False
-        if len(path_tree) > 0:
-            dir_path = workspace_path + '/'.join(path_tree)
-            if not os.path.exists(dir_path):
-                if confirm_prompt('Directory does not exist. Create it?'):
-                    create_missing_dirs = True
-                else:
+    if results_file:
+        # In Jupyter "save as" is not allowed, because we don't
+        # have a submit button here.
+        if cmd_pointer.notebook_mode:
+            return None, output_error(msg('fail_m2g_save_jupyter'), cmd_pointer)
+
+        # If the user has specified a non-existing directory path
+        # for the result file, we first need to get permission
+        # to create the missing dirs as it could be a mistake.
+        # TODO: Replace this with helper function - helpers.general.ensure_file_path()
+        else:
+            path_tree = parse_path_tree(results_file)
+            dir_path = ''
+            create_missing_dirs = False
+            if len(path_tree) > 0:
+                dir_path = workspace_path + '/'.join(path_tree)
+                if not os.path.exists(dir_path):
+                    if confirm_prompt('Directory does not exist. Create it?'):
+                        create_missing_dirs = True
+                    else:
+                        return None, output_error(msg('abort'), cmd_pointer)
+
+            # If the user has specified a file that already
+            # exists, we need to get permission to overwrite it.
+            if os.path.exists(workspace_path + results_file):
+                if not confirm_prompt('Destination file already exists. Overwrite?'):
                     return None, output_error(msg('abort'), cmd_pointer)
 
-        # If the user has specified a file that already
-        # exists, we need to get permission to overwrite it.
-        if os.path.exists(workspace_path + results_file):
-            if not confirm_prompt('Destination file already exists. Overwrite?'):
-                return None, output_error(msg('abort'), cmd_pointer)
-
     # Create the mols2grid object.
-   
     m2g = render_mols2grid()
     if not m2g or not isinstance(m2g, tuple):
-        return
+        return None, output_error(msg('fail_render_mols2grid'), cmd_pointer)
     the_mols2grid, mol_frame = m2g
 
     # Render grid in Jupyter.
@@ -135,9 +139,8 @@ def fetchRoutes(cmd_pointer, parser):
         else:
             # Display the grid.
             m2g_params = _compile_default_m2g_params(mol_frame)
-            
-            return None,the_mols2grid.display(**m2g_params)
-            
+
+            return None, the_mols2grid.display(**m2g_params)
 
     # Render grid in Flask.
     else:
@@ -151,7 +154,7 @@ def fetchRoutes(cmd_pointer, parser):
 
         # If SMILES column is missing from the input file, we abort.
         if 'SMILES' not in available_params:
-            return None,  output_error(msg('fail_m2g_smiles_col_missing'), cmd_pointer)
+            return None, output_error(msg('fail_m2g_smiles_col_missing'), cmd_pointer)
 
         #
         # ROUTES
@@ -325,7 +328,7 @@ def _normalize_mol_df(mol_df: pandas.DataFrame, cmd_pointer):
         spinner.stop()
         print(err)
 
-    return  mol_df
+    return mol_df
 
 
 def _smiles_to_iupac(smiles):
