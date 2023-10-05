@@ -80,13 +80,12 @@ def output_text(text, cmd_pointer=None, return_val=None, jup_return_format=None,
     api_mode = cmd_pointer.api_mode if cmd_pointer else False
     return_val = notebook_mode if return_val is None else return_val
 
+    # API
     if api_mode:
-        # API
-
         return strip_tags(text)
-    elif notebook_mode:
 
-        # Jupyter
+    # Jupyter
+    elif notebook_mode:
         if return_val:
             if jup_return_format == 'plain':
                 return strip_tags(text)
@@ -96,8 +95,9 @@ def output_text(text, cmd_pointer=None, return_val=None, jup_return_format=None,
                 return Markdown(tags_to_markdown(text))
         else:
             display(Markdown(tags_to_markdown(text)))
+
+    # CLI
     else:
-        # CLI
         if return_val:
             return style(text, **kwargs)
         else:
@@ -187,7 +187,7 @@ def output_success(msg, *args, **kwargs):
 
 
 # Print or return a table.
-def output_table(data, cmd_pointer=None, is_data=False, headers=None, note=None, tablefmt='simple'):
+def output_table(table, cmd_pointer=None, is_data=False, headers=None, note=None, tablefmt='simple'):
     """
     Display a table:
     - CLI:      Print using tabulate with some custom home-made styling
@@ -216,64 +216,18 @@ def output_table(data, cmd_pointer=None, is_data=False, headers=None, note=None,
     from ad4e_opentoolkit.helpers.general import is_notebook_mode
     notebook_mode = cmd_pointer.notebook_mode if cmd_pointer else is_notebook_mode()
     headers = [] if headers is None else headers
-    is_df = isinstance(data, pandas.DataFrame)
+    is_df = isinstance(table, pandas.DataFrame)
     cli_width = shutil.get_terminal_size().columns
 
     # Turn potential tuples into lists.
-    data = data if is_df else [list(row) for row in data]
+    table = table if is_df else [list(row) for row in table]
 
     # Ensure the headers list matches the number of columns.
-    col_count = data.shape[1] if is_df else len(data[0])
+    col_count = table.shape[1] if is_df else len(table[0])
 
     if headers and len(headers) != col_count:
         output_warning(msg('table_headers_dont_match_columns', headers, col_count, split=True), cmd_pointer, return_val=False)
         headers = headers[:col_count] + ['(?)'] * max(0, col_count - len(headers))
-
-    # - -
-    # Return data in Jupyter.
-    if notebook_mode is True:
-        pandas.set_option('display.max_colwidth', None)
-        # pandas.options.display.max_colwidth = 5
-        # pandas.set_option('display.max_colwidth', 5)
-        if (is_df):
-
-            return data
-        else:
-            # Remove styling tags from headers.
-            headers = list(map(lambda text: strip_tags(text), headers))
-
-            # Remove styling tags from content.
-            for i, row in enumerate(data):
-                for j, cell in enumerate(row):
-                    data[i][j] = strip_tags(cell)
-
-            return pandas.DataFrame(data, columns=headers)
-
-    # - -
-    # Display data in terminal.
-    if (is_df):
-        table = tabulate(data, headers="keys", tablefmt=tablefmt, showindex=False, numalign="left")
-    else:
-        # Parse styling tags.
-        for i, row in enumerate(data):
-            for j, cell in enumerate(row):
-                data[i][j] = style(cell, nowrap=True)
-
-        table = tabulate(data, headers=headers, tablefmt=tablefmt, showindex=False, numalign="left")
-
-    # Crop table if it's wider than the terminal.
-    max_row_length = max(list(map(lambda row: len(row), table.splitlines())))
-    if max_row_length > cli_width:
-        for i, line in enumerate(table.splitlines()):
-            if i == 1:
-                table = table.replace(line, line[:cli_width])
-            elif len(line) > cli_width:
-                # updated with reset \u001b[0m for color tags which may be found later
-                table = table.replace(line, line[:cli_width - 3] + '...\u001b[0m')
-
-    # Make line yellow.
-    lines = table.splitlines()
-    lines[1] = style(f'<yellow>{lines[1]}</yellow>', nowrap=True)
 
     # Enable follow-up commands.
     if is_data:
@@ -281,24 +235,85 @@ def output_table(data, cmd_pointer=None, is_data=False, headers=None, note=None,
             raise Exception('cmd_pointer is required in display_data() to enable follow-up commands.')
 
         # Store data in memory so we can access it with follow-up commands.
-        cmd_pointer.memory['data'] = data
+        cmd_pointer.memory['data'] = table
         cmd_pointer.preserve_memory['data'] = True
 
-        # Display follow-up commands.
+    # - -
+    # Format data for Jupyter.
+    if notebook_mode is True:
+        pandas.set_option('display.max_colwidth', None)
+        # pandas.options.display.max_colwidth = 5
+        # pandas.set_option('display.max_colwidth', 5)
+        if (is_df):
+            # return data %%
+            pass
+        else:
+            # Remove styling tags from headers.
+            headers = list(map(lambda text: strip_tags(text), headers))
+
+            # Remove styling tags from content.
+            for i, row in enumerate(table):
+                for j, cell in enumerate(row):
+                    table[i][j] = strip_tags(cell)
+
+            # return pandas.DataFrame(data, columns=headers) %%
+            table = pandas.DataFrame(table, columns=headers)
+
+    # - -
+    # Format data for terminal.
+    else:
+        if (is_df):
+            table = tabulate(table, headers="keys", tablefmt=tablefmt, showindex=False, numalign="left")
+        else:
+            # Parse styling tags.
+            for i, row in enumerate(table):
+                for j, cell in enumerate(row):
+                    table[i][j] = style(cell, nowrap=True)
+
+            table = tabulate(table, headers=headers, tablefmt=tablefmt, showindex=False, numalign="left")
+
+        # Crop table if it's wider than the terminal.
+        max_row_length = max(list(map(lambda row: len(row), table.splitlines())))
+        if max_row_length > cli_width:
+            for i, line in enumerate(table.splitlines()):
+                if i == 1:
+                    table = table.replace(line, line[:cli_width])
+                elif len(line) > cli_width:
+                    # updated with reset \u001b[0m for color tags which may be found later
+                    table = table.replace(line, line[:cli_width - 3] + '...\u001b[0m')
+
+        # Make line yellow.
+        table = table.splitlines()
+        table[1] = style(f'<yellow>{table[1]}</yellow>', nowrap=True)
+        table = '\n'.join(table)
+
+    # Display footnote.
+    footnote = ''
+
+    # --> Optional follow-up commands.
+    if is_data:
         msg = (
-            '<cmd>open</cmd>',
-            '<cmd>edit</cmd>',
-            '<cmd>save [as \'<filename.csv>\']</cmd>',
+            '<cmd>result open</cmd>',
+            '<cmd>result edit</cmd>',
+            '<cmd>result save [as \'<filename.csv>\']</cmd>',
         )
-        lines.append('\n<soft>Next up, you can run: </soft>' + ' / '.join(msg))
+        footnote += '<soft>Next up, you can run: </soft>' + ' / '.join(msg)
 
-    # Add footnote.
+    # --> Optional custom note.
     if note:
-        lines.append(f'\n<soft>{note}</soft>')
-    table = '\n'.join(lines)
+        footnote += f'\n<soft>{note}</soft>'
 
-    # Print.
-    print_s(table, pad=2, nowrap=True)
+    # Output
+    if notebook_mode is True:
+        if footnote:
+            output_text(footnote, cmd_pointer, return_val=False)
+        return table
+    else:
+        if footnote:
+            output = table + '\n\n' + footnote
+        else:
+            output = table
+        print_s(output, pad=2, nowrap=True)
 
 
 # Procure a display message from output_msgs.py.
