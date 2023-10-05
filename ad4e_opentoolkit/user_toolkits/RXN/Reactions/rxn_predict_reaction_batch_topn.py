@@ -83,15 +83,15 @@ def predict_reaction_batch_topn(inputs: dict, toolkit_dir, cmd_pointer):
         try:
                 from_list= inputs['from_source']['from_list']
         except:
-                print("unexpected pyparsing error. Please report circumstance to OpenAD team")
+                print("unexpected pyparsing error. Please screenshot and report circumstance to OpenAD team")
                 print("Restart Notebook Kernel or application to proceed")
                 return False
 
-    elif 'from_list'  in inputs['from_source'][0]:
+    elif 'from_list' in inputs['from_source'][0]:
             try:
-                from_list= inputs['from_source'][0]['from_list']
+                from_list=inputs['from_source'][0]['from_list']
             except:
-                print("unexpected pyparsing error. Please report circumstance to OpenAD team")
+                print("unexpected pyparsing error. Please screenshot and report circumstance to OpenAD team")
     elif 'from_dataframe' in inputs:
         try:
             react_frame = cmd_pointer.api_variables[inputs['from_dataframe']]
