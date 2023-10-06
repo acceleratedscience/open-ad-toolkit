@@ -238,7 +238,8 @@ Only follow these instructions if you're contributing to the codebase.
 
 **Testing a branch**<br>
 To do a regular install from a particular branch, you can run:
-pip install git+ssh://git@github.ibm.com/Accelerated-Discovery/ad4e-opentoolkit.git@<branch_name>
+
+    pip install git+ssh://git@github.ibm.com/Accelerated-Discovery/ad4e-opentoolkit.git@<branch_name>
 
 <!--
 
