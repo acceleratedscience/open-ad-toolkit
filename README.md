@@ -63,7 +63,7 @@
         add toolkit rxn
 
 -   **Running Bash Commands**<br>
-    To run any command as a bash command, prepend it with `openad` and make sure to prepend any quotes with `\`.
+    To run any command in bash mode, prepend it with `openad` and make sure to prepend any quotes with `\`.
 
         openad show molecules using file \'base_molecules.sdf\'
 
@@ -224,23 +224,22 @@ Only follow these instructions if you're contributing to the codebase.
     > **Note:** To exit the virtual environment, you can run `deactivate`
 
 1.  **Step 2: Installation**<br>
-   [Download](https://github.ibm.com/Accelerated-Discovery/ad4e-opentoolkit) or clone the right branch from GitHub:
+    [Download](https://github.ibm.com/Accelerated-Discovery/ad4e-opentoolkit) or clone the right branch from GitHub:
 
-        git clone -b <branch_name> git@github.ibm.com:Accelerated-Discovery/ad4e-opentoolkit.git
+         git clone -b <branch_name> git@github.ibm.com:Accelerated-Discovery/ad4e-opentoolkit.git
 
     Then, enter the repo's top directory and install the requirements
 
-        cd ad4e-opentoolkit
-        pip install -e .
+         cd ad4e-opentoolkit
+         pip install -e .
 
     > **Note:** The `-e` flag stands for "editable". This means that instead of copying the package's files to the Python site-packages directory as in a regular installation, pip creates a symbolic link (symlink) from your package's source code directory into your Python environment.
 
     > This way you can make changes to the source code of the package, and those changes are immediately reflected in your Python environment. You don't need to reinstall the package every time you make a change.
-    
+
 **Testing a branch**<br>
 To do a regular install from a particular branch, you can run:
-    	
-	pip install git+ssh://git@github.ibm.com/Accelerated-Discovery/ad4e-opentoolkit.git@<branch_name>
+pip install git+ssh://git@github.ibm.com/Accelerated-Discovery/ad4e-opentoolkit.git@<branch_name>
 
 <!--
 
