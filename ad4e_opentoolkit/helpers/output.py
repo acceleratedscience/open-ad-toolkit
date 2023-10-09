@@ -215,7 +215,6 @@ def output_table(data, cmd_pointer=None, is_data=False, headers=None, note=None,
     from tabulate import tabulate
     from ad4e_opentoolkit.helpers.general import is_notebook_mode
     notebook_mode = cmd_pointer.notebook_mode if cmd_pointer else is_notebook_mode()
-    headers = [] if headers is None else headers
     is_df = isinstance(data, pandas.DataFrame)
     cli_width = shutil.get_terminal_size().columns
 
@@ -236,11 +235,11 @@ def output_table(data, cmd_pointer=None, is_data=False, headers=None, note=None,
         # pandas.options.display.max_colwidth = 5
         # pandas.set_option('display.max_colwidth', 5)
         if (is_df):
-
             return data
         else:
             # Remove styling tags from headers.
-            headers = list(map(lambda text: strip_tags(text), headers))
+            if headers:
+                headers = list(map(lambda text: strip_tags(text), headers))
 
             # Remove styling tags from content.
             for i, row in enumerate(data):
@@ -259,7 +258,8 @@ def output_table(data, cmd_pointer=None, is_data=False, headers=None, note=None,
             for j, cell in enumerate(row):
                 data[i][j] = style(cell, nowrap=True)
 
-        table = tabulate(data, headers=headers, tablefmt=tablefmt, showindex=False, numalign="left")
+        tabulate_headers = headers if headers else 'firstrow'
+        table = tabulate(data, headers=tabulate_headers, tablefmt=tablefmt, showindex=False, numalign="left")
 
     # Crop table if it's wider than the terminal.
     max_row_length = max(list(map(lambda row: len(row), table.splitlines())))
@@ -285,12 +285,12 @@ def output_table(data, cmd_pointer=None, is_data=False, headers=None, note=None,
         cmd_pointer.preserve_memory['data'] = True
 
         # Display follow-up commands.
-        msg = (
+        message = (
             '<cmd>open</cmd>',
             '<cmd>edit</cmd>',
             '<cmd>save [as \'<filename.csv>\']</cmd>',
         )
-        lines.append('\n<soft>Next up, you can run: </soft>' + ' / '.join(msg))
+        lines.append('\n<soft>Next up, you can run: </soft>' + ' / '.join(message))
 
     # Add footnote.
     if note:
