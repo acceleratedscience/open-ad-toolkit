@@ -327,18 +327,16 @@ def set_context(cmd_pointer, parser):
 
             except BaseException as err:
                 # Error logging in.
-                output_error(msg('err_login', toolkit_name,
-                             err, split=True), cmd_pointer)
+                output_error(msg('err_login', toolkit_name,err, split=True), cmd_pointer)
                 cmd_pointer.settings['context'] = old_cmd_pointer_context
                 cmd_pointer.toolkit_current = old_toolkit_current
                 return
 
             if not login_success:
-                # Failed to log in.
-                output_error(msg('err_login', toolkit_name,
-                             split=True), cmd_pointer)
+                # Failed to log in. # error reporting handled by Toolkit 
                 cmd_pointer.settings['context'] = old_cmd_pointer_context
                 cmd_pointer.toolkit_current = old_toolkit_current
+                unset_context(cmd_pointer,None)
                 return
 
             # Success switching context & loggin in.

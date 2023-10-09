@@ -217,11 +217,11 @@ class rxn_helper():
         else:
             return False
     ### only for function checks not for login.py 
-    def sync_up_workspace_name(self,cmd_pointer):
+    def sync_up_workspace_name(self,cmd_pointer,reset=False):
         #print("syncing)")
         name,id=self.get_current_project(cmd_pointer)
         #print("current_project: "+str(name)+" "+str(id))
-        if name==cmd_pointer.settings['workspace']:
+        if name==cmd_pointer.settings['workspace'] and reset != True:
             return True
                
                 
