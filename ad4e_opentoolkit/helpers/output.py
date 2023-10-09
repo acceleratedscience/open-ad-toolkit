@@ -218,12 +218,16 @@ def output_table(data, cmd_pointer=None, is_data=False, headers=None, note=None,
     is_df = isinstance(data, pandas.DataFrame)
     cli_width = shutil.get_terminal_size().columns
 
+    # Abort when table is empty.
+    if _is_empty_table(data, is_df):
+        output_warning(msg('table_is_empty'), cmd_pointer, return_val=False)
+        return
+
     # Turn potential tuples into lists.
     data = data if is_df else [list(row) for row in data]
 
     # Ensure the headers list matches the number of columns.
     col_count = data.shape[1] if is_df else len(data[0])
-
     if headers and len(headers) != col_count:
         output_warning(msg('table_headers_dont_match_columns', headers, col_count, split=True), cmd_pointer, return_val=False)
         headers = headers[:col_count] + ['(?)'] * max(0, col_count - len(headers))
@@ -262,7 +266,7 @@ def output_table(data, cmd_pointer=None, is_data=False, headers=None, note=None,
         table = tabulate(data, headers=tabulate_headers, tablefmt=tablefmt, showindex=False, numalign="left")
 
     # Crop table if it's wider than the terminal.
-    max_row_length = max(list(map(lambda row: len(row), table.splitlines())))
+    max_row_length = max(list(map(lambda row: len(row), table.splitlines()))) if table else 0
     if max_row_length > cli_width:
         for i, line in enumerate(table.splitlines()):
             if i == 1:
@@ -299,6 +303,21 @@ def output_table(data, cmd_pointer=None, is_data=False, headers=None, note=None,
 
     # Print.
     print_s(table, pad=2, nowrap=True)
+
+
+# Check whether table data is empty.
+def _is_empty_table(data, is_df):
+    if is_df:
+        return data.empty
+    elif not data:
+        return True
+    else:
+        is_empty = True
+        for col in data:
+            if col:
+                is_empty = False
+                break
+        return is_empty
 
 
 # Procure a display message from output_msgs.py.
