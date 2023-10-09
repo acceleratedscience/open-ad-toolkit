@@ -1,0 +1,30 @@
+body {
+	min-width: min-content;
+}
+
+#table {
+	margin-top: 10px;
+}
+#table::after {
+	/* This forces a 40px bottom margin */
+	content: '';
+	display: block;
+	height: 40px;
+}
+
+#table-wrap {
+	display: flex;
+	flex-direction: column-reverse;
+	margin-top: 30px;
+}
+#table-wrap > a {
+	text-decoration: none;
+	color: var(--gray-4);
+	height: 10px;
+	line-height: 10px;
+	margin-top: -10px;
+}
+
+#table:not(.resized) + a {
+	display: none;
+}

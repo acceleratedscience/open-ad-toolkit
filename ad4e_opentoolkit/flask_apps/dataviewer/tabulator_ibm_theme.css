@@ -1,20 +1,32 @@
+/* Scroll behavior */
+.tabulator,
+.tabulator .tabulator-tableholder {
+	overflow: visible;
+}
+
 /* Borders */
-.tabulator {
+.tabulator .tabulator-header {
+	background-color: transparent;
+	border: none;
 }
 .tabulator .tabulator-header .tabulator-col {
-	background-color: transparent;
-}
-.tabulator .tabulator-header {
 	background-color: var(--gray-1);
 	border: solid 1px var(--gray-2);
 	border-bottom-color: var(--gray-3);
 }
+.tabulator .tabulator-header .tabulator-col:not(:first-of-type) {
+	border-left: none;
+}
+.tabulator-row .tabulator-cell,
 .tabulator-row .tabulator-cell:last-of-type {
 	border-right: solid 1px var(--gray-2);
 }
+.tabulator-cell:first-of-type.tabulator-editing,
+.tabulator-cell:first-of-type {
+	border-left: solid 1px var(--gray-2);
+}
 .tabulator-row {
-	border: solid 1px var(--gray-2);
-	border-top: none;
+	border-bottom: solid 1px var(--gray-2);
 }
 
 /* Row hover */
@@ -35,20 +47,58 @@
 .tabulator .tabulator-header .tabulator-col .tabulator-col-content .tabulator-col-sorter .tabulator-arrow,
 .tabulator .tabulator-header .tabulator-col.tabulator-sortable[aria-sort='none'] .tabulator-col-content .tabulator-col-sorter .tabulator-arrow {
 	border: none;
-	background-color: pink;
 	width: 8px;
 	height: 7px;
-}
-.tabulator .tabulator-header .tabulator-col.tabulator-sortable[aria-sort='descending'] .tabulator-col-content .tabulator-col-sorter svg {
-	fill: red;
 }
 .tabulator .tabulator-header .tabulator-col.tabulator-sortable[aria-sort='ascending'] .tabulator-col-content .tabulator-col-sorter .tabulator-arrow,
 .tabulator .tabulator-header .tabulator-col.tabulator-sortable[aria-sort='descending'] .tabulator-col-content .tabulator-col-sorter .tabulator-arrow {
 	border: none;
-	background-image: url('data:image/svg+xml;utf8,<svg width="8" height="7" viewBox="0 0 8 7" xmlns="http://www.w3.org/2000/svg"><path fill="#00FF85" d="M3.5713 6.285L0.254304 0.757C0.0543037 0.424 0.295303 -1.69163e-08 0.682304 0L7.3173 2.90025e-07C7.7053 3.06985e-07 7.9463 0.424 7.7453 0.757L4.4283 6.285C4.2343 6.609 3.7653 6.609 3.5713 6.285Z"/></svg>');
-	width: 8px;
-	height: 7px;
+	background-image: url('data:image/svg+xml;utf8,%3Csvg%20width%3D%228%22%20height%3D%227%22%20viewBox%3D%220%200%208%207%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20fill%3D%22%23393939%22%20d%3D%22M3.5713%206.285L0.254304%200.757C0.0543037%200.424%200.295303%20-1.69163e-08%200.682304%200L7.3173%202.90025e-07C7.7053%203.06985e-07%207.9463%200.424%207.7453%200.757L4.4283%206.285C4.2343%206.609%203.7653%206.609%203.5713%206.285Z%22%2F%3E%3C%2Fsvg%3E');
 }
 .tabulator .tabulator-header .tabulator-col.tabulator-sortable[aria-sort='descending'] .tabulator-col-content .tabulator-col-sorter .tabulator-arrow {
 	transform: rotate(180deg);
 }
+
+/* Edit field */
+/* Note - also see .tabulator-editing above */
+.tabulator-row .tabulator-cell.tabulator-editing,
+.tabulator-row.tabulator-selectable:hover .tabulator-cell.tabulator-editing {
+	border: none !important;
+	overflow: visible;
+}
+.tabulator-row .tabulator-cell.tabulator-editing input,
+.tabulator-row .tabulator-cell.tabulator-editing select {
+	background: white;
+	border: solid 2px var(--ibm-blue);
+
+	/* Clean edge */
+	position: relative;
+	z-index: 1;
+	width: calc(100% + 1px) !important;
+	height: calc(100% + 2px) !important;
+	margin-left: -1px !important;
+	margin-top: -1px !important;
+
+	/* Font style */
+	font-family: var(--font-fam) !important;
+	font-size: var(--font-size) !important;
+	padding: 3px !important;
+	padding-top: 2px !important;
+	padding-left: 4px !important; /* <-- Shifts text 1px right, making edit mode more clear. */
+}
+.tabulator-row .tabulator-cell.tabulator-editing:first-of-type input,
+.tabulator-row .tabulator-cell.tabulator-editing:first-of-type select {
+	width: 100% !important;
+	margin-left: 0 !important;
+}
+
+/* .tabulator-row .tabulator-cell.tabulator-validation-fail {
+  border: 1px solid #dd0000;
+}
+
+.tabulator-row .tabulator-cell.tabulator-validation-fail input,
+.tabulator-row .tabulator-cell.tabulator-validation-fail select {
+  border: 1px;
+  background: transparent;
+  color: #dd0000;
+} */
