@@ -2,25 +2,33 @@
 * IBM Carbon Styling
 */
 
+body {
+	--ibm-blue: #0f62fe;
+	--ibm-blue-dark: #0353e9;
+	--ibm-black: #393939;
+	--ibm-font-fam: 'IBM Plex Sans', sans-serif;
+	--ibm-font-size: 14px;
+}
+
 button {
 	height: 40px;
-	background: #0f62fe;
+	background: var(--ibm-blue);
 	border: none;
 	color: #fff;
 	padding: 0 32px 0 16px;
-	font-family: 'IBM Plex Sans', sans-serif;
-	font-size: 14px;
+	font-family: var(--ibm-font-fam);
+	font-size: var(--ibm-font-size);
 	cursor: pointer;
 }
 button:hover {
-	background: #0353e9;
+	background: var(--ibm-blue-dark);
 }
 button.secondary {
-	background: #393939;
+	background: var(--ibm-black);
 	color: #fff;
 }
 button.tertiary {
 	background: transparent;
-	color: #393939;
-	border: 1px solid #393939;
+	color: var(--ibm-black);
+	border: 1px solid var(--ibm-black);
 }

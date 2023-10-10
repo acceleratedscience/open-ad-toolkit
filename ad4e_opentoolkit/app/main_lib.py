@@ -498,7 +498,7 @@ def display_data__open(cmd_pointer, parser, edit_mode=False):
     # Load routes and launch browser UI.
     routes = fetchRoutesDataViewer(data, headers)
     hash = '#edit' if edit_mode else ''
-    launcher.launch(cmd_pointer, routes, hash=hash)
+    launcher.launch(cmd_pointer, routes, 'dataviewer', hash=hash)
 
 
 # Edit a JSON config file.

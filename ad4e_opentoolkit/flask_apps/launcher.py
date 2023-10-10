@@ -7,7 +7,7 @@ from ad4e_opentoolkit.helpers.output import msg, output_text, output_error
 from ad4e_opentoolkit.helpers.general import next_avail_port
 
 
-def launch(cmd_pointer=None, routes=None, query='', hash=''):
+def launch(cmd_pointer=None, routes=None, app_name='', query='', hash=''):
     if not routes:
         output_error('Routes are required to launch Flask server.')
         return
@@ -20,6 +20,13 @@ def launch(cmd_pointer=None, routes=None, query='', hash=''):
     @app.route('/css/<path>')
     def css(path):
         return send_from_directory(_repo_dir + '/../flask_apps/_css', f'{path}')
+
+    # Make app files available.
+    flask_dir = os.path.dirname(os.path.abspath(__file__))
+
+    @app.route('/app/<path:subpath>')
+    def app_dir(subpath):
+        return send_from_directory(f'{flask_dir}/{app_name}', f'{subpath}')
 
     # Unpack routes.
     for route in routes:

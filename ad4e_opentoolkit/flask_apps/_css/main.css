@@ -1,3 +1,28 @@
+/* Global variables */
+body {
+	--gray-x: #f00; /* For testing */
+
+	--font-fam: var(--ibm-font-fam);
+	--font-size: var(--ibm-font-size);
+
+	/* --black-15: rgba(0, 0, 0, 0.15); */
+	/* --gray-1: #f4f4f4;
+	--gray-2: #ddd;
+	--gray-3: #ccc; */
+	--gray-1: rgba(0, 0, 0, 0.04);
+	--gray-2: rgba(0, 0, 0, 0.1);
+	--gray-3: rgba(0, 0, 0, 0.2);
+	--gray-4: rgba(0, 0, 0, 0.3);
+
+	--black: var(--ibm-black);
+
+	--highlight: #fff7cc;
+	--highlight-border: #e5deb8; /* Equivalent of 10% black overlay */
+	--blue: var(--ibm-blue);
+	--blue-soft: #dbe7ff; /* Equivalent of 15% ibm-blue */
+	--blue-soft-2: #f3f7ff; /* Equivalent of 5% ibm-blue */
+}
+
 /**
  * General Styling
  */
@@ -13,7 +38,7 @@ body {
 	padding: 40px;
 	font-family: 'IBM Plex Sans', sans-serif;
 	font-size: 13px;
-	color: #393939;
+	color: var(--black);
 }
 h1 {
 	margin: 0;

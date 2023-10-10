@@ -1,0 +1,47 @@
+body {
+	min-width: min-content;
+}
+
+/**
+ * Table wrap
+ */
+
+#table-wrap {
+	display: flex;
+	flex-direction: column-reverse;
+}
+
+/* Buttons */
+#table-wrap .btn-wrap {
+	margin-bottom: 30px;
+}
+#table-wrap #table.edit-mode ~ .btn-wrap > #btn-edit,
+#table-wrap #table:not(.edit-mode) ~ .btn-wrap > #btn-cancel,
+#table-wrap #table:not(.edit-mode) ~ .btn-wrap > #btn-save {
+	display: none;
+}
+
+/* Reset columsn link */
+#table-wrap > a {
+	text-decoration: none;
+	color: var(--gray-4);
+	height: 10px;
+	line-height: 10px;
+	margin-top: -10px;
+}
+#table:not(.resized) + a {
+	display: none;
+}
+
+/**
+ * Table
+ */
+#table {
+	margin-top: 10px;
+}
+#table::after {
+	/* This forces a 40px bottom margin */
+	content: '';
+	display: block;
+	height: 40px;
+}
