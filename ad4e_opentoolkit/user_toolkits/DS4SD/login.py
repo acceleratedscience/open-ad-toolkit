@@ -5,12 +5,9 @@ from deepsearch.cps.client.components.elastic import ElasticDataCollectionSource
 from deepsearch.cps.queries import DataQuery
 from deepsearch.cps.client.components.queries import RunQueryError
 from ad4e_opentoolkit.helpers.output import msg, output_text, output_error, output_warning
-
+_default_url= 'https://sds.app.accelerate.science/'
 config_blank = {"host": "None", "auth": {"username": "None", "api_key": "None"}, "verify_ssl": "false"}
 
-# login
-
-# https://cps.foc-deepsearch.zurich.ibm.com/projects/1234567890abcdefghijklmnopqrstvwyz123456/library
 
 
 # Initialize the Deep Search client from the config file
@@ -49,14 +46,14 @@ def login(cmd_pointer):
             return True, expiry_datetime
 
     if not os.path.isfile(os.path.expanduser(cmd_pointer.home_dir) + "/ds-auth.ext-v2.json"):
-        output_warning('Setting Authentication Details for Deep Search:',cmd_pointer)
+        output_warning('Setting Authentication Details for Deep Search:', cmd_pointer)
         import readline
         if cmd_pointer.notebook_mode == False:
             import readline          
-            output_text("Enter the Hostname: if the hostname is left blank it will default to 'https://sds.app.accelerate.science/' ",cmd_pointer=cmd_pointer)
+            output_text("Enter the Hostname: if the hostname is left blank it will default to '"+_default_url+"' ", cmd_pointer=cmd_pointer)
             config_blank['host'] = input("\u001b[33mHostname: \u001b[0m")
             if config_blank['host'].strip()=='':
-                config_blank['host']='https://sds.app.accelerate.science/'
+                config_blank['host']=_default_url
             
             readline.remove_history_item(readline.get_current_history_length() - 1)
             config_blank['auth']['username'] = input("\u001b[33mEmail: \u001b[0m")
@@ -64,10 +61,10 @@ def login(cmd_pointer):
             config_blank['auth']['api_key'] = input("\u001b[33mApi_key: \u001b[0m")
             readline.remove_history_item(readline.get_current_history_length() - 1)
         else:    
-            output_text("Enter the Hostname: if the hostname is left blank it will default to 'https://sds.app.accelerate.science/' ",cmd_pointer=cmd_pointer)
+            output_text("Enter the Hostname: if the hostname is left blank it will default to '" + _default_url + "' ", cmd_pointer=cmd_pointer)
             config_blank['host'] = input("Hostname: ")
             if config_blank['host'].strip()=='':
-                config_blank['host']='https://sds.app.accelerate.science/'
+                config_blank['host']=_default_url
             readline.remove_history_item(readline.get_current_history_length() - 1)
             config_blank['auth']['username'] = input("Email: ")
             readline.remove_history_item(readline.get_current_history_length() - 1)
@@ -108,5 +105,5 @@ def login(cmd_pointer):
 
         return True, expiry_datetime
     except BaseException as err:
-        output_error(msg('err_login', 'DS4SD',"Unable to connect to "+config.host, split=True), cmd_pointer)
+        output_error(msg('err_login', 'DS4SD',"Unable to connect to " + config.host, split=True), cmd_pointer)
         return False, None

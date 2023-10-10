@@ -159,9 +159,9 @@ class run_cmd(Cmd):
             if success==False:
                 self.settings['context']    = None
                 self.toolkit_current        = None
-                unset_context(self,None)
+                unset_context(self, None)
                 self.prompt = refresh_prompt(self.settings)
-                output_text("Unable to set context on Login, defaulting to no context set.",self,return_val=False)
+                output_text("Unable to set context on Login, defaulting to no context set.", self, return_val=False)
         try:
             if self.settings['env_vars']['refresh_help_ai'] == True:
                 self.refresh_vector = True

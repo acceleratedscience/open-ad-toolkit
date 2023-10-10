@@ -4,7 +4,7 @@ from rxn4chemistry import RXN4ChemistryWrapper
 import json
 config_blank = {"host": "None", "auth": {"username": "None", "api_key": "None"}, "verify_ssl": "false"}
 from ad4e_opentoolkit.helpers.output import msg, output_text, output_error, output_warning
-
+_default_url="https://rxn.app.accelerate.science"
 
 # Initialize the rxn client from the config file
 # Input parameters for the example flow
@@ -72,20 +72,20 @@ def login(cmd_pointer):
         output_warning('Setting Authentication Details for RXN:',cmd_pointer)
         import readline
         print("\n")
-        output_text("Enter the Hostname: if the hostname is left blank it will default to 'https://rxn.app.accelerate.science' ",cmd_pointer=cmd_pointer)
+        output_text("Enter the Hostname: if the hostname is left blank it will default to '" + _default_url + "' ", cmd_pointer=cmd_pointer)
             
         if cmd_pointer.notebook_mode == False:
             
             config_blank['host'] = input("\u001b[33mHostname: \u001b[0m")
             if config_blank['host'].strip()=='':
-                config_blank['host']='https://rxn.app.accelerate.science'
+                config_blank['host']=_default_url
             readline.remove_history_item(readline.get_current_history_length() - 1)
             config_blank['auth']['api_key'] = input("\u001b[33mApi_key: \u001b[0m")
             readline.remove_history_item(readline.get_current_history_length() - 1)
         else:
             config_blank['host']=input("Hostname: ")
             if config_blank['host'].strip()=='':
-                config_blank['host']='https://rxn.app.accelerate.science'    
+                config_blank['host']=_default_url   
             readline.remove_history_item(readline.get_current_history_length() - 1)
             config_blank['auth']['api_key'] = input("Api_key: ")
             readline.remove_history_item(readline.get_current_history_length() - 1)
@@ -104,16 +104,16 @@ def login(cmd_pointer):
         x = cmd_pointer.login_settings['toolkits'].index('RXN')
        
         client=RXN4ChemistryWrapper(api_key= CONFIG_FILE['auth']['api_key'], base_url= CONFIG_FILE['host'])
-        email = client.current_user()['response']["payload"]["email"]
+        email = client.current_user()['response']['payload']['email']
         print("\n")
         output_text("loggining in as "+email,cmd_pointer=cmd_pointer)
-        cmd_pointer.login_settings['toolkits_api'][x] = CONFIG_FILE['auth']['api_key'] #config_blank['auth']['api_key']
+        cmd_pointer.login_settings['toolkits_api'][x] = CONFIG_FILE['auth']['api_key'] 
         cmd_pointer.login_settings['client'][x] = client
         #name,id=rxn_helper.get_current_project(cmd_pointer)
         rxn_helper.sync_up_workspace_name(cmd_pointer,reset=True)
         return True, expiry_time
     except BaseException as err:
          
-         output_error(msg('err_login', 'RXN',"Unable to connect to "+CONFIG_FILE['host'], split=True), cmd_pointer)
+         output_error(msg('err_login', 'RXN',"Unable to connect to "+ CONFIG_FILE['host'] , split=True), cmd_pointer)
          return False, None
 
