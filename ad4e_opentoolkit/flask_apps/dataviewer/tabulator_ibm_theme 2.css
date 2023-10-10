@@ -1,0 +1,54 @@
+/* Borders */
+.tabulator {
+}
+.tabulator .tabulator-header .tabulator-col {
+	background-color: transparent;
+}
+.tabulator .tabulator-header {
+	background-color: var(--gray-1);
+	border: solid 1px var(--gray-2);
+	border-bottom-color: var(--gray-3);
+}
+.tabulator-row .tabulator-cell:last-of-type {
+	border-right: solid 1px var(--gray-2);
+}
+.tabulator-row {
+	border: solid 1px var(--gray-2);
+	border-top: none;
+}
+
+/* Row hover */
+.tabulator .tabulator-tableholder {
+	/* Required for the first row top row top border to be visible */
+	/* overflow: visible; */
+}
+.tabulator-row.tabulator-selectable:hover {
+	background-color: var(--highlight);
+	border-color: var(--highlight-border);
+	box-shadow: 0 -1px 0 0 var(--highlight-border);
+}
+.tabulator-row.tabulator-selectable:hover .tabulator-cell {
+	border-right-color: var(--highlight-border);
+}
+
+/* Sort arrow */
+.tabulator .tabulator-header .tabulator-col .tabulator-col-content .tabulator-col-sorter .tabulator-arrow,
+.tabulator .tabulator-header .tabulator-col.tabulator-sortable[aria-sort='none'] .tabulator-col-content .tabulator-col-sorter .tabulator-arrow {
+	border: none;
+	background-color: pink;
+	width: 8px;
+	height: 7px;
+}
+.tabulator .tabulator-header .tabulator-col.tabulator-sortable[aria-sort='descending'] .tabulator-col-content .tabulator-col-sorter svg {
+	fill: red;
+}
+.tabulator .tabulator-header .tabulator-col.tabulator-sortable[aria-sort='ascending'] .tabulator-col-content .tabulator-col-sorter .tabulator-arrow,
+.tabulator .tabulator-header .tabulator-col.tabulator-sortable[aria-sort='descending'] .tabulator-col-content .tabulator-col-sorter .tabulator-arrow {
+	border: none;
+	background-image: url('data:image/svg+xml;utf8,<svg width="8" height="7" viewBox="0 0 8 7" xmlns="http://www.w3.org/2000/svg"><path fill="#00FF85" d="M3.5713 6.285L0.254304 0.757C0.0543037 0.424 0.295303 -1.69163e-08 0.682304 0L7.3173 2.90025e-07C7.7053 3.06985e-07 7.9463 0.424 7.7453 0.757L4.4283 6.285C4.2343 6.609 3.7653 6.609 3.5713 6.285Z"/></svg>');
+	width: 8px;
+	height: 7px;
+}
+.tabulator .tabulator-header .tabulator-col.tabulator-sortable[aria-sort='descending'] .tabulator-col-content .tabulator-col-sorter .tabulator-arrow {
+	transform: rotate(180deg);
+}

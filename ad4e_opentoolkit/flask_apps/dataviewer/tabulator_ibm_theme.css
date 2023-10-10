@@ -12,7 +12,7 @@
 .tabulator .tabulator-header .tabulator-col {
 	background-color: var(--gray-1);
 	border: solid 1px var(--gray-2);
-	border-bottom-color: var(--gray-3);
+	/* border-bottom-color: var(--gray-3); */
 }
 .tabulator .tabulator-header .tabulator-col:not(:first-of-type) {
 	border-left: none;
