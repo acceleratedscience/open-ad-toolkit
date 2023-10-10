@@ -215,16 +215,19 @@ def output_table(data, cmd_pointer=None, is_data=False, headers=None, note=None,
     from tabulate import tabulate
     from ad4e_opentoolkit.helpers.general import is_notebook_mode
     notebook_mode = cmd_pointer.notebook_mode if cmd_pointer else is_notebook_mode()
-    headers = [] if headers is None else headers
     is_df = isinstance(data, pandas.DataFrame)
     cli_width = shutil.get_terminal_size().columns
+
+    # Abort when table is empty.
+    if _is_empty_table(data, is_df):
+        output_warning(msg('table_is_empty'), cmd_pointer, return_val=False)
+        return
 
     # Turn potential tuples into lists.
     data = data if is_df else [list(row) for row in data]
 
     # Ensure the headers list matches the number of columns.
     col_count = data.shape[1] if is_df else len(data[0])
-
     if headers and len(headers) != col_count:
         output_warning(msg('table_headers_dont_match_columns', headers, col_count, split=True), cmd_pointer, return_val=False)
         headers = headers[:col_count] + ['(?)'] * max(0, col_count - len(headers))
@@ -236,11 +239,11 @@ def output_table(data, cmd_pointer=None, is_data=False, headers=None, note=None,
         # pandas.options.display.max_colwidth = 5
         # pandas.set_option('display.max_colwidth', 5)
         if (is_df):
-
             return data
         else:
             # Remove styling tags from headers.
-            headers = list(map(lambda text: strip_tags(text), headers))
+            if headers:
+                headers = list(map(lambda text: strip_tags(text), headers))
 
             # Remove styling tags from content.
             for i, row in enumerate(data):
@@ -259,10 +262,11 @@ def output_table(data, cmd_pointer=None, is_data=False, headers=None, note=None,
             for j, cell in enumerate(row):
                 data[i][j] = style(cell, nowrap=True)
 
-        table = tabulate(data, headers=headers, tablefmt=tablefmt, showindex=False, numalign="left")
+        tabulate_headers = headers if headers else 'firstrow'
+        table = tabulate(data, headers=tabulate_headers, tablefmt=tablefmt, showindex=False, numalign="left")
 
     # Crop table if it's wider than the terminal.
-    max_row_length = max(list(map(lambda row: len(row), table.splitlines())))
+    max_row_length = max(list(map(lambda row: len(row), table.splitlines()))) if table else 0
     if max_row_length > cli_width:
         for i, line in enumerate(table.splitlines()):
             if i == 1:
@@ -285,12 +289,12 @@ def output_table(data, cmd_pointer=None, is_data=False, headers=None, note=None,
         cmd_pointer.preserve_memory['data'] = True
 
         # Display follow-up commands.
-        msg = (
+        message = (
             '<cmd>open</cmd>',
             '<cmd>edit</cmd>',
             '<cmd>save [as \'<filename.csv>\']</cmd>',
         )
-        lines.append('\n<soft>Next up, you can run: </soft>' + ' / '.join(msg))
+        lines.append('\n<soft>Next up, you can run: </soft>' + ' / '.join(message))
 
     # Add footnote.
     if note:
@@ -299,6 +303,21 @@ def output_table(data, cmd_pointer=None, is_data=False, headers=None, note=None,
 
     # Print.
     print_s(table, pad=2, nowrap=True)
+
+
+# Check whether table data is empty.
+def _is_empty_table(data, is_df):
+    if is_df:
+        return data.empty
+    elif not data:
+        return True
+    else:
+        is_empty = True
+        for col in data:
+            if col:
+                is_empty = False
+                break
+        return is_empty
 
 
 # Procure a display message from output_msgs.py.
