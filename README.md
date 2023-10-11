@@ -32,6 +32,7 @@
 
 1.  **Step 0: Before you start**<br>
     Ensure you're running Python 3.10.10 or above.
+    TODO: add verbiage on pyenv
 
 1.  **Step 1: Set up virtual environment** (optional)<br>
 

@@ -27,9 +27,7 @@ rdkit==2023.3.2
 rdkit_pypi==2022.9.5
 streamlit==1.22.0
 tqdm==4.65.0
-typing
 traitlets
-pandas
 mols2grid
 deepsearch-toolkit
 tiktoken  
@@ -37,7 +35,6 @@ langchain==0.0.272
 traitlets==5.9
 deepsearch-toolkit==0.29.0
 rxn4chemistry
-tabulate
+tabulate==0.8.9
 faiss-cpu
 openai
-
