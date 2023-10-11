@@ -2,9 +2,9 @@ import os
 from flask import render_template
 
 
-def fetchRoutesDataViewer(data, headers):
+def fetchRoutesDataViewer(data):
     def home():
-        return render_template('/dataviewer/index.html', data=data, headers=headers)
+        return render_template('/dataviewer/index.html', data=data)
 
     routes = {
         '/': {

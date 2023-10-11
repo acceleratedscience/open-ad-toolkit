@@ -10,6 +10,9 @@
 
 		<link href="app/tabulator/css/tabulator_simple.min.css" rel="stylesheet" />
 		<script type="text/javascript" src="app/tabulator/js/tabulator.min.js"></script>
+		<script src="app/js/moment.min.js"></script>
+		<!-- Lucon is used by Tabulator for date sorting -->
+		<script src="app/js/luxon.min.js"></script>
 
 		<link rel="stylesheet" href="app/css/dataviewer-main.css" />
 		<link rel="stylesheet" href="app/css/tabulator_ibm_theme.css" />
@@ -17,8 +20,9 @@
 		<script type="text/javascript" src="app/js/table.js"></script>
 	</head>
 	<body>
+		<div id="cloak"></div>
 		<div id="table-wrap">
-			<div id="table" data="{{data}}" headers="{{headers}}"></div>
+			<div id="table" data="{{data}}"></div>
 			<a href="#">Reset columns</a>
 			<div class="btn-wrap">
 				<button id="btn-edit">Edit</button>
@@ -26,9 +30,6 @@
 				<button id="btn-save">Save</button>
 			</div>
 		</div>
-
-		<pre>{{headers}}</pre>
-		<pre>{{data}}</pre>
 
 		<script type="text/javascript" src="app/js/dataviewer-main.js"></script>
 	</body>

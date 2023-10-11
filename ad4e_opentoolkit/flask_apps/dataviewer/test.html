@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Data Viewer</title>
+		<script src="js/luxon.min.js"></script>
+		<script src="js/moment.min.js"></script>
+		<style>
+			#test1 {
+				--test: '1';
+			}
+			#test1::after {
+				content: var(--test);
+			}
+			#test2::after {
+				content: var(--test);
+			}
+		</style>
+	</head>
+	<body>
+		<div id="test1">Test-</div>
+		<div id="test2">Test-</div>
+	</body>
+</html>

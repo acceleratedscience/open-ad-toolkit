@@ -489,16 +489,22 @@ def display_data__open(cmd_pointer, parser, edit_mode=False):
     # Initialize memory.
     cmd_pointer.init_followup('data')
 
-    # Parse dataframe.
-    data = cmd_pointer.memory['data'].values.tolist()
-    data = json.dumps(data)
-    headers = cmd_pointer.memory['data'].columns.tolist()
-    headers = json.dumps(headers)
-
     # Load routes and launch browser UI.
-    routes = fetchRoutesDataViewer(data, headers)
+    data = cmd_pointer.memory['data'].to_json(orient='records')
+    routes = fetchRoutesDataViewer(data)
     hash = '#edit' if edit_mode else ''
     launcher.launch(cmd_pointer, routes, 'dataviewer', hash=hash)
+
+    # # Parse dataframe.
+    # data = cmd_pointer.memory['data'].values.tolist()
+    # data = json.dumps(data)
+    # headers = cmd_pointer.memory['data'].columns.tolist()
+    # headers = json.dumps(headers)
+
+    # # Load routes and launch browser UI.
+    # routes = fetchRoutesDataViewer(data, headers)
+    # hash = '#edit' if edit_mode else ''
+    # launcher.launch(cmd_pointer, routes, 'dataviewer', hash=hash)
 
 
 # Edit a JSON config file.

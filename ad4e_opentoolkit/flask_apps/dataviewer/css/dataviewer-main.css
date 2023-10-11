@@ -15,27 +15,36 @@ body {
 #table-wrap .btn-wrap {
 	margin-bottom: 30px;
 }
-#table-wrap #table.edit-mode ~ .btn-wrap > #btn-edit,
-#table-wrap #table:not(.edit-mode) ~ .btn-wrap > #btn-cancel,
-#table-wrap #table:not(.edit-mode) ~ .btn-wrap > #btn-save {
+#table-wrap #table.edit-mode ~ .btn-wrap #btn-edit,
+#table-wrap #table:not(.edit-mode) ~ .btn-wrap #btn-cancel,
+#table-wrap #table:not(.edit-mode) ~ .btn-wrap #btn-save {
 	display: none;
+}
+#table-wrap .btn-wrap {
+	/* Make them horizontally sticky */
+	position: -webkit-sticky;
+	position: sticky;
+	top: 10px;
+	left: 40px;
+	width: 200px;
+	z-index: 1;
 }
 
 /* Reset columsn link */
 #table-wrap > a {
 	text-decoration: none;
-	color: var(--gray-4);
+	color: var(--black-20);
 	height: 10px;
 	line-height: 10px;
 	margin-top: -10px;
+	position: relative;
+	z-index: 3;
 }
 #table:not(.resized) + a {
 	display: none;
 }
 
-/**
- * Table
- */
+/* Table */
 #table {
 	margin-top: 10px;
 }
@@ -44,4 +53,23 @@ body {
 	content: '';
 	display: block;
 	height: 40px;
+}
+
+/* Sticky header */
+.tabulator .tabulator-header {
+	position: -webkit-sticky;
+	position: sticky;
+	top: 60px;
+	z-index: 2;
+}
+/* White cloakig banner */
+/* This hides the page content when the table header is sticky */
+#cloak {
+	position: fixed;
+	top: 0;
+	right: 0;
+	height: 60px;
+	z-index: 1;
+	background: white;
+	width: 100%;
 }
