@@ -41,7 +41,16 @@
  * Design / layout
  */
 
-/* .tabulator-cell */
+/* Truncate two lines */
+.tabulator-row .tabulator-cell {
+	/* overflow: hidden;
+	text-overflow: ellipsis;
+	display: -webkit-box;
+	-webkit-line-clamp: 3;
+	-webkit-box-orient: vertical; */
+}
+
+/* Min cell height */
 .tabulator .tabulator-row,
 .tabulator-row .tabulator-cell {
 	min-height: 26px;

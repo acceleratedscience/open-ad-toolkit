@@ -67,10 +67,14 @@ function parseColumns(data) {
 	// Store the data types of each column of each row.
 	data.forEach((row, i) => {
 		Object.entries(row).map(([key, val]) => {
+			val = val ? val.toString() : ''
 			if (!dataTypes[key]) dataTypes[key] = []
 			if (isDate(val)) {
 				dataTypes[key].push('date')
 				row[key] = moment(val).format('YYYY-MM-DD')
+			} else if (val.match(/^http(s)?:\/\//)) {
+				dataTypes[key].push('url')
+				row[key] = val.replace(/^http(s)?:\/\/([a-zA-Z0-9$-_.+!*'(),/&?=:%]+?)(\/)?$/, '$2')
 			} else {
 				dataTypes[key].push(typeof val)
 			}
@@ -108,7 +112,12 @@ function parseColumns(data) {
 				decimalSeparator: '.',
 				alignEmptyValues: 'top',
 			}
+		} else if (type == 'url') {
+			col.sorter = 'string'
+			col.formatter = 'link'
+			col.formatterParams = { target: '_blank' }
 		}
+
 		return col
 	})
 
@@ -133,7 +142,6 @@ function parseColumns(data) {
 // Check if string is a date.
 function isDate(str, log) {
 	// Ignore numbers that are not formatted like a date.
-	str = str ? str.toString() : ''
 	const separators = str.match(/[-./]/g, '')
 	if (log) console.log(separators)
 	if (separators && separators.length == 2 && separators[0] == separators[1]) {
