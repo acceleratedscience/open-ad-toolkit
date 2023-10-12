@@ -1,0 +1,14 @@
+language: python
+python:
+  - "3.11"
+
+arch:
+  - x86
+
+install:
+  - pip install poetry
+  - poetry install
+
+script:
+  - make lint
+  - make test
