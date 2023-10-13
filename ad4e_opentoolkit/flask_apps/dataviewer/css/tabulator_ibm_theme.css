@@ -1,3 +1,25 @@
+#table:not(.edit-mode) .tabulator-cell.focus::after {
+	content: '';
+	display: block;
+	position: absolute;
+	top: -1px;
+	left: -1px;
+	z-index: 2;
+	width: 100%;
+	height: 100%;
+	border: dashed 1px var(--blue);
+	pointer-events: none;
+}
+
+/**
+ * General styling
+ */
+.tabulator {
+	font-size: var(--font-size);
+	/* line-height: var(--line-height); */
+	line-height: 20px;
+}
+
 /**
  * Scroll behavior
  */
@@ -41,19 +63,97 @@
  * Design / layout
  */
 
-/* Truncate two lines */
-.tabulator-row .tabulator-cell {
-	/* overflow: hidden;
-	text-overflow: ellipsis;
-	display: -webkit-box;
-	-webkit-line-clamp: 3;
-	-webkit-box-orient: vertical; */
+/* Movable header */
+.tabulator .tabulator-header .tabulator-col.tabulator-col-placeholder {
+	background: #f6f6f6;
+	border: none;
+	box-shadow: inset 0 0 10px var(--black-10), inset 0 1px 0 var(--black-10), inset 0 -1px 0 var(--black-10);
+}
+.tabulator .tabulator-header .tabulator-col.tabulator-col-sorter-element:hover {
+	background: var(--black-10);
+	box-shadow: -1px 0 0 var(--black-10);
+	z-index: 2;
+	position: relative;
+}
+.tabulator .tabulator-header .tabulator-col.tabulator-moving {
+	z-index: 2;
+	background: #fff;
+	box-shadow: 0 0 5px var(--black-10);
 }
 
-/* Min cell height */
+/* Min cell height - avoids ugliness when resizing rows */
 .tabulator .tabulator-row,
 .tabulator-row .tabulator-cell {
 	min-height: 26px;
+}
+
+.tabulator-row .tabulator-cell {
+	/* Block selecting of text */
+	user-select: none;
+
+	/*
+	Unset default 1-line truncation.
+	This allows for .display-full-text
+	and the textarea edit UI to bleed
+	outside the cell.
+	*/
+	white-space: normal;
+	overflow: visible;
+	text-overflow: unset;
+}
+
+/* Truncate text to 3 lines */
+.tabulator.trunc-3 .tabulator-row .tabulator-cell .text-wrap:not(.expand) {
+	white-space: normal;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	display: -webkit-box;
+	-webkit-line-clamp: 3;
+	-webkit-box-orient: vertical;
+}
+
+/* Truncate text to 1 line */
+.tabulator.trunc-1 .tabulator-row .tabulator-cell .text-wrap:not(.expand) {
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+/* Overlay displaying full text when clicking on truncated text */
+.tabulator-row .tabulator-cell .display-full-text {
+	position: absolute;
+	top: 0;
+	left: 0;
+	padding: 4px;
+	z-index: 10000;
+	background: white;
+	border: solid 1px var(--black-30);
+	margin: -1px;
+	box-shadow: 0 0 30px var(--black-20);
+}
+
+/* Copy feedback blink */
+.tabulator-cell.copied {
+	animation: blink 0.14s 2;
+	color: #090;
+}
+.tabulator-cell:not(.copied) {
+	transition: color 0.5s;
+}
+
+@keyframes blink {
+	0% {
+		color: transparent;
+	}
+	49% {
+		color: transparent;
+	}
+	50% {
+		color: #090;
+	}
+	100% {
+		color: #090;
+	}
 }
 
 /* Resize handle - col */
@@ -98,7 +198,7 @@
 	border-bottom-color: var(--black-20);
 	z-index: 1;
 }
-.tabulator .tabulator-header .tabulator-col:not(:first-of-type) {
+.tabulator .tabulator-header .tabulator-col:not(:first-of-type):not(.tabulator-moving) {
 	border-left: none;
 }
 .tabulator-row .tabulator-cell,
@@ -117,10 +217,6 @@
  * Row hover
  */
 
-.tabulator .tabulator-tableholder {
-	/* Required for the first row top row top border to be visible */
-	/* overflow: visible; */
-}
 .tabulator-row.tabulator-selectable:hover {
 	background-color: var(--highlight);
 	border-color: var(--highlight-border);
@@ -144,6 +240,9 @@
 }
 .tabulator .tabulator-header .tabulator-col.tabulator-sortable[aria-sort='descending'] .tabulator-col-content .tabulator-col-sorter .tabulator-arrow {
 	transform: rotate(180deg);
+}
+.tabulator .tabulator-header .tabulator-col.tabulator-sortable .tabulator-col-title {
+	padding-right: 17px;
 }
 
 /**
@@ -192,10 +291,11 @@
 	position: absolute;
 	top: -1px;
 	left: -1px;
-	z-index: 1;
+	z-index: 2;
 	width: 100%;
 	height: 100%;
 	border: solid 1px var(--blue);
+	pointer-events: none;
 }
 
 /* Cell edit active */
@@ -205,15 +305,16 @@
 	overflow: visible;
 }
 .tabulator-row .tabulator-cell.tabulator-editing input,
+.tabulator-row .tabulator-cell.tabulator-editing textarea,
 .tabulator-row .tabulator-cell.tabulator-editing select {
 	background: white;
 	border: solid 2px var(--blue);
+	outline: none;
 
 	/* Clean edge */
 	position: relative;
 	z-index: 1;
 	width: calc(100% + 1px) !important;
-	height: calc(100% + 2px) !important;
 	margin-left: -1px !important;
 	margin-top: -1px !important;
 
@@ -221,8 +322,16 @@
 	font-family: var(--font-fam) !important;
 	font-size: var(--font-size) !important;
 	padding: 3px !important;
-	padding-top: 2px !important;
 	padding-left: 4px !important; /* <-- Shifts text 1px right, making edit mode more clear. */
+}
+.tabulator-row .tabulator-cell.tabulator-editing input {
+	height: calc(100% + 2px) !important;
+	padding-top: 2px !important;
+}
+.tabulator-row .tabulator-cell.tabulator-editing textarea {
+	min-height: calc(100% + 1px);
+	resize: vertical !important;
+	box-sizing: border-box;
 }
 .tabulator-row .tabulator-cell.tabulator-editing:first-of-type input,
 .tabulator-row .tabulator-cell.tabulator-editing:first-of-type select {

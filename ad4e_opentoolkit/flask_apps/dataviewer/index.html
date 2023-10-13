@@ -20,9 +20,19 @@
 		<script type="text/javascript" src="app/js/table.js"></script>
 	</head>
 	<body>
+		<br /><br /><br /><br />
+		<label><input type="radio" name="truncate" value="1" />one line</label>
+		<label><input type="radio" name="truncate" value="3" checked />3 lines</label>
+		<select id="select-truncation">
+			<option value="0">No truncation</option>
+			<option value="1">1 line</option>
+			<option value="3" selected>3 lines</option>
+		</select>
+		<br />
+		<a href="#" id="rerender">rerender</a>
 		<div id="cloak"></div>
 		<div id="table-wrap">
-			<div id="table" data="{{data}}"></div>
+			<div id="table" class="trunc-3" data="{{data}}"></div>
 			<a href="#">Reset columns</a>
 			<div class="btn-wrap">
 				<button id="btn-edit">Edit</button>
@@ -32,5 +42,6 @@
 		</div>
 
 		<script type="text/javascript" src="app/js/dataviewer-main.js"></script>
+		<script type="text/javascript" src="app/js/ajax.js"></script>
 	</body>
 </html>

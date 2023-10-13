@@ -2,6 +2,7 @@
 body {
 	--font-fam: var(--ibm-font-fam);
 	--font-size: var(--ibm-font-size);
+	--line-height: var(--ibm-line-height);
 
 	--black: var(--ibm-black); /* #393939 */
 	--black-10: rgba(0, 0, 0, 0.1);
