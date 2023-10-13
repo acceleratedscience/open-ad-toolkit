@@ -5,6 +5,9 @@ python:
 arch:
   - x86
 
+notifications:
+  email: false
+
 branches:
   only:
     - main

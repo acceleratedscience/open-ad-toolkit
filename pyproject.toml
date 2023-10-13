@@ -45,7 +45,7 @@ faiss-cpu = "^1.7.4"
 openai = "^0.28.1"
 black = "^23.9.1"
 coverage = "^7.3.2"
-langchain = "0.0.313"
+langchain = "0.0.272"
 
 [tool.poetry.scripts]
 openad = "ad4e_opentoolkit.app.main:cmd_line"
