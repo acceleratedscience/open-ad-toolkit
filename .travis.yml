@@ -1,6 +1,6 @@
 language: python
 python:
-  - "3.11"
+  - "3.10"
 
 arch:
   - x86
@@ -9,6 +9,17 @@ install:
   - pip install poetry
   - poetry install
 
-script:
-  - make check-lint
-  - make test
+jobs:
+  include:
+    - stage: lint
+      name: "Check Lint"
+      script:
+        - make check-lint
+    - stage: test
+      name: "Running Unit Tests"
+      script:
+        - make test
+
+stages:
+  - lint
+  - test
