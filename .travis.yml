@@ -15,15 +15,11 @@ install:
 
 jobs:
   include:
-    - stage: lint
-      name: "Check Lint"
+    - stage: lint_test
+      name: "Check Lint and Run Unit Tests"
       script:
         - make check-lint
-    - stage: test
-      name: "Running Unit Tests"
-      script:
         - make test
 
 stages:
-  - lint
-  - test
+  - lint_test
