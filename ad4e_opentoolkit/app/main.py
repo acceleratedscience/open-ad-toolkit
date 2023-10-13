@@ -12,7 +12,7 @@ import uuid
 from cmd import Cmd
 
 # Main
-from ad4e_opentoolkit.app.main_lib import lang_parse, initialise, set_context
+from ad4e_opentoolkit.app.main_lib import lang_parse, initialise, set_context,unset_context
 from ad4e_opentoolkit.toolkit.toolkit_main import load_toolkit
 
 # Core
@@ -157,8 +157,13 @@ class run_cmd(Cmd):
                 self.settings['workspace'].upper()) + '/.cmd_history')
 
         if self.settings['context'] is not None:
-            login_manager.load_login_api(self, self.settings['context'])
-
+            success,expiry=login_manager.load_login_api(self, self.settings['context'])
+            if success==False:
+                self.settings['context']    = None
+                self.toolkit_current        = None
+                unset_context(self, None)
+                self.prompt = refresh_prompt(self.settings)
+                output_text("Unable to set context on Login, defaulting to no context set.", self, return_val=False)
         try:
             if self.settings['env_vars']['refresh_help_ai'] == True:
                 self.refresh_vector = True

@@ -219,6 +219,11 @@ def output_table(table, cmd_pointer=None, is_data=False, headers=None, note=None
     is_df = isinstance(table, pandas.DataFrame)
     cli_width = shutil.get_terminal_size().columns
 
+    # Abort when table is empty.
+    if _is_empty_table(data, is_df):
+        output_warning(msg('table_is_empty'), cmd_pointer, return_val=False)
+        return
+
     # Turn potential tuples into lists.
     table = table if is_df else [list(row) for row in table]
 
@@ -249,7 +254,8 @@ def output_table(table, cmd_pointer=None, is_data=False, headers=None, note=None
             pass
         else:
             # Remove styling tags from headers.
-            headers = list(map(lambda text: strip_tags(text), headers))
+            if headers:
+                headers = list(map(lambda text: strip_tags(text), headers))
 
             # Remove styling tags from content.
             for i, row in enumerate(table):
@@ -314,6 +320,21 @@ def output_table(table, cmd_pointer=None, is_data=False, headers=None, note=None
         else:
             output = table
         print_s(output, pad=2, nowrap=True)
+
+
+# Check whether table data is empty.
+def _is_empty_table(data, is_df):
+    if is_df:
+        return data.empty
+    elif not data:
+        return True
+    else:
+        is_empty = True
+        for col in data:
+            if col:
+                is_empty = False
+                break
+        return is_empty
 
 
 # Procure a display message from output_msgs.py.
