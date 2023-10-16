@@ -4,15 +4,40 @@ class Table extends Tabulator {
 	constructor(element, options) {
 		// Modifications
 		super(element, options)
+
+		super.on('dataLoaded', () => {
+			console.log('- - - dataLoaded - - -')
+			if (this.addedIndexRow) return
+			const result = this.addIndexCol(options.data)
+			console.log('Result:', result)
+			const { data, columns } = result
+			console.log('@@@@', options.columns, [...columns])
+			if (data && columns) {
+				console.log('*', 1)
+				this.data = data
+				console.log('*', 2)
+				this.columns = columns
+				console.log('*', 3)
+			}
+		})
+
 		super.on('tableBuilt', () => {
-			this.addIndexCol()
+			console.log('*', 4)
+			console.log(9999, !!this.data, !!this.columns, this.data, this.columns)
+			if (this.data && this.columns) {
+				console.log('> data:', this.data)
+				console.log('> columns:', this.columns)
+				this.setData(this.data)
+				this.setColumns(this.columns)
+				console.log(555, this.getColumns())
+			}
 		})
-		super.on('renderComplete', () => {
-			this.storeColWidths()
-		})
-		super.on('columnResized', () => {
-			this.element.classList.add('resized')
-		})
+		// super.on('renderComplete', () => {
+		// 	this.storeColWidths()
+		// })
+		// super.on('columnResized', () => {
+		// 	this.element.classList.add('resized')
+		// })
 
 		// Variables
 		this.editMode = false
@@ -21,18 +46,29 @@ class Table extends Tabulator {
 		this.addedIndexRow = false
 
 		// Parse custom options
-		this.init(options)
+		// this.init(options)
 	}
 
 	// Initialization
 	init(options) {
 		this.on('dataProcessed', () => {
+			console.log('- - - dataProcessed - - -')
 			// Turn on edit mode if hash is present
 			if (options.editMode) {
 				this.toggleEditMode(true)
 			}
 		})
 	}
+
+	// Trash
+	// on(eventName, callback) {
+	// 	console.log(333, eventName)
+	// 	if (eventName != 'cellEditing') {
+	// 		super.on(eventName, callback)
+	// 	} else {
+	// 		console.log(1234)
+	// 	}
+	// }
 
 	// Store column default widths
 	storeColWidths() {
@@ -41,12 +77,12 @@ class Table extends Tabulator {
 		})
 	}
 
-	// Add index column
-	addIndexCol() {
-		if (this.addedIndexRow) return
-
-		// Check if an index column already exists
-		const data = this.getData()
+	// Add index column if not yet included
+	addIndexCol(data) {
+		console.log('A')
+		if (this.addedIndexRow) return {}
+		console.log('B')
+		data = data ? data : this.getData()
 		const rowSample = data[1]
 		let hasIndex = !!rowSample['#']
 		if (!hasIndex) {
@@ -57,48 +93,26 @@ class Table extends Tabulator {
 				}
 			}
 		}
-
-		// Add index column if missing
 		if (!hasIndex) {
-			this.addedIndexRow = true
-			data.forEach((row, i) => {
-				row['#'] = i + 1
-			})
-			this.setData(data)
-
-			const colSample = this.getColumns()[0]
-			const newCol = {
-				...colSample,
-				sorter: 'number',
-				title: '#',
-				field: '#',
-			}
-			this.addColumn(newCol, true)
-		}
-	}
-
-	// Remove index column
-	removeIndexCol() {
-		const indexCol = this.getColumns()[0]
-		if (indexCol.getField() == '#') {
-			this.addedIndexRow = false
-			indexCol.delete()
-			const data = this.getData()
-			data.forEach((row, i) => {
-				delete row['#']
-			})
-			this.setData(data)
-
-			// This is a little hack to prevent undesireable behavior where
-			// row height is not recalculated after removing the index column.
-			// But this was related to shifting one of the columns in a wrong way
-			// can be deleted
-			//
-			// this.getColumns().forEach((col, i) => {
-			// 	console.log(i)
-			// 	col.setWidth(true)
+			// data.forEach((row, i) => {
+			// 	row['#'] = i + 1
+			// 	this.addedIndexRow = true
 			// })
-			// this.redraw(true)
+
+			const columns = this.getColumns()
+			const colSample = columns[0]
+			// columns[0] = {
+			// 	...colSample,
+			// 	sorter: 'number',
+			// 	title: '#',
+			// 	field: '#',
+			// }
+			console.log(11, data)
+			console.log(22, columns)
+
+			return { data, columns }
+		} else {
+			return {}
 		}
 	}
 

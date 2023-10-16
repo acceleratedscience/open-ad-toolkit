@@ -93,9 +93,6 @@ document.addEventListener('keydown', e => {
 const data = JSON.parse(document.getElementById('table').getAttribute('data'))
 document.getElementById('table').removeAttribute('data')
 
-// Add index column
-addIndexCol(data, true)
-
 // Parse columns
 const columns = parseColumns(data)
 // columns.unshift({ formatter: 'rowSelection', titleFormatter: 'rowSelection', align: 'center', headerSort: false }) // Add checkbox column fopr selection UI
@@ -298,14 +295,6 @@ function parseColumns(data) {
 
 		return col
 	})
-
-	// Find the column with field name 'index' (cas insensitive) or '#'
-	// and move it to the front of the array.
-	const indexColIndex = columns.findIndex(col => {
-		return col.field.toLowerCase() == 'index' || col.field == '#'
-	})
-	const indexCol = columns.splice(indexColIndex, 1)[0]
-	columns.unshift(indexCol)
 
 	console.log('Sorters:', sorters)
 	console.log('Data:', data)
@@ -528,41 +517,41 @@ function setTruncation(limit) {
 	table.redraw(true)
 }
 
-// Add index column if not yet included
-function addIndexCol(data) {
-	if (data.addedIndexRow) return
-	const sampelRow = data[1]
-	let hasIndex = !!sampelRow['#']
-	if (!hasIndex) {
-		for (const key in sampelRow) {
-			if (key.toLowerCase() == 'index') {
-				hasIndex = true
-				break
-			}
-		}
-	}
-	if (!hasIndex) {
-		console.log(20)
-		data.forEach((row, i) => {
-			row['#'] = i + 1
-			data.addedIndexRow = true // Note: this is our own property, not Tabulator's
-		})
-	}
-}
+// // Add index column if not yet included
+// function addIndexCol(data) {
+// 	if (data.addedIndexRow) return
+// 	const sampelRow = data[1]
+// 	let hasIndex = !!sampelRow['#']
+// 	if (!hasIndex) {
+// 		for (const key in sampelRow) {
+// 			if (key.toLowerCase() == 'index') {
+// 				hasIndex = true
+// 				break
+// 			}
+// 		}
+// 	}
+// 	if (!hasIndex) {
+// 		console.log(20)
+// 		data.forEach((row, i) => {
+// 			row['#'] = i + 1
+// 			data.addedIndexRow = true // Note: this is our own property, not Tabulator's
+// 		})
+// 	}
+// }
 
-// Remove index column
-function removeIndexCol(data, table) {
-	indexCol = table.getColumns()[0]
-	console.log(22, indexCol._column)
-	if (indexCol._column.field == '#') {
-		indexCol.delete()
-		data.forEach((row, i) => {
-			delete row['#']
-		})
-		data.addedIndexRow = false
-		table.redraw(true)
-	}
-}
+// // Remove index column
+// function removeIndexCol(data, table) {
+// 	indexCol = table.getColumns()[0]
+// 	console.log(22, indexCol._column)
+// 	if (indexCol._column.field == '#') {
+// 		indexCol.delete()
+// 		data.forEach((row, i) => {
+// 			delete row['#']
+// 		})
+// 		data.addedIndexRow = false
+// 		table.redraw(true)
+// 	}
+// }
 
 // Apply options
 function applyOptions() {
@@ -574,10 +563,10 @@ function applyOptions() {
 	const includeIndexCol = +document.getElementById('opt-add-index-col').value
 	if (includeIndexCol) {
 		console.log(10)
-		addIndexCol(data)
+		table.addIndexCol()
 	} else {
 		console.log(11)
-		removeIndexCol(data, table)
+		table.removeIndexCol()
 	}
 }
 
