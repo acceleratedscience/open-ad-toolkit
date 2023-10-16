@@ -13,22 +13,23 @@ class Table extends Tabulator {
 
 		// Variables
 		this.editMode = false
+		this.addedIndexCol = false
 
-		// Parse custom options.
+		// Parse custom options
 		this.init(options)
-
-		// super.on('cellEditing', cell => {
-		// 	console.log(1)
-		// 	return false
-		// })
 	}
 
+	// Initialization
 	init(options) {
-		if (options.editMode) {
-			this.toggleEditMode(true)
-		}
+		this.on('dataProcessed', () => {
+			// Turn on edit mode if hash is present
+			if (options.editMode) {
+				this.toggleEditMode(true)
+			}
+		})
 	}
 
+	// Trash
 	// on(eventName, callback) {
 	// 	console.log(333, eventName)
 	// 	if (eventName != 'cellEditing') {
@@ -38,15 +39,7 @@ class Table extends Tabulator {
 	// 	}
 	// }
 
-	// isEditMode(cell) {
-	// 	console.log(111)
-	// 	// cell = { ...cell }
-	// 	// console.log(cell._cell.row.position, cell._cell.column)
-	// 	// console.log(cell)
-	// 	return false
-	// }
-
-	// Store column default widths.
+	// Store column default widths
 	storeCols() {
 		this.defaultColumnWidths = {}
 		this.getColumns().forEach(col => {
@@ -54,7 +47,7 @@ class Table extends Tabulator {
 		})
 	}
 
-	// Reset column widths to default.
+	// Reset column widths to default
 	resetCols() {
 		this.getColumns().forEach(col => {
 			col.setWidth(this.defaultColumnWidths[col.getField()])
@@ -62,16 +55,31 @@ class Table extends Tabulator {
 		})
 	}
 
-	// Toggle edit mode.
-	toggleEditMode(bool) {
+	// Toggle edit mode
+	toggleEditMode(bool, revertChanges) {
 		this.editMode = bool == undefined ? !this.editMode : bool
 		if (this.editMode) {
+			this.storeData()
 			this.element.classList.add('edit-mode')
 			history.pushState('', document.title, window.location.pathname + window.location.search + '#edit') // Add hash
 		} else {
+			if (revertChanges) this.revertData()
 			this.element.classList.remove('edit-mode')
 			history.pushState('', document.title, window.location.pathname + window.location.search) // Remove hash
 		}
+	}
+
+	// Store copy of data so we can revert changes
+	storeData() {
+		this.dataBeforeEdit = this.getData()
+		console.log('Store:', this.dataBeforeEdit)
+	}
+
+	// Revert changes on cancel
+	revertData() {
+		this.setData(this.dataBeforeEdit)
+		console.log('Revert:', this.data, this.dataBeforeEdit)
+		this.redraw(true)
 	}
 }
 

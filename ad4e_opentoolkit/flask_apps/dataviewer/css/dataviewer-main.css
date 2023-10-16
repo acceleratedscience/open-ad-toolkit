@@ -3,31 +3,59 @@ body {
 }
 
 /**
+ * Display options
+ */
+
+#options {
+	float: right;
+	z-index: 3;
+	position: fixed;
+	top: 40px;
+	right: 40px;
+}
+#options .ibm-dropdown {
+	margin-bottom: 30px;
+}
+
+/**
  * Table wrap
  */
 
 #table-wrap {
+	clear: both;
+	margin-top: 70px; /* Floating buttons on top are not counted */
 	display: flex;
 	flex-direction: column-reverse;
 }
 
 /* Buttons */
-#table-wrap .btn-wrap {
-	margin-bottom: 30px;
-}
-#table-wrap #table.edit-mode ~ .btn-wrap #btn-edit,
-#table-wrap #table:not(.edit-mode) ~ .btn-wrap #btn-cancel,
-#table-wrap #table:not(.edit-mode) ~ .btn-wrap #btn-save {
+#btn-wrap-left.edit-mode #btn-submit,
+#btn-wrap-left.edit-mode #btn-edit,
+#btn-wrap-left:not(.edit-mode) #btn-cancel,
+#btn-wrap-left:not(.edit-mode) #btn-save,
+#btn-options.hide {
 	display: none;
 }
-#table-wrap .btn-wrap {
+#btn-wrap-left,
+#btn-wrap-right {
 	/* Make them horizontally sticky */
 	position: -webkit-sticky;
 	position: sticky;
 	top: 10px;
-	left: 40px;
-	width: 200px;
 	z-index: 1;
+	height: 40px;
+}
+#btn-wrap-left {
+	float: left;
+
+	/**/
+	left: 40px;
+}
+#btn-wrap-right {
+	float: right;
+
+	/**/
+	right: 40px;
 }
 
 /* Reset columsn link */
@@ -38,7 +66,6 @@ body {
 	line-height: 10px;
 	margin-top: -10px;
 	position: relative;
-	z-index: 3;
 }
 #table:not(.resized) + a {
 	display: none;

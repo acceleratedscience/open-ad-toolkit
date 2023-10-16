@@ -21,6 +21,11 @@ def launch(cmd_pointer=None, routes=None, app_name='', query='', hash=''):
     def css(path):
         return send_from_directory(_repo_dir + '/../flask_apps/_css', f'{path}')
 
+    # Make main JS files available.
+    @app.route('/js/<path>')
+    def js(path):
+        return send_from_directory(_repo_dir + '/../flask_apps/_js', f'{path}')
+
     # Make app files available.
     flask_dir = os.path.dirname(os.path.abspath(__file__))
 

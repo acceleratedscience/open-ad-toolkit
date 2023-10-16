@@ -1,20 +1,37 @@
+// #region - Event listeners
+
 /**
- * Click handlers
+ * Event listeners
  */
 
 // Edit
 document.getElementById('btn-edit').addEventListener('click', function () {
-	table.toggleEditMode(true)
+	toggleEditMode(true)
 })
 
 // Cancel
 document.querySelector('#btn-cancel').addEventListener('click', function () {
-	table.toggleEditMode(false)
+	toggleEditMode(false, true)
 })
 
 // Save
 document.querySelector('#btn-save').addEventListener('click', function () {
-	table.toggleEditMode(false)
+	toggleEditMode(false)
+})
+
+// Display options
+document.querySelector('#btn-options').addEventListener('click', function () {
+	toggleOptions(true)
+})
+
+// Submit options
+document.querySelector('#options .btn-apply').addEventListener('click', function () {
+	applyOptions()
+})
+
+// Cancel options
+document.querySelector('#options .btn-cancel').addEventListener('click', function () {
+	toggleOptions(false)
 })
 
 // Reset columns
@@ -62,7 +79,11 @@ document.addEventListener('keydown', e => {
 })
 
 // Truncation setting
-document.getElementById('select-truncation').addEventListener('change', setTruncation)
+// document.getElementById('select-truncation').addEventListener('change', setTruncation)
+
+// #endregion
+
+// #region - Table rendering
 
 /**
  * Table rendering
@@ -72,21 +93,8 @@ document.getElementById('select-truncation').addEventListener('change', setTrunc
 const data = JSON.parse(document.getElementById('table').getAttribute('data'))
 document.getElementById('table').removeAttribute('data')
 
-// Add index column if not yet included
-data.forEach((row, i) => {
-	let hasIndex = !!row['#']
-	if (!hasIndex) {
-		for (const key in row) {
-			if (key.toLowerCase() == 'index') {
-				hasIndex = true
-				break
-			}
-		}
-	}
-	if (!hasIndex) {
-		row['#'] = i + 1
-	}
-})
+// Add index column
+addIndexCol(data, true)
 
 // Parse columns
 const columns = parseColumns(data)
@@ -129,10 +137,8 @@ table.on('cellDblClick', e => {
 
 //
 //
-//
-//
 
-// Parse data & create columns.
+// Create the columns object that is fed to Tabulator.
 function parseColumns(data) {
 	// For each column, we store per column:
 	// - An array of sorters by row (guessed by content type). --> Defines how column is being sorted (tabular)
@@ -205,9 +211,14 @@ function parseColumns(data) {
 		}
 	})
 
-	// %%
+	// There's a built-in 'textarea' editor, but we weren't happy with
+	// how truncation was handled for cells containing long text, so
+	// we had to create a custom formatter that gives us more control
+	// (specifically that lets us truncate text to a custom number of
+	// lines) and a custom formatter begets a custom editor.
+	// - - -
 	// https://tabulator.info/docs/5.5/edit#edit-custom
-	var customEditor = function (cell, onRendered, success, cancel, editorParams) {
+	function customTextareaEditor(cell, onRendered, success, cancel, editorParams) {
 		const editor = document.createElement('textarea')
 		editor.value = cell.getValue()
 
@@ -251,9 +262,9 @@ function parseColumns(data) {
 	const columns = Object.entries(sorters).map(([key, sorter], i) => {
 		const { formatter, formatterParams, formatterType } = _pickFormatter(key, needFormatter, contentPropsAll)
 		// About built-in editors: https://tabulator.info/docs/5.5/edit#edit-builtin
-		const width = formatterType == 'textarea' ? 400 : undefined
-		const editor = formatterType == 'textarea' ? customEditor : true
-		const editorParams = { selectContents: true }
+		const width = formatterType == 'textarea' ? 400 : undefined // Set column width only for columns with long text
+		const editor = formatterType == 'textarea' ? customTextareaEditor : true // True will auto-select the editor, usually just 'input'
+		const editorParams = { selectContents: true } // Select value on focus
 
 		col = {
 			sorter,
@@ -304,17 +315,22 @@ function parseColumns(data) {
 	return columns
 }
 
+// Look at a column's content and pick the appropriate formatter.
+// The formatter defines how a cell is rendered.
+// - - -
+// Returns { formatter, formatterParams, formatterType }
 function _pickFormatter(key, needFormatter, contentPropsAll) {
-	hasSomeLongText = contentPropsAll[key].some(props => props.isLongText)
-	isAllUrls = contentPropsAll[key].every(props => props.isUrl)
+	const hasSomeLongText = contentPropsAll[key].some(props => props.isLongText)
+	const isAllUrls = contentPropsAll[key].every(props => props.isUrl)
 
 	if (needFormatter[key]) {
 		if (isAllUrls) {
 			return { formatter: 'link', formatterParams: { target: '_blank' } }
 		} else if (hasSomeLongText) {
-			// return { formatter: 'textarea' } // %%
 			return {
 				formatterType: 'textarea',
+				// This custom formatter lets us truncate text to a custom number
+				// of lines. It's in lieue of the built-un 'textarea' formatter.
 				formatter: (cell, formatterParams, onRendered) => {
 					return `<div class="text-wrap">${cell.getValue()}</div>`
 				},
@@ -323,6 +339,14 @@ function _pickFormatter(key, needFormatter, contentPropsAll) {
 	}
 	return {}
 }
+
+// #endregion
+
+// #region - Functions Main
+
+/**
+ * Table interaction
+ */
 
 function onCellClick(e, cell) {
 	// Display overlay with full content when cell is truncated.
@@ -453,6 +477,7 @@ function moveFocus(dir) {
 	}
 }
 
+// Copies the content of a cell to the clipboard.
 function copyCellContent($cell) {
 	if (navigator.clipboard) {
 		// New way
@@ -473,15 +498,111 @@ function copyCellContent($cell) {
 	}, 600)
 }
 
+// #endregion
+
+// #region - Functions Options
+
+/**
+ * Options panel
+ */
+
+// Toggle options panel
+function toggleOptions(bool) {
+	bool = bool != undefined ? bool : !document.getElementById('options').classList.contains('show')
+	if (bool) {
+		document.getElementById('options').classList.remove('hide')
+		document.getElementById('btn-options').classList.add('hide')
+	} else {
+		document.getElementById('options').classList.add('hide')
+		document.getElementById('btn-options').classList.remove('hide')
+	}
+}
+
+// Set truncation limit (0/1/3)
+function setTruncation(limit) {
+	const $table = document.getElementById('table')
+	$table.classList.remove('trunc-3', 'trunc-1')
+	if (limit > 0) {
+		$table.classList.add('trunc-' + limit)
+	}
+	table.redraw(true)
+}
+
+// Add index column if not yet included
+function addIndexCol(data) {
+	if (data.addedIndexRow) return
+	const sampelRow = data[1]
+	let hasIndex = !!sampelRow['#']
+	if (!hasIndex) {
+		for (const key in sampelRow) {
+			if (key.toLowerCase() == 'index') {
+				hasIndex = true
+				break
+			}
+		}
+	}
+	if (!hasIndex) {
+		console.log(20)
+		data.forEach((row, i) => {
+			row['#'] = i + 1
+			data.addedIndexRow = true // Note: this is our own property, not Tabulator's
+		})
+	}
+}
+
+// Remove index column
+function removeIndexCol(data, table) {
+	indexCol = table.getColumns()[0]
+	console.log(22, indexCol._column)
+	if (indexCol._column.field == '#') {
+		indexCol.delete()
+		data.forEach((row, i) => {
+			delete row['#']
+		})
+		data.addedIndexRow = false
+		table.redraw(true)
+	}
+}
+
+// Apply options
+function applyOptions() {
+	// Truncation
+	const truncLimit = +document.getElementById('opt-select-truncation').value
+	setTruncation(truncLimit)
+
+	// Index column
+	const includeIndexCol = +document.getElementById('opt-add-index-col').value
+	if (includeIndexCol) {
+		console.log(10)
+		addIndexCol(data)
+	} else {
+		console.log(11)
+		removeIndexCol(data, table)
+	}
+}
+
+// #endregion
+
+// #region - Function Utility
+
 /**
  * Utility functions
  */
+
+// Toggle table edit mode
+function toggleEditMode(bool, revertChanges) {
+	table.toggleEditMode(bool, revertChanges)
+	if (isEditMode()) {
+		document.getElementById('btn-wrap-left').classList.add('edit-mode')
+	} else {
+		document.getElementById('btn-wrap-left').classList.remove('edit-mode')
+	}
+}
 
 // Check if string is a date.
 function isDate(str, log) {
 	// Ignore numbers that are not formatted like a date.
 	const separators = str.match(/[-./]/g, '')
-	if (log) console.log(separators)
 	if (separators && separators.length == 2 && separators[0] == separators[1]) {
 		return moment(str).isValid()
 	} else if (str.match(/[jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec]/i)) {
@@ -492,17 +613,8 @@ function isDate(str, log) {
 }
 
 // Check if table is in edit mode.
-function isEditMode(cell, a) {
+function isEditMode() {
 	return table.editMode
 }
 
-// Set truncation limit (0/1/3)
-function setTruncation(e) {
-	truncLimit = e.target.value
-	const $table = document.getElementById('table')
-	$table.classList.remove('trunc-3', 'trunc-1')
-	if (+truncLimit > 0) {
-		$table.classList.add('trunc-' + truncLimit)
-	}
-	table.redraw(true)
-}
+// #endregion
