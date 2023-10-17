@@ -30,7 +30,7 @@ from ad4e_opentoolkit.helpers.splash import splash
 from ad4e_opentoolkit.helpers.output_content import info_workspaces, info_toolkits, info_runs, info_context
 
 # Globals
-from ad4e_opentoolkit.app.global_var_lib import _repo_dir as _repo_dir
+from ad4e_opentoolkit.app.global_var_lib import _repo_dir
 from ad4e_opentoolkit.app.global_var_lib import _meta_dir as _meta_dir
 from ad4e_opentoolkit.app.global_var_lib import _meta_workspaces as _meta_workspaces
 from ad4e_opentoolkit.app.global_var_lib import _meta_login_registry as _meta_login_registry
