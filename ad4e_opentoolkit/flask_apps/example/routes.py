@@ -5,7 +5,7 @@ from flask import render_template, request, redirect, url_for
 from urllib.parse import parse_qs
 
 
-def fetchRoutes(data):
+def fetchRoutesExample(data):
 
     # This is the object that is returned when launching the Flask app.
     # When submitting the form, the data is stored here and can be accessed

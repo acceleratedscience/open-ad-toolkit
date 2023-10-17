@@ -2,7 +2,7 @@
 Parse XML tags for easy styling of CLI text output.
 ---------------------------------------------------
 Author: Moenen Erbuer - moenen.erbuer@ibm.com
-v0.0.0-beta5 / Last update: Sep 20, 2023
+v0.0.0-beta6 / Last update: Sep 28, 2023
 
 Description:
     This module parses XML style tags into ANSI escape codes,
@@ -139,15 +139,18 @@ def style(
     Returns:
         Text encoded with ANSI escapse codes ready to be printed to the CLI.
     """
-    if width==None:
+    if width is None:
         try:
             import shutil
-            width, rows = shutil.get_terminal_size()
-        except:
+            columns, rows = shutil.get_terminal_size()
+            width = min(columns - 5, 150)
+            if tabs:
+                width = width - (tabs * 4)
+            elif edge:
+                width = width - 5
+        except BaseException:
             width = 60
 
-            
-              
     if text is None:
         return ''
 
@@ -222,7 +225,6 @@ def print_s(text: str, ephemeral=False, **kwargs):
 def strip_tags(text: str):
     """ Recursively remove all XML tags. """
 
-    # Replace regex matches with appropriate styling.
     def _strip(match: object, pattern):
         inner_text = match.group(2)
 
@@ -231,6 +233,9 @@ def strip_tags(text: str):
             inner_text = re.sub(pattern, lambda match: _strip(match, pattern), inner_text)
 
         return inner_text
+
+    #
+    #
 
     # Enforce string type.
     text = str(text)
@@ -241,11 +246,9 @@ def strip_tags(text: str):
     # Expand error and success tags.
     text = _expand_error_success_tags(text, False)
 
-    # Strip tags.
-    pattern1 = fr"<({'|'.join(list(tags))})>(.*?)</\1>"
-    text = re.sub(pattern1, lambda match: _strip(match, pattern1), text)
-    # pattern2 = fr"<span(.*?)>(.*?)</span>" # trash
-    # text = re.sub(pattern2, lambda match: _strip(match, pattern2), text) # trash
+    # Replace recognized tags with appropriate styling.
+    pattern = fr"<({'|'.join(list(tags))})>(.*?)</\1>"
+    text = re.sub(pattern, lambda match: _strip(match, pattern), text)
 
     # Restore line breaks.
     text = text.replace('---LINEBREAK2---', '\n')
@@ -279,8 +282,9 @@ def tags_to_markdown(text: str):
 
     # Enforce string type.
     text = str(text)
+
     # Replace leading spaces with non-breaking spaces.
-    text = re.sub(r'^( *)', '', text, flags=re.MULTILINE)
+    # text = re.sub(r'^( *)', '', text, flags=re.MULTILINE) # Forgot why we needed this, but it's fucking with ASCII type in some splash pages (%openad openad)
 
     # Replace line breaks so all text is parsed on one line.
     # Because html breaks (<br>) don't play well with headings,
@@ -313,7 +317,7 @@ def tags_to_markdown(text: str):
     # Escape quotes.
     text = text.replace("'", "\'")
 
-    # Replace all other tags
+    # Remove all other tags
     text = strip_tags(text)
 
     # Restore line breaks.
@@ -328,7 +332,7 @@ def tags_to_markdown(text: str):
 # we replace `foo<br>bar` with `foo`<br>`bar`.
 # This function is run before we replace \n with <br>, so
 # we replace \n instead of <br>
-def _replace_linebreaks_inside_cmdblocks(text, break_str):
+def _replace_linebreaks_inside_cmdblocks(text: str, break_str: str):
     pattern = r'<cmd>([^<]*?)\n([^<]*?)</cmd>'
     text = re.sub(pattern, rf'<cmd>\1</cmd>{break_str}<cmd>\2</cmd>', text)
     return text
@@ -336,7 +340,7 @@ def _replace_linebreaks_inside_cmdblocks(text, break_str):
 
 # Replace <soft> and <underline> tags only
 # when they don't appear inside <cmd> tags.
-def _replace_soft_and_underline(text):
+def _replace_soft_and_underline(text: str):
     # Remove the tags within <cmd> tags.
     text = re.sub(r'<cmd>(.*?)<\/cmd>', lambda x: x.group(0).replace('<underline>', '').replace('</underline>', ''), text)
     text = re.sub(r'<cmd>(.*?)<\/cmd>', lambda x: x.group(0).replace('<soft>', '').replace('</soft>', ''), text)
@@ -363,10 +367,65 @@ def wrap_text(text: str, width=80):
     for line in lines:
         stripped_line = line.lstrip()
         indent = line[:len(line) - len(stripped_line)]
-        wrapped = textwrap.fill(stripped_line, width=width, subsequent_indent=indent)
+        wrapped = a_textwrap(stripped_line, width=width, subsequent_indent=indent)
         wrapped_lines.append(indent + wrapped)
 
     return '\n'.join(wrapped_lines)
+
+
+def a_len(text):
+    """ An alternative to len() which measures a string's 'actual' length without ANSI codes. """
+    pattern_ansi = r'\x1b\[[0-9;]*[m]'
+    return len(re.sub(pattern_ansi, '', text))
+
+
+def a_textwrap(text, width=100, drop_whitespace=True, subsequent_indent=''):
+    """ An alternative to textwrap.fill() that accounts for ANSI codes. """
+
+    # Split by ANSI characters and spaces.
+    # By using capturing groups, the separators are included in the list.
+    pattern_ansi_or_space_captured = r'(\x1b\[[0-9;]*[m])|([\s]+)'
+    split_text = re.split(pattern_ansi_or_space_captured, text)
+    split_text = list(filter(None, split_text))  # Remove the empty strings.
+
+    output = []
+    line = ''  # With ansi codes, used for output.
+
+    def _linebreak():
+        nonlocal output, line
+        output.append(line)
+        line = subsequent_indent
+
+    for i, string in enumerate(split_text):
+        pattern_ansi = r'\x1b\[[0-9;]*[m]'
+        is_ansi = re.match(pattern_ansi, string)
+        str_len_clean = len(re.sub(pattern_ansi, '', string))
+        reset_ansi_code = '\x1b[0m'
+
+        if string == '\n':
+            # Add linebreak.
+            _linebreak()
+        elif is_ansi:
+            # Add ANSI code to line, add linebreak before if the line is full.
+            if a_len(line) == width and string != reset_ansi_code:
+                _linebreak()
+            line += string
+        elif a_len(line) + str_len_clean <= width:
+            # Add string to line when there's room,
+            # but only if the string is not a space,
+            # or a space under certain circumstances.
+            line += string
+        else:
+            # Start new line.
+            _linebreak()
+            if string and (not string.isspace() or not drop_whitespace):
+                line += string
+
+        # Wrap up last line.
+        if i == len(split_text) - 1:
+            output.append(line)
+
+    return '\n'.join(output)
 
 
 #

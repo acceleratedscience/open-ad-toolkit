@@ -4,9 +4,8 @@
 	"version": "0.0.1",
 	"commands": {
 		"intro": "If this is your first time, let us help you getting started.",
-		"list all toolkits": "See what toolkits are available.",
+		"toolkits ?": "Learn about the toolkits.",
 		"?": "See what you can do.",
-		"??": "Open advanced help.",
 		"<soft>...</soft> ?": "Get help whenever you get stuck.",
 		"docs": "Read the docs in your browser."
 	}

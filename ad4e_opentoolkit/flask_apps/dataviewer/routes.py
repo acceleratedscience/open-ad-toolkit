@@ -1,10 +1,10 @@
 from flask import render_template
 
 
-def fetchRoutes(data_str):
+def fetchRoutesDataViewer(data, headers):
 
     def home():
-        return render_template('/dataviewer/index.html', data=data_str)
+        return render_template('/dataviewer/index.html', data=data, headers=headers)
 
     def test():
         return render_template('/dataviewer/test.html')

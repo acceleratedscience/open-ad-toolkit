@@ -1,4 +1,5 @@
 #!/usr/local/opt/python@3.9/bin/python3.9
+#
 
 import os
 import sys
@@ -83,28 +84,27 @@ def import_file(cmd_pointer, parser):
     # Reset working directory as it can have changed.
     # os.chdir(_repo_dir)
 
-    workspace = cmd_pointer.workspace_path(cmd_pointer.settings['workspace'])
+    workspace_path = cmd_pointer.workspace_path(cmd_pointer.settings['workspace'])
+    workspace_name = cmd_pointer.settings['workspace'].upper()
     source_file = parser['source']
     dest_file = parser['destination']
-    workspace_name = cmd_pointer.settings['workspace'].upper()
 
     # Expand user path: ~/ --> ../
     # from pathlib import PosixPath # Trash
     # source_file = PosixPath(source_file).expanduser().resolve() # Trash
     source_file = os.path.expanduser(source_file)
 
-    path = workspace
     if not os.path.exists(source_file):
         # Source does not exist
         return output_error(msg('fail_file_doesnt_exist', source_file), cmd_pointer)
-    elif os.path.exists(dest_file):
+    elif os.path.exists(workspace_path + '/' + dest_file):
         # Destination already exists
         if not confirm_prompt('Destination file already exists. Overwrite?'):
             return output_error(msg('abort'), cmd_pointer)
     try:
         # Success
         # shutil.copyfile(PosixPath(source_file).expanduser().resolve(), path + '/' + dest_file) # Trash
-        shutil.copyfile(os.path.expanduser(source_file), path + '/' + dest_file)
+        shutil.copyfile(os.path.expanduser(source_file), workspace_path + '/' + dest_file)
         return output_success(msg('success_import', source_file, workspace_name), cmd_pointer)
     except BaseException as err:
         # Failure

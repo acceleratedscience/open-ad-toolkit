@@ -582,7 +582,7 @@ def ascii_type(text, reverse=False, char=None):
     reverse : bool, optional
         Reverses the foreground and background.
     char : str|int, optional
-        The character to used to paint.
+        The character used to paint.
     """
 
     # Parse text ans set style.

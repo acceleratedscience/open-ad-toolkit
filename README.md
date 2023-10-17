@@ -17,6 +17,8 @@
 
 ## Installation
 
+> **Note:** If you're installing a development version of OpenAD, please jump to [Installation for Development](#installation-for-development)
+
 1.  **Step 0: Before you start**<br>
     Ensure you're running Python 3.10.10 or above.
 
@@ -43,8 +45,6 @@
     > • To see available commands, run `?`_
 
 <br>
-
-
 
 ## Getting Started - CLI
 
@@ -102,7 +102,7 @@ If you plan to use this application inside Jupyter Notebook of JupyterLab, you s
             run openad.py
 
     -   **Option C: Within a custom iPython profile**<br>
-        This would install the magic commands within the iPhython custom profile called 'myprofile'
+        This would install the magic commands within the iPython custom profile called 'myprofile'
 
             init_magic myprofile
 
@@ -220,15 +220,21 @@ In order to use the "Tell me" functionality, you will need to create an account 
 
 ![Landing](readme/openai-api-key.png)
 
-
-
-
 ## Installation for Development
 
 Only follow these instructions if you're contributing to the codebase.
 
-1.  **Step 0 & 1**<br>
-    See main installation instructions above.
+1.  **Step 0: Before you start**<br>
+    Ensure you're running Python 3.10.10 or above.
+
+1.  **Step 1: Set up virtual environment** (optional)<br>
+
+        python -m venv ~/openad
+        source ~/openad/bin/activate
+
+    > **Note:** To exit the virtual environment, you can run `deactivate`
+
+    ![](https://placehold.co/20x20/dd0000/dd0000.png) <span style="color:#d00">Internal note: we should change the virtual env name to something that's descriptive, because just calling it "openad" obfuscates what is happening here. I kept is as-is to avoid inconsistencies with other content. - Moenen</span>
 
 1.  **Step 2: Installation**<br>
 
@@ -256,7 +262,6 @@ Only follow these instructions if you're contributing to the codebase.
 
 <br>
 
-
 <!--
 
 For screenshots to look good, they should be small and ideally
@@ -281,3 +286,4 @@ for (var i=0; i< urls.length; i++) {
 }
 
 -->
+	

@@ -1,5 +1,6 @@
 
 import os
+from IPython.display import display
 
 # Global variables
 from ad4e_opentoolkit.app.global_var_lib import _meta_dir as _meta_dir
@@ -24,13 +25,13 @@ def _create_workspace_dir_if_nonexistent(cmd_pointer, dir_name):
 # Save a run to the workspace's _runs directory.
 def save_run(cmd_pointer, parser):
     import readline
-    
+
     _create_workspace_dir_if_nonexistent(cmd_pointer, '_runs')
     readline.write_history_file(cmd_pointer.histfile)
 
     # f =_meta_workspaces+'/'+ cmd_pointer.settings['workspace'].upper()+'/.cmd_history'
     runlist = []
-   
+
     rows = readline.get_current_history_length() - 1
 
     while rows > 0 and ' '.join(readline.get_history_item(rows).lower().split()) != 'create run':
@@ -38,21 +39,21 @@ def save_run(cmd_pointer, parser):
             return output_error(msg('fail_run_create'), cmd_pointer)
         runlist.insert(0, readline.get_history_item(rows))
         rows = rows - 1
-   
+
     f = cmd_pointer.workspace_path(cmd_pointer.settings['workspace'].upper()) + '/_runs/' + parser.as_dict()['run_name'] + '.run'
     if rows == 1 and ' '.join(readline.get_history_item(rows).lower().split()) != 'create run':
         return output_error(msg('fail_run_create'), cmd_pointer)
     run_file = open(f, 'w')
-  
+
     for i in runlist:
         run_file.write(i + '\n')
     run_file.close()
- 
+
     return output_success(msg('success_run_save'), cmd_pointer)
 
 
 # executes a run file.
-def execute_run(cmd_pointer, parser):
+def exec_run(cmd_pointer, parser):
     _create_workspace_dir_if_nonexistent(cmd_pointer, '_runs')
     f = cmd_pointer.workspace_path(cmd_pointer.settings['workspace'].upper()) + '/.cmd_history'
     f = cmd_pointer.workspace_path(cmd_pointer.settings['workspace'].upper()) + '/_runs/' + parser.as_dict()['run_name'] + '.run'
@@ -60,14 +61,25 @@ def execute_run(cmd_pointer, parser):
     run_line = run_file.readline()
 
     while run_line:
-        try:
-            if cmd_pointer.notebook_mode:
-                from IPython.display import display
-                display(cmd_pointer.default(run_line))
-            else:
-                cmd_pointer.default(run_line)
-        except BaseException:
-            return output_error(msg('fail_run_execute', run_line), cmd_pointer)
+        run_line = run_line.strip()
+        if run_line != '':  # Ignore blank lines.
+            try:
+                # This is to cover a silly edge case when you'd have `?` or `??` in a run.
+                # Not  relevant in the real world but used for testing.
+                if run_line == '?':
+                    output = cmd_pointer.do_help('')
+                elif run_line == '??':
+                    output = cmd_pointer.default('?')
+                else:
+                    output = cmd_pointer.default(run_line)
+
+                if cmd_pointer.notebook_mode:
+                    # When you run a run inside another run, there is no result returned.
+                    # This prevents "None" from being displayed in Jupyter.
+                    if output is not None:
+                        display(output)
+            except BaseException:
+                return output_error(msg('fail_run_execute', run_line), cmd_pointer)
 
         run_line = run_file.readline()
     run_file.close()

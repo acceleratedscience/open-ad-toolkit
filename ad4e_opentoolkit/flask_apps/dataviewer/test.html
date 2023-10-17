@@ -1,11 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Document</title>
-</head>
-<body>
-	TEst success
-</body>
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Document</title>
+		<style>
+			#table {
+				display: grid;
+				grid-template-columns: repeat(6, minmax(350px, auto));
+				width: 100%;
+				border: solid 1px red;
+			}
+			#table > div {
+				border: solid 1px #ccc;
+			}
+			#container {
+				width: 100%; /* or another appropriate width */
+				height: auto; /* or set a fixed height as needed */
+				border: solid 2px blue;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="container">
+			<div id="table">
+				<div>abc</div>
+				<div>abc</div>
+				<div>abc</div>
+				<div>abc</div>
+				<div>abc</div>
+				<div>abc</div>
+				<div>abc</div>
+				<div>abc</div>
+				<div>abc</div>
+				<div>abc</div>
+				<div>abc</div>
+				<div>abc</div>
+			</div>
+		</div>
+	</body>
 </html>
