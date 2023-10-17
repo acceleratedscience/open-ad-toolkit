@@ -102,7 +102,7 @@ If you plan to use this application inside Jupyter Notebook of JupyterLab, you s
             run openad.py
 
     -   **Option C: Within a custom iPython profile**<br>
-        This would install the magic commands within the iPhython custom profile called 'myprofile'
+        This would install the magic commands within the iPython custom profile called 'myprofile'
 
             init_magic myprofile
 
