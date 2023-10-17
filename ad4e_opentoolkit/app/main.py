@@ -20,7 +20,6 @@ import ad4e_opentoolkit.core.help as openad_help
 from ad4e_opentoolkit.core.grammar import grammar_help, statements, statements_def, create_statements, output_train_statements
 from ad4e_opentoolkit.core.lang_sessions_and_registry import write_registry, load_registry, delete_session_registry
 from ad4e_opentoolkit.core.lang_workspaces import set_workspace
-import ad4e_opentoolkit.app.login_manager as login_manager
 
 # Helpers
 from ad4e_opentoolkit.helpers.general import singular, confirm_prompt
