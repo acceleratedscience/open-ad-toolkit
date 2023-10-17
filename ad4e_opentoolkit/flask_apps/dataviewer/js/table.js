@@ -16,9 +16,8 @@ class Table extends Tabulator {
 
 		// Variables
 		this.editMode = false
-		this.addedIndexCol = false
 		this.colDefaultWidths = {}
-		this.addedIndexRow = false
+		this.addedIndex = false
 
 		// Parse custom options
 		this.init(options)
@@ -42,25 +41,32 @@ class Table extends Tabulator {
 	}
 
 	// Add index column
-	addIndexCol() {
-		if (this.addedIndexRow) return
-
-		// Check if an index column already exists
+	addIndexCol(force) {
+		if (this.addedIndex) return
 		const data = this.getData()
-		const rowSample = data[1]
-		let hasIndex = !!rowSample['#']
-		if (!hasIndex) {
-			for (const key in rowSample) {
-				if (key.toLowerCase() == 'index') {
-					hasIndex = true
-					break
+
+		let addCol = false
+		if (force) {
+			// Column is added manually via options panel.
+			addCol = true
+		} else if (!force) {
+			// Column is added on init, but only if one doesn't already exist.
+			const rowSample = data[1]
+			let hasIndex = !!rowSample['#']
+			if (!hasIndex) {
+				for (const key in rowSample) {
+					if (key.toLowerCase() == 'index') {
+						hasIndex = true
+						break
+					}
 				}
+				addCol = !hasIndex
 			}
 		}
 
 		// Add index column if missing
-		if (!hasIndex) {
-			this.addedIndexRow = true
+		if (addCol) {
+			this.addedIndex = true
 			data.forEach((row, i) => {
 				row['#'] = i + 1
 			})
@@ -81,24 +87,13 @@ class Table extends Tabulator {
 	removeIndexCol() {
 		const indexCol = this.getColumns()[0]
 		if (indexCol.getField() == '#') {
-			this.addedIndexRow = false
+			this.addedIndex = false
 			indexCol.delete()
 			const data = this.getData()
 			data.forEach((row, i) => {
 				delete row['#']
 			})
 			this.setData(data)
-
-			// This is a little hack to prevent undesireable behavior where
-			// row height is not recalculated after removing the index column.
-			// But this was related to shifting one of the columns in a wrong way
-			// can be deleted
-			//
-			// this.getColumns().forEach((col, i) => {
-			// 	console.log(i)
-			// 	col.setWidth(true)
-			// })
-			// this.redraw(true)
 		}
 	}
 

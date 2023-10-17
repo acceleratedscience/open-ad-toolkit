@@ -27,6 +27,7 @@ document.querySelector('#btn-options').addEventListener('click', function () {
 // Submit options
 document.querySelector('#options .btn-apply').addEventListener('click', function () {
 	applyOptions()
+	toggleOptions(false)
 })
 
 // Cancel options
@@ -121,10 +122,13 @@ const table = new Table('#table', {
 	// },
 })
 
-// Redraw the table after the data object is built but before the table is rendered.
-// This is a little hack to prevent all rows to take on the height of the tallest cell.
 table.on('tableBuilt', () => {
+	// Redraw the table after the data object is built but before the table is rendered.
+	// This is a little hack to prevent all rows to take on the height of the tallest cell.
 	table.redraw(true)
+
+	// Set the "Add index column" dropdown to the correct value.
+	setIndexColDropdown()
 })
 table.on('cellClick', onCellClick)
 table.on('cellDblClick', e => {
@@ -517,42 +521,6 @@ function setTruncation(limit) {
 	table.redraw(true)
 }
 
-// // Add index column if not yet included
-// function addIndexCol(data) {
-// 	if (data.addedIndexRow) return
-// 	const sampelRow = data[1]
-// 	let hasIndex = !!sampelRow['#']
-// 	if (!hasIndex) {
-// 		for (const key in sampelRow) {
-// 			if (key.toLowerCase() == 'index') {
-// 				hasIndex = true
-// 				break
-// 			}
-// 		}
-// 	}
-// 	if (!hasIndex) {
-// 		console.log(20)
-// 		data.forEach((row, i) => {
-// 			row['#'] = i + 1
-// 			data.addedIndexRow = true // Note: this is our own property, not Tabulator's
-// 		})
-// 	}
-// }
-
-// // Remove index column
-// function removeIndexCol(data, table) {
-// 	indexCol = table.getColumns()[0]
-// 	console.log(22, indexCol._column)
-// 	if (indexCol._column.field == '#') {
-// 		indexCol.delete()
-// 		data.forEach((row, i) => {
-// 			delete row['#']
-// 		})
-// 		data.addedIndexRow = false
-// 		table.redraw(true)
-// 	}
-// }
-
 // Apply options
 function applyOptions() {
 	// Truncation
@@ -562,10 +530,8 @@ function applyOptions() {
 	// Index column
 	const includeIndexCol = +document.getElementById('opt-add-index-col').value
 	if (includeIndexCol) {
-		console.log(10)
-		table.addIndexCol()
+		table.addIndexCol(true)
 	} else {
-		console.log(11)
 		table.removeIndexCol()
 	}
 }
@@ -604,6 +570,15 @@ function isDate(str, log) {
 // Check if table is in edit mode.
 function isEditMode() {
 	return table.editMode
+}
+
+// Set the "Add index column" dropdown to the correct value.
+function setIndexColDropdown() {
+	if (table.addedIndex) {
+		document.getElementById('opt-add-index-col').querySelector('option[value="1"]').selected = true
+	} else {
+		document.getElementById('opt-add-index-col').querySelector('option[value="0"]').selected = true
+	}
 }
 
 // #endregion
