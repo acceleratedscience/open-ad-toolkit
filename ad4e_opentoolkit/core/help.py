@@ -93,7 +93,7 @@ def all_commands(available_commands: list, toolkit_name: str = None, toolkit_cur
         return main_commands + toolkit_commands
 
 
-def queried_commands(matching_commands: list, inp: str = None):
+def queried_commands(matching_commands: object, inp: str = None):
     """
     Return a styles list with all commands matching the query.
 

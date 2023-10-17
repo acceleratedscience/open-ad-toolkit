@@ -104,7 +104,7 @@ def output_text(text, cmd_pointer=None, return_val=None, jup_return_format=None,
             print_s(text, **kwargs)
 
 
-def _output_status(msg, status, cmd_pointer=None, return_val=None, pad=1, pad_top=False, pad_btm=False, **kwargs):
+def _output_status(message, status, cmd_pointer=None, return_val=None, pad=1, pad_top=False, pad_btm=False, **kwargs):
     """
     Print or return styled error/warning/success message according
     to the relevant display context (API/Jupyter/CLI).
@@ -137,11 +137,11 @@ def _output_status(msg, status, cmd_pointer=None, return_val=None, pad=1, pad_to
     """
 
     # Check if there's a secondary message.
-    if isinstance(msg, tuple):
-        msg1 = msg[0]
-        msg2 = msg[1] if len(msg) == 2 else None
+    if isinstance(message, tuple):
+        msg1 = message[0]
+        msg2 = message[1] if len(message) == 2 else None
     else:
-        msg1 = msg
+        msg1 = message
         msg2 = None
 
     # Format secondary message.
@@ -163,27 +163,27 @@ def _output_status(msg, status, cmd_pointer=None, return_val=None, pad=1, pad_to
 
 
 # Print or return error messages.
-def output_error(msg, *args, **kwargs):
+def output_error(message, *args, **kwargs):
     """
     Wrapper around output_status() for error messages.
     """
-    return _output_status(msg, 'error', *args, **kwargs)
+    return _output_status(message, 'error', *args, **kwargs)
 
 
 # Print or return warning messages.
-def output_warning(msg, *args, **kwargs):
+def output_warning(message, *args, **kwargs):
     """
     Wrapper around output_status() for warning messages.
     """
-    return _output_status(msg, 'warning', *args, **kwargs)
+    return _output_status(message, 'warning', *args, **kwargs)
 
 
 # Print or return success messages.
-def output_success(msg, *args, **kwargs):
+def output_success(message, *args, **kwargs):
     """
     Wrapper around output_status() for success messages.
     """
-    return _output_status(msg, 'success', *args, **kwargs)
+    return _output_status(message, 'success', *args, **kwargs)
 
 
 # Print or return a table.
@@ -220,7 +220,7 @@ def output_table(table, cmd_pointer=None, is_data=False, headers=None, note=None
     cli_width = shutil.get_terminal_size().columns
 
     # Abort when table is empty.
-    if _is_empty_table(data, is_df):
+    if _is_empty_table(table, is_df):
         output_warning(msg('table_is_empty'), cmd_pointer, return_val=False)
         return
 
@@ -298,12 +298,12 @@ def output_table(table, cmd_pointer=None, is_data=False, headers=None, note=None
 
     # --> Optional follow-up commands.
     if is_data:
-        msg = (
+        message = (
             '<cmd>result open</cmd>',
             '<cmd>result edit</cmd>',
             '<cmd>result save [as \'<filename.csv>\']</cmd>',
         )
-        footnote += '<soft>Next up, you can run: </soft>' + ' / '.join(msg)
+        footnote += '<soft>Next up, you can run: </soft>' + ' / '.join(message)
 
     # --> Optional custom note.
     if note:
