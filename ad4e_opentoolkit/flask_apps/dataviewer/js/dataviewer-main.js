@@ -4,6 +4,11 @@
  * Event listeners
  */
 
+// Apply edit mode to buttons
+if (window.location.hash == '#edit') {
+	toggleEditModeBtns(true)
+}
+
 // Edit
 document.getElementById('btn-edit').addEventListener('click', function () {
 	toggleEditMode(true)
@@ -99,27 +104,23 @@ const columns = parseColumns(data)
 // columns.unshift({ formatter: 'rowSelection', titleFormatter: 'rowSelection', align: 'center', headerSort: false }) // Add checkbox column fopr selection UI
 
 // Create table
-const table = new Table('#table', {
+let table
+table = new Table('#table', {
 	data,
 	columns,
 	resizableRows: true,
 	// rowHeight: 40,
 	reactiveData: true,
-	editMode: window.location.hash == '#edit',
 	pagination: false,
+	editMode: window.location.hash == '#edit',
+	// movableRows: window.location.hash == '#edit',
+	// movableColumns: window.location.hash == '#edit',
+	// movableRows: isEditMode(),
+	// movableColumns: isEditMode(),
 	movableRows: true,
 	movableColumns: true,
 	// selectable: true,
 	// paginationSize: 5,
-	// rowFormatter: row => {
-	// 	// Trash
-	// 	// row.getColumns()
-	// 	// const rowData = row.getData()
-	// 	// Calculate the row height based on your criteria
-	// 	// const height = 26
-	// 	// Set the row height using CSS
-	// 	// row.getElement().style.height = height + 'px'
-	// },
 })
 
 table.on('tableBuilt', () => {
@@ -129,7 +130,12 @@ table.on('tableBuilt', () => {
 
 	// Set the "Add index column" dropdown to the correct value.
 	setIndexColDropdown()
+
+	// Init right click menu on table header
+	initRightClickMenu()
 })
+// table.on('headerClick', onHeaderClick)
+// table.on('dataSorting', onDataSorting)
 table.on('cellClick', onCellClick)
 table.on('cellDblClick', e => {
 	$cell = e.target.classList.contains('tabulator-cell') ? e.target : e.target.closest('.tabulator-cell')
@@ -341,6 +347,16 @@ function _pickFormatter(key, needFormatter, contentPropsAll) {
  * Table interaction
  */
 
+// function onHeaderClick(e, column) {
+// 	e.preventDefault()
+// 	console.log(111)
+// }
+
+// function onDataSorting(sorters) {
+// 	console.log(222, sorters)
+// 	return false
+// }
+
 function onCellClick(e, cell) {
 	// Display overlay with full content when cell is truncated.
 	if (e.target.classList.contains('text-wrap')) {
@@ -352,8 +368,9 @@ function onCellClick(e, cell) {
 	}
 
 	// Set focus on clicked cell.
-	$focusCell = cell._cell.element
+	$focusCell = cell.getElement()
 	setFocus($focusCell)
+
 	//
 	//
 
@@ -436,14 +453,14 @@ function onCellClick(e, cell) {
 	}
 }
 
-// Set artificial cell focus.
+// Set artificial cell focus
 function setFocus($focusCell) {
 	const $currentFocusCell = document.querySelector('.tabulator-cell.focus')
 	if ($currentFocusCell) $currentFocusCell.classList.remove('focus')
 	$focusCell.classList.add('focus')
 }
 
-// Move artificial cell focus.
+// Move artificial cell focus
 function moveFocus(dir) {
 	const $currentFocusCell = document.querySelector('.tabulator-cell.focus')
 	if (!$currentFocusCell) return
@@ -470,7 +487,7 @@ function moveFocus(dir) {
 	}
 }
 
-// Copies the content of a cell to the clipboard.
+// Copies the content of a cell to the clipboard
 function copyCellContent($cell) {
 	if (navigator.clipboard) {
 		// New way
@@ -489,6 +506,62 @@ function copyCellContent($cell) {
 	setTimeout(() => {
 		$cell.classList.remove('copied')
 	}, 600)
+}
+
+// Right click menu on table header
+function initRightClickMenu() {
+	// Add event listener to each column header
+	const $headerCols = document.querySelectorAll('#table.tabulator .tabulator-header .tabulator-col')
+	$headerCols.forEach($headerCol => {
+		$headerCol.addEventListener('contextmenu', function (e) {
+			_renderContextMenu($headerCol)
+			e.preventDefault()
+		})
+	})
+
+	//
+	//
+
+	// Generate the interactive HTML for the context menu
+	function _renderContextMenu($headerCol) {
+		const colName = $headerCol.querySelector('.tabulator-col-title').innerText
+
+		// Remove any other context menu
+		const $prevMenu = document.getElementById('context-menu')
+		if ($prevMenu) {
+			$prevMenu.remove()
+		}
+
+		// Create HTML
+		const $menu = document.createElement('div')
+		$menu.setAttribute('id', 'context-menu')
+		$menu.innerHTML = '<div class="menu-item" value="remove">Remove column</div>'
+
+		// Click handler
+		$menu.addEventListener('click', e => {
+			if (e.target.classList.contains('menu-item')) {
+				if (e.target.getAttribute('value') == 'remove') {
+					console.log('Remove column', colName)
+					table.deleteColumn(colName)
+				} else if (e.target.getAttribute('value') == 'reset') {
+					console.log('Reset columns')
+				} else if (e.target.getAttribute('value') == 'foo') {
+					console.log('Foo columns')
+				}
+			}
+			$menu.remove()
+		})
+
+		// Position right below the clicked header column
+		const rect = $headerCol.getBoundingClientRect()
+		$menu.style.setProperty('top', rect.bottom + 'px')
+		$menu.style.setProperty('left', rect.left + 'px')
+		$menu.style.setProperty('width', rect.width - 1 + 'px')
+
+		document.body.append($menu)
+
+		return $menu
+	}
 }
 
 // #endregion
@@ -547,7 +620,12 @@ function applyOptions() {
 // Toggle table edit mode
 function toggleEditMode(bool, revertChanges) {
 	table.toggleEditMode(bool, revertChanges)
-	if (isEditMode()) {
+	toggleEditModeBtns(bool)
+}
+
+// Toggle buttons edit mode
+function toggleEditModeBtns(bool) {
+	if (bool) {
 		document.getElementById('btn-wrap-left').classList.add('edit-mode')
 	} else {
 		document.getElementById('btn-wrap-left').classList.remove('edit-mode')

@@ -81,6 +81,15 @@
 	box-shadow: 0 0 5px var(--black-10);
 }
 
+/* Delete icon on hover */
+/* .tabulator .tabulator-header .tabulator-col:hover .tabulator-col-title::before {
+	content: 'AAA';
+	background: red !important;
+}
+.tabulator .tabulator-header .tabulator-col:hover .tabulator-arrow {
+	background: #ff0;
+} */
+
 /* Min cell height - avoids ugliness when resizing rows */
 .tabulator .tabulator-row,
 .tabulator-row .tabulator-cell {

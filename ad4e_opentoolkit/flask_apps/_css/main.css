@@ -31,7 +31,7 @@ body {
 	margin: 0;
 	padding: 40px;
 	font-family: 'IBM Plex Sans', sans-serif;
-	font-size: 13px;
+	font-size: var(--font-size);
 	color: var(--black);
 }
 h1 {

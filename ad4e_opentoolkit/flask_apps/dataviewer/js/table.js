@@ -106,10 +106,11 @@ class Table extends Tabulator {
 	}
 
 	// Toggle edit mode
+	// Note: the actual toggling of the edit mode is done in isEditMode()
 	toggleEditMode(bool, revertChanges) {
 		this.editMode = bool == undefined ? !this.editMode : bool
 		if (this.editMode) {
-			this.storeData()
+			this.storeData() // Store data so we can revert on cancel
 			this.element.classList.add('edit-mode')
 			history.pushState('', document.title, window.location.pathname + window.location.search + '#edit') // Add hash
 		} else {
