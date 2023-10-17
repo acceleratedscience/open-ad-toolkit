@@ -6,7 +6,7 @@ import logging
 import sys
 import readline
 import re
-import ad4e_opentoolkit.app.login_manager
+from ad4e_opentoolkit.app import login_manager
 import string
 import uuid
 from cmd import Cmd
