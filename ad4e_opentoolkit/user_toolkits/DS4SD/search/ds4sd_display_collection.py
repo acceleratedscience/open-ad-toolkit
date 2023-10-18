@@ -11,7 +11,7 @@ _tableformat = 'simple'
 
 # https://cps.foc-deepsearch.zurich.ibm.com/projects/1234567890abcdefghijklmnopqrstvwyz123456/library
 
-def display_collection(inputs: dict, toolkit_dir,cmd_pointer):
+def display_collection(inputs: dict, cmd_pointer):
     api = cmd_pointer.login_settings['toolkits_api'][cmd_pointer.login_settings['toolkits'].index('DS4SD') ]
     collections = api.elastic.list(domain=inputs['domain']['val'])
     collections.sort(key=lambda c: c.name.lower())
