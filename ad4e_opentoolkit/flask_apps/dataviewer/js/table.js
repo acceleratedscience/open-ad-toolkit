@@ -1,5 +1,8 @@
-// This is a custom module that extends
-// Tabulator with some extra functionality.
+/**
+ * Table is a subclass that extends
+ * Tabulator with some extra functionality.
+ */
+
 class Table extends Tabulator {
 	constructor(element, options) {
 		// Modifications
@@ -15,9 +18,10 @@ class Table extends Tabulator {
 		})
 
 		// Variables
-		this.editMode = false
-		this.colDefaultWidths = {}
-		this.addedIndex = false
+		this.editMode = false // Used to determine if we're in edit mode - see isEditMode()
+		this.colDefaultWidths = {} // Used to store column widths so we can reset them
+		this.addedIndex = false // Used to keep track if we added an index column
+		this.lastClickedRowSelected = null // Boolean used to determine if shift-select row should batch-select or batch-deselect
 
 		// Parse custom options
 		this.init(options)
@@ -105,8 +109,15 @@ class Table extends Tabulator {
 		})
 	}
 
+	// Check if table is in edit mode
+	isEditMode() {
+		return this.editMode
+	}
+
 	// Toggle edit mode
-	// Note: the actual toggling of the edit mode is done in isEditMode()
+	// - - -
+	// Note: Tabulator doesn't support toggling edit mode, so we use a little hack.
+	// The actual toggling of the edit mode is done via isEditMode when creating the table.
 	toggleEditMode(bool, revertChanges) {
 		this.editMode = bool == undefined ? !this.editMode : bool
 		if (this.editMode) {
