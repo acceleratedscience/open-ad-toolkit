@@ -50,7 +50,7 @@ setup(
         'traitlets',
         'pandas',
         'mols2grid',
-        'deepsearch-toolkit',
+        'deepsearch-toolkit==0.29.0',
         'tiktoken',
         'langchain==0.0.272',
         'traitlets==5.9',
