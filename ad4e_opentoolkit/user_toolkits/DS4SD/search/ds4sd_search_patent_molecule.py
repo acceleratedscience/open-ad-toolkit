@@ -80,7 +80,9 @@ def search_patent_molecule(inputs: dict,cmd_pointer):
         df.to_csv(cmd_pointer.workspace_path(cmd_pointer.settings['workspace'].upper()) + "/" + results_file, index=False)
         df = df.replace(np.nan, '', regex=True)
         output_text("\n <success>File successfully saved to workspace.</success>",cmd_pointer=cmd_pointer,return_val=False)
-    output_text("\n <h2>  Patent Search Results for "+ result_type+ " molecule:</h2> " + inputs['smiles'] + "",cmd_pointer=cmd_pointer, return_val=False )
+    output_text( "",cmd_pointer=cmd_pointer, return_val=False )
+    output_text(" <h2>  Patent Search Results for "+ result_type+ " molecule:</h2> ",cmd_pointer=cmd_pointer, return_val=False )
+    output_text(  inputs['smiles'] ,cmd_pointer=cmd_pointer, return_val=False )
 
     table = pd.DataFrame(results_table)
     return output_table(table, cmd_pointer, tablefmt=_tableformat   )
