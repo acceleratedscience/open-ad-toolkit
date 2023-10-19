@@ -4,8 +4,6 @@ document.getElementById('btn-save').addEventListener('click', submitData)
 var xhr = new XMLHttpRequest()
 
 function submitData() {
-	console.log(888, data)
-
 	// Define the request method and URL.
 	xhr.open('POST', '/submit', true)
 

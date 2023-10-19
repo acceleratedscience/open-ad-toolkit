@@ -13,17 +13,17 @@
 		<!-- Tabulator -->
 		<link href="app/tabulator/css/tabulator_simple.min.css" rel="stylesheet" />
 		<script type="text/javascript" src="app/tabulator/js/tabulator.min.js"></script>
-		<script type="text/javascript" src="app/js/table.js"></script>
+		<script src="app/js/libs/moment.min.js"></script>
+		<script src="app/js/libs/luxon.min.js"></script>
 
 		<!--
-			App-specific css/js
+			App-specific css/js - plus bottom of page
 			- - -
 			Note: we're using two date libraries with overlapping functionality.
 			- Moment is best suited to figure out the date format from a string (used to parse the data)
 			- Luxon is used by Tabulator for date sorting
 		-->
-		<script src="app/js/libs/moment.min.js"></script>
-		<script src="app/js/libs/luxon.min.js"></script>
+		<script type="text/javascript" src="app/js/table.js"></script>
 		<link rel="stylesheet" href="app/css/dataviewer-main.css" />
 		<link rel="stylesheet" href="app/css/tabulator_ibm_theme.css" />
 	</head>
