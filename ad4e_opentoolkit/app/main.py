@@ -268,16 +268,22 @@ class run_cmd(Cmd):
 
         # Then list commands starting with the input string.
         for command in all_commands:
-            if re.match(inp, command['command']) \
-                    and command not in matching_commands['match_word']:
-                matching_commands['match_start'].append(command)
+            try:
+                if re.match(inp, command['command']) \
+                        and command not in matching_commands['match_word']:
+                    matching_commands['match_start'].append(command)
+            except:
+                pass
 
         # Then list command containing the input string.
         for command in all_commands:
-            if re.search(inp, command['command']) \
-                    and command not in matching_commands['match_word'] \
-                    and command not in matching_commands['match_start']:
-                matching_commands['match_anywhere'].append(command)
+            try:
+                if re.search(inp, command['command']) \
+                        and command not in matching_commands['match_word'] \
+                        and command not in matching_commands['match_start']:
+                    matching_commands['match_anywhere'].append(command)
+            except:
+                pass
 
         all_matching_commands = matching_commands['match_word'] + matching_commands['match_start'] + matching_commands['match_anywhere']
         result_count = len(all_matching_commands)
@@ -503,7 +509,7 @@ class run_cmd(Cmd):
                 # Brutal situation where someone hit clear sessions in another session, shut down abruptly so as not to kill registry file.
                 print('Fatal error: the session registry is not avaiable, performing emergency shutdown')
                 self.do_exit('exit emergency')
-
+            
             y = self.current_statement_defs.parseString(convert(inp), parseAll=True)
             x = lang_parse(self, y)
 
@@ -516,7 +522,7 @@ class run_cmd(Cmd):
                 self.preserve_memory['data'] = False
             else:
                 self.memory['data'] = None
-        except BaseException as err1:
+        except Exception as err1:
             # Removing due to usability being able to recall item and correct:
             # try:
             #    readline.remove_history_item(readline.get_current_history_length()-1) # Does not save an incorrect instruction
