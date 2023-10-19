@@ -23,6 +23,17 @@
 }
 
 /**
+ * Headers
+ */
+
+.tabulator .tabulator-header .tabulator-col .tabulator-col-content {
+	padding: 4px 8px;
+}
+.tabulator .tabulator-header .tabulator-col .tabulator-col-content .tabulator-header-popup-button {
+	margin-left: -8px;
+}
+
+/**
  * Borders
  */
 
@@ -51,7 +62,11 @@
 	border-bottom: solid 1px var(--black-10);
 }
 
-/* Sort arrow */
+/**
+ * Sort arrows
+ */
+
+/* Built-in sort (unused) */
 .tabulator .tabulator-header .tabulator-col .tabulator-col-content .tabulator-col-sorter .tabulator-arrow,
 .tabulator .tabulator-header .tabulator-col.tabulator-sortable[aria-sort='none'] .tabulator-col-content .tabulator-col-sorter .tabulator-arrow {
 	border: none;
@@ -68,6 +83,34 @@
 }
 .tabulator .tabulator-header .tabulator-col.tabulator-sortable .tabulator-col-title {
 	padding-right: 17px;
+}
+
+/* Custom sort */
+.tabulator:not(.edit-mode) .tabulator-header .tabulator-col {
+	cursor: pointer;
+}
+.tabulator .tabulator-header .tabulator-col.sortable .tabulator-col-title {
+	position: relative;
+	padding-right: 16px;
+}
+.tabulator .tabulator-header .tabulator-col.sortable .tabulator-col-title::after {
+	content: '';
+	display: block;
+	position: absolute;
+	top: 0;
+	right: 0;
+	width: 16px;
+	height: 100%;
+	background: url('data:image/svg+xml;utf8,%3Csvg%20width%3D%228%22%20height%3D%227%22%20viewBox%3D%220%200%208%207%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20fill%3D%22%23393939%22%20d%3D%22M3.5713%206.285L0.254304%200.757C0.0543037%200.424%200.295303%20-1.69163e-08%200.682304%200L7.3173%202.90025e-07C7.7053%203.06985e-07%207.9463%200.424%207.7453%200.757L4.4283%206.285C4.2343%206.609%203.7653%206.609%203.5713%206.285Z%22%2F%3E%3C%2Fsvg%3E')
+		center center no-repeat;
+	display: none;
+}
+.tabulator .tabulator-header .tabulator-col.sortable[aria-sort='ascending'] .tabulator-col-title::after {
+	display: block;
+}
+.tabulator .tabulator-header .tabulator-col.sortable[aria-sort='descending'] .tabulator-col-title::after {
+	display: block;
+	transform: rotate(180deg);
 }
 
 /**
@@ -240,11 +283,15 @@
  */
 
 .tabulator-row.tabulator-selectable:not(.tabulator-selected):hover {
+	background: transparent;
+}
+
+.tabulator:not(.edit-mode) .tabulator-row.tabulator-selectable:not(.tabulator-selected):hover {
 	background-color: var(--highlight);
 	border-color: var(--highlight-border);
 	box-shadow: 0 -1px 0 0 var(--highlight-border);
 }
-.tabulator-row.tabulator-selectable:not(.tabulator-selected):hover .tabulator-cell {
+.tabulator:not(.edit-mode) .tabulator-row.tabulator-selectable:not(.tabulator-selected):hover .tabulator-cell {
 	border-right-color: var(--highlight-border);
 }
 
@@ -252,12 +299,16 @@
  * Row selection
  */
 
-.tabulator-row.tabulator-selected {
+.tabulator-row.tabulator-selected,
+.tabulator-row.tabulator-selected:hover {
+	background: transparent;
+}
+.tabulator:not(.edit-mode) .tabulator-row.tabulator-selected {
 	background: var(--blue-15);
 	border-top: solid 1px rgba(0, 0, 0, 0.1);
 	margin-top: -1px;
 }
-.tabulator-row.tabulator-selected:hover {
+.tabulator:not(.edit-mode) .tabulator-row.tabulator-selected:hover {
 	background-color: var(--blue-20);
 }
 
@@ -317,7 +368,6 @@
 /* Cell hover */
 #table.edit-mode .tabulator-row .tabulator-cell:not(.tabulator-editing):hover {
 	overflow: visible;
-	background-color: var(--blue-15);
 }
 #table.edit-mode .tabulator-row .tabulator-cell:not(.tabulator-editing):hover::after {
 	content: '';

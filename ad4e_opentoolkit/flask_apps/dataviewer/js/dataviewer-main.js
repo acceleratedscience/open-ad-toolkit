@@ -38,9 +38,15 @@ document.querySelector('#options .btn-cancel').addEventListener('click', () => {
 })
 
 // Reset columns
-document.querySelector('#table-wrap > a').addEventListener('click', () => {
+document.querySelector('#reset-links .reset-col-width').addEventListener('click', e => {
 	table.resetCols()
+	e.preventDefault()
 })
+
+// document.querySelector('#reset-links .reset-row-width').addEventListener('click', e => {
+// 	table.resetRows()
+// 	e.preventDefault()
+// })
 
 // Key handlers
 document.addEventListener('keydown', e => {
@@ -151,25 +157,23 @@ document.getElementById('table').removeAttribute('data')
 const columns = parseColumns(data)
 
 // Add checkbox column for selection UI
-columns.unshift({ formatter: 'rowSelection', titleFormatter: 'rowSelection', align: 'center', headerSort: false })
+// columns.unshift({ formatter: 'rowSelection', titleFormatter: 'rowSelection', align: 'center', headerSort: false })
 
-// Create table
+// Create table ##
 const table = new Table('#table', {
 	data,
 	columns,
-	resizableRows: true,
-	// rowHeight: 40,
 	reactiveData: true,
 	pagination: false,
 	editMode: window.location.hash == '#edit',
+	// resizableRows: true,
 	movableRows: true,
 	movableColumns: true,
-	// selectable: true,
-	// selectableRangeMode: 'click', // We're noy using this – see onRowClick
 	rowRange: 'active', // Master checkbox will only select filtered rows
 
-	// paginationSize: 5,
-	// rowContextMenu: contextMenus.row, // We're using cell context menu instead
+	// We're not using the built-in selection mechanism – see onRowClick
+	// selectable: true,
+	// selectableRangeMode: 'click',
 })
 
 table.on('tableBuilt', () => {
@@ -179,13 +183,12 @@ table.on('tableBuilt', () => {
 
 	// Set the "Add index column" dropdown to the correct value.
 	setIndexColDropdown()
-
-	// Init right click menu on table header
-	// initRightClickMenu()
 })
 
+// Note: onRowClick is controlled from within onCellClick
+// this way we can control how they play together.
 table.on('cellClick', onCellClick)
-table.on('rowClick', onRowClick)
+
 // // Double click doesn't play well with selection
 // table.on('cellDblClick', e => {
 // 	$cell = e.target.classList.contains('tabulator-cell') ? e.target : e.target.closest('.tabulator-cell')
@@ -315,7 +318,7 @@ function parseColumns(data) {
 		}
 	}
 
-	// Create columns
+	// Create columns ##
 	const columns = Object.entries(sorters).map(([key, sorter], i) => {
 		const { formatter, formatterParams, formatterType } = _pickFormatter(key, needFormatter, contentPropsAll)
 		// About built-in editors: https://tabulator.info/docs/5.5/edit#edit-builtin
@@ -334,8 +337,10 @@ function parseColumns(data) {
 			formatter,
 			formatterParams,
 			headerMenu: contextMenus.header,
-			headerContextMenu: contextMenus.header,
-			contextMenu: contextMenus.cell,
+			// headerContextMenu: contextMenus.header,
+			// contextMenu: contextMenus.cell, // @@
+			headerSort: false, // We use our own sort logic via headerClick
+			headerClick: onHeaderClick,
 
 			// // This blocks the user from resizing the
 			// // column, so we use a formatter instead:
@@ -397,17 +402,14 @@ function _pickFormatter(key, needFormatter, contentPropsAll) {
 /////////////////////////////////
 // #region - Table interaction
 
+function onHeaderClick(e, col) {
+	table.sort(col)
+}
+
 // %% Trash
-// table.on('headerClick', onHeaderClick)
 // table.on('dataSorting', onDataSorting)
-
-// function onHeaderClick(e, column) {
-// 	e.preventDefault()
-// 	console.log(111)
-// }
-
 // function onDataSorting(sorters) {
-// 	console.log(222, sorters)
+// 	console.log('SORT')
 // 	return false
 // }
 
@@ -417,13 +419,20 @@ function onCellClick(e, cell) {
 		const $textWrap = e.target
 		const $cell = $textWrap.closest('.tabulator-cell')
 		const isTruncated = _isTruncated($textWrap)
-		// if (isTruncated) _expandCell($textWrap, $cell, cell)
-		if (isTruncated) displayFullCellContent($textWrap, $cell)
+		if (isTruncated) {
+			displayFullCellContent($textWrap, $cell)
+			// _expandCell($textWrap, $cell, cell)
+			return
+		}
 	}
+	if (!table.isEditMode()) {
+		// Set focus on clicked cell.
+		$focusCell = cell.getElement()
+		setFocus($focusCell)
 
-	// Set focus on clicked cell.
-	$focusCell = cell.getElement()
-	setFocus($focusCell)
+		// Select row
+		onRowClick(e, cell.getRow())
+	}
 
 	//
 	//
@@ -496,13 +505,12 @@ function onCellClick(e, cell) {
 // It may make sense to contribute a fix to the library at some
 // point, but we don't have teh time for that now.
 function onRowClick(e, row) {
-	if (e.shiftKey) {
-		// Select all rows between the last selected row and the current row
+	const currentRowIndex = row.getPosition()
+	const lastSelectedRowIndex = table.lastSelectedRowIndex
+	if (e.shiftKey && table.lastSelectedRowSelState != null) {
+		// Select or deselect all rows between the last selected row and the current row
 		const selectedRows = table.getSelectedRows()
 		if (selectedRows.length) {
-			const lastSelectedRow = selectedRows[selectedRows.length - 1]
-			const lastSelectedRowIndex = lastSelectedRow.getPosition()
-			const currentRowIndex = row.getPosition()
 			let lowIndex = Math.min(lastSelectedRowIndex, currentRowIndex)
 			let highIndex = Math.max(lastSelectedRowIndex, currentRowIndex)
 
@@ -514,22 +522,21 @@ function onRowClick(e, row) {
 			}
 
 			const toBeSelected = table.getRows().slice(lowIndex, highIndex)
-			console.log(toBeSelected.map(row => row.getPosition()))
-			if (table.lastClickedRowSelected) {
-				console.log('A')
+			if (table.lastSelectedRowSelState) {
 				table.selectRow(toBeSelected)
-				table.lastClickedRowSelected = true
+				table.lastSelectedRowSelState = true
 			} else {
-				console.log('B')
 				table.deselectRow(toBeSelected)
-				table.lastClickedRowSelected = false
+				table.lastSelectedRowSelState = false
 			}
 		}
 	} else {
-		row.toggleSelect() //toggle row selected state on row click
-		table.lastClickedRowSelected = table.getSelectedRows().includes(row)
+		// Toggle single row
+		row.toggleSelect()
+		table.lastSelectedRowSelState = table.getSelectedRows().includes(row)
 	}
-	console.log('###', table.lastClickedRowSelected)
+	table.lastSelectedRowIndex = currentRowIndex
+	table.selectMode = table.getSelectedRows().length > 0
 }
 
 // Display overlay div that matches the cell's content and position,
@@ -543,7 +550,7 @@ function displayFullCellContent($textWrap, $cell) {
 	$display.focus()
 	$display.addEventListener('blur', e => {
 		// Don't remove display when display itself is clicked.
-		if (e.relatedTarget && e.relatedTarget.getElementById('display-full-text')) {
+		if (e.relatedTarget && e.relatedTarget.querySelector('#display-full-text')) {
 			e.target.focus()
 		} else {
 			$display.remove()
@@ -677,6 +684,7 @@ function applyOptions() {
 
 // Toggle table edit mode
 function toggleEditMode(bool, revertChanges) {
+	console.log('*')
 	table.toggleEditMode(bool, revertChanges)
 	toggleEditModeBtns(bool)
 }

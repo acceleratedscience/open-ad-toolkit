@@ -58,8 +58,13 @@ body {
 	right: 40px;
 }
 
-/* Reset column link */
-#table-wrap > a {
+/* Reset column/row links */
+#reset-links {
+	display: flex;
+	gap: 20px;
+}
+#reset-links .reset-col-width,
+#reset-links .reset-row-width {
 	text-decoration: none;
 	color: var(--black-20);
 	height: 10px;
@@ -67,7 +72,8 @@ body {
 	margin-top: -10px;
 	position: relative;
 }
-#table:not(.resized) + a {
+#table:not(.resized-col) + #reset-links .reset-col-width,
+#table:not(.resized-row) + #reset-links .reset-row-width {
 	display: none;
 }
 
