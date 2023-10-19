@@ -1,6 +1,6 @@
 # Installing OpenAD on Windows using WSL Ubuntu
 
-Download the attached zip file and place it in your Downloads directory on Windows.
+Download the this respository and place it in your Downloads directory on Windows.
 
 -   **Step 1**: Install Ubuntu 22.0.4 or higher as Windows WSL<br>
     To create the "openad" user, open the URL below and follow the steps.<br>
