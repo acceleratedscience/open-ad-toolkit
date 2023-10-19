@@ -1,1 +1,0 @@
-The index.html file exists at the root level.
