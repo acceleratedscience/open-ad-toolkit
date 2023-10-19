@@ -160,8 +160,8 @@ Below you find login instructions for RXN and DeepSearch. If you choose to use t
 
 1. Once inside the OpenAD client, you'll be prompted to authenticate when activating the DeepSearch (DS4SD) toolkit. When running `set context ds4sd` :
 
-    - **Hostname:** [https://sds.app.accelerate.science](https://sds.app.accelerate.science)<br>
-    - **Email:** Your IBM email<br>
+    - **Hostname:** [https://sds.app.accelerate.science](https://sds.app.accelerate.science)
+    - **Email:** Your IBM email
     - **API_key:** The DS4SD API key you obtained following the instructions above.<br>
         
         > **Note:** Your DS4SD auth config file is saved as `~/.openad/ds-auth.ext-v2.json`. If you ever want to reset your DS4SD login information, simply delete this file.<br>
