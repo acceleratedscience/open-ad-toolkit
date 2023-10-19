@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Document</title>
+		<link rel="stylesheet" href="../_css/carbon.css" />
+		<link rel="stylesheet" href="../_css/main.css" />
+		<link rel="stylesheet" href="table.css" />
+	</head>
+	<body>
+		<h1>Table Viewer</h1>
+		<p class="soft">Some subtitle here</p>
+		<p>This is FPO proof-of-concept UI. Will become a spreadsheet-like interface to view/edit data.</p>
+		<p id="edit-mode" style="color: #d00; display: none">EDIT MODE ACTIVE</p>
+		<br />
+
+		<!-- <label>
+			<input type="checkbox" />
+			Truncate
+		</label> -->
+
+		<label>
+			<input type="radio" name="truncate" value="trunc-none" />
+			Full text
+		</label>
+		<label>
+			<input type="radio" name="truncate" value="trunc-3" />
+			Truncate 3 lines
+		</label>
+		<label>
+			<input type="radio" name="truncate" value="trunc-1" />
+			Truncate 1 line
+		</label>
+		<br /><br />
+
+		<div id="table"></div>
+
+		<script src="table.js"></script>
+
+		<script>
+			// Activate edit mode if URL contains #edit.
+			if (window.location.hash == '#edit') {
+				document.getElementById('edit-mode').style.display = 'block'
+				history.pushState('', document.title, window.location.pathname + window.location.search) // Remove hash
+			}
+
+			// TEMP DATA
+			var data =
+				'[[1, "E84A904909dF528", "Liu-Hoover", "http://www.day-hartman.org/", "Western Sahara", "Ergonomic zero administration knowledge user", 1980, "Online Publishing", 6852], [2, "AAC4f9aBF86EAeF", "Orr-Armstrong", "https://www.chapman.net/", "Algeria", "Ergonomic radical budgetary management", 1970, "Import / Export", 7994], [3, "ad2eb3C8C24DB87", "Gill-Lamb", "http://lin.com/", "Cote Ivoire", "Programmable intermediate conglomeration", 2005, "Apparel / Fashion", 5105], [4, "D76BB12E5eE165B", "Bauer-Weiss", "https://gillespie-stout.com/", "United States of America", "Synergistic maximized definition", 2015, "Dairy", 9069], [5, "2F31EddF2Db9aAE", "Love-Palmer", "https://kramer.com/", "Denmark", "Optimized optimizing moderator", 2010, "Management Consulting", 6991]]'
+			var headers = '["Index", "Organization Id", "Name", "Website", "Country", "Description", "Founded", "Industry", "Number of employees"]'
+			// var data = document.getElementById('table').attributes.data.value
+			// var headers = document.getElementById('table').attributes.headers.value
+
+			// Create table
+			table = new Table(data, headers)
+
+			// Selection
+
+			// Truncate options
+			const truncateOptions = document.getElementsByName('truncate')
+			truncateOptions.forEach(option => {
+				option.addEventListener('change', e => {
+					table.setTruncate(e.target.value)
+				})
+			})
+		</script>
+	</body>
+</html>

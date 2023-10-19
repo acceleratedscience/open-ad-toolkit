@@ -1,0 +1,21 @@
+{
+	"fplugin": "rxn",
+	"command": "create rxn project",
+	"subject": "create_rxn_project",
+	"SINGLE_PARM": {"project_name": "str"	},
+	"USING":{},
+	"SHOW": [],
+	"ESTIMATE_ONLY": {},
+	"SAVE_AS": {},
+	"exec_type": "standard_statement",
+	"exec_cmd": "create rxn project ",
+	"help": {
+		"name": "create rxn project",
+		"category": "Admin",
+		"command": "create rxn project",
+		"description": "creates a project for RXN",
+		"url": ""
+	},
+	"library": "rxn_create_project",
+	"method": "create_project"
+}

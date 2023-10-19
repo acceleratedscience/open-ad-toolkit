@@ -1,0 +1,3 @@
+Information About IBM RXN Toolkit
+The toolkit  uses  AI to predict outcomes of chemical reactions for optimized synthesis methods, and to automatically generate chemical procedures for use in manual or automated lab operations.
+The Toolkit  is based on molecular transformer models that understand the natural language of chemistry, trained on 2.5 million chemical reactions. These models are flexible, adaptive to new data and non-rule-based.

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Document</title>
+		<link rel="stylesheet" href="../_css/carbon.css" />
+		<link rel="stylesheet" href="../_css/main.css" />
+		<style>
+			/* Table v1 */
+			#table1 {
+				display: flex;
+				flex-direction: column;
+
+				border: solid 1px rgba(0, 0, 0, 0.1);
+				border-right: none;
+				border-bottom: none;
+			}
+			#table1 > div {
+				display: flex;
+				flex-direction: row;
+			}
+			#table1 > div > div {
+				flex: 1;
+				padding: 3px 5px;
+				min-height: 20px;
+
+				border: solid 1px rgba(0, 0, 0, 0.1);
+				border-left: none;
+				border-top: none;
+				box-sizing: border-box;
+			}
+
+			/* Table */
+			#table {
+				display: grid;
+				/* Two rows of equal height */
+				/* grid-template-rows: 1fr 1fr 1fr; */
+				/* Three columns with the middle one being twice the size */
+				grid-template-columns: 1fr 1fr 1fr;
+
+				/* Border*/
+				/* border: solid 1px rgba(0, 0, 0, 0.1); */
+				border-right: none;
+				border-bottom: none;
+			}
+			#table > .cell {
+				/* Border */
+				border: solid 1px rgba(0, 0, 0, 0.1);
+				border-right: none;
+				border-top: none;
+				box-sizing: border-box;
+
+				padding: 3px 5px;
+			}
+			#table > .cell:nth-child(3n) {
+				border-right: solid 1px rgba(0, 0, 0, 0.1);
+				background: pink !important;
+			}
+			#table > .cell.header {
+				background: #eee;
+				border-top: solid 1px rgba(0, 0, 0, 0.1);
+				/* box-shadow: -1px -1px 0 #f00; */
+			}
+			#table > .cell.header:first-child {
+				border-left: solid 1px rgba(0, 0, 0, 0.1);
+			}
+			#table > .cell:nth-child(1) {
+				/* Start in row 1 and end in row 2 */
+				/* grid-row: 1 / 2; */
+				/* Start in column 1 and end in column 3 */
+				/* grid-column: 1 / 3; */
+			}
+			#table > .cell:nth-child(2) {
+				/* grid-row: 2 / 3; */
+				/* grid-column: 2 / 4; */
+			}
+			#table > .cell:nth-child(3) {
+				/* grid-row: 1 / 2; */
+				/* grid-column: 3 / 4; */
+			}
+			#table > .cell:nth-child(1)::after {
+				content: 'A';
+				border: solid 1px rgba(0, 0, 0, 0.1);
+				border-left: none;
+				border-top: none;
+			}
+		</style>
+	</head>
+	<body>
+		<h1>Table Viewer</h1>
+		<p class="soft">Some subtitle here</p>
+		<p>This is FPO proof-of-concept UI. Will become a spreadsheet-like interface to view/edit data.</p>
+		<p id="edit-mode" style="color: #d00; display: none">EDIT MODE ACTIVE</p>
+		<br />
+
+		<div id="table1">
+			<div>
+				<div contenteditable>A</div>
+				<div contenteditable>B</div>
+				<div contenteditable>C</div>
+			</div>
+			<div>
+				<div contenteditable>1</div>
+				<div contenteditable>2</div>
+				<div contenteditable>3</div>
+			</div>
+			<div>
+				<div contenteditable>4</div>
+				<div contenteditable>5</div>
+				<div contenteditable>6</div>
+			</div>
+		</div>
+		<br /><br />
+
+		<div id="table">
+			<div class="cell header">Item 1</div>
+			<div class="cell header">Item 2</div>
+			<div class="cell header">Item 3</div>
+			<div class="cell" contenteditable>Item 4</div>
+			<div class="cell" contenteditable>Item 5<br />I am longer<br />I am longer<br />I am longer</div>
+			<div class="cell" contenteditable>Item 6</div>
+			<div class="cell" contenteditable>Item 7</div>
+			<div class="cell" contenteditable>Item 8</div>
+			<div class="cell" contenteditable>Item 9</div>
+		</div>
+
+		<script>
+			// Render table.
+			// renderTable()
+
+			// Activate edit mode.
+			if (window.location.hash == '#edit') {
+				document.getElementById('edit-mode').style.display = 'block'
+				history.pushState('', document.title, window.location.pathname + window.location.search) // Remove hash
+			}
+
+			//
+			//
+
+			function renderTable() {
+				// Parse data
+				var data = document.getElementById('table').attributes.data.value
+				var headers = document.getElementById('table').attributes.headers.value
+				data = JSON.parse(data)
+				headers = JSON.parse(headers)
+				console.log(data)
+
+				// Render header
+				var headerDiv = document.getElementById('table').appendChild(document.createElement('div'))
+				headerDiv.classList.add('header')
+				for (var col = 0; col < headers.length; col++) {
+					headerDiv.appendChild(document.createElement('div')).innerHTML = headers[col]
+				}
+
+				// Render data
+				for (var row = 0; row < data.length; row++) {
+					let rowDiv = document.getElementById('table').appendChild(document.createElement('div'))
+					for (var col = 0; col < data[row].length; col++) {
+						rowDiv.appendChild(document.createElement('div')).innerHTML = data[row][col]
+					}
+				}
+			}
+		</script>
+	</body>
+</html>
