@@ -175,6 +175,8 @@ def search(inputs: dict,cmd_pointer):
         cursor = api.queries.run_paginated_query(query)
     except Exception as e: # pylint: disable=broad-exception-caught
         output_error("Error in calling deepsearch:"+str(e),cmd_pointer=cmd_pointer,return_val=False)
+        return False
+    
     for result_page in tqdm(cursor, total=expected_pages):
 
         all_results.extend(result_page.outputs["data_outputs"])

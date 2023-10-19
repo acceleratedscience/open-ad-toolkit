@@ -4,9 +4,9 @@ import pandas as pd
 from deepsearch.chemistry.queries.molecules import  PatentsWithMoleculesQuery
 from deepsearch.chemistry.queries.molecules import MolId, MolIdType
 from rdkit import Chem
-from  ad4e_opentoolkit.helpers.output import output_table 
+from  ad4e_opentoolkit.helpers.output import output_table
 from ad4e_opentoolkit.helpers.output import output_error
-from ad4e_opentoolkit.helpers.output import output_text 
+from ad4e_opentoolkit.helpers.output import output_text
 from ad4e_opentoolkit.helpers.output import output_warning
 _tableformat = 'simple'
 
@@ -56,13 +56,13 @@ def search_patent_molecule(inputs: dict,cmd_pointer):
             query= PatentsWithMoleculesQuery(molecules=[MolId(type=MolIdType.INCHIKEY,value=inputs['smiles'])], num_items=20,)
             result_type='Inchi Key'
             output_warning("String is Not a Smiles or Inchi attemnting Inchikey search: ",cmd_pointer=cmd_pointer,return_val=False)
-                
+
         resp=api.queries.run(query)
     except Exception as e:  # pylint: disable=broad-exception-caught
         output_error("Error in calling deepsearch:"+str(e),cmd_pointer=cmd_pointer,return_val=False)
         return False
     results_table = []
-    
+
     for doc in resp.outputs["patents"]:
         result = {       
                 "PATENT ID": "",
@@ -86,4 +86,3 @@ def search_patent_molecule(inputs: dict,cmd_pointer):
 
     table = pd.DataFrame(results_table)
     return output_table(table, cmd_pointer, tablefmt=_tableformat   )
-           

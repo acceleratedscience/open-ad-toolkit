@@ -12,6 +12,7 @@ def display_a_collection(inputs: dict,cmd_pointer):
         collections = api.elastic.list()
     except Exception as e: # pylint: disable=broad-exception-caught
         output_error("Error in calling deepsearch:"+str(e),cmd_pointer=cmd_pointer,return_val=False)
+        return False
     
     collection=None
     for c in collections:

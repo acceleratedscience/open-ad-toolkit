@@ -97,22 +97,22 @@ def login(cmd_pointer):
             json.dump(config_blank, handle)
             handle.close()
         output_text('config file generated.',cmd_pointer=cmd_pointer, return_val=False)
+    config_file = config_blank
     try:
         with open(os.path.expanduser(cmd_pointer.home_dir) + "/rxn-auth.ext-v2.json", 'r') as handle:
-            CONFIG_FILE=json.load(handle)
+            config_file = json.load(handle)
             
             handle.close()
         x = cmd_pointer.login_settings['toolkits'].index('RXN')
        
-        client=RXN4ChemistryWrapper(api_key= CONFIG_FILE['auth']['api_key'], base_url= CONFIG_FILE['host'])
+        client = RXN4ChemistryWrapper(api_key=config_file['auth']['api_key'], base_url=config_file['host'])
         email = client.current_user()['response']['payload']['email']
         if login_reset is True or first_login is True:
-            output_text("<success>loggining in as:</success> "+email,cmd_pointer=cmd_pointer, return_val=False)
-        cmd_pointer.login_settings['toolkits_api'][x] = CONFIG_FILE['auth']['api_key'] 
-        cmd_pointer.login_settings['client'][x] = client 
+            output_text("<success>loggining in as:</success> " + email, cmd_pointer=cmd_pointer, return_val=False)
+        cmd_pointer.login_settings['toolkits_api'][x] = config_file['auth']['api_key'] 
+        cmd_pointer.login_settings['client'][x] = client
         rxn_helper.sync_up_workspace_name(cmd_pointer,reset=True)
         return True, None
-    except Exception: #pylint: disable=broad-exception-caught
-        output_error(msg('err_login', 'RXN',"Unable to connect to "+ CONFIG_FILE['host'] , split=True),cmd_pointer=cmd_pointer, return_val=False)
+    except Exception:  # pylint: disable=broad-exception-caught
+        output_error(msg('err_login', 'RXN',"Unable to connect to " + config_file['host'], split=True), cmd_pointer=cmd_pointer, return_val=False)
         return False, None
-

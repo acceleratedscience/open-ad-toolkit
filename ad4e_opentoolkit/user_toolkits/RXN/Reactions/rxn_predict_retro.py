@@ -22,7 +22,7 @@ def get_include_lib(cmd_pointer):
     return rxn_helper
 
 def get_reaction_from_smiles(reaction_smiles: str) -> Chem.rdChemReactions.ChemicalReaction:
-    """geet reaction image"""
+    """get reaction image"""
     return AllChem.ReactionFromSmarts(reaction_smiles, useSmiles=True) # pylint: disable=no-member
 
 def collect_reactions_from_retrosynthesis(tree: Dict)  -> List[str] :
@@ -130,35 +130,36 @@ def predict_retro(inputs: dict, cmd_pointer):
     
     # Prepare the data query
     print('\n')
-    newspin =Spinner() 
+    newspin =Spinner()
     newspin.start("Starting Retrosynthesis")
     try:
-        retries=0
-        status=False
-        while retries <10 and status==False:
+        retries = 0
+        status = False
+        predict_retro_response = None
+        while retries < 10 and status is False:
             try:
                 newspin.text="Submitting Retrosynthesis "
                 predict_retro_response = rxn4chemistry_wrapper.predict_automatic_retrosynthesis(product_smiles, availability_pricing_threshold=availability_pricing_threshold, available_smiles=available_smiles, exclude_smiles=exclude_smiles, exclude_substructures=exclude_substructures, exclude_target_molecule=exclude_target_molecule, fap=fap, max_steps=max_steps, nbeams=nbeams, pruning_steps=pruning_steps, ai_model=ai_model) 
                 status=True   
             except Exception as e: #pylint: disable=broad-exception-caught
-                sleep(2) 
-                retries=retries+1
-                if retries >=10:
+                sleep(2)
+                retries = retries + 1
+                if retries >= 10:
                     raise Exception("Server unresponsive: Unable to submit for processing after 10 retires"+str(e)) from e#pylint: disable=broad-exception-raised
      
         if predict_retro_response is None:
             raise BaseException("Server unresponsive: Unable to submit for processing after 10 retires") #pylint: disable=broad-exception-raised
            
-        retries=0
+        retries = 0
         if predict_retro_response['response']['payload']['errorMessage'] is not None:
 
             return predict_retro_response['response']['payload']['errorMessage']
         
         status='NEW'
         
-        while status !=  "SUCCESS":
+        while status != "SUCCESS":
             try:
-                newspin.text="Processing Retrosynthesis :"+status
+                newspin.text = "Processing Retrosynthesis :" + status
                 predict_automatic_retrosynthesis_results = rxn4chemistry_wrapper.get_predict_automatic_retrosynthesis_results(predict_retro_response['prediction_id'])
                 if predict_retro_response['response']['payload'] is None  :
                     output_text('<h2>No Result:</h2>  Unable to find path for  ' + product_smiles, cmd_pointer=cmd_pointer, return_val=False)
@@ -166,16 +167,16 @@ def predict_retro(inputs: dict, cmd_pointer):
                         return
                     else: 
                         return  False
-                status=predict_automatic_retrosynthesis_results['status']
+                status = predict_automatic_retrosynthesis_results['status']
                 sleep(5)
 
             except Exception as e: #pylint: disable=broad-exception-caught
-                retries=retries+1
+                retries = retries + 1
                 sleep(15)
-                newspin.text="Processing Retrosynthesis :Waiting" 
+                newspin.text = "Processing Retrosynthesis: Waiting" 
                 if retries > 20:
                     raise Exception("Server unresponsive: Unable to complete processing for prediction id:'"+predict_retro_response['prediction_id']+"'after 20 retires"+str(e)) from e #pylint: disable=broad-exception-raised
-    except  BaseException as e:
+    except  Exception as e:
         newspin.fail('Unable to Process')
         newspin.start()
         newspin.stop()
@@ -189,8 +190,8 @@ def predict_retro(inputs: dict, cmd_pointer):
     except Exception as e:  #pylint: disable=broad-exception-caught
         newspin.fail('Unable to Process')
         newspin.stop()
-        raise Exception("The following Error message was received while trying to process results:"+str(e)) from e #pylint: disable=broad-exception-raised
-    i=0
+        raise Exception("The following Error message was received while trying to process results:" + str(e)) from e  # pylint: disable=broad-exception-raised
+    i = 0
     try:
         newspin.succeed('Finished Processing')
         newspin.start()
@@ -204,8 +205,9 @@ def predict_retro(inputs: dict, cmd_pointer):
                     display(Chem.Draw.ReactionToImage(reaction))
                 else:
                     output_text('', cmd_pointer=cmd_pointer, return_val=False)
-        
-    except Exception as e:
-        raise Exception ("The following Error message was received while trying to display results:"+str(e)) from e #pylint: disable=broad-exception-raised
-    i=0
-    return  True
+
+    except Exception as e:  # pylint: disable=broad-exception
+        output_error("The following error message was received while trying to display results: " + str(e), cmd_pointer=cmd_pointer, return_val=False)
+        return False
+    i = 0
+    return True

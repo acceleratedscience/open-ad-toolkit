@@ -13,9 +13,9 @@ setup(
     version='0.1.0',
     #packages=find_packages(),
     packages=find_namespace_packages(include=['ad4e_opentoolkit.*']),
- 
+
     include_package_data=True,
-    
+
     install_requires=[
         'joblib',
         'matplotlib',
