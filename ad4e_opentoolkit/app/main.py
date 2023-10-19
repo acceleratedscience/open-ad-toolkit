@@ -268,22 +268,21 @@ class run_cmd(Cmd):
 
         # Then list commands starting with the input string.
         for command in all_commands:
-            try:
-                if re.match(inp, command['command']) \
+            
+            if re.match(inp, command['command']) \
                         and command not in matching_commands['match_word']:
                     matching_commands['match_start'].append(command)
-            except:
-                pass
+           
+             
 
         # Then list command containing the input string.
         for command in all_commands:
-            try:
-                if re.search(inp, command['command']) \
+            
+            if re.search(inp, command['command']) \
                         and command not in matching_commands['match_word'] \
                         and command not in matching_commands['match_start']:
                     matching_commands['match_anywhere'].append(command)
-            except:
-                pass
+            
 
         all_matching_commands = matching_commands['match_word'] + matching_commands['match_start'] + matching_commands['match_anywhere']
         result_count = len(all_matching_commands)
