@@ -162,7 +162,7 @@ Below you find login instructions for RXN and DeepSearch. If you choose to use t
 
     - **Hostname:** [https://sds.app.accelerate.science](https://sds.app.accelerate.science)<br>
     - **Email:** Your IBM email<br>
-    - **API_key:** The DS4SD API key you obtained following the instructions above.
+    - **API_key:** The DS4SD API key you obtained following the instructions above.<br>
 
     > **Note:** Your DS4SD auth config file is saved as `~/.openad/ds-auth.ext-v2.json`. If you ever want to reset your DS4SD login information, simply delete this file.<br>
 
