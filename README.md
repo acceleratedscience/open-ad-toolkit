@@ -152,8 +152,6 @@ Below you find login instructions for RXN and DeepSearch. If you choose to use t
 
 1. First, you'll need to generate an API key on the DeepSearch website.
 
-
-      
     - Visit the DeepSearch website and create an account: [deepsearch-experience.res.ibm.com](https://deepsearch-experience.res.ibm.com)<br>
     - Once logged in, click the Toolkit/API icon in the top right hand corner, then open the HTTP section
     - Click the "Generate new API key" button<br>
@@ -167,7 +165,7 @@ Below you find login instructions for RXN and DeepSearch. If you choose to use t
     - **API_key:** The DS4SD API key you obtained following the instructions above.
 
     > **Note:** Your DS4SD auth config file is saved as `~/.openad/ds-auth.ext-v2.json`. If you ever want to reset your DS4SD login information, simply delete this file.<br>
-    
+
 1. You should get a message saying you successfully logged in.
 
 <br>
@@ -186,7 +184,7 @@ Below you find login instructions for RXN and DeepSearch. If you choose to use t
     - **Hostname:** [https://rxn.app.accelerate.science](https://rxn.app.accelerate.science)<br>
     - **API_key:** The RXN API key you obtained following the instructions above.
 
-1. You should get a message saying you successfully logged in.
+1. You should get a message saying you successfully logged in.<br>
 
     > **Note:** Your RXN auth config file is saved as `~/.openad/rxn-auth.ext-v2.json`. If you ever want to reset your RXN login information, simply delete this file. You can also do this by running `set context ds4sd reset`<br>
 
@@ -242,6 +240,7 @@ Only follow these instructions if you're contributing to the codebase.
 <br>
 
 ## Testing a branch
+
 To do a regular install from a particular branch, you can run:
 
     pip install git+ssh://git@github.ibm.com/Accelerated-Discovery/ad4e-opentoolkit.git@<branch_name>
