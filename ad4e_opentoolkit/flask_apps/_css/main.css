@@ -13,6 +13,7 @@ body {
 	--highlight-border: #e5deb8; /* Equivalent of 10% black overlay */
 	--blue: var(--ibm-blue);
 	--blue-30: #b7d0ff; /* Equivalent of 30% ibm-blue */
+	--blue-20: #cfe0ff; /* Equivalent of 20% ibm-blue */
 	--blue-15: #dbe7ff; /* Equivalent of 15% ibm-blue */
 	--blue-05: #f3f7ff; /* Equivalent of 5% ibm-blue */
 }

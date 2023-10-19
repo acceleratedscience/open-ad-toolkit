@@ -191,6 +191,8 @@ def fetchRoutesMols2Grid(cmd_pointer, parser):
             indexes = json.loads(request.data.decode('utf-8'))
             if indexes is not None:
                 filtered_df = the_mols2grid.dataframe.iloc[indexes]
+            else:
+                filtered_df = the_mols2grid.dataframe
 
             if 'results_file' in parser:
                 # Store file

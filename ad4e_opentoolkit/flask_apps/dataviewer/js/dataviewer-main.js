@@ -52,8 +52,6 @@ document.addEventListener('keydown', e => {
 	// cellName = $cell ? $cell.getAttribute('tabulator-field') : null
 	// row = $cell ? $cell.getRow() : null
 
-	// get indef of $row in its parent div 'tabulator-table'
-
 	// Copy focused cell content on cmd + C
 	if ($cell && e.key == 'c' && (e.metaKey || e.ctrlKey)) {
 		copyCellContent($cell)
@@ -121,7 +119,15 @@ const contextMenus = {
 			},
 		},
 	],
-	row: [
+	cell: [
+		{
+			label: 'Edit',
+			action: (e, row) => {
+				table.toggleEditMode(true)
+				$row = row.getElement()
+				$row.click()
+			},
+		},
 		{
 			label: 'Delete row',
 			action: (e, row) => {
@@ -163,7 +169,7 @@ const table = new Table('#table', {
 	rowRange: 'active', // Master checkbox will only select filtered rows
 
 	// paginationSize: 5,
-	// rowContextMenu: contextMenus.row, // @@
+	// rowContextMenu: contextMenus.row, // We're using cell context menu instead
 })
 
 table.on('tableBuilt', () => {
@@ -184,12 +190,6 @@ table.on('rowClick', onRowClick)
 // table.on('cellDblClick', e => {
 // 	$cell = e.target.classList.contains('tabulator-cell') ? e.target : e.target.closest('.tabulator-cell')
 // 	copyCellContent($cell)
-// })
-
-// %% trash
-// table.on('headerContext', (e, col) => {
-// 	e.preventDefault()
-// 	showContextMenu(col)
 // })
 
 //
@@ -335,6 +335,7 @@ function parseColumns(data) {
 			formatterParams,
 			headerMenu: contextMenus.header,
 			headerContextMenu: contextMenus.header,
+			contextMenu: contextMenus.cell,
 
 			// // This blocks the user from resizing the
 			// // column, so we use a formatter instead:
@@ -626,108 +627,6 @@ function copyCellContent($cell) {
 		$cell.classList.remove('copied')
 	}, 600)
 }
-
-// %% trash
-// // Generate the interactive HTML for the context menu
-// // Note: there's a built-in contextMenu / headerContextMenu
-// // which we could have used instead, but is has some issues
-// function showContextMenu(col) {
-// 	const colName = col.getField()
-// 	$headerCol = document.querySelector(`#table.tabulator .tabulator-header .tabulator-col[tabulator-field="${colName}"]`)
-
-// 	// Remove any other context menu
-// 	const $prevMenu = document.getElementById('context-menu')
-// 	if ($prevMenu) {
-// 		$prevMenu.remove()
-// 	}
-
-// 	// Create HTML
-// 	const $contextMenu = document.createElement('div')
-// 	$contextMenu.setAttribute('id', 'context-menu')
-// 	$contextMenu.innerHTML = `<div class="menu-item" value="col-remove" data-col-name="${colName}">Remove column</div>`
-
-// 	// Position right below the clicked header column
-// 	const rect = $headerCol.getBoundingClientRect()
-// 	$contextMenu.style.setProperty('top', rect.bottom + 'px')
-// 	$contextMenu.style.setProperty('left', rect.left + 'px')
-// 	$contextMenu.style.setProperty('width', rect.width - 1 + 'px')
-
-// 	document.body.append($contextMenu)
-// }
-
-// // Context menu click handler
-// function onContextMenuClick(e) {
-// 	if (e.target.classList.contains('menu-item')) {
-// 		if (e.target.getAttribute('value') == 'col-remove') {
-// 			const colName = e.target.getAttribute('data-col-name')
-// 			table.deleteColumn(colName)
-// 		}
-// 	}
-
-// 	// Remove context menu from DOM
-// 	const $contextMenu = document.getElementById('context-menu')
-// 	if ($contextMenu) {
-// 		$contextMenu.remove()
-// 	}
-// }
-
-// %% trash
-// This is old code for column context menu, but may be useful
-// if we want to add other context menus.
-// function initRightClickMenu() {
-// 	// Add event listener to each column header
-// 	const $headerCols = document.querySelectorAll('#table.tabulator .tabulator-header .tabulator-col')
-// 	$headerCols.forEach($headerCol => {
-// 		$headerCol.addEventListener('contextmenu', function (e) {
-// 			_renderContextMenu($headerCol)
-// 			e.preventDefault()
-// 		})
-// 	})
-
-// 	//
-// 	//
-
-// 	// Generate the interactive HTML for the context menu
-// 	function _renderContextMenu($headerCol) {
-// 		const colName = $headerCol.querySelector('.tabulator-col-title').innerText
-
-// 		// Remove any other context menu
-// 		const $prevMenu = document.getElementById('context-menu')
-// 		if ($prevMenu) {
-// 			$prevMenu.remove()
-// 		}
-
-// 		// Create HTML
-// 		const $menu = document.createElement('div')
-// 		$menu.setAttribute('id', 'context-menu')
-// 		$menu.innerHTML = '<div class="menu-item" value="remove">Remove column</div>'
-
-// 		// Click handler
-// 		$menu.addEventListener('click', e => {
-// 			if (e.target.classList.contains('menu-item')) {
-// 				if (e.target.getAttribute('value') == 'remove') {
-// 					console.log('Remove column', colName)
-// 					table.deleteColumn(colName)
-// 				} else if (e.target.getAttribute('value') == 'reset') {
-// 					console.log('Reset columns')
-// 				} else if (e.target.getAttribute('value') == 'foo') {
-// 					console.log('Foo columns')
-// 				}
-// 			}
-// 			$menu.remove()
-// 		})
-
-// 		// Position right below the clicked header column
-// 		const rect = $headerCol.getBoundingClientRect()
-// 		$menu.style.setProperty('top', rect.bottom + 'px')
-// 		$menu.style.setProperty('left', rect.left + 'px')
-// 		$menu.style.setProperty('width', rect.width - 1 + 'px')
-
-// 		document.body.append($menu)
-
-// 		return $menu
-// 	}
-// }
 
 // #endregion
 
