@@ -7,6 +7,17 @@
 
 <br>
 
+## Table of Contents
+
+- [Installation](#installation)
+- [Getting Started - CLI](#getting-started---cli)
+- [Getting Started - Jupyter ](#getting-started---cli)
+- [Getting Access to RXN, DS4SD and Tell Me Functionality](#getting-access-to-rxn-ds4sd-and-tell-me-functionality)
+- [Installation for Development](#installation-for-development)
+- [Testing a Branch](#testing-a-branch)
+
+<br>
+
 ## Notes
 
 -   Only available for Linux and MacOS
