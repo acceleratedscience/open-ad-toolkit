@@ -137,7 +137,6 @@ class Table extends Tabulator {
 	// Note: Tabulator doesn't support toggling edit mode, so we use a little hack.
 	// The actual toggling of edit mode is done via isEditMode when creating the table.
 	toggleEditMode(bool, revertChanges) {
-		console.log('>', bool)
 		this.editMode = bool == undefined ? !this.editMode : bool
 		if (this.editMode) {
 			this.storeData() // Store data so we can revert on cancel

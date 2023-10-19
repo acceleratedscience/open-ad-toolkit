@@ -397,7 +397,7 @@
 
 	/* Clean edge */
 	position: relative;
-	z-index: 1;
+	z-index: 3;
 	width: calc(100% + 1px) !important;
 	margin-left: -1px !important;
 	margin-top: -1px !important;

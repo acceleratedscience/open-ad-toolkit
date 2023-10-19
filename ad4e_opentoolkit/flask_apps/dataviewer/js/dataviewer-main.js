@@ -129,7 +129,7 @@ const contextMenus = {
 		{
 			label: 'Edit',
 			action: (e, row) => {
-				table.toggleEditMode(true)
+				toggleEditMode(true)
 				$row = row.getElement()
 				$row.click()
 			},
@@ -338,7 +338,7 @@ function parseColumns(data) {
 			formatterParams,
 			headerMenu: contextMenus.header,
 			// headerContextMenu: contextMenus.header,
-			// contextMenu: contextMenus.cell, // @@
+			contextMenu: contextMenus.cell, // @@
 			headerSort: false, // We use our own sort logic via headerClick
 			headerClick: onHeaderClick,
 
@@ -684,7 +684,6 @@ function applyOptions() {
 
 // Toggle table edit mode
 function toggleEditMode(bool, revertChanges) {
-	console.log('*')
 	table.toggleEditMode(bool, revertChanges)
 	toggleEditModeBtns(bool)
 }
