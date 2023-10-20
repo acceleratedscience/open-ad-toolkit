@@ -329,6 +329,39 @@
 	pointer-events: none;
 }
 
+/**
+ * Dragging rows
+ */
+
+/* Original */
+.tabulator .tabulator-row.while-dragging::after {
+	content: '';
+	display: block;
+	position: absolute;
+	left: 0;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	background: #f6f6f6;
+	box-shadow: inset 0 0 10px var(--black-10);
+}
+
+/* Clone */
+.tabulator .tabulator-row.dragging,
+.tabulator .tabulator-row.dragging:hover {
+	position: absolute;
+	z-index: 3;
+	background-color: var(--highlight);
+	border-color: var(--highlight-border);
+	border-top: solid 1px var(--black-10);
+	box-shadow: 0 0 30px var(--black-20);
+	box-shadow: 0 5px 10px var(--black-10);
+	cursor: ns-resize;
+}
+.tabulator .tabulator-row.dragging::before {
+	content: '';
+}
+
 /* #endregion */
 /****************************/
 

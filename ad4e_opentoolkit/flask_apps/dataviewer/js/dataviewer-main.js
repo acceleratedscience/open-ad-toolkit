@@ -167,7 +167,7 @@ const table = new Table('#table', {
 	pagination: false,
 	editMode: window.location.hash == '#edit',
 	// resizableRows: true,
-	movableRows: true,
+	movableRows: false,
 	movableColumns: true,
 	rowRange: 'active', // Master checkbox will only select filtered rows
 
@@ -175,6 +175,36 @@ const table = new Table('#table', {
 	// selectable: true,
 	// selectableRangeMode: 'click',
 })
+
+// %% trash
+// document.getElementById('test').addEventListener('click', () => {
+// 	createTable(true, true)
+// })
+
+// // %% Trash
+// let table = createTable()
+
+// function createTable(destroy, movableRows) {
+// 	if (destroy) {
+// 		table.destroy()
+// 		console.log('DESTROY')
+// 	}
+// 	return new Table('#table', {
+// 		data,
+// 		columns,
+// 		reactiveData: true,
+// 		pagination: false,
+// 		editMode: window.location.hash == '#edit',
+// 		// resizableRows: true,
+// 		movableRows,
+// 		movableColumns: true,
+// 		rowRange: 'active', // Master checkbox will only select filtered rows
+
+// 		// We're not using the built-in selection mechanism – see onRowClick
+// 		// selectable: true,
+// 		// selectableRangeMode: 'click',
+// 	})
+// }
 
 table.on('tableBuilt', () => {
 	// Redraw the table after the data object is built but before the table is rendered.
@@ -184,6 +214,9 @@ table.on('tableBuilt', () => {
 	// Set the "Add index column" dropdown to the correct value.
 	setIndexColDropdown()
 })
+
+// Controls our homebrewed movableRows
+table.on('rowMouseDown', table.moveRowStart)
 
 // Note: onRowClick is controlled from within onCellClick
 // this way we can control how they play together.
@@ -414,6 +447,8 @@ function onHeaderClick(e, col) {
 // }
 
 function onCellClick(e, cell) {
+	return
+
 	// Display overlay with full content when cell is truncated.
 	if (e.target.classList.contains('text-wrap')) {
 		const $textWrap = e.target
@@ -425,6 +460,7 @@ function onCellClick(e, cell) {
 			return
 		}
 	}
+
 	if (!table.isEditMode()) {
 		// Set focus on clicked cell.
 		$focusCell = cell.getElement()
