@@ -3,10 +3,6 @@
 	"command": "interpret recipe",
 	"subject": "interpret_recipe",
 	"SINGLE_PARM": {"receipe": "desc"	},
-	"USING": {},
-	"SHOW": [],
-	"ESTIMATE_ONLY": {},
-	
 	"exec_type": "standard_statement",
 	"exec_cmd": "interpret recipe",
 	"help": {
