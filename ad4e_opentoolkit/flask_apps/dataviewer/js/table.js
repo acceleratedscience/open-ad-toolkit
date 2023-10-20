@@ -6,6 +6,8 @@ TEST = null
 
 class Table extends Tabulator {
 	constructor(element, options) {
+		options.index = 'Index'
+
 		// Initiation
 		super(element, options)
 		super.on('tableBuilt', () => {
@@ -201,10 +203,16 @@ class Table extends Tabulator {
 	// can't be made consitional, and it creates undesrieable
 	// side effects in edit mode. Specifically, it will interfere
 	// with the textarea resize handle.
-	moveRowStart(e, row) {
+	onCellMouseDown(clickEvent, cell, onCellClick) {
 		if (this.editMode) return
 
-		// Store elements
+		// This lets us check if it's a drag or a click
+		let dragging = false
+		const debug = true
+
+		// Store references
+		const table = this
+		const row = cell.getRow()
 		const $row = row.getElement()
 		const $rowClone = $row.cloneNode(true)
 		const $parent = this.element.querySelector('.tabulator-tableholder')
@@ -213,48 +221,26 @@ class Table extends Tabulator {
 		const rowY = $row.getBoundingClientRect().top
 		let parentY = $parent.getBoundingClientRect().top
 		let y = rowY - parentY - 1
-		const mouseRowOffset = e.clientY - rowY
+		let mouseRowOffset = clickEvent.clientY - rowY // Offset between cursor and row top
 		let jump = 0 // How many positions the row has jumped
-		const table = this
 
-		// Update DOM
-		$row.classList.add('while-dragging')
-		$rowClone.classList.remove('tabulator-selectable')
-		$rowClone.classList.add('dragging')
-		$rowClone.style.top = y + 'px'
-		$parent.appendChild($rowClone)
+		// Listen to mouse movement
+		// - - -
+		// If mouse position moves before the mouseup event fires,
+		// we start moving the row. Otherwise it registers as a click.
+		document.addEventListener('mousemove', _onMouseMove)
+		document.addEventListener('mouseup', _onMouseUp)
 
-		// Make interactive
-		document.addEventListener('mousemove', _moveRowDrag)
-		document.addEventListener('mouseup', _moveRowEnd)
+		// Debug
+		let $reference1
+		let $reference2
 
-		// // For testing
-		// const $indicator = document.createElement('div')
-		// $indicator.style.height = '1px'
-		// $indicator.style.width = '100px'
-		// $indicator.style.background = 'red'
-		// $indicator.style.position = 'absolute'
-		// $indicator.style.zIndex = 1000
-		// $parent.appendChild($indicator)
-		// const $reference1 = document.createElement('div')
-		// $reference1.style.height = '1px'
-		// $reference1.style.width = '100px'
-		// $reference1.style.background = 'blue'
-		// $reference1.style.position = 'absolute'
-		// $reference1.style.left = 0
-		// $reference1.style.zIndex = 1000
-		// $parent.appendChild($reference1)
-		// const $reference2 = document.createElement('div')
-		// $reference2.style.height = '1px'
-		// $reference2.style.width = '100px'
-		// $reference2.style.background = 'green'
-		// $reference2.style.position = 'absolute'
-		// $reference2.style.left = 0
-		// $reference2.style.zIndex = 1000
-		// $parent.appendChild($reference2)
-
-		// On drag listener
-		function _moveRowDrag(e) {
+		// Drag listener
+		function _onMouseMove(e) {
+			if (!dragging) {
+				dragging = true
+				_onMouseMoveInit()
+			}
 			parentY = $parent.getBoundingClientRect().top
 			y = e.clientY - parentY - mouseRowOffset
 			const minY = -1
@@ -262,6 +248,37 @@ class Table extends Tabulator {
 			y = Math.max(Math.min(y, maxY), minY)
 			$rowClone.style.top = y + 'px'
 			_moveRow(y)
+		}
+
+		// Executes once when you start dragging
+		function _onMouseMoveInit() {
+			// Update DOM
+			$row.classList.add('while-dragging')
+			$rowClone.classList.remove('tabulator-selectable')
+			$rowClone.classList.add('dragging')
+			$rowClone.style.top = y + 'px'
+			$parent.appendChild($rowClone)
+
+			// Debug
+			if (debug) {
+				$reference1 = document.createElement('div')
+				$reference1.style.height = '1px'
+				$reference1.style.width = '100px'
+				$reference1.style.background = 'blue'
+				$reference1.style.position = 'absolute'
+				$reference1.style.left = 0
+				$reference1.style.zIndex = 10
+				$parent.appendChild($reference1)
+				//
+				$reference2 = document.createElement('div')
+				$reference2.style.height = '1px'
+				$reference2.style.width = '100px'
+				$reference2.style.background = 'green'
+				$reference2.style.position = 'absolute'
+				$reference2.style.left = 0
+				$reference2.style.zIndex = 10
+				$parent.appendChild($reference2)
+			}
 		}
 
 		// On drag - move row to closest position
@@ -279,6 +296,7 @@ class Table extends Tabulator {
 			}
 		}
 
+		// Return -1 / 0 / 1 depending on where the row should be moved
 		function _findTargetIndex(yRowMiddle) {
 			const $prevRow = $row.previousElementSibling
 			const $nextRow = $row.nextElementSibling
@@ -287,10 +305,11 @@ class Table extends Tabulator {
 			const thisRowTop = $rowClone.offsetTop
 			const thisRowBottom = $rowClone.offsetTop + $row.clientHeight
 
-			// // For testing
-			// $indicator.style.top = yRowMiddle + 'px'
-			// $reference1.style.top = prevRowMiddle + 'px'
-			// $reference2.style.top = nextRowMiddle + 'px'
+			// Debug
+			if (debug) {
+				$reference1.style.top = prevRowMiddle + 'px'
+				$reference2.style.top = nextRowMiddle + 'px'
+			}
 
 			if (prevRowMiddle != null && thisRowTop < prevRowMiddle) {
 				return -1
@@ -302,28 +321,161 @@ class Table extends Tabulator {
 		}
 
 		// On drop
-		function _moveRowEnd() {
-			document.removeEventListener('mousemove', _moveRowDrag)
-			document.removeEventListener('mouseup', _moveRowEnd)
+		function _onMouseUp() {
+			document.removeEventListener('mousemove', _onMouseMove)
+			document.removeEventListener('mouseup', _onMouseUp)
+
+			// If no dragging occured, it's a click
+			if (!dragging) {
+				onCellClick(clickEvent, cell)
+				return
+			}
+
 			$rowClone.remove()
 			$row.classList.remove('while-dragging')
 
 			const data = table.getData()
+			console.log(table.getData())
 			// console.log('')
-			// console.log(data.map(itm => itm.Index))
+			console.log(data.map(itm => itm.Index))
 			const currentPos = row.getPosition() - 1
 			const newPos = currentPos + jump
 			data.splice(newPos, 0, data.splice(currentPos, 1)[0])
-			table.setData(data)
-			// console.log(currentPos, '-->', newPos)
-			// console.log(data.map(itm => itm.Index))
+			table.updateData(data)
+			console.log(currentPos, '-->', newPos)
+			console.log(data.map(itm => itm.Index))
+			console.log(data)
 
-			// // For testing
-			// $indicator.remove()
-			// $reference1.remove()
-			// $reference2.remove()
+			// Debug
+			if (debug) {
+				$reference1.remove()
+				$reference2.remove()
+			}
 		}
 	}
+
+	// moveRowStart(e, row) {
+	// 	if (this.editMode) return
+
+	// 	// Store elements
+	// 	const $row = row.getElement()
+	// 	const $rowClone = $row.cloneNode(true)
+	// 	const $parent = this.element.querySelector('.tabulator-tableholder')
+
+	// 	// Calculate values
+	// 	const rowY = $row.getBoundingClientRect().top
+	// 	let parentY = $parent.getBoundingClientRect().top
+	// 	let y = rowY - parentY - 1
+	// 	const mouseRowOffset = e.clientY - rowY
+	// 	let jump = 0 // How many positions the row has jumped
+	// 	const table = this
+
+	// 	// Update DOM
+	// 	$row.classList.add('while-dragging')
+	// 	$rowClone.classList.remove('tabulator-selectable')
+	// 	$rowClone.classList.add('dragging')
+	// 	$rowClone.style.top = y + 'px'
+	// 	$parent.appendChild($rowClone)
+
+	// 	document.addEventListener('mousemove', _moveRowDrag)
+	// 	document.addEventListener('mouseup', _moveRowEnd)
+
+	// 	// // For testing
+	// 	// const $indicator = document.createElement('div')
+	// 	// $indicator.style.height = '1px'
+	// 	// $indicator.style.width = '100px'
+	// 	// $indicator.style.background = 'red'
+	// 	// $indicator.style.position = 'absolute'
+	// 	// $indicator.style.zIndex = 1000
+	// 	// $parent.appendChild($indicator)
+	// 	// const $reference1 = document.createElement('div')
+	// 	// $reference1.style.height = '1px'
+	// 	// $reference1.style.width = '100px'
+	// 	// $reference1.style.background = 'blue'
+	// 	// $reference1.style.position = 'absolute'
+	// 	// $reference1.style.left = 0
+	// 	// $reference1.style.zIndex = 1000
+	// 	// $parent.appendChild($reference1)
+	// 	// const $reference2 = document.createElement('div')
+	// 	// $reference2.style.height = '1px'
+	// 	// $reference2.style.width = '100px'
+	// 	// $reference2.style.background = 'green'
+	// 	// $reference2.style.position = 'absolute'
+	// 	// $reference2.style.left = 0
+	// 	// $reference2.style.zIndex = 1000
+	// 	// $parent.appendChild($reference2)
+
+	// 	// On drag listener
+	// 	function _moveRowDrag(e) {
+	// 		parentY = $parent.getBoundingClientRect().top
+	// 		y = e.clientY - parentY - mouseRowOffset
+	// 		const minY = -1
+	// 		const maxY = $parent.clientHeight - $rowClone.clientHeight - 2
+	// 		y = Math.max(Math.min(y, maxY), minY)
+	// 		$rowClone.style.top = y + 'px'
+	// 		_moveRow(y)
+	// 	}
+
+	// 	// On drag - move row to closest position
+	// 	function _moveRow(y) {
+	// 		const yRowMiddle = y + $rowClone.clientHeight / 2
+	// 		const moveRow = _findTargetIndex(yRowMiddle)
+	// 		jump += moveRow
+
+	// 		if (moveRow == 1) {
+	// 			const $nextRow = $row.nextElementSibling
+	// 			$nextRow.after($row)
+	// 		} else if (moveRow == -1) {
+	// 			const $prevRow = $row.previousElementSibling
+	// 			$prevRow.before($row)
+	// 		}
+	// 	}
+
+	// 	function _findTargetIndex(yRowMiddle) {
+	// 		const $prevRow = $row.previousElementSibling
+	// 		const $nextRow = $row.nextElementSibling
+	// 		const prevRowMiddle = $prevRow ? $prevRow.offsetTop + $prevRow.clientHeight / 2 : null
+	// 		const nextRowMiddle = $nextRow ? $nextRow.offsetTop + $nextRow.clientHeight / 2 : null
+	// 		const thisRowTop = $rowClone.offsetTop
+	// 		const thisRowBottom = $rowClone.offsetTop + $row.clientHeight
+
+	// 		// // For testing
+	// 		// $indicator.style.top = yRowMiddle + 'px'
+	// 		// $reference1.style.top = prevRowMiddle + 'px'
+	// 		// $reference2.style.top = nextRowMiddle + 'px'
+
+	// 		if (prevRowMiddle != null && thisRowTop < prevRowMiddle) {
+	// 			return -1
+	// 		} else if (nextRowMiddle != null && thisRowBottom > nextRowMiddle) {
+	// 			return 1
+	// 		} else {
+	// 			return 0
+	// 		}
+	// 	}
+
+	// 	// On drop
+	// 	function _moveRowEnd() {
+	// 		document.removeEventListener('mousemove', _moveRowDrag)
+	// 		document.removeEventListener('mouseup', _moveRowEnd)
+	// 		$rowClone.remove()
+	// 		$row.classList.remove('while-dragging')
+
+	// 		const data = table.getData()
+	// 		// console.log('')
+	// 		// console.log(data.map(itm => itm.Index))
+	// 		const currentPos = row.getPosition() - 1
+	// 		const newPos = currentPos + jump
+	// 		data.splice(newPos, 0, data.splice(currentPos, 1)[0])
+	// 		table.setData(data)
+	// 		// console.log(currentPos, '-->', newPos)
+	// 		// console.log(data.map(itm => itm.Index))
+
+	// 		// // For testing
+	// 		// $indicator.remove()
+	// 		// $reference1.remove()
+	// 		// $reference2.remove()
+	// 	}
+	// }
 
 	// // Tag on to the Tabulator redraw function
 	// redraw(bool) {

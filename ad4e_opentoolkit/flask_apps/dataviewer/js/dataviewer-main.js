@@ -216,11 +216,13 @@ table.on('tableBuilt', () => {
 })
 
 // Controls our homebrewed movableRows
-table.on('rowMouseDown', table.moveRowStart)
+table.on('cellMouseDown', (e, row) => {
+	table.onCellMouseDown(e, row, onCellClick)
+})
 
 // Note: onRowClick is controlled from within onCellClick
 // this way we can control how they play together.
-table.on('cellClick', onCellClick)
+// table.on('cellClick', onCellClick)
 
 // // Double click doesn't play well with selection
 // table.on('cellDblClick', e => {
@@ -447,8 +449,6 @@ function onHeaderClick(e, col) {
 // }
 
 function onCellClick(e, cell) {
-	return
-
 	// Display overlay with full content when cell is truncated.
 	if (e.target.classList.contains('text-wrap')) {
 		const $textWrap = e.target
