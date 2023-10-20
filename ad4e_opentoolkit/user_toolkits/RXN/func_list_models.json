@@ -2,10 +2,6 @@
 	"fplugin": "rxn",
 	"command": "list rxn models",
 	"subject": "list_models",
-	"USING": {	},
-	"SHOW": [],
-	"ESTIMATE_ONLY": {},
-	"SAVE_AS": {},
 	"exec_type": "standard_statement",
 	"exec_cmd": "list rxn models ",
 	"help": {

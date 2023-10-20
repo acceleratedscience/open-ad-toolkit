@@ -204,7 +204,7 @@ messages = {
     'error_login_init': lambda err: ('Something went wrong while initializing the registry', err),
 
     # Error
-    'err_login': lambda toolkit_name, err='': (f'Something went wrong logging you in to {toolkit_name}\n<reset>Please check your credentials in your config file:</reset>\n<yellow>' + os.path.expanduser("~/.openad") + '/ds-auth.ext-v2.json</yellow>', err),
+    'err_login': lambda toolkit_name, err='': (f'Something went wrong logging you in to {toolkit_name}.\n<reset>Please check your credentials and run <cmd>set context {toolkit_name} reset </cmd></reset>', err),
 
     # endregion
 
@@ -235,6 +235,7 @@ messages = {
     # Negative
     'table_headers_dont_match_columns': lambda headers, col_count: (f'The provided headers ({len(headers)}) don\'t match the number of columns in the data ({col_count})', headers),
     'no_data_memory': 'No data stored in memory',
+    'table_is_empty': 'No data to display',
 
     # Error
     # 'invalid_cmd': 'Not a valid command',

@@ -35,7 +35,7 @@ deepsearch-toolkit
 tiktoken  
 langchain==0.0.272
 traitlets==5.9
-deepsearch-toolkit
+deepsearch-toolkit==0.29.0
 rxn4chemistry
 tabulate
 faiss-cpu
