@@ -192,7 +192,6 @@ class Table extends Tabulator {
 		const $col = col.getElement()
 		const sortOrder = $col.getAttribute('aria-sort') == 'ascending' ? 'desc' : 'asc'
 		$col.classList.add('sortable', `sort-${sortOrder}`)
-		// tabulator-col-sorter
 		this.setSort(colName, sortOrder)
 	}
 
@@ -281,19 +280,22 @@ class Table extends Tabulator {
 		}
 
 		function _findTargetIndex(yRowMiddle) {
-			const targetRow = document.querySelector('.tabulator-row.while-dragging')
-			const yTargetRowTop = targetRow.offsetTop
-			const yTargetRowBottom = targetRow.offsetTop + targetRow.clientHeight
+			const $prevRow = $row.previousElementSibling
+			const $nextRow = $row.nextElementSibling
+			const prevRowMiddle = $prevRow ? $prevRow.offsetTop + $prevRow.clientHeight / 2 : null
+			const nextRowMiddle = $nextRow ? $nextRow.offsetTop + $nextRow.clientHeight / 2 : null
+			const thisRowTop = $rowClone.offsetTop
+			const thisRowBottom = $rowClone.offsetTop + $row.clientHeight
 
 			// // For testing
 			// $indicator.style.top = yRowMiddle + 'px'
-			// $reference1.style.top = yTargetRowTop + 'px'
-			// $reference2.style.top = yTargetRowBottom + 'px'
+			// $reference1.style.top = prevRowMiddle + 'px'
+			// $reference2.style.top = nextRowMiddle + 'px'
 
-			if (yRowMiddle > yTargetRowBottom) {
-				return 1
-			} else if (yRowMiddle < yTargetRowTop) {
+			if (prevRowMiddle != null && thisRowTop < prevRowMiddle) {
 				return -1
+			} else if (nextRowMiddle != null && thisRowBottom > nextRowMiddle) {
+				return 1
 			} else {
 				return 0
 			}
@@ -319,6 +321,7 @@ class Table extends Tabulator {
 			// // For testing
 			// $indicator.remove()
 			// $reference1.remove()
+			// $reference2.remove()
 		}
 	}
 
