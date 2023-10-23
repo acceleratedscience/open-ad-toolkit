@@ -156,55 +156,41 @@ document.getElementById('table').removeAttribute('data')
 // Parse columns
 const columns = parseColumns(data)
 
+// Find or create a unique index column
+const { index, addedIndex } = ensureUniqueIndex(data, columns)
+
 // Add checkbox column for selection UI
 // columns.unshift({ formatter: 'rowSelection', titleFormatter: 'rowSelection', align: 'center', headerSort: false })
 
 // Create table ##
 const table = new Table('#table', {
+	// Tabulator options
 	data,
 	columns,
+	index,
 	reactiveData: true,
 	pagination: false,
 	editMode: window.location.hash == '#edit',
-	// resizableRows: true,
 	movableRows: false,
 	movableColumns: true,
 	rowRange: 'active', // Master checkbox will only select filtered rows
 
-	// We're not using the built-in selection mechanism – see onRowClick
+	// Non-Tabulator options
+	addedIndex,
+
+	// We're not using the built-in selection
+	// mechanism – see onRowClick()
+	// - - -
 	// selectable: true,
 	// selectableRangeMode: 'click',
+
+	// We're not letting users resize rows,
+	// because it complicates truncation, and
+	// also because we can't reset the row height
+	// the same way as we do with the columns.
+	// - - -
+	// resizableRows: true, // Disabling beca
 })
-
-// %% trash
-// document.getElementById('test').addEventListener('click', () => {
-// 	createTable(true, true)
-// })
-
-// // %% Trash
-// let table = createTable()
-
-// function createTable(destroy, movableRows) {
-// 	if (destroy) {
-// 		table.destroy()
-// 		console.log('DESTROY')
-// 	}
-// 	return new Table('#table', {
-// 		data,
-// 		columns,
-// 		reactiveData: true,
-// 		pagination: false,
-// 		editMode: window.location.hash == '#edit',
-// 		// resizableRows: true,
-// 		movableRows,
-// 		movableColumns: true,
-// 		rowRange: 'active', // Master checkbox will only select filtered rows
-
-// 		// We're not using the built-in selection mechanism – see onRowClick
-// 		// selectable: true,
-// 		// selectableRangeMode: 'click',
-// 	})
-// }
 
 table.on('tableBuilt', () => {
 	// Redraw the table after the data object is built but before the table is rendered.
@@ -374,8 +360,8 @@ function parseColumns(data) {
 			headerMenu: contextMenus.header,
 			// headerContextMenu: contextMenus.header,
 			contextMenu: contextMenus.cell, // @@
-			headerSort: false, // We use our own sort logic via headerClick
-			headerClick: onHeaderClick,
+			headerSort: true,
+			// headerClick: onHeaderClick, // We use our own sort logic via headerClick - %% trash
 
 			// // This blocks the user from resizing the
 			// // column, so we use a formatter instead:
@@ -435,11 +421,93 @@ function _pickFormatter(key, needFormatter, contentPropsAll) {
 // #endregion
 
 /////////////////////////////////
+// #region - Data prepping
+
+// Make sure our data has a unique index.
+// - - -
+// When updating content on save, we depend on updateData()
+// because setData() causes the entire table to redraw and
+// the page to scroll up. But updateData relies on an index
+// to be defined, i.e. a column with unique values. Because
+// we don't know what kind of data will be loaded, we need to
+// do some trickery. In this order:
+// 1. Check if there already is a unique index column
+// 2. If there is, check if the values are unique
+// 3. If no valid index column is found, we create our own '#'
+function ensureUniqueIndex(data, columns) {
+	let index = _findUniqueIndex(data, columns)
+	let addedIndex = false
+	if (!index) {
+		_addIndexCol(data, columns)
+		index = '#'
+		addedIndex = true
+	}
+
+	// There's an option panel option asking whether
+	// you want to export the index column, but this
+	// is irrelevant if no index column was added.
+	if (!addedIndex) {
+		document.getElementById('export-index-option').remove()
+	}
+
+	return { index, addedIndex }
+}
+
+// Check if there already is a unique index column
+function _findUniqueIndex(data, columns) {
+	const fields = columns.map(col => col['field'].toLowerCase())
+
+	// Check for 'index' column (case-insensitive)
+	if (fields.includes('index')) {
+		const field = columns[fields.indexOf('index')]['field']
+		if (_areColumnValuesUnique(field, data)) {
+			return field
+		}
+	}
+
+	// Check for '#' column
+	if (fields.includes('#')) {
+		if (_areColumnValuesUnique('#', data)) {
+			return '#'
+		}
+	}
+
+	return false
+}
+
+// Check if the values of a certain column are unique
+function _areColumnValuesUnique(field, data) {
+	for (let i in data) {
+		const val = data[i][field]
+		for (let j in data) {
+			if (i != j && val == data[j][field]) {
+				return false
+			}
+		}
+	}
+	return true
+}
+
+// Add index column if none is found
+function _addIndexCol(data, columns) {
+	data.forEach((row, i) => {
+		row['#'] = i + 1
+	})
+
+	columns.unshift({
+		sorter: 'number',
+		title: '#',
+		field: '#',
+	})
+}
+
+/////////////////////////////////
 // #region - Table interaction
 
-function onHeaderClick(e, col) {
-	table.sort(col)
-}
+// %% trash
+// function onHeaderClick(e, col) {
+// 	table.sort(col)
+// }
 
 // %% Trash
 // table.on('dataSorting', onDataSorting)
@@ -704,13 +772,14 @@ function applyOptions() {
 	const truncLimit = +document.getElementById('opt-select-truncation').value
 	setTruncation(truncLimit)
 
-	// Index column
-	const includeIndexCol = +document.getElementById('opt-add-index-col').value
-	if (includeIndexCol) {
-		table.addIndexCol(true)
-	} else {
-		table.removeIndexCol()
-	}
+	// %% trash
+	// // Index column
+	// const includeIndexCol = +document.getElementById('opt-add-index-col').value
+	// if (includeIndexCol) {
+	// 	table.addIndexCol(true)
+	// } else {
+	// 	table.removeIndexCol()
+	// }
 }
 
 // #endregion

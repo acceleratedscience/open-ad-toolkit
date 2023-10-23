@@ -1,4 +1,3 @@
-TEST = null
 /**
  * Table is a subclass that extends
  * Tabulator with some extra functionality.
@@ -6,17 +5,11 @@ TEST = null
 
 class Table extends Tabulator {
 	constructor(element, options) {
-		options.index = 'Index'
-
 		// Initiation
 		super(element, options)
 		super.on('tableBuilt', () => {
-			// Add index column is missing
-			this.addIndexCol()
-
 			// Turn on edit mode if hash is present
 			if (options.editMode) {
-				console.log('$')
 				this.toggleEditMode(true)
 			}
 
@@ -24,7 +17,7 @@ class Table extends Tabulator {
 			this.storeColWidths()
 		})
 
-		// Modofation
+		// Modifation
 		super.on('columnResized', () => {
 			this.element.classList.add('resized-col')
 		})
@@ -36,7 +29,7 @@ class Table extends Tabulator {
 		this.editMode = false // Used to determine if we're in edit mode - see isEditMode()
 		this.colDefaultWidths = {} // Used to store column widths so we can reset them
 		// this.rowDefaultHeights = {} // Used to store row heights so we can reset them
-		this.addedIndex = false // Used to keep track if we added an index column
+		this.addedIndex = options.addedIndex // Used to keep track if we added an index column
 		this.lastSelectedRowIndex = null // Number used to determine where to start from when shift-selecting
 		this.lastSelectedRowSelState = null // Boolean used to determine if shift-select row should batch-select or batch-deselect
 		this.selectMode = false // Boolean used to ignore row resize handles while selecting rows
@@ -56,62 +49,62 @@ class Table extends Tabulator {
 	// 	})
 	// }
 
-	// Add index column
-	addIndexCol(force) {
-		if (this.addedIndex) return
-		const data = this.getData()
+	// // Add index column
+	// addIndexCol(force) {
+	// 	if (this.addedIndex) return
+	// 	const data = this.getData()
 
-		let addCol = false
-		if (force) {
-			// Column is added manually via options panel.
-			addCol = true
-		} else if (!force) {
-			// Column is added on init, but only if one doesn't already exist.
-			const rowSample = data[1]
-			let hasIndex = !!rowSample['#']
-			if (!hasIndex) {
-				for (const key in rowSample) {
-					if (key.toLowerCase() == 'index') {
-						hasIndex = true
-						break
-					}
-				}
-				addCol = !hasIndex
-			}
-		}
+	// 	let addCol = false
+	// 	if (force) {
+	// 		// Column is added manually via options panel.
+	// 		addCol = true
+	// 	} else if (!force) {
+	// 		// Column is added on init, but only if one doesn't already exist.
+	// 		const rowSample = data[1]
+	// 		let hasIndex = !!rowSample['#']
+	// 		if (!hasIndex) {
+	// 			for (const key in rowSample) {
+	// 				if (key.toLowerCase() == 'index') {
+	// 					hasIndex = true
+	// 					break
+	// 				}
+	// 			}
+	// 			addCol = !hasIndex
+	// 		}
+	// 	}
 
-		// Add index column if missing
-		if (addCol) {
-			this.addedIndex = true
-			data.forEach((row, i) => {
-				row['#'] = i + 1
-			})
-			this.setData(data)
+	// 	// Add index column if missing
+	// 	if (addCol) {
+	// 		this.addedIndex = true
+	// 		data.forEach((row, i) => {
+	// 			row['#'] = i + 1
+	// 		})
+	// 		this.setData(data)
 
-			const colSample = this.getColumns()[0]
-			const newCol = {
-				...colSample,
-				sorter: 'number',
-				title: '#',
-				field: '#',
-			}
-			this.addColumn(newCol, true)
-		}
-	}
+	// 		const colSample = this.getColumns()[0]
+	// 		const newCol = {
+	// 			...colSample,
+	// 			sorter: 'number',
+	// 			title: '#',
+	// 			field: '#',
+	// 		}
+	// 		this.addColumn(newCol, true)
+	// 	}
+	// }
 
-	// Remove index column
-	removeIndexCol() {
-		const indexCol = this.getColumns()[0]
-		if (indexCol.getField() == '#') {
-			this.addedIndex = false
-			indexCol.delete()
-			const data = this.getData()
-			data.forEach((row, i) => {
-				delete row['#']
-			})
-			this.setData(data)
-		}
-	}
+	// // Remove index column
+	// removeIndexCol() {
+	// 	const indexCol = this.getColumns()[0]
+	// 	if (indexCol.getField() == '#') {
+	// 		this.addedIndex = false
+	// 		indexCol.delete()
+	// 		const data = this.getData()
+	// 		data.forEach((row, i) => {
+	// 			delete row['#']
+	// 		})
+	// 		this.setData(data)
+	// 	}
+	// }
 
 	// Reset column widths to default
 	resetCols() {
@@ -186,6 +179,10 @@ class Table extends Tabulator {
 
 	// Recreate the built in sort
 	sort(col) {
+		// We block sorting while in edit mode, because we reset the selection
+		// on revertData() and sorting breaks this. However, this is not a good
+		// solution, instead we should detect if the data was sorter, and not
+		// reselect the rows if it was.
 		if (this.editMode) {
 			alert('Please exit edit mode before sorting.')
 			return

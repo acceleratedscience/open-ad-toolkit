@@ -4,6 +4,7 @@
 .tabulator {
 	font-size: var(--font-size);
 	line-height: 20px;
+	--header-bg: #fafafa;
 }
 
 /* Min cell height - avoids ugliness when resizing rows */
@@ -42,7 +43,7 @@
 	border: none;
 }
 .tabulator .tabulator-header .tabulator-col {
-	background-color: #fafafa;
+	background-color: var(--header-bg);
 	border: solid 1px var(--black-10);
 	border-bottom-color: var(--black-20);
 	z-index: 1;
@@ -140,6 +141,16 @@
 	overflow: hidden;
 	text-overflow: ellipsis;
 	direction: rtl;
+}
+
+/**
+ * Grayed-out index column
+ */
+
+.tabulator .tabulator-row > .tabulator-cell:first-of-type[tabulator-field='Index'],
+.tabulator .tabulator-row > .tabulator-cell:first-of-type[tabulator-field='#'] {
+	color: var(--black-30);
+	background: var(--header-bg);
 }
 
 /*

@@ -40,11 +40,11 @@
 
 		<!-- Buttons right -->
 		<div id="btn-wrap-right">
-			<button id="btn-options" class="tertiary">Display Options</button>
+			<button id="btn-options" class="tertiary">Options</button>
 
 			<!-- Display options -->
 			<div id="options" class="hide">
-				<h3 class="title">Display Options</h3>
+				<h3 class="title">Options</h3>
 				<label class="ibm-dropdown">
 					<div class="ibm-label-txt">Truncate text</div>
 					<div class="ibm-dd-display"></div>
@@ -54,12 +54,21 @@
 						<option value="1">1 line</option>
 					</select>
 				</label>
-				<label class="ibm-dropdown">
+				<!-- Trash -->
+				<!-- <label class="ibm-dropdown">
 					<div class="ibm-label-txt">Add index column</div>
 					<div class="ibm-dd-display"></div>
 					<select id="opt-add-index-col">
 						<option value="1">Yes</option>
 						<option value="0">No</option>
+					</select>
+				</label> -->
+				<label class="ibm-dropdown" id="export-index-option">
+					<div class="ibm-label-txt">Export index column</div>
+					<div class="ibm-dd-display"></div>
+					<select id="opt-export-index-col">
+						<option value="0" selected>No</option>
+						<option value="1">Yes</option>
 					</select>
 				</label>
 				<div class="btn-wrap">
