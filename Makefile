@@ -5,3 +5,4 @@ check-lint:
 
 test:
 	poetry run coverage run --branch --source=./ad4e_opentoolkit/app/ -m pytest --durations=10 --color=yes tests/unit
+	poetry run coverage report
