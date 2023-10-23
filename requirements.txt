@@ -33,7 +33,7 @@ pandas
 mols2grid
 deepsearch-toolkit
 tiktoken  
-langchain==0.0.272
+langchain==0.0.317
 traitlets==5.9
 deepsearch-toolkit==0.29.0
 rxn4chemistry
