@@ -29,6 +29,7 @@ class Table extends Tabulator {
 		this.editMode = false // Used to determine if we're in edit mode - see isEditMode()
 		this.colDefaultWidths = {} // Used to store column widths so we can reset them
 		// this.rowDefaultHeights = {} // Used to store row heights so we can reset them
+		this.index = options.index // Tabulator doesn't store the index so we have to
 		this.addedIndex = options.addedIndex // Used to keep track if we added an index column
 		this.lastSelectedRowIndex = null // Number used to determine where to start from when shift-selecting
 		this.lastSelectedRowSelState = null // Boolean used to determine if shift-select row should batch-select or batch-deselect
@@ -207,9 +208,12 @@ class Table extends Tabulator {
 	onCellMouseDown(clickEvent, cell, onCellClick) {
 		if (this.editMode) return
 
+		// Only accept left click.
+		if (clickEvent.button > 0) return
+
 		// This lets us check if it's a drag or a click
 		let dragging = false
-		const debug = true
+		const debug = false // Display indicators for debugging
 
 		// Store references
 		const table = this
@@ -326,9 +330,8 @@ class Table extends Tabulator {
 			document.removeEventListener('mousemove', _onMouseMove)
 			document.removeEventListener('mouseup', _onMouseUp)
 
-			// If no dragging occured, it's a click
-			const contextMenuActive = document.querySelector('.tabulator-menu')
-			if (!dragging && !contextMenuActive) {
+			// If no dragging occured, it's a click.
+			if (!dragging) {
 				onCellClick(clickEvent, cell)
 				return
 			}

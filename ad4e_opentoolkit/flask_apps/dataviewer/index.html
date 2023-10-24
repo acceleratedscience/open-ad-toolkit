@@ -24,6 +24,7 @@
 			- Luxon is used by Tabulator for date sorting
 		-->
 		<script type="text/javascript" src="app/js/table.js"></script>
+		<script type="text/javascript" src="app/js/context-menus.js"></script>
 		<link rel="stylesheet" href="app/css/dataviewer-main.css" />
 		<link rel="stylesheet" href="app/css/tabulator_ibm_theme.css" />
 	</head>
@@ -31,11 +32,22 @@
 		<!-- Buttons left -->
 		<div id="cloak"></div>
 		<div id="btn-wrap-left">
-			<button id="btn-edit" class="secondary">Edit data</button>
+			<button id="btn-edit" class="secondary">Edit</button>
 			<button id="btn-submit">Submit</button>
 			<button id="btn-cancel" class="tertiary">Cancel</button>
 			<button id="btn-save" class="secondary">Save</button>
-			<!-- <button id="test">Test</button> -->
+			<button id="btn-deselect" class="secondary">Deselect</button>
+			<label class="ibm-dropdown" id="dd-selection-actions-wrap">
+				<!-- <div class="ibm-label-txt">Actions</div> -->
+				<div class="ibm-dd-display"></div>
+				<select id="dd-selection-actions">
+					<option value="" selected disabled>- Actions -</option>
+					<option value="delete">Delete</option>
+					<option value="prune">Prune</option>
+					<option value="copy">Copy</option>
+					<option value="download">Download</option>
+				</select>
+			</label>
 		</div>
 
 		<!-- Buttons right -->
@@ -48,7 +60,7 @@
 				<label class="ibm-dropdown">
 					<div class="ibm-label-txt">Truncate text</div>
 					<div class="ibm-dd-display"></div>
-					<select id="opt-select-truncation">
+					<select id="dd-opt-select-truncation">
 						<option value="0">Never</option>
 						<option value="3" selected>3 lines</option>
 						<option value="1">1 line</option>

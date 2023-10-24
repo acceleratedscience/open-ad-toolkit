@@ -1,6 +1,10 @@
 /****************************/
 /* #region - General        */
 
+body {
+	--svg-arrow: url('data:image/svg+xml;utf8,%3Csvg%20width%3D%228%22%20height%3D%227%22%20viewBox%3D%220%200%208%207%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20fill%3D%22%23393939%22%20d%3D%22M3.5713%206.285L0.254304%200.757C0.0543037%200.424%200.295303%20-1.69163e-08%200.682304%200L7.3173%202.90025e-07C7.7053%203.06985e-07%207.9463%200.424%207.7453%200.757L4.4283%206.285C4.2343%206.609%203.7653%206.609%203.5713%206.285Z%22%2F%3E%3C%2Fsvg%3E');
+}
+
 .tabulator {
 	font-size: var(--font-size);
 	line-height: 20px;
@@ -79,7 +83,7 @@
 .tabulator .tabulator-header .tabulator-col.tabulator-sortable[aria-sort='ascending'] .tabulator-col-content .tabulator-col-sorter .tabulator-arrow,
 .tabulator .tabulator-header .tabulator-col.tabulator-sortable[aria-sort='descending'] .tabulator-col-content .tabulator-col-sorter .tabulator-arrow {
 	border: none;
-	background-image: url('data:image/svg+xml;utf8,%3Csvg%20width%3D%228%22%20height%3D%227%22%20viewBox%3D%220%200%208%207%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20fill%3D%22%23393939%22%20d%3D%22M3.5713%206.285L0.254304%200.757C0.0543037%200.424%200.295303%20-1.69163e-08%200.682304%200L7.3173%202.90025e-07C7.7053%203.06985e-07%207.9463%200.424%207.7453%200.757L4.4283%206.285C4.2343%206.609%203.7653%206.609%203.5713%206.285Z%22%2F%3E%3C%2Fsvg%3E');
+	background-image: var(--svg-arrow);
 }
 .tabulator .tabulator-header .tabulator-col.tabulator-sortable[aria-sort='descending'] .tabulator-col-content .tabulator-col-sorter .tabulator-arrow {
 	transform: rotate(180deg);
@@ -104,8 +108,7 @@
 	right: 0;
 	width: 16px;
 	height: 100%;
-	background: url('data:image/svg+xml;utf8,%3Csvg%20width%3D%228%22%20height%3D%227%22%20viewBox%3D%220%200%208%207%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20fill%3D%22%23393939%22%20d%3D%22M3.5713%206.285L0.254304%200.757C0.0543037%200.424%200.295303%20-1.69163e-08%200.682304%200L7.3173%202.90025e-07C7.7053%203.06985e-07%207.9463%200.424%207.7453%200.757L4.4283%206.285C4.2343%206.609%203.7653%206.609%203.5713%206.285Z%22%2F%3E%3C%2Fsvg%3E')
-		center center no-repeat;
+	background: var(--svg-arrow) center center no-repeat;
 	display: none;
 }
 .tabulator .tabulator-header .tabulator-col.sortable[aria-sort='ascending'] .tabulator-col-title::after {
@@ -236,11 +239,13 @@
  */
 
 /* Copy feedback blink */
-.tabulator-cell.copied {
+.tabulator-cell.copied,
+.tabulator-row.copied .tabulator-cell {
 	animation: blink 0.14s 2;
 	color: #090;
 }
-.tabulator-cell:not(.copied) {
+.tabulator-cell:not(.copied),
+.tabulator-row:not(.copied) .tabulator-cell {
 	transition: color 0.5s;
 }
 
@@ -317,14 +322,14 @@
  * Row selection
  */
 
-.tabulator-row.tabulator-selected,
-.tabulator-row.tabulator-selected:hover {
-	background: transparent;
+.tabulator .tabulator-row.tabulator-selected,
+.tabulator .tabulator-row.tabulator-selected:hover {
+	background: #eee;
+	border-top: solid 1px rgba(0, 0, 0, 0.1);
+	margin-top: -1px;
 }
 .tabulator:not(.edit-mode) .tabulator-row.tabulator-selected {
 	background: var(--blue-15);
-	border-top: solid 1px rgba(0, 0, 0, 0.1);
-	margin-top: -1px;
 }
 .tabulator:not(.edit-mode) .tabulator-row.tabulator-selected:hover {
 	background-color: var(--blue-20);
@@ -334,6 +339,10 @@
 .tabulator:not(.edit-mode) .tabulator-row.tabulator-selected > .tabulator-cell:first-of-type[tabulator-field='Index'],
 .tabulator:not(.edit-mode) .tabulator-row.tabulator-selected > .tabulator-cell:first-of-type[tabulator-field='#'] {
 	background: var(--soft-bg-sel);
+}
+.tabulator .tabulator-row.tabulator-selected > .tabulator-cell:first-of-type[tabulator-field='Index'],
+.tabulator .tabulator-row.tabulator-selected > .tabulator-cell:first-of-type[tabulator-field='#'] {
+	background: #e6e6e6;
 }
 
 /**
@@ -516,7 +525,7 @@
 
 	cursor: pointer;
 	height: 40px;
-	line-height: 40px;
+	line-height: 39px;
 	box-sizing: border-box;
 }
 .tabulator-menu .tabulator-menu-item:not(:first-child) {
@@ -531,6 +540,30 @@
 	position: relative;
 	z-index: 1;
 	border-top-color: rgba(0, 0, 0, 0.1);
+}
+
+/* Separator */
+.tabulator-menu .tabulator-menu-separator {
+	margin-top: -1px;
+	border-top: solid 1px var(--black-30);
+	position: relative;
+	z-index: 2;
+}
+
+/* Submenu arrow */
+.tabulator-menu .tabulator-menu-item.tabulator-menu-item-submenu:after {
+	/* Override */
+	border: none;
+	display: block;
+	transform: rotate(-90deg);
+
+	/* Style */
+	top: 0;
+	right: 0;
+	width: 25px;
+	height: 100%;
+	background: var(--svg-arrow) center center no-repeat;
+	opacity: 0.3;
 }
 
 /* #endregion */

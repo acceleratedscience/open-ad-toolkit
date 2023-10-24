@@ -29,10 +29,16 @@ body {
 }
 
 /* Buttons */
-#btn-wrap-left.edit-mode #btn-submit,
 #btn-wrap-left.edit-mode #btn-edit,
+#btn-wrap-left.edit-mode #btn-submit,
 #btn-wrap-left:not(.edit-mode) #btn-cancel,
 #btn-wrap-left:not(.edit-mode) #btn-save,
+#btn-wrap-left.show-actions #btn-edit,
+#btn-wrap-left.show-actions #btn-submit,
+#btn-wrap-left.show-actions #btn-cancel,
+#btn-wrap-left.show-actions #btn-save,
+#btn-wrap-left:not(.show-actions) #dd-selection-actions-wrap,
+#btn-wrap-left:not(.show-actions) #btn-deselect,
 #btn-options.hide {
 	display: none;
 }
@@ -56,6 +62,9 @@ body {
 
 	/**/
 	right: 40px;
+}
+#dd-selection-actions-wrap {
+	display: inline-block;
 }
 
 /* Reset column/row links */

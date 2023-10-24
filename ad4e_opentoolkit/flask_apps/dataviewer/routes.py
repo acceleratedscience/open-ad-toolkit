@@ -31,7 +31,7 @@ def fetchRoutesDataViewer(data, notebook_mode):
 
     def success():
         # Kill server
-        # os.kill(os.getpid(), signal.SIGINT)
+        os.kill(os.getpid(), signal.SIGINT)
 
         return render_template('/dataviewer/success.html', notebook_mode=notebook_mode)
 

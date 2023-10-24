@@ -22,9 +22,28 @@ document.querySelector('#btn-save').addEventListener('click', () => {
 })
 
 // Submit
-document.querySelector('#btn-submit').addEventListener('click', () => {
-	submitData()
-})
+document.querySelector('#btn-submit').addEventListener('click', submitData)
+
+// Deselect
+document.querySelector('#btn-deselect').addEventListener('click', deselectRows)
+
+// Selection actions
+document.querySelector('#dd-selection-actions').addEventListener('change', dispatchSelectionAction)
+
+function dispatchSelectionAction(e) {
+	// %%%
+	const action = e.target.value
+	if (action == 'delete') {
+		contextMenus.deleteSelected()
+	} else if (action == 'prune') {
+		contextMenus.pruneSelected()
+	} else if (action == 'copy') {
+		contextMenus.copySelected()
+	} else if (action == 'download') {
+		contextMenus.downloadSelected()
+	}
+	e.target.value = ''
+}
 
 // Display options
 document.querySelector('#btn-options').addEventListener('click', () => {
@@ -65,7 +84,7 @@ document.addEventListener('keydown', e => {
 
 	// Copy focused cell content on cmd + C
 	if ($cell && e.key == 'c' && (e.metaKey || e.ctrlKey)) {
-		copyCellContent($cell)
+		contextMenus.copyCell(null, null, $cell)
 		return
 	}
 
@@ -75,7 +94,7 @@ document.addEventListener('keydown', e => {
 		if (fullCellDisplayActive) return
 
 		// Deselect rows
-		deselectRows()
+		deselectRows(true)
 	}
 
 	// Move focus with arrow keys
@@ -119,66 +138,18 @@ document.addEventListener('click', e => {
 /////////////////////////////////
 // #region - Table rendering
 
-// Create context menus
-const contextMenus = {
-	header: [
-		{
-			label: 'Delete column',
-			action: (e, col) => {
-				const field = col.getField()
-				console.log(field, table.options.index)
-				if (field == table.options.index) {
-					let message = `You can't delete the '${field}' column as it's used for identifying the rows.` // %%%
-					if (table.addedIndex) {
-						message += ' It will be removed when you submit the data, unless you change this in the options panel.'
-					} else {
-						message += ' But you can choose not to export it in the options panel.'
-					}
-					alert(message)
-				} else {
-					col.delete()
-				}
-			},
-		},
-	],
-	cell: [
-		{
-			label: 'Edit',
-			action: (e, cell) => {
-				toggleEditMode(true)
-				$row = cell.getElement()
-				$row.click()
-			},
-		},
-		{
-			label: 'Delete row',
-			action: (e, cell) => {
-				row = cell.getRow()
-				row.delete()
-			},
-		},
-		{
-			label: 'Select row',
-			action: (e, cell) => {
-				row = cell.getRow()
-				row.select()
-			},
-		},
-	],
-}
-
 // Parse data
 const dataInput = JSON.parse(document.getElementById('table').getAttribute('data'))
 document.getElementById('table').removeAttribute('data')
+
+// Assemble context menus
+const contextMenus = new ContextMenus()
 
 // Parse columns
 const columns = parseColumns(dataInput)
 
 // Find or create a unique index column
 const { index, addedIndex } = ensureUniqueIndex(dataInput, columns)
-
-// Add checkbox column for selection UI
-// columns.unshift({ formatter: 'rowSelection', titleFormatter: 'rowSelection', align: 'center', headerSort: false })
 
 // Create table ##
 const table = new Table('#table', {
@@ -215,6 +186,17 @@ const table = new Table('#table', {
 	// resizableRows: true, // Disabling beca
 })
 
+// Pass table reference to context menus
+contextMenus.init(table, {
+	saveEdits: () => {
+		toggleEditMode(false)
+	},
+	cancelEdits: () => {
+		toggleEditMode(false, true)
+	},
+	deselectRows,
+})
+
 table.on('tableBuilt', () => {
 	// Redraw the table after the data object is built but before the table is rendered.
 	// This is a little hack to prevent all rows to take on the height of the tallest cell.
@@ -228,6 +210,14 @@ table.on('tableBuilt', () => {
 // Controls our homebrewed movableRows
 table.on('cellMouseDown', (e, row) => {
 	table.onCellMouseDown(e, row, onCellClick)
+})
+
+table.on('rowSelected', () => {
+	toggleSelectionActions(true)
+})
+
+table.on('rowDeselected', () => {
+	toggleSelectionActions(false)
 })
 
 // %% trash
@@ -524,7 +514,7 @@ function _findUniqueIndex(data, columns) {
 // Check if the values of a suspected index column are incremental.
 // Can start from any number but needs to be consecutive to be valid.
 function _areColumnValuesIncrementalIndex(field, data) {
-	return false // For testing $$
+	// return false // For testing $$
 	const values = data.map(row => +row[field])
 	const valuesSorted = [...values].sort((a, b) => a - b)
 	const firstValue = +valuesSorted[0]
@@ -580,17 +570,21 @@ function _addIndexCol(data, columns) {
 /////////////////////////////////
 // #region - Data modification
 
-// %% trash
 // Delete column and all its data
-// function deleteColumn(col) {
-// 	const data = table.getData()
-// 	const field = col.getField()
-// 	col.delete()
-// 	data.forEach(row => {
-// 		delete row[field]
-// 	})
-// 	table.setData(data)
-// }
+function deleteColumn(e, col) {
+	const field = col.getField()
+	if (field == table.options.index) {
+		let message = `You can't delete the '${field}' column as it's used for identifying the rows.` // Note: repeat
+		if (table.addedIndex) {
+			message += ' It will be removed when you submit the data, unless you change this in the options panel.'
+		} else {
+			message += ' But you can choose not to export it in the options panel.'
+		}
+		alert(message)
+	} else {
+		col.delete()
+	}
+}
 
 //#endregion
 
@@ -766,10 +760,10 @@ function hideFullCellContent() {
 }
 
 // Deselect all rows, but ask user if it's more than 3
-function deselectRows() {
+function deselectRows(soft) {
 	const selectedRows = table.getSelectedRows()
-	if (selectedRows.length > 3) {
-		if (confirm('Are you sure you want to delect all rows?')) {
+	if (soft && selectedRows.length > 3) {
+		if (confirm('Are you sure you want to deselect all rows?')) {
 			table.deselectRow()
 		}
 	} else {
@@ -811,27 +805,6 @@ function moveFocus(dir) {
 	}
 }
 
-// Copies the content of a cell to the clipboard
-function copyCellContent($cell) {
-	if (navigator.clipboard) {
-		// New way
-		navigator.clipboard.writeText($cell.innerText)
-	} else {
-		// Old way
-		const range = document.createRange()
-		range.selectNode($cell)
-		window.getSelection().removeAllRanges()
-		window.getSelection().addRange(range)
-		document.execCommand('copy')
-		window.getSelection().removeAllRanges()
-	}
-
-	$cell.classList.add('copied')
-	setTimeout(() => {
-		$cell.classList.remove('copied')
-	}, 600)
-}
-
 // #endregion
 
 /////////////////////////////////
@@ -862,7 +835,7 @@ function setTruncation(limit) {
 // Apply options
 function applyOptions() {
 	// Truncation
-	const truncLimit = +document.getElementById('opt-select-truncation').value
+	const truncLimit = +document.getElementById('dd-opt-select-truncation').value
 	setTruncation(truncLimit)
 
 	// %% trash
@@ -892,6 +865,15 @@ function toggleEditModeBtns(bool) {
 		document.getElementById('btn-wrap-left').classList.add('edit-mode')
 	} else {
 		document.getElementById('btn-wrap-left').classList.remove('edit-mode')
+	}
+}
+
+// Toggle the dropdown with actions relating to your current selection.
+function toggleSelectionActions(bool) {
+	if (bool) {
+		document.getElementById('btn-wrap-left').classList.add('show-actions')
+	} else {
+		document.getElementById('btn-wrap-left').classList.remove('show-actions')
 	}
 }
 
