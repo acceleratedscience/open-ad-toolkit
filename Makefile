@@ -1,4 +1,8 @@
-.PHONY: check-lint test
+.PHONY: check-lint test setup
+
+setup:
+	poetry install
+	poetry run python -m ipykernel install --user --name=ad-kernel
 
 check-lint:
 	poetry run black --check .
