@@ -1,7 +1,7 @@
 import sys
 import os
 import re
-from getpass import getpass
+import getpass
 import readline
 from IPython.display import display
 from ad4e_opentoolkit.helpers.output import msg, output_text, output_error
@@ -123,7 +123,7 @@ def user_secret(cmd_pointer, question):
     Basically the same as input(), but with some extra styling and history disabled.
     """
     prompt = output_text(f'<yellow>{question}: </yellow>', cmd_pointer, return_val=True, jup_return_format='plain')
-    text = getpass(prompt)
+    text = getpass.getpass(prompt)
     return text
 
 

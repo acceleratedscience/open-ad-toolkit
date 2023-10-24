@@ -120,7 +120,7 @@ def how_do_i(cmd_pointer, parser):
     if cmd_pointer.notebook_mode is True:
         return output_text(text, return_val=True, cmd_pointer=cmd_pointer, pad=1, edge=True)
     else:
-        return output_text("\n"+text+"\n", return_val=True, cmd_pointer=cmd_pointer)
+        return output_text("\n"+text+"\n\n", return_val=True, cmd_pointer=cmd_pointer)
 
 # sets the support llm model to use
 def clean_up_llm_text(cmd_pointer,old_text):
