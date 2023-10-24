@@ -8,6 +8,7 @@ body {
 	--ibm-blue-darker: #0043ce;
 	--ibm-black: #393939;
 	--ibm-black-dark: #4c4c4c;
+	--ibm-light-gray: #f4f4f4;
 	--ibm-font-fam: 'IBM Plex Sans', sans-serif;
 	--ibm-font-size: 14px;
 	--ibm-line-height: 18px;
@@ -74,7 +75,7 @@ button.tertiary:hover {
 }
 .ibm-dropdown .ibm-dd-display {
 	height: 40px;
-	background: white;
+	background: var(--ibm-light-gray);
 	position: absolute;
 	left: 0;
 	right: 0;

@@ -323,7 +323,7 @@ def tags_to_markdown(text: str):
     # Restore line breaks.
     text = text.replace('---LINEBREAKSOFT---', '\n')
     text = text.replace('---LINEBREAK3---', '<br>')
-
+    print(33, text)
     return text
 
 
@@ -333,8 +333,17 @@ def tags_to_markdown(text: str):
 # This function is run before we replace \n with <br>, so
 # we replace \n instead of <br>
 def _replace_linebreaks_inside_cmdblocks(text: str, break_str: str):
-    pattern = r'<cmd>([^<]*?)\n([^<]*?)</cmd>'
-    text = re.sub(pattern, rf'<cmd>\1</cmd>{break_str}<cmd>\2</cmd>', text)
+    # First strip outer line breaks, to avoid parsing these:
+    # <cmd>
+    #   foo
+    # </cmd>
+    pattern1 = r'<cmd>(\n)?([^<]*?)(\n)?</cmd>'
+    text = re.sub(pattern1, r'<cmd>\2</cmd>', text)
+
+    # Next replace line breaks inside <cmd> tags.
+    pattern2 = r'<cmd>([^<]*?)\n([^<]*?)</cmd>'
+    while re.search(pattern2, text):
+        text = re.sub(pattern2, rf'<cmd>\1</cmd>{break_str}<cmd>\2</cmd>', text)
     return text
 
 

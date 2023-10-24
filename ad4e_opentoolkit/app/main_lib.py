@@ -491,7 +491,7 @@ def display_data__open(cmd_pointer, parser, edit_mode=False):
 
     # Load routes and launch browser UI.
     data = cmd_pointer.memory['data'].to_json(orient='records')
-    routes = fetchRoutesDataViewer(data)
+    routes = fetchRoutesDataViewer(data, cmd_pointer.notebook_mode)
     hash = '#edit' if edit_mode else ''
     launcher.launch(cmd_pointer, routes, 'dataviewer', hash=hash)
 

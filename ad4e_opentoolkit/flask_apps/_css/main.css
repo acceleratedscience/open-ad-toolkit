@@ -12,6 +12,7 @@ body {
 	--highlight: #fff7cc;
 	--highlight-border: #e5deb8; /* Equivalent of 10% black overlay */
 	--blue: var(--ibm-blue);
+	--light-gray: var(--ibm-light-gray);
 	--blue-30: #b7d0ff; /* Equivalent of 30% ibm-blue */
 	--blue-20: #cfe0ff; /* Equivalent of 20% ibm-blue */
 	--blue-15: #dbe7ff; /* Equivalent of 15% ibm-blue */
@@ -56,7 +57,7 @@ p {
  */
 
 #options {
-	background: #eee;
+	background: var(--light-gray);
 	border-radius: 3px;
 	padding: 20px;
 	margin-bottom: 20px;
@@ -77,6 +78,9 @@ p {
 	margin-top: 0;
 	margin-bottom: 20px;
 	white-space: nowrap;
+}
+#options .ibm-dropdown .ibm-dd-display {
+	background: #fff;
 }
 .multiselect-wrap {
 	display: flex;
