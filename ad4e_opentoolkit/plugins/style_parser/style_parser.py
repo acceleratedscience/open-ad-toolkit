@@ -323,7 +323,6 @@ def tags_to_markdown(text: str):
     # Restore line breaks.
     text = text.replace('---LINEBREAKSOFT---', '\n')
     text = text.replace('---LINEBREAK3---', '<br>')
-    print(33, text)
     return text
 
 
