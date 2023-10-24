@@ -4,7 +4,9 @@
 .tabulator {
 	font-size: var(--font-size);
 	line-height: 20px;
-	--header-bg: #fafafa;
+	--soft-bg: #fafafa;
+	--soft-bg-sel: #ebf1fd; /* --blue-15 + 50% fafafa */
+	--soft-bg-highlight: #fdf9e3; /* --highlight + 50% fafafa */
 }
 
 /* Min cell height - avoids ugliness when resizing rows */
@@ -43,7 +45,7 @@
 	border: none;
 }
 .tabulator .tabulator-header .tabulator-col {
-	background-color: var(--header-bg);
+	background-color: var(--soft-bg);
 	border: solid 1px var(--black-10);
 	border-bottom-color: var(--black-20);
 	z-index: 1;
@@ -150,7 +152,7 @@
 .tabulator .tabulator-row > .tabulator-cell:first-of-type[tabulator-field='Index'],
 .tabulator .tabulator-row > .tabulator-cell:first-of-type[tabulator-field='#'] {
 	color: var(--black-30);
-	background: var(--header-bg);
+	background: var(--soft-bg);
 }
 
 /*
@@ -296,7 +298,6 @@
 .tabulator-row.tabulator-selectable:not(.tabulator-selected):hover {
 	background: transparent;
 }
-
 .tabulator:not(.edit-mode) .tabulator-row.tabulator-selectable:not(.tabulator-selected):hover {
 	background-color: var(--highlight);
 	border-color: var(--highlight-border);
@@ -304,6 +305,12 @@
 }
 .tabulator:not(.edit-mode) .tabulator-row.tabulator-selectable:not(.tabulator-selected):hover .tabulator-cell {
 	border-right-color: var(--highlight-border);
+}
+
+/* Index field */
+.tabulator:not(.edit-mode) .tabulator-row.tabulator-selectable:not(.tabulator-selected):hover > .tabulator-cell:first-of-type[tabulator-field='Index'],
+.tabulator:not(.edit-mode) .tabulator-row.tabulator-selectable:not(.tabulator-selected):hover > .tabulator-cell:first-of-type[tabulator-field='#'] {
+	background: var(--soft-bg-highlight);
 }
 
 /**
@@ -321,6 +328,12 @@
 }
 .tabulator:not(.edit-mode) .tabulator-row.tabulator-selected:hover {
 	background-color: var(--blue-20);
+}
+
+/* Index field */
+.tabulator:not(.edit-mode) .tabulator-row.tabulator-selected > .tabulator-cell:first-of-type[tabulator-field='Index'],
+.tabulator:not(.edit-mode) .tabulator-row.tabulator-selected > .tabulator-cell:first-of-type[tabulator-field='#'] {
+	background: var(--soft-bg-sel);
 }
 
 /**

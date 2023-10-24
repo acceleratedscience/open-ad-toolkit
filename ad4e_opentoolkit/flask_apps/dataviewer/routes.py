@@ -1,6 +1,7 @@
 
 
 import os
+import signal
 import json
 import pandas
 from flask import render_template, request, redirect, url_for
@@ -18,7 +19,7 @@ class TempDummyDmdPointer:
 tempDummyDmdPointer = TempDummyDmdPointer()
 
 
-def fetchRoutesDataViewer(data):
+def fetchRoutesDataViewer(data, notebook_mode):
     def home():
         return render_template('/dataviewer/index.html', data=data)
 
@@ -28,6 +29,12 @@ def fetchRoutesDataViewer(data):
         output_table(df, tempDummyDmdPointer, is_data=True)  # return_value=False only for testing in Jupyter with tempDummyDmdPointer
         return 'Success'
 
+    def success():
+        # Kill server
+        # os.kill(os.getpid(), signal.SIGINT)
+
+        return render_template('/dataviewer/success.html', notebook_mode=notebook_mode)
+
     routes = {
         '/': {
             'func': home,
@@ -36,6 +43,10 @@ def fetchRoutesDataViewer(data):
         '/submit': {
             'func': submit,
             'method': 'POST'
+        },
+        '/success': {
+            'func': success,
+            'method': 'GET'
         },
     }
     return routes

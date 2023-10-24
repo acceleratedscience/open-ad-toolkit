@@ -21,6 +21,11 @@ document.querySelector('#btn-save').addEventListener('click', () => {
 	toggleEditMode(false)
 })
 
+// Submit
+document.querySelector('#btn-submit').addEventListener('click', () => {
+	submitData()
+})
+
 // Display options
 document.querySelector('#btn-options').addEventListener('click', () => {
 	toggleOptions(true)
@@ -91,7 +96,6 @@ document.addEventListener('keydown', e => {
 			document.querySelector('.tabulator-cell.focus').classList.remove('focus')
 			e.preventDefault()
 		} else if (e.key == 'Enter') {
-			console.log(66, row)
 			row.toggleSelect()
 			// table.selectRow($row)
 			// table.toggleEditMode(true)
@@ -121,28 +125,42 @@ const contextMenus = {
 		{
 			label: 'Delete column',
 			action: (e, col) => {
-				col.delete()
+				const field = col.getField()
+				console.log(field, table.options.index)
+				if (field == table.options.index) {
+					let message = `You can't delete the '${field}' column as it's used for identifying the rows.` // %%%
+					if (table.addedIndex) {
+						message += ' It will be removed when you submit the data, unless you change this in the options panel.'
+					} else {
+						message += ' But you can choose not to export it in the options panel.'
+					}
+					alert(message)
+				} else {
+					col.delete()
+				}
 			},
 		},
 	],
 	cell: [
 		{
 			label: 'Edit',
-			action: (e, row) => {
+			action: (e, cell) => {
 				toggleEditMode(true)
-				$row = row.getElement()
+				$row = cell.getElement()
 				$row.click()
 			},
 		},
 		{
 			label: 'Delete row',
-			action: (e, row) => {
+			action: (e, cell) => {
+				row = cell.getRow()
 				row.delete()
 			},
 		},
 		{
 			label: 'Select row',
-			action: (e, row) => {
+			action: (e, cell) => {
+				row = cell.getRow()
 				row.select()
 			},
 		},
@@ -150,14 +168,14 @@ const contextMenus = {
 }
 
 // Parse data
-const data = JSON.parse(document.getElementById('table').getAttribute('data'))
+const dataInput = JSON.parse(document.getElementById('table').getAttribute('data'))
 document.getElementById('table').removeAttribute('data')
 
 // Parse columns
-const columns = parseColumns(data)
+const columns = parseColumns(dataInput)
 
 // Find or create a unique index column
-const { index, addedIndex } = ensureUniqueIndex(data, columns)
+const { index, addedIndex } = ensureUniqueIndex(dataInput, columns)
 
 // Add checkbox column for selection UI
 // columns.unshift({ formatter: 'rowSelection', titleFormatter: 'rowSelection', align: 'center', headerSort: false })
@@ -165,10 +183,9 @@ const { index, addedIndex } = ensureUniqueIndex(data, columns)
 // Create table ##
 const table = new Table('#table', {
 	// Tabulator options
-	data,
+	data: dataInput,
 	columns,
 	index,
-	reactiveData: true,
 	pagination: false,
 	editMode: window.location.hash == '#edit',
 	movableRows: false,
@@ -177,6 +194,12 @@ const table = new Table('#table', {
 
 	// Non-Tabulator options
 	addedIndex,
+
+	// We're not using reactive data because it's
+	// not reflecting deleted rows and is useless.
+	// Instead we run prepDataForExport().
+	// - - -
+	// reactiveData: true,
 
 	// We're not using the built-in selection
 	// mechanism – see onRowClick()
@@ -197,14 +220,22 @@ table.on('tableBuilt', () => {
 	// This is a little hack to prevent all rows to take on the height of the tallest cell.
 	table.redraw(true)
 
-	// Set the "Add index column" dropdown to the correct value.
-	setIndexColDropdown()
+	// %% trash
+	// // Set the "Add index column" dropdown to the correct value.
+	// setIndexColDropdown()
 })
 
 // Controls our homebrewed movableRows
 table.on('cellMouseDown', (e, row) => {
 	table.onCellMouseDown(e, row, onCellClick)
 })
+
+// %% trash
+// table.on('dataSorted', function (sorters, rows) {
+// 	// Ignore when triggered during initiation.
+// 	// Can be recoignized by the empty sorters array.
+// 	if (sorters.length) table.sortChange = true
+// })
 
 // Note: onRowClick is controlled from within onCellClick
 // this way we can control how they play together.
@@ -240,7 +271,8 @@ function parseColumns(data) {
 				sortersAll[key].push('date')
 				row[key] = moment(val_str).format('YYYY-MM-DD') // Reformat dates
 			} else {
-				sortersAll[key].push(typeof val)
+				const type = val === null ? null : typeof val
+				sortersAll[key].push(type)
 			}
 
 			// Set content props
@@ -260,12 +292,13 @@ function parseColumns(data) {
 
 	// Then for the sorters, we check if they're all the same,
 	// and if they are, we set it as the column's sorter.
+	// We ignore blank values.
 	// - - -
 	// Supported sorter can be found here:
 	// https://tabulator.info/docs/5.5/sort#func-builtin
 	const sorters = {}
 	Object.entries(sortersAll).forEach(([key, typesPerRow]) => {
-		if (typesPerRow.every((type, i, arr) => type == arr[0])) {
+		if (typesPerRow.every((type, i, arr) => type == arr[0] || type == null)) {
 			sorters[key] = typesPerRow[0]
 		} else {
 			sorters[key] = 'string'
@@ -358,9 +391,9 @@ function parseColumns(data) {
 			formatter,
 			formatterParams,
 			headerMenu: contextMenus.header,
-			// headerContextMenu: contextMenus.header,
+			headerContextMenu: contextMenus.header,
 			contextMenu: contextMenus.cell, // @@
-			headerSort: true,
+			// headerSort: false, %% trash
 			// headerClick: onHeaderClick, // We use our own sort logic via headerClick - %% trash
 
 			// // This blocks the user from resizing the
@@ -437,18 +470,31 @@ function _pickFormatter(key, needFormatter, contentPropsAll) {
 function ensureUniqueIndex(data, columns) {
 	let index = _findUniqueIndex(data, columns)
 	let addedIndex = false
+	const $dropdownExportIndex = document.getElementById('opt-export-index-col')
 	if (!index) {
-		_addIndexCol(data, columns)
-		index = '#'
+		// Add index column
+		const indexName = _addIndexCol(data, columns)
+		index = indexName
 		addedIndex = true
+	} else {
+		// Use existing index column
+
+		// Set the default value for the "export index column" option in the options panel.
+		// Note: this runs before carbon.js has loaded, otherwise we'd have to update the
+		// value using carbonUi.updateDropdown('#opt-export-index-col', '1')
+		$dropdownExportIndex.value = '1'
+
+		// Make index column non-editable,remove menu and sent to the front.
+		const indexCol = columns.find(col => col.field == index)
+		indexCol.editable = false
+		indexCol.headerMenu = false
+		columns.splice(columns.indexOf(indexCol), 1)
+		columns.unshift(indexCol)
 	}
 
-	// There's an option panel option asking whether
-	// you want to export the index column, but this
-	// is irrelevant if no index column was added.
-	if (!addedIndex) {
-		document.getElementById('export-index-option').remove()
-	}
+	// Update dropdown label to reflect the index column's name.
+	const $dropdownLabel = $dropdownExportIndex.parentElement.querySelector('.ibm-label-txt')
+	$dropdownLabel.innerHTML = $dropdownLabel.innerHTML.replace(/index/, `'${index}'`)
 
 	return { index, addedIndex }
 }
@@ -460,14 +506,14 @@ function _findUniqueIndex(data, columns) {
 	// Check for 'index' column (case-insensitive)
 	if (fields.includes('index')) {
 		const field = columns[fields.indexOf('index')]['field']
-		if (_areColumnValuesUnique(field, data)) {
+		if (_areColumnValuesIncrementalIndex(field, data)) {
 			return field
 		}
 	}
 
 	// Check for '#' column
 	if (fields.includes('#')) {
-		if (_areColumnValuesUnique('#', data)) {
+		if (_areColumnValuesIncrementalIndex('#', data)) {
 			return '#'
 		}
 	}
@@ -475,31 +521,78 @@ function _findUniqueIndex(data, columns) {
 	return false
 }
 
-// Check if the values of a certain column are unique
-function _areColumnValuesUnique(field, data) {
-	for (let i in data) {
-		const val = data[i][field]
-		for (let j in data) {
-			if (i != j && val == data[j][field]) {
-				return false
-			}
-		}
-	}
-	return true
+// Check if the values of a suspected index column are incremental.
+// Can start from any number but needs to be consecutive to be valid.
+function _areColumnValuesIncrementalIndex(field, data) {
+	return false // For testing $$
+	const values = data.map(row => +row[field])
+	const valuesSorted = [...values].sort((a, b) => a - b)
+	const firstValue = +valuesSorted[0]
+	if (typeof firstValue != 'number') return false
+	return valuesSorted.every((val, i) => val == i + firstValue)
 }
 
-// Add index column if none is found
+// %% trash
+// // Check if the values of a certain column are unique
+// function _areColumnValuesUnique(field, data) {
+// 	for (let i in data) {
+// 		const val = data[i][field]
+// 		for (let j in data) {
+// 			if (i != j && val == data[j][field]) {
+// 				return false
+// 			}
+// 		}
+// 	}
+// 	return true
+// }
+
+// Add index column if none is found.
+// This will usually be '#' but we gotta make sure there's no conflict.
 function _addIndexCol(data, columns) {
+	// Find a unique name for the index column that is not already taken.
+	const fields = columns.map(col => col['field'].toLowerCase())
+	const indexNameOptions = ['#', 'index', 'idx', 'nr', '*', '-']
+	let i = 0
+	let indexName = indexNameOptions[i]
+	while (fields.includes(indexName)) {
+		i++
+		indexName = indexNameOptions[i]
+	}
+
+	// Add index column.
 	data.forEach((row, i) => {
-		row['#'] = i + 1
+		row[indexName] = i + 1
 	})
 
 	columns.unshift({
 		sorter: 'number',
-		title: '#',
-		field: '#',
+		title: indexName,
+		field: indexName,
+		headerContextMenu: contextMenus.header,
+		contextMenu: contextMenus.cell,
 	})
+
+	return indexName
 }
+
+//#endregion
+
+/////////////////////////////////
+// #region - Data modification
+
+// %% trash
+// Delete column and all its data
+// function deleteColumn(col) {
+// 	const data = table.getData()
+// 	const field = col.getField()
+// 	col.delete()
+// 	data.forEach(row => {
+// 		delete row[field]
+// 	})
+// 	table.setData(data)
+// }
+
+//#endregion
 
 /////////////////////////////////
 // #region - Table interaction
@@ -815,13 +908,82 @@ function isDate(str, log) {
 	}
 }
 
-// Set the "Add index column" dropdown to the correct value.
-function setIndexColDropdown() {
-	if (table.addedIndex) {
-		document.getElementById('opt-add-index-col').querySelector('option[value="1"]').selected = true
-	} else {
-		document.getElementById('opt-add-index-col').querySelector('option[value="0"]').selected = true
-	}
-}
+// %% Trash
+// // Set the "Add index column" dropdown to the correct value.
+// function setIndexColDropdown() {
+// 	if (table.addedIndex) {
+// 		document.getElementById('opt-add-index-col').querySelector('option[value="1"]').selected = true
+// 	} else {
+// 		document.getElementById('opt-add-index-col').querySelector('option[value="0"]').selected = true
+// 	}
+// }
 
 // #endregion
+
+/////////////////////////////////
+// #region - Submit data
+
+function submitData() {
+	const data = prepDataForExport()
+
+	// Create a new XMLHttpRequest object
+	var xhr = new XMLHttpRequest()
+
+	// Define the request method and URL.
+	xhr.open('POST', '/submit', true)
+
+	// Set up a callback function to handle the response.
+	xhr.onload = function () {
+		if (xhr.status === 200) {
+			// Success
+			window.location.href = `/success` // ?data=${data}
+		} else {
+			// Error
+			alert('Submit request failed with status code ' + xhr.status)
+		}
+	}
+
+	// Send the request
+	xhr.send(JSON.stringify(data))
+}
+
+// When deleting a column, the data of this column is not deleted.
+// So before we submit the data, we have to first filter it by the
+// columns that are still present in the table.
+function prepDataForExport() {
+	let data = table.getData()
+	const fields = table.getColumns().map(col => col.getField())
+
+	// Remove deleted column data.
+	data.forEach(row => {
+		Object.keys(row).forEach(key => {
+			if (!fields.includes(key)) {
+				delete row[key]
+			}
+		})
+	})
+
+	// Remove index column per the opt-export-index-col options.
+	// Note: The default value will be false if the index column
+	// was added by us, and true if it was already present.
+	const includeIndex = Boolean(+document.getElementById('opt-export-index-col').value)
+	if (!includeIndex) {
+		const indexName = table.options.index
+		data.forEach(row => {
+			delete row[indexName]
+		})
+	}
+
+	// Reorder data to match the order of the columns.
+	data = data.map(row => {
+		const newRow = {}
+		fields.forEach(field => {
+			newRow[field] = row[field]
+		})
+		return newRow
+	})
+
+	return data
+}
+
+//#endregion

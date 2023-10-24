@@ -134,10 +134,12 @@ class Table extends Tabulator {
 	toggleEditMode(bool, revertChanges) {
 		this.editMode = bool == undefined ? !this.editMode : bool
 		if (this.editMode) {
+			// ENTER
 			this.storeData() // Store data so we can revert on cancel
 			this.element.classList.add('edit-mode')
 			history.pushState('', document.title, window.location.pathname + window.location.search + '#edit') // Add hash
 		} else {
+			// EXIT
 			if (revertChanges) this.revertData()
 			this.element.classList.remove('edit-mode')
 			history.pushState('', document.title, window.location.pathname + window.location.search) // Remove hash
@@ -153,7 +155,7 @@ class Table extends Tabulator {
 	async revertData() {
 		if (this.hasEdits(this.dataBeforeEdit, this.getData())) {
 			const selectedRows = await this.getSelectedRows()
-			const selectedRowsIndexes = selectedRows.map(row => row.getPosition())
+			const selectedRowsIndexes = selectedRows.map(row => row.getIndex())
 			this.setData(this.dataBeforeEdit)
 			this.redraw()
 
@@ -177,27 +179,29 @@ class Table extends Tabulator {
 		return false
 	}
 
-	// Recreate the built in sort
-	sort(col) {
-		// We block sorting while in edit mode, because we reset the selection
-		// on revertData() and sorting breaks this. However, this is not a good
-		// solution, instead we should detect if the data was sorter, and not
-		// reselect the rows if it was.
-		if (this.editMode) {
-			alert('Please exit edit mode before sorting.')
-			return
-		}
-		const colName = col.getField()
-		const $col = col.getElement()
-		const sortOrder = $col.getAttribute('aria-sort') == 'ascending' ? 'desc' : 'asc'
-		$col.classList.add('sortable', `sort-${sortOrder}`)
-		this.setSort(colName, sortOrder)
-	}
+	// // %% trash
+	// // Recreate the built in sort
+	// sort(col) {
+	// 	// We block sorting while in edit mode, because we reset the selection
+	// 	// on revertData() and sorting breaks this. However, this is not a good
+	// 	// solution, instead we should detect if the data was sorted, and not
+	// 	// reselect the rows if it was.
+	// 	// if (this.editMode) {
+	// 	// 	alert('Please exit edit mode before sorting.')
+	// 	// 	return
+	// 	// }
+	// 	const colName = col.getField()
+	// 	const $col = col.getElement()
+	// 	const sortOrder = $col.getAttribute('aria-sort') == 'ascending' ? 'desc' : 'asc'
+	// 	$col.classList.add('sortable', `sort-${sortOrder}`)
+	// 	this.setSort(colName, sortOrder)
+	// 	console.log('$')
+	// }
 
 	// Homebrewed version of movableRows.
 	// - - -
 	// We had to build our own because the build-in movableRows
-	// can't be made consitional, and it creates undesrieable
+	// can't be made conditional, and it creates undesireable
 	// side effects in edit mode. Specifically, it will interfere
 	// with the textarea resize handle.
 	onCellMouseDown(clickEvent, cell, onCellClick) {
@@ -323,7 +327,8 @@ class Table extends Tabulator {
 			document.removeEventListener('mouseup', _onMouseUp)
 
 			// If no dragging occured, it's a click
-			if (!dragging) {
+			const contextMenuActive = document.querySelector('.tabulator-menu')
+			if (!dragging && !contextMenuActive) {
 				onCellClick(clickEvent, cell)
 				return
 			}
@@ -332,19 +337,16 @@ class Table extends Tabulator {
 			$row.classList.remove('while-dragging')
 
 			const data = table.getData()
-			console.log(table.getData())
-			// console.log('')
-			console.log(data.map(itm => itm.Index))
 			const currentPos = row.getPosition() - 1
 			const newPos = currentPos + jump
 			data.splice(newPos, 0, data.splice(currentPos, 1)[0])
 			table.updateData(data)
-			console.log(currentPos, '-->', newPos)
-			console.log(data.map(itm => itm.Index))
-			console.log(data)
 
 			// Debug
-			if (debug) {
+			if (debug && $reference1 && $reference2) {
+				console.log(currentPos, '-->', newPos)
+				console.log(data.map(itm => itm.Index))
+				console.log(data)
 				$reference1.remove()
 				$reference2.remove()
 			}
