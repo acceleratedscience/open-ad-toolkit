@@ -197,23 +197,6 @@ def next_avail_port(port=5000, host='127.0.0.1'):
     return port, host
 
 
-# Convert CSV data to JSON.
-def csv_to_json(csv_data):
-    import csv
-    import json
-
-    print(111, csv_data)
-
-    # # Read the CSV file
-    # with open('yourfile.csv', 'r') as csv_file:
-    #     csv_reader = csv.DictReader(csv_file)
-    #     data = [row for row in csv_reader]
-
-    # # Convert to JSON and save to a file
-    # with open('output.json', 'w') as json_file:
-    #     json.dump(data, json_file)
-
-
 #
 #
 #
