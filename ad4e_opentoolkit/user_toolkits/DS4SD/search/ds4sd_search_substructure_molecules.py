@@ -63,14 +63,15 @@ def search_substructure_molecules(inputs: dict,cmd_pointer):
     output_text(inputs['smiles'] ,cmd_pointer=cmd_pointer, return_val=False )
     
     if cmd_pointer.notebook_mode is True:
+        from IPython.display import display
         if valid_smiles(inputs['smiles']):
             try:
                 smiles_mol = Chem.MolFromSmiles(inputs['smiles'])
             except Exception as e: # pylint: disable=broad-exception-caught
                 output_error("Error with rdkit verification of smiles:"+str(e),cmd_pointer=cmd_pointer,return_val=False)
-            from IPython.display import display
+                return False
+            
             display(smiles_mol)
-        
         df= pd.DataFrame(results_table)
         col = df.pop('SMILES')
         df.insert(0, col.name, col)

@@ -72,7 +72,7 @@ def execute_tookit(cmd_pointer, parser):
         
         logging.info('Executing ' + cmd_pointer.toolkit_current.methods[index] + ' From ' + cmd_pointer.toolkit_current.methods_library[index])
         try:
-            x = func(parser.as_dict(), _meta_workspaces + '/' + cmd_pointer.settings['workspace'], cmd_pointer)
+            x = func(parser.as_dict(), cmd_pointer)
             logging.info('Executed ' + cmd_pointer.toolkit_current.methods[index] + ' From ' + cmd_pointer.toolkit_current.methods_library[index])
             return x
         except BaseException as err:

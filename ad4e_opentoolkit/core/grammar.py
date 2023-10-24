@@ -642,10 +642,9 @@ def from_builder(options: list) -> str:
     # elif len(option_exp) ==1:
     #    clause=clause+option_exp[0]
     else:
-        raise ("invalid 'From' clause structure")
+        raise Exception("invalid 'From' clause structure")
 
     return clause
-
 
 def statement_builder(toolkit_pointer, statement):
     #####################################################################
@@ -672,10 +671,9 @@ def statement_builder(toolkit_pointer, statement):
         if 'from' in statement:
             if len(statement['from']) > 0:
                 expression = expression + '+' + (from_builder(statement['from'])) + "('from_source')"
-
-        if statement['USING'] is not None and len(statement['USING']) > 0:
-            expression = expression + '+ Optional( (CaselessKeyword ("USING")+ Suppress("(") +' + optional_parameter_list(statement, 'USING') + '+Suppress(")") )("USING"))'
-
+        if 'USING' in statement:
+            if statement['USING'] is not None and len(statement['USING']) > 0:
+                expression = expression + '+ Optional( (CaselessKeyword ("USING")+ Suppress("(") +' + optional_parameter_list(statement, 'USING') + '+Suppress(")") )("USING"))'
         if "RETURN_AS_DATA" in statement:
             expression = expression + '+ Optional(Suppress(CaselessKeyword ("return")) + Suppress(CaselessKeyword ("as"))+Suppress(CaselessKeyword ("data")))("return_as_data") '
 
@@ -701,20 +699,32 @@ def statement_builder(toolkit_pointer, statement):
         a_char = ' '
         for i in statement['command'].split():
 
-            expression = expression + a_char + ' CaselessKeyword ("' + i + '")'
+            if i =='<in_clause>' and 'in_clause' in statement:
+                for in_clause in statement['in_clause']: 
+                    expression = expression + a_char + ' CaselessKeyword ("' + in_clause + '")'
+                    if statement['in_clause'][in_clause] == 'desc':
+                        expression = expression + a_char + ' desc("'+in_clause+'")' 
+                    if statement['in_clause'][in_clause] == 'str':
+                        expression = expression + a_char + ' Word(alphas, alphanums + "_")('+in_clause+')' 
+            else:    
+                expression = expression + a_char + ' CaselessKeyword ("' + i + '")'
+
             if a_char == ' ':
                 a_char = ' + '
+
         expression = expression + " +desc('val')('" + statement['subject'] + "') "
+        
         ####################################################################################################
         #
         # "USING" clase specifies any indexes, attributes or other services that optionally can be used
         # currently if a field is mandatory this will need to be picked up in the toolkit program
         # e.g. Using index_type="arxiv" contstraint=chemicals maxhops=1
         ####################################################################################################
-        if statement['USING'] is not None:
-            expression = expression + '+ (CaselessKeyword ("USING")+ Suppress("(") +' + \
-                optional_parameter_list(
-                    statement, 'USING') + '+Suppress(")") )("USING")'
+        if 'USING' in statement:
+            if statement['USING'] is not None  and len(statement['USING']) > 0:
+                expression = expression + '+  Optional(CaselessKeyword ("USING")+ Suppress("(") +' + \
+                    optional_parameter_list(
+                         statement, 'USING') + '+Suppress(")") )("USING")'
         ######################################################################################################
         #
         # Show (<data_types>) is to specify what data to retrieve.
@@ -757,16 +767,16 @@ def statement_builder(toolkit_pointer, statement):
 
         toolkit_pointer.methods_dict.append(statement)
 
-        # Clause Amendment
-        clause_Amendment = ''
+        ####### Clause Amendment
+        clause_Amendment=''
         if 'USING' in statement:
             if statement['USING'] is not None:
-                clause_Amendment = clause_Amendment + '\n\n NOTE: The Using Clause Requires all the Parameters added to the Using Clause be in the defined order as per in the above help documentation'
+                clause_Amendment=clause_Amendment+'\n\n NOTE: The Using Clause Requires all the Parameters added to the Using Clause be in the defined order as per in the above help documentation'
 
-        if clause_Amendment != '':
-
-            statement['help']['description'] = statement['help']['description'] + clause_Amendment
-
+        if clause_Amendment!= '':
+            
+            statement['help']['description']=statement['help']['description']+clause_Amendment
+            
         toolkit_pointer.methods_help.append(statement['help'])
 
     except BaseException as err:
@@ -774,7 +784,6 @@ def statement_builder(toolkit_pointer, statement):
         output_error(msg('err_add_command', statement['command'], fwd_expr, err, split=True))
 
     return True
-
 
 def oneormore_str(options: list):
     expression = ' OneOrMore('

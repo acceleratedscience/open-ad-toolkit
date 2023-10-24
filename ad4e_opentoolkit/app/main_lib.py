@@ -330,25 +330,24 @@ def set_context(cmd_pointer, parser):
 
             except BaseException as err:
                 # Error logging in.
-                output_error(msg('err_login', toolkit_name,
-                             err, split=True), cmd_pointer)
+                output_error(msg('err_login', toolkit_name,err, split=True), cmd_pointer=cmd_pointer,return_val=False)
                 cmd_pointer.settings['context'] = old_cmd_pointer_context
                 cmd_pointer.toolkit_current = old_toolkit_current
                 return
 
             if not login_success:
-                # Failed to log in.
-                output_error(msg('err_login', toolkit_name,
-                             split=True), cmd_pointer)
+                # Failed to log in. # error reporting handled by Toolkit 
                 cmd_pointer.settings['context'] = old_cmd_pointer_context
                 cmd_pointer.toolkit_current = old_toolkit_current
+                unset_context(cmd_pointer,None)
                 return
 
             # Success switching context & loggin in.
-            if cmd_pointer.notebook_mode or cmd_pointer.api_mode:
-                return output_success(msg('success_login', toolkit_name, expiry_datetime, split=True), cmd_pointer)
-            else:
-                return output_text(splash(toolkit_name, cmd_pointer), nowrap=True)
+            if old_cmd_pointer_context !=cmd_pointer.settings['context']:
+                if cmd_pointer.notebook_mode or cmd_pointer.api_mode:
+                    return output_success(msg('success_login', toolkit_name, expiry_datetime, split=True), cmd_pointer=cmd_pointer,return_val=False)
+                else:
+                    return output_text(splash(toolkit_name, cmd_pointer), nowrap=True)
 
         else:
             # Failed to load the toolkit

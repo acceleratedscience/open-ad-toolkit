@@ -6,13 +6,13 @@ import logging
 import sys
 import readline
 import re
-import ad4e_opentoolkit.app.login_manager
+from ad4e_opentoolkit.app import login_manager
 import string
 import uuid
 from cmd import Cmd
 
 # Main
-from ad4e_opentoolkit.app.main_lib import lang_parse, initialise, set_context
+from ad4e_opentoolkit.app.main_lib import lang_parse, initialise, set_context, unset_context
 from ad4e_opentoolkit.toolkit.toolkit_main import load_toolkit
 
 # Core
@@ -20,7 +20,6 @@ import ad4e_opentoolkit.core.help as openad_help
 from ad4e_opentoolkit.core.grammar import grammar_help, statements, statements_def, create_statements, output_train_statements
 from ad4e_opentoolkit.core.lang_sessions_and_registry import write_registry, load_registry, delete_session_registry
 from ad4e_opentoolkit.core.lang_workspaces import set_workspace
-import ad4e_opentoolkit.app.login_manager as login_manager
 
 # Helpers
 from ad4e_opentoolkit.helpers.general import singular, confirm_prompt
@@ -30,7 +29,7 @@ from ad4e_opentoolkit.helpers.splash import splash
 from ad4e_opentoolkit.helpers.output_content import info_workspaces, info_toolkits, info_runs, info_context
 
 # Globals
-from ad4e_opentoolkit.app.global_var_lib import _repo_dir as _repo_dir
+from ad4e_opentoolkit.app.global_var_lib import _repo_dir
 from ad4e_opentoolkit.app.global_var_lib import _meta_dir as _meta_dir
 from ad4e_opentoolkit.app.global_var_lib import _meta_workspaces as _meta_workspaces
 from ad4e_opentoolkit.app.global_var_lib import _meta_login_registry as _meta_login_registry
@@ -157,8 +156,13 @@ class run_cmd(Cmd):
                 self.settings['workspace'].upper()) + '/.cmd_history')
 
         if self.settings['context'] is not None:
-            login_manager.load_login_api(self, self.settings['context'])
-
+            success, expiry = login_manager.load_login_api(self, self.settings['context'])
+            if success is False:
+                self.settings['context'] = None
+                self.toolkit_current = None
+                unset_context(self, None)
+                self.prompt = refresh_prompt(self.settings)
+                output_text("Unable to set context on Login, defaulting to no context set.", self, return_val=False)    
         try:
             if self.settings['env_vars']['refresh_help_ai'] == True:
                 self.refresh_vector = True
@@ -264,13 +268,13 @@ class run_cmd(Cmd):
 
         # Then list commands starting with the input string.
         for command in all_commands:
-            if re.match(inp, command['command']) \
+            if re.match(re.escape(inp), command['command']) \
                     and command not in matching_commands['match_word']:
                 matching_commands['match_start'].append(command)
 
-        # Then list command containing the input string.
+        # Then list commands containing the input string.
         for command in all_commands:
-            if re.search(inp, command['command']) \
+            if re.search(re.escape(inp), command['command']) \
                     and command not in matching_commands['match_word'] \
                     and command not in matching_commands['match_start']:
                 matching_commands['match_anywhere'].append(command)
@@ -499,7 +503,7 @@ class run_cmd(Cmd):
                 # Brutal situation where someone hit clear sessions in another session, shut down abruptly so as not to kill registry file.
                 print('Fatal error: the session registry is not avaiable, performing emergency shutdown')
                 self.do_exit('exit emergency')
-
+            
             y = self.current_statement_defs.parseString(convert(inp), parseAll=True)
             x = lang_parse(self, y)
 
@@ -512,7 +516,7 @@ class run_cmd(Cmd):
                 self.preserve_memory['data'] = False
             else:
                 self.memory['data'] = None
-        except BaseException as err1:
+        except Exception as err1:
             # Removing due to usability being able to recall item and correct:
             # try:
             #    readline.remove_history_item(readline.get_current_history_length()-1) # Does not save an incorrect instruction
@@ -680,8 +684,8 @@ def api_remote(inp: str, connection_cache: dict = _meta_login_registry, api_cont
             api_context['toolkit'] = magic_prompt.settings['context']
 
             magic_prompt.do_exit('dummy do not remove')
-
-            return result
+            if result is not True and result is not False:
+                return result
 
 
 def cmd_line():

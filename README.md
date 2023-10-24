@@ -7,6 +7,17 @@
 
 <br>
 
+## Table of Contents
+
+- [Installation](#installation)
+- [Getting Started - CLI](#getting-started---cli)
+- [Getting Started - Jupyter ](#getting-started---cli)
+- [Getting Access to RXN, DS4SD and Tell Me Functionality](#getting-access-to-rxn-ds4sd-and-tell-me-functionality)
+- [Installation for Development](#installation-for-development)
+- [Testing a Branch](#testing-a-branch)
+
+<br>
+
 ## Notes
 
 -   Only available for Linux and MacOS
@@ -132,9 +143,9 @@ If you plan to use this application inside Jupyter Notebook of JupyterLab, you s
 
         %openad list files
 
--   An example magic comands to play with Deep Search:<br>
+-   An example magic comands to play with DS4SD:<br>
 
-        %openad exec display_collection(domain='Material Science')
+        %openad display all collections
 
 -   An example magic commands to play with RXN
 
@@ -142,32 +153,31 @@ If you plan to use this application inside Jupyter Notebook of JupyterLab, you s
 
 <br>
 
-## Getting Access to RXN, DeepSearch and Tell Me Functionality
+## Getting Access to RXN, DS4SD and Tell Me Functionality
 
 Below you find login instructions for RXN and DeepSearch. If you choose to use the `Tell Me` function, you will also need to obtain a OpenAI API account.<br>
 
 <br>
 
-### DeepSearch
+### DS4SD (DeepSearch)
 
 1. First, you'll need to generate an API key on the DeepSearch website.
 
-    - **IBM Users:** Activate the Cisco Secure Client VPN to access the IBM-internal edge version of DeepSearch: [cps.foc-deepsearch.zurich.ibm.com](https://cps.foc-deepsearch.zurich.ibm.com)
-    - **Non-IBM Users:** Access the public version of DeepSearch: [deepsearch-experience.res.ibm.com](https://deepsearch-experience.res.ibm.com)
-    - Once logged in, click the Toolkit/API icon, then open the HTTP section
+    - Visit the DeepSearch website and create an account: [deepsearch-experience.res.ibm.com](https://deepsearch-experience.res.ibm.com)<br>
+    - Once logged in, click the Toolkit/API icon in the top right hand corner, then open the HTTP section
     - Click the "Generate new API key" button<br>
       <br>
       ![Landing](readme/ds4sd-api-key.png)
 
-1. When setting the context to DeepSearch using `set context ds4sd` you'll be prompted to create a new auth configuration file:
+1. Once inside the OpenAD client, you'll be prompted to authenticate when activating the DeepSearch (DS4SD) toolkit. When running `set context ds4sd` :
 
-    - **Hostname:** [https://cps.foc-deepsearch.zurich.ibm.com](https://cps.foc-deepsearch.zurich.ibm.com)<br>
-    - **Email:** Your IBM email<br>
-    - **API_key:** The DS4SD API key you obtained following the instructions above.
+    - **Hostname:** [https://sds.app.accelerate.science](https://sds.app.accelerate.science)
+    - **Email:** Your IBM email
+    - **API_key:** The DS4SD API key you obtained following the instructions above.<br>
+        
+        > **Note:** Your DS4SD auth config file is saved as `~/.openad/ds-auth.ext-v2.json`. If you ever want to reset your DS4SD login information, simply delete this file.<br>
 
 1. You should get a message saying you successfully logged in.
-
-    > **Note:** Your DS4SD auth config file is saved as `~/.openad/ds-auth.ext-v2.json`. If you ever want to reset your DS4SD login information, simply delete this file.<br>
 
 <br>
 
@@ -185,7 +195,7 @@ Below you find login instructions for RXN and DeepSearch. If you choose to use t
     - **Hostname:** [https://rxn.app.accelerate.science](https://rxn.app.accelerate.science)<br>
     - **API_key:** The RXN API key you obtained following the instructions above.
 
-1. You should get a message saying you successfully logged in.
+1. You should get a message saying you successfully logged in.<br>
 
     > **Note:** Your RXN auth config file is saved as `~/.openad/rxn-auth.ext-v2.json`. If you ever want to reset your RXN login information, simply delete this file. You can also do this by running `set context ds4sd reset`<br>
 
@@ -226,17 +236,22 @@ Only follow these instructions if you're contributing to the codebase.
 1.  **Step 2: Installation**<br>
     [Download](https://github.ibm.com/Accelerated-Discovery/ad4e-opentoolkit) or clone the right branch from GitHub:
 
-         git clone -b <branch_name> git@github.ibm.com:Accelerated-Discovery/ad4e-opentoolkit.git
+        git clone -b main git@github.ibm.com:Accelerated-Discovery/ad4e-opentoolkit.git
+
+    > **Note:** To clone a particular branch, replace `main` with your branch name.
 
     Then, enter the repo's top directory and install the requirements
 
-         cd ad4e-opentoolkit
-         pip install -e .
+        cd ad4e-opentoolkit
+        pip install -e .
 
     > **Note:** The `-e` flag stands for "editable". This means that instead of copying the package's files to the Python site-packages directory as in a regular installation, pip creates a symbolic link (symlink) from your package's source code directory into your Python environment.<br><br>
     > This way you can make changes to the source code of the package, and those changes are immediately reflected in your Python environment. You don't need to reinstall the package every time you make a change.
 
-**Testing a branch**<br>
+<br>
+
+## Testing a branch
+
 To do a regular install from a particular branch, you can run:
 
     pip install git+ssh://git@github.ibm.com/Accelerated-Discovery/ad4e-opentoolkit.git@<branch_name>

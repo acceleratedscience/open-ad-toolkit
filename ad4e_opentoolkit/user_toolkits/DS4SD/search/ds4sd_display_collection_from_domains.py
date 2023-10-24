@@ -17,6 +17,8 @@ def display_all_collections(inputs: dict,cmd_pointer):
         collections = api.elastic.list()
     except Exception as e: # pylint: disable=broad-exception-caught
         output_error("Error in calling deepsearch:"+str(e),cmd_pointer=cmd_pointer,return_val=False)
+        return False
+    
     collections.sort(key=lambda c: c.name.lower())
     from_list=[]
     if isinstance(inputs['from_source'],dict) and inputs['from_source']['from_list'] !=None:
@@ -55,7 +57,7 @@ def display_all_collections(inputs: dict,cmd_pointer):
                     i=i+1
             if i > 0:
                 filtered_list.append(x)
-        results=filtered_list     
+        results = filtered_list     
 
     if 'save_as' in inputs:
         results_file = str(inputs['results_file'])
