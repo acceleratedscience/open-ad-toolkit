@@ -23,7 +23,7 @@ def uri_valid(url:str)->bool:
     """checks if a uri is valid"""
     try:
         request = requests.get(url, stream=True, timeout=10)
-    except:# pylint: disable=bare-except
+    except:  # pylint: disable=bare-except
         return False
     if request.status_code == 200:
         return True
@@ -31,14 +31,14 @@ def uri_valid(url:str)->bool:
         return False
 def login(cmd_pointer):
     """Logs the Framework into the DS4SD service as defined by the user"""
-    cred_file   =   os.path.expanduser(f'{cmd_pointer.home_dir}/deepsearch_api.cred')
+    cred_file = os.path.expanduser(f'{cmd_pointer.home_dir}/deepsearch_api.cred')
 
     if not os.path.isfile(cred_file):
         login_reset = True
     else:
-        login_reset= False
+        login_reset = False
 
-    first_login =False
+    first_login = False
 
     if 'DS4SD' not in cmd_pointer.login_settings['toolkits']:
         cmd_pointer.login_settings['toolkits'].append('DS4SD')
@@ -47,7 +47,7 @@ def login(cmd_pointer):
         cmd_pointer.login_settings['client'].append(None)
         cmd_pointer.login_settings['expiry'].append(None)
         x = cmd_pointer.login_settings['toolkits'].index('DS4SD')
-        first_login =True
+        first_login = True
     elif login_reset is False:
         now = datetime.now(timezone.utc)
         x = cmd_pointer.login_settings['toolkits'].index('DS4SD')
@@ -60,8 +60,8 @@ def login(cmd_pointer):
 
     cred_config=get_creds(cred_file,cmd_pointer)
 
-    if cred_config['host'].strip() =='':
-        cred_config['host']=DEFAULT_URL
+    if cred_config['host'].strip() == '':
+        cred_config['host'] = DEFAULT_URL
     if uri_valid(cred_config['host']) is False:
         output_error("Invalid URL Provided please check URL or VPN and try again", cmd_pointer=cmd_pointer, return_val=False)
         return False
