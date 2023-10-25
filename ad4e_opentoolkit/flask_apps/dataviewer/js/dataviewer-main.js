@@ -74,13 +74,15 @@ document.querySelector('#reset-links .reset-col-width').addEventListener('click'
 
 // Key handlers
 document.addEventListener('keydown', e => {
-	$cell = document.querySelector('.tabulator-cell.focus')
-	$row = $cell ? $cell.closest('.tabulator-row') : null
-	row = $row ? table.getRow($row) : null
+	const inputInFocus = e.target.tagName.toLowerCase() == 'input' || e.target.tagName.toLowerCase() == 'textarea'
+	if (inputInFocus) {
+		console.log('#')
+		return
+	}
 
-	// const rowIndex = $row ? Array.from($row.parentNode.querySelectorAll('.tabulator-row')).indexOf($row) : null
-	// cellName = $cell ? $cell.getAttribute('tabulator-field') : null
-	// row = $cell ? $cell.getRow() : null
+	const $cell = document.querySelector('.tabulator-cell.focus')
+	const $row = $cell ? $cell.closest('.tabulator-row') : null
+	const row = $row ? table.getRow($row) : null
 
 	// Copy focused cell content on cmd + C
 	if ($cell && e.key == 'c' && (e.metaKey || e.ctrlKey)) {
@@ -163,11 +165,15 @@ const table = new Table('#table', {
 	movableColumns: true,
 	rowRange: 'active', // Master checkbox will only select filtered rows
 
+	// Disable built-in keybindings, we need more
+	// advanced logic. See 'keydown' event listener.
+	keybindings: false,
+
 	// Non-Tabulator options
 	addedIndex,
 
 	// We're not using reactive data because it's
-	// not reflecting deleted rows and is useless.
+	// not reflecting deleted rows and thus useless.
 	// Instead we run prepDataForExport().
 	// - - -
 	// reactiveData: true,
@@ -183,7 +189,7 @@ const table = new Table('#table', {
 	// also because we can't reset the row height
 	// the same way as we do with the columns.
 	// - - -
-	// resizableRows: true, // Disabling beca
+	// resizableRows: true,
 })
 
 // Pass table reference to context menus

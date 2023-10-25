@@ -240,12 +240,16 @@ body {
 
 /* Copy feedback blink */
 .tabulator-cell.copied,
-.tabulator-row.copied .tabulator-cell {
+.tabulator-cell.copied a,
+.tabulator-row.copied .tabulator-cell,
+.tabulator-row.copied .tabulator-cell a {
 	animation: blink 0.14s 2;
 	color: #090;
 }
 .tabulator-cell:not(.copied),
-.tabulator-row:not(.copied) .tabulator-cell {
+.tabulator-cell:not(.copied) a,
+.tabulator-row:not(.copied) .tabulator-cell,
+.tabulator-row.copied .tabulator-cell a {
 	transition: color 0.5s;
 }
 
@@ -476,7 +480,6 @@ body {
 }
 .tabulator-row .tabulator-cell.tabulator-editing input {
 	height: calc(100% + 2px) !important;
-	padding-top: 2px !important;
 }
 .tabulator-row .tabulator-cell.tabulator-editing textarea {
 	min-height: calc(100% + 1px);
@@ -487,6 +490,14 @@ body {
 .tabulator-row .tabulator-cell.tabulator-editing:first-of-type select {
 	width: 100% !important;
 	margin-left: 0 !important;
+}
+
+/**
+ * Links
+ */
+#table.edit-mode a {
+	color: var(--black);
+	pointer-events: none;
 }
 
 /* Validation yet to be implemented */
