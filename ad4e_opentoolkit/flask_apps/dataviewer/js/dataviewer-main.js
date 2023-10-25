@@ -1,3 +1,5 @@
+// To disable the context menu (for HTML inspecting), uncomment the line with the @@ comment.
+
 /////////////////////////////////
 // #region - Event listeners
 
@@ -35,8 +37,8 @@ function dispatchSelectionAction(e) {
 	const action = e.target.value
 	if (action == 'delete') {
 		contextMenus.deleteSelected()
-	} else if (action == 'prune') {
-		contextMenus.pruneSelected()
+	} else if (action == 'keep') {
+		contextMenus.keepSelected()
 	} else if (action == 'copy') {
 		contextMenus.copySelected()
 	} else if (action == 'download') {
@@ -76,7 +78,7 @@ document.querySelector('#reset-links .reset-col-width').addEventListener('click'
 document.addEventListener('keydown', e => {
 	const inputInFocus = e.target.tagName.toLowerCase() == 'input' || e.target.tagName.toLowerCase() == 'textarea'
 	if (inputInFocus) {
-		console.log('#')
+		// console.log('#')
 		return
 	}
 

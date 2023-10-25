@@ -16,7 +16,7 @@ class ContextMenus {
 		this.table = table
 		this.editAction = {
 			label: 'Edit',
-			action: this.editCell,
+			action: this.editCell.bind(this),
 			disabled: cell => {
 				const table = cell.getTable()
 				// When the dataset includes an index column, we set
@@ -92,7 +92,7 @@ class ContextMenus {
 			{
 				label: 'Delete row',
 				action: (e, cell) => {
-					row = cell.getRow()
+					const row = cell.getRow()
 					row.delete()
 				},
 			},
@@ -110,12 +110,12 @@ class ContextMenus {
 				action: this.deleteSelected.bind(this),
 			},
 			{
-				label: 'Prune selected',
-				action: this.pruneSelected.bind(this),
+				label: 'Keep selected',
+				action: this.keepSelected.bind(this),
 			},
 			{
 				label: 'Copy selected',
-				action: this.copySelected,
+				action: this.copySelected.bind(this),
 			},
 			{
 				label: 'Download selected',
@@ -201,7 +201,7 @@ class ContextMenus {
 		this.deselectRows()
 	}
 
-	pruneSelected() {
+	keepSelected() {
 		const selectedIndices = this.table.getSelectedRows().map(row => row.getIndex())
 		this.table.getRows().forEach(row => {
 			if (!selectedIndices.includes(row.getIndex())) {
