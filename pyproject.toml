@@ -1,5 +1,62 @@
+[tool.poetry]
+name = "ad4e_opentoolkit"
+version = "0.1.0"
+description = ""
+authors = ["Phil Downey"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+joblib = "^1.3.2"
+matplotlib = "^3.8.0"
+scikit-learn = "^1.3.1"
+blessed = "^1.20.0"
+flaky = "3.7.0"
+flask = "2.3.2"
+flask-bootstrap = "3.3.7.1"
+geckodriver-autoinstaller = "0.1.0"
+halo = "0.0.31"
+imagehash = "4.3.1"
+ipython = "8.12.0"
+ipywidgets = "7.7.5"
+jinja2 = "3.1.2"
+npm = "^0.1.1"
+nodejs = ">=0.1.1"
+numerize = "0.12"
+numpy = "1.24.2"
+pandas = "2.0.0"
+protobuf = "3.20.3"
+pubchempy = "1.0.4"
+py3dmol = "^2.0.4"
+pyjwt = "2.8.0"
+pyparsing = "3.0.9"
+pytest = "7.3.1"
+rdkit = "2023.3.2"
+rdkit-pypi = "2022.9.5"
+streamlit = "1.22.0"
+tqdm = "4.65.0"
+traitlets = "5.9"
+mols2grid = "^2.0.0"
+deepsearch-toolkit = "^0.29.0"
+tiktoken = "^0.5.1"
+rxn4chemistry = "^1.11.0"
+tabulate = "0.8.9"
+faiss-cpu = "^1.7.4"
+openai = "^0.28.1"
+coverage = "^7.3.2"
+langchain = "0.0.317"
+jupyter = "^1.0.0"
+ipykernel = "^6.25.2"
+
+[tool.poetry.scripts]
+openad = "ad4e_opentoolkit.app.main:cmd_line"
+init_magic = "ad4e_opentoolkit.app.init_magic:init_magic"
+init_examples = "ad4e_opentoolkit.app.openad_examples:openad_create_examps"
+
+[tool.poetry.group.dev.dependencies]
+pyright = "^1.1.331"
+black = "^23.9.1"
+
 [build-system]
-requires = [
-  "setuptools >= 40.9.0",
-]
-build-backend = "setuptools.build_meta"
+requires = ["poetry_core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
