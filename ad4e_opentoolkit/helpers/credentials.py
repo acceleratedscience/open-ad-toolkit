@@ -21,7 +21,8 @@ def get_credentials(cmd_pointer, credentials=DEFAULT_CREDENTIALS ,creds_to_set=D
             prompted_value = user_input(cmd_pointer,value_to_prompt)
         else:
             prompted_value = user_input(cmd_pointer,value_to_prompt)
-        readline.remove_history_item(readline.get_current_history_length() - 1)
+        if readline.get_current_history_length() > 0:
+            readline.remove_history_item(readline.get_current_history_length() - 1)
         new_credentials=assign_dict_value(new_credentials,cred,prompted_value)
     return new_credentials
 
