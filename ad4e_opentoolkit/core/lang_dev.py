@@ -15,8 +15,8 @@ def flask_example(cmd_pointer, parser):
 
     if routes and not cmd_pointer.notebook_mode:
         # CLI
-        launcher.launch(cmd_pointer, routes)
+        launcher.launch(cmd_pointer, routes, 'example')
     else:
         # Jupyter
-        launcher.launch(cmd_pointer, routes)
+        launcher.launch(cmd_pointer, routes, 'example')
         return return_data

@@ -56,13 +56,11 @@ def search_patent_molecule(inputs: dict,cmd_pointer):
             query= PatentsWithMoleculesQuery(molecules=[MolId(type=MolIdType.INCHIKEY,value=inputs['smiles'])], num_items=20,)
             result_type='Inchi Key'
             output_warning("String is Not a Smiles or Inchi attemnting Inchikey search: ",cmd_pointer=cmd_pointer,return_val=False)
-
         resp=api.queries.run(query)
     except Exception as e:  # pylint: disable=broad-exception-caught
         output_error("Error in calling deepsearch:"+str(e),cmd_pointer=cmd_pointer,return_val=False)
         return False
     results_table = []
-
     for doc in resp.outputs["patents"]:
         result = {       
                 "PATENT ID": "",

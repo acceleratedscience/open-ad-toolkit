@@ -35,7 +35,6 @@ def display_collection_matches(inputs: dict, cmd_pointer):
         # Search only on document collections
         if c.metadata.type != "Document":
             continue
-
         try: 
             # Execute the query 
             query = DataQuery(inputs["search_string"], source=[""], limit=0, coordinates=c.source)
@@ -50,7 +49,6 @@ def display_collection_matches(inputs: dict, cmd_pointer):
         except RunQueryError as err:
             output_error("Error in callling deepsearch:"+str(err),cmd_pointer=cmd_pointer,return_val=False)
             return False
-
     if 'save_as' in inputs:
         results_file = str(inputs['results_file'])
         df= pd.DataFrame(results)

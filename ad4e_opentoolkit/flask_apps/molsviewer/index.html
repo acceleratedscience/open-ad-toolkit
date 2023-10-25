@@ -7,7 +7,7 @@
 		<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600&display=swap" rel="stylesheet" />
 		<link rel="stylesheet" href="css/carbon.css" />
 		<link rel="stylesheet" href="css/main.css" />
-		<link rel="stylesheet" href="molsviewer/molsviewer.css" />
+		<link rel="stylesheet" href="app/molsviewer.css" />
 		<script>
 			// Note: we are submitting the form with an ajax request,
 			// because otherwise we can't call window.close()
@@ -99,7 +99,7 @@
 			</div>
 
 			<!-- prettier-ignore -->
-			<div id="settings">
+			<div id="options">
 				<h3 class="title">Display Options</h3>
 				<p>Choose which fields to display.</p>
 				<div class="multiselect-wrap">
@@ -116,13 +116,13 @@
 						{% endfor %}
 					</div>
 				</div>
-				<div class="button-wrap">
+				<div class="btn-wrap">
 					<button class="secondary">Apply</button>
 					<button class="tertiary">Cancel</button>
 				</div>
 			</div>
 
-			<button id="btn-settings" class="tertiary">Display Options</button>
+			<button id="btn-options" class="tertiary">Display Options</button>
 		</div>
 
 		<!-- Grid -->
@@ -137,20 +137,20 @@
 		{% endblock %}
 
 		<script>
-			// Open settings
-			document.getElementById('btn-settings').addEventListener('click', function () {
-				document.getElementById('settings').classList.add('show')
+			// Open option panel
+			document.getElementById('btn-options').addEventListener('click', function () {
+				document.getElementById('options').classList.add('show')
 			})
 
-			// Cancel settings
-			document.querySelector('#settings button.tertiary').addEventListener('click', function () {
-				document.getElementById('settings').classList.remove('show')
+			// Cancel option panel
+			document.querySelector('#options button.tertiary').addEventListener('click', function () {
+				document.getElementById('options').classList.remove('show')
 			})
 
 			// Select parameter
-			var checkboxes = document.querySelectorAll('#settings .option input[type=checkbox]')
-			var cellParams = document.querySelector('#settings .multiselect.cell')
-			var tooltipParams = document.querySelector('#settings .multiselect.tooltip')
+			var checkboxes = document.querySelectorAll('#options .option input[type=checkbox]')
+			var cellParams = document.querySelector('#options .multiselect.cell')
+			var tooltipParams = document.querySelector('#options .multiselect.tooltip')
 			// When selecting a parameter, we unselect its equivalent in the other multiselect.
 			// So a value can either be displayed in the tooltip OR the cell.
 			for (const cb of checkboxes) {
@@ -173,8 +173,8 @@
 				})
 			}
 
-			// Apply settings
-			document.querySelector('#settings button.secondary').addEventListener('click', function () {
+			// Apply options
+			document.querySelector('#options button.secondary').addEventListener('click', function () {
 				// Gather subset values.
 				subset = []
 				for (var param of cellParams.querySelectorAll('label')) {

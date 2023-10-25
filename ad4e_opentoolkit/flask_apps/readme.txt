@@ -17,7 +17,7 @@ To launch the example app, run:
 Basic code to launch from python:
 
     from ad4e_opentoolkit.flask_apps import launcher
-    from ad4e_opentoolkit.flask_apps.my_app.routes import fetchRoutes
+    from ad4e_opentoolkit.flask_apps.my_app.routes import fetchRoutesMyApp
 
     def my_app_command_func(cmd_pointer, parser):
         data = {
@@ -28,4 +28,11 @@ Basic code to launch from python:
         routes = fetchRoutes(data)
 
         # Launch browser UI.
-        launcher.launch(cmd_pointer, routes)
+        launcher.launch(cmd_pointer, routes, 'my_app')
+
+The launcher script exposes two default routes:
+- /css/... -> This exposes the shared _css folder (for carbon + shared styles)
+- /app/... -> This exposes the app folder, so you can link to your css and js
+
+Note that in order to expose app, you need to pass the app_name parameter to
+the launcher, i.e. the name of the app folder.
