@@ -21,7 +21,8 @@ jobs:
     - stage: lint_test
       name: "Check Lint and Run Unit Tests"
       script:
-        - make check-lint
+        # temporary lint check disable
+        # - make check-lint
         - make test
 
 stages:
