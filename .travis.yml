@@ -1,0 +1,29 @@
+language: python
+python:
+  - "3.11"
+
+arch:
+  - x86
+
+notifications:
+  email: false
+
+branches:
+  only:
+    - main
+
+install:
+  - pip install poetry
+  - poetry install
+
+jobs:
+  include:
+    - stage: lint_test
+      name: "Check Lint and Run Unit Tests"
+      script:
+        # temporary lint check disable
+        # - make check-lint
+        - make test
+
+stages:
+  - lint_test
