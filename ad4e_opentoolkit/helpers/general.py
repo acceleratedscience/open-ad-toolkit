@@ -120,7 +120,7 @@ def user_input(cmd_pointer, question):
 
 def user_secret(cmd_pointer, question):
     """
-    Basically the same as input(), but with some extra styling and history disabled.
+    Basically the same as getpass.getpass(), but with some extra styling and history disabled.
     """
     prompt = output_text(f'<yellow>{question}: </yellow>', cmd_pointer, return_val=True, jup_return_format='plain')
     text = getpass.getpass(prompt)
