@@ -290,6 +290,7 @@ def tags_to_markdown(text: str):
     # Because html breaks (<br>) don't play well with headings,
     # and end of line characters don't play well with `code`
     # blocks, we have to do some trickery here.
+
     text = re.sub(r'(</h[123]>)(\n+)', lambda match: match.group(1) + len(match.group(2)) * '---LINEBREAKSOFT---', text)  # noqa
     text = re.sub(r'(\n+)(<h[123]>)', lambda match: len(match.group(1)) * '---LINEBREAKSOFT---' + match.group(2), text)  # noqa
     text = _replace_linebreaks_inside_cmdblocks(text, '---LINEBREAK3---')
@@ -333,8 +334,17 @@ def tags_to_markdown(text: str):
 # This function is run before we replace \n with <br>, so
 # we replace \n instead of <br>
 def _replace_linebreaks_inside_cmdblocks(text: str, break_str: str):
-    pattern = r'<cmd>([^<]*?)\n([^<]*?)</cmd>'
-    text = re.sub(pattern, rf'<cmd>\1</cmd>{break_str}<cmd>\2</cmd>', text)
+    # First strip outer line breaks, to avoid parsing these:
+    # <cmd>
+    #   foo
+    # </cmd>
+    pattern1 = r'<cmd>(\n)?([^<]*?)(\n)?</cmd>'
+    text = re.sub(pattern1, r'<cmd>\2</cmd>', text)
+
+    # Next replace line breaks inside <cmd> tags.
+    pattern2 = r'<cmd>([^<]*?)\n([^<]*?)</cmd>'
+    while re.search(pattern2, text):
+        text = re.sub(pattern2, rf'<cmd>\1</cmd>{break_str}<cmd>\2</cmd>', text)
     return text
 
 
