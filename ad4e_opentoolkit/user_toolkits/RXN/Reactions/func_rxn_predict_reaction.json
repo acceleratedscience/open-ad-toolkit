@@ -10,8 +10,8 @@
 	"help": {
 		"name": "predict reaction",
 		"category": "Prediction",
-		"command": "predict reaction '<reaction-smiles-string>' [USING ( ai_model='< valid_ai_model>'] [use_saved]",
-		"description": "This command Forward Predicts a Reaction for a given reaction Smiles string. The Using Clause allows you to set the given ai_model, otherwise it will revert to the default model, The use_saved option will look for a saved result of the command to save re-generating",
+		"command": "predict reaction '<reaction-SMILES-string>' [USING ( ai_model='< valid_ai_model>')] [use_saved]",
+		"description": "This command Forward Predicts a Reaction for a given reaction SMILES string.\n\nIn the <cmd>FROM</cmd> Clause reactions are defined by a list of reactions where are SMILES string is delimited by '.' e.g. <cmd>'BrBr.c1ccc2cc3ccccc3cc2c1'</cmd>\n\n \nThe optional <cmd>USING</cmd> Clause consists of 1 option that can additionally be specified.\n    -<cmd>ai_model=’<model_name>’ </cmd> The default value is '2020-07-01'\n\nExample:\n    <cmd>predict 'BrBr.c1ccc2cc3ccccc3cc2c1CCO'</cmd> \n\n You can also use previously generated results buy optionally using <cmd>use_saved</cmd> at the end of the command and it will use the results of any previously run commands with the same parameters while the toolkit has been installed.\n\n<cmd>predict reaction 'BrBr.c1ccc2cc3ccccc3cc2c1CCO' use_saved </cmd>",
 		"url": ""
 	},
 	"library": "rxn_predict_reaction",
