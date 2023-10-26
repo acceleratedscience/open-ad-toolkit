@@ -9,8 +9,8 @@
 	"help": {
 		"name": "search for similar molecules to ",
 		"category": "Search Molecules",
-		"command": "search for similar molecules to '<SMILES_string>' [save as '<csv_file_name>']",
-		"description": "This command searches for molecules that are similar to the provided molecule or molecule substructure <SMILES_string> provided. \n\n For Example <cmd> search for similar molecules to 'C1(C(=C)C([O-])C1C)=O' </cmd> \n\nIf you use the <cmd>SAVE AS</cmd> Clause, it will save a csv file to the current workspace",
+		"command": "search for similar molecules to '<smiles_string>' [save as '<csv_file_name>']",
+		"description": "This command searches for molecules that are similar to the provided molecule or molecule substructure <smiles_string> provided.\n\nFor example <cmd>search for similar molecules to 'C1(C(=C)C([O-])C1C)=O'</cmd>\n\nIf you use the <cmd>SAVE AS</cmd> clause, it will save a csv file to the current workspace.",
 		"url": ""
 	},
 	"library": "ds4sd_search_similar_molecules",
