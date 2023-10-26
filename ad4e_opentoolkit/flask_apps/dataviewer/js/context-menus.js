@@ -115,11 +115,11 @@ class ContextMenus {
 			},
 			{
 				label: 'Copy selected',
-				action: this.copySelected.bind(this),
+				action: this.copyData.bind(this),
 			},
 			{
 				label: 'Download selected',
-				action: this.downloadSelected.bind(this),
+				action: this.downloadData.bind(this),
 			},
 		]
 	}
@@ -211,15 +211,18 @@ class ContextMenus {
 		this.deselectRows()
 	}
 
-	copySelected() {
+	copyData(all) {
+		// Copy selected rows buy default, or all if all is true.
+		const data = all ? this.table.getData() : this.table.getSelectedData()
 		const fields = this.table.getColumns().map(col => col.getField())
 		const textHeader = Object.values(fields).join('\t')
-		const textRows = this.table.getSelectedData().map(row => Object.values(row).join('\t')).join('\n') // prettier-ignore
+		const textRows = data.map(row => Object.values(row).join('\t')).join('\n') // prettier-ignore
 		const text = textHeader + '\n' + textRows
 		navigator.clipboard.writeText(text)
 
 		// Blink
-		this.table.getSelectedRows().forEach(row => {
+		const rows = all ? this.table.getRows() : this.table.getSelectedRows()
+		rows.forEach(row => {
 			const $row = row.getElement()
 			$row.classList.add('copied')
 			setTimeout(() => {
@@ -228,7 +231,10 @@ class ContextMenus {
 		})
 	}
 
-	downloadSelected() {
+	downloadData(all) {
+		// Download selected rows buy default, or all if all is true.
+		const data = all ? this.table.getData() : this.table.getSelectedData()
+
 		const filename = prompt('Filename (.csv)', 'mydata')
 		if (!filename) return
 
@@ -255,7 +261,7 @@ class ContextMenus {
 		function _compileCSVText() {
 			const headers = this.table.getColumns().map(col => col.getField())
 			const textHeader = Object.values(headers).join(',')
-			const textRows = this.table.getSelectedData().map(row => Object.values(row).join(',')).join('\n') // prettier-ignore
+			const textRows = data.map(row => Object.values(row).join(',')).join('\n') // prettier-ignore
 			const text = textHeader + '\n' + textRows
 			return text
 		}

@@ -30,22 +30,10 @@ document.querySelector('#btn-submit').addEventListener('click', submitData)
 document.querySelector('#btn-deselect').addEventListener('click', deselectRows)
 
 // Selection actions
-document.querySelector('#dd-selection-actions').addEventListener('change', dispatchSelectionAction)
+document.querySelector('#dd-selection-actions').addEventListener('change', dispatchSelectionActions)
 
-function dispatchSelectionAction(e) {
-	// %%%
-	const action = e.target.value
-	if (action == 'delete') {
-		contextMenus.deleteSelected()
-	} else if (action == 'keep') {
-		contextMenus.keepSelected()
-	} else if (action == 'copy') {
-		contextMenus.copySelected()
-	} else if (action == 'download') {
-		contextMenus.downloadSelected()
-	}
-	e.target.value = ''
-}
+// General actions
+document.querySelector('#dd-actions').addEventListener('change', dispatchMainActions)
 
 // Display options
 document.querySelector('#btn-options').addEventListener('click', () => {
@@ -69,26 +57,32 @@ document.querySelector('#reset-links .reset-col-width').addEventListener('click'
 	e.preventDefault()
 })
 
+// Header click --> scroll to top
+document.getElementById('cloak').addEventListener('click', () => {
+	window.scrollTo(0, 0)
+})
+
 // document.querySelector('#reset-links .reset-row-width').addEventListener('click', e => {
 // 	table.resetRows()
+// 	e.preventDefault()
+// })
+
+// document.addEventListener('keydown', e => {
 // 	e.preventDefault()
 // })
 
 // Key handlers
 document.addEventListener('keydown', e => {
 	const inputInFocus = e.target.tagName.toLowerCase() == 'input' || e.target.tagName.toLowerCase() == 'textarea'
-	if (inputInFocus) {
-		// console.log('#')
-		return
-	}
+	if (inputInFocus) return
 
-	const $cell = document.querySelector('.tabulator-cell.focus')
-	const $row = $cell ? $cell.closest('.tabulator-row') : null
+	const $focusCell = document.querySelector('.tabulator-cell.focus')
+	const $row = $focusCell ? $focusCell.closest('.tabulator-row') : null
 	const row = $row ? table.getRow($row) : null
 
 	// Copy focused cell content on cmd + C
-	if ($cell && e.key == 'c' && (e.metaKey || e.ctrlKey)) {
-		contextMenus.copyCell(null, null, $cell)
+	if ($focusCell && e.key == 'c' && (e.metaKey || e.ctrlKey)) {
+		contextMenus.copyCell(null, null, $focusCell)
 		return
 	}
 
@@ -98,11 +92,20 @@ document.addEventListener('keydown', e => {
 		if (fullCellDisplayActive) return
 
 		// Deselect rows
-		deselectRows(true)
+		if (table.getSelectedRows().length) {
+			deselectRows(true)
+			return
+		}
+
+		// Exit edit mode
+		if (table.isEditMode()) {
+			toggleEditMode(false, true)
+			return
+		}
 	}
 
 	// Move focus with arrow keys
-	if (document.querySelector('.tabulator-cell.focus') && !table.isEditMode()) {
+	if ($focusCell) {
 		if (e.key == 'ArrowLeft') {
 			moveFocus('left')
 			e.preventDefault()
@@ -116,16 +119,37 @@ document.addEventListener('keydown', e => {
 			moveFocus('down')
 			e.preventDefault()
 		} else if (e.key == 'Escape') {
-			document.querySelector('.tabulator-cell.focus').classList.remove('focus')
+			$focusCell.classList.remove('focus')
 			e.preventDefault()
 		} else if (e.key == 'Enter') {
-			row.toggleSelect()
-			// table.selectRow($row)
-			// table.toggleEditMode(true)
-			// e.preventDefault()
-			// setTimeout(() => {
-			// 	document.querySelector('.tabulator-cell.focus').click()
-			// }, 100)
+			if (table.isEditMode()) {
+				// Edit mode --> edit
+				setTimeout(() => {
+					$focusCell.click()
+				}, 0)
+			} else {
+				// View mode
+				if (e.metaKey || e.ctrlKey) {
+					// meta --> edit
+					toggleEditMode(true)
+					setTimeout(() => {
+						$focusCell.click()
+					}, 0)
+				} else {
+					// --> select
+					row.toggleSelect()
+				}
+			}
+		} else if (table.isEditMode() && e.key.length == 1) {
+			// Edit mode --> start typing
+			toggleEditMode(true)
+			setTimeout(() => {
+				$focusCell.click()
+				const $input = $focusCell.querySelector('input') || $focusCell.querySelector('textarea')
+				if ($input) {
+					$input.value = e.key
+				}
+			}, 0)
 		}
 	}
 })
@@ -133,8 +157,7 @@ document.addEventListener('keydown', e => {
 // Exit focus on blur
 document.addEventListener('click', e => {
 	if (e.target.closest('.tabulator-cell') || e.target.classList.contains('tabulator-cell')) return
-	const $currentFocusCell = document.querySelector('.tabulator-cell.focus')
-	if ($currentFocusCell) $currentFocusCell.classList.remove('focus')
+	unsetFocus()
 })
 
 // #endregion
@@ -166,6 +189,18 @@ const table = new Table('#table', {
 	movableRows: false,
 	movableColumns: true,
 	rowRange: 'active', // Master checkbox will only select filtered rows
+
+	// %% trash
+	// rowFormatter: row => {
+	// 	const cells = row.getCells()
+	// 	cells.forEach(cell => {
+	// 		const $cell = cell.getElement()
+	// 		const $textWrap = $cell.querySelector('.text-wrap')
+	// 		if ($textWrap) {
+	// 			$cell.classList.add('long-text')
+	// 		}
+	// 	})
+	// },
 
 	// Disable built-in keybindings, we need more
 	// advanced logic. See 'keydown' event listener.
@@ -215,18 +250,107 @@ table.on('tableBuilt', () => {
 	// setIndexColDropdown()
 })
 
-// Controls our homebrewed movableRows
+// Controls our homebrewed movableRows.
 table.on('cellMouseDown', (e, row) => {
 	table.onCellMouseDown(e, row, onCellClick)
 })
 
+// Display action dropdown.
 table.on('rowSelected', () => {
 	toggleSelectionActions(true)
 })
 
+// Hide action dropdown
 table.on('rowDeselected', () => {
-	toggleSelectionActions(false)
+	if (!table.getSelectedRows().length) {
+		toggleSelectionActions(false)
+	}
 })
+
+// Set (artificial) focus on clicked cell.
+table.on('cellEditing', function (cell) {
+	$focusCell = cell.getElement()
+	setFocus($focusCell)
+})
+
+// To do: implement short history so you can undo changes.
+table.on('dataChanged', function (data) {
+	// console.log('dataChanged', data)
+})
+
+// Update truncation whenever text ius changed.
+table.on('cellEdited', function (cell) {
+	const index = cell.getRow().getIndex()
+	const field = cell.getField()
+	table.redraw(true)
+
+	// Reset focus after redrawing table.
+	const $cell = table.getRows()[index - 1].getCell(field).getElement()
+	$cell.classList.add('focus')
+
+	// %% trash
+	// const newHeight = calcCellRequiredHeight(cell)
+	// return
+	// console.log(newHeight)
+	// if (newHeight) {
+	// 	console.log(33)
+	// 	const row = cell.getRow()
+	// 	const $row = row.getElement()
+	// 	const $cells = $row.querySelectorAll('.tabulator-cell')
+	// 	$cells.forEach($cell => {
+	// 		$cell.style.height = newHeight + 8 + 'px' // + 8 for padding
+	// 		console.log($cell)
+	// 	})
+	// 	alert(1)
+	// }
+})
+
+// %% trash
+// // Returns boolean whether text is larger than cell.
+// function calcCellRequiredHeight(cell) {
+// 	let $cell = cell.getElement()
+// 	const computedStyle = window.getComputedStyle($cell)
+// 	const padding = computedStyle.getPropertyValue('padding')
+// 	const width = computedStyle.getPropertyValue('width')
+// 	const height = computedStyle.getPropertyValue('height')
+// 	const borderLeft = computedStyle.getPropertyValue('border-left')
+// 	const borderRight = computedStyle.getPropertyValue('border-right')
+// 	const boxSizing = computedStyle.getPropertyValue('box-sizing')
+// 	const lineHeight = parseFloat(computedStyle.getPropertyValue('line-height'))
+
+// 	$clone = $cell.cloneNode(true)
+// 	$clone.style.borderLeft = borderLeft
+// 	$clone.style.borderRight = borderRight
+// 	$clone.style.position = 'absolute'
+// 	$clone.style.top = '-9999px'
+// 	$clone.style.left = '-9999px'
+// 	$clone.style.zIndex = 1000
+// 	$clone.style.width = width
+// 	$clone.style.height = height
+// 	$clone.style.padding = padding
+// 	$clone.style.boxSizing = boxSizing
+// 	// $clone.style.top = 0
+// 	// $clone.style.left = 0
+// 	// $clone.style.background = 'pink'
+// 	// $clone.style.opacity = 0
+// 	document.body.appendChild($clone)
+// 	// const overflows = $clone.scrollWidth > $clone.clientWidth || $clone.scrollHeight > $clone.clientHeight
+// 	// console.log($clone.scrollWidth, '>', $clone.clientWidth, '/', $clone.scrollHeight, '>', $clone.clientHeight)
+// 	const overflowV = $clone.scrollHeight > $clone.clientHeight
+// 	const overflowH = $clone.scrollWidth > $clone.clientWidth
+// 	let result
+// 	console.log({ overflowH, overflowV })
+// 	if (overflowV) {
+// 		const lines = Math.ceil($clone.scrollHeight / lineHeight)
+// 		console.log(22, $clone.scrollHeight, '/', lineHeight)
+// 		console.log(333, lines, lineHeight)
+// 		result = lines * lineHeight
+// 	} else {
+// 		result = null
+// 	}
+// 	$clone.remove()
+// 	return result
+// }
 
 // %% trash
 // table.on('dataSorted', function (sorters, rows) {
@@ -337,7 +461,7 @@ function parseColumns(data) {
 		onRendered(() => {
 			// Expand textarea to fit content
 			editor.style.height = ''
-			editor.style.height = editor.scrollHeight + 'px'
+			editor.style.height = editor.scrollHeight + 4 + 'px' // +4px to make up for border
 
 			// Focus or select text
 			if (editorParams.selectContents) {
@@ -346,26 +470,40 @@ function parseColumns(data) {
 				editor.focus()
 			}
 		})
-		editor.addEventListener('change', () => {
-			applyEdit()
-		})
-		editor.addEventListener('blur', () => {
-			applyEdit()
-		})
-		document.addEventListener('keyup', e => {
-			if (e.key == 'Enter') {
-				applyEdit()
-			} else if (e.key == 'Escape') {
-				cancel()
-			}
-		})
+		editor.addEventListener('change', _applyEdit)
+		editor.addEventListener('blur', _applyEdit)
+		editor.addEventListener('keydown', _onKeyDown)
+		editor.addEventListener('input', _onInput)
 
 		return editor
 
 		//
 		//
 
-		function applyEdit() {
+		function _onKeyDown(e) {
+			if (e.key == 'Enter') {
+				// This is the same behavior as a Google sheet:
+				// Enter will exit the edit field, but cmd + enter
+				// will result in line break. But because with the meta
+				// key pressed, there is no actual character written,
+				// we have to add the line break ourselves.
+				if (e.metaKey || e.ctrlKey) {
+					editor.value += '\n'
+				} else {
+					_applyEdit()
+				}
+			} else if (e.key == 'Escape') {
+				cancel()
+			}
+		}
+
+		// Resize the textarea after the character was registered.
+		function _onInput(e) {
+			editor.style.height = editor.scrollHeight + 4 + 'px'
+		}
+
+		function _applyEdit() {
+			console.log('_applyEdit')
 			success(editor.value)
 		}
 	}
@@ -390,7 +528,7 @@ function parseColumns(data) {
 			formatterParams,
 			headerMenu: contextMenus.header,
 			headerContextMenu: contextMenus.header,
-			contextMenu: contextMenus.cell, // @@
+			// contextMenu: contextMenus.cell, // @@
 			// headerSort: false, %% trash
 			// headerClick: onHeaderClick, // We use our own sort logic via headerClick - %% trash
 
@@ -416,11 +554,12 @@ function parseColumns(data) {
 		return col
 	})
 
-	console.log('Sorters:', sorters)
-	console.log('Data:', data)
-	console.log('Columns:', columns)
-	console.log('ContentProps', contentPropsAll)
-	console.log('needFormatter', needFormatter)
+	// For debugging
+	// console.log('Sorters:', sorters)
+	// console.log('Data:', data)
+	// console.log('Columns:', columns)
+	// console.log('ContentProps', contentPropsAll)
+	// console.log('needFormatter', needFormatter)
 	return columns
 }
 
@@ -437,7 +576,7 @@ function _pickFormatter(key, needFormatter, contentPropsAll) {
 			return { formatter: 'link', formatterParams: { target: '_blank' } }
 		} else if (hasSomeLongText) {
 			return {
-				formatterType: 'textarea',
+				formatterType: 'textarea', // @@@
 				// This custom formatter lets us truncate text to a custom number
 				// of lines. It's in lieue of the built-un 'textarea' formatter.
 				formatter: (cell, formatterParams, onRendered) => {
@@ -612,6 +751,7 @@ function deleteColumn(e, col) {
 // }
 
 function onCellClick(e, cell) {
+	console.log('click')
 	// Display overlay with full content when cell is truncated.
 	if (e.target.classList.contains('text-wrap')) {
 		const $textWrap = e.target
@@ -624,19 +764,19 @@ function onCellClick(e, cell) {
 		}
 	}
 
-	if (!table.isEditMode()) {
-		// Set focus on clicked cell.
-		$focusCell = cell.getElement()
-		setFocus($focusCell)
+	// Set focus on clicked cell.
+	$focusCell = cell.getElement()
+	setFocus($focusCell)
 
-		// Select row
-		onRowClick(e, cell.getRow())
-	}
+	// Select row
+	onRowClick(e, cell.getRow())
 
 	//
 	//
 
-	// Expand the cell so all content is visible (unused)
+	// Unused but may come in handy later:
+	// - - -
+	// Expand the cell so all content is visible
 	function _expandCell($textWrap, $cell, cell) {
 		const $row = $textWrap.closest('.tabulator-row')
 		const row = cell.getRow()._row
@@ -770,7 +910,8 @@ function hideFullCellContent() {
 // Deselect all rows, but ask user if it's more than 3
 function deselectRows(soft) {
 	const selectedRows = table.getSelectedRows()
-	if (soft && selectedRows.length > 3) {
+	// Note: == true is on purpose, because we want to ignore the click event
+	if (soft == true && selectedRows.length > 3) {
 		if (confirm('Are you sure you want to deselect all rows?')) {
 			table.deselectRow()
 		}
@@ -784,6 +925,12 @@ function setFocus($focusCell) {
 	const $currentFocusCell = document.querySelector('.tabulator-cell.focus')
 	if ($currentFocusCell) $currentFocusCell.classList.remove('focus')
 	$focusCell.classList.add('focus')
+}
+
+// Unset artificial cell focus
+function unsetFocus() {
+	const $focusCell = document.querySelector('.tabulator-cell.focus')
+	if ($focusCell) $focusCell.classList.remove('focus')
 }
 
 // Move artificial cell focus
@@ -896,6 +1043,32 @@ function isDate(str, log) {
 	} else {
 		return false
 	}
+}
+
+// Dispatch actions from the selection dropdown.
+function dispatchSelectionActions(e) {
+	const action = e.target.value
+	if (action == 'delete') {
+		contextMenus.deleteSelected()
+	} else if (action == 'keep') {
+		contextMenus.keepSelected()
+	} else if (action == 'copy') {
+		contextMenus.copyData()
+	} else if (action == 'download') {
+		contextMenus.downloadData()
+	}
+	e.target.value = ''
+}
+
+// Dispatch actions from the action dropdown.
+function dispatchMainActions(e) {
+	const action = e.target.value
+	if (action == 'copy') {
+		contextMenus.copyData(true)
+	} else if (action == 'download') {
+		contextMenus.downloadData(true)
+	}
+	e.target.value = ''
 }
 
 // %% Trash

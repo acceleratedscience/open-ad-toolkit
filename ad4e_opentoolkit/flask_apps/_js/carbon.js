@@ -22,9 +22,10 @@ class Carbon {
 
 	// Update display when dropdown value changes.
 	onDropdownChange(e) {
+		const $display = e.target.parentNode.querySelector('.ibm-dd-display')
+		if (!$display) return
 		const val = e.target.value
 		const displayVal = e.target.querySelector(`option[value="${val}"]`).innerText
-		const $display = e.target.parentNode.querySelector('.ibm-dd-display')
 		$display.innerText = displayVal
 	}
 
