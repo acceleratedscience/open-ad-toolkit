@@ -1,4 +1,4 @@
-the below is a description of the DeepSearch toolkit capabilities that is implemented through statements in the OpenAD client.
+Below is a description of the DeepSearch toolkit. Its capabilities are implemented through statements in the OpenAD client.
 
 The DeepSearch Toolkit is called DS4SD. To add the Deepsearch Toolkit simply type `add toolkit ds4sd`
 
