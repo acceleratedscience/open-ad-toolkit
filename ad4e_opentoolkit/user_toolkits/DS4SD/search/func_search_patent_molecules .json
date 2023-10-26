@@ -10,7 +10,7 @@
 		"name": "search for molecules in patents  ",
 		"category": "Search Molecules",
 		"command": "search for molecules in patents from [list ['<patent1>', '<patent2>' .....] | dataframe <dataframe_name> | file '<workspace_file name>'] [save as '<csv_file_name>']",
-		"description": "This command searches for molecules that are mentioned in the defined list of patents. If sourcing patents fare from CSV or Dataframe, these must contain a column with 'PATENT ID' or 'patent id' as the heading.\n\n For Example: <cmd> search for molecules in patents from list ['CN108473493B','US20190023713A1'] </cmd> \n\nIf you use the <cmd>SAVE AS</cmd> Clause, it will save a csv file to the current workspace.",
+		"description": "This command searches for molecules that are mentioned in the defined list of patents. If sourcing patents are from CSV or dataframe, these must contain a column with 'PATENT ID' or 'patent id' as the heading.\n\n For Example: <cmd> search for molecules in patents from list ['CN108473493B','US20190023713A1'] </cmd> \n\nIf you use the <cmd>SAVE AS</cmd> clause, it will save a csv file to the current workspace.",
 		"url": ""
 	},
 	"library": "ds4sd_search_Patent_molecules",
