@@ -547,21 +547,18 @@ class Table extends Tabulator {
 	}
 
 	undo() {
-		console.log('undo', this.history)
 		if (this.history.length > 0) {
 			const dataCurrent = this.history.pop()
 			this.history_reverse.push(dataCurrent)
-			const dataPrevious = this.history.length > 0 ? this.history.pop() : null
-			console.log(444, dataPrevious)
-			console.log(555, dataCurrent)
+			const dataPrevious = this.history.length > 0 ? this.history[this.history.length - 1] : null
 			this.setData(dataPrevious)
 		}
 	}
 
 	redo() {
-		if (this.history_reverse.length > 1) {
-			this.history.push(this.getData())
+		if (this.history_reverse.length > 0) {
 			const data = this.history_reverse.pop()
+			this.history.push(data)
 			this.updateData(data)
 		}
 	}
