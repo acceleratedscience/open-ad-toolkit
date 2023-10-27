@@ -231,11 +231,13 @@ messages = {
     ),
     'enter_to_skip': '<soft>Press enter to skip</soft>',
     'abort': 'Aborted',
+    'data_copied': '<success>Data copied to clipboard</success>',
 
     # Negative
     'table_headers_dont_match_columns': lambda headers, col_count: (f'The provided headers ({len(headers)}) don\'t match the number of columns in the data ({col_count})', headers),
     'no_data_memory': 'No data stored in memory',
     'table_is_empty': 'No data to display',
+    'memory_empty': lambda action: f'There is no result to {action}.',
 
     # Error
     # 'invalid_cmd': 'Not a valid command',

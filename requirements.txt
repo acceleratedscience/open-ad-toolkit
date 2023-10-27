@@ -38,3 +38,4 @@ rxn4chemistry
 tabulate==0.8.9
 faiss-cpu
 openai
+pyperclip>=1.8.2

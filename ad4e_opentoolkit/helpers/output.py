@@ -305,10 +305,12 @@ def output_table(table, cmd_pointer=None, is_data=False, headers=None, note=None
     if is_data:
         message = (
             '<cmd>result open</cmd>',
-            '<cmd>result edit</cmd>',
-            '<cmd>result save [as \'<filename.csv>\']</cmd>',
+            '<cmd>edit</cmd>',
+            '<cmd>copy</cmd>',
+            '<cmd>display</cmd>',
+            '<cmd>save [as \'<filename.csv>\']</cmd>',
         )
-        footnote += '<soft>Next up, you can run: </soft>' + ' / '.join(message)
+        footnote += '<soft>Next up, you can run: </soft>' + '/'.join(message)
 
     # --> Optional custom note.
     if note:

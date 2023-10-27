@@ -107,14 +107,22 @@ document.addEventListener('keydown', e => {
 			toggleEditMode(false, true)
 			return
 		}
+	} else if ((e.metaKey || e.ctrlKey) && e.key == 'z') {
+		// Undo / redo
+		if (e.shiftKey) {
+			table.redo()
+		} else {
+			table.undo()
+		}
+		return
 	}
 
 	// Move focus with arrow keys
 	if ($focusCell) {
-		if (e.key == 'ArrowLeft') {
+		if (e.key == 'ArrowLeft' || (e.shiftKey && e.key == 'Tab')) {
 			moveFocus('left')
 			e.preventDefault()
-		} else if (e.key == 'ArrowRight') {
+		} else if (e.key == 'ArrowRight' || e.key == 'Tab') {
 			moveFocus('right')
 			e.preventDefault()
 		} else if (e.key == 'ArrowUp') {
@@ -260,6 +268,9 @@ table.on('tableBuilt', () => {
 	// This is a little hack to prevent all rows to take on the height of the tallest cell.
 	table.redraw(true)
 
+	// Store the initial state of the table.
+	table.add_history(table.getData())
+
 	// %% trash
 	// // Set the "Add index column" dropdown to the correct value.
 	// setIndexColDropdown()
@@ -282,15 +293,21 @@ table.on('rowDeselected', () => {
 	}
 })
 
-// Set (artificial) focus on clicked cell.
-table.on('cellEditing', cell => {
-	$focusCell = cell.getElement()
-	setFocus($focusCell)
-})
+// // Set (artificial) focus on edited cell.
+// // cellEditing
+// table.on('cellEdited', cell => {
+// 	$focusCell = cell.getElement()
+// 	setFocus($focusCell)
+// 	// setTimeout(() => { // %% trash
+// 	// 	console.log(22, $focusCell)
+// 	// 	setFocus($focusCell)
+// 	// }, 1000)
+// })
 
 // To do: implement short history so you can undo changes.
 table.on('dataChanged', data => {
-	// console.log('dataChanged', data)
+	table.add_history(data)
+	console.log('dataChanged', data)
 })
 
 // Update truncation whenever text is changed.
@@ -309,8 +326,10 @@ table.on('cellEdited', cell => {
 	// in this row have more than one line of text.
 	table.redraw(true)
 
-	// Reset focus after redrawing table.
-	$cell.classList.add('focus')
+	// Trace back the same cell after redraw has replaced
+	// the HTML and reset de focus.
+	const $newCell = table.getRows()[index - 1].getCell(field).getElement()
+	setFocus($newCell)
 })
 
 // %% trash
@@ -540,7 +559,10 @@ function _customTextareaEditor(cell, onRendered, success, cancel, editorParams) 
 			editor.focus()
 		}
 	})
-	editor.addEventListener('change', _applyEdit)
+
+	// Note: blur and change usually fire together, but we can't
+	// limit it to just change, becayse
+	// editor.addEventListener('change', _applyEdit)
 	editor.addEventListener('blur', _applyEdit)
 	editor.addEventListener('keydown', _onKeyDown)
 	editor.addEventListener('input', _onInput)

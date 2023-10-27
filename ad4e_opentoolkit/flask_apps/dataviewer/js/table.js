@@ -43,6 +43,8 @@ class Table extends Tabulator {
 		this.lastSelectedRowIndex = null // Number used to determine where to start from when shift-selecting
 		this.lastSelectedRowSelState = null // Boolean used to determine if shift-select row should batch-select or batch-deselect
 		this.selectMode = false // Boolean used to ignore row resize handles while selecting rows
+		this.history = [] // Used to store previous 10 states so you can undo/redo
+		this.history_reverse = [] // Used to store the states you went back in history
 	}
 
 	// Store column default widths
@@ -534,8 +536,39 @@ class Table extends Tabulator {
 		return cellProps
 	}
 
+	// Add state of data to history
+	add_history(data) {
+		data = JSON.parse(JSON.stringify(data))
+		console.log(111, data['Organization Id:'], data)
+		if (this.history.length >= 10) {
+			this.history.shift()
+		}
+		this.history.push(data)
+	}
+
+	undo() {
+		console.log('undo', this.history)
+		if (this.history.length > 0) {
+			const dataCurrent = this.history.pop()
+			this.history_reverse.push(dataCurrent)
+			const dataPrevious = this.history.length > 0 ? this.history.pop() : null
+			console.log(444, dataPrevious)
+			console.log(555, dataCurrent)
+			this.setData(dataPrevious)
+		}
+	}
+
+	redo() {
+		if (this.history_reverse.length > 1) {
+			this.history.push(this.getData())
+			const data = this.history_reverse.pop()
+			this.updateData(data)
+		}
+	}
+
 	// Tag on to the Tabulator redraw function.
 	redraw(bool) {
+		console.log('redraw', bool)
 		if (!bool) {
 			super.redraw()
 			return
