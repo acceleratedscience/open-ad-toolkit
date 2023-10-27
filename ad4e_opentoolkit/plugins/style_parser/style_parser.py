@@ -290,6 +290,7 @@ def tags_to_markdown(text: str):
     # Because html breaks (<br>) don't play well with headings,
     # and end of line characters don't play well with `code`
     # blocks, we have to do some trickery here.
+
     text = re.sub(r'(</h[123]>)(\n+)', lambda match: match.group(1) + len(match.group(2)) * '---LINEBREAKSOFT---', text)  # noqa
     text = re.sub(r'(\n+)(<h[123]>)', lambda match: len(match.group(1)) * '---LINEBREAKSOFT---' + match.group(2), text)  # noqa
     text = _replace_linebreaks_inside_cmdblocks(text, '---LINEBREAK3---')

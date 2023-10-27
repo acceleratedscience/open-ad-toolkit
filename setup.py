@@ -13,9 +13,9 @@ setup(
     version='0.1.0',
     #packages=find_packages(),
     packages=find_namespace_packages(include=['ad4e_opentoolkit.*']),
-
+ 
     include_package_data=True,
-
+    
     install_requires=[
         'joblib',
         'matplotlib',
@@ -52,7 +52,7 @@ setup(
         'mols2grid',
         'deepsearch-toolkit==0.29.0',
         'tiktoken',
-        'langchain==0.0.272',
+        'langchain==0.0.317',
         'traitlets==5.9',
         'deepsearch-toolkit',
         'rxn4chemistry',

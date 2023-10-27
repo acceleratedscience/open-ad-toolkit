@@ -1,27 +1,29 @@
+"""Login Library for the Deepsearch Plugin"""
 import os
-from  getpass import getpass
 import datetime
 from datetime import datetime, timezone
 import time
-from pathlib import Path
 import requests
 import jwt
 import deepsearch as ds
 from ad4e_opentoolkit.helpers.output import msg, output_text, output_error, output_warning
-
-_default_url= 'https://sds.app.accelerate.science/'
-config_blank = {"host": "None", "auth": {"username": "None", "api_key": "None"}, "verify_ssl": "false"}
+from ad4e_opentoolkit.helpers.credentials import load_credentials,get_credentials,write_credentials
+DEFAULT_URL      = 'https://sds.app.accelerate.science/'
+API_CONFIG_BLANK = {"host": "None", "auth": {"username": "None", "api_key": "None"}, "verify_ssl": "False"}
 
 # Initialize the Deep Search client from the config file
 # Input parameters for the example flow
 def reset(cmd_pointer):
-    if  os.path.isfile(os.path.expanduser(cmd_pointer.home_dir) + "/ds-auth.ext-v2.json"):
-        os.remove(os.path.expanduser(cmd_pointer.home_dir) + "/ds-auth.ext-v2.json")
+    """removes the deepsearch credentiuals file"""
+    cred_file=os.path.expanduser(f'{cmd_pointer.home_dir}/deepsearch_api.cred')
+    if  os.path.isfile(cred_file):
+        os.remove(cred_file)
 
 def uri_valid(url:str)->bool:
+    """checks if a uri is valid"""
     try:
-        request = requests.get(url, stream=True,timeout=10)
-    except:# pylint: disable=bare-except
+        request = requests.get(url, stream=True, timeout=10)
+    except:  # pylint: disable=bare-except
         return False
     if request.status_code == 200:
         return True
@@ -29,11 +31,15 @@ def uri_valid(url:str)->bool:
         return False
 def login(cmd_pointer):
     """Logs the Framework into the DS4SD service as defined by the user"""
-    if not os.path.isfile(os.path.expanduser(cmd_pointer.home_dir) + "/ds-auth.ext-v2.json"):
+    cred_file = os.path.expanduser(f'{cmd_pointer.home_dir}/deepsearch_api.cred')
+
+    if not os.path.isfile(cred_file):
         login_reset = True
     else:
-        login_reset= False
-    first_login =False
+        login_reset = False
+
+    first_login = False
+
     if 'DS4SD' not in cmd_pointer.login_settings['toolkits']:
         cmd_pointer.login_settings['toolkits'].append('DS4SD')
         cmd_pointer.login_settings['toolkits_details'].append({"type": "config_file", "session": "handle"})
@@ -41,7 +47,7 @@ def login(cmd_pointer):
         cmd_pointer.login_settings['client'].append(None)
         cmd_pointer.login_settings['expiry'].append(None)
         x = cmd_pointer.login_settings['toolkits'].index('DS4SD')
-        first_login =True
+        first_login = True
     elif login_reset is False:
         now = datetime.now(timezone.utc)
         x = cmd_pointer.login_settings['toolkits'].index('DS4SD')
@@ -52,60 +58,33 @@ def login(cmd_pointer):
             expiry_datetime = time.strftime('%a %b %e, %G  at %R', time.localtime(expiry_time))
             return True, expiry_datetime
 
-    if not os.path.isfile(os.path.expanduser(cmd_pointer.home_dir) + "/ds-auth.ext-v2.json"):
-        output_warning('Setting Authentication Details for Deep Search:', cmd_pointer)
-        import readline
-        if cmd_pointer.notebook_mode == False:
-            import readline          
-            output_text("Enter the URL / Hostname: if the hostname is left blank it will default to '"+_default_url+"' ", cmd_pointer=cmd_pointer,return_val=False)
-            config_blank['host'] = input("\u001b[33m URL / Hostname: \u001b[0m")
-            if config_blank['host'].strip()=='':
-                config_blank['host']=_default_url
-            elif uri_valid(config_blank['host']) ==False:
-                output_error("Invalid URL Provided please check URL or VPN and try again",cmd_pointer=cmd_pointer,return_val=False)
-                return False
-            
-            readline.remove_history_item(readline.get_current_history_length() - 1)
-            config_blank['auth']['username'] = input("\u001b[33mEmail: \u001b[0m")
-            readline.remove_history_item(readline.get_current_history_length() - 1)
-            config_blank['auth']['api_key'] = getpass("\u001b[33mApi_key: \u001b[0m")
-            readline.remove_history_item(readline.get_current_history_length() - 1)
-        else:    
-            output_text("Enter the URL / Hostname: if the hostname is left blank it will default to '" + _default_url + "' ", cmd_pointer=cmd_pointer,return_val=False) 
-            config_blank['host'] = input("URL / Hostname: ")
-            if config_blank['host'].strip()=='':
-                config_blank['host']=_default_url
-            if config_blank['host'].strip()=='':
-                config_blank['host']=_default_url
-            elif uri_valid(config_blank['host']) ==False:
-                output_error("Invalid URL Provided please check URL or VPN and try again",cmd_pointer=cmd_pointer,return_val=False)
-                return False
-            readline.remove_history_item(readline.get_current_history_length() - 1)
-            config_blank['auth']['username'] = input("Email: ")
-            readline.remove_history_item(readline.get_current_history_length() - 1)
-            config_blank['auth']['api_key'] = getpass("Api_key: ")
-            readline.remove_history_item(readline.get_current_history_length() - 1)
-        import json
-        with open(os.path.expanduser(cmd_pointer.home_dir) + "/ds-auth.ext-v2.json", 'w') as handle:
-            json.dump(config_blank, handle)
-            handle.close()
-        output_text('config file generated.',cmd_pointer=cmd_pointer,return_val=False)
-    try:
-        CONFIG_FILE = Path(os.path.expanduser(cmd_pointer.home_dir) + "/ds-auth.ext-v2.json")
-        x = cmd_pointer.login_settings['toolkits'].index('DS4SD')
-        config = ds.DeepSearchConfig.parse_file(CONFIG_FILE)
+    cred_config=get_creds(cred_file,cmd_pointer)
 
+    if cred_config['host'].strip() == '':
+        cred_config['host'] = DEFAULT_URL
+    if uri_valid(cred_config['host']) is False:
+        output_error("Invalid URL Provided please check URL or VPN and try again", cmd_pointer=cmd_pointer, return_val=False)
+        return False
+    if cred_config['auth']['username'].strip() == '' :
+        output_error("Invalid username provided try again",cmd_pointer=cmd_pointer, return_val=False)
+        return False
+    if cred_config['auth']['api_key'].strip() == '' :
+        output_error("Invalid api key provided try again" ,cmd_pointer=cmd_pointer, return_val=False)
+        return False
+
+    try:
+        x = cmd_pointer.login_settings['toolkits'].index('DS4SD')
+
+        config = ds.DeepSearchConfig(host=cred_config['host'], verify_ssl=False, auth=cred_config['auth'])
         client = ds.CpsApiClient(config)
-        
         api = ds.CpsApi(client)
 
-        cmd_pointer.login_settings['toolkits_api'][x ] = api
-        cmd_pointer.login_settings['client'][x ] = client
+        cmd_pointer.login_settings['toolkits_api'][x ]  = api
+        cmd_pointer.login_settings['client'][x ]        = client
 
         cb = client.bearer_token_auth
         bearer = cb.bearer_token
-
-        # decoded_token = jwt.decode(bearer, verify=False,algorithms="HS256")
+        #decode jwt token
         decoded_token = jwt.decode(bearer, options={'verify_at_hash': False, 'verify_signature': False}, verify=False)
 
         # Extract expiry time from token payload
@@ -114,10 +93,24 @@ def login(cmd_pointer):
         # Convert expiry time to a human-readable format
         expiry_datetime = time.strftime('%a %b %e, %G  at %R', time.localtime(expiry_time))
         if login_reset is True or first_login is True:
-                output_text("<success>logged into DS4SD </success>",cmd_pointer=cmd_pointer, return_val=False)
+            workspace   = cmd_pointer.settings['workspace']
+            email       = cred_config['auth']['username']
+            output_text(f'<success>loggining into DeepSearch as: </success> {email}\n <success>Workspace: </success> {workspace}',cmd_pointer=cmd_pointer, return_val=False)
         cmd_pointer.login_settings['expiry'][x] = expiry_time
-        
+
         return True, expiry_datetime
-    except Exception: # pylint: disable=broad-exception-caught
-        output_error(msg('err_login', 'DS4SD',"Unable to connect to " + config.host, split=True), cmd_pointer=cmd_pointer,return_val=False)
+    except Exception as e: # pylint: disable=broad-exception-caught
+        output_error(msg('err_login', 'DS4SD',f'Unable to connect to {config.host}', split=True), cmd_pointer=cmd_pointer,return_val=False)
+        output_error(msg('err_login', 'DS4SD',f"system error {e}", split=True), cmd_pointer=cmd_pointer, return_val=False)
         return False, None
+
+def get_creds(cred_file,cmd_pointer):
+    """get the nominated API key for the LLM"""
+    api_config = load_credentials(cred_file)
+    if api_config is None:
+        output_warning("Please Enter in Credentials for Deep Search",cmd_pointer=cmd_pointer,return_val=False)
+        output_text(f"Enter the URL / Hostname: if the hostname is left blank it will default to '{DEFAULT_URL} " , cmd_pointer=cmd_pointer, return_val=False)
+        api_config = API_CONFIG_BLANK.copy()
+        api_config = get_credentials(cmd_pointer=cmd_pointer, credentials=api_config,creds_to_set=['host', 'auth:username', 'auth:api_key'])
+        write_credentials(api_config, cred_file)
+    return api_config

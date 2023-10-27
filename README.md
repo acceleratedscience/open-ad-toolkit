@@ -31,7 +31,14 @@
 > **Note:** If you're installing a development version of OpenAD, please jump to [Installation for Development](#installation-for-development)
 
 1.  **Step 0: Before you start**<br>
-    Ensure you're running Python 3.10.10 or above.
+    Ensure you're running Python 3.10.10 or above.<br>
+    We do not have a requirement on how to install Python on your local machine;however, we recommend Pyenv.
+
+    ```shell
+    git clone https://github.com/pyenv/pyenv.git ~/.pyenv
+    pyenv install 3.10
+    ```
+
 
 1.  **Step 1: Set up virtual environment** (optional)<br>
 

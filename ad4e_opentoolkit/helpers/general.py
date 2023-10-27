@@ -1,11 +1,10 @@
 import sys
 import os
 import re
+import getpass
 import readline
 from IPython.display import display
 from ad4e_opentoolkit.helpers.output import msg, output_text, output_error
-
-
 # Refreshes the command prompt when in the shell.
 def refresh_prompt(settings):
     if settings['context'] is not None:
@@ -21,14 +20,12 @@ def refresh_prompt(settings):
 
 # Todo: also check for API
 #
-
-
 def is_notebook_mode():
     """ Return True if we are running inside a Jupyter Notebook or Jupyter Lab. """
     try:
-        get_ipython()
+        get_ipython() # pylint disable=undefined-variable
         return True
-    except BaseException:
+    except BaseException: # pylint disable=broad-exception-caught
         return False
 
 
@@ -51,13 +48,12 @@ def remove_lines(count=1):
 def convertTuple(tup):
     # initialize an empty string
     if isinstance(tup, tuple):
-        str = ''
-        space = ''
+        a_str = ''
         for item in tup:
-            str = str + item
-        return str
-    else:
-        return tup
+            a_str = a_str + item
+        return a_str
+    
+    return tup
 
 
 def singular(string):
@@ -100,7 +96,7 @@ def confirm_prompt(question: str) -> bool:
 
 # Return boolean and formatted error message if other sessions exist.
 def other_sessions_exist(cmd_pointer):
-    from ad4e_opentoolkit.app.global_var_lib import _meta_registry_session as _meta_registry_session
+    from ad4e_opentoolkit.app.global_var_lib import _meta_registry_session
     file_list = os.listdir(os.path.dirname(_meta_registry_session))
     try:
         file_list.remove('registry.pkl' + cmd_pointer.session_id)
@@ -122,11 +118,17 @@ def user_input(cmd_pointer, question):
     text = input(prompt)
     return text
 
+def user_secret(cmd_pointer, question):
+    """
+    Basically the same as getpass.getpass(), but with some extra styling and history disabled.
+    """
+    prompt = output_text(f'<yellow>{question}: </yellow>', cmd_pointer, return_val=True, jup_return_format='plain')
+    text = getpass.getpass(prompt)
+    return text
+
 
 # Return list of available toolkit names.
 def get_toolkits():
-    import os
-
     folder_path = os.path.dirname(os.path.abspath(__file__)) + '/../user_toolkits'
     toolkit_names = [name.upper() for name in os.listdir(folder_path) if os.path.isdir(os.path.join(folder_path, name))]
     if '__PYCACHE__' in toolkit_names:
@@ -241,12 +243,12 @@ def loader(text='', anim=["◐", "◓", "◑", "◒"], no_format=False, exit_msg
 
     async def _loop(text='', i=0, line_length=0):
         # print('>', line_length)
-        str = anim[i]
+        a_str = anim[i]
         sys.stdout.write('\r' + ' ' * line_length + '\r')
         sys.stdout.flush()
         # Make text soft gray.
         text_formatted = text if no_format or not text else f'\u001b[90m{text}...\u001b[0m'
-        line = '\r' + str + ' ' + text_formatted
+        line = '\r' + a_str + ' ' + text_formatted
         sys.stdout.write(line)  # This should return line_length but it doesn't for some reason.
         line_length = len(line)
         i = (i + 1) % len(anim)
