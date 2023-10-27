@@ -27,7 +27,7 @@ def get_include_lib(cmd_pointer):
 
 
 def predict_reaction_batch_topn(inputs: dict, cmd_pointer):
-    """preducts TOPN reactions in Batch from a given list of reactions"""
+    """predicts TOPN reactions in Batch from a given list of reactions"""
     top_n=5
     rxn_helper=get_include_lib(cmd_pointer)
     rxn_helper.sync_up_workspace_name(cmd_pointer)
