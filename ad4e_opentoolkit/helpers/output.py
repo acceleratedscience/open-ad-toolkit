@@ -45,6 +45,12 @@ output_text(msg('workspace_description', workspace_name, description), cmd_point
 from IPython.display import Markdown, display
 from ad4e_opentoolkit.helpers.output_msgs import messages
 
+
+# NOTE (moe) - I'm not able to do import this from the core director,
+# nor am I able to use `from memory import memory`
+import ad4e_opentoolkit.app.memory as memory
+memory = memory.memory
+
 # Importing our own plugins.
 # This is temporary until every plugin is available as a public pypi package.
 from ad4e_opentoolkit.plugins.style_parser import style, print_s, strip_tags, tags_to_markdown
@@ -240,8 +246,7 @@ def output_table(table, cmd_pointer=None, is_data=False, headers=None, note=None
             raise Exception('cmd_pointer is required in display_data() to enable follow-up commands.')
 
         # Store data in memory so we can access it with follow-up commands.
-        cmd_pointer.memory['data'] = table
-        cmd_pointer.preserve_memory['data'] = True
+        memory.store(table)
 
     # - -
     # Format data for Jupyter.

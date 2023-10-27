@@ -8,25 +8,17 @@ from flask import render_template, request, redirect, url_for
 from ad4e_opentoolkit.helpers.output import output_table
 
 
-# TEMPORARY dummy cmd_pointer until we move memory functionality into its own class.
-class TempDummyDmdPointer:
-    notebook_mode = False
-    memory = {}
-    preserve_memory = {}
-    api_mode = False
 
+def fetchRoutesDataViewer(data, cmd_pointer):
+    notebook_mode = cmd_pointer.notebook_mode
 
-tempDummyDmdPointer = TempDummyDmdPointer()
-
-
-def fetchRoutesDataViewer(data, notebook_mode):
     def home():
         return render_template('/dataviewer/index.html', data=data)
 
     def submit():
         data_json = json.loads(request.data.decode('utf-8'))
         df = pandas.DataFrame(data_json)
-        output_table(df, tempDummyDmdPointer, is_data=True)  # return_value=False only for testing in Jupyter with tempDummyDmdPointer
+        output_table(df, cmd_pointer, is_data=True)
         return 'Success'
 
     def success():

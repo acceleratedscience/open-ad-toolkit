@@ -17,6 +17,7 @@ from ad4e_opentoolkit.core.lang_mols import display_mols
 from ad4e_opentoolkit.core.lang_runs import display_run, exec_run, save_run, list_runs
 from ad4e_opentoolkit.core.lang_dev import flask_example
 from ad4e_opentoolkit.core.grammar import create_statements
+from ad4e_opentoolkit.app.memory import memory
 
 # Toolkits
 from ad4e_opentoolkit.toolkit.toolkit_main import load_toolkit
@@ -458,7 +459,7 @@ def display_data(cmd_pointer, parser):
 # --> Save data to a csv file.
 def display_data__save(cmd_pointer, parser):
     # Initialize memory.
-    cmd_pointer.init_followup('data')
+    memory.hold()
 
     # Set variables.
     workspace_path = cmd_pointer.workspace_path(cmd_pointer.settings['workspace'].upper()) + '/'
@@ -477,7 +478,7 @@ def display_data__save(cmd_pointer, parser):
 
     # Save data to file.
     if file_path_ok:
-        cmd_pointer.memory['data'].to_csv(workspace_path + file_path, index=False)
+        memory.get().to_csv(workspace_path + file_path, index=False)
         return output_success(msg('success_save_data', file_path), cmd_pointer)
     else:
         return output_error(msg('fail_save_data'), cmd_pointer)
@@ -486,11 +487,11 @@ def display_data__save(cmd_pointer, parser):
 # --> Open data in browser UI.
 def display_data__open(cmd_pointer, parser, edit_mode=False):
     # Initialize memory.
-    cmd_pointer.init_followup('data')
+    memory.hold()
 
     # Load routes and launch browser UI.
-    data = cmd_pointer.memory['data'].to_json(orient='records')
-    routes = fetchRoutesDataViewer(data, cmd_pointer.notebook_mode)
+    data = memory.get().to_json(orient='records')
+    routes = fetchRoutesDataViewer(data, cmd_pointer)
     hash = '#edit' if edit_mode else ''
     launcher.launch(cmd_pointer, routes, 'dataviewer', hash=hash)
 

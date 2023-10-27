@@ -20,6 +20,7 @@ import ad4e_opentoolkit.core.help as openad_help
 from ad4e_opentoolkit.core.grammar import grammar_help, statements, statements_def, create_statements, output_train_statements
 from ad4e_opentoolkit.core.lang_sessions_and_registry import write_registry, load_registry, delete_session_registry
 from ad4e_opentoolkit.core.lang_workspaces import set_workspace
+from ad4e_opentoolkit.app.memory import memory
 
 # Helpers
 from ad4e_opentoolkit.helpers.general import singular, confirm_prompt
@@ -81,37 +82,6 @@ class run_cmd(Cmd):
     llm_service = 'OPENAI'
     llm_model = 'gpt-3.5-turbo'
     llm_models = {'OPENAI': 'gpt-3.5-turbo', 'WATSONX': 'mosaicml/mpt-7b'}
-
-    # Short-term memory
-    # - - -
-    # Used to store data which can be manipulated by follow-up commands.
-    # If the next command is not one of the approved follow-up commands,
-    # the memory is wiped to avoid performance impact.
-    # - - -
-    # Examples:
-    # >> display data 'table1.csv' # Data is stored in short term memory.
-    # >> save data as 'table2.csv' # Data is exported to file.
-    memory = {
-        'data': None
-    }
-
-    # By default, the memory is wiped after each command.
-    # Unless the command is one of the approved follow-up commands,
-    # in which case the memory is preserved via this dictionary.
-    preserve_memory = {
-        'data': False
-    }
-
-    # This is run at the beginning of any follow up function
-    # to check and preserve the memory content.
-    def init_followup(self, memory_key):
-        # Preserve memory for further follow-ups.
-        self.preserve_memory[memory_key] = True
-
-        # Abort if memory is empty.
-        if self.memory[memory_key] is None:
-            output_error(msg('no_data_memory'), self)
-            return
 
     def workspace_path(self, workspace: str):
         try:
@@ -510,12 +480,13 @@ class run_cmd(Cmd):
             self.prompt = refresh_prompt(self.settings)
             logging.info('Ran: ' + inp)
 
-            # Wipe short term memory, unless we're
-            # listening to follow-up commands.
-            if self.preserve_memory['data']:
-                self.preserve_memory['data'] = False
+            # We wipe the memory with every command, unless this is a follow up command,
+            # in which case we release the memory so it will be wiped with the next command.
+            if memory.holding():
+                memory.release()
             else:
-                self.memory['data'] = None
+                memory.wipe()
+
         except Exception as err1:
             # Removing due to usability being able to recall item and correct:
             # try:
