@@ -211,9 +211,10 @@ class ContextMenus {
 		this.deselectRows()
 	}
 
+	// Copy selected rows buy default, or all rows if all is true.
 	copyData(all) {
-		// Copy selected rows buy default, or all if all is true.
-		const data = all ? this.table.getData() : this.table.getSelectedData()
+		// == true is on purpose, because 'all' can be the click event.
+		const data = all == true ? this.table.getData() : this.table.getSelectedData()
 		const fields = this.table.getColumns().map(col => col.getField())
 		const textHeader = Object.values(fields).join('\t')
 		const textRows = data.map(row => Object.values(row).join('\t')).join('\n') // prettier-ignore
@@ -221,7 +222,7 @@ class ContextMenus {
 		navigator.clipboard.writeText(text)
 
 		// Blink
-		const rows = all ? this.table.getRows() : this.table.getSelectedRows()
+		const rows = all == true ? this.table.getRows() : this.table.getSelectedRows()
 		rows.forEach(row => {
 			const $row = row.getElement()
 			$row.classList.add('copied')
@@ -231,9 +232,10 @@ class ContextMenus {
 		})
 	}
 
+	// Download selected rows buy default, or all rows if all is true.
 	downloadData(all) {
-		// Download selected rows buy default, or all if all is true.
-		const data = all ? this.table.getData() : this.table.getSelectedData()
+		// == true is on purpose, because 'all' can be the click event.
+		const data = all == true ? this.table.getData() : this.table.getSelectedData()
 
 		const filename = prompt('Filename (.csv)', 'mydata')
 		if (!filename) return

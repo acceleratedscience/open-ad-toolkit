@@ -20,12 +20,21 @@ class Table extends Tabulator {
 		// Modifation
 		super.on('columnResized', () => {
 			this.element.classList.add('resized-col')
+			table.redraw(true)
 		})
-		super.on('rowResized', () => {
-			this.element.classList.add('resized-row')
+		// super.on('rowResized', () => { // %% trash
+		// 	this.element.classList.add('resized-row')
+		// })
+		super.on('dataProcessed', () => {
+			if (!this.initialized) {
+				this.originalData = this.getData() // See hasEdits()
+				this.initialized = true
+			}
 		})
 
 		// Variables
+		this.initialized = false // Has the table been initialized
+		this.originalData = null // See hasEdits()
 		this.editMode = false // Used to determine if we're in edit mode - see isEditMode()
 		this.colDefaultWidths = {} // Used to store column widths so we can reset them
 		// this.rowDefaultHeights = {} // Used to store row heights so we can reset them
@@ -154,7 +163,7 @@ class Table extends Tabulator {
 
 	// Revert changes on cancel
 	async revertData() {
-		if (this.hasEdits(this.dataBeforeEdit, this.getData())) {
+		if (this.hasEdits(true)) {
 			const selectedRows = await this.getSelectedRows()
 			const selectedRowsIndexes = selectedRows.map(row => row.getIndex())
 			this.setData(this.dataBeforeEdit)
@@ -167,12 +176,16 @@ class Table extends Tabulator {
 		}
 	}
 
-	// Check if table data was edited
-	hasEdits(data1, data2) {
-		if (data1.length != data2.length) return true
-		for (let i = 0; i < data1.length; i++) {
-			const row1 = data1[i]
-			const row2 = data2[i]
+	// Check if table has edits:
+	// - In this session only (i.e. since last save) --> used to revert data on cancel
+	// - Since the table was loaded --> used to prevent accidental page exit
+	hasEdits(sessionOnly) {
+		const dataBefore = sessionOnly ? this.dataBeforeEdit : this.originalData
+		const dataEdited = this.getData()
+		if (dataBefore.length != dataEdited.length) return true
+		for (let i = 0; i < dataBefore.length; i++) {
+			const row1 = dataBefore[i]
+			const row2 = dataEdited[i]
 			for (const key in row1) {
 				if (row1[key] != row2[key]) return true
 			}
@@ -479,15 +492,92 @@ class Table extends Tabulator {
 	// 	}
 	// }
 
-	// // Tag on to the Tabulator redraw function
-	// redraw(bool) {
-	// 	console.log('redrawww')
-	// 	// Reset the edit parameters to their default values
-	// 	this.lastSelectedRowIndex = null
-	// 	this.lastSelectedRowSelState = null
-	// 	this.selectMode = false
-	// 	super.redraw(bool)
+	// Returns an object with arrays of cell property objects per row:
+	// { col1: [
+	// 	  { type: 'string', isUrl: false, isLongText: false }
+	// 	  { type: 'string', isUrl: true, isLongText: false }
+	// 	  { type: 'string', isUrl: false, isLongText: true }
+	//   ],
+	//   col2: ...
 	// }
+	getCellProps(data) {
+		data = data ? data : table.getData()
+		const cellProps = {}
+
+		data.forEach((row, i) => {
+			Object.entries(row).map(([colName, val]) => {
+				val_str = val ? val.toString() : ''
+
+				if (!cellProps[colName]) cellProps[colName] = []
+				cellProps[colName].push({})
+
+				// Set content type.
+				if (isDate(val_str)) {
+					cellProps[colName][i].type = 'date'
+					row[colName] = moment(val_str).format('YYYY-MM-DD') // Reformat dates
+				} else {
+					const type = val === null ? 'string' : typeof val
+					cellProps[colName][i].type = typeof val
+				}
+
+				// Set isUrl
+				cellProps[colName][i].isUrl = Boolean(val_str.match(/^http(s)?:\/\//))
+				// row[key] = val.replace(/^http(s)?:\/\/([a-zA-Z0-9$-_.+!*'(),/&?=:%]+?)(\/)?$/, '$2') // Reformat URLs
+
+				// Set isLongText
+				cellProps[colName][i].isLongText = val_str.length > 70
+
+				// Set isEmpty
+				cellProps[colName][i].isEmpty = val === null
+			})
+		})
+		return cellProps
+	}
+
+	// Tag on to the Tabulator redraw function.
+	redraw(bool) {
+		if (!bool) {
+			super.redraw()
+			return
+		}
+
+		// Store current column widths.
+		const colWidthsBefore = {}
+		table.getColumns().forEach(col => {
+			colWidthsBefore[col.getField()] = col.getWidth()
+		})
+
+		// Redraw
+		super.redraw(bool)
+
+		// Store new column widths.
+		const colWidthsAfter = {}
+		table.getColumns().forEach(col => {
+			colWidthsAfter[col.getField()] = col.getWidth()
+		})
+
+		// Fix width per column.
+		this._fixColumnWidths(colWidthsBefore, colWidthsAfter)
+	}
+
+	// Fix the width per column, so the table doesn't snap back
+	// to the automatic content-based width and truncation is applied.
+	// If the column has not been resized manually, we'll limit
+	// it to 400px, otherwise we'll keep the width as it was.
+	// - - -
+	// Note: Tabulator has a built-in max-width property, but we
+	// don't want to use this because it prevents the user from
+	// resizing a column past this width.
+	_fixColumnWidths(colWidthsBefore, colWidthsAfter) {
+		Object.entries(colWidthsAfter).forEach(([colName, width], i) => {
+			const isUntampered = colWidthsBefore[colName] == this.colDefaultWidths[colName]
+			// prettier-ignore
+			const newWidth = isUntampered
+				? (Math.min(colWidthsAfter[colName], 400))
+				: (colWidthsBefore[colName])
+			this.getColumn(colName).setWidth(newWidth)
+		})
+	}
 }
 
 Table.moduleName = 'custom'

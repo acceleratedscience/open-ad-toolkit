@@ -1,12 +1,17 @@
 // To disable the context menu (for HTML inspecting), uncomment the line with the @@ comment.
 
-/////////////////////////////////
-// #region - Event listeners
-
 // Apply edit mode to buttons on load
 if (window.location.hash == '#edit') {
 	toggleEditModeBtns(true)
 }
+
+// Prevent accidentally closing or leaving the page.
+window.onbeforeunload = e => {
+	if (table.hasEdits()) return confirm('Are you sure?')
+}
+
+/////////////////////////////////
+// #region - Event listeners
 
 // Edit
 document.getElementById('btn-edit').addEventListener('click', () => {
@@ -18,8 +23,8 @@ document.querySelector('#btn-cancel').addEventListener('click', () => {
 	toggleEditMode(false, true)
 })
 
-// Save
-document.querySelector('#btn-save').addEventListener('click', () => {
+// Done
+document.querySelector('#btn-done').addEventListener('click', () => {
 	toggleEditMode(false)
 })
 
@@ -189,6 +194,16 @@ const table = new Table('#table', {
 	movableRows: false,
 	movableColumns: true,
 	rowRange: 'active', // Master checkbox will only select filtered rows
+	rowFormatter: row => {
+		// const $row = row.getElement()
+		// const rowHeight = $row.clientHeight
+		// const lines = Math.round((rowHeight - 8) / 20) // Math round not necessary but just in case
+		// // console.log(lines)
+		// if (lines == 1) {
+		// 	$row.classList.add('trunc-1')
+		// }
+		// console.log('FORMAT')
+	},
 
 	// %% trash
 	// rowFormatter: row => {
@@ -268,89 +283,35 @@ table.on('rowDeselected', () => {
 })
 
 // Set (artificial) focus on clicked cell.
-table.on('cellEditing', function (cell) {
+table.on('cellEditing', cell => {
 	$focusCell = cell.getElement()
 	setFocus($focusCell)
 })
 
 // To do: implement short history so you can undo changes.
-table.on('dataChanged', function (data) {
+table.on('dataChanged', data => {
 	// console.log('dataChanged', data)
 })
 
-// Update truncation whenever text ius changed.
-table.on('cellEdited', function (cell) {
+// Update truncation whenever text is changed.
+table.on('cellEdited', cell => {
 	const index = cell.getRow().getIndex()
 	const field = cell.getField()
+	const row = table.getRows()[index - 1]
+	const $row = row.getElement()
+	const $cell = row.getCell(field).getElement()
+
+	// // First remove possible 1-line truncation from the row.
+	// $row.classList.remove('trunc-1')
+
+	// This will trigger the rowFormatter, which will
+	// re-assign the trun-1 clas unless any of the cells
+	// in this row have more than one line of text.
 	table.redraw(true)
 
 	// Reset focus after redrawing table.
-	const $cell = table.getRows()[index - 1].getCell(field).getElement()
 	$cell.classList.add('focus')
-
-	// %% trash
-	// const newHeight = calcCellRequiredHeight(cell)
-	// return
-	// console.log(newHeight)
-	// if (newHeight) {
-	// 	console.log(33)
-	// 	const row = cell.getRow()
-	// 	const $row = row.getElement()
-	// 	const $cells = $row.querySelectorAll('.tabulator-cell')
-	// 	$cells.forEach($cell => {
-	// 		$cell.style.height = newHeight + 8 + 'px' // + 8 for padding
-	// 		console.log($cell)
-	// 	})
-	// 	alert(1)
-	// }
 })
-
-// %% trash
-// // Returns boolean whether text is larger than cell.
-// function calcCellRequiredHeight(cell) {
-// 	let $cell = cell.getElement()
-// 	const computedStyle = window.getComputedStyle($cell)
-// 	const padding = computedStyle.getPropertyValue('padding')
-// 	const width = computedStyle.getPropertyValue('width')
-// 	const height = computedStyle.getPropertyValue('height')
-// 	const borderLeft = computedStyle.getPropertyValue('border-left')
-// 	const borderRight = computedStyle.getPropertyValue('border-right')
-// 	const boxSizing = computedStyle.getPropertyValue('box-sizing')
-// 	const lineHeight = parseFloat(computedStyle.getPropertyValue('line-height'))
-
-// 	$clone = $cell.cloneNode(true)
-// 	$clone.style.borderLeft = borderLeft
-// 	$clone.style.borderRight = borderRight
-// 	$clone.style.position = 'absolute'
-// 	$clone.style.top = '-9999px'
-// 	$clone.style.left = '-9999px'
-// 	$clone.style.zIndex = 1000
-// 	$clone.style.width = width
-// 	$clone.style.height = height
-// 	$clone.style.padding = padding
-// 	$clone.style.boxSizing = boxSizing
-// 	// $clone.style.top = 0
-// 	// $clone.style.left = 0
-// 	// $clone.style.background = 'pink'
-// 	// $clone.style.opacity = 0
-// 	document.body.appendChild($clone)
-// 	// const overflows = $clone.scrollWidth > $clone.clientWidth || $clone.scrollHeight > $clone.clientHeight
-// 	// console.log($clone.scrollWidth, '>', $clone.clientWidth, '/', $clone.scrollHeight, '>', $clone.clientHeight)
-// 	const overflowV = $clone.scrollHeight > $clone.clientHeight
-// 	const overflowH = $clone.scrollWidth > $clone.clientWidth
-// 	let result
-// 	console.log({ overflowH, overflowV })
-// 	if (overflowV) {
-// 		const lines = Math.ceil($clone.scrollHeight / lineHeight)
-// 		console.log(22, $clone.scrollHeight, '/', lineHeight)
-// 		console.log(333, lines, lineHeight)
-// 		result = lines * lineHeight
-// 	} else {
-// 		result = null
-// 	}
-// 	$clone.remove()
-// 	return result
-// }
 
 // %% trash
 // table.on('dataSorted', function (sorters, rows) {
@@ -374,161 +335,33 @@ table.on('cellEdited', function (cell) {
 
 // Create the columns object that is fed to Tabulator.
 function parseColumns(data) {
-	// For each column, we store per column:
-	// - An array of sorters by row (guessed by content type). --> Defines how column is being sorted (tabular)
-	// - An array of content properties by row. --> Defines the preferred editing UI (custom)
-	const sortersAll = {
-		// col1: ['string', 'string', 'string']
-	}
-	const contentPropsAll = {
-		// col1: [{ isUrl: false, isLongText: false }, { isUrl: false, isLongText: false }],
-	}
-	data.forEach((row, i) => {
-		Object.entries(row).map(([key, val]) => {
-			val_str = val ? val.toString() : ''
+	// Get cell properties for each column.
+	const cellProps = getCellProps(data)
 
-			// Set sorters
-			if (!sortersAll[key]) sortersAll[key] = []
-			if (isDate(val_str)) {
-				sortersAll[key].push('date')
-				row[key] = moment(val_str).format('YYYY-MM-DD') // Reformat dates
-			} else {
-				const type = val === null ? null : typeof val
-				sortersAll[key].push(type)
-			}
+	// Get sorters and formatters for each column.
+	const { sortersByColumn, formattersByColumn } = getSortersAndFormatters(cellProps)
 
-			// Set content props
-			if (!contentPropsAll[key]) contentPropsAll[key] = []
-			contentPropsAll[key].push({})
-			// if (!contentPropsAll[key][j]) contentPropsAll[key][j] = {}
-			if (val_str.match(/^http(s)?:\/\//)) {
-				contentPropsAll[key][i].isUrl = true
-				// row[key] = val.replace(/^http(s)?:\/\/([a-zA-Z0-9$-_.+!*'(),/&?=:%]+?)(\/)?$/, '$2') // Reformat URLs
-			} else if (val_str.length > 70) {
-				contentPropsAll[key][i].isLongText = true
-			} else if (val === null) {
-				contentPropsAll[key][i].empty = true
-			}
-		})
-	})
+	// console.log(cellProps)
+	// console.log('Sorters:', sorters)
+	// console.log('formattersByColumn:', formattersByColumn)
 
-	// Then for the sorters, we check if they're all the same,
-	// and if they are, we set it as the column's sorter.
-	// We ignore blank values.
-	// - - -
-	// Supported sorter can be found here:
-	// https://tabulator.info/docs/5.5/sort#func-builtin
-	const sorters = {}
-	Object.entries(sortersAll).forEach(([key, typesPerRow]) => {
-		if (typesPerRow.every((type, i, arr) => type == arr[0] || type == null)) {
-			sorters[key] = typesPerRow[0]
-		} else {
-			sorters[key] = 'string'
-		}
-	})
-
-	// Then for the content props, we check if at least
-	// one cell in a column has props set, and if there
-	// is, we set a custom formatter for that column,
-	// which will format the data at the cell level,
-	// based on the content of the individual cell.
-	// - - -
-	// The built-in formatters (eg. 'url') only work at
-	// the column level, but we want more flexibility.
-	// Eg. if one cell has long text, we need a textarea
-	// editor for that cell, but we don't want to apply
-	// this to all the column's cells.
-	const needFormatter = {}
-	Object.entries(contentPropsAll).forEach(([key, propsPerRow]) => {
-		if (propsPerRow.some(props => !!Object.keys(props).length && !props.empty)) {
-			needFormatter[key] = true
-		} else {
-			needFormatter[key] = false
-		}
-	})
-
-	// There's a built-in 'textarea' editor, but we weren't happy with
-	// how truncation was handled for cells containing long text, so
-	// we had to create a custom formatter that gives us more control
-	// (specifically that lets us truncate text to a custom number of
-	// lines) and a custom formatter begets a custom editor.
-	// - - -
-	// https://tabulator.info/docs/5.5/edit#edit-custom
-	function customTextareaEditor(cell, onRendered, success, cancel, editorParams) {
-		const editor = document.createElement('textarea')
-		editor.value = cell.getValue()
-
-		onRendered(() => {
-			// Expand textarea to fit content
-			editor.style.height = ''
-			editor.style.height = editor.scrollHeight + 4 + 'px' // +4px to make up for border
-
-			// Focus or select text
-			if (editorParams.selectContents) {
-				editor.select()
-			} else {
-				editor.focus()
-			}
-		})
-		editor.addEventListener('change', _applyEdit)
-		editor.addEventListener('blur', _applyEdit)
-		editor.addEventListener('keydown', _onKeyDown)
-		editor.addEventListener('input', _onInput)
-
-		return editor
-
-		//
-		//
-
-		function _onKeyDown(e) {
-			if (e.key == 'Enter') {
-				// This is the same behavior as a Google sheet:
-				// Enter will exit the edit field, but cmd + enter
-				// will result in line break. But because with the meta
-				// key pressed, there is no actual character written,
-				// we have to add the line break ourselves.
-				if (e.metaKey || e.ctrlKey) {
-					editor.value += '\n'
-				} else {
-					_applyEdit()
-				}
-			} else if (e.key == 'Escape') {
-				cancel()
-			}
-		}
-
-		// Resize the textarea after the character was registered.
-		function _onInput(e) {
-			editor.style.height = editor.scrollHeight + 4 + 'px'
-		}
-
-		function _applyEdit() {
-			console.log('_applyEdit')
-			success(editor.value)
-		}
-	}
-
-	// Create columns ##
-	const columns = Object.entries(sorters).map(([key, sorter], i) => {
-		const { formatter, formatterParams, formatterType } = _pickFormatter(key, needFormatter, contentPropsAll)
-		// About built-in editors: https://tabulator.info/docs/5.5/edit#edit-builtin
-		const width = formatterType == 'textarea' ? 400 : undefined // Set column width only for columns with long text
-		const editor = formatterType == 'textarea' ? customTextareaEditor : true // True will auto-select the editor, usually just 'input'
-		const editorParams = { selectContents: true } // Select value on focus
+	// Create columns
+	const columns = Object.entries(cellProps).map(([colName, propsPerRow]) => {
+		const { formatter, formatterParams } = formattersByColumn[colName]
 
 		col = {
-			sorter,
-			title: key,
-			field: key,
-			width,
-			editor,
-			editorParams,
+			sorter: sortersByColumn[colName],
+			title: colName,
+			field: colName,
+			width: propsPerRow.some(cellProps => cellProps.isLongText) ? 400 : undefined, // Set column width only for columns that contain long text,
+			editor: _customTextareaEditor,
+			editorParams: { selectContents: true }, // Select value on focus,
 			editable: () => table.isEditMode(),
 			formatter,
 			formatterParams,
 			headerMenu: contextMenus.header,
 			headerContextMenu: contextMenus.header,
-			// contextMenu: contextMenus.cell, // @@
+			contextMenu: contextMenus.cell, // @@
 			// headerSort: false, %% trash
 			// headerClick: onHeaderClick, // We use our own sort logic via headerClick - %% trash
 
@@ -538,12 +371,12 @@ function parseColumns(data) {
 		}
 
 		// Add sorter params
-		if (sorter == 'date') {
+		if (propsPerRow == 'date') {
 			col.sorterParams = {
 				format: 'yyyy-MM-dd',
 				alignEmptyValues: 'top',
 			}
-		} else if (sorter == 'number') {
+		} else if (propsPerRow == 'number') {
 			col.sorterParams = {
 				thousandSeparator: ',',
 				decimalSeparator: '.',
@@ -563,6 +396,101 @@ function parseColumns(data) {
 	return columns
 }
 
+// Get sorters and formatters for each column.
+function getSortersAndFormatters(cellProps) {
+	const sortersByColumn = {}
+	const formattersByColumn = {}
+
+	Object.entries(cellProps).forEach(([colName, propsPerRow]) => {
+		// Select sorter
+		// - - -
+		// To figure out the correct column sorter, we check if
+		// the type is the same for all rows (ignore blank values),
+		// and if it is, we set it as the column's sorter.
+		// - - -
+		// Supported sorters can be found here:
+		// https://tabulator.info/docs/5.5/sort#func-builtin
+		if (propsPerRow.every((cellProps, i, arr) => cellProps.type == arr[0].type || cellProps.isEmpty)) {
+			sortersByColumn[colName] = propsPerRow[0].type
+		} else {
+			sortersByColumn[colName] = 'string'
+		}
+
+		// Select formatter
+		// - - -
+		// To figure out the formatter, we check if all rows in
+		// a particular column have a certain property (like isUrl)
+		// and use the appropriate formatter if they do (igoring empty
+		// values). All the rest uses the default formatter.
+		if (propsPerRow.every(cellProps => cellProps.isUrl || cellProps.isEmpty)) {
+			// Url formatter (built-in)
+			formattersByColumn[colName] = {
+				formatter: 'link',
+				formatterParams: {
+					target: '_blank',
+					label: cell => {
+						let val = cell.getValue()
+						return val ? val.replace(/^http(s)?:\/\/([a-zA-Z0-9$-_.+!*'(),/&?=:%]+?)(\/)?$/, '$2') : val // Reformat URLs
+					},
+				},
+			}
+		} else {
+			// Text formatter (custom, letting us use advanced truncation)
+			formattersByColumn[colName] = {
+				// This custom formatter lets us truncate text to a custom number
+				// of lines. It's in lieue of the built-un 'textarea' formatter.
+				formatter: (cell, formatterParams, onRendered) => {
+					return `<div class="text-wrap">${cell.getValue()}</div>`
+				},
+				formatterParams: null,
+			}
+		}
+	})
+
+	return { sortersByColumn, formattersByColumn }
+}
+
+// Returns an object with arrays of cell property objects per row:
+// { col1: [
+// 	  { type: 'string', isUrl: false, isLongText: false }
+// 	  { type: 'string', isUrl: true, isLongText: false }
+// 	  { type: 'string', isUrl: false, isLongText: true }
+//   ],
+//   col2: ...
+// }
+function getCellProps(data) {
+	const cellProps = {}
+
+	data.forEach((row, i) => {
+		Object.entries(row).map(([colName, val]) => {
+			val_str = val ? val.toString() : ''
+
+			if (!cellProps[colName]) cellProps[colName] = []
+			cellProps[colName].push({})
+
+			// Set content type.
+			if (isDate(val_str)) {
+				cellProps[colName][i].type = 'date'
+				row[colName] = moment(val_str).format('YYYY-MM-DD') // Reformat dates
+			} else {
+				const type = val === null ? 'string' : typeof val
+				cellProps[colName][i].type = typeof val
+			}
+
+			// Set isUrl
+			cellProps[colName][i].isUrl = Boolean(val_str.match(/^http(s)?:\/\//))
+			// row[key] = val.replace(/^http(s)?:\/\/([a-zA-Z0-9$-_.+!*'(),/&?=:%]+?)(\/)?$/, '$2') // Reformat URLs
+
+			// Set isLongText
+			cellProps[colName][i].isLongText = val_str.length > 70
+
+			// Set isEmpty
+			cellProps[colName][i].isEmpty = val === null
+		})
+	})
+	return cellProps
+}
+
 // Look at a column's content and pick the appropriate formatter.
 // The formatter defines how a cell is rendered.
 // - - -
@@ -576,7 +504,7 @@ function _pickFormatter(key, needFormatter, contentPropsAll) {
 			return { formatter: 'link', formatterParams: { target: '_blank' } }
 		} else if (hasSomeLongText) {
 			return {
-				formatterType: 'textarea', // @@@
+				formatterType: 'textarea',
 				// This custom formatter lets us truncate text to a custom number
 				// of lines. It's in lieue of the built-un 'textarea' formatter.
 				formatter: (cell, formatterParams, onRendered) => {
@@ -586,6 +514,70 @@ function _pickFormatter(key, needFormatter, contentPropsAll) {
 		}
 	}
 	return {}
+}
+
+// There's a built-in 'textarea' editor, but we weren't happy with
+// how truncation was handled for cells containing long text, so
+// we had to create a custom formatter that gives us more control
+// (specifically that lets us truncate text to a custom number of
+// lines) and a custom formatter begets a custom editor.
+// - - -
+// About custom editors: https://tabulator.info/docs/5.5/edit#edit-custom
+// About built-in editors: https://tabulator.info/docs/5.5/edit#edit-builtin
+function _customTextareaEditor(cell, onRendered, success, cancel, editorParams) {
+	const editor = document.createElement('textarea')
+	editor.value = cell.getValue()
+
+	onRendered(() => {
+		// Expand textarea to fit content
+		editor.style.height = ''
+		editor.style.height = editor.scrollHeight + 4 + 'px' // +4px to make up for border
+
+		// Focus or select text
+		if (editorParams.selectContents) {
+			editor.select()
+		} else {
+			editor.focus()
+		}
+	})
+	editor.addEventListener('change', _applyEdit)
+	editor.addEventListener('blur', _applyEdit)
+	editor.addEventListener('keydown', _onKeyDown)
+	editor.addEventListener('input', _onInput)
+
+	return editor
+
+	//
+	//
+
+	function _onKeyDown(e) {
+		if (e.key == 'Enter') {
+			// This is the same behavior as a Google sheet:
+			// Enter will exit the edit field, but cmd + enter
+			// will result in line break. But because with the meta
+			// key pressed, there is no actual character written,
+			// we have to add the line break ourselves.
+			if (e.metaKey || e.ctrlKey) {
+				editor.value += '\n'
+				_onInput()
+			} else {
+				_applyEdit()
+			}
+		} else if (e.key == 'Escape') {
+			cancel()
+		}
+	}
+
+	// Resize the textarea after the character was registered.
+	function _onInput() {
+		console.log('#')
+		editor.style.height = editor.scrollHeight + 4 + 'px'
+	}
+
+	function _applyEdit() {
+		console.log('_applyEdit')
+		success(editor.value)
+	}
 }
 
 // #endregion
@@ -751,7 +743,15 @@ function deleteColumn(e, col) {
 // }
 
 function onCellClick(e, cell) {
-	console.log('click')
+	// Activate edit mode when cmd-clicking a cell.
+	if (e.metaKey || e.ctrlKey) {
+		toggleEditMode(true)
+		setTimeout(() => {
+			$focusCell.click()
+		}, 0)
+		return
+	}
+
 	// Display overlay with full content when cell is truncated.
 	if (e.target.classList.contains('text-wrap')) {
 		const $textWrap = e.target
@@ -977,21 +977,11 @@ function toggleOptions(bool) {
 	}
 }
 
-// Set truncation limit (0/1/3)
-function setTruncation(limit) {
-	const $table = document.getElementById('table')
-	$table.classList.remove('trunc-3', 'trunc-1')
-	if (limit > 0) {
-		$table.classList.add('trunc-' + limit)
-	}
-	table.redraw(true)
-}
-
 // Apply options
 function applyOptions() {
 	// Truncation
 	const truncLimit = +document.getElementById('dd-opt-select-truncation').value
-	setTruncation(truncLimit)
+	_setTruncation(truncLimit)
 
 	// %% trash
 	// // Index column
@@ -1001,6 +991,16 @@ function applyOptions() {
 	// } else {
 	// 	table.removeIndexCol()
 	// }
+}
+
+// Set truncation limit (0/1/3)
+function _setTruncation(limit) {
+	const $table = document.getElementById('table')
+	$table.classList.remove('trunc-3', 'trunc-1')
+	if (limit > 0) {
+		$table.classList.add('trunc-' + limit)
+	}
+	table.redraw(true)
 }
 
 // #endregion
