@@ -148,17 +148,17 @@ def lang_parse(cmd_pointer, parser):
         return get_status(cmd_pointer, parser)
     elif parser.getName() == 'display_history':  # Addressed
         return display_history(cmd_pointer, parser)
-    elif parser.getName() == "display_data":
+    elif parser.getName() == 'display_data':
         return display_data(cmd_pointer, parser)
-    elif parser.getName() == "display_data__save":
+    elif parser.getName() == 'display_data__save':
         return display_data__save(cmd_pointer, parser)
-    elif parser.getName() == "display_data__open":
+    elif parser.getName() == 'display_data__open':
         return display_data__open(cmd_pointer, parser)
-    elif parser.getName() == "display_data__edit":
+    elif parser.getName() == 'display_data__edit':
         return display_data__open(cmd_pointer, parser, True)
-    elif parser.getName() == "display_data__copy":
+    elif parser.getName() == 'display_data__copy':
         return display_data__copy(cmd_pointer, parser)
-    elif parser.getName() == "display_data__display":
+    elif parser.getName() == 'display_data__display':
         return display_data__display(cmd_pointer, parser)
     elif parser.getName() == 'clear_sessions':
         return clear_other_sessions(cmd_pointer, parser)
@@ -432,32 +432,32 @@ def display_history(cmd_pointer, parser):
 
 # Display a csv file in a table.
 def display_data(cmd_pointer, parser):
-    workspace_path = cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/"
-    file_path = parser["file_path"]
-    filename = file_path.split("/")[-1]
+    workspace_path = cmd_pointer.workspace_path(cmd_pointer.settings['workspace'].upper()) + '/'
+    file_path = parser['file_path']
+    filename = file_path.split('/')[-1]
 
     # Allow for no extension.
-    if len(filename.split(".")) == 1:
-        filename = filename + ".csv"
-        file_path = file_path + ".csv"
+    if len(filename.split('.')) == 1:
+        filename = filename + '.csv'
+        file_path = file_path + '.csv'
 
     # Open file
     try:
-        if filename.split(".")[-1].lower() == "csv":
+        if filename.split('.')[-1].lower() == 'csv':
             # From csv file.
             try:
                 df = pd.read_csv(workspace_path + file_path)
                 return output_table(df, cmd_pointer, is_data=True)
             except FileNotFoundError:
-                return output_error(msg("fail_file_doesnt_exist", file_path), cmd_pointer)
+                return output_error(msg('fail_file_doesnt_exist', file_path), cmd_pointer)
             except BaseException as err:
-                return output_error(msg("err_load_csv", err, split=True), cmd_pointer)
+                return output_error(msg('err_load_csv', err, split=True), cmd_pointer)
         else:
             # Other file formats --> error.
-            return output_error(msg("invalid_file_format", "csv", split=True), cmd_pointer)
+            return output_error(msg('invalid_file_format', 'csv', split=True), cmd_pointer)
 
     except BaseException as err:
-        output_error(msg("err_unknown", err, split=True), cmd_pointer)
+        output_error(msg('err_unknown', err, split=True), cmd_pointer)
 
 
 # --> Save data to a csv file.
@@ -470,16 +470,14 @@ def display_data__save(cmd_pointer, parser):
         return output_error(msg('memory_empty', 'display'), pad=1)
 
     # Set variables.
-    workspace_path = (
-        cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/"
-    )
-    file_path = parser["file_path"] if "file_path" in parser else None  # Parser as_dict?
-    file_path = validate_file_path(file_path, ["csv"], cmd_pointer)
+    workspace_path = cmd_pointer.workspace_path(cmd_pointer.settings['workspace'].upper()) + '/'
+    file_path = parser['file_path'] if 'file_path' in parser else None  # Parser as_dict?
+    file_path = validate_file_path(file_path, ['csv'], cmd_pointer)
 
     # Prompt file path if missing.
     while not file_path:
-        file_path = user_input(cmd_pointer, "Filename")
-        file_path = validate_file_path(file_path, ["csv"], cmd_pointer)
+        file_path = user_input(cmd_pointer, 'Filename')
+        file_path = validate_file_path(file_path, ['csv'], cmd_pointer)
 
     # Ensure the file_path is kosher:
     # - Make sure we won't override an existing file
@@ -489,9 +487,9 @@ def display_data__save(cmd_pointer, parser):
     # Save data to file.
     if file_path_ok:
         data.to_csv(workspace_path + file_path, index=False)
-        return output_success(msg("success_save_data", file_path), cmd_pointer)
+        return output_success(msg('success_save_data', file_path), cmd_pointer)
     else:
-        return output_error(msg("fail_save_data"), cmd_pointer)
+        return output_error(msg('fail_save_data'), cmd_pointer)
 
 
 # --> Open data in browser UI.
@@ -504,10 +502,10 @@ def display_data__open(cmd_pointer, parser, edit_mode=False):
         return output_error(msg('memory_empty', 'display'), pad=1)
 
     # Load routes and launch browser UI.
-    data = data.to_json(orient="records")
+    data = data.to_json(orient='records')
     routes = fetchRoutesDataViewer(data, cmd_pointer)
-    hash = "#edit" if edit_mode else ""
-    launcher.launch(cmd_pointer, routes, "dataviewer", hash=hash)
+    hash = '#edit' if edit_mode else ''
+    launcher.launch(cmd_pointer, routes, 'dataviewer', hash=hash)
 
 
 # --> Open data in browser UI.
