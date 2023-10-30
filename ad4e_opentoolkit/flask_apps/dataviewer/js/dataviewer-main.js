@@ -7,7 +7,11 @@ if (window.location.hash == '#edit') {
 
 // Prevent accidentally closing or leaving the page.
 window.onbeforeunload = e => {
-	if (table.hasEdits()) return confirm('Are you sure?')
+	if (table.isSubmitting) {
+		table.isSubmitting = false
+	} else if (table.hasEdits()) {
+		return confirm('Are you sure?')
+	}
 }
 
 /////////////////////////////////
@@ -269,7 +273,7 @@ table.on('tableBuilt', () => {
 	table.redraw(true)
 
 	// Store the initial state of the table.
-	table.add_history(table.getData())
+	table.addHistory(table.getData())
 
 	// %% trash
 	// // Set the "Add index column" dropdown to the correct value.
@@ -306,8 +310,7 @@ table.on('rowDeselected', () => {
 
 // To do: implement short history so you can undo changes.
 table.on('dataChanged', data => {
-	table.add_history(data)
-	console.log('dataChanged', data)
+	table.addHistory(data)
 })
 
 // Update truncation whenever text is changed.
@@ -380,7 +383,7 @@ function parseColumns(data) {
 			formatterParams,
 			headerMenu: contextMenus.header,
 			headerContextMenu: contextMenus.header,
-			contextMenu: contextMenus.cell, // @@
+			// contextMenu: contextMenus.cell, // @@
 			// headerSort: false, %% trash
 			// headerClick: onHeaderClick, // We use our own sort logic via headerClick - %% trash
 
@@ -547,10 +550,15 @@ function _customTextareaEditor(cell, onRendered, success, cancel, editorParams) 
 	const editor = document.createElement('textarea')
 	editor.value = cell.getValue()
 
+	// This removes the border so we can measure
+	// editor.scrollHeight without lines wrapping.
+	editor.classList.add('processing')
+
 	onRendered(() => {
 		// Expand textarea to fit content
 		editor.style.height = ''
 		editor.style.height = editor.scrollHeight + 4 + 'px' // +4px to make up for border
+		editor.classList.remove('processing')
 
 		// Focus or select text
 		if (editorParams.selectContents) {
@@ -592,12 +600,10 @@ function _customTextareaEditor(cell, onRendered, success, cancel, editorParams) 
 
 	// Resize the textarea after the character was registered.
 	function _onInput() {
-		console.log('#')
 		editor.style.height = editor.scrollHeight + 4 + 'px'
 	}
 
 	function _applyEdit() {
-		console.log('_applyEdit')
 		success(editor.value)
 	}
 }
@@ -733,17 +739,25 @@ function _addIndexCol(data, columns) {
 
 // Delete column and all its data
 function deleteColumn(e, col) {
-	const field = col.getField()
-	if (field == table.options.index) {
-		let message = `You can't delete the '${field}' column as it's used for identifying the rows.` // Note: repeat
-		if (table.addedIndex) {
-			message += ' It will be removed when you submit the data, unless you change this in the options panel.'
-		} else {
-			message += ' But you can choose not to export it in the options panel.'
-		}
-		alert(message)
-	} else {
-		col.delete()
+	col.delete()
+}
+
+// Rename column
+function renameColumn(e, col) {
+	const currentName = col.getField()
+	const newName = prompt('New column name:', currentName)
+	const cellWidth = col.getWidth()
+	if (newName) {
+		table.updateColumnDefinition(currentName, { title: newName, field: newName })
+		table.getColumn(newName).setWidth(cellWidth)
+
+		// Update every row with the new column name.
+		table.getRows().forEach(row => {
+			const updateObject = {}
+			updateObject[currentName] = undefined
+			updateObject[newName] = row.getCell(currentName).getValue()
+			row.update(updateObject)
+		})
 	}
 }
 
@@ -768,9 +782,9 @@ function onCellClick(e, cell) {
 	// Activate edit mode when cmd-clicking a cell.
 	if (e.metaKey || e.ctrlKey) {
 		toggleEditMode(true)
-		setTimeout(() => {
-			$focusCell.click()
-		}, 0)
+		// setTimeout(() => { // %% trash, seems to work fine without now
+		// 	$focusCell.click()
+		// }, 0)
 		return
 	}
 
@@ -1109,6 +1123,7 @@ function dispatchMainActions(e) {
 // #region - Submit data
 
 function submitData() {
+	table.isSubmitting = true
 	const data = prepDataForExport()
 
 	// Create a new XMLHttpRequest object

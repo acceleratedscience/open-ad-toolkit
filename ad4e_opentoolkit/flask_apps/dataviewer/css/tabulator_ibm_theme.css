@@ -437,7 +437,8 @@ body {
 }
 .tabulator.edit-mode .tabulator-header .tabulator-col,
 .tabulator.edit-mode .tabulator-row,
-.tabulator.edit-mode .tabulator-cell {
+.tabulator.edit-mode .tabulator-cell,
+.tabulator.edit-mode .tabulator-cell:last-of-type {
 	border-color: var(--blue-30);
 }
 
@@ -503,6 +504,9 @@ body {
 	line-height: 20px;
 	padding: 3px !important;
 	padding-left: 4px !important; /* <-- Shifts text 1px right, making edit mode more clear. */
+}
+.tabulator-row .tabulator-cell.tabulator-editing textarea.processing {
+	border-width: 1px;
 }
 .tabulator-row .tabulator-cell.tabulator-editing input {
 	height: calc(100% + 2px) !important;

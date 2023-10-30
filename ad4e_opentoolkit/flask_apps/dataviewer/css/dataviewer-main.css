@@ -10,8 +10,8 @@ body {
 	float: right;
 	z-index: 3;
 	position: fixed;
-	top: 40px;
-	right: 40px;
+	top: 20px;
+	right: 20px;
 }
 #options .ibm-dropdown {
 	margin-bottom: 30px;

@@ -22,10 +22,15 @@ def fetchRoutesDataViewer(data, cmd_pointer):
         return 'Success'
 
     def success():
+        # Render success page before we kill the server, so we can still serve the CSS.
+        html = render_template('/dataviewer/success.html', notebook_mode=notebook_mode)
+
         # Kill server
         os.kill(os.getpid(), signal.SIGINT)
 
-        return render_template('/dataviewer/success.html', notebook_mode=notebook_mode)
+        return html
+
+        
 
     routes = {
         '/': {

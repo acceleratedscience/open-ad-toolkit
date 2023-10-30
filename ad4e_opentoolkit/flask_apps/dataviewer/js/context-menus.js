@@ -38,6 +38,10 @@ class ContextMenus {
 		if (this.table.isEditMode()) return this.editModeActions()
 		return [
 			{
+				label: 'Rename column',
+				action: renameColumn,
+			},
+			{
 				label: 'Delete column',
 				action: deleteColumn,
 			},

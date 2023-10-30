@@ -45,6 +45,8 @@ class Table extends Tabulator {
 		this.selectMode = false // Boolean used to ignore row resize handles while selecting rows
 		this.history = [] // Used to store previous 10 states so you can undo/redo
 		this.history_reverse = [] // Used to store the states you went back in history
+		this.blockHistory = false // Used to block writing to history when undoing/redoing
+		this.isSubmitting = false // Used to prevent triggering window.onbeforeunload
 	}
 
 	// Store column default widths
@@ -537,21 +539,31 @@ class Table extends Tabulator {
 	}
 
 	// Add state of data to history
-	add_history(data) {
+	addHistory(data) {
+		if (this.blockHistory) {
+			this.blockHistory = false
+			return
+		}
 		data = JSON.parse(JSON.stringify(data))
-		console.log(111, data['Organization Id:'], data)
 		if (this.history.length >= 10) {
 			this.history.shift()
 		}
 		this.history.push(data)
+
+		// Empty history_reverse so you can't redo
+		// from another branch of edits.
+		this.history_reverse = []
 	}
 
 	undo() {
-		if (this.history.length > 0) {
+		if (this.history.length > 1) {
 			const dataCurrent = this.history.pop()
 			this.history_reverse.push(dataCurrent)
-			const dataPrevious = this.history.length > 0 ? this.history[this.history.length - 1] : null
-			this.setData(dataPrevious)
+			const dataPrevious = this.history[this.history.length - 1]
+			this.blockHistory = true
+			this.updateData(dataPrevious)
+			// console.log('<-- history_reverse:', JSON.stringify(this.history_reverse.map(state => state[0]['Test'])))
+			// console.log('<-- history:', JSON.stringify(this.history.map(state => state[0]['Test'])))
 		}
 	}
 
@@ -559,7 +571,10 @@ class Table extends Tabulator {
 		if (this.history_reverse.length > 0) {
 			const data = this.history_reverse.pop()
 			this.history.push(data)
+			this.blockHistory = true
 			this.updateData(data)
+			// console.log('--> history:', JSON.stringify(this.history.map(state => state[0]['Test'])))
+			// console.log('--> history_reverse:', JSON.stringify(this.history_reverse.map(state => state[0]['Test'])))
 		}
 	}
 
