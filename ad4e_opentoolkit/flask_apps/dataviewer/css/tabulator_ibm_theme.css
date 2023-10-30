@@ -25,7 +25,7 @@ body {
 }
 
 /* Allow links to break mid-word */
-.tabulator-row .tabulator-cell a {
+.tabulator-row .tabulator-cell {
 	line-break: anywhere;
 }
 
@@ -504,9 +504,6 @@ body {
 	line-height: 20px;
 	padding: 3px !important;
 	padding-left: 4px !important; /* <-- Shifts text 1px right, making edit mode more clear. */
-}
-.tabulator-row .tabulator-cell.tabulator-editing textarea.processing {
-	border-width: 1px;
 }
 .tabulator-row .tabulator-cell.tabulator-editing input {
 	height: calc(100% + 2px) !important;

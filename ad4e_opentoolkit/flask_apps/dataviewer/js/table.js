@@ -5,39 +5,88 @@
 
 class Table extends Tabulator {
 	constructor(element, options) {
-		// Initiation
+		// Initiate Tabulator
 		super(element, options)
+
+		/**
+		 * Events
+		 */
+
+		// Initialization
 		super.on('tableBuilt', () => {
+			// Redraw the table after the data object is built but before the table is rendered.
+			// This is a little hack to prevent all rows to take on the height of the tallest cell.
+			this.redraw(true)
+
 			// Turn on edit mode if hash is present
 			if (options.editMode) {
 				this.toggleEditMode(true)
 			}
 
 			// Store column widths so we can reset them
-			this.storeColWidths()
+			this._storeColWidths()
+
+			// Store the initial state of the table.
+			this._addHistoryEntry(this.getData())
+
+			// Used to check if the table has been edited - See hasEdits()
+			this.originalData = this.getData()
+
+			// Keyboard interaction
+			const onKeyDown = this.onKeyDown.bind(this)
+			document.removeEventListener('keydown', onKeyDown)
+			document.addEventListener('keydown', onKeyDown)
 		})
 
-		// Modifation
-		super.on('columnResized', () => {
-			this.element.classList.add('resized-col')
-			table.redraw(true)
-		})
-		// super.on('rowResized', () => { // %% trash
-		// 	this.element.classList.add('resized-row')
-		// })
-		super.on('dataProcessed', () => {
-			if (!this.initialized) {
-				this.originalData = this.getData() // See hasEdits()
-				this.initialized = true
+		// Undo/redo
+		super.on('dataChanged', data => {
+			if (!this.blockHistory) {
+				this._addHistoryEntry(data)
 			}
 		})
 
-		// Variables
-		this.initialized = false // Has the table been initialized
+		// Column resizing
+		super.on('columnResized', () => {
+			// Show "Reset columns" link
+			this.element.classList.add('resized-col')
+
+			// Updates row height to fit content.
+			this.redraw(true)
+		})
+
+		// Controls our homebrewed movableRows.
+		super.on('cellMouseDown', this.onCellMouseDown)
+
+		// Update truncation whenever text is changed.
+		super.on('cellEdited', cell => {
+			const index = cell.getRow().getIndex()
+			const field = cell.getField()
+
+			// This will adjust the column widths to fit the content.
+			this.redraw(true)
+
+			// Trace back the same cell after redraw
+			// has replaced the HTML and reset the focus.
+			const $newCell = this.getRows()[index - 1].getCell(field).getElement()
+			this.setFocus($newCell)
+		})
+
+		// Double-click to edit cell.
+		super.on('cellDblClick', (e, cell) => {
+			if (!this.isEditMode()) toggleEditMode(true)
+			const $focusCell = cell.getElement()
+			setTimeout(() => {
+				$focusCell.click()
+			}, 0)
+		})
+
+		/**
+		 * Variables
+		 */
+
 		this.originalData = null // See hasEdits()
 		this.editMode = false // Used to determine if we're in edit mode - see isEditMode()
 		this.colDefaultWidths = {} // Used to store column widths so we can reset them
-		// this.rowDefaultHeights = {} // Used to store row heights so we can reset them
 		this.index = options.index // Tabulator doesn't store the index so we have to
 		this.addedIndex = options.addedIndex // Used to keep track if we added an index column
 		this.lastSelectedRowIndex = null // Number used to determine where to start from when shift-selecting
@@ -49,92 +98,24 @@ class Table extends Tabulator {
 		this.isSubmitting = false // Used to prevent triggering window.onbeforeunload
 	}
 
+	/////////////////////////////////
+	// #region - Initialization
+
 	// Store column default widths
-	storeColWidths() {
+	_storeColWidths() {
 		this.getColumns().forEach(col => {
 			this.colDefaultWidths[col.getField()] = col.getWidth()
 		})
 	}
 
-	// // Store row default heights
-	// storeRowHeights() {
-	// 	this.getRows().forEach(row => {
-	// 		this.rowDefaultHeights[row.getPosition()] = row.getHeight()
-	// 	})
-	// }
+	// #endregion
 
-	// // Add index column
-	// addIndexCol(force) {
-	// 	if (this.addedIndex) return
-	// 	const data = this.getData()
+	/////////////////////////////////
+	// #region - Public methods
 
-	// 	let addCol = false
-	// 	if (force) {
-	// 		// Column is added manually via options panel.
-	// 		addCol = true
-	// 	} else if (!force) {
-	// 		// Column is added on init, but only if one doesn't already exist.
-	// 		const rowSample = data[1]
-	// 		let hasIndex = !!rowSample['#']
-	// 		if (!hasIndex) {
-	// 			for (const key in rowSample) {
-	// 				if (key.toLowerCase() == 'index') {
-	// 					hasIndex = true
-	// 					break
-	// 				}
-	// 			}
-	// 			addCol = !hasIndex
-	// 		}
-	// 	}
-
-	// 	// Add index column if missing
-	// 	if (addCol) {
-	// 		this.addedIndex = true
-	// 		data.forEach((row, i) => {
-	// 			row['#'] = i + 1
-	// 		})
-	// 		this.setData(data)
-
-	// 		const colSample = this.getColumns()[0]
-	// 		const newCol = {
-	// 			...colSample,
-	// 			sorter: 'number',
-	// 			title: '#',
-	// 			field: '#',
-	// 		}
-	// 		this.addColumn(newCol, true)
-	// 	}
-	// }
-
-	// // Remove index column
-	// removeIndexCol() {
-	// 	const indexCol = this.getColumns()[0]
-	// 	if (indexCol.getField() == '#') {
-	// 		this.addedIndex = false
-	// 		indexCol.delete()
-	// 		const data = this.getData()
-	// 		data.forEach((row, i) => {
-	// 			delete row['#']
-	// 		})
-	// 		this.setData(data)
-	// 	}
-	// }
-
-	// Reset column widths to default
-	resetCols() {
-		this.getColumns().forEach(col => {
-			col.setWidth(this.colDefaultWidths[col.getField()])
-			this.element.classList.remove('resized-col')
-		})
-	}
-
-	// // Reset row heights to default
-	// resetRows() {
-	// 	this.getRows().forEach(row => {
-	// 		row.setHeight(this.rowDefaultHeights[row.getField()])
-	// 		this.element.classList.remove('resized-row')
-	// 	})
-	// }
+	/**
+	 * Editing
+	 */
 
 	// Check if table is in edit mode
 	isEditMode() {
@@ -149,24 +130,24 @@ class Table extends Tabulator {
 		this.editMode = bool == undefined ? !this.editMode : bool
 		if (this.editMode) {
 			// ENTER
-			this.storeData() // Store data so we can revert on cancel
+			this._storeData() // Store data so we can revert on cancel
 			this.element.classList.add('edit-mode')
 			history.pushState('', document.title, window.location.pathname + window.location.search + '#edit') // Add hash
 		} else {
 			// EXIT
-			if (revertChanges) this.revertData()
+			if (revertChanges) this._revertData()
 			this.element.classList.remove('edit-mode')
 			history.pushState('', document.title, window.location.pathname + window.location.search) // Remove hash
 		}
 	}
 
 	// Store copy of data so we can revert changes
-	storeData() {
+	_storeData() {
 		this.dataBeforeEdit = this.getData()
 	}
 
 	// Revert changes on cancel
-	async revertData() {
+	async _revertData() {
 		if (this.hasEdits(true)) {
 			const selectedRows = await this.getSelectedRows()
 			const selectedRowsIndexes = selectedRows.map(row => row.getIndex())
@@ -197,24 +178,183 @@ class Table extends Tabulator {
 		return false
 	}
 
-	// // %% trash
-	// // Recreate the built in sort
-	// sort(col) {
-	// 	// We block sorting while in edit mode, because we reset the selection
-	// 	// on revertData() and sorting breaks this. However, this is not a good
-	// 	// solution, instead we should detect if the data was sorted, and not
-	// 	// reselect the rows if it was.
-	// 	// if (this.editMode) {
-	// 	// 	alert('Please exit edit mode before sorting.')
-	// 	// 	return
-	// 	// }
-	// 	const colName = col.getField()
-	// 	const $col = col.getElement()
-	// 	const sortOrder = $col.getAttribute('aria-sort') == 'ascending' ? 'desc' : 'asc'
-	// 	$col.classList.add('sortable', `sort-${sortOrder}`)
-	// 	this.setSort(colName, sortOrder)
-	// 	console.log('$')
-	// }
+	/**
+	 * Column actions
+	 */
+
+	// Reset column widths to default
+	resetColWidths() {
+		this.getColumns().forEach(col => {
+			col.setWidth(this.colDefaultWidths[col.getField()])
+			this.element.classList.remove('resized-col')
+		})
+	}
+
+	// Delete column and all its data
+	deleteColumn(e, col) {
+		col.delete()
+	}
+
+	// Rename column
+	renameColumn(e, col) {
+		const currentName = col.getField()
+		const newName = prompt('New column name:', currentName)
+		const cellWidth = col.getWidth()
+		if (newName) {
+			table.updateColumnDefinition(currentName, { title: newName, field: newName })
+			table.getColumn(newName).setWidth(cellWidth)
+
+			// Update every row with the new column name.
+			table.getRows().forEach(row => {
+				const updateObject = {}
+				updateObject[currentName] = undefined
+				updateObject[newName] = row.getCell(currentName).getValue()
+				row.update(updateObject)
+			})
+		}
+	}
+
+	/**
+	 * Undo / Redo
+	 */
+
+	// Add state of data to history
+	_addHistoryEntry(data) {
+		console.log('_addHistoryEntry')
+		data = JSON.parse(JSON.stringify(data))
+		if (this.history.length >= 10) {
+			this.history.shift()
+		}
+		this.history.push(data)
+
+		// Empty history_reverse so you can't redo
+		// from another branch of edits.
+		this.history_reverse = []
+	}
+
+	// Undo action
+	async undoChange() {
+		if (this.history.length > 1) {
+			const dataCurrent = this.history.pop()
+			this.history_reverse.push(dataCurrent)
+			const dataPrevious = this.history[this.history.length - 1]
+			this.blockHistory = true
+			await this.updateData(dataPrevious)
+			this.blockHistory = false
+			this.redraw(true)
+			console.log('<-- history_reverse:', JSON.stringify(this.history_reverse.map(state => state[0]['Test'])), this.history_reverse)
+			console.log('<-- history:', JSON.stringify(this.history.map(state => state[0]['Test'])), this.history)
+		}
+	}
+
+	// Redo undone action
+	async redoChange() {
+		if (this.history_reverse.length > 0) {
+			const data = this.history_reverse.pop()
+			this.history.push(data)
+			this.blockHistory = true
+			this.updateData(data)
+			this.blockHistory = true
+			this.redraw(true)
+			console.log('--> history:', JSON.stringify(this.history.map(state => state[0]['Test'])))
+			console.log('--> history_reverse:', JSON.stringify(this.history_reverse.map(state => state[0]['Test'])))
+		}
+	}
+
+	// #endregion
+
+	/////////////////////////////////
+	// #region - Interaction
+
+	onKeyDown(e) {
+		const inputInFocus = e.target.tagName.toLowerCase() == 'input' || e.target.tagName.toLowerCase() == 'textarea'
+		if (inputInFocus) return
+
+		const $focusCell = document.querySelector('.tabulator-cell.focus')
+		const $row = $focusCell ? $focusCell.closest('.tabulator-row') : null
+		const row = $row ? this.getRow($row) : null
+
+		// Copy focused cell content on cmd + C
+		if ($focusCell && e.key == 'c' && (e.metaKey || e.ctrlKey)) {
+			contextMenus.copyCell(null, null, $focusCell)
+			return
+		}
+
+		if (e.key == 'Escape') {
+			// Hide full cell content overlay
+			const fullCellDisplayActive = this.hideFullCellContent()
+			if (fullCellDisplayActive) return
+
+			// Exit edit mode
+			if (this.isEditMode()) {
+				toggleEditMode(false, true)
+				return
+			}
+
+			// Deselect rows
+			if (this.getSelectedRows().length) {
+				this.deselectRows(true)
+				return
+			}
+		} else if ((e.metaKey || e.ctrlKey) && e.key == 'z') {
+			// Undo / redo
+			if (e.shiftKey) {
+				this.redoChange()
+			} else {
+				this.undoChange()
+			}
+			return
+		}
+
+		// Move focus with arrow keys
+		if ($focusCell) {
+			if (e.key == 'ArrowLeft' || (e.shiftKey && e.key == 'Tab')) {
+				this.moveFocus('left')
+				e.preventDefault()
+			} else if (e.key == 'ArrowRight' || e.key == 'Tab') {
+				this.moveFocus('right')
+				e.preventDefault()
+			} else if (e.key == 'ArrowUp') {
+				this.moveFocus('up')
+				e.preventDefault()
+			} else if (e.key == 'ArrowDown') {
+				this.moveFocus('down')
+				e.preventDefault()
+			} else if (e.key == 'Escape') {
+				$focusCell.classList.remove('focus')
+				e.preventDefault()
+			} else if (e.key == 'Enter') {
+				if (this.isEditMode()) {
+					// Edit mode --> edit
+					setTimeout(() => {
+						$focusCell.click()
+					}, 0)
+				} else {
+					// View mode
+					if (e.metaKey || e.ctrlKey) {
+						// meta --> edit
+						toggleEditMode(true)
+						setTimeout(() => {
+							$focusCell.click()
+						}, 0)
+					} else {
+						// --> select
+						row.toggleSelect()
+					}
+				}
+			} else if (this.isEditMode() && e.key.length == 1) {
+				// Edit mode --> start typing
+				toggleEditMode(true)
+				setTimeout(() => {
+					$focusCell.click()
+					const $input = $focusCell.querySelector('input') || $focusCell.querySelector('textarea')
+					if ($input) {
+						$input.value = e.key
+					}
+				}, 0)
+			}
+		}
+	}
 
 	// Homebrewed version of movableRows.
 	// - - -
@@ -222,7 +362,7 @@ class Table extends Tabulator {
 	// can't be made conditional, and it creates undesireable
 	// side effects in edit mode. Specifically, it will interfere
 	// with the textarea resize handle.
-	onCellMouseDown(clickEvent, cell, onCellClick) {
+	onCellMouseDown(clickEvent, cell) {
 		if (this.editMode) return
 
 		// Only accept left click.
@@ -343,13 +483,13 @@ class Table extends Tabulator {
 		}
 
 		// On drop
-		function _onMouseUp() {
+		function _onMouseUp(e) {
 			document.removeEventListener('mousemove', _onMouseMove)
 			document.removeEventListener('mouseup', _onMouseUp)
 
 			// If no dragging occured, it's a click.
 			if (!dragging) {
-				onCellClick(clickEvent, cell)
+				table.onCellClick(e, cell)
 				return
 			}
 
@@ -373,214 +513,230 @@ class Table extends Tabulator {
 		}
 	}
 
-	// moveRowStart(e, row) {
-	// 	if (this.editMode) return
-
-	// 	// Store elements
-	// 	const $row = row.getElement()
-	// 	const $rowClone = $row.cloneNode(true)
-	// 	const $parent = this.element.querySelector('.tabulator-tableholder')
-
-	// 	// Calculate values
-	// 	const rowY = $row.getBoundingClientRect().top
-	// 	let parentY = $parent.getBoundingClientRect().top
-	// 	let y = rowY - parentY - 1
-	// 	const mouseRowOffset = e.clientY - rowY
-	// 	let jump = 0 // How many positions the row has jumped
-	// 	const table = this
-
-	// 	// Update DOM
-	// 	$row.classList.add('while-dragging')
-	// 	$rowClone.classList.remove('tabulator-selectable')
-	// 	$rowClone.classList.add('dragging')
-	// 	$rowClone.style.top = y + 'px'
-	// 	$parent.appendChild($rowClone)
-
-	// 	document.addEventListener('mousemove', _moveRowDrag)
-	// 	document.addEventListener('mouseup', _moveRowEnd)
-
-	// 	// // For testing
-	// 	// const $indicator = document.createElement('div')
-	// 	// $indicator.style.height = '1px'
-	// 	// $indicator.style.width = '100px'
-	// 	// $indicator.style.background = 'red'
-	// 	// $indicator.style.position = 'absolute'
-	// 	// $indicator.style.zIndex = 1000
-	// 	// $parent.appendChild($indicator)
-	// 	// const $reference1 = document.createElement('div')
-	// 	// $reference1.style.height = '1px'
-	// 	// $reference1.style.width = '100px'
-	// 	// $reference1.style.background = 'blue'
-	// 	// $reference1.style.position = 'absolute'
-	// 	// $reference1.style.left = 0
-	// 	// $reference1.style.zIndex = 1000
-	// 	// $parent.appendChild($reference1)
-	// 	// const $reference2 = document.createElement('div')
-	// 	// $reference2.style.height = '1px'
-	// 	// $reference2.style.width = '100px'
-	// 	// $reference2.style.background = 'green'
-	// 	// $reference2.style.position = 'absolute'
-	// 	// $reference2.style.left = 0
-	// 	// $reference2.style.zIndex = 1000
-	// 	// $parent.appendChild($reference2)
-
-	// 	// On drag listener
-	// 	function _moveRowDrag(e) {
-	// 		parentY = $parent.getBoundingClientRect().top
-	// 		y = e.clientY - parentY - mouseRowOffset
-	// 		const minY = -1
-	// 		const maxY = $parent.clientHeight - $rowClone.clientHeight - 2
-	// 		y = Math.max(Math.min(y, maxY), minY)
-	// 		$rowClone.style.top = y + 'px'
-	// 		_moveRow(y)
-	// 	}
-
-	// 	// On drag - move row to closest position
-	// 	function _moveRow(y) {
-	// 		const yRowMiddle = y + $rowClone.clientHeight / 2
-	// 		const moveRow = _findTargetIndex(yRowMiddle)
-	// 		jump += moveRow
-
-	// 		if (moveRow == 1) {
-	// 			const $nextRow = $row.nextElementSibling
-	// 			$nextRow.after($row)
-	// 		} else if (moveRow == -1) {
-	// 			const $prevRow = $row.previousElementSibling
-	// 			$prevRow.before($row)
-	// 		}
-	// 	}
-
-	// 	function _findTargetIndex(yRowMiddle) {
-	// 		const $prevRow = $row.previousElementSibling
-	// 		const $nextRow = $row.nextElementSibling
-	// 		const prevRowMiddle = $prevRow ? $prevRow.offsetTop + $prevRow.clientHeight / 2 : null
-	// 		const nextRowMiddle = $nextRow ? $nextRow.offsetTop + $nextRow.clientHeight / 2 : null
-	// 		const thisRowTop = $rowClone.offsetTop
-	// 		const thisRowBottom = $rowClone.offsetTop + $row.clientHeight
-
-	// 		// // For testing
-	// 		// $indicator.style.top = yRowMiddle + 'px'
-	// 		// $reference1.style.top = prevRowMiddle + 'px'
-	// 		// $reference2.style.top = nextRowMiddle + 'px'
-
-	// 		if (prevRowMiddle != null && thisRowTop < prevRowMiddle) {
-	// 			return -1
-	// 		} else if (nextRowMiddle != null && thisRowBottom > nextRowMiddle) {
-	// 			return 1
-	// 		} else {
-	// 			return 0
-	// 		}
-	// 	}
-
-	// 	// On drop
-	// 	function _moveRowEnd() {
-	// 		document.removeEventListener('mousemove', _moveRowDrag)
-	// 		document.removeEventListener('mouseup', _moveRowEnd)
-	// 		$rowClone.remove()
-	// 		$row.classList.remove('while-dragging')
-
-	// 		const data = table.getData()
-	// 		// console.log('')
-	// 		// console.log(data.map(itm => itm.Index))
-	// 		const currentPos = row.getPosition() - 1
-	// 		const newPos = currentPos + jump
-	// 		data.splice(newPos, 0, data.splice(currentPos, 1)[0])
-	// 		table.setData(data)
-	// 		// console.log(currentPos, '-->', newPos)
-	// 		// console.log(data.map(itm => itm.Index))
-
-	// 		// // For testing
-	// 		// $indicator.remove()
-	// 		// $reference1.remove()
-	// 		// $reference2.remove()
-	// 	}
-	// }
-
-	// Returns an object with arrays of cell property objects per row:
-	// { col1: [
-	// 	  { type: 'string', isUrl: false, isLongText: false }
-	// 	  { type: 'string', isUrl: true, isLongText: false }
-	// 	  { type: 'string', isUrl: false, isLongText: true }
-	//   ],
-	//   col2: ...
-	// }
-	getCellProps(data) {
-		data = data ? data : table.getData()
-		const cellProps = {}
-
-		data.forEach((row, i) => {
-			Object.entries(row).map(([colName, val]) => {
-				val_str = val ? val.toString() : ''
-
-				if (!cellProps[colName]) cellProps[colName] = []
-				cellProps[colName].push({})
-
-				// Set content type.
-				if (isDate(val_str)) {
-					cellProps[colName][i].type = 'date'
-					row[colName] = moment(val_str).format('YYYY-MM-DD') // Reformat dates
-				} else {
-					const type = val === null ? 'string' : typeof val
-					cellProps[colName][i].type = typeof val
-				}
-
-				// Set isUrl
-				cellProps[colName][i].isUrl = Boolean(val_str.match(/^http(s)?:\/\//))
-				// row[key] = val.replace(/^http(s)?:\/\/([a-zA-Z0-9$-_.+!*'(),/&?=:%]+?)(\/)?$/, '$2') // Reformat URLs
-
-				// Set isLongText
-				cellProps[colName][i].isLongText = val_str.length > 70
-
-				// Set isEmpty
-				cellProps[colName][i].isEmpty = val === null
-			})
-		})
-		return cellProps
-	}
-
-	// Add state of data to history
-	addHistory(data) {
-		if (this.blockHistory) {
-			this.blockHistory = false
+	// The click evens is controlled from the onCellMouseDown() event.
+	onCellClick(e, cell) {
+		// Activate edit mode when cmd-clicking a cell.
+		if (e.metaKey || e.ctrlKey) {
+			toggleEditMode(true)
 			return
 		}
-		data = JSON.parse(JSON.stringify(data))
-		if (this.history.length >= 10) {
-			this.history.shift()
-		}
-		this.history.push(data)
 
-		// Empty history_reverse so you can't redo
-		// from another branch of edits.
-		this.history_reverse = []
+		// Display overlay with full content when cell is truncated.
+		if (e.target.classList.contains('text-wrap')) {
+			const $textWrap = e.target
+			const $cell = $textWrap.closest('.tabulator-cell')
+			const isTruncated = _isTruncated($textWrap)
+			if (isTruncated) {
+				this.displayFullCellContent($textWrap, $cell)
+				// _expandCell($textWrap, $cell, cell)
+				return
+			}
+		}
+
+		// Set focus on clicked cell.
+		const $focusCell = cell.getElement()
+		this.setFocus($focusCell)
+
+		// Select row
+		this.onRowClick(e, cell.getRow())
+
+		//
+		//
+
+		// Unused but may come in handy later:
+		// - - -
+		// Expand the cell so all content is visible
+		function _expandCell($textWrap, $cell, cell) {
+			const $row = $textWrap.closest('.tabulator-row')
+			const row = cell.getRow()._row
+
+			$textWrap.classList.add('expand')
+			$cell.style.removeProperty('height')
+
+			// Set height of all cells in row to match
+			$row.childNodes.forEach($siblingCell => {
+				if ($siblingCell.classList.contains('tabulator-cell')) {
+					$siblingCell.style.setProperty('height', $cell.offsetHeight + 'px')
+				}
+			})
+
+			// Update the row height in the table object
+			row.height = $cell.offsetHeight
+			row.heightStyled = $cell.offsetHeight + 'px'
+			row.outerHeight = $cell.offsetHeight + 1
+			row.manualHeight = true
+		}
+
+		// Check whether a cell has truncated text
+		function _isTruncated($textWrap) {
+			// Create clone
+			let $clone = $textWrap.cloneNode()
+			$clone.innerHTML = $textWrap.innerHTML
+			_copyStyle($textWrap, $clone)
+
+			// Render clone hidden on DOM
+			$clone.style.setProperty('position', 'absolute')
+			$clone.style.setProperty('top', 0)
+			$clone.style.setProperty('left', 0)
+			$clone.style.setProperty('visibility', 'hidden')
+			document.body.append($clone)
+
+			// Check if clone is wider than original
+			const isTruncated = $clone.offsetHeight > $textWrap.offsetHeight
+
+			// Delete clone
+			$clone.remove() // From DOM
+			$clone = null // From memory
+
+			return isTruncated
+		}
+
+		// Copy styles from one element to another
+		function _copyStyle($sourceElm, $targetElm) {
+			const keys = ['width', 'font-size', 'line-height', 'padding']
+			const computedStyle = window.getComputedStyle($sourceElm)
+			keys.forEach(key => {
+				$targetElm.style.setProperty(key, computedStyle.getPropertyValue(key), computedStyle.getPropertyPriority(key))
+			})
+		}
 	}
 
-	undo() {
-		if (this.history.length > 1) {
-			const dataCurrent = this.history.pop()
-			this.history_reverse.push(dataCurrent)
-			const dataPrevious = this.history[this.history.length - 1]
-			this.blockHistory = true
-			this.updateData(dataPrevious)
-			// console.log('<-- history_reverse:', JSON.stringify(this.history_reverse.map(state => state[0]['Test'])))
-			// console.log('<-- history:', JSON.stringify(this.history.map(state => state[0]['Test'])))
+	// The Tabulator implementation of cell selection is rather
+	// sloppy so we're bypassing it with our own implementation.
+	// More specifically: the default behavior lets you toggle
+	// cell selection, but you can't shift-click to select multiple
+	// cells. There's an option { selectableRangeMode: 'click' }
+	// which provides the multi-select behabvior, but for some
+	// reason regular toggling is disabled and you need to cmd-click
+	// a cell to deselect it, and on top of that it's also not
+	// supporting the selection of multiple groups of cells.
+	// It may make sense to contribute a fix to the library at some
+	// point, but we don't have teh time for that now.
+	onRowClick(e, row) {
+		const currentRowIndex = row.getPosition()
+		const lastSelectedRowIndex = this.lastSelectedRowIndex
+		if (e.shiftKey && this.lastSelectedRowSelState != null) {
+			// Select or deselect all rows between the last selected row and the current row
+			const selectedRows = this.getSelectedRows()
+			if (selectedRows.length) {
+				let lowIndex = Math.min(lastSelectedRowIndex, currentRowIndex)
+				let highIndex = Math.max(lastSelectedRowIndex, currentRowIndex)
+
+				// When you select from bottom to top, we gotta include the highIndex
+				// When you select from top to bottom, we gotta include the lowIndex
+				if (lowIndex != lastSelectedRowIndex) {
+					lowIndex -= 1
+					highIndex -= 1
+				}
+
+				const toBeSelected = this.getRows().slice(lowIndex, highIndex)
+				if (this.lastSelectedRowSelState) {
+					this.selectRow(toBeSelected)
+					this.lastSelectedRowSelState = true
+				} else {
+					this.deselectRow(toBeSelected)
+					this.lastSelectedRowSelState = false
+				}
+			}
+		} else {
+			// Toggle single row
+			row.toggleSelect()
+			this.lastSelectedRowSelState = this.getSelectedRows().includes(row)
+		}
+		this.lastSelectedRowIndex = currentRowIndex
+		this.selectMode = this.getSelectedRows().length > 0
+	}
+
+	// Display overlay div that matches the cell's content and position,
+	// but that expands to the bottom to display the full, untruncated content.
+	displayFullCellContent($textWrap, $cell) {
+		const $display = document.createElement('div')
+		$display.setAttribute('id', 'display-full-text')
+		$display.setAttribute('tabindex', 0)
+		$display.innerHTML = $textWrap.innerHTML
+		$cell.append($display)
+		$display.focus()
+		$display.addEventListener('blur', e => {
+			// Don't remove display when display itself is clicked.
+			if (e.relatedTarget && e.relatedTarget.querySelector('#display-full-text')) {
+				e.target.focus()
+			} else {
+				$display.remove()
+			}
+		})
+	}
+
+	// Hide the full cell content overlay
+	hideFullCellContent() {
+		const $display = document.getElementById('display-full-text')
+		if ($display) {
+			$display.blur()
+			return true
+		}
+		return false
+	}
+
+	// Deselect all rows, but ask user if it's more than 3
+	deselectRows(soft) {
+		const selectedRows = this.getSelectedRows()
+		// Note: == true is on purpose, because we want to ignore the click event
+		if (soft == true && selectedRows.length > 3) {
+			if (confirm('Are you sure you want to deselect all rows?')) {
+				this.deselectRow()
+			}
+		} else {
+			this.deselectRow()
 		}
 	}
 
-	redo() {
-		if (this.history_reverse.length > 0) {
-			const data = this.history_reverse.pop()
-			this.history.push(data)
-			this.blockHistory = true
-			this.updateData(data)
-			// console.log('--> history:', JSON.stringify(this.history.map(state => state[0]['Test'])))
-			// console.log('--> history_reverse:', JSON.stringify(this.history_reverse.map(state => state[0]['Test'])))
+	// Set artificial cell focus
+	setFocus($focusCell) {
+		const $currentFocusCell = document.querySelector('.tabulator-cell.focus')
+		if ($currentFocusCell) $currentFocusCell.classList.remove('focus')
+		$focusCell.classList.add('focus')
+	}
+
+	// Unset artificial cell focus
+	unsetFocus() {
+		const $focusCell = document.querySelector('.tabulator-cell.focus')
+		if ($focusCell) $focusCell.classList.remove('focus')
+	}
+
+	// Move artificial cell focus
+	moveFocus(dir) {
+		const $currentFocusCell = document.querySelector('.tabulator-cell.focus')
+		if (!$currentFocusCell) return
+		const index = Array.from($currentFocusCell.parentNode.querySelectorAll('.tabulator-cell')).indexOf($currentFocusCell)
+		let $nextFocusCell = null
+		if (dir == 'left') {
+			$nextFocusCell = $currentFocusCell.parentNode.querySelectorAll('.tabulator-cell')[index - 1]
+		} else if (dir == 'right') {
+			$nextFocusCell = $currentFocusCell.parentNode.querySelectorAll('.tabulator-cell')[index + 1]
+		} else if (dir == 'up') {
+			const $prevRow = $currentFocusCell.closest('.tabulator-row').previousElementSibling
+			if ($prevRow) {
+				$nextFocusCell = $prevRow.querySelectorAll('.tabulator-cell')[index]
+			}
+		} else if (dir == 'down') {
+			const $nextRow = $currentFocusCell.closest('.tabulator-row').nextElementSibling
+			if ($nextRow) {
+				$nextFocusCell = $nextRow.querySelectorAll('.tabulator-cell')[index]
+			}
+		}
+		if ($nextFocusCell) {
+			$currentFocusCell.classList.remove('focus')
+			$nextFocusCell.classList.add('focus')
 		}
 	}
 
-	// Tag on to the Tabulator redraw function.
+	// #endregion
+
+	/////////////////////////////////
+	// #region - Tabulator overrides
+
+	// Recalculate column widths when redrawing the table.
 	redraw(bool) {
-		console.log('redraw', bool)
+		// console.log('redraw', bool)
 		if (!bool) {
 			super.redraw()
 			return
@@ -588,7 +744,7 @@ class Table extends Tabulator {
 
 		// Store current column widths.
 		const colWidthsBefore = {}
-		table.getColumns().forEach(col => {
+		this.getColumns().forEach(col => {
 			colWidthsBefore[col.getField()] = col.getWidth()
 		})
 
@@ -597,9 +753,12 @@ class Table extends Tabulator {
 
 		// Store new column widths.
 		const colWidthsAfter = {}
-		table.getColumns().forEach(col => {
+		this.getColumns().forEach(col => {
 			colWidthsAfter[col.getField()] = col.getWidth()
 		})
+
+		// console.log('colWidthsBefore:', colWidthsBefore)
+		// console.log('colWidthsAfter:', colWidthsAfter)
 
 		// Fix width per column.
 		this._fixColumnWidths(colWidthsBefore, colWidthsAfter)
@@ -618,11 +777,14 @@ class Table extends Tabulator {
 			const isUntampered = colWidthsBefore[colName] == this.colDefaultWidths[colName]
 			// prettier-ignore
 			const newWidth = isUntampered
-				? (Math.min(colWidthsAfter[colName], 400))
-				: (colWidthsBefore[colName])
+				? Math.min(width, 400)
+				: colWidthsBefore[colName]
 			this.getColumn(colName).setWidth(newWidth)
+			// console.log(colName, isUntampered, '->', newWidth, width)
 		})
 	}
+
+	// #endregion
 }
 
 Table.moduleName = 'custom'

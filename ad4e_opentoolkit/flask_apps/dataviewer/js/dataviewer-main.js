@@ -15,171 +15,6 @@ window.onbeforeunload = e => {
 }
 
 /////////////////////////////////
-// #region - Event listeners
-
-// Edit
-document.getElementById('btn-edit').addEventListener('click', () => {
-	toggleEditMode(true)
-})
-
-// Cancel
-document.querySelector('#btn-cancel').addEventListener('click', () => {
-	toggleEditMode(false, true)
-})
-
-// Done
-document.querySelector('#btn-done').addEventListener('click', () => {
-	toggleEditMode(false)
-})
-
-// Submit
-document.querySelector('#btn-submit').addEventListener('click', submitData)
-
-// Deselect
-document.querySelector('#btn-deselect').addEventListener('click', deselectRows)
-
-// Selection actions
-document.querySelector('#dd-selection-actions').addEventListener('change', dispatchSelectionActions)
-
-// General actions
-document.querySelector('#dd-actions').addEventListener('change', dispatchMainActions)
-
-// Display options
-document.querySelector('#btn-options').addEventListener('click', () => {
-	toggleOptions(true)
-})
-
-// Submit options
-document.querySelector('#options .btn-apply').addEventListener('click', () => {
-	applyOptions()
-	toggleOptions(false)
-})
-
-// Cancel options
-document.querySelector('#options .btn-cancel').addEventListener('click', () => {
-	toggleOptions(false)
-})
-
-// Reset columns
-document.querySelector('#reset-links .reset-col-width').addEventListener('click', e => {
-	table.resetCols()
-	e.preventDefault()
-})
-
-// Header click --> scroll to top
-document.getElementById('cloak').addEventListener('click', () => {
-	window.scrollTo(0, 0)
-})
-
-// document.querySelector('#reset-links .reset-row-width').addEventListener('click', e => {
-// 	table.resetRows()
-// 	e.preventDefault()
-// })
-
-// document.addEventListener('keydown', e => {
-// 	e.preventDefault()
-// })
-
-// Key handlers
-document.addEventListener('keydown', e => {
-	const inputInFocus = e.target.tagName.toLowerCase() == 'input' || e.target.tagName.toLowerCase() == 'textarea'
-	if (inputInFocus) return
-
-	const $focusCell = document.querySelector('.tabulator-cell.focus')
-	const $row = $focusCell ? $focusCell.closest('.tabulator-row') : null
-	const row = $row ? table.getRow($row) : null
-
-	// Copy focused cell content on cmd + C
-	if ($focusCell && e.key == 'c' && (e.metaKey || e.ctrlKey)) {
-		contextMenus.copyCell(null, null, $focusCell)
-		return
-	}
-
-	if (e.key == 'Escape') {
-		// Hide full cell content overlay
-		const fullCellDisplayActive = hideFullCellContent()
-		if (fullCellDisplayActive) return
-
-		// Deselect rows
-		if (table.getSelectedRows().length) {
-			deselectRows(true)
-			return
-		}
-
-		// Exit edit mode
-		if (table.isEditMode()) {
-			toggleEditMode(false, true)
-			return
-		}
-	} else if ((e.metaKey || e.ctrlKey) && e.key == 'z') {
-		// Undo / redo
-		if (e.shiftKey) {
-			table.redo()
-		} else {
-			table.undo()
-		}
-		return
-	}
-
-	// Move focus with arrow keys
-	if ($focusCell) {
-		if (e.key == 'ArrowLeft' || (e.shiftKey && e.key == 'Tab')) {
-			moveFocus('left')
-			e.preventDefault()
-		} else if (e.key == 'ArrowRight' || e.key == 'Tab') {
-			moveFocus('right')
-			e.preventDefault()
-		} else if (e.key == 'ArrowUp') {
-			moveFocus('up')
-			e.preventDefault()
-		} else if (e.key == 'ArrowDown') {
-			moveFocus('down')
-			e.preventDefault()
-		} else if (e.key == 'Escape') {
-			$focusCell.classList.remove('focus')
-			e.preventDefault()
-		} else if (e.key == 'Enter') {
-			if (table.isEditMode()) {
-				// Edit mode --> edit
-				setTimeout(() => {
-					$focusCell.click()
-				}, 0)
-			} else {
-				// View mode
-				if (e.metaKey || e.ctrlKey) {
-					// meta --> edit
-					toggleEditMode(true)
-					setTimeout(() => {
-						$focusCell.click()
-					}, 0)
-				} else {
-					// --> select
-					row.toggleSelect()
-				}
-			}
-		} else if (table.isEditMode() && e.key.length == 1) {
-			// Edit mode --> start typing
-			toggleEditMode(true)
-			setTimeout(() => {
-				$focusCell.click()
-				const $input = $focusCell.querySelector('input') || $focusCell.querySelector('textarea')
-				if ($input) {
-					$input.value = e.key
-				}
-			}, 0)
-		}
-	}
-})
-
-// Exit focus on blur
-document.addEventListener('click', e => {
-	if (e.target.closest('.tabulator-cell') || e.target.classList.contains('tabulator-cell')) return
-	unsetFocus()
-})
-
-// #endregion
-
-/////////////////////////////////
 // #region - Table rendering
 
 // Parse data
@@ -195,7 +30,7 @@ const columns = parseColumns(dataInput)
 // Find or create a unique index column
 const { index, addedIndex } = ensureUniqueIndex(dataInput, columns)
 
-// Create table ##
+// Create table
 const table = new Table('#table', {
 	// Tabulator options
 	data: dataInput,
@@ -206,35 +41,13 @@ const table = new Table('#table', {
 	movableRows: false,
 	movableColumns: true,
 	rowRange: 'active', // Master checkbox will only select filtered rows
-	rowFormatter: row => {
-		// const $row = row.getElement()
-		// const rowHeight = $row.clientHeight
-		// const lines = Math.round((rowHeight - 8) / 20) // Math round not necessary but just in case
-		// // console.log(lines)
-		// if (lines == 1) {
-		// 	$row.classList.add('trunc-1')
-		// }
-		// console.log('FORMAT')
-	},
-
-	// %% trash
-	// rowFormatter: row => {
-	// 	const cells = row.getCells()
-	// 	cells.forEach(cell => {
-	// 		const $cell = cell.getElement()
-	// 		const $textWrap = $cell.querySelector('.text-wrap')
-	// 		if ($textWrap) {
-	// 			$cell.classList.add('long-text')
-	// 		}
-	// 	})
-	// },
-
-	// Disable built-in keybindings, we need more
-	// advanced logic. See 'keydown' event listener.
-	keybindings: false,
 
 	// Non-Tabulator options
 	addedIndex,
+
+	// We're not using the built-in keybindings, as
+	// we need more advanced logic. See 'keydown' event listener.
+	keybindings: false,
 
 	// We're not using reactive data because it's
 	// not reflecting deleted rows and thus useless.
@@ -253,10 +66,10 @@ const table = new Table('#table', {
 	// also because we can't reset the row height
 	// the same way as we do with the columns.
 	// - - -
-	// resizableRows: true,
+	// resizableRows: false,
 })
 
-// Pass table reference to context menus
+// Pass table & action references to the context menu class.
 contextMenus.init(table, {
 	saveEdits: () => {
 		toggleEditMode(false)
@@ -264,25 +77,6 @@ contextMenus.init(table, {
 	cancelEdits: () => {
 		toggleEditMode(false, true)
 	},
-	deselectRows,
-})
-
-table.on('tableBuilt', () => {
-	// Redraw the table after the data object is built but before the table is rendered.
-	// This is a little hack to prevent all rows to take on the height of the tallest cell.
-	table.redraw(true)
-
-	// Store the initial state of the table.
-	table.addHistory(table.getData())
-
-	// %% trash
-	// // Set the "Add index column" dropdown to the correct value.
-	// setIndexColDropdown()
-})
-
-// Controls our homebrewed movableRows.
-table.on('cellMouseDown', (e, row) => {
-	table.onCellMouseDown(e, row, onCellClick)
 })
 
 // Display action dropdown.
@@ -297,75 +91,16 @@ table.on('rowDeselected', () => {
 	}
 })
 
-// // Set (artificial) focus on edited cell.
-// // cellEditing
-// table.on('cellEdited', cell => {
-// 	$focusCell = cell.getElement()
-// 	setFocus($focusCell)
-// 	// setTimeout(() => { // %% trash
-// 	// 	console.log(22, $focusCell)
-// 	// 	setFocus($focusCell)
-// 	// }, 1000)
-// })
-
-// To do: implement short history so you can undo changes.
-table.on('dataChanged', data => {
-	table.addHistory(data)
-})
-
-// Update truncation whenever text is changed.
-table.on('cellEdited', cell => {
-	const index = cell.getRow().getIndex()
-	const field = cell.getField()
-	const row = table.getRows()[index - 1]
-	const $row = row.getElement()
-	const $cell = row.getCell(field).getElement()
-
-	// // First remove possible 1-line truncation from the row.
-	// $row.classList.remove('trunc-1')
-
-	// This will trigger the rowFormatter, which will
-	// re-assign the trun-1 clas unless any of the cells
-	// in this row have more than one line of text.
-	table.redraw(true)
-
-	// Trace back the same cell after redraw has replaced
-	// the HTML and reset de focus.
-	const $newCell = table.getRows()[index - 1].getCell(field).getElement()
-	setFocus($newCell)
-})
-
-// %% trash
-// table.on('dataSorted', function (sorters, rows) {
-// 	// Ignore when triggered during initiation.
-// 	// Can be recoignized by the empty sorters array.
-// 	if (sorters.length) table.sortChange = true
-// })
-
-// Note: onRowClick is controlled from within onCellClick
-// this way we can control how they play together.
-// table.on('cellClick', onCellClick)
-
-// // Double click doesn't play well with selection
-// table.on('cellDblClick', e => {
-// 	$cell = e.target.classList.contains('tabulator-cell') ? e.target : e.target.closest('.tabulator-cell')
-// 	copyCellContent($cell)
-// })
-
 //
 //
 
 // Create the columns object that is fed to Tabulator.
 function parseColumns(data) {
 	// Get cell properties for each column.
-	const cellProps = getCellProps(data)
+	const cellProps = _getCellProps(data)
 
 	// Get sorters and formatters for each column.
-	const { sortersByColumn, formattersByColumn } = getSortersAndFormatters(cellProps)
-
-	// console.log(cellProps)
-	// console.log('Sorters:', sorters)
-	// console.log('formattersByColumn:', formattersByColumn)
+	const { sortersByColumn, formattersByColumn } = _getSortersAndFormatters(cellProps)
 
 	// Create columns
 	const columns = Object.entries(cellProps).map(([colName, propsPerRow]) => {
@@ -383,13 +118,7 @@ function parseColumns(data) {
 			formatterParams,
 			headerMenu: contextMenus.header,
 			headerContextMenu: contextMenus.header,
-			// contextMenu: contextMenus.cell, // @@
-			// headerSort: false, %% trash
-			// headerClick: onHeaderClick, // We use our own sort logic via headerClick - %% trash
-
-			// // This blocks the user from resizing the
-			// // column, so we use a formatter instead:
-			// maxWidth: 500,
+			contextMenu: contextMenus.cell, // @@
 		}
 
 		// Add sorter params
@@ -410,16 +139,19 @@ function parseColumns(data) {
 	})
 
 	// For debugging
+	// - - -
 	// console.log('Sorters:', sorters)
 	// console.log('Data:', data)
 	// console.log('Columns:', columns)
 	// console.log('ContentProps', contentPropsAll)
 	// console.log('needFormatter', needFormatter)
+	// console.log(cellProps)
+	// console.log('formattersByColumn:', formattersByColumn)
 	return columns
 }
 
 // Get sorters and formatters for each column.
-function getSortersAndFormatters(cellProps) {
+function _getSortersAndFormatters(cellProps) {
 	const sortersByColumn = {}
 	const formattersByColumn = {}
 
@@ -480,7 +212,7 @@ function getSortersAndFormatters(cellProps) {
 //   ],
 //   col2: ...
 // }
-function getCellProps(data) {
+function _getCellProps(data) {
 	const cellProps = {}
 
 	data.forEach((row, i) => {
@@ -513,31 +245,6 @@ function getCellProps(data) {
 	return cellProps
 }
 
-// Look at a column's content and pick the appropriate formatter.
-// The formatter defines how a cell is rendered.
-// - - -
-// Returns { formatter, formatterParams, formatterType }
-function _pickFormatter(key, needFormatter, contentPropsAll) {
-	const hasSomeLongText = contentPropsAll[key].some(props => props.isLongText)
-	const isAllUrls = contentPropsAll[key].every(props => props.isUrl)
-
-	if (needFormatter[key]) {
-		if (isAllUrls) {
-			return { formatter: 'link', formatterParams: { target: '_blank' } }
-		} else if (hasSomeLongText) {
-			return {
-				formatterType: 'textarea',
-				// This custom formatter lets us truncate text to a custom number
-				// of lines. It's in lieue of the built-un 'textarea' formatter.
-				formatter: (cell, formatterParams, onRendered) => {
-					return `<div class="text-wrap">${cell.getValue()}</div>`
-				},
-			}
-		}
-	}
-	return {}
-}
-
 // There's a built-in 'textarea' editor, but we weren't happy with
 // how truncation was handled for cells containing long text, so
 // we had to create a custom formatter that gives us more control
@@ -550,15 +257,14 @@ function _customTextareaEditor(cell, onRendered, success, cancel, editorParams) 
 	const editor = document.createElement('textarea')
 	editor.value = cell.getValue()
 
-	// This removes the border so we can measure
-	// editor.scrollHeight without lines wrapping.
-	editor.classList.add('processing')
+	// This ensures the textarea height will not exceed the number of lines.
+	editor.style.overflow = 'hidden'
 
 	onRendered(() => {
 		// Expand textarea to fit content
 		editor.style.height = ''
 		editor.style.height = editor.scrollHeight + 4 + 'px' // +4px to make up for border
-		editor.classList.remove('processing')
+		editor.style.overflow = 'auto'
 
 		// Focus or select text
 		if (editorParams.selectContents) {
@@ -689,20 +395,6 @@ function _areColumnValuesIncrementalIndex(field, data) {
 	return valuesSorted.every((val, i) => val == i + firstValue)
 }
 
-// %% trash
-// // Check if the values of a certain column are unique
-// function _areColumnValuesUnique(field, data) {
-// 	for (let i in data) {
-// 		const val = data[i][field]
-// 		for (let j in data) {
-// 			if (i != j && val == data[j][field]) {
-// 				return false
-// 			}
-// 		}
-// 	}
-// 	return true
-// }
-
 // Add index column if none is found.
 // This will usually be '#' but we gotta make sure there's no conflict.
 function _addIndexCol(data, columns) {
@@ -735,266 +427,67 @@ function _addIndexCol(data, columns) {
 //#endregion
 
 /////////////////////////////////
-// #region - Data modification
+// #region - Event listeners
 
-// Delete column and all its data
-function deleteColumn(e, col) {
-	col.delete()
-}
+// Edit
+document.getElementById('btn-edit').addEventListener('click', () => {
+	toggleEditMode(true)
+})
 
-// Rename column
-function renameColumn(e, col) {
-	const currentName = col.getField()
-	const newName = prompt('New column name:', currentName)
-	const cellWidth = col.getWidth()
-	if (newName) {
-		table.updateColumnDefinition(currentName, { title: newName, field: newName })
-		table.getColumn(newName).setWidth(cellWidth)
+// Cancel
+document.querySelector('#btn-cancel').addEventListener('click', () => {
+	toggleEditMode(false, true)
+})
 
-		// Update every row with the new column name.
-		table.getRows().forEach(row => {
-			const updateObject = {}
-			updateObject[currentName] = undefined
-			updateObject[newName] = row.getCell(currentName).getValue()
-			row.update(updateObject)
-		})
-	}
-}
+// Done
+document.querySelector('#btn-done').addEventListener('click', () => {
+	toggleEditMode(false)
+})
 
-//#endregion
+// Submit
+document.querySelector('#btn-submit').addEventListener('click', submitData)
 
-/////////////////////////////////
-// #region - Table interaction
+// Deselect
+document.querySelector('#btn-deselect').addEventListener('click', table.deselectRows.bind(table))
 
-// %% trash
-// function onHeaderClick(e, col) {
-// 	table.sort(col)
-// }
+// Selection actions
+document.querySelector('#dd-selection-actions').addEventListener('change', dispatchSelectionActions)
 
-// %% Trash
-// table.on('dataSorting', onDataSorting)
-// function onDataSorting(sorters) {
-// 	console.log('SORT')
-// 	return false
-// }
+// General actions
+document.querySelector('#dd-actions').addEventListener('change', dispatchMainActions)
 
-function onCellClick(e, cell) {
-	// Activate edit mode when cmd-clicking a cell.
-	if (e.metaKey || e.ctrlKey) {
-		toggleEditMode(true)
-		// setTimeout(() => { // %% trash, seems to work fine without now
-		// 	$focusCell.click()
-		// }, 0)
-		return
-	}
+// Display options
+document.querySelector('#btn-options').addEventListener('click', () => {
+	toggleOptions(true)
+})
 
-	// Display overlay with full content when cell is truncated.
-	if (e.target.classList.contains('text-wrap')) {
-		const $textWrap = e.target
-		const $cell = $textWrap.closest('.tabulator-cell')
-		const isTruncated = _isTruncated($textWrap)
-		if (isTruncated) {
-			displayFullCellContent($textWrap, $cell)
-			// _expandCell($textWrap, $cell, cell)
-			return
-		}
-	}
+// Submit options
+document.querySelector('#options .btn-apply').addEventListener('click', () => {
+	applyOptions()
+	toggleOptions(false)
+})
 
-	// Set focus on clicked cell.
-	$focusCell = cell.getElement()
-	setFocus($focusCell)
+// Cancel options
+document.querySelector('#options .btn-cancel').addEventListener('click', () => {
+	toggleOptions(false)
+})
 
-	// Select row
-	onRowClick(e, cell.getRow())
+// Reset columns
+document.querySelector('#reset-links .reset-col-width').addEventListener('click', e => {
+	table.resetColWidths()
+	e.preventDefault()
+})
 
-	//
-	//
+// Header click --> scroll to top
+document.getElementById('cloak').addEventListener('click', () => {
+	window.scrollTo(0, 0)
+})
 
-	// Unused but may come in handy later:
-	// - - -
-	// Expand the cell so all content is visible
-	function _expandCell($textWrap, $cell, cell) {
-		const $row = $textWrap.closest('.tabulator-row')
-		const row = cell.getRow()._row
-
-		$textWrap.classList.add('expand')
-		$cell.style.removeProperty('height')
-
-		// Set height of all cells in row to match
-		$row.childNodes.forEach($siblingCell => {
-			if ($siblingCell.classList.contains('tabulator-cell')) {
-				$siblingCell.style.setProperty('height', $cell.offsetHeight + 'px')
-			}
-		})
-
-		// Update the row height in the table object
-		row.height = $cell.offsetHeight
-		row.heightStyled = $cell.offsetHeight + 'px'
-		row.outerHeight = $cell.offsetHeight + 1
-		row.manualHeight = true
-	}
-
-	// Check whether a cell has truncated text
-	function _isTruncated($textWrap) {
-		// Create clone
-		const $clone = $textWrap.cloneNode()
-		$clone.innerHTML = $textWrap.innerHTML
-		_copyStyle($textWrap, $clone)
-
-		// Render clone hidden on DOM
-		$clone.style.setProperty('position', 'absolute')
-		$clone.style.setProperty('top', 0)
-		$clone.style.setProperty('left', 0)
-		$clone.style.setProperty('visibility', 'hidden')
-		document.body.append($clone)
-
-		// Check if clone is wider than original
-		const isTruncated = $clone.offsetHeight > $textWrap.offsetHeight
-
-		// Delete clone
-		$clone.remove()
-		delete $clone
-
-		return isTruncated
-	}
-
-	// Copy styles from one element to another
-	function _copyStyle($sourceElm, $targetElm) {
-		keys = ['width', 'font-size', 'line-height', 'padding']
-		const computedStyle = window.getComputedStyle($sourceElm)
-		keys.forEach(key => {
-			$targetElm.style.setProperty(key, computedStyle.getPropertyValue(key), computedStyle.getPropertyPriority(key))
-		})
-	}
-}
-
-// The Tabulator implementation of cell selection is rather
-// sloppy so we're bypassing it with our own implementation.
-// More specifically: the default behavior lets you toggle
-// cell selection, but you can't shift-click to select multiple
-// cells. There's an option { selectableRangeMode: 'click' }
-// which provides the multi-select behabvior, but for some
-// reason regular toggling is disabled and you need to cmd-click
-// a cell to deselect it, and on top of that it's also not
-// supporting the selection of multiple groups of cells.
-// It may make sense to contribute a fix to the library at some
-// point, but we don't have teh time for that now.
-function onRowClick(e, row) {
-	const currentRowIndex = row.getPosition()
-	const lastSelectedRowIndex = table.lastSelectedRowIndex
-	if (e.shiftKey && table.lastSelectedRowSelState != null) {
-		// Select or deselect all rows between the last selected row and the current row
-		const selectedRows = table.getSelectedRows()
-		if (selectedRows.length) {
-			let lowIndex = Math.min(lastSelectedRowIndex, currentRowIndex)
-			let highIndex = Math.max(lastSelectedRowIndex, currentRowIndex)
-
-			// When you select from bottom to top, we gotta include the highIndex
-			// When you select from top to bottom, we gotta include the lowIndex
-			if (lowIndex != lastSelectedRowIndex) {
-				lowIndex -= 1
-				highIndex -= 1
-			}
-
-			const toBeSelected = table.getRows().slice(lowIndex, highIndex)
-			if (table.lastSelectedRowSelState) {
-				table.selectRow(toBeSelected)
-				table.lastSelectedRowSelState = true
-			} else {
-				table.deselectRow(toBeSelected)
-				table.lastSelectedRowSelState = false
-			}
-		}
-	} else {
-		// Toggle single row
-		row.toggleSelect()
-		table.lastSelectedRowSelState = table.getSelectedRows().includes(row)
-	}
-	table.lastSelectedRowIndex = currentRowIndex
-	table.selectMode = table.getSelectedRows().length > 0
-}
-
-// Display overlay div that matches the cell's content and position,
-// but that expands to the bottom to display the full, untruncated content.
-function displayFullCellContent($textWrap, $cell) {
-	const $display = document.createElement('div')
-	$display.setAttribute('id', 'display-full-text')
-	$display.setAttribute('tabindex', 0)
-	$display.innerHTML = $textWrap.innerHTML
-	$cell.append($display)
-	$display.focus()
-	$display.addEventListener('blur', e => {
-		// Don't remove display when display itself is clicked.
-		if (e.relatedTarget && e.relatedTarget.querySelector('#display-full-text')) {
-			e.target.focus()
-		} else {
-			$display.remove()
-		}
-	})
-}
-
-// Hide the full cell content overlay
-function hideFullCellContent() {
-	const $display = document.getElementById('display-full-text')
-	if ($display) {
-		$display.blur()
-		return true
-	}
-	return false
-}
-
-// Deselect all rows, but ask user if it's more than 3
-function deselectRows(soft) {
-	const selectedRows = table.getSelectedRows()
-	// Note: == true is on purpose, because we want to ignore the click event
-	if (soft == true && selectedRows.length > 3) {
-		if (confirm('Are you sure you want to deselect all rows?')) {
-			table.deselectRow()
-		}
-	} else {
-		table.deselectRow()
-	}
-}
-
-// Set artificial cell focus
-function setFocus($focusCell) {
-	const $currentFocusCell = document.querySelector('.tabulator-cell.focus')
-	if ($currentFocusCell) $currentFocusCell.classList.remove('focus')
-	$focusCell.classList.add('focus')
-}
-
-// Unset artificial cell focus
-function unsetFocus() {
-	const $focusCell = document.querySelector('.tabulator-cell.focus')
-	if ($focusCell) $focusCell.classList.remove('focus')
-}
-
-// Move artificial cell focus
-function moveFocus(dir) {
-	const $currentFocusCell = document.querySelector('.tabulator-cell.focus')
-	if (!$currentFocusCell) return
-	const index = Array.from($currentFocusCell.parentNode.querySelectorAll('.tabulator-cell')).indexOf($currentFocusCell)
-	let $nextFocusCell = null
-	if (dir == 'left') {
-		$nextFocusCell = $currentFocusCell.parentNode.querySelectorAll('.tabulator-cell')[index - 1]
-	} else if (dir == 'right') {
-		$nextFocusCell = $currentFocusCell.parentNode.querySelectorAll('.tabulator-cell')[index + 1]
-	} else if (dir == 'up') {
-		const $prevRow = $currentFocusCell.closest('.tabulator-row').previousElementSibling
-		if ($prevRow) {
-			$nextFocusCell = $prevRow.querySelectorAll('.tabulator-cell')[index]
-		}
-	} else if (dir == 'down') {
-		const $nextRow = $currentFocusCell.closest('.tabulator-row').nextElementSibling
-		if ($nextRow) {
-			$nextFocusCell = $nextRow.querySelectorAll('.tabulator-cell')[index]
-		}
-	}
-	if ($nextFocusCell) {
-		$currentFocusCell.classList.remove('focus')
-		$nextFocusCell.classList.add('focus')
-	}
-}
+// Exit focus on blur
+document.addEventListener('click', e => {
+	if (e.target.closest('.tabulator-cell') || e.target.classList.contains('tabulator-cell')) return
+	table.unsetFocus()
+})
 
 // #endregion
 
@@ -1018,15 +511,6 @@ function applyOptions() {
 	// Truncation
 	const truncLimit = +document.getElementById('dd-opt-select-truncation').value
 	_setTruncation(truncLimit)
-
-	// %% trash
-	// // Index column
-	// const includeIndexCol = +document.getElementById('opt-add-index-col').value
-	// if (includeIndexCol) {
-	// 	table.addIndexCol(true)
-	// } else {
-	// 	table.removeIndexCol()
-	// }
 }
 
 // Set truncation limit (0/1/3)
@@ -1074,7 +558,7 @@ function isDate(str, log) {
 	const separators = str.match(/[-./]/g, '')
 	if (separators && separators.length == 2 && separators[0] == separators[1]) {
 		return moment(str).isValid()
-	} else if (str.match(/[jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec]/i)) {
+	} else if (str.match(/(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)/i)) {
 		return moment(str).isValid()
 	} else {
 		return false
@@ -1107,24 +591,15 @@ function dispatchMainActions(e) {
 	e.target.value = ''
 }
 
-// %% Trash
-// // Set the "Add index column" dropdown to the correct value.
-// function setIndexColDropdown() {
-// 	if (table.addedIndex) {
-// 		document.getElementById('opt-add-index-col').querySelector('option[value="1"]').selected = true
-// 	} else {
-// 		document.getElementById('opt-add-index-col').querySelector('option[value="0"]').selected = true
-// 	}
-// }
-
 // #endregion
 
 /////////////////////////////////
 // #region - Submit data
 
+// Submit data back to CLI/Jupyter
 function submitData() {
 	table.isSubmitting = true
-	const data = prepDataForExport()
+	const data = _prepDataForExport()
 
 	// Create a new XMLHttpRequest object
 	var xhr = new XMLHttpRequest()
@@ -1150,7 +625,7 @@ function submitData() {
 // When deleting a column, the data of this column is not deleted.
 // So before we submit the data, we have to first filter it by the
 // columns that are still present in the table.
-function prepDataForExport() {
+function _prepDataForExport() {
 	let data = table.getData()
 	const fields = table.getColumns().map(col => col.getField())
 

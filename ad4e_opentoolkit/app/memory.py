@@ -77,7 +77,7 @@ class Memory:
         self._storage = None
 
     #################
-    # FUNCTIONS
+    # METHODS
     #################
 
     def before_command(self):

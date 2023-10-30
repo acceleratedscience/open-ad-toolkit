@@ -9,10 +9,9 @@ class ContextMenus {
 		this.editAction = null
 		this.saveEdits = null
 		this.cancelEdits = null
-		this.deselectRows = null
 	}
 
-	init(table, { saveEdits, cancelEdits, deselectRows }) {
+	init(table, { saveEdits, cancelEdits }) {
 		this.table = table
 		this.editAction = {
 			label: 'Edit',
@@ -30,7 +29,6 @@ class ContextMenus {
 		}
 		this.saveEdits = saveEdits
 		this.cancelEdits = cancelEdits
-		this.deselectRows = deselectRows
 	}
 
 	// Assembled context menu for the header.
@@ -39,11 +37,11 @@ class ContextMenus {
 		return [
 			{
 				label: 'Rename column',
-				action: renameColumn,
+				action: this.table.renameColumn,
 			},
 			{
 				label: 'Delete column',
-				action: deleteColumn,
+				action: this.table.deleteColumn,
 			},
 		]
 	}
@@ -202,7 +200,7 @@ class ContextMenus {
 				row.delete()
 			}
 		})
-		this.deselectRows()
+		this.table.deselectRows()
 	}
 
 	keepSelected() {
@@ -212,7 +210,7 @@ class ContextMenus {
 				row.delete()
 			}
 		})
-		this.deselectRows()
+		this.table.deselectRows()
 	}
 
 	// Copy selected rows buy default, or all rows if all is true.

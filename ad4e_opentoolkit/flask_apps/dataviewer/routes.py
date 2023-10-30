@@ -4,6 +4,7 @@ import os
 import signal
 import json
 import pandas
+import threading
 from flask import render_template, request, redirect, url_for
 from ad4e_opentoolkit.helpers.output import output_table
 
@@ -25,8 +26,8 @@ def fetchRoutesDataViewer(data, cmd_pointer):
         # Render success page before we kill the server, so we can still serve the CSS.
         html = render_template('/dataviewer/success.html', notebook_mode=notebook_mode)
 
-        # Kill server
-        os.kill(os.getpid(), signal.SIGINT)
+        # Kill server after 1 second so it has time to deliver the CSS etc.
+        threading.Timer(1, lambda: os.kill(os.getpid(), signal.SIGINT)).start()
 
         return html
 
