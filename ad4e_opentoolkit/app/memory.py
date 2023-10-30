@@ -9,31 +9,29 @@ class Memory:
     Description:
     The working memory is used to store data between commands.
 
-    When data is stored in th memory, it can be used by follow-up commands.
-    Follow up commands should always look like: `result <action>`.
-    It is currently implemented by output_table() which we use to display data.
+    When data is stored in the memory, it can be used by the follow-up commands.
+    The follow up commands are structured as: `result <action>`.
+
+    Currently data is stored by output_table() which we use to display data.
     The available follow-up commands like `result edit` are listed under the table.
-    Please follow this template when adding new follow-up commands.
 
     Implementation:
 
-        from ad4e_opentoolkit.app.memory import memory
+        def main_command(cmd_pointer):
+            # Store data in memory (this happens via output_table() now)
+            cmd_pointer.memory.store(table)
 
-        def main_command():
-            # Store data in memory
-            memory.store(table)
-
-        def follow_up_command():
+        def follow_up_command(cmd_pointer):
             # Don't erase the memory so it can be
             # reused by more follow-up commands.
-            memory.preserve()
+            cmd_pointer.memory.preserve()
 
             # Retrieve data from memory
-            const table = memory.get()
+            const table = cmd_pointer.memory.get()
 
     Notes:
         - The memory is wiped after every command, unless memory.preserve() is called.
-        - There are no restrictions as to what kind of data can be stored.
+        - Follow-up commands expect table data, but we could store any type of data in the memory.
 
     In action:
 
@@ -83,10 +81,7 @@ class Memory:
     #################
 
     def before_command(self):
-        if memory._preserve:
-            memory.release()  # Wipe with next command
+        if self._preserve:
+            self.release()  # Wipe with next command
         else:
-            memory.wipe()  # Wipe now
-
-
-memory = Memory()
+            self.wipe()  # Wipe now

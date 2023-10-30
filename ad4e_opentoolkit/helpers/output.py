@@ -46,10 +46,14 @@ from IPython.display import Markdown, display
 from ad4e_opentoolkit.helpers.output_msgs import messages
 
 
-# NOTE (moe) - I'm not able to do import this from the core director,
-# nor am I able to use `from memory import memory`
-import ad4e_opentoolkit.app.memory as memory
-memory = memory.memory
+# NOTE (moe) - I'm not able to do import memory from the core director
+# Meanwhile this is obsolete, but I still don't have an explanation.
+# - - -
+# from ad4e_opentoolkit.app.memory import memory # This works
+# from ad4e_opentoolkit.core.memory import memory # This crashes the app
+# import ad4e_opentoolkit.core.memory as memory # This crashes the app
+# from ad4e_opentoolkit.core.test import foo # This also crashes the app, when test.py has `foo = 123`
+
 
 # Importing our own plugins.
 # This is temporary until every plugin is available as a public pypi package.
@@ -246,7 +250,7 @@ def output_table(table, cmd_pointer=None, is_data=False, headers=None, note=None
             raise Exception('cmd_pointer is required in display_data() to enable follow-up commands.')
 
         # Store data in memory so we can access it with follow-up commands.
-        memory.store(table)
+        cmd_pointer.memory.store(table)
 
     # - -
     # Format data for Jupyter.

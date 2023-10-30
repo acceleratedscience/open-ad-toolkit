@@ -38,7 +38,6 @@ from ad4e_opentoolkit.core.lang_mols import display_mols
 from ad4e_opentoolkit.core.lang_runs import display_run, exec_run, save_run, list_runs
 from ad4e_opentoolkit.core.lang_dev import flask_example
 from ad4e_opentoolkit.core.grammar import create_statements
-from ad4e_opentoolkit.app.memory import memory
 
 # Toolkits
 from ad4e_opentoolkit.toolkit.toolkit_main import load_toolkit
@@ -522,9 +521,9 @@ def display_data(cmd_pointer, parser):
 # --> Save data to a csv file.
 def display_data__save(cmd_pointer, parser):
     # Preserve memory for further follow-up commands.
-    memory.preserve()
+    cmd_pointer.memory.preserve()
 
-    data = memory.get()
+    data = cmd_pointer.memory.get()
     if data is None:
         return output_error(msg('memory_empty', 'display'), pad=1)
 
@@ -558,9 +557,9 @@ def display_data__save(cmd_pointer, parser):
 # --> Open data in browser UI.
 def display_data__open(cmd_pointer, parser, edit_mode=False):
     # Preserve memory for further follow-up commands.
-    memory.preserve()
+    cmd_pointer.memory.preserve()
 
-    data = memory.get()
+    data = cmd_pointer.memory.get()
     if data is None:
         return output_error(msg('memory_empty', 'display'), pad=1)
 
@@ -574,9 +573,9 @@ def display_data__open(cmd_pointer, parser, edit_mode=False):
 # --> Open data in browser UI.
 def display_data__copy(cmd_pointer, parser):
     # Preserve memory for further follow-up commands.
-    memory.preserve()
+    cmd_pointer.memory.preserve()
 
-    data = memory.get()
+    data = cmd_pointer.memory.get()
     if data is None:
         return output_error(msg('memory_empty', 'display'), pad=1)
 
@@ -587,9 +586,9 @@ def display_data__copy(cmd_pointer, parser):
 # --> Display result in the CLI or Jupyter.
 def display_data__display(cmd_pointer, parser):
     # Preserve memory for further follow-up commands.
-    memory.preserve()
+    cmd_pointer.memory.preserve()
 
-    data = memory.get()
+    data = cmd_pointer.memory.get()
     if data is None:
         return output_error(msg('memory_empty', 'display'), pad=1)
         
