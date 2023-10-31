@@ -3,16 +3,15 @@
 	"command": "display collections for domain",
 	"subject":	" Queries",
 	"SINGLE_PARM": {"domain": "desc"	},
-	"SAVE_AS":{},
 	"exec_type": "standard_statement",
 	"exec_cmd": "display collections for domain",
 	"help": {
 		"name": "display collections for domain",
 		"category": "Collections",
-		"command": "display collections for domain '<domain_name>' [save as '<csv_file_name>']",
+		"command": "display collections for domain '<domain_name>' ",
 		"description": "This command displays the available collections in a given Deep Search <domain_name>.\nIf you use the <cmd>SAVE AS</cmd> clause, it will save a csv file to the current workspace.",
 		"url": ""
 	},
-	"library": "ds4sd_display_collections",
-	"method": "display_collections"
+	"library": "ds4sd_display_collection",
+	"method": "display_collection"
 }
