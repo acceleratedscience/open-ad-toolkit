@@ -3,6 +3,8 @@ import os
 import ad4e_opentoolkit.app.login_manager as login_manager
 import readline
 import json
+import pyperclip
+import pandas as pd
 
 # Flask
 from flask import render_template
@@ -154,6 +156,10 @@ def lang_parse(cmd_pointer, parser):
         return display_data__open(cmd_pointer, parser)
     elif parser.getName() == 'display_data__edit':
         return display_data__open(cmd_pointer, parser, True)
+    elif parser.getName() == 'display_data__copy':
+        return display_data__copy(cmd_pointer, parser)
+    elif parser.getName() == 'display_data__display':
+        return display_data__display(cmd_pointer, parser)
     elif parser.getName() == 'clear_sessions':
         return clear_other_sessions(cmd_pointer, parser)
     elif parser.getName() == 'edit_config':
@@ -426,7 +432,6 @@ def display_history(cmd_pointer, parser):
 
 # Display a csv file in a table.
 def display_data(cmd_pointer, parser):
-    import pandas
     workspace_path = cmd_pointer.workspace_path(cmd_pointer.settings['workspace'].upper()) + '/'
     file_path = parser['file_path']
     filename = file_path.split('/')[-1]
@@ -441,7 +446,7 @@ def display_data(cmd_pointer, parser):
         if filename.split('.')[-1].lower() == 'csv':
             # From csv file.
             try:
-                df = pandas.read_csv(workspace_path + file_path)
+                df = pd.read_csv(workspace_path + file_path)
                 return output_table(df, cmd_pointer, is_data=True)
             except FileNotFoundError:
                 return output_error(msg('fail_file_doesnt_exist', file_path), cmd_pointer)
@@ -457,8 +462,12 @@ def display_data(cmd_pointer, parser):
 
 # --> Save data to a csv file.
 def display_data__save(cmd_pointer, parser):
-    # Initialize memory.
-    cmd_pointer.init_followup('data')
+    # Preserve memory for further follow-up commands.
+    cmd_pointer.memory.preserve()
+
+    data = cmd_pointer.memory.get()
+    if data is None:
+        return output_error(msg('memory_empty', 'display'), pad=1)
 
     # Set variables.
     workspace_path = cmd_pointer.workspace_path(cmd_pointer.settings['workspace'].upper()) + '/'
@@ -477,7 +486,7 @@ def display_data__save(cmd_pointer, parser):
 
     # Save data to file.
     if file_path_ok:
-        cmd_pointer.memory['data'].to_csv(workspace_path + file_path, index=False)
+        data.to_csv(workspace_path + file_path, index=False)
         return output_success(msg('success_save_data', file_path), cmd_pointer)
     else:
         return output_error(msg('fail_save_data'), cmd_pointer)
@@ -485,15 +494,47 @@ def display_data__save(cmd_pointer, parser):
 
 # --> Open data in browser UI.
 def display_data__open(cmd_pointer, parser, edit_mode=False):
-    # Initialize memory.
-    cmd_pointer.init_followup('data')
+    # Preserve memory for further follow-up commands.
+    cmd_pointer.memory.preserve()
+
+    data = cmd_pointer.memory.get()
+    if data is None:
+        return output_error(msg('memory_empty', 'display'), pad=1)
 
     # Load routes and launch browser UI.
-    data = cmd_pointer.memory['data'].to_json(orient='records')
-    routes = fetchRoutesDataViewer(data, cmd_pointer.notebook_mode)
+    data = data.to_json(orient='records')
+    routes = fetchRoutesDataViewer(data, cmd_pointer)
     hash = '#edit' if edit_mode else ''
     launcher.launch(cmd_pointer, routes, 'dataviewer', hash=hash)
 
+
+# --> Open data in browser UI.
+def display_data__copy(cmd_pointer, parser):
+    # Preserve memory for further follow-up commands.
+    cmd_pointer.memory.preserve()
+
+    data = cmd_pointer.memory.get()
+    if data is None:
+        return output_error(msg('memory_empty', 'display'), pad=1)
+
+    pyperclip.copy(data.to_csv(sep='\t'))
+    return output_text(msg('data_copied'), pad=1)
+
+
+# --> Display result in the CLI or Jupyter.
+def display_data__display(cmd_pointer, parser):
+    # Preserve memory for further follow-up commands.
+    cmd_pointer.memory.preserve()
+
+    data = cmd_pointer.memory.get()
+    if data is None:
+        return output_error(msg('memory_empty', 'display'), pad=1)
+        
+    is_df = isinstance(data, pd.DataFrame)
+    if is_df:
+        return output_table(data, cmd_pointer, is_data=True)
+    else:
+        return output_text(data, pad=1)
 
 # Edit a JSON config file.
 def edit_config(cmd_pointer, parser):

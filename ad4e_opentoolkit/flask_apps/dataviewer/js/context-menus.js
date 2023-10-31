@@ -9,10 +9,9 @@ class ContextMenus {
 		this.editAction = null
 		this.saveEdits = null
 		this.cancelEdits = null
-		this.deselectRows = null
 	}
 
-	init(table, { saveEdits, cancelEdits, deselectRows }) {
+	init(table, { saveEdits, cancelEdits }) {
 		this.table = table
 		this.editAction = {
 			label: 'Edit',
@@ -30,7 +29,6 @@ class ContextMenus {
 		}
 		this.saveEdits = saveEdits
 		this.cancelEdits = cancelEdits
-		this.deselectRows = deselectRows
 	}
 
 	// Assembled context menu for the header.
@@ -38,8 +36,12 @@ class ContextMenus {
 		if (this.table.isEditMode()) return this.editModeActions()
 		return [
 			{
+				label: 'Rename column',
+				action: this.table.renameColumn,
+			},
+			{
 				label: 'Delete column',
-				action: deleteColumn,
+				action: this.table.deleteColumn,
 			},
 		]
 	}
@@ -115,11 +117,11 @@ class ContextMenus {
 			},
 			{
 				label: 'Copy selected',
-				action: this.copySelected.bind(this),
+				action: this.copyData.bind(this),
 			},
 			{
 				label: 'Download selected',
-				action: this.downloadSelected.bind(this),
+				action: this.downloadData.bind(this),
 			},
 		]
 	}
@@ -198,7 +200,7 @@ class ContextMenus {
 				row.delete()
 			}
 		})
-		this.deselectRows()
+		this.table.deselectRows()
 	}
 
 	keepSelected() {
@@ -208,18 +210,22 @@ class ContextMenus {
 				row.delete()
 			}
 		})
-		this.deselectRows()
+		this.table.deselectRows()
 	}
 
-	copySelected() {
+	// Copy selected rows buy default, or all rows if all is true.
+	copyData(all) {
+		// == true is on purpose, because 'all' can be the click event.
+		const data = all == true ? this.table.getData() : this.table.getSelectedData()
 		const fields = this.table.getColumns().map(col => col.getField())
 		const textHeader = Object.values(fields).join('\t')
-		const textRows = this.table.getSelectedData().map(row => Object.values(row).join('\t')).join('\n') // prettier-ignore
+		const textRows = data.map(row => Object.values(row).join('\t')).join('\n') // prettier-ignore
 		const text = textHeader + '\n' + textRows
 		navigator.clipboard.writeText(text)
 
 		// Blink
-		this.table.getSelectedRows().forEach(row => {
+		const rows = all == true ? this.table.getRows() : this.table.getSelectedRows()
+		rows.forEach(row => {
 			const $row = row.getElement()
 			$row.classList.add('copied')
 			setTimeout(() => {
@@ -228,7 +234,11 @@ class ContextMenus {
 		})
 	}
 
-	downloadSelected() {
+	// Download selected rows buy default, or all rows if all is true.
+	downloadData(all) {
+		// == true is on purpose, because 'all' can be the click event.
+		const data = all == true ? this.table.getData() : this.table.getSelectedData()
+
 		const filename = prompt('Filename (.csv)', 'mydata')
 		if (!filename) return
 
@@ -255,7 +265,7 @@ class ContextMenus {
 		function _compileCSVText() {
 			const headers = this.table.getColumns().map(col => col.getField())
 			const textHeader = Object.values(headers).join(',')
-			const textRows = this.table.getSelectedData().map(row => Object.values(row).join(',')).join('\n') // prettier-ignore
+			const textRows = data.map(row => Object.values(row).join(',')).join('\n') // prettier-ignore
 			const text = textHeader + '\n' + textRows
 			return text
 		}

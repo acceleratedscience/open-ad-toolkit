@@ -45,6 +45,16 @@ output_text(msg('workspace_description', workspace_name, description), cmd_point
 from IPython.display import Markdown, display
 from ad4e_opentoolkit.helpers.output_msgs import messages
 
+
+# NOTE (moe) - I'm not able to do import memory from the core director
+# Meanwhile this is obsolete, but I still don't have an explanation.
+# - - -
+# from ad4e_opentoolkit.app.memory import memory # This works
+# from ad4e_opentoolkit.core.memory import memory # This crashes the app
+# import ad4e_opentoolkit.core.memory as memory # This crashes the app
+# from ad4e_opentoolkit.core.test import foo # This also crashes the app, when test.py has `foo = 123`
+
+
 # Importing our own plugins.
 # This is temporary until every plugin is available as a public pypi package.
 from ad4e_opentoolkit.plugins.style_parser import style, print_s, strip_tags, tags_to_markdown
@@ -240,8 +250,7 @@ def output_table(table, cmd_pointer=None, is_data=False, headers=None, note=None
             raise Exception('cmd_pointer is required in display_data() to enable follow-up commands.')
 
         # Store data in memory so we can access it with follow-up commands.
-        cmd_pointer.memory['data'] = table
-        cmd_pointer.preserve_memory['data'] = True
+        cmd_pointer.memory.store(table)
 
     # - -
     # Format data for Jupyter.
@@ -300,10 +309,12 @@ def output_table(table, cmd_pointer=None, is_data=False, headers=None, note=None
     if is_data:
         message = (
             '<cmd>result open</cmd>',
-            '<cmd>result edit</cmd>',
-            '<cmd>result save [as \'<filename.csv>\']</cmd>',
+            '<cmd>edit</cmd>',
+            '<cmd>copy</cmd>',
+            '<cmd>display</cmd>',
+            '<cmd>save [as \'<filename.csv>\']</cmd>',
         )
-        footnote += '<soft>Next up, you can run: </soft>' + ' / '.join(message)
+        footnote += '<soft>Next up, you can run: </soft>' + '/'.join(message)
 
     # --> Optional custom note.
     if note:

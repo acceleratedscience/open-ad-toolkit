@@ -35,10 +35,9 @@
 			<button id="btn-edit" class="secondary">Edit</button>
 			<button id="btn-submit">Submit</button>
 			<button id="btn-cancel" class="tertiary">Cancel</button>
-			<button id="btn-save" class="secondary">Save</button>
+			<button id="btn-done" class="secondary">Done</button>
 			<button id="btn-deselect" class="secondary">Deselect</button>
 			<label class="ibm-dropdown" id="dd-selection-actions-wrap">
-				<!-- <div class="ibm-label-txt">Actions</div> -->
 				<div class="ibm-dd-display"></div>
 				<select id="dd-selection-actions">
 					<option value="" selected disabled>- Actions -</option>
@@ -53,6 +52,14 @@
 		<!-- Buttons right -->
 		<div id="btn-wrap-right">
 			<button id="btn-options" class="tertiary">Options</button>
+			<label class="ibm-dropdown" id="dd-actions-wrap">
+				<div class="display">...</div>
+				<select id="dd-actions">
+					<option value="" selected hidden>-</option>
+					<option value="copy">Copy data</option>
+					<option value="download">Download csv</option>
+				</select>
+			</label>
 
 			<!-- Display options -->
 			<div id="options" class="hide">

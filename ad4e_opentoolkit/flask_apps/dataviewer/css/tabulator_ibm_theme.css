@@ -19,6 +19,16 @@ body {
 	min-height: 26px;
 }
 
+/* Block selecting of text */
+.tabulator-row .tabulator-cell {
+	user-select: none;
+}
+
+/* Allow links to break mid-word */
+.tabulator-row .tabulator-cell {
+	line-break: anywhere;
+}
+
 /**
  * Scroll behavior
  */
@@ -57,15 +67,15 @@ body {
 .tabulator .tabulator-header .tabulator-col:not(:first-of-type):not(.tabulator-moving) {
 	border-left: none;
 }
-.tabulator-row .tabulator-cell,
-.tabulator-row .tabulator-cell:last-of-type {
+.tabulator .tabulator-row .tabulator-cell,
+.tabulator .tabulator-row .tabulator-cell:last-of-type {
 	border-right: solid 1px var(--black-10);
 }
-.tabulator-cell:first-of-type.tabulator-editing,
-.tabulator-cell:first-of-type {
+.tabulator .tabulator-cell:first-of-type.tabulator-editing,
+.tabulator .tabulator-cell:first-of-type {
 	border-left: solid 1px var(--black-10);
 }
-.tabulator-row {
+.tabulator .tabulator-row {
 	border-bottom: solid 1px var(--black-10);
 }
 
@@ -160,17 +170,15 @@ body {
 
 /*
  * Truncation
+ * - - -
+ * When truncation settings are set to 3 lines, this will
  */
 
 .tabulator-row .tabulator-cell {
-	/* Block selecting of text */
-	user-select: none;
-
 	/*
-	Unset default 1-line truncation.
-	This allows for $display-full-text
-	and the textarea edit UI to bleed
-	outside the cell.
+	Undo the overflow:hidden set by tabulator because
+	we use hover states with borders and #display-full-text
+	which  all need to be able to bleed outside the cell.
 	*/
 	white-space: normal;
 	overflow: visible;
@@ -178,7 +186,9 @@ body {
 }
 
 /* Truncate text to 3 lines */
-.tabulator.trunc-3 .tabulator-row .tabulator-cell .text-wrap:not(.expand) {
+/* Note: .expand goes with _expandCell and is not currently used */
+.tabulator.trunc-3 .tabulator-row .tabulator-cell .text-wrap:not(.expand),
+.tabulator.trunc-3 .tabulator-row .tabulator-cell a {
 	white-space: normal;
 	overflow: hidden;
 	text-overflow: ellipsis;
@@ -188,10 +198,16 @@ body {
 }
 
 /* Truncate text to 1 line */
-.tabulator.trunc-1 .tabulator-row .tabulator-cell .text-wrap:not(.expand) {
+.tabulator.trunc-1 .tabulator-row .tabulator-cell .text-wrap:not(.expand),
+.tabulator.trunc-1 .tabulator-row .tabulator-cell a {
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
+
+	/* Override trunc-3 */
+	display: block;
+	-webkit-line-clamp: 1;
+	background: pink;
 }
 
 /* Overlay displaying full text when clicking on truncated text */
@@ -352,18 +368,23 @@ body {
 /**
  * Cell focus
  */
-
-#table:not(.edit-mode) .tabulator-cell.focus::after {
+.tabulator .tabulator-cell.focus::after {
 	content: '';
 	display: block;
 	position: absolute;
 	top: -1px;
 	left: -1px;
+	right: -1px;
 	z-index: 2;
-	width: 100%;
+	/* width: 100%; */
 	height: 100%;
 	border: dashed 1px var(--blue);
 	pointer-events: none;
+}
+
+/* To avoid the focus border to peep from behind the edit field */
+.tabulator .tabulator-cell.tabulator-editing.focus::after {
+	right: 0;
 }
 
 /**
@@ -407,39 +428,44 @@ body {
 /* Note - also see .tabulator-editing above */
 
 /* Table edit state */
-#table.edit-mode {
+.tabulator.edit-mode {
 	overflow: visible;
 }
-#table.edit-mode .tabulator-header .tabulator-col {
+.tabulator.edit-mode .tabulator-header .tabulator-col {
 	border-bottom-color: var(--blue);
 	background: var(--blue-05);
 }
+.tabulator.edit-mode .tabulator-header .tabulator-col,
+.tabulator.edit-mode .tabulator-row,
+.tabulator.edit-mode .tabulator-cell,
+.tabulator.edit-mode .tabulator-cell:last-of-type {
+	border-color: var(--blue-30);
+}
 
 /* Line on left of table */
-/* #table.edit-mode .tabulator-header,
-#table.edit-mode .tabulator-tableholder {
-	position: relative;
+.tabulator.edit-mode .tabulator-header,
+.tabulator.edit-mode .tabulator-tableholder {
 	overflow: visible;
 }
-#table.edit-mode .tabulator-header::before,
-#table.edit-mode .tabulator-tableholder::before {
+.tabulator.edit-mode .tabulator-header::before,
+.tabulator.edit-mode .tabulator-tableholder::before {
 	content: '';
 	display: block;
 	height: 100%;
-	width: 1px;
+	width: 10px;
 	position: absolute;
-	left: -4px;
+	left: -40px;
 	top: 0;
 	z-index: 1;
-	background: var(--blue);
-	opacity: 0.5;
-} */
+	background: var(--blue-30);
+	opacity: 1;
+}
 
 /* Cell hover */
-#table.edit-mode .tabulator-row .tabulator-cell:not(.tabulator-editing):hover {
+.tabulator.edit-mode .tabulator-row .tabulator-cell:not(.tabulator-editing):hover {
 	overflow: visible;
 }
-#table.edit-mode .tabulator-row .tabulator-cell:not(.tabulator-editing):hover::after {
+.tabulator.edit-mode .tabulator-row .tabulator-cell:not(.tabulator-editing):hover::after {
 	content: '';
 	display: block;
 	position: absolute;
@@ -475,6 +501,7 @@ body {
 	/* Font style */
 	font-family: var(--font-fam) !important;
 	font-size: var(--font-size) !important;
+	line-height: 20px;
 	padding: 3px !important;
 	padding-left: 4px !important; /* <-- Shifts text 1px right, making edit mode more clear. */
 }
@@ -482,9 +509,11 @@ body {
 	height: calc(100% + 2px) !important;
 }
 .tabulator-row .tabulator-cell.tabulator-editing textarea {
-	min-height: calc(100% + 1px);
+	height: calc(100% + 1px);
+	/* min-height: calc(100% + 1px); */
 	resize: vertical !important;
 	box-sizing: border-box;
+	margin-right: -1px;
 }
 .tabulator-row .tabulator-cell.tabulator-editing:first-of-type input,
 .tabulator-row .tabulator-cell.tabulator-editing:first-of-type select {
@@ -495,7 +524,7 @@ body {
 /**
  * Links
  */
-#table.edit-mode a {
+.tabulator.edit-mode a {
 	color: var(--black);
 	pointer-events: none;
 }

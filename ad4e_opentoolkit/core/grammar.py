@@ -395,6 +395,26 @@ grammar_help.append(help_dict_create(
     parent="display data"
 ))
 
+# --> result copy --> Copy data to clipboard, formatted for spreadheet
+statements.append(Forward(result + CaselessKeyword('copy'))('display_data__copy'))
+grammar_help.append(help_dict_create(
+    name="copy",
+    category='Utility',
+    command="result copy",
+    description='Copy table data to clipboard, formatted for spreadheet.',
+    parent="display data"
+))
+
+# --> result display --> Display the result in the CLI/Notebook
+statements.append(Forward(result + CaselessKeyword('display'))('display_data__display'))
+grammar_help.append(help_dict_create(
+    name="display",
+    category='Utility',
+    command="result display",
+    description=f'Display the result in {"Jupyter Notebook" if is_notebook_mode() else "the CLI"}.',
+    parent="display data"
+))
+
 # Edit config file (CLI-only)
 if not is_notebook_mode():
     statements.append(Forward(CaselessKeyword('edit') + CaselessKeyword('config') + desc('json_file') + Optional(CaselessKeyword('schema') + desc('schema')))('edit_config'))

@@ -5,6 +5,8 @@ import getpass
 import readline
 from IPython.display import display
 from ad4e_opentoolkit.helpers.output import msg, output_text, output_error
+
+
 # Refreshes the command prompt when in the shell.
 def refresh_prompt(settings):
     if settings['context'] is not None:
