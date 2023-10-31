@@ -5,7 +5,7 @@
 # Documentation: https://pypi.org/project/autopep8/#configuration
 
 [pycodestyle]
-max_line_length = 250
+max_line_length = 120
 aggressive = 1
 
 # Avoid rearranging import statements,

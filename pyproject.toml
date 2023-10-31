@@ -50,6 +50,7 @@ coverage = "^7.3.2"
 langchain = "0.0.317"
 jupyter = "^1.0.0"
 ipykernel = "^6.25.2"
+pyperclip =  ">=1.8.2"
 
 [tool.poetry.scripts]
 openad = "ad4e_opentoolkit.app.main:cmd_line"

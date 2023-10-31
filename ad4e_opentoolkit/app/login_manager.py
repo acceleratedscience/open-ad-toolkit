@@ -14,13 +14,13 @@ from ad4e_opentoolkit.app.global_var_lib import _meta_dir_toolkits
 def initialise_toolkit_login():
     """Initialises the settings file for login, currently this code is a holding place for a persist to disk solution for storing login handles"""
     try:
-        with open(_meta_login_registry, 'wb') as handle:
+        with open(_meta_login_registry, "wb") as handle:
             pickle.dump(_meta_login_registry_settings, handle)
             handle.close()
-        output_success(msg('success_login_init'), return_val=False)
+        output_success(msg("success_login_init"), return_val=False)
         return True
     except Exception as err:
-        output_error(msg('error_login_init', err, split=True), return_val=False)
+        output_error(msg("error_login_init", err, split=True), return_val=False)
         return False
 
 
@@ -28,7 +28,7 @@ def initialise_toolkit_login():
 def load_login_registry():
     """Loads connection handles from disk, currently this code is a holding place for a persist to disk solution for storing login handles"""
     try:
-        with open(_meta_login_registry, 'rb') as handle:
+        with open(_meta_login_registry, "rb") as handle:
             login_registry = pickle.load(handle.read())
             handle.close()
     except Exception:
@@ -49,9 +49,9 @@ def load_src(name, fpath):
 
 
 def load_login_api(cmd_pointer, toolkit_name, reset=False):
-    """ loads the login API """
+    """loads the login API"""
     suppress = False
-    if toolkit_name.upper() in cmd_pointer.settings['toolkits']:
+    if toolkit_name.upper() in cmd_pointer.settings["toolkits"]:
         suppress = True
     if os.path.isfile(f"{_meta_dir_toolkits}/{toolkit_name}/login.py"):
         exec_link = load_src("login", f"{_meta_dir_toolkits}/{toolkit_name}/login.py")
@@ -62,16 +62,16 @@ def load_login_api(cmd_pointer, toolkit_name, reset=False):
         try:
             login_success, expiry_datetime = func(cmd_pointer)
             if expiry_datetime is None:
-                expiry_datetime='No Expiry'
+                expiry_datetime = "No Expiry"
             if login_success is True:
                 if not suppress:
-                    output_success(msg('success_login',toolkit_name,expiry_datetime,split=True), return_val=False)
+                    output_success(msg("success_login", toolkit_name, expiry_datetime, split=True), return_val=False)
                 return login_success, expiry_datetime
             else:
                 if not suppress:
-                    output_error(msg('error_login',toolkit_name,split=True), return_val=False)
+                    output_error(msg("error_login", toolkit_name, split=True), return_val=False)
                 return False, None
 
         except Exception as err:
-            output_error(msg('error_login', err,toolkit_name,split=True), return_val=False)
+            output_error(msg("error_login", err, toolkit_name, split=True), return_val=False)
             return False, None

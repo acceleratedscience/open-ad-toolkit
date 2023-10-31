@@ -5,6 +5,7 @@
 
 from ad4e_opentoolkit.helpers.general import is_notebook_mode
 from ad4e_opentoolkit.helpers.output import msg, output_text
+
 if is_notebook_mode():
     from halo import HaloNotebook as Halo
 else:
@@ -15,13 +16,13 @@ class Spinner(Halo):
     def __init__(self):
         # Alternative spinners:
         # simpleDotsScrolling, interval=100
-        super().__init__(spinner='dots', color='white')
+        super().__init__(spinner="dots", color="white")
 
     def start(self, text=None, no_format=False):
         if no_format:
-            text = output_text(text, return_val=True, jup_return_format='plain') if text else None
+            text = output_text(text, return_val=True, jup_return_format="plain") if text else None
         else:
-            text = output_text(f'<soft>{text}...</soft>', return_val=True, jup_return_format='plain') if text else None
+            text = output_text(f"<soft>{text}...</soft>", return_val=True, jup_return_format="plain") if text else None
         super().start(text)
 
 

@@ -86,6 +86,7 @@ def output_text(text, cmd_pointer=None, return_val=None, jup_return_format=None,
         The latter is the case with the plash.py installation notice.
     """
     from ad4e_opentoolkit.helpers.general import is_notebook_mode
+
     notebook_mode = cmd_pointer.notebook_mode if cmd_pointer else is_notebook_mode()
     api_mode = cmd_pointer.api_mode if cmd_pointer else False
     return_val = notebook_mode if return_val is None else return_val
@@ -97,9 +98,9 @@ def output_text(text, cmd_pointer=None, return_val=None, jup_return_format=None,
     # Jupyter
     elif notebook_mode:
         if return_val:
-            if jup_return_format == 'plain':
+            if jup_return_format == "plain":
                 return strip_tags(text)
-            if jup_return_format == 'markdown_data':
+            if jup_return_format == "markdown_data":
                 return Markdown(tags_to_markdown(text)).data
             else:
                 return Markdown(tags_to_markdown(text))
@@ -155,20 +156,20 @@ def _output_status(message, status, cmd_pointer=None, return_val=None, pad=1, pa
         msg2 = None
 
     # Format secondary message.
-    msg2 = f'\n<soft>{msg2}</soft>' if msg2 else ''
+    msg2 = f"\n<soft>{msg2}</soft>" if msg2 else ""
 
     # Set padding.
     pad = 0 if pad_top or pad_btm else pad
 
     # Print.
     return output_text(
-        f'<{status}>{msg1}</{status}>{msg2}',
+        f"<{status}>{msg1}</{status}>{msg2}",
         cmd_pointer=cmd_pointer,
         return_val=return_val,
         pad=pad,
         pad_btm=pad_btm,
         pad_top=pad_top,
-        **kwargs
+        **kwargs,
     )
 
 
@@ -177,7 +178,7 @@ def output_error(message, *args, **kwargs):
     """
     Wrapper around output_status() for error messages.
     """
-    return _output_status(message, 'error', *args, **kwargs)
+    return _output_status(message, "error", *args, **kwargs)
 
 
 # Print or return warning messages.
@@ -185,7 +186,7 @@ def output_warning(message, *args, **kwargs):
     """
     Wrapper around output_status() for warning messages.
     """
-    return _output_status(message, 'warning', *args, **kwargs)
+    return _output_status(message, "warning", *args, **kwargs)
 
 
 # Print or return success messages.
@@ -193,11 +194,11 @@ def output_success(message, *args, **kwargs):
     """
     Wrapper around output_status() for success messages.
     """
-    return _output_status(message, 'success', *args, **kwargs)
+    return _output_status(message, "success", *args, **kwargs)
 
 
 # Print or return a table.
-def output_table(table, cmd_pointer=None, is_data=False, headers=None, note=None, tablefmt='simple'):
+def output_table(table, cmd_pointer=None, is_data=False, headers=None, note=None, tablefmt="simple"):
     """
     Display a table:
     - CLI:      Print using tabulate with some custom home-made styling
@@ -224,6 +225,7 @@ def output_table(table, cmd_pointer=None, is_data=False, headers=None, note=None
     import pandas
     from tabulate import tabulate
     from ad4e_opentoolkit.helpers.general import is_notebook_mode
+
     notebook_mode = cmd_pointer.notebook_mode if cmd_pointer else is_notebook_mode()
     headers = [] if headers is None else headers
     is_df = isinstance(table, pandas.DataFrame)
@@ -231,7 +233,7 @@ def output_table(table, cmd_pointer=None, is_data=False, headers=None, note=None
 
     # Abort when table is empty.
     if _is_empty_table(table, is_df):
-        output_warning(msg('table_is_empty'), cmd_pointer, return_val=False)
+        output_warning(msg("table_is_empty"), cmd_pointer, return_val=False)
         return
 
     # Turn potential tuples into lists.
@@ -241,13 +243,15 @@ def output_table(table, cmd_pointer=None, is_data=False, headers=None, note=None
     col_count = table.shape[1] if is_df else len(table[0])
 
     if headers and len(headers) != col_count:
-        output_warning(msg('table_headers_dont_match_columns', headers, col_count, split=True), cmd_pointer, return_val=False)
-        headers = headers[:col_count] + ['(?)'] * max(0, col_count - len(headers))
+        output_warning(
+            msg("table_headers_dont_match_columns", headers, col_count, split=True), cmd_pointer, return_val=False
+        )
+        headers = headers[:col_count] + ["(?)"] * max(0, col_count - len(headers))
 
     # Enable follow-up commands.
     if is_data:
         if not cmd_pointer:
-            raise Exception('cmd_pointer is required in display_data() to enable follow-up commands.')
+            raise Exception("cmd_pointer is required in display_data() to enable follow-up commands.")
 
         # Store data in memory so we can access it with follow-up commands.
         cmd_pointer.memory.store(table)
@@ -255,10 +259,10 @@ def output_table(table, cmd_pointer=None, is_data=False, headers=None, note=None
     # - -
     # Format data for Jupyter.
     if notebook_mode is True:
-        pandas.set_option('display.max_colwidth', None)
+        pandas.set_option("display.max_colwidth", None)
         # pandas.options.display.max_colwidth = 5
         # pandas.set_option('display.max_colwidth', 5)
-        if (is_df):
+        if is_df:
             # return data %%
             pass
         else:
@@ -277,7 +281,7 @@ def output_table(table, cmd_pointer=None, is_data=False, headers=None, note=None
     # - -
     # Format data for terminal.
     else:
-        if (is_df):
+        if is_df:
             table = tabulate(table, headers="keys", tablefmt=tablefmt, showindex=False, numalign="left")
         else:
             # Parse styling tags.
@@ -295,30 +299,30 @@ def output_table(table, cmd_pointer=None, is_data=False, headers=None, note=None
                     table = table.replace(line, line[:cli_width])
                 elif len(line) > cli_width:
                     # updated with reset \u001b[0m for color tags which may be found later
-                    table = table.replace(line, line[:cli_width - 3] + '...\u001b[0m')
+                    table = table.replace(line, line[: cli_width - 3] + "...\u001b[0m")
 
         # Make line yellow.
         table = table.splitlines()
-        table[1] = style(f'<yellow>{table[1]}</yellow>', nowrap=True)
-        table = '\n'.join(table)
+        table[1] = style(f"<yellow>{table[1]}</yellow>", nowrap=True)
+        table = "\n".join(table)
 
     # Display footnote.
-    footnote = ''
+    footnote = ""
 
     # --> Optional follow-up commands.
     if is_data:
         message = (
-            '<cmd>result open</cmd>',
-            '<cmd>edit</cmd>',
-            '<cmd>copy</cmd>',
-            '<cmd>display</cmd>',
-            '<cmd>save [as \'<filename.csv>\']</cmd>',
+            "<cmd>result open</cmd>",
+            "<cmd>edit</cmd>",
+            "<cmd>copy</cmd>",
+            "<cmd>display</cmd>",
+            "<cmd>save [as '<filename.csv>']</cmd>",
         )
-        footnote += '<soft>Next up, you can run: </soft>' + '/'.join(message)
+        footnote += "<soft>Next up, you can run: </soft>" + "/".join(message)
 
     # --> Optional custom note.
     if note:
-        footnote += f'\n<soft>{note}</soft>'
+        footnote += f"\n<soft>{note}</soft>"
 
     # Output
     if notebook_mode is True:
@@ -327,7 +331,7 @@ def output_table(table, cmd_pointer=None, is_data=False, headers=None, note=None
         return table
     else:
         if footnote:
-            output = table + '\n\n' + footnote
+            output = table + "\n\n" + footnote
         else:
             output = table
         print_s(output, pad=2, nowrap=True)
@@ -379,5 +383,5 @@ def msg(msg_name, *args, split=False):
             # For output_error/warning/success we sometimes need to send
             # None as second message, eg. load_toolkit_description().
             msg_name = [x for x in msg_name if x is not None]
-            msg_name = '\n'.join(msg_name)
+            msg_name = "\n".join(msg_name)
     return msg_name
