@@ -38,7 +38,7 @@ const table = new Table('#table', {
 	index,
 	pagination: false,
 	editMode: window.location.hash == '#edit',
-	movableRows: false,
+	movableRows: false, // We use our own custom row reordering - see table.onCellMouseDown()
 	movableColumns: true,
 	rowRange: 'active', // Master checkbox will only select filtered rows
 
@@ -51,7 +51,7 @@ const table = new Table('#table', {
 
 	// We're not using reactive data because it's
 	// not reflecting deleted rows and thus useless.
-	// Instead we run prepDataForExport().
+	// Instead we run table.getDataFinal().
 	// - - -
 	// reactiveData: true,
 
@@ -573,9 +573,9 @@ function dispatchSelectionActions(e) {
 	} else if (action == 'keep') {
 		contextMenus.keepSelected()
 	} else if (action == 'copy') {
-		contextMenus.copyData()
+		contextMenus.copyData(true)
 	} else if (action == 'download') {
-		contextMenus.downloadData()
+		contextMenus.downloadData(true)
 	}
 	e.target.value = ''
 }
@@ -584,9 +584,13 @@ function dispatchSelectionActions(e) {
 function dispatchMainActions(e) {
 	const action = e.target.value
 	if (action == 'copy') {
-		contextMenus.copyData(true)
+		contextMenus.copyData()
 	} else if (action == 'download') {
-		contextMenus.downloadData(true)
+		contextMenus.downloadData()
+
+		// Note: we're not using the built-in download function because
+		// we built our own movableRows UI, see table.onCellMouseDown().
+		// table.download('csv', 'data.csv')
 	}
 	e.target.value = ''
 }
@@ -599,7 +603,7 @@ function dispatchMainActions(e) {
 // Submit data back to CLI/Jupyter
 function submitData() {
 	table.isSubmitting = true
-	const data = _prepDataForExport()
+	const data = table.getDataFinal()
 
 	// Create a new XMLHttpRequest object
 	var xhr = new XMLHttpRequest()
@@ -620,45 +624,6 @@ function submitData() {
 
 	// Send the request
 	xhr.send(JSON.stringify(data))
-}
-
-// When deleting a column, the data of this column is not deleted.
-// So before we submit the data, we have to first filter it by the
-// columns that are still present in the table.
-function _prepDataForExport() {
-	let data = table.getData()
-	const fields = table.getColumns().map(col => col.getField())
-
-	// Remove deleted column data.
-	data.forEach(row => {
-		Object.keys(row).forEach(key => {
-			if (!fields.includes(key)) {
-				delete row[key]
-			}
-		})
-	})
-
-	// Remove index column per the opt-export-index-col options.
-	// Note: The default value will be false if the index column
-	// was added by us, and true if it was already present.
-	const includeIndex = Boolean(+document.getElementById('opt-export-index-col').value)
-	if (!includeIndex) {
-		const indexName = table.options.index
-		data.forEach(row => {
-			delete row[indexName]
-		})
-	}
-
-	// Reorder data to match the order of the columns.
-	data = data.map(row => {
-		const newRow = {}
-		fields.forEach(field => {
-			newRow[field] = row[field]
-		})
-		return newRow
-	})
-
-	return data
 }
 
 //#endregion
