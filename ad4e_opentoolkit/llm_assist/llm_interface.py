@@ -20,25 +20,25 @@ EXTENDED_FILE_TYPES_EMBED   =   ['**/*.txt', '**/*.ipynb', '**/*.run', '**/*.cdo
 NOTEBOOKS_DIR               =   '/../notebooks'
 DEFAULT_SOURCES_LIST        =   [] #
 #CHAT_PRIMER_old = """  In formatting the answer use markdown formatting syntax to highlight \
-#      instances of commands,Parameters, Examples, Command Options and Command Clauses. Here is an correct version of a example code \
+#      instances of commands, Parameters, Examples, Command Options and Command Clauses. Here is a correct version of a example code \
 #       ``` search collection 'pubchem' for 'Ibuprofen' show (data)  ```. \
-#       Only format one line at a time. No "\n" characters in codeblocks. do not mention formatting in response. Always format the response.
+#       Only format one line at a time. No "\n" characters in codeblocks. Do not mention formatting in response. Always format the response.
 #         Tell me """
 CHAT_PRIMER = """  In answering the following Question:
-            -Explain what any mention commands do
-            -Provide Options,Parameters and Examples
+            -Explain what any requested commands do
+            -Provide All syntax, Options, Parameters and Examples when answering a question
             -Provide All Command Syntax, Clauses or Option Syntax in codeblock Markdown
-            -Only format one line at a time. codvblocks should not go over lines
+            -Only format one line at a time. codeblocks should not go over lines
             -No "\n" characters in codeblocks
-             Here is an correct version of aan example command in codeblock format ``` search collection 'pubchem' for 'Ibuprofen' show (data)  ```. \
-                And do not mention formatting in response. 
+             Here is an correct version of an example command in codeblock format ``` search collection 'PubChem' for 'Ibuprofen' show (data)  ```. \
+            Only Use the above as a guide to how to respond not as content for a response. 
             Always format the answer.
             Tell me """
-CHAT_PRIMER_SUFFIX=""". Please provide info on options in response. please format all code syntax, clauses  and options in codeblock formatting on single lines in the response."""
+CHAT_PRIMER_SUFFIX = """. Please provide information on options in response. Please format all code syntax, clauses and options in codeblock formatting on single lines in the response."""
 CHAT_HISTORY_PRIMER = """When answering questions in the following chats,
              Answer like a technical helpful writer.
-             When answering always show a Summary Description of a Command explaining what it does, codblocked command syntax 
-             and codeblocked command option Syntax as well as any parameters defind. format the codeblocks in markdown.
+             When answering always show a Summary Description of any mentioned Command explaining what it does, codeblocked command syntax 
+             and codeblocked command option Syntax as well as any parameters defined. format the codeblocks in markdown.
              Prioritise Help Text over Notebook examples. """
 
 def create_train_repo(included_sources=DEFAULT_SOURCES_LIST, location_for_documents=PROMPT_DIR, document_types=STANDARD_FILE_TYPES_EMBED):
