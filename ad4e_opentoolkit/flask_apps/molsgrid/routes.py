@@ -177,7 +177,7 @@ def fetchRoutesMols2Grid(cmd_pointer, parser):
             m2g_params_copy = copy.deepcopy(m2g_params)
             m2g_instance = the_mols2grid.display(**m2g_params_copy)
             return render_template(
-                "/molsviewer/index.html",
+                "/molsgrid/index.html",
                 data=m2g_instance.data,
                 available_params=available_params,
                 m2g_params=m2g_params,
