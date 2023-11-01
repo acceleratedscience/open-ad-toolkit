@@ -1,4 +1,4 @@
-.PHONY: check-lint test setup
+.PHONY: check-lint test setup lint
 
 setup:
 	poetry install
@@ -6,6 +6,9 @@ setup:
 
 check-lint:
 	poetry run black --check .
+
+lint:
+	poetry run black .
 
 test:
 	poetry run coverage run --branch --source=./ad4e_opentoolkit/app/ -m pytest --durations=10 --color=yes tests/unit
