@@ -1,16 +1,16 @@
-import os, sys
+"""Populates Examples Directory"""
+import os
 import shutil
 from ad4e_opentoolkit.app.global_var_lib import _repo_dir
 
-destination = None
-
 
 def openad_create_examps():
+    """creates or overwrites example directory"""
+
     try:
         try:
             shutil.rmtree(os.path.expanduser("~/openad_notebooks"), ignore_errors=True)
-            # os.mkdir(os.path.expanduser('~/openad_notebooks'))
-        except:
+        except:  # nothing to delete
             pass
 
         shutil.copytree(
@@ -21,5 +21,5 @@ def openad_create_examps():
         )
 
     except Exception as e:
-        print("Error: Unable to copy magic file, destination may not exist")
+        print("Error: Unable to copy samples")
         print(e)

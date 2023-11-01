@@ -1,17 +1,21 @@
+""" This library is the main library for invoking functions from the command line
+it does contain some general functions or plugin calls otherwise invokes toolkits or core / plugin functions"""
 #!/usr/local/opt/python@3.9/bin/python3.9
 import os
-import ad4e_opentoolkit.app.login_manager as login_manager
+import re
 import readline
-import json
+import webbrowser
 import pyperclip
 import pandas as pd
 
 # Flask
-from flask import render_template
 from ad4e_opentoolkit.flask_apps import launcher
 from ad4e_opentoolkit.flask_apps.dataviewer.routes import fetchRoutesDataViewer
 
+import ad4e_opentoolkit.app.login_manager as login_manager
+
 # Core
+
 from ad4e_opentoolkit.core.lang_file_system import import_file, export_file, copy_file, remove_file, list_files
 from ad4e_opentoolkit.core.lang_sessions_and_registry import (
     clear_other_sessions,
@@ -40,13 +44,13 @@ from ad4e_opentoolkit.toolkit.toolkit_main import load_toolkit_description
 from ad4e_opentoolkit.llm_assist.llm_interface import how_do_i, set_llm, clear_llm_auth
 
 # Global variables
-from ad4e_opentoolkit.app.global_var_lib import _meta_dir as _meta_dir
-from ad4e_opentoolkit.app.global_var_lib import _meta_dir_toolkits as _meta_dir_toolkits
-from ad4e_opentoolkit.app.global_var_lib import _meta_registry as _meta_registry
-from ad4e_opentoolkit.app.global_var_lib import _meta_registry_session as _meta_registry_session
-from ad4e_opentoolkit.app.global_var_lib import _meta_login_registry as _meta_login_registry
-from ad4e_opentoolkit.app.global_var_lib import _meta_workspaces as _meta_workspaces
-from ad4e_opentoolkit.app.global_var_lib import _all_toolkits as _all_toolkits
+from ad4e_opentoolkit.app.global_var_lib import _meta_dir
+from ad4e_opentoolkit.app.global_var_lib import _meta_dir_toolkits
+from ad4e_opentoolkit.app.global_var_lib import _meta_registry
+from ad4e_opentoolkit.app.global_var_lib import _meta_registry_session
+from ad4e_opentoolkit.app.global_var_lib import _meta_login_registry
+from ad4e_opentoolkit.app.global_var_lib import _meta_workspaces
+from ad4e_opentoolkit.app.global_var_lib import _all_toolkits
 
 # Helpers
 from ad4e_opentoolkit.helpers.output import msg, output_text, output_error, output_warning, output_success, output_table
@@ -54,6 +58,7 @@ from ad4e_opentoolkit.helpers.general import refresh_prompt, user_input, validat
 from ad4e_opentoolkit.helpers.splash import splash
 from ad4e_opentoolkit.helpers.output_content import openad_intro
 
+from ad4e_opentoolkit.plugins import edit_json
 
 # Importing our own plugins.
 # This is temporary until every plugin is available as a public pypi package.
@@ -62,6 +67,7 @@ from ad4e_opentoolkit.helpers.output_content import openad_intro
 
 # This is called by the default run_cmd method, for executing current commands.
 def lang_parse(cmd_pointer, parser):
+    """the routes commands to the correct functions"""
     # Workspace commands
     if parser.getName() == "create_workspace_statement":
         return create_workspace(cmd_pointer, parser)  # Addressed
@@ -96,7 +102,7 @@ def lang_parse(cmd_pointer, parser):
     # Language Model How To
     elif parser.getName() == "how_do_i":
         result = how_do_i(cmd_pointer, parser)
-        if result == False:
+        if result is False:
             return False
         update_main_registry_env_var(cmd_pointer, "refresh_help_ai", False)
         write_registry(cmd_pointer.settings, cmd_pointer)
@@ -110,7 +116,9 @@ def lang_parse(cmd_pointer, parser):
             cmd_pointer.refresh_train = True
             write_registry(cmd_pointer.settings, cmd_pointer, False)
             write_registry(cmd_pointer.settings, cmd_pointer, True)
-        except BaseException as e:
+        except (
+            Exception  # pylint: disable=broad-exception-caught
+        ) as e:  # do not care what exception is, just returning failure
             print(e)
         return result
     elif parser.getName() == "clear_llm_auth":
@@ -124,7 +132,9 @@ def lang_parse(cmd_pointer, parser):
     elif parser.getName() == "save_run":
         try:
             return save_run(cmd_pointer, parser)
-        except BaseException:
+        except (
+            Exception  # pylint: disable=broad-exception-caught
+        ):  # do not care what exception is, just returning failure
             return False
     elif parser.getName() == "list_runs":
         return list_runs(cmd_pointer, parser)
@@ -147,13 +157,6 @@ def lang_parse(cmd_pointer, parser):
 
     # General commands
     elif parser.getName() == "welcome":
-        # # Triggered by `openad`
-        # # For testing
-        # print(splash(raw=True))
-        # print('- - - - - - - - - - - - - -')
-        # print(tags_to_markdown(splash(raw=True)))
-        # print('- - - - - - - - - - - - - -')
-        # print(splash())
         return output_text(splash(cmd_pointer=cmd_pointer), nowrap=True)
     elif parser.getName() == "get_status":
         return get_status(cmd_pointer, parser)
@@ -178,11 +181,6 @@ def lang_parse(cmd_pointer, parser):
 
     # Help commands
     elif parser.getName() == "intro":
-        # For testing
-        # print(openad_intro)
-        # print('- - - - - - - - - - - - - -')
-        # print(tags_to_markdown(openad_intro))
-        # print('- - - - - - - - - - - - - -')
         return output_text(openad_intro, edge=True, pad=3)
     elif parser.getName() == "docs":
         return docs(cmd_pointer, parser)
@@ -197,7 +195,9 @@ def lang_parse(cmd_pointer, parser):
     elif str(parser.getName()).startswith("toolkit_exec_"):
         try:
             return execute_tookit(cmd_pointer, parser)
-        except BaseException as err:
+        except (
+            Exception  # pylint: disable=broad-exception-caught
+        ) as err:  # do not care what exception is, just returning failure
             err = err + "\n" + str(parser.asList())
             return output_error(msg("fail_toolkit_exec_cmd"), cmd_pointer)
 
@@ -211,6 +211,7 @@ def lang_parse(cmd_pointer, parser):
 # Initialises the metadata and workspace directorys for the tool when first run
 # if a directory has been deleted it will recreate it
 def initialise():
+    """Initialise key paths"""
     if not os.path.isdir(_meta_dir):
         os.mkdir(_meta_dir)
     if not os.path.isdir(_meta_dir_toolkits):
@@ -230,10 +231,8 @@ def initialise():
 
 
 # Open documentation webpage.
-def docs(cmd_pointer, parser):
-    import webbrowser
-
-    # url = 'data:text/html,<html style="height:100%"><body contenteditable style="height:100%;font-family:sans-serif;font-size:13px;color:dimgray;display:flex;align-items:center;justify-content:center">This is a placeholder for the openad documentation.</body></html>'
+def docs(cmd_pointer, parser):  # pylint: disable=unused-argument # generic pass through used or unused
+    """points to online documentation"""
     url = "https://research.ibm.com/topics/accelerated-discovery"
     webbrowser.open_new(url)
     return output_warning(
@@ -245,13 +244,14 @@ def docs(cmd_pointer, parser):
 # adds a registry Toolkit Directory
 # in future it will take a tar file and explode it into the directory...
 # future work on packaging etc...
-def welcome(cmd_pointer, parser):
+def welcome(cmd_pointer, parser):  # pylint: disable=unused-argument # generic pass through used or unused
     """Display welcome screen"""
     return output_text(splash(), nowrap=True)
 
 
 # Display the current context and workspace.
-def get_status(cmd_pointer, parser):
+def get_status(cmd_pointer, parser):  # pylint: disable=unused-argument # generic pass through used or unused
+    """gets current status and returns to user"""
     status = "\n".join(
         (
             f'<yellow>Current workspace</yellow>: {cmd_pointer.settings["workspace"]}',
@@ -263,7 +263,8 @@ def get_status(cmd_pointer, parser):
 
 
 # List the installed toolkits.
-def list_toolkits(cmd_pointer, parser):
+def list_toolkits(cmd_pointer, parser):  # pylint: disable=unused-argument # generic pass through used or unused
+    """list installed toolkits"""
     toolkits = []
     table_headers = ("Toolkit", "Description")
 
@@ -281,8 +282,9 @@ def list_toolkits(cmd_pointer, parser):
 
 
 # List all available toolkits
-def list_all_toolkits(cmd_pointer, parser):
+def list_all_toolkits(cmd_pointer, parser):  # pylint: disable=unused-argument # generic pass through used or unused
     # This will need to be replaced with a scan of the toolkits directory.
+    """lists all toolkits"""
     toolkits = []
     table_headers = ("Toolkit", "Installed", "Description")
 
@@ -307,8 +309,7 @@ def list_all_toolkits(cmd_pointer, parser):
 # This means the user will only receive access to base commands
 # and the toolkit commands of the toolkit currently in context.
 def set_context(cmd_pointer, parser):
-    # if parser['toolkit_name'] is None: # Trash, without toolkit_name the command is invalidated
-    #     return get_context(cmd_pointer, parser)
+    """Sets current toolkit context"""
 
     reset = False
     if "reset" in parser:
@@ -343,19 +344,21 @@ def set_context(cmd_pointer, parser):
                 # raise BaseException('Error message') # For testing
                 login_success, expiry_datetime = login_manager.load_login_api(cmd_pointer, toolkit_name, reset=reset)
 
-            except BaseException as err:
+            except (
+                Exception  # pylint: disable=broad-exception-caught
+            ) as err:  # do not care what exception is, just returning failure
                 # Error logging in.
                 output_error(msg("err_login", toolkit_name, err, split=True), cmd_pointer=cmd_pointer, return_val=False)
                 cmd_pointer.settings["context"] = old_cmd_pointer_context
                 cmd_pointer.toolkit_current = old_toolkit_current
-                return
+                return False
 
             if not login_success:
                 # Failed to log in. # error reporting handled by Toolkit
                 cmd_pointer.settings["context"] = old_cmd_pointer_context
                 cmd_pointer.toolkit_current = old_toolkit_current
                 unset_context(cmd_pointer, None)
-                return
+                return False
 
             # Success switching context & loggin in.
             if old_cmd_pointer_context != cmd_pointer.settings["context"]:
@@ -376,13 +379,15 @@ def set_context(cmd_pointer, parser):
 
 
 # Display your current context.
-def get_context(cmd_pointer, parser):
+def get_context(cmd_pointer, parser):  # pylint: disable=unused-argument # generic pass through used or unused
+    """gets current toolkit context"""
     current_toolkit = cmd_pointer.settings["context"]
     return output_text(splash(current_toolkit, cmd_pointer), nowrap=True)
 
 
 # Unset the context of the application.
-def unset_context(cmd_pointer, parser):
+def unset_context(cmd_pointer, parser):  # pylint: disable=unused-argument # generic pass through used or unused
+    """Unsets current toolkit Context"""
     if cmd_pointer.settings["context"] is None:
         return output_text(msg("no_context_set"), cmd_pointer, pad=1)
     cmd_pointer.settings["context"] = None
@@ -394,9 +399,8 @@ def unset_context(cmd_pointer, parser):
 
 
 # Display history of commands.
-def display_history(cmd_pointer, parser):
-    # readline.write_history_file(cmd_pointer.histfile)  # @Phil, I put this back but it was commented out
-
+def display_history(cmd_pointer, parser):  # pylint: disable=unused-argument # generic pass through used or unused
+    """Displays last 30 items in current workspace history file"""
     history = []
 
     # Fetch last 30 commands from history.
@@ -412,7 +416,7 @@ def display_history(cmd_pointer, parser):
         line_nr_length = len(str(line_nr))
         if line_nr_length + min_gap > index_col_width:
             index_col_width = line_nr_length + min_gap
-        gap = (index_col_width - line_nr_length) * " "
+        # gap = (index_col_width - line_nr_length) * " " no longer requred
 
         # Fetch history item.
         try:
@@ -429,7 +433,10 @@ def display_history(cmd_pointer, parser):
             if not entry:
                 reached_bottom = True
                 break
-        except BaseException as err:
+        except (
+            Exception  # pylint: disable=broad-exception-caught
+            # do not care what exception is, just returning failure
+        ) as err:
             output_error(msg("err_fetch_history", err, split=True), cmd_pointer)
             i = 31
 
@@ -444,6 +451,7 @@ def display_history(cmd_pointer, parser):
 
 # Display a csv file in a table.
 def display_data(cmd_pointer, parser):
+    """display data in a file"""
     workspace_path = cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/"
     file_path = parser["file_path"]
     filename = file_path.split("/")[-1]
@@ -462,18 +470,20 @@ def display_data(cmd_pointer, parser):
                 return output_table(df, cmd_pointer, is_data=True)
             except FileNotFoundError:
                 return output_error(msg("fail_file_doesnt_exist", file_path), cmd_pointer)
-            except BaseException as err:
+            except Exception as err:  # pylint: disable=broad-exception-caught
+                # do not care what exception is, just returning failure
                 return output_error(msg("err_load_csv", err, split=True), cmd_pointer)
         else:
             # Other file formats --> error.
             return output_error(msg("invalid_file_format", "csv", split=True), cmd_pointer)
 
-    except BaseException as err:
+    except Exception as err:  # pylint: disable=broad-exception-caught
         output_error(msg("err_unknown", err, split=True), cmd_pointer)
 
 
 # --> Save data to a csv file.
 def display_data__save(cmd_pointer, parser):
+    """saves data from viewer"""
     # Preserve memory for further follow-up commands.
     cmd_pointer.memory.preserve()
 
@@ -505,8 +515,11 @@ def display_data__save(cmd_pointer, parser):
 
 
 # --> Open data in browser UI.
-def display_data__open(cmd_pointer, parser, edit_mode=False):
+def display_data__open(
+    cmd_pointer, parser, edit_mode=False
+):  # pylint: disable=unused-argument # generic pass through used or unused
     # Preserve memory for further follow-up commands.
+    """open display data"""
     cmd_pointer.memory.preserve()
 
     data = cmd_pointer.memory.get()
@@ -516,12 +529,13 @@ def display_data__open(cmd_pointer, parser, edit_mode=False):
     # Load routes and launch browser UI.
     data = data.to_json(orient="records")
     routes = fetchRoutesDataViewer(data, cmd_pointer)
-    hash = "#edit" if edit_mode else ""
-    launcher.launch(cmd_pointer, routes, "dataviewer", hash=hash)
+    a_hash = "#edit" if edit_mode else ""
+    launcher.launch(cmd_pointer, routes, "dataviewer", hash=a_hash)
 
 
 # --> Open data in browser UI.
-def display_data__copy(cmd_pointer, parser):
+def display_data__copy(cmd_pointer, parser):  # pylint: disable=unused-argument # generic pass through used or unused
+    """displays copy of data in data viewer"""
     # Preserve memory for further follow-up commands.
     cmd_pointer.memory.preserve()
 
@@ -534,7 +548,8 @@ def display_data__copy(cmd_pointer, parser):
 
 
 # --> Display result in the CLI or Jupyter.
-def display_data__display(cmd_pointer, parser):
+def display_data__display(cmd_pointer, parser):  # pylint: disable=unused-argument # generic pass through used or unused
+    """displays last result set in viewer"""
     # Preserve memory for further follow-up commands.
     cmd_pointer.memory.preserve()
 
@@ -551,12 +566,11 @@ def display_data__display(cmd_pointer, parser):
 
 # Edit a JSON config file.
 def edit_config(cmd_pointer, parser):
-    from ad4e_opentoolkit.plugins import edit_json
-
+    """Edits a json document in current workspace"""
     workspace_path = cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/"
 
     # Abort in Jupyter.
-    if cmd_pointer.notebook_mode == True:
+    if cmd_pointer.notebook_mode is True:
         print("Editing JSON files is only available from command line.")
         return True
 
@@ -567,7 +581,6 @@ def edit_config(cmd_pointer, parser):
         schema = workspace_path + parser.as_dict()["schema"]
     else:
         # Scan for same filename with -schema suffix.
-        import re
 
         schema = workspace_path + re.sub(r"\.json$", "", parser.as_dict()["json_file"]) + "-schema.json"
         if not os.path.isfile(schema):
@@ -576,10 +589,10 @@ def edit_config(cmd_pointer, parser):
     # Load JSON file.
     file_to_edit = workspace_path + parser.as_dict()["json_file"]
     if os.path.isfile(file_to_edit):
-        edit_json(file_to_edit, schema)
+        edit_json(file_to_edit, schema)  # pylint: disable=not-callable # it is callable
     elif schema:
         # JSON file not found, create new from schema.
-        edit_json(file_to_edit, schema, new=True)
+        edit_json(file_to_edit, schema, new=True)  # pylint: disable=not-callable # it is callable
     else:
         return output_error(msg("fail_file_doesnt_exist", parser.as_dict()["json_file"]), cmd_pointer)
 

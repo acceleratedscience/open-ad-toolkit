@@ -139,9 +139,15 @@ class EditJson:
 
         # Terminal
         self.term = Terminal()
-        term_size = os.get_terminal_size()
-        self.width = term_size.columns
-        self.height = term_size.lines - 1  # TODO: Figure out why we need -1 here, blessed not using full height?
+        try:
+            term_size = os.get_terminal_size()
+            self.width = term_size.columns
+            self.height = term_size.lines - 1  # TODO: Figure out why we need -1 here, blessed not using full height?
+        except:
+            self.width = 80
+            self.height = 24
+            pass # is not supporting get terminal
+            
         self.display_height = 0  # The height of the output
 
         # Files

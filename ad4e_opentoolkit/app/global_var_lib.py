@@ -1,3 +1,4 @@
+"""Handles commonly used global variables"""
 # Where global Variables are defined
 
 import os
