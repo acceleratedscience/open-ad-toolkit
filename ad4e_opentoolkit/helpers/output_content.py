@@ -1,6 +1,6 @@
 """Welcome messages for each module."""
 
-info_workspaces = 'A workspace is an isolated directory where all of your files, settings and runs are stored. This allows you to work on unrelated projects without them contaminating one another. You can create as many workspaces as you need, and each workspace comes with its own command history.'
+info_workspaces = "A workspace is an isolated directory where all of your files, settings and runs are stored. This allows you to work on unrelated projects without them contaminating one another. You can create as many workspaces as you need, and each workspace comes with its own command history."
 info_toolkits = """Toolkits are individual pieces of software that provide highly specialized functionality. You can think of OpenAD as the operating system, and toolkits as the applications. Toolkits can be installed and removed independently of one another, and you can switch between them at any time.
 
 As of now, OpenAD supports 4 different toolkits.
@@ -14,9 +14,9 @@ To learn more about what any of these toolkits does, run its name: <cmd>ds4sd</c
 # You can access any toolkit's functionality by prepending its name:
 # <cmd>DS4SD <do_xyz></cmd>  <green># To be implemented</green>
 
-info_runs = 'A run is a collection of commands that you can save and execute later. Runs are stored in your workspace, and can be shared with other users.'
+info_runs = "A run is a collection of commands that you can save and execute later. Runs are stored in your workspace, and can be shared with other users."
 
-info_context = 'After you\'ve installed a toolkit, you need to set your context to that toolkit in order to access its functionality.'
+info_context = "After you've installed a toolkit, you need to set your context to that toolkit in order to access its functionality."
 
 openad_intro: str = f"""<h1>Introduction to OpenAD</h1>
 

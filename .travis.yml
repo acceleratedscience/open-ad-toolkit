@@ -22,7 +22,7 @@ jobs:
       name: "Check Lint and Run Unit Tests"
       script:
         # temporary lint check disable
-        # - make check-lint
+        - make check-lint
         - make test
 
 stages:

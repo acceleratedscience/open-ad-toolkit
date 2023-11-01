@@ -44,68 +44,63 @@ from collections import deque
 # parameters in our help functionality.
 tags = {
     # Custom tags
-    'h1': '\x1b[0m',  # Primary headers: default with yellow line below
-    'h2': '\x1b[33m',  # Secondary headers: yellow
-    'cmd': '\x1b[36m',  # Commands: cyan
-    'error': '\x1b[31m',  # Errors: red
-    'error_reverse': '\x1b[37;41m',  # Error reverse: white on red
-    'warning': '\x1b[33m',  # Warnings: yellow
-    'success': '\x1b[32m',  # Success: green
-    'link': '\x1b[4;94m',  # Links: undertline intense blue
-    'edit': '\x1b[7m',  # Edit node: reverse
-    'editable': '\x1b[0;47;30m',  # Editable text: black + on_white
-
+    "h1": "\x1b[0m",  # Primary headers: default with yellow line below
+    "h2": "\x1b[33m",  # Secondary headers: yellow
+    "cmd": "\x1b[36m",  # Commands: cyan
+    "error": "\x1b[31m",  # Errors: red
+    "error_reverse": "\x1b[37;41m",  # Error reverse: white on red
+    "warning": "\x1b[33m",  # Warnings: yellow
+    "success": "\x1b[32m",  # Success: green
+    "link": "\x1b[4;94m",  # Links: undertline intense blue
+    "edit": "\x1b[7m",  # Edit node: reverse
+    "editable": "\x1b[0;47;30m",  # Editable text: black + on_white
     # Styles
-    'reset': '\x1b[0m',
-    'bold': '\x1b[1m',
-    'dim': '\x1b[2m',  # Current color but dimmed
-    'soft': '\x1b[90m',  # Gray
-    'italic': '\x1b[3m',
-    'underline': '\x1b[4m',
-    'blink': '\x1b[5m',
-    'reverse': '\x1b[7m',
-    'hidden': '\x1b[8m',
-    'strikethrough': '\x1b[9m',
-
+    "reset": "\x1b[0m",
+    "bold": "\x1b[1m",
+    "dim": "\x1b[2m",  # Current color but dimmed
+    "soft": "\x1b[90m",  # Gray
+    "italic": "\x1b[3m",
+    "underline": "\x1b[4m",
+    "blink": "\x1b[5m",
+    "reverse": "\x1b[7m",
+    "hidden": "\x1b[8m",
+    "strikethrough": "\x1b[9m",
     # Foreground colors - Regular
-    'black': '\x1b[30m',
-    'red': '\x1b[31m',
-    'green': '\x1b[32m',
-    'yellow': '\x1b[33m',
-    'blue': '\x1b[34m',
-    'magenta': '\x1b[35m',
-    'cyan': '\x1b[36m',
-    'white': '\x1b[37m',
-
+    "black": "\x1b[30m",
+    "red": "\x1b[31m",
+    "green": "\x1b[32m",
+    "yellow": "\x1b[33m",
+    "blue": "\x1b[34m",
+    "magenta": "\x1b[35m",
+    "cyan": "\x1b[36m",
+    "white": "\x1b[37m",
     # Foreground colors - Bright/intense (non-standard)
-    'bright_black': '\x1b[90m',
-    'bright_red': '\x1b[91m',
-    'bright_green': '\x1b[92m',
-    'bright_yellow': '\x1b[93m',
-    'bright_blue': '\x1b[94m',
-    'bright_magenta': '\x1b[95m',
-    'bright_cyan': '\x1b[96m',
-    'bright_white': '\x1b[97m',
-
+    "bright_black": "\x1b[90m",
+    "bright_red": "\x1b[91m",
+    "bright_green": "\x1b[92m",
+    "bright_yellow": "\x1b[93m",
+    "bright_blue": "\x1b[94m",
+    "bright_magenta": "\x1b[95m",
+    "bright_cyan": "\x1b[96m",
+    "bright_white": "\x1b[97m",
     # Background colors - Regular
-    'on_black': '\x1b[0;40m',
-    'on_red': '\x1b[0;41m',
-    'on_green': '\x1b[0;42m',
-    'on_yellow': '\x1b[0;43m',
-    'on_blue': '\x1b[0;44m',
-    'on_magenta': '\x1b[0;45m',
-    'on_cyan': '\x1b[0;46m',
-    'on_white': '\x1b[0;47m',
-
+    "on_black": "\x1b[0;40m",
+    "on_red": "\x1b[0;41m",
+    "on_green": "\x1b[0;42m",
+    "on_yellow": "\x1b[0;43m",
+    "on_blue": "\x1b[0;44m",
+    "on_magenta": "\x1b[0;45m",
+    "on_cyan": "\x1b[0;46m",
+    "on_white": "\x1b[0;47m",
     # Background colors - Bright/intense (non-standard)
-    'on_bright_black': '\x1b[100m',
-    'on_bright_red': '\x1b[101m',
-    'on_bright_green': '\x1b[102m',
-    'on_bright_yellow': '\x1b[103m',
-    'on_bright_blue': '\x1b[104m',
-    'on_bright_magenta': '\x1b[105m',
-    'on_bright_cyan': '\x1b[106m',
-    'on_bright_white': '\x1b[107m',
+    "on_bright_black": "\x1b[100m",
+    "on_bright_red": "\x1b[101m",
+    "on_bright_green": "\x1b[102m",
+    "on_bright_yellow": "\x1b[103m",
+    "on_bright_blue": "\x1b[104m",
+    "on_bright_magenta": "\x1b[105m",
+    "on_bright_cyan": "\x1b[106m",
+    "on_bright_white": "\x1b[107m",
 }
 
 
@@ -119,7 +114,7 @@ def style(
     width: int = None,
     nowrap: bool = False,
     xml_tags: bool = True,
-    trim: bool = False
+    trim: bool = False,
 ):
     """
     Parse xml tags and return ANSI infused output.
@@ -142,6 +137,7 @@ def style(
     if width is None:
         try:
             import shutil
+
             columns, rows = shutil.get_terminal_size()
             width = min(columns - 5, 150)
             if tabs:
@@ -152,7 +148,7 @@ def style(
             width = 60
 
     if text is None:
-        return ''
+        return ""
 
     # Enforce string type.
     text = str(text)
@@ -165,7 +161,7 @@ def style(
     text = _add_header_lines(text)
 
     # Replace line breaks so all text is parsed on one line.
-    text = text.replace('\n', '---LINEBREAK1---')
+    text = text.replace("\n", "---LINEBREAK1---")
 
     # Make links clickable.
     text = _parse_links(text)
@@ -178,7 +174,7 @@ def style(
         text = _parse_tags(text)
 
     # Restore line breaks.
-    text = text.replace('---LINEBREAK1---', '\n')
+    text = text.replace("---LINEBREAK1---", "\n")
 
     # Add tabs to the start of each line.
     if tabs or edge:
@@ -195,14 +191,14 @@ def style(
 
     # Add top and bottom padding
     if pad:
-        padding = '\n' * pad
+        padding = "\n" * pad
         text = padding + text + padding
     else:
         if pad_top:
-            padding = '\n' * pad_top
+            padding = "\n" * pad_top
             text = padding + text
         if pad_btm:
-            padding = '\n' * pad_btm
+            padding = "\n" * pad_btm
             text = text + padding
 
     return text
@@ -218,12 +214,12 @@ def print_s(text: str, ephemeral=False, **kwargs):
     """
 
     text = str(text)
-    end = '\r' if ephemeral else '\n'
+    end = "\r" if ephemeral else "\n"
     print(style(text, **kwargs), end=end)
 
 
 def strip_tags(text: str):
-    """ Recursively remove all XML tags. """
+    """Recursively remove all XML tags."""
 
     def _strip(match: object, pattern):
         inner_text = match.group(2)
@@ -241,17 +237,17 @@ def strip_tags(text: str):
     text = str(text)
 
     # Replace line breaks so all text is parsed on one line.
-    text = text.replace('\n', '---LINEBREAK2---')
+    text = text.replace("\n", "---LINEBREAK2---")
 
     # Expand error and success tags.
     text = _expand_error_success_tags(text, False)
 
     # Replace recognized tags with appropriate styling.
-    pattern = fr"<({'|'.join(list(tags))})>(.*?)</\1>"
+    pattern = rf"<({'|'.join(list(tags))})>(.*?)</\1>"
     text = re.sub(pattern, lambda match: _strip(match, pattern), text)
 
     # Restore line breaks.
-    text = text.replace('---LINEBREAK2---', '\n')
+    text = text.replace("---LINEBREAK2---", "\n")
 
     return text
 
@@ -278,7 +274,7 @@ def strip_tags(text: str):
 
 def tags_to_markdown(text: str):
     if text is None:
-        return ''
+        return ""
 
     # Enforce string type.
     text = str(text)
@@ -291,10 +287,14 @@ def tags_to_markdown(text: str):
     # and end of line characters don't play well with `code`
     # blocks, we have to do some trickery here.
 
-    text = re.sub(r'(</h[123]>)(\n+)', lambda match: match.group(1) + len(match.group(2)) * '---LINEBREAKSOFT---', text)  # noqa
-    text = re.sub(r'(\n+)(<h[123]>)', lambda match: len(match.group(1)) * '---LINEBREAKSOFT---' + match.group(2), text)  # noqa
-    text = _replace_linebreaks_inside_cmdblocks(text, '---LINEBREAK3---')
-    text = text.replace('\n', '---LINEBREAK3---')
+    text = re.sub(
+        r"(</h[123]>)(\n+)", lambda match: match.group(1) + len(match.group(2)) * "---LINEBREAKSOFT---", text
+    )  # noqa
+    text = re.sub(
+        r"(\n+)(<h[123]>)", lambda match: len(match.group(1)) * "---LINEBREAKSOFT---" + match.group(2), text
+    )  # noqa
+    text = _replace_linebreaks_inside_cmdblocks(text, "---LINEBREAK3---")
+    text = text.replace("\n", "---LINEBREAK3---")
 
     # Expand error and success tags.
     text = _expand_error_success_tags(text, True)
@@ -304,26 +304,23 @@ def tags_to_markdown(text: str):
     text = _replace_soft_and_underline(text)
 
     # Replace all other tags.
-    text = re.sub(r'<h1>(.*?)<\/h1>', r'## \1', text)
-    text = re.sub(r'<h2>(.*?)<\/h2>', r'### \1', text)
-    text = re.sub(r'<link>(.*?)<\/link>',
-                  r'<a target="_blank" href="\1">\1</a>', text)
-    text = re.sub(r'<bold>(.*?)<\/bold>', r'**\1**', text)
-    text = re.sub(r'<cmd>(.*?)<\/cmd>', r'`\1`', text)
-    text = re.sub(r'<on_red>(.*?)<\/on_red>',
-                  r'<span style="background: #d00; color: #fff">\1</span>', text)
-    text = re.sub(r'<on_green>(.*?)<\/on_green>',
-                  r'<span style="background: #0d0; color: #fff">\1</span>', text)
+    text = re.sub(r"<h1>(.*?)<\/h1>", r"## \1", text)
+    text = re.sub(r"<h2>(.*?)<\/h2>", r"### \1", text)
+    text = re.sub(r"<link>(.*?)<\/link>", r'<a target="_blank" href="\1">\1</a>', text)
+    text = re.sub(r"<bold>(.*?)<\/bold>", r"**\1**", text)
+    text = re.sub(r"<cmd>(.*?)<\/cmd>", r"`\1`", text)
+    text = re.sub(r"<on_red>(.*?)<\/on_red>", r'<span style="background: #d00; color: #fff">\1</span>', text)
+    text = re.sub(r"<on_green>(.*?)<\/on_green>", r'<span style="background: #0d0; color: #fff">\1</span>', text)
 
     # Escape quotes.
-    text = text.replace("'", "\'")
+    text = text.replace("'", "'")
 
     # Remove all other tags
     text = strip_tags(text)
 
     # Restore line breaks.
-    text = text.replace('---LINEBREAKSOFT---', '\n')
-    text = text.replace('---LINEBREAK3---', '<br>')
+    text = text.replace("---LINEBREAKSOFT---", "\n")
+    text = text.replace("---LINEBREAK3---", "<br>")
     return text
 
 
@@ -337,13 +334,13 @@ def _replace_linebreaks_inside_cmdblocks(text: str, break_str: str):
     # <cmd>
     #   foo
     # </cmd>
-    pattern1 = r'<cmd>(\n)?([^<]*?)(\n)?</cmd>'
-    text = re.sub(pattern1, r'<cmd>\2</cmd>', text)
+    pattern1 = r"<cmd>(\n)?([^<]*?)(\n)?</cmd>"
+    text = re.sub(pattern1, r"<cmd>\2</cmd>", text)
 
     # Next replace line breaks inside <cmd> tags.
-    pattern2 = r'<cmd>([^<]*?)\n([^<]*?)</cmd>'
+    pattern2 = r"<cmd>([^<]*?)\n([^<]*?)</cmd>"
     while re.search(pattern2, text):
-        text = re.sub(pattern2, rf'<cmd>\1</cmd>{break_str}<cmd>\2</cmd>', text)
+        text = re.sub(pattern2, rf"<cmd>\1</cmd>{break_str}<cmd>\2</cmd>", text)
     return text
 
 
@@ -351,12 +348,14 @@ def _replace_linebreaks_inside_cmdblocks(text: str, break_str: str):
 # when they don't appear inside <cmd> tags.
 def _replace_soft_and_underline(text: str):
     # Remove the tags within <cmd> tags.
-    text = re.sub(r'<cmd>(.*?)<\/cmd>', lambda x: x.group(0).replace('<underline>', '').replace('</underline>', ''), text)
-    text = re.sub(r'<cmd>(.*?)<\/cmd>', lambda x: x.group(0).replace('<soft>', '').replace('</soft>', ''), text)
+    text = re.sub(
+        r"<cmd>(.*?)<\/cmd>", lambda x: x.group(0).replace("<underline>", "").replace("</underline>", ""), text
+    )
+    text = re.sub(r"<cmd>(.*?)<\/cmd>", lambda x: x.group(0).replace("<soft>", "").replace("</soft>", ""), text)
 
     # Replace the tags outside of <cmd> tags.
-    text = re.sub(r'<underline>(.*?)<\/underline>', r'<span style="text-decoration: underline">\1</span>', text)
-    text = re.sub(r'<soft>(.*?)<\/soft>', r'<span style="color: #ccc">\1</span>', text)
+    text = re.sub(r"<underline>(.*?)<\/underline>", r'<span style="text-decoration: underline">\1</span>', text)
+    text = re.sub(r"<soft>(.*?)<\/soft>", r'<span style="color: #ccc">\1</span>', text)
     return text
 
 
@@ -375,30 +374,30 @@ def wrap_text(text: str, width=80):
 
     for line in lines:
         stripped_line = line.lstrip()
-        indent = line[:len(line) - len(stripped_line)]
+        indent = line[: len(line) - len(stripped_line)]
         wrapped = a_textwrap(stripped_line, width=width, subsequent_indent=indent)
         wrapped_lines.append(indent + wrapped)
 
-    return '\n'.join(wrapped_lines)
+    return "\n".join(wrapped_lines)
 
 
 def a_len(text):
-    """ An alternative to len() which measures a string's 'actual' length without ANSI codes. """
-    pattern_ansi = r'\x1b\[[0-9;]*[m]'
-    return len(re.sub(pattern_ansi, '', text))
+    """An alternative to len() which measures a string's 'actual' length without ANSI codes."""
+    pattern_ansi = r"\x1b\[[0-9;]*[m]"
+    return len(re.sub(pattern_ansi, "", text))
 
 
-def a_textwrap(text, width=100, drop_whitespace=True, subsequent_indent=''):
-    """ An alternative to textwrap.fill() that accounts for ANSI codes. """
+def a_textwrap(text, width=100, drop_whitespace=True, subsequent_indent=""):
+    """An alternative to textwrap.fill() that accounts for ANSI codes."""
 
     # Split by ANSI characters and spaces.
     # By using capturing groups, the separators are included in the list.
-    pattern_ansi_or_space_captured = r'(\x1b\[[0-9;]*[m])|([\s]+)'
+    pattern_ansi_or_space_captured = r"(\x1b\[[0-9;]*[m])|([\s]+)"
     split_text = re.split(pattern_ansi_or_space_captured, text)
     split_text = list(filter(None, split_text))  # Remove the empty strings.
 
     output = []
-    line = ''  # With ansi codes, used for output.
+    line = ""  # With ansi codes, used for output.
 
     def _linebreak():
         nonlocal output, line
@@ -406,12 +405,12 @@ def a_textwrap(text, width=100, drop_whitespace=True, subsequent_indent=''):
         line = subsequent_indent
 
     for i, string in enumerate(split_text):
-        pattern_ansi = r'\x1b\[[0-9;]*[m]'
+        pattern_ansi = r"\x1b\[[0-9;]*[m]"
         is_ansi = re.match(pattern_ansi, string)
-        str_len_clean = len(re.sub(pattern_ansi, '', string))
-        reset_ansi_code = '\x1b[0m'
+        str_len_clean = len(re.sub(pattern_ansi, "", string))
+        reset_ansi_code = "\x1b[0m"
 
-        if string == '\n':
+        if string == "\n":
             # Add linebreak.
             _linebreak()
         elif is_ansi:
@@ -434,7 +433,7 @@ def a_textwrap(text, width=100, drop_whitespace=True, subsequent_indent=''):
         if i == len(split_text) - 1:
             output.append(line)
 
-    return '\n'.join(output)
+    return "\n".join(output)
 
 
 #
@@ -444,38 +443,36 @@ def a_textwrap(text, width=100, drop_whitespace=True, subsequent_indent=''):
 
 
 def _trim(text: str):
-    """ Remove line breaks at front/end caused by putting quotes on separate line. """
-    lines = deque(text.split('\n'))
+    """Remove line breaks at front/end caused by putting quotes on separate line."""
+    lines = deque(text.split("\n"))
 
-    if lines and lines[0].strip() == '':
+    if lines and lines[0].strip() == "":
         lines.popleft()
-    if lines and lines[len(lines) - 1].strip() == '':
+    if lines and lines[len(lines) - 1].strip() == "":
         lines.pop()
 
-    return '\n'.join(lines)
+    return "\n".join(lines)
 
 
 def _add_header_lines(text):
-    """ Add dotted lines under h1 tags. """
-    pattern = fr"(.*?)<h1>(.*?)</h1>"
+    """Add dotted lines under h1 tags."""
+    pattern = rf"(.*?)<h1>(.*?)</h1>"
 
     def _modify(match: object):
         original_text = match.group(0)
         space_before = match.group(1)
         inner_text = match.group(2)
-        lines = space_before + '<yellow>' + \
-            ('-' * len(strip_tags(inner_text))) + '</yellow>'
-        return original_text + '\n' + lines
+        lines = space_before + "<yellow>" + ("-" * len(strip_tags(inner_text))) + "</yellow>"
+        return original_text + "\n" + lines
 
     return re.sub(pattern, _modify, text)
 
 
 def _parse_links(text):
-    """ Parse html links and return clickable output. """
+    """Parse html links and return clickable output."""
     lines = text.splitlines()
     result = []
     for line in lines:
-
         # Detect <a href="x.yz">click here</a>
         pattern = r'<a href="(.*)">(.*?)<\/a>'
         link_tuples = re.findall(pattern, line)  # [(url, text), ...]
@@ -496,7 +493,7 @@ def _parse_links(text):
         else:
             result.append(line)
 
-    return '\n'.join(result)
+    return "\n".join(result)
 
 
 def _style_cmd_params(text: str):
@@ -527,43 +524,42 @@ def _style_cmd_params(text: str):
         searching = True
         params = []
         while searching:
-            pattern = fr'<cmd>.*?(<(?!{"|".join(list(tags))})[^</>]+>).*</cmd>'
+            pattern = rf'<cmd>.*?(<(?!{"|".join(list(tags))})[^</>]+>).*</cmd>'
             param = re.findall(pattern, line_copy)
             if param:
                 param = param[0]
                 params.append(param)
-                line_copy = line_copy.replace(param, '')
-                line = line.replace(
-                    param, f'<soft>{param}</soft>')
+                line_copy = line_copy.replace(param, "")
+                line = line.replace(param, f"<soft>{param}</soft>")
             else:
                 searching = False
 
         result.append(line)
 
-    return '\n'.join(result)
+    return "\n".join(result)
 
 
 def _parse_tags(text: str):
-    """ Parse xml tags and return styled output. """
+    """Parse xml tags and return styled output."""
 
     # Enforce string type.
     text = str(text)
 
     # Remove <pre> tags which are used to wrap ASCII headers (see splash.py)
-    text = re.sub(r"<pre[^<]*?>(.*?)</pre>", r'\1', text)  # flags=re.MULTILINE
+    text = re.sub(r"<pre[^<]*?>(.*?)</pre>", r"\1", text)  # flags=re.MULTILINE
 
     # Replace open-close tags <red>lorem ipsum</red>.
-    pattern = fr"(.*?)<({'|'.join(list(tags))})>(.*?)</\2>"
+    pattern = rf"(.*?)<({'|'.join(list(tags))})>(.*?)</\2>"
     text = re.sub(pattern, lambda match: __replace(match, pattern), text)
 
     # Replace singular tags <red/> --> everything red from here on.
-    pattern_singular = r"<({})/>".format('|'.join(list(tags)))
+    pattern_singular = r"<({})/>".format("|".join(list(tags)))
     text = re.sub(pattern_singular, __replace_singular, text)
     return text
 
 
-def __replace(match: object, pattern, parent_tag='reset'):
-    """ Replace regex matches with appropriate styling. """
+def __replace(match: object, pattern, parent_tag="reset"):
+    """Replace regex matches with appropriate styling."""
     text_before = match.group(1)
     tag = match.group(2)
     inner_text = match.group(3)
@@ -571,12 +567,11 @@ def __replace(match: object, pattern, parent_tag='reset'):
     ansi_code_close = tags[parent_tag]
     # We need ansi_code_reset before ansi_code_close
     # for underline/bold to work.
-    ansi_code_reset = tags['reset']
+    ansi_code_reset = tags["reset"]
 
     # Replace any nested tags.
     if re.findall(pattern, inner_text):
-        inner_text = re.sub(pattern, lambda match: __replace(
-            match, pattern, tag), inner_text)
+        inner_text = re.sub(pattern, lambda match: __replace(match, pattern, tag), inner_text)
 
     return f"{text_before}{ansi_code_open}{inner_text}{ansi_code_reset}{ansi_code_close}"
 
@@ -596,45 +591,39 @@ def _add_tabs(text: str, tabs: int):
     """
 
     text = str(text)
-    spacing = '    ' * tabs
-    return spacing + ('\n' + spacing).join(text.split('\n'))
+    spacing = "    " * tabs
+    return spacing + ("\n" + spacing).join(text.split("\n"))
 
 
 def _edge(text, edge):
-    """ Add edge to left side of a text block. """
-    edge_color = 'soft' if edge == True else edge
-    edge_str = '|'
+    """Add edge to left side of a text block."""
+    edge_color = "soft" if edge == True else edge
+    edge_str = "|"
     lines = text.splitlines()
-    placc = '\x1b[0m'  # Previous line ANSI color character
+    placc = "\x1b[0m"  # Previous line ANSI color character
     for i, line in enumerate(lines):
         edge_str = tags[edge_color] + edge_str + placc
-        placc = re.findall(r'\x1b\[\d+m', line)
-        placc = placc.pop() if len(placc) else ''
+        placc = re.findall(r"\x1b\[\d+m", line)
+        placc = placc.pop() if len(placc) else ""
         lines[i] = edge_str + line
 
-    return '\n'.join(lines)
+    return "\n".join(lines)
 
 
 def _expand_error_success_tags(text, html=False):
-    """ Turn error/success tags into text, for non-styles output. """
+    """Turn error/success tags into text, for non-styles output."""
 
     # Output for markdown: use HTML tags instead of ANSI codes.
     if html:
-        text = re.sub(r'^<error>(.*)<\/error>',
-                      r'<span style="color: red">\1</span>', text, flags=re.MULTILINE)
-        text = re.sub(r'^<success>(.*)<\/success>',
-                      r'<span style="color: green">\1</span>', text, flags=re.MULTILINE)
-        text = re.sub(r'^<warning>(.*)<\/warning>',
-                      r'<span style="color: orange">\1</span>', text, flags=re.MULTILINE)
+        text = re.sub(r"^<error>(.*)<\/error>", r'<span style="color: red">\1</span>', text, flags=re.MULTILINE)
+        text = re.sub(r"^<success>(.*)<\/success>", r'<span style="color: green">\1</span>', text, flags=re.MULTILINE)
+        text = re.sub(r"^<warning>(.*)<\/warning>", r'<span style="color: orange">\1</span>', text, flags=re.MULTILINE)
 
     # Output for non-styled output: displat status as text.
     else:
-        text = re.sub(r'^<error>(.*)<\/error>',
-                      r'Error: \1', text, flags=re.MULTILINE)
-        text = re.sub(r'^<success>(.*)<\/success>',
-                      r'Success: \1', text, flags=re.MULTILINE)
-        text = re.sub(r'^<warning>(.*)<\/warning>',
-                      r'Warning: \1', text, flags=re.MULTILINE)
+        text = re.sub(r"^<error>(.*)<\/error>", r"Error: \1", text, flags=re.MULTILINE)
+        text = re.sub(r"^<success>(.*)<\/success>", r"Success: \1", text, flags=re.MULTILINE)
+        text = re.sub(r"^<warning>(.*)<\/warning>", r"Warning: \1", text, flags=re.MULTILINE)
     return text
 
 

@@ -46,7 +46,11 @@ class Table extends Tabulator {
 		})
 
 		// Column resizing
-		super.on('columnResized', () => {
+		super.on('columnResized', col => {
+			const field = col.getField()
+			if (!this.tamperedCols.includes(field)) {
+				this.tamperedCols.push(field)
+			}
 			// Show "Reset columns" link
 			this.element.classList.add('resized-col')
 
@@ -87,7 +91,7 @@ class Table extends Tabulator {
 		this.originalData = null // See hasEdits()
 		this.editMode = false // Used to determine if we're in edit mode - see isEditMode()
 		this.colDefaultWidths = {} // Used to store column widths so we can reset them
-		this.index = options.index // Tabulator doesn't store the index so we have to
+		// this.index = options.index // Tabulator doesn't store the index so we have to // %% trash --> this.options.index
 		this.addedIndex = options.addedIndex // Used to keep track if we added an index column
 		this.lastSelectedRowIndex = null // Number used to determine where to start from when shift-selecting
 		this.lastSelectedRowSelState = null // Boolean used to determine if shift-select row should batch-select or batch-deselect
@@ -96,6 +100,7 @@ class Table extends Tabulator {
 		this.history_reverse = [] // Used to store the states you went back in history
 		this.blockHistory = false // Used to block writing to history when undoing/redoing
 		this.isSubmitting = false // Used to prevent triggering window.onbeforeunload
+		this.tamperedCols = [] // To keep track which columns have been manually resized
 	}
 
 	/////////////////////////////////
@@ -362,6 +367,14 @@ class Table extends Tabulator {
 	// can't be made conditional, and it creates undesireable
 	// side effects in edit mode. Specifically, it will interfere
 	// with the textarea resize handle.
+	// - - -
+	// This comes at a price. We can't use the built-in download
+	// function and we need to manually rearrange the rows according
+	// to their UI order before we export data to CSV using our own
+	// exporter. I think down the line, we should either rewrite this
+	// as a module so we can plug into the built-in architecture for
+	// rearranging rows, or we should submit a PR to Tabulator to make
+	// their movableRows conditional.
 	onCellMouseDown(clickEvent, cell) {
 		if (this.editMode) return
 
@@ -613,7 +626,15 @@ class Table extends Tabulator {
 	// It may make sense to contribute a fix to the library at some
 	// point, but we don't have teh time for that now.
 	onRowClick(e, row) {
-		const currentRowIndex = row.getPosition()
+		// const currentRowIndex = row.getPosition()
+		// - - -
+		// We can't use getPosition because we're not using
+		// the native movableRows. See table.onCellMouseDown().
+		// So instead we have to figure out position from HTML:
+		const $row = row.getElement()
+		const currentRowIndex = Array.from($row.parentNode.querySelectorAll('.tabulator-row')).indexOf($row) + 1
+		console.log(33, currentRowIndex)
+
 		const lastSelectedRowIndex = this.lastSelectedRowIndex
 		if (e.shiftKey && this.lastSelectedRowSelState != null) {
 			// Select or deselect all rows between the last selected row and the current row
@@ -629,7 +650,7 @@ class Table extends Tabulator {
 					highIndex -= 1
 				}
 
-				const toBeSelected = this.getRows().slice(lowIndex, highIndex)
+				const toBeSelected = this.getRowsOrdered().slice(lowIndex, highIndex)
 				if (this.lastSelectedRowSelState) {
 					this.selectRow(toBeSelected)
 					this.lastSelectedRowSelState = true
@@ -774,14 +795,88 @@ class Table extends Tabulator {
 	// resizing a column past this width.
 	_fixColumnWidths(colWidthsBefore, colWidthsAfter) {
 		Object.entries(colWidthsAfter).forEach(([colName, width], i) => {
-			const isUntampered = colWidthsBefore[colName] == this.colDefaultWidths[colName]
+			const isTampered = this.tamperedCols.includes(colName)
 			// prettier-ignore
-			const newWidth = isUntampered
-				? Math.min(width, 400)
-				: colWidthsBefore[colName]
+			const newWidth = isTampered
+				? colWidthsBefore[colName]
+				: Math.min(width, 400)
 			this.getColumn(colName).setWidth(newWidth)
 			// console.log(colName, isUntampered, '->', newWidth, width)
 		})
+	}
+
+	// #endregion
+
+	/////////////////////////////////
+	// #region - Export
+
+	// The native getRows() will return rows not in order because
+	// we're not using the native movableRows. See table.onCellMouseDown().
+	getRowsOrdered(selectedOnly) {
+		let rows = this.getRows()
+
+		// Rearrange data rows to match the order of the UI rows.
+		const rowSelector = selectedOnly ? '.tabulator-row.tabulator-selected' : '.tabulator-row'
+		const $rows = this.getRows()[0].getElement().closest('.tabulator-table').querySelectorAll(rowSelector)
+		rows = Array.from($rows).map($row => {
+			const $indexCol = $row.querySelector(`.tabulator-cell[tabulator-field=${this.options.index}]`)
+			const rowIndex = +$indexCol.innerText - 1
+			return rows[rowIndex]
+		})
+		return rows
+	}
+
+	// Prepare data for export.
+	// - - -
+	// This takes care of a few things that don't happen during UI manipulation:
+	// 1. Remove deleted column fields from all rows
+	// 2. Rearrange rows in the dataset to match the UI
+	// - - -
+	// Note: this is a little hacky – see onCellMouseDown for more info.
+	getDataFinal(selectedOnly) {
+		// let data = selectedOnly ? this.getSelectedData() : this.getData()
+		let data = this.getData()
+		const fields = this.getColumns().map(col => col.getField())
+
+		// Remove deleted column data.
+		data.forEach(row => {
+			Object.keys(row).forEach(key => {
+				if (!fields.includes(key)) {
+					delete row[key]
+				}
+			})
+		})
+
+		// Remove index column per the opt-export-index-col options.
+		// Note: The default value will be false if the index column
+		// was added by us, and true if it was already present.
+		const includeIndex = Boolean(+document.getElementById('opt-export-index-col').value)
+		if (!includeIndex) {
+			const indexName = this.options.index
+			data.forEach(row => {
+				delete row[indexName]
+			})
+		}
+
+		// Reorder data columns to match the order of the UI columns.
+		data = data.map(row => {
+			const newRow = {}
+			fields.forEach(field => {
+				newRow[field] = row[field]
+			})
+			return newRow
+		})
+
+		// Rearrange data rows to match the order of the UI rows.
+		const rowSelector = selectedOnly ? '.tabulator-row.tabulator-selected' : '.tabulator-row'
+		const $rows = this.getRows()[0].getElement().closest('.tabulator-table').querySelectorAll(rowSelector)
+		data = Array.from($rows).map($row => {
+			const $indexCol = $row.querySelector(`.tabulator-cell[tabulator-field=${this.options.index}]`)
+			const rowIndex = +$indexCol.innerText - 1
+			return data[rowIndex]
+		})
+
+		return data
 	}
 
 	// #endregion

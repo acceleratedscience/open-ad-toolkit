@@ -32,7 +32,8 @@ try:
 except BaseException:
     # Used in isolated plugin development setup.
     import sys
-    sys.path.append('../')
+
+    sys.path.append("../")
     from style_parser import print_s, style, strip_tags, a_len, a_textwrap
 
 # Debug modes:
@@ -144,12 +145,12 @@ class EditJson:
         self.display_height = 0  # The height of the output
 
         # Files
-        self.json_path = ''  # Path to JSON file
-        self.json_filename = ''  # Name of JSON file
-        self.schema_path = ''  # Path to schema file
+        self.json_path = ""  # Path to JSON file
+        self.json_filename = ""  # Name of JSON file
+        self.schema_path = ""  # Path to schema file
 
         # Data storage
-        self.text_input = ''  # To store typing until you press enter.
+        self.text_input = ""  # To store typing until you press enter.
         self.data = {}  # To store JSON data until it gets saved to file.
         self.addresses = []  # List of addresss tuples - see store_addresses()
         self.selected_address = None  # The address (tuple with key hierarchy) for the selected field.
@@ -158,24 +159,24 @@ class EditJson:
         # Editor UI
         self.edit_mode = False
         self.cursor_pos = 0
-        self.instructions_main = ''
-        self.empty_placeholder = '<soft>-</soft>'
+        self.instructions_main = ""
+        self.empty_placeholder = "<soft>-</soft>"
         self.blank = False  # Indicates if JSON file is generated (and thus file not yet saved)
         self.blank_from_schema = False  # Indicates if blank JSON is generated from schema.
         self.blank_from_template = False  # Indicates if blank JSON is generated from template.
         self.ui_width = 0  # The width of the instructions and separator lines on top, used to wrap text.
         self.left_col_width = 0  # Width of the key column.
         self.right_col_width = 0  # Width of the value column.
-        self.indent_str = '<bright_black>|   </bright_black>'  # Indentation per level.
+        self.indent_str = "<bright_black>|   </bright_black>"  # Indentation per level.
         self.indent_str_len = 4
         self.skip_lines = 0  # Used to emulate viewport scrolling.
         self.read_only = False  # Block editing
         self.schema_mode = False  # When displaying the schema
         self.show_path = False  # Display the JSON file path
-        self.sep = style('<soft>' + '-' * self.width + '</soft>', nowrap=True)
+        self.sep = style("<soft>" + "-" * self.width + "</soft>", nowrap=True)
 
         # Errors
-        self.error = ''  # General error message on top.
+        self.error = ""  # General error message on top.
         self.inline_errors = {}  # Inline error messages (invalic input according to schema).
         self.illegal_errors = {}  # Illegal field flags (field not present in schema).
 
@@ -186,9 +187,9 @@ class EditJson:
         self.selected_index = 0  # Index of field in focus.
         self.selected_line_nr = None  # The line number of the field in focus.
         self.index_to_line_nr_map = {}  # Used to deduct the line number from the selected index.
-        self.selected_key = ''  # The JSON key in focus.
-        self.selected_value = ''  # The JSON value in focus.
-        self.selected_help = ''  # The help string for the key in focus.
+        self.selected_key = ""  # The JSON key in focus.
+        self.selected_value = ""  # The JSON value in focus.
+        self.selected_help = ""  # The help string for the key in focus.
         self.show_help = False  # Toggle the help string for the key in focus.
         self.listen_for_action = False  # When you type `:` we wait for `s/x/f...` commands.
         self.esc_code = False  # Used to detect alt-left/right key.
@@ -218,17 +219,16 @@ class EditJson:
 
     # Open JSON file and store all options.
     def open_json_file(
-            self,
-            json=None,  # Required: JSON file path.
-            schema=None,  # Optional: schema for the JSON file.
-
-            # Options - see above.
-            template=None,
-            title=None,
-            new=False,
-            strict=False,
-            read_only=False,
-            demo=False,
+        self,
+        json=None,  # Required: JSON file path.
+        schema=None,  # Optional: schema for the JSON file.
+        # Options - see above.
+        template=None,
+        title=None,
+        new=False,
+        strict=False,
+        read_only=False,
+        demo=False,
     ):
         self.json_path = json
         self.schema_path = schema
@@ -247,11 +247,11 @@ class EditJson:
 
         # Load demo mode data.
         if demo:
-            dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'demo')
-            self.json_path = os.path.join(dir, 'demo.json')
-            self.schema_path = os.path.join(dir, 'demo-schema.json')
+            dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "demo")
+            self.json_path = os.path.join(dir, "demo.json")
+            self.schema_path = os.path.join(dir, "demo-schema.json")
             self.demo = True
-            self.title = 'You are in demo mode.'
+            self.title = "You are in demo mode."
 
         # Load schema file.
         if self.schema_path:
@@ -259,7 +259,7 @@ class EditJson:
             if not self.schema:
                 return
         elif self.new is True:
-            print_s('<error>A schema is required when new=True.</error>', nowrap=True)
+            print_s("<error>A schema is required when new=True.</error>", nowrap=True)
             return
         else:
             self.schema = None
@@ -304,12 +304,12 @@ class EditJson:
         # For debugging.
         # Print data & key addresses (replaces UI).
         # - - - - - - - - - - - - - -
-        if (4 in DEBUG):
-            print('\ndata (top level):\n-----\n' + '\n'.join(self.data))
-            print('\nAddresses:\n-------')
+        if 4 in DEBUG:
+            print("\ndata (top level):\n-----\n" + "\n".join(self.data))
+            print("\nAddresses:\n-------")
             for self.json_path in self.addresses:
                 print(self.json_path)
-            print('\n')
+            print("\n")
             return
         # - - - - - - - - - - - - - -
         return True
@@ -317,7 +317,7 @@ class EditJson:
     # Ask user for path to JSON file.
     def request_path(self):
         while True:
-            json_path = input(style(f'<yellow>Enter JSON file path: </yellow>')).strip()
+            json_path = input(style(f"<yellow>Enter JSON file path: </yellow>")).strip()
             if json_path:
                 break
         return json_path
@@ -326,13 +326,17 @@ class EditJson:
     def load_schema_file(self, schema_path):
         schema = None
         try:
-            with open(schema_path, encoding='UTF-8') as file:
+            with open(schema_path, encoding="UTF-8") as file:
                 schema = json.load(file)
                 # raise FileNotFoundError("Bla bla bla.")  # For testing
         except FileNotFoundError as err:
-            print_s(f'<error>Schema file not found: <yellow>{schema_path}</yellow></error>\n<soft>{err}</soft>', nowrap=True)
+            print_s(
+                f"<error>Schema file not found: <yellow>{schema_path}</yellow></error>\n<soft>{err}</soft>", nowrap=True
+            )
         except json.JSONDecodeError as err:
-            print_s(f'<error>Invalid schema file: <yellow>{schema_path}</yellow></error>\n<soft>{err}</soft>', nowrap=True)
+            print_s(
+                f"<error>Invalid schema file: <yellow>{schema_path}</yellow></error>\n<soft>{err}</soft>", nowrap=True
+            )
 
         if schema:
             # Expand schema $refs.
@@ -342,7 +346,10 @@ class EditJson:
             try:
                 jsonschema.validate(schema=schema, instance={})
             except jsonschema.exceptions.SchemaError as err:
-                print_s(f'<error>Invalid schema</error> <yellow>{schema_path}</yellow>\n<soft>{err.message}</soft>', nowrap=True)
+                print_s(
+                    f"<error>Invalid schema</error> <yellow>{schema_path}</yellow>\n<soft>{err.message}</soft>",
+                    nowrap=True,
+                )
                 schema = None
             except jsonschema.exceptions.ValidationError as err:
                 pass
@@ -355,49 +362,48 @@ class EditJson:
     # are looked up and expanded.
     # https://json-schema.org/understanding-json-schema/structuring.html#ref
     def expand_schema_refs(self, schema):
-
         def _recursion(schema_props):
             for key, prop in schema_props.items():
-                if '$ref' in prop:
+                if "$ref" in prop:
                     # self.log('\n//', key)
                     # Pull up subschema from $defs.
-                    if prop['$ref'][:8] == '#/$defs/':
-                        ref_key = prop['$ref'].split('/')[-1]
-                        if '$defs' in schema:
-                            schema_props[key] = schema['$defs'][ref_key]
+                    if prop["$ref"][:8] == "#/$defs/":
+                        ref_key = prop["$ref"].split("/")[-1]
+                        if "$defs" in schema:
+                            schema_props[key] = schema["$defs"][ref_key]
                             # self.log('A >>>', schema['$defs'][ref_key])
 
                     # Pull up schema from path.
-                    elif prop['$ref'][0] == '/':
-                        path = prop['$ref']
+                    elif prop["$ref"][0] == "/":
+                        path = prop["$ref"]
                         result = {}
 
                         def _recursion_find_schema_ref(schema_props2):
                             nonlocal result
                             for i, (key, prop2) in enumerate(schema_props2.items()):
                                 # self.log('@', i, key)
-                                if 'properties' in prop2 and isinstance(prop2['properties'], dict):
+                                if "properties" in prop2 and isinstance(prop2["properties"], dict):
                                     # self.log('-->')
-                                    abort = _recursion_find_schema_ref(prop2['properties'])
+                                    abort = _recursion_find_schema_ref(prop2["properties"])
                                     if abort:
                                         break
-                                elif '$id' in prop2 and prop2['$id'] == path:
+                                elif "$id" in prop2 and prop2["$id"] == path:
                                     prop2_clone = copy.copy(prop2)
-                                    del prop2_clone['$id']
+                                    del prop2_clone["$id"]
                                     result = prop2_clone
                                     # self.log('B >>>', result)
                                     return result
                             return result
 
-                        schema_props[key] = _recursion_find_schema_ref(schema['properties'])
+                        schema_props[key] = _recursion_find_schema_ref(schema["properties"])
 
                     # Pull up recursive schema. TODO!
                     # https://json-schema.org/understanding-json-schema/structuring.html#extending-recursive-schemas
-                    elif prop['$ref'] == '#':
+                    elif prop["$ref"] == "#":
                         # schema_prop = schema
                         pass
 
-        _recursion(schema['properties'])
+        _recursion(schema["properties"])
         return schema
 
     # Load JSON file.
@@ -406,32 +412,38 @@ class EditJson:
         file_exists = False
         file_valid = True
         try:
-            with open(json_path, 'r', encoding='UTF-8') as file:
+            with open(json_path, "r", encoding="UTF-8") as file:
                 data = json.load(file)
                 file_exists = True
         except FileNotFoundError:
             if not self.new and not self.template:
-                print_s(f'<error>JSON file not found: <yellow>{json_path}</yellow></error>', nowrap=True)
+                print_s(f"<error>JSON file not found: <yellow>{json_path}</yellow></error>", nowrap=True)
         except json.JSONDecodeError as err:
             file_exists = True
             file_valid = False
-            print_s(f'<error>Invalid JSON file: <yellow>{json_path}</yellow></error>\n<soft>{err}</soft>', nowrap=True)
+            print_s(f"<error>Invalid JSON file: <yellow>{json_path}</yellow></error>\n<soft>{err}</soft>", nowrap=True)
         except BaseException as err:
-            print_s(f'<error>Somethig went wrong</error>\n<soft>{err}</soft>', nowrap=True)
+            print_s(f"<error>Somethig went wrong</error>\n<soft>{err}</soft>", nowrap=True)
         return data, file_exists, file_valid
 
     # Load template file.
     def load_template_file(self, template_path):
         success = False
         try:
-            with open(template_path, encoding='UTF-8') as file:
+            with open(template_path, encoding="UTF-8") as file:
                 # raise FileNotFoundError("Bla bla bla.")  # For testing
                 self.template = json.load(file)
                 success = True
         except FileNotFoundError as err:
-            print_s(f'<error>Template file not found: <yellow>{template_path}</yellow></error>\n<soft>{err}</soft>', nowrap=True)
+            print_s(
+                f"<error>Template file not found: <yellow>{template_path}</yellow></error>\n<soft>{err}</soft>",
+                nowrap=True,
+            )
         except json.JSONDecodeError as err:
-            print_s(f'<error>Invalid template file: <yellow>{template_path}</yellow></error>\n<soft>{err}</soft>', nowrap=True)
+            print_s(
+                f"<error>Invalid template file: <yellow>{template_path}</yellow></error>\n<soft>{err}</soft>",
+                nowrap=True,
+            )
         return success
 
     # Create JSON file from template.
@@ -441,15 +453,14 @@ class EditJson:
 
     # Create JSON file from schema.
     def create_file_from_schema(self):
-
         def _recursion_create_one_level(schema, data):
-            if 'properties' in schema:
-                for key, val in schema['properties'].items():
-                    if 'properties' in val:
+            if "properties" in schema:
+                for key, val in schema["properties"].items():
+                    if "properties" in val:
                         data[key] = {}
                         _recursion_create_one_level(val, data[key])
                     else:
-                        data[key] = val['default'] if 'default' in val else ''
+                        data[key] = val["default"] if "default" in val else ""
 
         #
         #
@@ -460,7 +471,7 @@ class EditJson:
 
     # Split file name from file path
     def filename_from_path(self, path):
-        path_tree = path.split('/')
+        path_tree = path.split("/")
         return path_tree[len(path_tree) - 1]
 
     # Store key addresses.
@@ -498,15 +509,10 @@ class EditJson:
                 is_dict = isinstance(value, dict)
                 if is_dict:
                     max_key_length = max(
-                        _recursion(value, level=level + 1),
-                        len(key) + self.indent_str_len * level,
-                        max_key_length
+                        _recursion(value, level=level + 1), len(key) + self.indent_str_len * level, max_key_length
                     )
                 else:
-                    max_key_length = max(
-                        len(key) + self.indent_str_len * level,
-                        max_key_length
-                    )
+                    max_key_length = max(len(key) + self.indent_str_len * level, max_key_length)
             return max_key_length
 
         max_key_length = _recursion(self.data)
@@ -541,8 +547,8 @@ class EditJson:
         required_errors = self.validate_required(self.data, self.schema)
         self.log(required_errors)
         for err in required_errors:
-            error_address = tuple(err['path'])
-            self.inline_errors[error_address] = err['message']
+            error_address = tuple(err["path"])
+            self.inline_errors[error_address] = err["message"]
 
         # Detect and store any illegal keys (i.e. keys not present in schema).
         for i, address in enumerate(self.addresses):
@@ -562,10 +568,12 @@ class EditJson:
             for required_field in schema.get("required", []):
                 if required_field in data and data[required_field] == "":
                     req_address = address + (required_field,)
-                    errors.append({
-                        'message': f"'{required_field}' is a required property",
-                        'path': req_address,
-                    })
+                    errors.append(
+                        {
+                            "message": f"'{required_field}' is a required property",
+                            "path": req_address,
+                        }
+                    )
 
             for key, value in data.items():
                 key_address = address + (key,)
@@ -596,14 +604,14 @@ class EditJson:
         # Display instructions on top.
         def get_instructions_main():
             output = [
-                '<reverse> ▲ </reverse> <reverse> ▼ </reverse> Navigate',
-                '<reverse> ▶ </reverse> Property info' if self.schema else None,
-                '<reverse> ESC </reverse> Exit',
-                '<cmd>:ENTER</cmd> Save',
-                '<cmd>:?</cmd> Help',
+                "<reverse> ▲ </reverse> <reverse> ▼ </reverse> Navigate",
+                "<reverse> ▶ </reverse> Property info" if self.schema else None,
+                "<reverse> ESC </reverse> Exit",
+                "<cmd>:ENTER</cmd> Save",
+                "<cmd>:?</cmd> Help",
             ]
             output = [item for item in output if item]
-            output = '   '.join(output)
+            output = "   ".join(output)
             if not self.ui_width:
                 # Set ui width to width of the instruction string, or at least 80 characters.
                 self.ui_width = max(min(len(strip_tags(output)), self.width), 80)
@@ -611,9 +619,9 @@ class EditJson:
 
         def get_instructions_read_only():
             output = [
-                '<reverse> ESC </reverse> ' + ('Go back' if self.schema_mode else 'Exit'),
+                "<reverse> ESC </reverse> " + ("Go back" if self.schema_mode else "Exit"),
             ]
-            output = '   '.join(output)
+            output = "   ".join(output)
             return style(output, nowrap=True)
 
         self.instructions_main = get_instructions_main()
@@ -633,7 +641,7 @@ class EditJson:
                     if exit_msg:
                         break
                 except KeyboardInterrupt:
-                    exit_msg = self.confirm_exit('discard')
+                    exit_msg = self.confirm_exit("discard")
                     if exit_msg:
                         break
                 # except BaseException as err:
@@ -672,7 +680,7 @@ class EditJson:
                 self.selected_key = self.selected_address[-1]
                 self.selected_value = self.value_from_address(self.data, self.selected_address)
             except BaseException as err:
-                print_s(f'<error>Something went wrong rendering the UI</error>\n<soft>{err}</soft>', nowrap=True)
+                print_s(f"<error>Something went wrong rendering the UI</error>\n<soft>{err}</soft>", nowrap=True)
                 return
 
         # Render help string for selected field.
@@ -683,56 +691,62 @@ class EditJson:
             if not schema_prop or not isinstance(schema_prop, dict):
                 self.selected_help = None
             else:
-                help_str = schema_prop['description'] if schema_prop and 'description' in schema_prop else ''
-                type_str = schema_prop['type'] if schema_prop and 'type' in schema_prop else ''
+                help_str = schema_prop["description"] if schema_prop and "description" in schema_prop else ""
+                type_str = schema_prop["type"] if schema_prop and "type" in schema_prop else ""
                 if isinstance(type_str, list):
-                    type_str = '/'.join(type_str)
-                range_str = ''
-                multiple_of_str = ''
+                    type_str = "/".join(type_str)
+                range_str = ""
+                multiple_of_str = ""
 
                 # Regarding mathematical annotating of inclusive & exclusive
                 # ranges with parentheses or brackets - [0,10) / (0,10] / etc:
                 # https://stackoverflow.com/a/4396303
-                if type_str == 'integer' or type_str == 'number':
+                if type_str == "integer" or type_str == "number":
                     # Range
-                    if 'minimum' in schema_prop:
-                        if 'maximum' in schema_prop:
+                    if "minimum" in schema_prop:
+                        if "maximum" in schema_prop:
                             range_str = f" [{schema_prop['minimum']}-{schema_prop['maximum']}]"
-                        elif 'exclusiveMaximum' in schema_prop:
+                        elif "exclusiveMaximum" in schema_prop:
                             range_str = f" [{schema_prop['minimum']}-{schema_prop['exclusiveMaximum']})"
                         else:
                             range_str = f">={schema_prop['minimum']}"
-                    elif 'exclusiveMinimum' in schema_prop:
-                        if 'maximum' in schema_prop:
+                    elif "exclusiveMinimum" in schema_prop:
+                        if "maximum" in schema_prop:
                             range_str = f" ({schema_prop['exclusiveMinimum']}-{schema_prop['maximum']}]"
-                        elif 'exclusiveMaximum' in schema_prop:
+                        elif "exclusiveMaximum" in schema_prop:
                             range_str = f" ({schema_prop['exclusiveMinimum']}-{schema_prop['exclusiveMaximum']})"
                         else:
                             range_str = f">{schema_prop['exclusiveMinimum']}"
-                    elif 'exclusiveMaximum' in schema_prop:
+                    elif "exclusiveMaximum" in schema_prop:
                         range_str = f"<{schema_prop['exclusiveMaximum']}"
-                    elif 'maximum' in schema_prop:
+                    elif "maximum" in schema_prop:
                         range_str = f"<={schema_prop['maximum']}"
 
                     # Multiple of
-                    if 'multipleOf' in schema_prop:
+                    if "multipleOf" in schema_prop:
                         multiple_of_str = f":{schema_prop['multipleOf']}"
-                self.selected_help = f'<green>{type_str.upper()}{multiple_of_str}{range_str}</green><yellow/> {help_str}' if type_str and help_str else f'<green>{type_str.upper()}</green>' if type_str else str(help_str)  # noqa
+                self.selected_help = (
+                    f"<green>{type_str.upper()}{multiple_of_str}{range_str}</green><yellow/> {help_str}"
+                    if type_str and help_str
+                    else f"<green>{type_str.upper()}</green>"
+                    if type_str
+                    else str(help_str)
+                )  # noqa
 
         if not self.active_screen or self.active_screen.keep_title:
             # Generate status flag.
             if self.read_only:
-                status_flag = '<on_red> READ ONLY </on_red> '
+                status_flag = "<on_red> READ ONLY </on_red> "
             else:
-                status_flag = '<on_green> NEW FILE </on_green> ' if self.blank else f'<on_yellow> EDITING </on_yellow> '
+                status_flag = "<on_green> NEW FILE </on_green> " if self.blank else f"<on_yellow> EDITING </on_yellow> "
 
             # Add status flag + Title
             if self.schema_mode:
-                title_output = style(f'{status_flag}<yellow>You\'re viewing the schema</yellow>', nowrap=True)
+                title_output = style(f"{status_flag}<yellow>You're viewing the schema</yellow>", nowrap=True)
             elif self.title:
-                title_output = style(f'{status_flag}<yellow>{self.title}</yellow>', nowrap=True)
+                title_output = style(f"{status_flag}<yellow>{self.title}</yellow>", nowrap=True)
             else:
-                title_output = style(f'{status_flag}<yellow>{self.json_filename}</yellow>', nowrap=True)
+                title_output = style(f"{status_flag}<yellow>{self.json_filename}</yellow>", nowrap=True)
             display_append(title_output)
 
             # ------------
@@ -746,7 +760,7 @@ class EditJson:
         else:
             # Instructions
             if self.listen_for_action:
-                instructions_str = (':')
+                instructions_str = ":"
             elif self.read_only:
                 instructions_str = self.instructions_read_only
             else:
@@ -758,9 +772,9 @@ class EditJson:
 
             # JSON file path
             if self.show_path:
-                path_output = style(f'\U0001F4C1 File path: <magenta>{self.json_path}</magenta>', nowrap=True)
+                path_output = style(f"\U0001F4C1 File path: <magenta>{self.json_path}</magenta>", nowrap=True)
                 if 1:
-                    path_output += style(' / Type <cmd>:o</cmd> to open', nowrap=True)
+                    path_output += style(" / Type <cmd>:o</cmd> to open", nowrap=True)
                 display_append(path_output)
                 display_append(self.sep, True)
 
@@ -770,12 +784,18 @@ class EditJson:
             # Detect discrepancies with schema.
             missing_keys, illegal_keys = self.detect_discrepancies()
             if missing_keys or illegal_keys:
-                error_general = style(f'<error>This JSON is not matching the schema. Type <cmd>:f</cmd> to reformat it.</error>', nowrap=True)
+                error_general = style(
+                    f"<error>This JSON is not matching the schema. Type <cmd>:f</cmd> to reformat it.</error>",
+                    nowrap=True,
+                )
             elif self.error:
-                error_general = style(f'<error>{self.error}</error>')
+                error_general = style(f"<error>{self.error}</error>")
             # General error - illegal values
             elif self.illegal_errors:
-                error_general = style('<error>This JSON file does not match the provided schema.\nType <cmd>:c</cmd> to clear out illegal values or <cmd>:f</cmd> to fully reformat the file.</error>', nowrap=True)  # noqa
+                error_general = style(
+                    "<error>This JSON file does not match the provided schema.\nType <cmd>:c</cmd> to clear out illegal values or <cmd>:f</cmd> to fully reformat the file.</error>",
+                    nowrap=True,
+                )  # noqa
 
             if error_general:
                 display_append(error_general)
@@ -797,8 +817,8 @@ class EditJson:
         # For debugging
         # Log data below list using self.log()
         # - - - - - - - - - - - - - -
-        if (1 in DEBUG):
-            display.append(f'\n----')
+        if 1 in DEBUG:
+            display.append(f"\n----")
             for val in self.log_values:
                 display.append(val)  # Debug
         # - - - - - - - - - - - - - -
@@ -828,34 +848,34 @@ class EditJson:
 
         # Print self.log as overlay
         # INSTABLE IMPLEMENTATION - TO BE CLEANED UP
-        if (10 in DEBUG):
+        if 10 in DEBUG:
             for i, val in enumerate(self.log_values):
-                val = style(f'<reverse> {val} </reverse>', nowrap=True)
+                val = style(f"<reverse> {val} </reverse>", nowrap=True)
                 # val = style(f'{"":>{self.width - a_len(val) - 2}}<reverse> {val} </reverse>', nowrap=True) ???
-                if (len(display) > i):
+                if len(display) > i:
                     display[i] = val
 
-        print('\n'.join(display))
+        print("\n".join(display))
         self.display_height = len(display)
 
         # For debugging.
         # - - - - - - - - - - - - - -
         if 3 in DEBUG:
             # Display output height vs terminal height.
-            print(f'\nOutput/Terminal: {initial_display_len}/{self.height}')
+            print(f"\nOutput/Terminal: {initial_display_len}/{self.height}")
         if 6 in DEBUG:
             # Display navigational data.
-            print('\nEdit mode:', self.edit_mode)
-            print('Cursor:', self.cursor_pos)
-            print('Listen:', self.listen_for_action)
-            print('Input:', self.text_input)
-            print('Index:', self.selected_index)
-            print('Path:', self.selected_address)
-            print('Selected key:', self.selected_key)
-            print('Selected value:', self.selected_value)
-            print('Selected help:', self.selected_help)
-            print('Inline errors: ', self.inline_errors)
-            print('\n')
+            print("\nEdit mode:", self.edit_mode)
+            print("Cursor:", self.cursor_pos)
+            print("Listen:", self.listen_for_action)
+            print("Input:", self.text_input)
+            print("Index:", self.selected_index)
+            print("Path:", self.selected_address)
+            print("Selected key:", self.selected_key)
+            print("Selected value:", self.selected_value)
+            print("Selected help:", self.selected_help)
+            print("Inline errors: ", self.inline_errors)
+            print("\n")
         # - - - - - - - - - - - - - -
 
     # Render interactive list of key-value pairs.
@@ -873,7 +893,7 @@ class EditJson:
             for i, (key, value) in enumerate(data.items()):
                 value = self.empty_placeholder if not value and value != 0 else value
                 is_dict = isinstance(value, dict)
-                indent = (self.indent_str * indent_level)
+                indent = self.indent_str * indent_level
                 indent_len = self.indent_str_len * indent_level
                 key_address = address + (key,)
                 self.index_to_line_nr_map[index] = self.line_nr
@@ -882,28 +902,34 @@ class EditJson:
                 # For debugging
                 # Display index / line numbers / line nr in focus.
                 # - - - - - - - - - - - - - -
-                line_nr_debug = ''
-                line_nr_debug_blank = ''
+                line_nr_debug = ""
+                line_nr_debug_blank = ""
                 right_col_width = self.right_col_width
                 if 2 in DEBUG:
-                    index_str = '--' if is_dict or is_illegal else f"{index:02}"
-                    line_nr_debug = f'{index_str}:{self.line_nr:02}:{self.selected_line_nr:02} '
-                    line_nr_debug_blank = ' ' * len(line_nr_debug)
+                    index_str = "--" if is_dict or is_illegal else f"{index:02}"
+                    line_nr_debug = f"{index_str}:{self.line_nr:02}:{self.selected_line_nr:02} "
+                    line_nr_debug_blank = " " * len(line_nr_debug)
                     right_col_width = self.right_col_width - len(line_nr_debug)
                 # - - - - - - - - - - - - - -
 
                 # Parent field (no value).
                 if is_dict:
-                    display.append(style(line_nr_debug + indent + f'<soft><underline>{key}:</underline></soft>', nowrap=True))
+                    display.append(
+                        style(line_nr_debug + indent + f"<soft><underline>{key}:</underline></soft>", nowrap=True)
+                    )
                     self.line_nr = self.line_nr + 1
                     _render_one_line(value, indent_level=indent_level + 1, address=key_address)
 
                 # Field with value.
                 else:
-                    line_gap = self.left_col_width - self.indent_str_len * indent_level  # The length of the gap between the indentation and the value. noqa
+                    line_gap = (
+                        self.left_col_width - self.indent_str_len * indent_level
+                    )  # The length of the gap between the indentation and the value. noqa
                     is_selected = self.selected_address == key_address
-                    illegal_flag = style('<error_reverse> ILLEGAL </error_reverse>') if is_illegal else ''
-                    left_col_filler = line_nr_debug_blank + style(indent, nowrap=True) + ' ' * (self.left_col_width - indent_len)
+                    illegal_flag = style("<error_reverse> ILLEGAL </error_reverse>") if is_illegal else ""
+                    left_col_filler = (
+                        line_nr_debug_blank + style(indent, nowrap=True) + " " * (self.left_col_width - indent_len)
+                    )
 
                     # Selected row.
                     if is_selected and not illegal_flag:
@@ -927,7 +953,7 @@ class EditJson:
                         # In case the key is wider than the left column, we trim it to fit in edit mode.
                         key_str_len = a_len(style(key_str))
                         if key_str_len > self.left_col_width:
-                            trimmed_key = key[:self.left_col_width - indent_len - 3] + '…'
+                            trimmed_key = key[: self.left_col_width - indent_len - 3] + "…"
                             key_str = line_nr_debug + indent + f"{(trimmed_key + ':'):<{line_gap}}"
                             line_output = style(key_str + value_str, nowrap=True)
 
@@ -941,7 +967,7 @@ class EditJson:
                         # Value
                         if illegal_flag:
                             # Illegal fields - [ILLEGAL] + grey strikethrough text
-                            value = '' if value == self.empty_placeholder else value
+                            value = "" if value == self.empty_placeholder else value
                             value_str = __render_illegal(illegal_flag, value, left_col_filler, right_col_width)
                             key_value_space_len = len(strip_tags(key_str)) - len(strip_tags(indent)) - len(key) - 1
                             if key_value_space_len > 1:
@@ -960,7 +986,7 @@ class EditJson:
                         line_output_len = a_len(line_output.splitlines()[0])
                         if line_output_len > self.width:
                             trim = self.width - line_output_len - 2
-                            trimmed_key = key[:trim] + '…'
+                            trimmed_key = key[:trim] + "…"
                             key_str = line_nr_debug + indent + f"<soft>{(trimmed_key + ':'):<{line_gap}}</soft> "
                             line_output = style(key_str + value_str, nowrap=True)
 
@@ -1009,13 +1035,13 @@ class EditJson:
             # covers 99% of cases.
             pad_right = []
             for i, line in enumerate(lines):
-                pad_right += ' '
+                pad_right += " "
                 line_stripped = line.lstrip()
                 stripped_len = len(line) - len(line_stripped)
                 if stripped_len == 1:
                     lines[i] = line_stripped
-                    pad_right[i - 1] = ''
-                    lines[i - 1] += ' '
+                    pad_right[i - 1] = ""
+                    lines[i - 1] += " "
 
             for i, line in enumerate(lines):
                 is_last_line = i == len(lines) - 1
@@ -1029,30 +1055,50 @@ class EditJson:
                     # Line with cursor.
                     pos = self.cursor_pos - chars_before_cursor
                     filler_right = right_col_width - len(line)
-                    cursor_str = line[pos:pos + 1]
+                    cursor_str = line[pos : pos + 1]
 
                     # When the cursor is at the very end we fill
                     # it up with a space so you can still see it.
                     if len(cursor_str) == 0:
-                        cursor_str = ' '
+                        cursor_str = " "
                         filler_right -= 1
 
-                    lines[i] = line[:pos] + f'<on_yellow>{cursor_str}</on_yellow>' + line[pos + 1:] + filler_right * ' '
+                    lines[i] = (
+                        line[:pos] + f"<on_yellow>{cursor_str}</on_yellow>" + line[pos + 1 :] + filler_right * " "
+                    )
                     chars_before_cursor += len(line)
-            value_str = '<edit> ' + f'</edit>\n{left_col_filler}<edit> '.join([f'{line:<{right_col_width}}{pad_right[i]}' for i, line in enumerate(lines)]) + '</edit>'  # noqa
+            value_str = (
+                "<edit> "
+                + f"</edit>\n{left_col_filler}<edit> ".join(
+                    [f"{line:<{right_col_width}}{pad_right[i]}" for i, line in enumerate(lines)]
+                )
+                + "</edit>"
+            )  # noqa
             return value_str
 
         def __render_editable(value, left_col_filler, right_col_width):
             nonlocal help_str_new_line
-            show_help_str = '' if not self.selected_help else style(' <yellow>▼</yellow>') if self.show_help else style(' <yellow>▶</yellow>')
+            show_help_str = (
+                ""
+                if not self.selected_help
+                else style(" <yellow>▼</yellow>")
+                if self.show_help
+                else style(" <yellow>▶</yellow>")
+            )
             value_str = a_textwrap(str(value), width=right_col_width)
             lines = value_str.splitlines()
             last_line = lines[len(lines) - 1] if len(lines) else None
             if last_line and len(last_line) + 2 > right_col_width:
                 # When the help triangle doesn't fit on the same line.
-                show_help_str = f'\n{left_col_filler}' + show_help_str
+                show_help_str = f"\n{left_col_filler}" + show_help_str
                 help_str_new_line = False
-            value_str = style('<editable> ' + f' </editable>\n{left_col_filler}<editable> '.join(value_str.splitlines()) + ' </editable>' + show_help_str, nowrap=True)  # noqa
+            value_str = style(
+                "<editable> "
+                + f" </editable>\n{left_col_filler}<editable> ".join(value_str.splitlines())
+                + " </editable>"
+                + show_help_str,
+                nowrap=True,
+            )  # noqa
             return value_str
 
         def __render_helper_text(left_col_filler, right_col_width):
@@ -1060,22 +1106,32 @@ class EditJson:
             # When there's line breaks in the help string,
             # we need to apply wrapping per individual line.
             help_str = [a_textwrap(line, width=right_col_width) for line in help_str_lines]
-            help_str = '\n'.join(help_str)
-            first_line_filler = f'\n{left_col_filler} <yellow>' if help_str_new_line else ' <yellow>'
-            help_str = first_line_filler + f'</yellow>\n{left_col_filler} <yellow>'.join(help_str.splitlines()) + '</yellow>'
+            help_str = "\n".join(help_str)
+            first_line_filler = f"\n{left_col_filler} <yellow>" if help_str_new_line else " <yellow>"
+            help_str = (
+                first_line_filler + f"</yellow>\n{left_col_filler} <yellow>".join(help_str.splitlines()) + "</yellow>"
+            )
             help_str = style(help_str, nowrap=True)
             return help_str
 
         def __render_illegal(illegal_flag, value, left_col_filler, right_col_width):
-            illegal_flag_placeholder = '~' * 7  # Just a random character that is unlikely to be repreated in the value.
-            value_str = a_textwrap(f'{illegal_flag_placeholder} {value}', width=right_col_width)
-            value_str = style('<soft><strikethrough>' + f'</strikethrough></soft>\n{left_col_filler} <soft><strikethrough>'.join(value_str.splitlines()) + '</strikethrough></soft>', nowrap=True)  # noqa
-            value_str = illegal_flag + value_str.replace(illegal_flag_placeholder, '')
+            illegal_flag_placeholder = "~" * 7  # Just a random character that is unlikely to be repreated in the value.
+            value_str = a_textwrap(f"{illegal_flag_placeholder} {value}", width=right_col_width)
+            value_str = style(
+                "<soft><strikethrough>"
+                + f"</strikethrough></soft>\n{left_col_filler} <soft><strikethrough>".join(value_str.splitlines())
+                + "</strikethrough></soft>",
+                nowrap=True,
+            )  # noqa
+            value_str = illegal_flag + value_str.replace(illegal_flag_placeholder, "")
             return value_str
 
         def __render_invalid(value, left_col_filler, right_col_width):
             value_str = a_textwrap(str(value), width=right_col_width)
-            value_str = style('<error>' + f'</error>\n{left_col_filler} <error>'.join(value_str.splitlines()) + '</error>', nowrap=True)  # noqa
+            value_str = style(
+                "<error>" + f"</error>\n{left_col_filler} <error>".join(value_str.splitlines()) + "</error>",
+                nowrap=True,
+            )  # noqa
             return value_str
 
         def __render_regular(value, left_col_filler, right_col_width):
@@ -1084,9 +1140,15 @@ class EditJson:
             return value_str
 
         def __render_error_msg(left_col_filler, right_col_width):
-            error_msg = f'^ {self.inline_errors[self.addresses[index]]}'  # noqa
+            error_msg = f"^ {self.inline_errors[self.addresses[index]]}"  # noqa
             error_msg = a_textwrap(error_msg, width=right_col_width)
-            error_msg = style(left_col_filler + '<error_reverse> ' + f' </error_reverse>\n{left_col_filler}<error_reverse> '.join(error_msg.splitlines()) + ' </error_reverse>', nowrap=True)  # noqa
+            error_msg = style(
+                left_col_filler
+                + "<error_reverse> "
+                + f" </error_reverse>\n{left_col_filler}<error_reverse> ".join(error_msg.splitlines())
+                + " </error_reverse>",
+                nowrap=True,
+            )  # noqa
             return error_msg
 
         # The line_ouput can be wrapping in multiple lines if the value
@@ -1125,32 +1187,32 @@ class EditJson:
 
     # Keyboard functionality.
     def process_key_stroke(self, ks):
-        self.error = ''
+        self.error = ""
 
         # For debugging.
         # Log keystroke data.
         # - - - - - - - - - - - - - -
-        if (5 in DEBUG):
-            self.log(f'\n>> {ks} {ks.name} / {ks.code} / {ks.is_sequence}')
+        if 5 in DEBUG:
+            self.log(f"\n>> {ks} {ks.name} / {ks.code} / {ks.is_sequence}")
         # - - - - - - - - - - - - - -
 
         # Schema mode interaction.
         if self.schema_mode:
-            if ks.name == 'KEY_ESCAPE':
+            if ks.name == "KEY_ESCAPE":
                 self.close_schema()
                 return
 
         # Read-only mode.
         if self.read_only:
-            if ks.name == 'KEY_DOWN':
+            if ks.name == "KEY_DOWN":
                 self.scroll(1)
                 return
-            elif ks.name == 'KEY_UP':
+            elif ks.name == "KEY_UP":
                 self.scroll(-1)
                 return
 
         # Custom screen interaction (confirm exit, help...)
-        if self.active_screen and hasattr(self.active_screen, 'match_key'):
+        if self.active_screen and hasattr(self.active_screen, "match_key"):
             key_match = self.active_screen.match_key(ks)
             if key_match:
                 return key_match
@@ -1159,15 +1221,14 @@ class EditJson:
         elif self.listen_for_action:
             self.listen_for_action = False
             actions = {
-                '?': self.list_commands,
-                'p': self.display_path,
-                'o': self.open_file,
-                'c': self.clear_illegal_keys,
-                'f': self.format_file,
-                's': self.open_schema,
-                'x': lambda: self.confirm_exit('discard'),
-                'KEY_ENTER': lambda: self.confirm_exit('save'),
-
+                "?": self.list_commands,
+                "p": self.display_path,
+                "o": self.open_file,
+                "c": self.clear_illegal_keys,
+                "f": self.format_file,
+                "s": self.open_schema,
+                "x": lambda: self.confirm_exit("discard"),
+                "KEY_ENTER": lambda: self.confirm_exit("save"),
             }
             if ks in actions:
                 self.active_screen = None  # Reset in case command was launched from overview screen.
@@ -1187,7 +1248,7 @@ class EditJson:
 
             # Map key
             # Keys agnostic of edit mode.
-            if ks.name == 'KEY_UP':
+            if ks.name == "KEY_UP":
                 # Edit mode: move cursor one line up.
                 if self.edit_mode:
                     lines = a_textwrap(self.text_input, width=self.right_col_width, drop_whitespace=False).splitlines()
@@ -1210,7 +1271,7 @@ class EditJson:
                 else:
                     self.store_value()
                     self.go_to_prev_field()
-            elif ks.name == 'KEY_DOWN':
+            elif ks.name == "KEY_DOWN":
                 # Move cursor one line down.
                 lines = a_textwrap(self.text_input, width=self.right_col_width, drop_whitespace=False).splitlines()
                 lines_len = 0
@@ -1235,13 +1296,13 @@ class EditJson:
                 else:
                     self.store_value()
                     self.go_to_next_field()
-            elif ks.name == 'KEY_PGUP':
+            elif ks.name == "KEY_PGUP":
                 # Jump to start.
                 self.cursor_pos = 0
-            elif ks.name == 'KEY_PGDOWN':
+            elif ks.name == "KEY_PGDOWN":
                 # Jump to end.
                 self.cursor_pos = len(self.text_input) - 1
-            elif ks.name == 'KEY_HOME':
+            elif ks.name == "KEY_HOME":
                 # Jump to beginning of line.
                 lines = a_textwrap(self.text_input, width=self.right_col_width, drop_whitespace=False).splitlines()
                 jump_to = 0
@@ -1251,7 +1312,7 @@ class EditJson:
                     else:
                         break
                 self.cursor_pos = jump_to
-            elif ks.name == 'KEY_END':
+            elif ks.name == "KEY_END":
                 # Jump to end of line.
                 lines = a_textwrap(self.text_input, width=self.right_col_width, drop_whitespace=False).splitlines()
                 jump_to = 0
@@ -1263,9 +1324,9 @@ class EditJson:
                         jump_to += len(line)
                         break
                 self.cursor_pos = jump_to - 1
-            elif ks.name == 'KEY_ENTER':
+            elif ks.name == "KEY_ENTER":
                 self.store_value()
-            elif ks.name == 'KEY_ESCAPE':
+            elif ks.name == "KEY_ESCAPE":
                 # Escape key in edit mode is applied with a delay,
                 # so we can detect alt+left/right input. This is
                 # because alt+left/right comes in as two separate
@@ -1275,29 +1336,30 @@ class EditJson:
                     self.cursor_pos = 0
                     self.edit_mode_exit()
                     self.render_one_frame()
+
                 self.esc_code = True
                 self.timer = Timer(0.1, _apply_escape)
                 self.timer.start()
-            elif ks.name == 'KEY_BACKSPACE':
-                self.text_input = self.text_input[:self.cursor_pos - 1] + self.text_input[self.cursor_pos:]
+            elif ks.name == "KEY_BACKSPACE":
+                self.text_input = self.text_input[: self.cursor_pos - 1] + self.text_input[self.cursor_pos :]
                 self.cursor_pos = max(self.cursor_pos - 1, 0)
-            elif ks.name == 'KEY_DELETE':
-                self.text_input = self.text_input[:self.cursor_pos] + self.text_input[self.cursor_pos + 1:]
-            elif ks.name == 'KEY_LEFT':
+            elif ks.name == "KEY_DELETE":
+                self.text_input = self.text_input[: self.cursor_pos] + self.text_input[self.cursor_pos + 1 :]
+            elif ks.name == "KEY_LEFT":
                 if self.cursor_pos > 0:
                     self.set_cursor(-1)
-            elif ks.name == 'KEY_RIGHT':
+            elif ks.name == "KEY_RIGHT":
                 if self.cursor_pos < len(self.text_input):
                     self.set_cursor(1)
-            elif (str(ks) == 'b' and self.esc_code):
+            elif str(ks) == "b" and self.esc_code:
                 # Alt+left
                 self.timer.cancel()
                 self.esc_code = False
 
                 # Split words and punctuation.
-                words = self.text_input[:self.cursor_pos].split(' ')
+                words = self.text_input[: self.cursor_pos].split(" ")
                 for i, word in list(enumerate(words))[::-1]:
-                    if (word and word[-1] in ',.;:'):
+                    if word and word[-1] in ",.;:":
                         words[i] = word[:-1]
                         words.insert(i + 1, word[-1])
 
@@ -1308,21 +1370,21 @@ class EditJson:
                 if jump_back == 0:
                     jump_back += len(second_last_word) + 1
                 self.cursor_pos = max(self.cursor_pos - jump_back, 0)
-            elif (str(ks) == 'f' and self.esc_code):
+            elif str(ks) == "f" and self.esc_code:
                 # Alt+right
                 self.timer.cancel()
                 self.esc_code = False
 
                 # Split words and punctuation.
-                words = self.text_input[self.cursor_pos:].split(' ')
+                words = self.text_input[self.cursor_pos :].split(" ")
                 for i, word in list(enumerate(words))[::-1]:
-                    if (word and word[-1] in ',.;:'):
+                    if word and word[-1] in ",.;:":
                         words[i] = word[:-1]
                         words.insert(i + 1, word[-1])
 
                 # Jump to start of next words/punctiation.
                 first_word = words[0]
-                second_word = words[1] if len(words) > 1 else ''
+                second_word = words[1] if len(words) > 1 else ""
                 jump_fwd = len(first_word)
                 if jump_fwd == 0:
                     jump_fwd += len(second_word) + 1
@@ -1335,27 +1397,27 @@ class EditJson:
 
         # Browse mode
         else:
-            if ks.name == 'KEY_UP':
+            if ks.name == "KEY_UP":
                 self.go_to_prev_field()
-            elif ks.name == 'KEY_DOWN':
+            elif ks.name == "KEY_DOWN":
                 self.go_to_next_field()
-            elif ks.name == 'KEY_RIGHT':
+            elif ks.name == "KEY_RIGHT":
                 self.toggle_help(True)
-            elif ks.name == 'KEY_LEFT':
+            elif ks.name == "KEY_LEFT":
                 self.toggle_help(False)
-            elif ks.name == 'KEY_ENTER':
+            elif ks.name == "KEY_ENTER":
                 self.edit_mode_enter()
-            elif ks.name == 'KEY_ESCAPE':
+            elif ks.name == "KEY_ESCAPE":
                 # Not all screen classes have their own key handlers
                 # (eg. all_commands) so for those ESC will always return
                 # you to the main screen.
                 if self.active_screen:
                     self.active_screen = None
                 else:
-                    return self.confirm_exit('discard')
-            elif ks.name == 'KEY_BACKSPACE':
+                    return self.confirm_exit("discard")
+            elif ks.name == "KEY_BACKSPACE":
                 self.edit_mode_enter(clear=True)
-            elif ks == ':':
+            elif ks == ":":
                 self.listen_for_action = True
             elif ks and not ks.is_sequence:
                 # Type
@@ -1364,8 +1426,8 @@ class EditJson:
 
     # Enter one character.
     def type(self, ks):
-        before_cursor = self.text_input[:self.cursor_pos] + ks
-        after_cursor = self.text_input[self.cursor_pos:]
+        before_cursor = self.text_input[: self.cursor_pos] + ks
+        after_cursor = self.text_input[self.cursor_pos :]
         self.text_input = before_cursor + after_cursor
         self.cursor_pos += 1
 
@@ -1388,7 +1450,7 @@ class EditJson:
     def store_value(self):
         data_type = None
         if self.schema:
-            data_type_address = self.address_to_schema_address(self.selected_address) + ('type',)
+            data_type_address = self.address_to_schema_address(self.selected_address) + ("type",)
             data_type = self.value_from_address(self.schema, data_type_address)
 
         if not self.text_input:
@@ -1405,10 +1467,10 @@ class EditJson:
             pass
 
         # Format booleans (this makes boolean input case insensitive).
-        if data_type == 'boolean' and isinstance(self.text_input, str):
-            if self.text_input.lower() == 'true':
+        if data_type == "boolean" and isinstance(self.text_input, str):
+            if self.text_input.lower() == "true":
                 self.text_input = True
-            elif self.text_input.lower() == 'false':
+            elif self.text_input.lower() == "false":
                 self.text_input = False
 
         # Store value in self.data
@@ -1422,7 +1484,7 @@ class EditJson:
     def edit_mode_exit(self):
         self.validate()
         self.edit_mode = False
-        self.text_input = ''
+        self.text_input = ""
 
     ##
     # Navigation
@@ -1436,7 +1498,7 @@ class EditJson:
         self.selected_index = prev_index
         self.selected_line_nr = self.index_to_line_nr_map[self.selected_index]
         self.toggle_help(False)
-        self.text_input = ''
+        self.text_input = ""
 
     # Jump to next field.
     def go_to_next_field(self):
@@ -1446,7 +1508,7 @@ class EditJson:
         self.selected_index = next_index
         self.selected_line_nr = self.index_to_line_nr_map[self.selected_index]
         self.toggle_help(False)
-        self.text_input = ''
+        self.text_input = ""
 
     # Show/hide helper text (if present in schema).
     def toggle_help(self, show=True):
@@ -1480,17 +1542,14 @@ class EditJson:
     # [:?] List all commands.
     def list_commands(self):
         if not self.read_only:
-            self.active_screen = self.screens['all_commands']
+            self.active_screen = self.screens["all_commands"]
 
     # [:s] Open the schema in the JSON editor.
     def open_schema(self):
         if not self.schema:
             return
         # Store current values
-        self.schema_mode_store = {
-            'read_only': self.read_only,
-            'data': self.data
-        }
+        self.schema_mode_store = {"read_only": self.read_only, "data": self.data}
 
         self.schema_mode = True
         self.read_only = True
@@ -1505,8 +1564,8 @@ class EditJson:
         # for key in self.schema_mode_store:
         #     self[key] = self.schema_mode_store[key] # %% Trash I think, or useful for linking?
         self.schema_mode = False
-        self.read_only = self.schema_mode_store['read_only']
-        self.data = self.schema_mode_store['data']
+        self.read_only = self.schema_mode_store["read_only"]
+        self.data = self.schema_mode_store["data"]
 
         self.store_addresses()
         self.set_left_col_width()
@@ -1526,13 +1585,12 @@ class EditJson:
     # In strict mode, all missing fields will be counted,
     # otherwise only required fields will be counted.
     def detect_discrepancies(self):
-
         def _recursion(data_item, schema_props, required_keys):
             nonlocal missing_keys
             for key in schema_props:
                 # Detect if it's a parent field.
                 is_dict = False
-                if 'properties' in schema_props[key]:
+                if "properties" in schema_props[key]:
                     is_dict = True
 
                 # Check if key is required.
@@ -1545,14 +1603,18 @@ class EditJson:
 
                 # Continue recursively.
                 if is_dict and key in data_item:
-                    required_keys = schema_props[key]['required'] if 'required' in schema_props[key] else []
-                    return _recursion(data_item[key], schema_props[key]['properties'], required_keys)
+                    required_keys = schema_props[key]["required"] if "required" in schema_props[key] else []
+                    return _recursion(data_item[key], schema_props[key]["properties"], required_keys)
 
         #
         #
 
-        required_keys = self.schema['required'] if (self.schema and 'required' in self.schema) else []
-        missing_keys = _recursion(self.data, self.schema['properties'], required_keys) if (self.schema and 'properties' in self.schema) else False
+        required_keys = self.schema["required"] if (self.schema and "required" in self.schema) else []
+        missing_keys = (
+            _recursion(self.data, self.schema["properties"], required_keys)
+            if (self.schema and "properties" in self.schema)
+            else False
+        )
         illegal_keys = len(self.illegal_errors)
 
         return missing_keys, illegal_keys
@@ -1567,14 +1629,14 @@ class EditJson:
             for key in schema_props:
                 # Detect if it's a parent field.
                 is_dict = False
-                is_array = 'type' in schema_props[key] and schema_props[key]['type'] == 'array'
+                is_array = "type" in schema_props[key] and schema_props[key]["type"] == "array"
                 if not is_array:
-                    if 'properties' in schema_props[key]:
+                    if "properties" in schema_props[key]:
                         is_dict = True
 
                 # Add missing values.
                 if key not in data:
-                    val = {} if is_dict else schema_props[key]['default'] if 'default' in schema_props[key] else ''
+                    val = {} if is_dict else schema_props[key]["default"] if "default" in schema_props[key] else ""
                     data[key] = val
 
                     # Maybe we only want to reset required fields?
@@ -1584,13 +1646,13 @@ class EditJson:
 
                 # Continue recursively.
                 if is_dict:
-                    _recursion(data[key], schema_props[key]['properties'])
+                    _recursion(data[key], schema_props[key]["properties"])
 
         #
         #
 
         self.clear_illegal_keys()
-        _recursion(self.data, self.schema['properties'])
+        _recursion(self.data, self.schema["properties"])
         self.data = self.reorder_by_schema()
         self.store_addresses()
         self.set_left_col_width()
@@ -1602,9 +1664,9 @@ class EditJson:
         ordered_data = OrderedDict()
 
         def _recursion(data, schema, ordered_data):
-            if 'properties' in schema:
-                for key, val in schema['properties'].items():
-                    if isinstance(val, dict) and 'properties' in val:
+            if "properties" in schema:
+                for key, val in schema["properties"].items():
+                    if isinstance(val, dict) and "properties" in val:
                         ordered_data[key] = {}
                         _recursion(data[key], val, ordered_data[key])
                     else:
@@ -1622,19 +1684,19 @@ class EditJson:
     # [:o] Open file in text editor.
     def open_file(self):
         import subprocess
-        subprocess.run(['open', self.json_path])
+
+        subprocess.run(["open", self.json_path])
 
     # [:ENTER] [ESC] [ctrl+c] Confirm discarding of changes & exit.
     # - - -
     # [ctrl+c] --> [DISCARD] preselected
     # [ESC] --> [CANCEL] preselected
     # [:ENTER] --> [SAVE] preselected
-    def confirm_exit(self, sel='save'):
-
+    def confirm_exit(self, sel="save"):
         # Check if there has been any changes.
         def _has_changes():
             try:
-                with open(self.json_path, 'r', encoding='UTF-8') as f:
+                with open(self.json_path, "r", encoding="UTF-8") as f:
                     file_data = json.load(f)
                 if self.data == file_data:
                     return False
@@ -1646,12 +1708,12 @@ class EditJson:
         #
         #
 
-        if (_has_changes()):
-            self.active_screen = self.screens['confirm_exit']
+        if _has_changes():
+            self.active_screen = self.screens["confirm_exit"]
             self.active_screen.sel = sel
-        elif sel == 'cancel':
+        elif sel == "cancel":
             # When prssing ESC without making any changes.
-            return style('<soft>No changes were made.</soft>')
+            return style("<soft>No changes were made.</soft>")
         else:
             return True
 
@@ -1696,7 +1758,7 @@ class EditJson:
     def address_to_schema_address(self, address):
         schema_address = []
         for item in address:
-            schema_address.extend(('properties', item))
+            schema_address.extend(("properties", item))
         return tuple(schema_address)
 
     # Returns the total length of the ANSI escape codes.
@@ -1705,7 +1767,7 @@ class EditJson:
     # by how much we need to extend the filler length.
 
     def len_ansi(self, text):
-        pattern_ansi = r'\x1b\[[0-9;]*[m]'
+        pattern_ansi = r"\x1b\[[0-9;]*[m]"
         ansi_codes = re.findall(pattern_ansi, text)
         total_length = sum(len(code) for code in ansi_codes)
         return total_length
@@ -1718,7 +1780,7 @@ class EditJson:
     # Usage: self.log()
     def log(self, *args, override=False):
         args_str = [str(arg) for arg in args]
-        args_str = ' / '.join(args_str)
+        args_str = " / ".join(args_str)
         if override:
             self.log_values = [args_str]
         else:
@@ -1726,42 +1788,42 @@ class EditJson:
 
 
 # exit_screen_show
-class ConfirmExitScreen():
-    name = 'confirm_exit'
+class ConfirmExitScreen:
+    name = "confirm_exit"
     keep_title = True
-    actions = ['save', 'discard', 'cancel']
+    actions = ["save", "discard", "cancel"]
     sel = None  # Which exit button gets pre-selected from self.exit_screen_actions
 
     def __init__(self, edit_json_class):
         self.ej = edit_json_class
 
     def render(self):
-        actions_off = [f' {action.upper()} ' for action in self.actions]
-        actions_on = [f'<reverse> {action.upper()} </reverse>' for action in self.actions]
+        actions_off = [f" {action.upper()} " for action in self.actions]
+        actions_on = [f"<reverse> {action.upper()} </reverse>" for action in self.actions]
         output = []
         for i, action in enumerate(self.actions):
             if action == self.sel:
                 output.append(actions_on[i])
             else:
                 output.append(actions_off[i])
-        output = ' '.join(output)
-        return style(output + '  ◀ ▶', nowrap=True)
+        output = " ".join(output)
+        return style(output + "  ◀ ▶", nowrap=True)
 
     def match_key(self, ks):
-        if ks.name == 'KEY_LEFT':
+        if ks.name == "KEY_LEFT":
             index = self.actions.index(self.sel)
             index = max(index - 1, 0)
             self.sel = self.actions[index]
-        elif ks.name == 'KEY_RIGHT':
+        elif ks.name == "KEY_RIGHT":
             index = self.actions.index(self.sel)
             index = min(index + 1, len(self.actions) - 1)
             self.sel = self.actions[index]
-        elif ks.name == 'KEY_ESCAPE':
+        elif ks.name == "KEY_ESCAPE":
             return self.exit()
-        elif ks.name == 'KEY_ENTER':
+        elif ks.name == "KEY_ENTER":
             return self.submit()
-        elif ks == 'y':
-            return '<yellow>Your changes have been discarded!!</yellow>'
+        elif ks == "y":
+            return "<yellow>Your changes have been discarded!!</yellow>"
         else:
             return
 
@@ -1774,9 +1836,9 @@ class ConfirmExitScreen():
     # Submit exit screen choice.
     def submit(self):
         actions = {
-            'save': self.save_changes,
-            'discard': self.discard_changes,
-            'cancel': self.exit,
+            "save": self.save_changes,
+            "discard": self.discard_changes,
+            "cancel": self.exit,
         }
         action = actions[self.sel]
         exit_message = action()
@@ -1786,40 +1848,43 @@ class ConfirmExitScreen():
     def save_changes(self):
         self.exit()
         if bool(self.ej.inline_errors):
-            self.ej.error = 'Some of your changes are invalid.'
+            self.ej.error = "Some of your changes are invalid."
         else:
             try:
                 # raise ValueError("Fake error for debugging")
                 if self.ej.demo:
-                    return style('<green>Changes saved to JSON file.</green>\n<soft>Note: you were in demo mode so your changes have not really been saved.</soft>', pad=1)
+                    return style(
+                        "<green>Changes saved to JSON file.</green>\n<soft>Note: you were in demo mode so your changes have not really been saved.</soft>",
+                        pad=1,
+                    )
                     # return self.ej.term.green('Changes saved to JSON file.') + self.ej.term.yellow('\nNote: you were in demo mode so your changes have not really been saved.')  # noqa
                 else:
-                    with open(self.ej.json_path, 'w', encoding='UTF-8') as f:
+                    with open(self.ej.json_path, "w", encoding="UTF-8") as f:
                         json.dump(self.ej.data, f, indent=4)
                     # return self.ej.term.green('Changes saved to JSON file.')
-                    return style('<green>Changes saved to JSON file.</green>', pad=1)
+                    return style("<green>Changes saved to JSON file.</green>", pad=1)
             except ValueError as err:
-                self.ej.error = 'There was an error saving your changes.'
+                self.ej.error = "There was an error saving your changes."
 
     # Exit & discard changes.
     def discard_changes(self):
         self.exit()
         # self.exit_screen_show = False
-        return '<yellow>Your changes have been discarded.</yellow>'
+        return "<yellow>Your changes have been discarded.</yellow>"
 
 
-class AllCommandsScreen():
-    name = 'all_commands'
+class AllCommandsScreen:
+    name = "all_commands"
     keep_title = False
     commands = {
-        '?': 'List all commands',
-        'p': 'Show/hide JSON file path',
-        'o': 'Open JSON file in text editor',
-        'c': 'Clear any illegal fields',
-        'f': 'Format JSON file to match schema',
-        's': 'Open schema file',
-        'x': 'Discard changes',
-        'ENTER': 'Save changes',
+        "?": "List all commands",
+        "p": "Show/hide JSON file path",
+        "o": "Open JSON file in text editor",
+        "c": "Clear any illegal fields",
+        "f": "Format JSON file to match schema",
+        "s": "Open schema file",
+        "x": "Discard changes",
+        "ENTER": "Save changes",
     }
 
     def __init__(self, edit_json_class):
@@ -1827,19 +1892,19 @@ class AllCommandsScreen():
 
     def render(self):
         output = []
-        output.append(style(f'<yellow>Available Commands</yellow>', nowrap=True))
+        output.append(style(f"<yellow>Available Commands</yellow>", nowrap=True))
         output.append(self.ej.sep)
-        output.append(style(f'<reverse> ESC </reverse> Go back', nowrap=True))
+        output.append(style(f"<reverse> ESC </reverse> Go back", nowrap=True))
         output.append(self.ej.sep)
         for key, action in self.commands.items():
-            if key == 'c' and (not self.ej.illegal_errors or not self.ej.schema):
-                action = f'<soft>{action}</soft>'
-            if (key == 'f' or key == 's') and not self.ej.schema:
-                action = f'<soft>{action}</soft>'
-            output.append(style(f'<cmd>:{key:<{7}}</cmd> {action}', nowrap=True))
-        return '\n'.join(output)
+            if key == "c" and (not self.ej.illegal_errors or not self.ej.schema):
+                action = f"<soft>{action}</soft>"
+            if (key == "f" or key == "s") and not self.ej.schema:
+                action = f"<soft>{action}</soft>"
+            output.append(style(f"<cmd>:{key:<{7}}</cmd> {action}", nowrap=True))
+        return "\n".join(output)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     ej = EditJson()
     ej(demo=True)

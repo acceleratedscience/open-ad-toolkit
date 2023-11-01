@@ -22,7 +22,7 @@ class ContextMenus {
 				// editable to false after the initiation of table.
 				// Because of that isEditable below is not reliable
 				// in case of the index. See table.ensureUniqueIndex()
-				const isIndexColumn = cell.getColumn().getField() == table.index
+				const isIndexColumn = cell.getColumn().getField() == table.options.index
 				const isEditable = cell.getColumn().getDefinition().editable
 				if (isIndexColumn || !isEditable) return true
 			},
@@ -117,11 +117,11 @@ class ContextMenus {
 			},
 			{
 				label: 'Copy selected',
-				action: this.copyData.bind(this),
+				action: () => this.copyData.bind(this)(true),
 			},
 			{
 				label: 'Download selected',
-				action: this.downloadData.bind(this),
+				action: () => this.downloadData.bind(this)(true),
 			},
 		]
 	}
@@ -214,9 +214,8 @@ class ContextMenus {
 	}
 
 	// Copy selected rows buy default, or all rows if all is true.
-	copyData(all) {
-		// == true is on purpose, because 'all' can be the click event.
-		const data = all == true ? this.table.getData() : this.table.getSelectedData()
+	copyData(selectedOnly) {
+		const data = this.table.getDataFinal(selectedOnly)
 		const fields = this.table.getColumns().map(col => col.getField())
 		const textHeader = Object.values(fields).join('\t')
 		const textRows = data.map(row => Object.values(row).join('\t')).join('\n') // prettier-ignore
@@ -224,7 +223,7 @@ class ContextMenus {
 		navigator.clipboard.writeText(text)
 
 		// Blink
-		const rows = all == true ? this.table.getRows() : this.table.getSelectedRows()
+		const rows = selectedOnly ? this.table.getSelectedRows() : this.table.getRows()
 		rows.forEach(row => {
 			const $row = row.getElement()
 			$row.classList.add('copied')
@@ -234,10 +233,9 @@ class ContextMenus {
 		})
 	}
 
-	// Download selected rows buy default, or all rows if all is true.
-	downloadData(all) {
-		// == true is on purpose, because 'all' can be the click event.
-		const data = all == true ? this.table.getData() : this.table.getSelectedData()
+	// Download data, everything or selected only.
+	downloadData(selectedOnly) {
+		const data = this.table.getDataFinal(selectedOnly)
 
 		const filename = prompt('Filename (.csv)', 'mydata')
 		if (!filename) return
