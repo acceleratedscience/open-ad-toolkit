@@ -1,8 +1,16 @@
+""" BUILDS THE GRAMMAR FOR THE DSL"""
+
 # Note: this file is organized in regions, which collapse in VS Code:
 # - Collapse all regions:       hold cmd, then hit K followed by 1
 # - Expand all regions:         hold cmd, then hit K followed by J
 # - Collapse to any level:      first expand everything, then hold cmd, then hit K followed by any number
 
+import os
+import glob
+import json
+
+
+# Globals
 
 from pyparsing import (
     Word,
@@ -36,6 +44,7 @@ from ad4e_opentoolkit.helpers.output import output_error, msg
 
 # Global variables
 from ad4e_opentoolkit.app.global_var_lib import _all_toolkits
+from ad4e_opentoolkit.app.global_var_lib import _meta_dir_toolkits
 
 
 (
@@ -72,9 +81,11 @@ from ad4e_opentoolkit.app.global_var_lib import _all_toolkits
     result,
 ) = map(
     CaselessKeyword,
-    "get list description using create set unset workspace workspaces context jobs exec as optimize with toolkits toolkit gpu experiment add run save runs show molecules file display history data remove result".split(),
+    "get list description using create set unset workspace workspaces context jobs exec\
+          as optimize with toolkits toolkit gpu experiment add run save runs show molecules\
+              file display history data remove result".split(),
 )
-string_value = alphanums
+STRING_VALUE = alphanums
 
 ##########################################################################
 
@@ -83,6 +94,7 @@ field_def = OneOrMore(Word(alphas, alphanums + "_\"':-") | skobki)
 
 
 def field_act(s, loc, tok):
+    """formatting for fields"""
     return ("".join(tok)).replace('"', '\\"')
     # return ("<" + tok[0] + "> " + " ".join(tok)).replace('"', '\\"')
 
@@ -92,34 +104,23 @@ field_list_def = delimitedList(field_def)
 
 
 def field_list_act(toks):
+    """join toklens with ,"""
     return " , ".join(toks)
 
 
 field_list_def.setParseAction(field_list_act)
-# desc=QuotedString("'" ,escQuote='"')
+
 desc = QuotedString("'", escQuote="\\")
 
-# 3
-# This section needs revisiting and clean up
 
-# interpret inline 'string' as Suppress('string'),
-# instead of LBRACE,EQ,RBRACE,HASH = map(Suppress, '{=}#')
 ParserElement.inlineLiteralsUsing(Suppress)
 
-# be sure to exclude special characters when using printables
-# name_expr = Word(printables, excludeChars='{}')
-# key_val_expr = Word(printables)
+
 name_expr = Word(alphanums + "_" + ".")
 key_val_expr = Word(alphanums + "_" + ".")
 key_val_expr_num = Word(nums)
 key_val_expr_alpha = Word(alphanums + "_" + ".")
-# p1('name') is equivalent to p1.setResultsName('name')
-# p1 | p2 is equivalent to MatchFirst(p1, p2)
-# if lineEnd() matches first, there is no value.
-# then use a parse action to return the string 'NONE' as value instead
-# else, match a regular key_value
-# also, you have to use Group because key_val_line is a repeating element
-# key_val_line = Group(name_expr('key') + (lineEnd().setParseAction(lambda t 'NONE') | key_val_expr)('val'))
+
 key_val_line = Group(name_expr("key") + Suppress("=") + key_val_expr("val"))
 key_val_lines = OneOrMore(key_val_line)
 complex_obj = Forward()
@@ -130,7 +131,7 @@ obj = Forward()
 obj << Suppress("(") + ZeroOrMore(key_val_lines) + Suppress(")")
 
 
-delim_value = Group(delimitedList(string_value))("list")
+delim_value = Group(delimitedList(STRING_VALUE))("list")
 
 ##########################################################################
 
@@ -191,7 +192,7 @@ grammar_help.append(
 # region - Workspaces
 ##########################################################################
 
-info_workspaces = "\n<soft>To learn more about workspaces, run <cmd>workspace ?</cmd></soft>"
+INFO_WORKSPACES = "\n<soft>To learn more about workspaces, run <cmd>workspace ?</cmd></soft>"
 
 # Set workspaces
 statements.append(
@@ -202,7 +203,7 @@ grammar_help.append(
         name="set workspace",
         category="Workspaces",
         command="set workspace <workspace_name>",
-        description=f"Change the current workspace.{info_workspaces}",
+        description=f"Change the current workspace.{INFO_WORKSPACES}",
     )
 )
 
@@ -215,7 +216,7 @@ grammar_help.append(
         name="get workspace",
         category="Workspaces",
         command="get workspace [ <workspace_name> ]",
-        description=f"Display details a workspace. When no workspace name is passed, details of your current workspace are displayed.{info_workspaces}",
+        description=f"Display details a workspace. When no workspace name is passed, details of your current workspace are displayed.{INFO_WORKSPACES}",
     )
 )
 
@@ -234,7 +235,7 @@ grammar_help.append(
         name="create workspace",
         category="Workspaces",
         command="create workspace <workspace_name> [ description('<description>') on path '<path>' ]",
-        description=f"Create a new workspace with an optional description and path.{info_workspaces}",
+        description=f"Create a new workspace with an optional description and path.{INFO_WORKSPACES}",
     )
 )
 
@@ -249,7 +250,7 @@ grammar_help.append(
         name="remove workspace",
         category="Workspaces",
         command="remove workspace <workspace_name> ",
-        description=f"Remove a workspace from your registry. Note that this doesn't remove the workspace's directory.{info_workspaces}",
+        description=f"Remove a workspace from your registry. Note that this doesn't remove the workspace's directory.{INFO_WORKSPACES}",
     )
 )
 
@@ -260,7 +261,7 @@ grammar_help.append(
         name="list workspaces",
         category="Workspaces",
         command="list workspaces",
-        description=f"Lists all your workspaces.{info_workspaces}",
+        description=f"Lists all your workspaces.{INFO_WORKSPACES}",
     )
 )
 
@@ -271,8 +272,8 @@ grammar_help.append(
 # Note toolkits is the Caseless key word now .. simply changed in metadata
 ##########################################################################
 
-info_toolkits_see_all = "\n<soft>To see all available toolkits, run <cmd>list all toolkits</cmd>.</soft>"
-info_toolkits = "\n<soft>To learn more about toolkits, run <cmd>toolkit ?</cmd>.</soft>"
+INFO_TOOLKITS_SEE_ALL = "\n<soft>To see all available toolkits, run <cmd>list all toolkits</cmd>.</soft>"
+INFO_TOOLKITS = "\n<soft>To learn more about toolkits, run <cmd>toolkit ?</cmd>.</soft>"
 
 
 # Available commands per toolkit.
@@ -297,7 +298,7 @@ grammar_help.append(
         name="list toolkits",
         category="Toolkits",
         command="list toolkits",
-        description=f"List all installed toolkits. To see all available toolkits, run <cmd>list all toolkits</cmd>.{info_toolkits_see_all}{info_toolkits}",
+        description=f"List all installed toolkits. To see all available toolkits, run <cmd>list all toolkits</cmd>.{INFO_TOOLKITS_SEE_ALL}{INFO_TOOLKITS}",
     )
 )
 
@@ -308,7 +309,7 @@ grammar_help.append(
         name="list all toolkits",
         category="Toolkits",
         command="list all toolkits",
-        description=f"List all available toolkits.{info_toolkits}",
+        description=f"List all available toolkits.{INFO_TOOLKITS}",
     )
 )
 
@@ -320,7 +321,7 @@ grammar_help.append(
         name="add toolkit",
         category="Toolkits",
         command="add toolkit <toolkit_name>",
-        description=f"Install a toolkit.{info_toolkits_see_all}{info_toolkits}",
+        description=f"Install a toolkit.{INFO_TOOLKITS_SEE_ALL}{INFO_TOOLKITS}",
     )
 )
 
@@ -334,10 +335,10 @@ grammar_help.append(
         description=(
             "Remove a toolkit from the registry.\n"
             "Note: This doesn't delete the toolkit code. If the toolkit is added again, a backup of the previous install is created in the toolkit directory at <yellow>~/.openad/toolkits</yellow>."
-            f"{info_toolkits}"
+            f"{INFO_TOOLKITS}"
         )
         # Correct description but we have to update the functionality first.
-        # description="Remove a toolkit from the registry. This affects all workspaces. A backup of the toolkit directory is stored in <yellow>~/.openad/toolkits_archive</yellow>.{info_toolkits}"
+        # description="Remove a toolkit from the registry. This affects all workspaces. A backup of the toolkit directory is stored in <yellow>~/.openad/toolkits_archive</yellow>.{INFO_TOOLKITS}"
     )
 )
 
@@ -355,7 +356,7 @@ grammar_help.append(
         name="set context",
         category="Toolkits",
         command="set context <toolkit_name> [ reset ]",
-        description=f"Set your context to the chosen toolkit. By setting the context, the selected toolkit functions become available to you. The optional parameter 'reset' can be used to reset your login information.{info_toolkits}",
+        description=f"Set your context to the chosen toolkit. By setting the context, the selected toolkit functions become available to you. The optional parameter 'reset' can be used to reset your login information.{INFO_TOOLKITS}",
     )
 )
 
@@ -377,7 +378,7 @@ grammar_help.append(
         name="unset context",
         category="Toolkits",
         command="unset context",
-        description=f"Exit your toolkit context. You will no longer have access to toolkit-specific functions.{info_toolkits}",
+        description=f"Exit your toolkit context. You will no longer have access to toolkit-specific functions.{INFO_TOOLKITS}",
     )
 )
 
@@ -387,13 +388,13 @@ grammar_help.append(
 # region - Runs
 ##########################################################################
 
-info_runs = "\n<soft>To learn more about runs, run <cmd>run ?</cmd>.</soft>"
+INFO_RUNS = "\n<soft>To learn more about runs, run <cmd>run ?</cmd>.</soft>"
 
 # Create run
 statements.append(Forward(create + run("run"))("create_run"))
 grammar_help.append(
     help_dict_create(
-        name="create run", category="Runs", command="create run", description=f"Start recording a run.{info_runs}"
+        name="create run", category="Runs", command="create run", description=f"Start recording a run.{INFO_RUNS}"
     )
 )
 
@@ -404,7 +405,7 @@ grammar_help.append(
         name="save run",
         category="Runs",
         command="save run as <run_name>",
-        description=f"Stop recording a run and save it.{info_runs}",
+        description=f"Stop recording a run and save it.{INFO_RUNS}",
     )
 )
 
@@ -415,7 +416,7 @@ grammar_help.append(
         name="run",
         category="Runs",
         command="run <run_name>",
-        description=f"Execute a previously recorded run. This will execute every command and continue regardless of any failures.{info_runs}",
+        description=f"Execute a previously recorded run. This will execute every command and continue regardless of any failures.{INFO_RUNS}",
     )
 )
 
@@ -426,7 +427,7 @@ grammar_help.append(
         name="list runs",
         category="Runs",
         command="list runs",
-        description=f"List all runs saved in the current workspace.{info_runs}",
+        description=f"List all runs saved in the current workspace.{INFO_RUNS}",
     )
 )
 
@@ -437,7 +438,7 @@ grammar_help.append(
         name="display run",
         category="Runs",
         command="display run <run_name>",
-        description=f"Display the commands stored in a certain run.{info_runs}",
+        description=f"Display the commands stored in a certain run.{INFO_RUNS}",
     )
 )
 
@@ -777,18 +778,19 @@ statements.append(Forward(CaselessKeyword("flask") + CaselessKeyword("example"))
 orig_statements = statements.copy()
 statements_def = Forward()
 
-ii = 0
-for i in statements:
-    ii += 1
-    statements_def |= i
-statements_zom = ZeroOrMore(statements_def)
+# ii = 0
+# for i in statements:
+#    ii += 1
+#    statements_def |= i
+# statements_zom = ZeroOrMore(statements_def)
 
 
 # Used to package up statements
 def create_statements(cmd_pointer):
+    """Create staments from Toolkits"""
     # if cmd_pointer.toolkit_current is None: # move down further to adress unset issue
     #    return
-    global statements_zom
+    # global statements_zom
 
     cmd_pointer.current_statements_def = Forward()
     cmd_pointer.current_statements = orig_statements.copy()
@@ -799,10 +801,11 @@ def create_statements(cmd_pointer):
         for i in cmd_pointer.toolkit_current.methods_grammar:
             cmd_pointer.current_statement_defs |= i
             cmd_pointer.current_statements.append(i)
-    statements_zom = ZeroOrMore(statements_def)
+    # statements_zom = ZeroOrMore(statements_def)
 
 
 def or_builder(options: list) -> str:
+    """build or component of statement"""
     expression = "("
     the_or = ""
     for i in options:
@@ -813,6 +816,7 @@ def or_builder(options: list) -> str:
 
 
 def from_builder(options: list) -> str:
+    """build from clause component of statements"""
     clause = "CaselessKeyword('from')+"
     option_exp = []
     if not is_notebook_mode() and "dataframe" in options:
@@ -835,27 +839,28 @@ def from_builder(options: list) -> str:
     # elif len(option_exp) ==1:
     #    clause=clause+option_exp[0]
     else:
-        raise Exception("invalid 'From' clause structure")
+        raise ValueError("invalid 'From' Clause Structure")
 
     return clause
 
 
-def statement_builder(toolkit_pointer, statement):
+def statement_builder(toolkit_pointer, inp_statement):
+    """builds statements from toolkit function defintions"""
     #####################################################################
     #
     # This section deals with Method call like statements, they will always be prefixed with 'exec'.
     ########################################################################################################
-    if statement["exec_type"] == "method":
-        expression = "Suppress(e_xec)+" + 'CaselessKeyword ("' + statement["command"] + '")'
+    if inp_statement["exec_type"] == "method":
+        expression = "Suppress(e_xec)+" + 'CaselessKeyword ("' + inp_statement["command"] + '")'
         expression = (
             expression
             + '+ Suppress("(") +'
-            + optional_parameter_list(statement, "fixed_parameters")
+            + optional_parameter_list(inp_statement, "fixed_parameters")
             + ' +Suppress(")"))'
         )
 
-    elif statement["exec_type"] == "standard_statement":
-        key_leading_words = statement["command"].split()
+    elif inp_statement["exec_type"] == "standard_statement":
+        key_leading_words = inp_statement["command"].split()
         expression = ""
         plus = ""
 
@@ -863,39 +868,39 @@ def statement_builder(toolkit_pointer, statement):
             expression = expression + plus + 'CaselessKeyword ("' + i + '")'
             plus = "+"
 
-        if "SINGLE_PARM" in statement:
-            if len(statement["SINGLE_PARM"]) > 0:
-                expression = expression + "+" + actual_parameter_list(statement, "SINGLE_PARM")
+        if "SINGLE_PARM" in inp_statement:
+            if len(inp_statement["SINGLE_PARM"]) > 0:
+                expression = expression + "+" + actual_parameter_list(inp_statement, "SINGLE_PARM")
 
-        if "from" in statement:
-            if len(statement["from"]) > 0:
-                expression = expression + "+" + (from_builder(statement["from"])) + "('from_source')"
-        if "USING" in statement:
-            if statement["USING"] is not None and len(statement["USING"]) > 0:
+        if "from" in inp_statement:
+            if len(inp_statement["from"]) > 0:
+                expression = expression + "+" + (from_builder(inp_statement["from"])) + "('from_source')"
+        if "USING" in inp_statement:
+            if inp_statement["USING"] is not None and len(inp_statement["USING"]) > 0:
                 expression = (
                     expression
                     + '+ Optional( (CaselessKeyword ("USING")+ Suppress("(") +'
-                    + optional_parameter_list(statement, "USING")
+                    + optional_parameter_list(inp_statement, "USING")
                     + '+Suppress(")") )("USING"))'
                 )
-        if "RETURN_AS_DATA" in statement:
+        if "RETURN_AS_DATA" in inp_statement:
             expression = (
                 expression
                 + '+ Optional(Suppress(CaselessKeyword ("return")) + Suppress(CaselessKeyword ("as"))+Suppress(CaselessKeyword ("data")))("return_as_data") '
             )
 
-        if "SAVE_AS" in statement:
+        if "SAVE_AS" in inp_statement:
             expression = (
                 expression
                 + '+ Optional(Suppress(CaselessKeyword ("save")) + Suppress(CaselessKeyword ("as"))+desc("results_file") )("save_as") '
             )
-        if "use_saved" in statement and len(statement["use_saved"]) > 0:
-            if statement["use_saved"] == "True":
+        if "use_saved" in inp_statement and len(inp_statement["use_saved"]) > 0:
+            if inp_statement["use_saved"] == "True":
                 expression = expression + "+" + "Optional(CaselessKeyword('use_saved'))('use_saved')"
-        if "async" in statement and len(statement["async"]) > 0:
-            if statement["async"] == "both":
+        if "async" in inp_statement and len(inp_statement["async"]) > 0:
+            if inp_statement["async"] == "both":
                 expression = expression + "+" + "Optional(CaselessKeyword('async'))('do_async')"
-            if statement["async"] == "only":
+            if inp_statement["async"] == "only":
                 expression = expression + "+" + "CaselessKeyword('async')"
 
         expression = expression + ")"
@@ -904,16 +909,16 @@ def statement_builder(toolkit_pointer, statement):
     #
     # This section deals with search type statements.
     ########################################################################################################
-    elif statement["exec_type"] == "search_statement":
+    elif inp_statement["exec_type"] == "search_statement":
         expression = ""
         a_char = " "
-        for i in statement["command"].split():
-            if i == "<in_clause>" and "in_clause" in statement:
-                for in_clause in statement["in_clause"]:
+        for i in inp_statement["command"].split():
+            if i == "<in_clause>" and "in_clause" in inp_statement:
+                for in_clause in inp_statement["in_clause"]:
                     expression = expression + a_char + ' CaselessKeyword ("' + in_clause + '")'
-                    if statement["in_clause"][in_clause] == "desc":
+                    if inp_statement["in_clause"][in_clause] == "desc":
                         expression = expression + a_char + ' desc("' + in_clause + '")'
-                    if statement["in_clause"][in_clause] == "str":
+                    if inp_statement["in_clause"][in_clause] == "str":
                         expression = expression + a_char + ' Word(alphas, alphanums + "_")(' + in_clause + ")"
             else:
                 expression = expression + a_char + ' CaselessKeyword ("' + i + '")'
@@ -921,7 +926,7 @@ def statement_builder(toolkit_pointer, statement):
             if a_char == " ":
                 a_char = " + "
 
-        expression = expression + " +desc('val')('" + statement["subject"] + "') "
+        expression = expression + " +desc('val')('" + inp_statement["subject"] + "') "
 
         ####################################################################################################
         #
@@ -929,12 +934,12 @@ def statement_builder(toolkit_pointer, statement):
         # currently if a field is mandatory this will need to be picked up in the toolkit program
         # e.g. Using index_type="arxiv" contstraint=chemicals maxhops=1
         ####################################################################################################
-        if "USING" in statement:
-            if statement["USING"] is not None and len(statement["USING"]) > 0:
+        if "USING" in inp_statement:
+            if inp_statement["USING"] is not None and len(inp_statement["USING"]) > 0:
                 expression = (
                     expression
                     + '+  Optional(CaselessKeyword ("USING")+ Suppress("(") +'
-                    + optional_parameter_list(statement, "USING")
+                    + optional_parameter_list(inp_statement, "USING")
                     + '+Suppress(")") )("USING")'
                 )
         ######################################################################################################
@@ -943,10 +948,10 @@ def statement_builder(toolkit_pointer, statement):
         # This is optional clause, any mandatory values need to be managed by the toolkit.
         # ####################################################################################################
 
-        if "SHOW" in statement:
-            if statement["SHOW"] is not None:
+        if "SHOW" in inp_statement:
+            if inp_statement["SHOW"] is not None:
                 options = []
-                for i in statement["SHOW"]:
+                for i in inp_statement["SHOW"]:
                     options.append(i)
 
                 expression = (
@@ -959,18 +964,18 @@ def statement_builder(toolkit_pointer, statement):
         #
         # Estimate Only is for statements that may take a long time and there is an estimate capability.
         # ####################################################################################################
-        if "ESTIMATE_ONLY" in statement:
+        if "ESTIMATE_ONLY" in inp_statement:
             expression = (
                 expression
                 + '+ Optional(Suppress(CaselessKeyword ("ESTIMATE")) +Suppress(CaselessKeyword ("ONLY")) )("estimate_only") '
             )
-        if "RETURN_AS_DATA" in statement:
+        if "RETURN_AS_DATA" in inp_statement:
             expression = (
                 expression
                 + '+ Optional(Suppress(CaselessKeyword ("return")) + Suppress(CaselessKeyword ("as"))+Suppress(CaselessKeyword ("data")))("return_as_data") '
             )
 
-        if "SAVE_AS" in statement:
+        if "SAVE_AS" in inp_statement:
             expression = (
                 expression
                 + '+ Optional(Suppress(CaselessKeyword ("save")) + Suppress(CaselessKeyword ("as"))+desc("results_file") )("save_as") '
@@ -979,43 +984,45 @@ def statement_builder(toolkit_pointer, statement):
         expression = expression + ")"
 
     try:
+        # There is no alternative for eval for this logic
         toolkit_pointer.methods_grammar.append(
-            eval(" Forward( " + expression + ' ("toolkit_exec_' + statement["command"] + '")')
+            eval(" Forward( " + expression + ' ("toolkit_exec_' + inp_statement["command"] + '")')
         )
 
-        toolkit_pointer.methods.append(statement["command"])
+        toolkit_pointer.methods.append(inp_statement["command"])
 
-        toolkit_pointer.methods_execute.append(statement["method"])
+        toolkit_pointer.methods_execute.append(inp_statement["method"])
 
-        toolkit_pointer.methods_library.append(statement["library"])
+        toolkit_pointer.methods_library.append(inp_statement["library"])
 
-        toolkit_pointer.methods_dict.append(statement)
+        toolkit_pointer.methods_dict.append(inp_statement)
 
         ####### Clause Amendment
-        clause_Amendment = ""
-        if "USING" in statement:
-            if statement["USING"] is not None:
-                clause_Amendment = (
-                    clause_Amendment
+        clause_amendment = ""
+        if "USING" in inp_statement:
+            if inp_statement["USING"] is not None:
+                clause_amendment = (
+                    clause_amendment
                     + "\n\n NOTE: The Using Clause Requires all the Parameters added to the Using Clause be in the defined order as per in the above help documentation"
                 )
 
-        if clause_Amendment != "":
-            statement["help"]["description"] = statement["help"]["description"] + clause_Amendment
+        if clause_amendment != "":
+            inp_statement["help"]["description"] = inp_statement["help"]["description"] + clause_amendment
 
-        toolkit_pointer.methods_help.append(statement["help"])
+        toolkit_pointer.methods_help.append(inp_statement["help"])
 
-    except BaseException as err:
-        fwd_expr = "Forward( " + expression + ' ("toolkit_exec_' + statement["command"] + '")'
-        output_error(msg("err_add_command", statement["command"], fwd_expr, err, split=True))
+    except Exception as err:
+        fwd_expr = "Forward( " + expression + ' ("toolkit_exec_' + inp_statement["command"] + '")'
+        output_error(msg("err_add_command", inp_statement["command"], fwd_expr, err, split=True))
 
     return True
 
 
 def oneormore_str(options: list):
+    """create one or more parsing string"""
     expression = " OneOrMore("
     divider = " "
-    ii = 0
+
     for i in options:
         expression = expression + divider + ' CaselessKeyword ("' + i.strip() + '") '
 
@@ -1025,13 +1032,14 @@ def oneormore_str(options: list):
     return expression
 
 
-def optional_parameter_list(statement: dict, clause: str):
+def optional_parameter_list(inp_statement: dict, clause: str):
+    """Create an optional parameter list for a clause"""
     ii = 0
     expression = " "
-    for i in statement[clause]:
+    for i in inp_statement[clause]:
         if ii == 0:
             expression = expression + " "
-            if statement[clause][i] == "str":
+            if inp_statement[clause][i] == "str":
                 expression = (
                     expression
                     + " ZeroOrMore(Group( CaselessKeyword ('"
@@ -1041,7 +1049,7 @@ def optional_parameter_list(statement: dict, clause: str):
                     + "'))"
                     + " "
                 )
-            elif statement[clause][i] == "desc":
+            elif inp_statement[clause][i] == "desc":
                 expression = (
                     expression
                     + " ZeroOrMore(Group( CaselessKeyword ('"
@@ -1062,7 +1070,7 @@ def optional_parameter_list(statement: dict, clause: str):
                     + " "
                 )
         else:
-            if statement[clause][i] == "str":
+            if inp_statement[clause][i] == "str":
                 expression = (
                     expression
                     + " & ZeroOrMore(Group( CaselessKeyword ('"
@@ -1072,7 +1080,7 @@ def optional_parameter_list(statement: dict, clause: str):
                     + "'))"
                     + " "
                 )
-            elif statement[clause][i] == "desc":
+            elif inp_statement[clause][i] == "desc":
                 expression = (
                     expression
                     + " & ZeroOrMore(Group( CaselessKeyword ('"
@@ -1097,22 +1105,23 @@ def optional_parameter_list(statement: dict, clause: str):
     return expression
 
 
-def actual_parameter_list(statement: dict, clause: str):
+def actual_parameter_list(inp_statement: dict, clause: str):
+    """create parameter list for clause"""
     ii = 0
     expression = " "
-    for i in statement[clause]:
+    for i in inp_statement[clause]:
         if ii == 0:
             expression = expression + " "
-            if statement[clause][i] == "str":
+            if inp_statement[clause][i] == "str":
                 expression = expression + " key_val_expr('" + i + "') "
-            elif statement[clause][i] == "desc":
+            elif inp_statement[clause][i] == "desc":
                 expression = expression + "desc('" + i + "') "
             else:
                 expression = expression + " key_val_expr_num('" + i + "') "
         else:
-            if statement[clause][i] == "str":
+            if inp_statement[clause][i] == "str":
                 expression = expression + ", key_val_expr('" + i + "') "
-            elif statement[clause][i] == "desc":
+            elif inp_statement[clause][i] == "desc":
                 expression = expression + ",desc('" + i + "') "
             else:
                 expression = expression + ", key_val_expr_num('" + i + "') "
@@ -1121,28 +1130,22 @@ def actual_parameter_list(statement: dict, clause: str):
 
 
 def output_train_statements(cmd_pointer):
-    import os
-    import glob
-
+    """Create training statements for the Tell Me Prompt"""
     training_statements = []
-    toolkit_lists = []
-    toolkit_name = []
-    toolkit_description = []
     i = 0
-    cmd_pointer.home_dir
-
     try:
         if not os.path.exists(os.path.expanduser(os.path.expanduser(cmd_pointer.home_dir + "/prompt_train/"))):
             os.mkdir(os.path.expanduser(os.path.expanduser(cmd_pointer.home_dir + "/prompt_train/")))
-    except BaseException:
-        raise Exception(
-            f"unable to create prompt soc directory {str(os.path.expanduser(cmd_pointer.home_dir+'/prompt_train/'))}"
-        )
+    except Exception as err:
+        raise FileExistsError(
+            f"unable to create prompt soc directory {str(os.path.expanduser(cmd_pointer.home_dir+'/prompt_train/'))}::: {err}"
+        ) from err
 
-    for file in glob.glob(os.path.expanduser(str(os.path.expanduser(cmd_pointer.home_dir + "/prompt_train/")) + "/*")):
-        os.remove(file)
+    for training_file in glob.glob(
+        os.path.expanduser(str(os.path.expanduser(cmd_pointer.home_dir + "/prompt_train/")) + "/*")
+    ):
+        os.remove(training_file)
 
-    # while i < len(orig_statements): @Phil this causes issues when statements and help are out of sync, eg. for display molecules.
     while i < len(grammar_help):
         training_statements.append(
             {
@@ -1154,8 +1157,13 @@ def output_train_statements(cmd_pointer):
         )
         i += 1
 
-    file = open(os.path.expanduser(cmd_pointer.home_dir + "/prompt_train/base_commands.cdoc"), "w", newline="\n")
-    file.write(
+    training_file = open(
+        os.path.expanduser(cmd_pointer.home_dir + "/prompt_train/base_commands.cdoc"),
+        "w",
+        newline="\n",
+        encoding="utf-8",
+    )
+    training_file.write(
         """openad client information
 
         For information in providing answers to how to or Help questions from users :
@@ -1189,23 +1197,32 @@ def output_train_statements(cmd_pointer):
             ?: will display help and if positioned prior to a command will display help options for that command \\@ \n\n"""
     )
 
-    file.write(
-        "The following dictionaries are the Domain Specific Language (DSL) commands available in the base openad client.\n  The users Domain Specific Language commands will be interpreted from these command definitions which the application trainslates into the Domain specific Language (DSL) .. for reference \n command_name : is the name of the command\n command_group : is the toolkit group the command belongs to, command_syntax : is the Syntax description for the command \n command_help : is the associated help instructions and examples on how to use the command.  \\@\n"
+    training_file.write(
+        "The following dictionaries are the Domain Specific Language (DSL) commands available in the base openad client.\n \
+              The users Domain Specific Language commands will be interpreted from these command definitions which the application\
+                  trainslates into the Domain specific Language (DSL) .. for reference \n command_name : is the name of the command\n command_group :\
+                      is the toolkit group the command belongs to, command_syntax : is the Syntax description for the command \n command_help :\
+                          is the associated help instructions and examples on how to use the command.  \\@\n"
     )
     for i in training_statements:
-        file.write(str(i) + "\\@\n")
-    file.close()
+        training_file.write(str(i) + "\\@\n")
+    training_file.close()
 
     for i in cmd_pointer.settings["toolkits"]:
         token, a_toolkit = load_toolkit(i)
         training_statements = []
-        file = open(
-            os.path.expanduser(cmd_pointer.home_dir + "/prompt_train/toolkit_" + i + ".cdoc"), "w", newline="\n"
+        training_file = open(
+            os.path.expanduser(cmd_pointer.home_dir + "/prompt_train/toolkit_" + i + ".cdoc"),
+            "w",
+            newline="\n",
+            encoding="utf-8",
         )
-        file.write("This file represents the description of the " + a_toolkit.toolkit_name + " \n\n")
+        training_file.write("This file represents the description of the " + a_toolkit.toolkit_name + " \n\n")
 
-        file.write("this is the description of the overall capability of the " + a_toolkit.toolkit_name + " \n \n")
-        file.write(
+        training_file.write(
+            "this is the description of the overall capability of the " + a_toolkit.toolkit_name + " \n \n"
+        )
+        training_file.write(
             "The following are the  command definitions for the "
             + a_toolkit.toolkit_name
             + " toolkit with their  command definition and description \n "
@@ -1225,28 +1242,20 @@ def output_train_statements(cmd_pointer):
             )
             x += 1
         for i in training_statements:
-            file.write(
+            training_file.write(
                 str(i) + "\n\\@",
             )
-        file.close()
+        training_file.close()
     return
 
 
 # Need to fix later
 #!/usr/local/opt/python@3.9/bin/python3.9
-import os
-import imp
-import glob
-import json
-import logging
-from ad4e_opentoolkit.helpers.output import msg, output_error
-
-# Globals
-from ad4e_opentoolkit.app.global_var_lib import _meta_dir_toolkits
-from ad4e_opentoolkit.app.global_var_lib import _meta_workspaces
 
 
 class Toolkit:
+    """toolkit class"""
+
     def __init__(self, name) -> None:
         self.toolkit_name = name
         self.toolkit_description = None
@@ -1260,17 +1269,18 @@ class Toolkit:
 
 # Load all toolkit statments.
 def load_toolkit(toolkit_name):
+    """Load a user toolkits defintion"""
     the_toolkit = Toolkit(toolkit_name)
 
     for i in glob.glob(_meta_dir_toolkits + "/" + toolkit_name + "/**/func_*.json", recursive=True):
-        func_file = open(i, "r")
+        func_file = open(i, "r", encoding="utf-8")
         x = json.load(func_file)
         statement_builder(the_toolkit, x)
     try:
-        with open(_meta_dir_toolkits + "/" + toolkit_name + "/description.txt", "r") as file:
-            the_toolkit.toolkit_description = file.read()
-            file.close()
-    except BaseException:
-        # print('no description')
+        with open(_meta_dir_toolkits + "/" + toolkit_name + "/description.txt", "r", encoding="utf-8") as toolkit_file:
+            the_toolkit.toolkit_description = toolkit_file.read()
+            toolkit_file.close()
+    except Exception:
+        # If unable to load move on
         the_toolkit.toolkit_description = None
     return True, the_toolkit
