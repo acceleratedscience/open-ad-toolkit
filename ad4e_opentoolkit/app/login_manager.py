@@ -2,7 +2,7 @@
 # python 3.8
 import pickle
 import os
-import imp  # future improvement to up grade from imp
+import imp  # TODO: future improvement to upgrade from imp
 from ad4e_opentoolkit.app.global_var_lib import _meta_login_registry
 from ad4e_opentoolkit.app.global_var_lib import _meta_login_registry_settings
 from ad4e_opentoolkit.helpers.output import msg, output_success, output_error
@@ -25,7 +25,7 @@ def initialise_toolkit_login():
         return False
 
 
-# loads rhe users registry data
+# loads the user's registry data
 def load_login_registry():
     """Loads connection handles from disk, currently this code is
     a holding place for a persist to disk solution for storing login handles"""
