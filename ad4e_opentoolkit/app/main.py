@@ -52,12 +52,11 @@ def convert(lst):
     return str(lst).translate("[],'")
 
 
-# this is the command class/object that is the center of the command line DSL Shell environment
-# it holds the Parsed grammar and current state of a users engagement in the utility
 class RUNCMD(Cmd):
-    """this is the command class/object that is the center of the command line DSL Shell environment
-    , it holds the Parsed grammar and current state of a users engagement in the utility"""
-
+    """
+    The center of the command line DSL Shell environment, this holds the parsed 
+    grammar and current state of a user's engagement.
+    """
     space = " "
     IDENTCHARS = string.ascii_letters + string.digits + "_"
     intro = "/"  # This is defined in cmdloop() below.
@@ -92,11 +91,11 @@ class RUNCMD(Cmd):
     llm_model = "gpt-3.5-turbo"
     llm_models = {"OPENAI": "gpt-3.5-turbo", "WATSONX": "mosaicml/mpt-7b"}  # supported models list
 
-    # Instantiate memory class.
+    # Instantiate memory class
     memory = Memory()
 
     def workspace_path(self, workspace: str):
-        """returns the default workspace directory path"""
+        """Returns the default workspace directory path"""
         try:
             x = os.path.expanduser(self.settings["paths"][workspace.upper()] + "/" + workspace.upper())
             return x
@@ -105,15 +104,16 @@ class RUNCMD(Cmd):
             return os.path.expanduser(_meta_workspaces + "/" + workspace.upper())
 
     def set_workspace_path(self, workspace: str, path: str):
-        """sets the current workspace path in the settings dictionary"""
+        """Sets the current workspace path in the settings dictionary"""
         self.settings["paths"][workspace.upper()] = os.path.expanduser(path)
 
-    # Initialises the Class for Run command
+    # Initialises the class for Run command.
     def __init__(self, completekey="Tab", notebook=False, api=False):
         self.notebook_mode = notebook
         self.api_mode = api
         super().__init__()
-        # this is necessary to ensure readline works predicably and compatlibel across Macos and Linux
+        
+        # This is necessary to ensure readline works predicably and compatibly across MacOS and Linux
         if sys.platform == "darwin":
             if "libedit" in readline.__doc__:
                 readline.parse_and_bind("bind ^I rl_complete")
@@ -124,7 +124,7 @@ class RUNCMD(Cmd):
         self.settings = load_registry(self, orig_reg=True)  # loads up the sessions settings
         self.original_settings = load_registry(
             self, orig_reg=True
-        )  # for reference keeps a copy of origina lsettings on startup
+        )  # for reference keeps a copy of original settings on startup
 
         write_registry(self.settings, self)  # writes the session registry settings
 
@@ -139,7 +139,7 @@ class RUNCMD(Cmd):
         # Initialise current toolkit registry
         self.login_settings = login_manager.load_login_registry()
 
-        # check for reset in Workspace and if so set to default
+        # Check for reset in workspace and if so set to default
         if self.settings["workspace"] is not None:
             self.histfile = os.path.expanduser(
                 self.workspace_path(self.settings["workspace"].upper()) + "/.cmd_history"
@@ -159,7 +159,7 @@ class RUNCMD(Cmd):
                 self.refresh_train = True
         except Exception:  # pylint: disable=broad-exception-caught  # if LLM not initiated move on
             pass
-        # try to load variables for llm if not there just apss and move on
+        # Try to load variables for llm. If missing, just pass and move on.
         try:
             self.llm_service = self.settings["env_vars"]["llm_service"]
             self.llm_model = self.llm_models[self.llm_service]
@@ -336,12 +336,12 @@ class RUNCMD(Cmd):
         readline.write_history_file(self.histfile)
 
     def add_history(self, inp):
-        """CMD class called function:  adds history file"""
+        """CMD class called function: adds history file"""
         readline.add_history(inp)
 
     def complete(self, text, state):
         """CMD class called function:
-        This is the Auto Complete Method that gets called on Forward Tab.
+        This is the Auto Complete method that gets called on Forward Tab.
         Currently parsing list pyparsing statements and finding the statement that it fails against at a character
         furthest along the command the statement string is the method used.
         This is an area for improvement further along the line
@@ -560,10 +560,10 @@ class RUNCMD(Cmd):
                             self,
                         )
                 else:
-                    # This sections is dedicated to determining if the user as input either
-                    # a partially correct command or incorrect command.
-                    # it will try and match the users intended command and display its help or
-                    # will suggest possible commands they were trying to type
+                    # Determine if the user input is a partially correct command
+                    # or an incorrect command.
+                    # Try to match the users intended command and display its help, or
+                    # suggest possible commands they were trying to type.
 
                     # Isolate part of the error message with command & arrow.
                     error_msg = error_descriptor.split("Syntax")[0].splitlines()
@@ -604,8 +604,8 @@ class RUNCMD(Cmd):
                         multiple_suggestions = "Commands containing" in do_help_output_optimistic_x
                         help_ref = inp
 
-                    # If there are no True suggestions then we loop backwards through the input string
-                    # and we try and find a initial string that we can get a match on
+                    # If there are no True suggestions, we loop backwards through the input string
+                    # to find a matching initial string.
                     if not show_suggestions:
                         error_col = error_col_grabber(error_descriptor)
                         while error_col != 0 and not show_suggestions:
@@ -648,9 +648,9 @@ class RUNCMD(Cmd):
                 return
 
 
-# Retuns the error positioning in the statement that has been parsed.
+# Returns the error positioning in the statement that has been parsed.
 def error_col_grabber(error):
-    """Retuns the error positioning in the statement that has been parsed."""
+    """Returns the error positioning in the statement that has been parsed."""
     e = error.split("col:")[1]
     e1 = e.replace(")", "")
     return int(e1)
@@ -664,9 +664,9 @@ def error_first_word_grabber(error):
 
 
 # Main execution application
-# if the application is called with parameters it executes as Parameters,
-# if called without parameters the command line enters the shell environment
-# History is only kept for commands executed once in the shell
+# If the application is called with parameters, it executes the parameters.
+# If called without parameters, the command line enters the shell environment.
+# History is only kept for commands executed once in the shell.
 
 
 def api_remote(
@@ -674,16 +674,17 @@ def api_remote(
     api_context: dict = {"workspace": None, "toolkit": None},
     api_var_list={},
 ):
-    """Receives Notebook Magic COmmand API calls
-    Note: as we do not hve a continuous session in notebooks like on a command line.
+    """
+    Receives Notebook Magic Command API calls
+    Note: As we do not have a continuous session in notebooks like on a command line.
     The api_context subsititues for this and the in memory persistent toolkit handle cache
     this makes each command smoother and faster after each Magic command request.
-    So api_context handles
-    - What Workspace is current
-    - what toolkit is in context
-    - caching of all handles
+    So api_context handles these:
+    - What workspace is current
+    - What toolkit is in context
+    - Caching of all handles
     - It is deliberate that the whole RUNCMD class object is not kept alive as there is no logical
-      or concious exit point for magic commands unline a command line.
+      exit point for magic commands, unlike a command line.
     """
 
     initialise()
@@ -709,8 +710,8 @@ def api_remote(
         set_context(magic_prompt, x)
 
     magic_prompt.api_variables = api_var_list
-    # We now manage history...  once again History sometimes gets corruped through no fault of ours.
-    # in this case we just reset it
+    # We now manage history. The history sometimes gets corrupted through no fault of ours.
+    # If so, we just reset it.
     try:
         readline.read_history_file(magic_prompt.histfile)
     except Exception:  # pylint: disable=broad-exception-caught # could be a number of errors
@@ -756,7 +757,7 @@ def api_remote(
 
 
 def cmd_line():
-    """this is the entry point for command line interface"""
+    """Entry point for command line interface"""
     initialise()
     inp = ""
     a_space = ""
@@ -775,7 +776,8 @@ def cmd_line():
             elif inp.strip() == "??":
                 inp = "?"
             command_line.do_help(inp.strip())
-        # IF USER WANTS TO RUN COMMAND LINE AND SPECIFY TOOLKIT AND FOR A SPECFIIC COMMAND
+
+        # If user wants to run command line and specify toolkit, for a specific command:
         elif words[0].lower() == "-s" and len(words) > 3:
             set_workspace(command_line, {"Workspace_Name": words[1].upper()})
             set_context(command_line, {"toolkit_name": words[2].upper()})
@@ -788,7 +790,7 @@ def cmd_line():
                 command_line.postloop()
                 command_line.default(str(" ".join(words[3:])).strip())
         else:
-            # if there is a argument and it is not help attemt to run the command
+            # If there is an argument and it is not help, attempt to run the command
             # Note, may be possible add code completion here #revisit
             command_line.preloop()
             command_line.add_history(inp.strip())
