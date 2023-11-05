@@ -1,5 +1,4 @@
 """Handles commonly used global variables"""
-# Where global Variables are defined
 
 import os
 from ad4e_opentoolkit.helpers.general import get_toolkits
