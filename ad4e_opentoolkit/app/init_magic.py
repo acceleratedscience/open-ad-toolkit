@@ -4,7 +4,7 @@ from ad4e_opentoolkit.app.global_var_lib import _repo_dir
 
 
 def init_magic():
-    "Installs the magic command library into the ipykernel default director or where specified"
+    """Installs the magic command library into the ipykernel default director or where specified"""
     destination = None
     try:
         if len(sys.argv) > 2:
