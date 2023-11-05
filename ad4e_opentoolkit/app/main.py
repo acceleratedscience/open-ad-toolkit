@@ -54,9 +54,10 @@ def convert(lst):
 
 class RUNCMD(Cmd):
     """
-    The center of the command line DSL Shell environment, this holds the parsed 
+    The center of the command line DSL Shell environment, this holds the parsed
     grammar and current state of a user's engagement.
     """
+
     space = " "
     IDENTCHARS = string.ascii_letters + string.digits + "_"
     intro = "/"  # This is defined in cmdloop() below.
@@ -112,7 +113,7 @@ class RUNCMD(Cmd):
         self.notebook_mode = notebook
         self.api_mode = api
         super().__init__()
-        
+
         # This is necessary to ensure readline works predicably and compatibly across MacOS and Linux
         if sys.platform == "darwin":
             if "libedit" in readline.__doc__:
