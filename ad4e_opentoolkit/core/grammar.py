@@ -1,4 +1,4 @@
-""" BUILDS THE GRAMMAR FOR THE DSL"""
+"""Builds the grammar for the DSL"""
 
 # Note: this file is organized in regions, which collapse in VS Code:
 # - Collapse all regions:       hold cmd, then hit K followed by 1
