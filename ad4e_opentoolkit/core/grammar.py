@@ -778,11 +778,11 @@ statements.append(Forward(CaselessKeyword("flask") + CaselessKeyword("example"))
 orig_statements = statements.copy()
 statements_def = Forward()
 
-# ii = 0
-# for i in statements:
-#    ii += 1
-#    statements_def |= i
-# statements_zom = ZeroOrMore(statements_def)
+ii = 0
+for i in statements:
+   ii += 1
+   statements_def |= i
+statements_zom = ZeroOrMore(statements_def)
 
 
 # Used to package up statements
