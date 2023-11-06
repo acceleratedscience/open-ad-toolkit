@@ -8,8 +8,8 @@
 	"help": {
 		"name": "interpret recipe",
 		"category": "Retrosynthesis",
-		"command": "interpret recipe '<recipe-paragraph>' ",
-		"description": "This command builds a set of actions interpreted from a provided recipe defined as a string in the parameter <cmd><recipe-paragraph></cmd> ",
+		"command": "interpret recipe '<recipe-paragraph> | <workspace-file>' ",
+		"description": "This command builds a set of actions interpreted from a provided recipe defined as a provided string or a file in the current workspace in the parameter <cmd><recipe-paragraph> | <workspace-file></cmd> ",
 		"url": ""
 	},
 	"library": "rxn_recipe_interpret",
