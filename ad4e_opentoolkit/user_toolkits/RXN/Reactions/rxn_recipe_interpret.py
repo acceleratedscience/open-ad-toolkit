@@ -19,7 +19,7 @@ def get_include_lib(cmd_pointer):
 
 def interpret_recipe(inputs: dict, cmd_pointer):
     """Interprets a free text paragraph into a set of Recipe instructions"""
-    recipe = inputs["receipe"]
+    recipe = inputs["recipe"]
     rxn4chemistry_wrapper = cmd_pointer.login_settings["client"][cmd_pointer.login_settings["toolkits"].index("RXN")]
     # Prepare the data query
     if (
