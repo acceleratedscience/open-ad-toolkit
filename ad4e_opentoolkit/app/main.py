@@ -601,8 +601,8 @@ class RUNCMD(Cmd):
                             multiple_suggestions = "Commands containing" in do_help_output_optimistic
                             help_ref = inp[0 : error_col_grabber(error_descriptor)]
                     else:
-                        show_suggestions = "No commands containing" not in do_help_output_optimistic_x
-                        multiple_suggestions = "Commands containing" in do_help_output_optimistic_x
+                        show_suggestions = "No commands containing" not in str(do_help_output_optimistic_x)
+                        multiple_suggestions = "Commands containing" in str(do_help_output_optimistic_x)
                         help_ref = inp
 
                     # If there are no True suggestions, we loop backwards through the input string
@@ -617,8 +617,8 @@ class RUNCMD(Cmd):
                                 jup_return_format="plain",
                                 starts_with_only=True,
                             )
-                            show_suggestions = "No commands containing" not in do_help_output_optimistic_x
-                            multiple_suggestions = "Commands containing" in do_help_output_optimistic_x
+                            show_suggestions = "No commands containing" not in str(do_help_output_optimistic_x)
+                            multiple_suggestions = "Commands containing" in str(do_help_output_optimistic_x)
                             help_ref = inp[0:error_col]
 
                     # Display error.

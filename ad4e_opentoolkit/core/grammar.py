@@ -780,8 +780,8 @@ statements_def = Forward()
 
 ii = 0
 for i in statements:
-   ii += 1
-   statements_def |= i
+    ii += 1
+    statements_def |= i
 statements_zom = ZeroOrMore(statements_def)
 
 
