@@ -22,11 +22,22 @@ def interpret_recipe(inputs: dict, cmd_pointer):
     recipe = inputs["receipe"]
     rxn4chemistry_wrapper = cmd_pointer.login_settings["client"][cmd_pointer.login_settings["toolkits"].index("RXN")]
     # Prepare the data query
-    if os.path.isfile(cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/"+recipe.strip()) is True:
-        output_text(f'Attempting to Open and Process Recipe in Workspace File: <green> {recipe} </green>',cmd_pointer=cmd_pointer,return_val=False)
-        with open(cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/"+recipe.strip(),'r',encoding='utf-8' ) as handle:
-            recipe= handle.read()
-   
+    if (
+        os.path.isfile(cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/" + recipe.strip())
+        is True
+    ):
+        output_text(
+            f"Attempting to Open and Process Recipe in Workspace File: <green> {recipe} </green>",
+            cmd_pointer=cmd_pointer,
+            return_val=False,
+        )
+        with open(
+            cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/" + recipe.strip(),
+            "r",
+            encoding="utf-8",
+        ) as handle:
+            recipe = handle.read()
+
     if cmd_pointer.notebook_mode is True:
         from IPython.display import Markdown  # pylint: disable=import-outside-toplevel
     try:
@@ -45,7 +56,7 @@ def interpret_recipe(inputs: dict, cmd_pointer):
         if cmd_pointer.notebook_mode is True:
             return Markdown("".join(return_result))
         else:
-            return output_text("\n" + "".join(return_result)+"\n", cmd_pointer=cmd_pointer)
+            return output_text("\n" + "".join(return_result) + "\n", cmd_pointer=cmd_pointer)
     except Exception as e:
         raise Exception(
             "unable to to turn paragraph to actions:" + str(e)
