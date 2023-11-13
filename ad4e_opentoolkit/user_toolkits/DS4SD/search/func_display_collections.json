@@ -9,7 +9,7 @@
 		"name": "display collections for domain",
 		"category": "Collections",
 		"command": "display collections for domain '<domain_name>' ",
-		"description": "This command displays the available collections in a given Deep Search <domain_name>.\nIf you use the <cmd>SAVE AS</cmd> clause, it will save a csv file to the current workspace.",
+		"description": "This command displays the available collections in a given Deep Search <domain_name>.",
 		"url": ""
 	},
 	"library": "ds4sd_display_collection",
