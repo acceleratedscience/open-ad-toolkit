@@ -46,9 +46,14 @@ intro
 remove toolkit DS4SD
 add toolkit DS4SD
 set context DS4SD
-search for 'identifiers._name:"smiles#ccc(coc(=o)cs)(c(=o)c(=o)cs)c(=o)c(=o)cs" ' using (index_key='patent-uspto-smiles') show (data) return as data save as 'test'
+display all collections
+display collection matches for ' Wernickes area'
+search for patents containing molecule 'CCC(=O)N1CCC2(CC1)c1cc(C#CC3OC(CO)C(O)C(O)C3O)ccc1-c1ccc(C#CC3OC(CO)C(O)C(O)C3O)cc12'
+search collection 'arXiv abstracts' for 'ide("power conversion efficiency" OR PCE) AND organ* ' using ( system_id=default edit_distance=20 ) show (data docs)
+search collection 'pubchem' for 'Ibuprofen' SHOW (data) return as data save as 'test'
 show molecules using file 'test.csv' 
-exec display_collection(domain='Materials Science')
+display collections for domain 'Business Insights'
+
 
 
 
