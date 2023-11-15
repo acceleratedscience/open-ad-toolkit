@@ -102,8 +102,18 @@ def how_do_i(cmd_pointer, parser):
         cmd_pointer.refresh_vector = False
         cmd_pointer.settings["env_vars"]["refresh_help_ai"] = False
         # This puts Hostroy content that is instructional to the prompt on how to behave
-        cmd_pointer.llm_handle.prime_chat_history(CHAT_HISTORY_PRIMER)
-
+        try:
+            cmd_pointer.llm_handle.prime_chat_history(CHAT_HISTORY_PRIMER)
+        except:
+            #
+            output_text(
+                "Unable to Execute request. check LLM credentials and or Connectivity",
+                return_val=False,
+                cmd_pointer=cmd_pointer,
+                pad=1,
+                edge=True,
+            )
+            return False
     if cmd_pointer.notebook_mode is True:
         from halo import HaloNotebook as Halo  # pylint: disable=import-outside-toplevel
     else:
@@ -125,7 +135,14 @@ def how_do_i(cmd_pointer, parser):
         text = cmd_pointer.llm_handle.how_to_search(CHAT_PRIMER + " ".join(parser["Chat_String"]) + CHAT_PRIMER_SUFFIX)
     except Exception as e:
         newspin.fail("Running Request Failed")
-        raise e
+        output_text(
+            "Unable to Execute request. check LLM credentials and or Connectivity",
+            return_val=False,
+            cmd_pointer=cmd_pointer,
+            pad=1,
+            edge=True,
+        )
+        return False
     newspin.succeed("See Answer Below.")
     text = clean_up_llm_text(cmd_pointer, text)
 
