@@ -198,6 +198,7 @@ class RUNCMD(Cmd):
             inp = inp.lstrip("?")
         elif len(inp.strip()) > 0 and inp.split()[-1] == "?":
             # End
+
             starts_with_only = True
             inp = inp.rstrip("?")
 
@@ -246,14 +247,16 @@ class RUNCMD(Cmd):
             pass
 
         # First list commands with full word matches.
-        for command in all_commands:
-            words = command["command"].split()
-            inp_singular = singular(inp)
-            inp_plural = inp_singular + "s"
-            if inp_singular in words or inp_plural in words:
-                matching_commands["match_word"].append(command)
+        if not starts_with_only:
+            for command in all_commands:
+                words = command["command"].split()
+                inp_singular = singular(inp)
+                inp_plural = inp_singular + "s"
+                if inp_singular in words or inp_plural in words:
+                    matching_commands["match_word"].append(command)
 
         # Then list commands starting with the input string.
+
         for command in all_commands:
             if re.match(re.escape(inp), command["command"]) and command not in matching_commands["match_word"]:
                 matching_commands["match_start"].append(command)
@@ -299,8 +302,7 @@ class RUNCMD(Cmd):
             del kwargs["pad"]
         else:
             pad = 1
-
-        if result_count == 0:
+        if result_count == 0 and not exact_match:
             return output_error(msg("err_no_matching_cmds", inp), self, **kwargs)
         elif result_count == 1 or exact_match:
             return output_text(
