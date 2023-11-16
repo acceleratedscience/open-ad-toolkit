@@ -238,7 +238,7 @@ class Chatobject:
                 try:
                     result = qa({"question": question, "chat_history": self.chat_history})
                 except Exception as e:  # pylint: disable=broad-exception-caught
-                    return output_error("Unable to Execute Request" + str(e), return_val=True)
+                    return output_error("Unable to Execute Request: " + str(e), return_val=True)
         except Exception as e:  # pylint: disable=broad-exception-caught
             return output_error("Failed Querying LLM " + str(e), return_val=True)
         try:
@@ -250,5 +250,5 @@ class Chatobject:
                     pass
             answers = result["answer"]
         except Exception as e:  # pylint: disable=broad-exception-caught
-            return output_error("Unable to Execute Request" + str(e), return_val=True)
+            return output_error("Unable to Execute Request: " + str(e), return_val=True)
         return answers

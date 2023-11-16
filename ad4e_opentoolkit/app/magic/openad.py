@@ -1,19 +1,26 @@
-from IPython.core.magic import Magics, magics_class, line_magic, cell_magic, line_cell_magic, needs_local_scope
-from ipywidgets import HTML
-from ipywidgets.widgets import Output
-from IPython.core.interactiveshell import InteractiveShell
+import os
+import sys
+import pandas
+
+# required for Magic Template
+from IPython.core.magic import (
+    Magics,
+    magics_class,
+    line_magic,
+    cell_magic,
+    line_cell_magic,
+    needs_local_scope,
+)  # pylint: disable=import-error
+from IPython.core.interactiveshell import InteractiveShell  # pylint: disable=import-error
+import ad4e_opentoolkit.app.main  # we import entire main library to help retain state
 
 InteractiveShell.ast_node_interactivity = "all"
-import os
-import time
-import sys
+
 
 sys.path.insert(0, "../")
 os.sys.path.append(os.path.dirname(os.path.abspath("./")))
 module_path = os.path.abspath(os.path.join(".."))
-import tabulate
-from halo import HaloNotebook as Halo
-import ad4e_opentoolkit.app.main
+
 
 handle_cache = {
     "toolkits": [],
@@ -28,16 +35,14 @@ context_cache = {"workspace": None, "toolkit": None}
 
 @magics_class
 class AD(Magics):
+    """Magic Command Class"""
+
     @needs_local_scope
     @line_cell_magic
     def openad(self, line, cell=None, local_ns=None):
-        import pandas
-        import re
-
+        """Invokes the Magic command interface for OpenAD"""
         api_variable = {}
-        # line=line.replace("\n",'')
-        # line=line.replace("\t",'')
-        # print(line)
+
         line_list = line.split()
         x = len(line_list)
         i = 1
@@ -45,16 +50,15 @@ class AD(Magics):
             while i < x:
                 if line_list[i - 1].upper() == "DATAFRAME":
                     try:
-                        df = eval(line_list[i])
-
+                        df = eval(line_list[i])  # pylint: disable=eval-used #only way to execute
                         if isinstance(df, pandas.DataFrame):
                             api_variable[line_list[i]] = df
-                    except:
+                    except:  # pylint: disable=bare-except # We do not care what fails
                         pass
                 i += 1
 
-        return ad4e_opentoolkit.app.main.api_remote(line, handle_cache, context_cache, api_variable)
+        return ad4e_opentoolkit.app.main.api_remote(line, context_cache, api_variable)
 
 
-ip = get_ipython()
+ip = get_ipython()  # pylint: disable=undefined-variable
 ip.register_magics(AD)

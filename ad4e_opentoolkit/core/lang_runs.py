@@ -1,18 +1,14 @@
+"""Contains Run Related functions """
 import os
+import glob
+import readline
 from IPython.display import display
 
 # Global variables
-from ad4e_opentoolkit.app.global_var_lib import _meta_dir
-from ad4e_opentoolkit.app.global_var_lib import _meta_dir_toolkits
-from ad4e_opentoolkit.app.global_var_lib import _meta_registry
-from ad4e_opentoolkit.app.global_var_lib import _meta_registry_session
-from ad4e_opentoolkit.app.global_var_lib import _meta_login_registry
-from ad4e_opentoolkit.app.global_var_lib import _meta_workspaces
-from ad4e_opentoolkit.app.global_var_lib import _meta_registry_settings
+
 
 # Helpers
 from ad4e_opentoolkit.helpers.output import msg, output_text, output_error, output_success, output_table
-from ad4e_opentoolkit.helpers.general import is_notebook_mode
 
 
 # Create a directory inside the workspace in case it doesn't exit yet.
@@ -23,8 +19,7 @@ def _create_workspace_dir_if_nonexistent(cmd_pointer, dir_name):
 
 # Save a run to the workspace's _runs directory.
 def save_run(cmd_pointer, parser):
-    import readline
-
+    """Saves a Run"""
     _create_workspace_dir_if_nonexistent(cmd_pointer, "_runs")
     readline.write_history_file(cmd_pointer.histfile)
 
@@ -47,7 +42,7 @@ def save_run(cmd_pointer, parser):
     )
     if rows == 1 and " ".join(readline.get_history_item(rows).lower().split()) != "create run":
         return output_error(msg("fail_run_create"), cmd_pointer)
-    run_file = open(f, "w")
+    run_file = open(f, "w", encoding="utf-8")
 
     for i in runlist:
         run_file.write(i + "\n")
@@ -58,6 +53,7 @@ def save_run(cmd_pointer, parser):
 
 # executes a run file.
 def exec_run(cmd_pointer, parser):
+    """executes a run"""
     _create_workspace_dir_if_nonexistent(cmd_pointer, "_runs")
     f = cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/.cmd_history"
     f = (
@@ -66,7 +62,7 @@ def exec_run(cmd_pointer, parser):
         + parser.as_dict()["run_name"]
         + ".run"
     )
-    run_file = open(f, "r")
+    run_file = open(f, "r", encoding="utf-8")
     run_line = run_file.readline()
 
     while run_line:
@@ -87,8 +83,8 @@ def exec_run(cmd_pointer, parser):
                     # This prevents "None" from being displayed in Jupyter.
                     if output is not None:
                         display(output)
-            except BaseException:
-                return output_error(msg("fail_run_execute", run_line), cmd_pointer)
+            except Exception as err:
+                return output_error(msg("fail_run_execute", run_line, err), cmd_pointer)
 
         run_line = run_file.readline()
     run_file.close()
@@ -96,6 +92,7 @@ def exec_run(cmd_pointer, parser):
 
 # Display the contents of a Run.
 def display_run(cmd_pointer, parser):
+    """displays the commands in a run"""
     table_headers = (f'<soft>Run:</soft> {parser.as_dict()["run_name"]}',)  # NOT Sure why we mess things up with
     notebook_mode = cmd_pointer.notebook_mode
     run_name = parser.as_dict()["run_name"]
@@ -112,12 +109,12 @@ def display_run(cmd_pointer, parser):
         cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/_runs/" + run_name + ".run"
     )
     try:
-        run_file = open(run_file_path, "r")
+        run_file = open(run_file_path, "r", encoding="utf-8")
     except FileNotFoundError:
         return output_error(msg("fail_run_display", run_name, split=True), cmd_pointer)
     line = run_file.readline()
     while line:
-        if notebook_mode == True:
+        if notebook_mode is True:
             commands.append(list([line.replace("\n", "")]))
         else:
             commands.append(line.replace("\n", ""))
@@ -142,11 +139,8 @@ def display_run(cmd_pointer, parser):
 
 # Lists all Runs in the current workspace.
 def list_runs(cmd_pointer, parser):
-    import glob
-
+    """list all runs"""
     runs = []
-    notebook_mode = cmd_pointer.notebook_mode
-    api_mode = cmd_pointer.api_mode
 
     _create_workspace_dir_if_nonexistent(cmd_pointer, "_runs")
 

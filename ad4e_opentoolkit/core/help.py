@@ -1,4 +1,6 @@
+""" The help Module"""
 import re
+import shutil
 from ad4e_opentoolkit.helpers.general import singular, is_toolkit_installed
 from ad4e_opentoolkit.helpers.output import msg, output_text, output_error
 
@@ -6,22 +8,23 @@ from ad4e_opentoolkit.helpers.output import msg, output_text, output_error
 # This is temporary until every plugin is available as a public pypi package.
 from ad4e_opentoolkit.plugins.style_parser import style, a_len
 
-line_break = "<br>"
-heading = "<h3>"
-heading_end = "</h3>"
-bold_begin = "<b>"
-bold_end = "</b>"
-italic_begin = "<i>"
-italic_end = "</i>"
-spacing = " "
-six_spacing = "      "
-bullet = " - "
+# line_break = "<br>"
+# heading = "<h3>"
+# heading_end = "</h3>"
+# bold_begin = "<b>"
+# bold_end = "</b>"
+# italic_begin = "<i>"
+# italic_end = "</i>"
+# spacing = " "
+# six_spacing = "      "
+# bullet = " - "
 
 
 # Create the help dictionary object for a command.
 def help_dict_create(
     name: str, command: str, description: str, url: str = None, category: str = "Uncategorized", parent: str = None
 ):
+    """Create a help dictionary"""
     return {
         "category": category,
         "name": name,
@@ -163,11 +166,10 @@ def command_details(command: list, cmd_pointer):
     )
 
     # Define optimal paragraph width.
-    import shutil
 
     try:
         columns, lines = shutil.get_terminal_size()
-    except BaseException:
+    except Exception:
         columns = 155
     paragraph_width = min(columns - 5, 150)
 
@@ -189,10 +191,13 @@ def command_details(command: list, cmd_pointer):
 
 # Display advanced help
 def advanced_help():
+    """Call advanced Help"""
     return "<warning>Advanced help is yet to be implemented.</warning>"
 
 
 class OpenadHelp:
+    """OpenAD help Class"""
+
     help_orig = []
     help_current = []
 

@@ -2,7 +2,7 @@
 # python 3.8
 import pickle
 import os
-import imp
+import imp  # TODO: future improvement to upgrade from imp
 from ad4e_opentoolkit.app.global_var_lib import _meta_login_registry
 from ad4e_opentoolkit.app.global_var_lib import _meta_login_registry_settings
 from ad4e_opentoolkit.helpers.output import msg, output_success, output_error
@@ -12,7 +12,8 @@ from ad4e_opentoolkit.app.global_var_lib import _meta_dir_toolkits
 
 
 def initialise_toolkit_login():
-    """Initialises the settings file for login, currently this code is a holding place for a persist to disk solution for storing login handles"""
+    """Initialises the settings file for login, currently this code
+    is a holding place for a persist to disk solution for storing login handles"""
     try:
         with open(_meta_login_registry, "wb") as handle:
             pickle.dump(_meta_login_registry_settings, handle)
@@ -24,9 +25,10 @@ def initialise_toolkit_login():
         return False
 
 
-# loads rhe users registry data
+# loads the user's registry data
 def load_login_registry():
-    """Loads connection handles from disk, currently this code is a holding place for a persist to disk solution for storing login handles"""
+    """Loads connection handles from disk, currently this code is
+    a holding place for a persist to disk solution for storing login handles"""
     try:
         with open(_meta_login_registry, "rb") as handle:
             login_registry = pickle.load(handle.read())
@@ -36,9 +38,10 @@ def load_login_registry():
     return login_registry
 
 
-# writes the users registry data
+# writes the users registry data, this is dummy function until we work through handl caching on disk...
 def write_login_registry(login_registry: dict):
-    """writes connection handles to disk, currently this code is a holding place for a persist to disk solution for storing login handles"""
+    """writes connection handles to disk, currently this code is
+    a holding place for a persist to disk solution for storing login handles"""
     return True
 
 

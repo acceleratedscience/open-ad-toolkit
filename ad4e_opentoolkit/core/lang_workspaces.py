@@ -1,3 +1,4 @@
+"""Workspace related Functions"""
 import os
 from time import sleep
 
@@ -7,22 +8,16 @@ import readline
 from ad4e_opentoolkit.core.lang_sessions_and_registry import write_registry, update_main_registry_env_var
 
 # Global variables
-from ad4e_opentoolkit.app.global_var_lib import _meta_dir
-from ad4e_opentoolkit.app.global_var_lib import _meta_dir_toolkits
-from ad4e_opentoolkit.app.global_var_lib import _meta_registry
-from ad4e_opentoolkit.app.global_var_lib import _meta_registry_session
-from ad4e_opentoolkit.app.global_var_lib import _meta_login_registry
-from ad4e_opentoolkit.app.global_var_lib import _meta_workspaces
-from ad4e_opentoolkit.app.global_var_lib import _meta_registry_settings
 
 # Helpers
 from ad4e_opentoolkit.helpers.output import msg, output_text, output_error, output_warning, output_success, output_table
-from ad4e_opentoolkit.helpers.general import other_sessions_exist, user_input, is_notebook_mode
+from ad4e_opentoolkit.helpers.general import other_sessions_exist, user_input
 from ad4e_opentoolkit.helpers.spinner import spinner
 
 
 # Sets the current workspace from the fgiven workspaces available
 def set_workspace(cmd_pointer, parser):
+    """Sets the current Workspace"""
     readline.write_history_file(cmd_pointer.histfile)
     current_workspace_name = cmd_pointer.settings["workspace"].upper()
     new_workspace_name = parser["Workspace_Name"].upper()
@@ -40,7 +35,7 @@ def set_workspace(cmd_pointer, parser):
         try:  # Open history file if not corrupt
             if readline and os.path.exists(cmd_pointer.histfile):
                 readline.read_history_file(cmd_pointer.histfile)
-        except BaseException:
+        except Exception:
             readline.write_history_file(cmd_pointer.histfile)
 
         readline.write_history_file(cmd_pointer.histfile)
@@ -49,6 +44,7 @@ def set_workspace(cmd_pointer, parser):
 
 # list the available workspaces....
 def list_workspaces(cmd_pointer, parser):
+    """Lists all Workspaces"""
     workspaces = []
     table_headers = ("Workspace", "Description")
     note = "To see what you can do with a workspace, run <cmd>workspace ?</cmd>."
@@ -79,6 +75,7 @@ def list_workspaces(cmd_pointer, parser):
 # get the details of a workspace
 # needs to be fixed up as workspace metadata plan is built out
 def get_workspace(cmd_pointer, parser):
+    """gets a workspaces details"""
     if "Workspace_Name" in parser.as_dict():
         workspace_name = parser.as_dict()["Workspace_Name"].upper()
         active = False
@@ -101,12 +98,13 @@ def get_workspace(cmd_pointer, parser):
 
 # Remove workspace and all its metadata files.
 def remove_workspace(cmd_pointer, parser):
+    """Removes a registered Workspace from Registry"""
     other, error_msg = other_sessions_exist(cmd_pointer)
     cmd_pointer.refresh_vector = True
     cmd_pointer.refresh_train = True
     cmd_pointer.settings["env_vars"]["refresh_help_ai"] = True
     update_main_registry_env_var(cmd_pointer, "refresh_help_ai", True)
-    if other == True:
+    if other is True:
         return error_msg
 
     workspace_name = parser.as_dict()["Workspace_Name"].upper()
@@ -131,6 +129,7 @@ def remove_workspace(cmd_pointer, parser):
 
 
 def create_workspace(cmd_pointer, parser):
+    """Creates a Workspace"""
     # Make sure existing workspace history file is saved.
     readline.write_history_file(cmd_pointer.histfile)
     cmd_pointer.refresh_vector = True
@@ -141,7 +140,7 @@ def create_workspace(cmd_pointer, parser):
 
     # Abort if other sessions are running.
     other, error_msg = other_sessions_exist(cmd_pointer)
-    if other == True:
+    if other is True:
         return error_msg
 
     # Fetch workspace name.
@@ -149,7 +148,7 @@ def create_workspace(cmd_pointer, parser):
 
     # Abort if workspace already exists.
     if workspace_name in cmd_pointer.settings["workspaces"]:
-        if cmd_pointer.api_mode == False:
+        if cmd_pointer.api_mode is False:
             return output_error(msg("fail_workspace_already_exists", workspace_name), cmd_pointer)
 
     # Store workspace description.
@@ -167,7 +166,7 @@ def create_workspace(cmd_pointer, parser):
         cmd_pointer.settings["descriptions"][workspace_name] = description
         write_registry(cmd_pointer.settings, cmd_pointer, True)  # Create registry
         write_registry(cmd_pointer.settings, cmd_pointer)  # Create session registry
-    except BaseException as err:
+    except Exception as err:
         return output_error(msg("err_workspace_description", err, split=True), cmd_pointer)
 
     # Create workspace.
@@ -209,7 +208,7 @@ def create_workspace(cmd_pointer, parser):
         readline.clear_history()
         readline.write_history_file(cmd_pointer.histfile)
         # raise ValueError('This is a test error.\n') @Phil this causes the app to break permamenently.
-    except BaseException as err:
+    except Exception as err:
         error_other = msg("err_workspace_create", err, split=True)
 
     # Show success/errror message.

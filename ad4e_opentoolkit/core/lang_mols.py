@@ -1,3 +1,5 @@
+"""Commands to launch molecule grid and molecule viewer."""
+
 from rdkit import Chem, RDLogger
 from ad4e_opentoolkit.flask_apps import launcher
 from ad4e_opentoolkit.flask_apps.molsgrid.routes import fetchRoutesMolsGrid

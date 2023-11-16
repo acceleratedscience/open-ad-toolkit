@@ -134,9 +134,8 @@ def registry_add_toolkit(cmd_pointer, parser):
             try:
                 shutil.rmtree(target_directory + "/", ignore_errors=True)
 
-            except Exception as e:
-                print(e)
-                pass
+            except Exception as err:
+                output_error("Unable to write registry file::" + str(err), retun_val=False, cmd_pointer=False)
 
             shutil.copytree(full_original_directory_name, target_directory, dirs_exist_ok=True)
             settings["toolkits"].append(toolkit_name.upper())
