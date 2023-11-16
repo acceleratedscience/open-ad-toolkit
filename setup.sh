@@ -31,8 +31,6 @@ else
 	exit 1
 fi
 
-package_name="poetry"
-array2=("String1" "String2" "String3")
 echo "Please choose your setup option: "
 echo "1) Use virtual environment using Poetry"
 echo "2) Use your global space"
@@ -51,6 +49,7 @@ fi
 clear
 
 
+package_name="poetry"
 confirmlower=$(to_lowercase "$confirm")
 possible_confirm=("y" "n")
 
@@ -87,16 +86,18 @@ if [ "$option" -eq 1 ]; then
 	# install opentoolkit
 	poetry install
 	poetry run python -m ipykernel install --user --name=ad-kernel
+	poetry run init_magic
 	# Virtual ENV
 	clear
 	echo "Success!"
-	echo "Enter the virtual environment by entering 'poetry shell' and start using Opentoolkey!"
+	echo "Enter the virtual environment by entering 'poetry shell' and start using Opentoolkit!"
 fi
 
 if [ "$option" -eq 2 ]; then
 	# Global ENV
 	pip install .
 	python -m ipykernel install --user --name=ad-kernel
+	init_magic
 	clear
 	echo "Success!"
 	echo "Start using Opentoolkit!"
