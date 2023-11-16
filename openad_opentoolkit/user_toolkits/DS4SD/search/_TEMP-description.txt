@@ -1,0 +1,30 @@
+NOTE: UNTIL WE BUILD A STRUCTURED DESCRIPTION FORMAT, TO EDIT THE DESCRIPTION YOU NEED TO REPLACE ALL LINE BREAKS BELOW WITH \n AND PASTE THE RESULT IN THE JSON FILE.
+
+
+search for '<string>' using (index_key=<index_name> [ page_size=<int> edit_distance=<integer> ]) show (data|docs) [ estimate only|return as data|save as '<csv_filename>' ]
+
+- - -
+
+Performs a document search of the Deep Search repository based on a given index.
+
+Parameters:
+<cmd>index_key</cmd> - The string to search for.
+<cmd>page_size</cmd> - (default: None) Paginate the results.
+<cmd>edit_distance</cmd> (default: 10) - Set the search criteria for key words for document searches. When set to 0, no snippets will be be returned.
+
+Clauses:
+<cmd>show (data)</cmd> - Display structured data from within the documents.
+<cmd>show (docs)</cmd> - Display document context.
+<cmd>estimate only</cmd> - Determine the potential number of hits.
+<cmd>return as data</cmd> - For Notebook or API mode. Removes all styling from the Pandas DataFrame, ready for further processing.
+
+Examples:
+
+    <soft># Look for documents that contain discussions on power conversion efficiency:</soft>
+    <cmd>search for 'ide(\"power conversion efficiency\" OR PCE) AND organ*' using (index_key='arxiv' elastic_id=default) show (docs)</cmd>
+
+    <soft># Search the pubchem archive for 'Ibuprofen' and display related molecules' data:</soft>
+    <cmd>search for 'Ibuprofen' USING (index_key='pubchem') show (data)</cmd>
+
+    <soft>Search for patents which mention a specific smiles molecule:</soft>
+    <cmd>search for 'identifiers._name:\"smiles#ccc(coc(=o)cs)(c(=o)c(=o)cs)c(=o)c(=o)cs\"' using (index_key='patent-uspto-smiles') show (data)</cmd>

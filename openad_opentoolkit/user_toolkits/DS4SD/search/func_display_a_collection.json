@@ -1,0 +1,17 @@
+{
+	"fplugin": "ds4sd",
+	"command": "display collection details",
+	"subject":	" Queries",
+	"SINGLE_PARM": {"collection": "desc"	},
+	"exec_type": "standard_statement",
+	"exec_cmd": "display collection details",
+	"help": {
+		"name": "display collection details",
+		"category": "Collections",
+		"command": "display collection details '<collection_name>' | '<collection_key>'",
+		"description": "This function displays the details for a specified collection. You can specify either the name of a collection <collection_name> or its index key <collection_key>.",
+		"url": ""
+	},
+	"library": "ds4sd_display_a_collection",
+	"method": "display_a_collection"
+}

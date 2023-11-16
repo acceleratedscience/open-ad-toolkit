@@ -1,0 +1,18 @@
+{
+	"fplugin": "rxn",
+	"command": "predict retrosynthesis",
+	"subject": "predict_retrosynthesis",
+	"SINGLE_PARM": {"molecule": "desc"	},
+	"USING": {"availability_pricing_threshold": "int","available_smiles":"desc","exclude_smiles":"desc","exclude_substructures":"desc","exclude_target_molecule":"str","fap":"number","max_steps":"int","nbeams":"int","pruning_steps":"int","ai_model":"desc"	},
+	"use_saved":"False",
+	"exec_type": "standard_statement",
+	"exec_cmd": "predict retrosynthesis",
+	"help": {
+		"name": "predict retrosynthesis",
+		"category": "Retrosynthesis",
+		"command": "predict retrosynthesis '<product_SMILES_string>' [USING ( option=<valid_input> option2=<valid_input> )]",
+		"description": " This command performs automatic retro synthesis route prediction on a given molecule.\n\nThe parameter <cmd>'<product_SMILES_string>'</cmd> takes a valid SMILES string. \n\n Options for <cmd>USING</cmd> clause are: \n - <cmd>availability_pricing_threshold=<int> </cmd> maximum price in USD per g/ml of compounds. Default: no threshold.\n         - <cmd>available_smiles='<list of SMILES>'</cmd> list of molecules available as precursors, with delimiter '.' \n         - <cmd>exclude_smiles='<list of SMILES>'</cmd> list of molecules to exclude from the set of precursors, delimiter '.' \n         - <cmd>exclude_substructures='<list of SMILES>'</cmd> substructures to exclude, delimiter '.'\n         - <cmd>exclude_target_molecule=<boolean></cmd> excluded target molecule, default True \n         - <cmd>fap=<float></cmd> Every retrosynthetic step is evaluated with the FAP, a step is retained when forward confidence is greater than FAP, default 0.6\n         - <cmd>max_steps=<int></cmd> The max steps, default is 3 \n         - <cmd>nbeams=<int> </cmd> The maximum number of beams exploring the hypertree, default 10\n         - <cmd>pruning_steps=<int></cmd> The number of steps to prune a hypertree, default 2 \n         - <cmd>ai_model='<ai_model_name>'</cmd> default '2020-07-01' \n\n An example command is: \n <cmd>predict retrosynthesis 'BrCCc1cccc2c(Br)c3ccccc3cc12' using (max_steps=3) </cmd>",
+	"url":{}},
+	"library": "rxn_predict_retro",
+	"method": "predict_retro"
+}

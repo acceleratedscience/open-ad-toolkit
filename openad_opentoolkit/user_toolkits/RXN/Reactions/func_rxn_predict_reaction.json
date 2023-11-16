@@ -1,0 +1,19 @@
+{
+	"fplugin": "rxn",
+	"command": "predict reaction",
+	"subject": "predict_reaction",
+	"SINGLE_PARM": {"molecule": "desc"},
+	"USING": {"prediction_id": "desc","ai_model":"desc"},
+	"use_saved":"True",
+	"exec_type": "standard_statement",
+	"exec_cmd": "predict reaction ",
+	"help": {
+		"name": "predict reaction",
+		"category": "Prediction",
+		"command": "predict reaction '<reaction-smiles-string>' [USING (ai_model='<valid_ai_model>')] [use_saved]",
+		"description": "This command 'forward predicts' a reaction for a given SMILES string.\n\nIn the <cmd>FROM</cmd> clause is a list of reactions: SMILES strings delimited by a period '.', e.g. <cmd>'BrBr.c1ccc2cc3ccccc3cc2c1'</cmd>\n\n\nThe optional <cmd>USING</cmd> clause specifies a particular AI model.\n    -<cmd>ai_model=’<model_name>’</cmd> The default value is '2020-07-01'\n\nExample:\n    <cmd>predict reaction 'BrBr.c1ccc2cc3ccccc3cc2c1CCO'</cmd> \n\n You can optionally use previously generated results with <cmd>use_saved</cmd> at the end of the command. It will use the results of any previous commands run with the same parameters.\n\n<cmd>predict reaction 'BrBr.c1ccc2cc3ccccc3cc2c1CCO' use_saved</cmd>",
+		"url": ""
+	},
+	"library": "rxn_predict_reaction",
+	"method": "predict_reaction"
+}

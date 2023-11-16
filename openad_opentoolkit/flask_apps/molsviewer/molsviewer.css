@@ -1,0 +1,14 @@
+/**
+ * Header Styling
+ */
+#top {
+	display: flex;
+	flex-direction: row;
+}
+#header {
+	margin-bottom: 40px;
+	flex: 1;
+}
+#header form {
+	margin-top: 20px;
+}

@@ -1,0 +1,111 @@
+/**
+* IBM Carbon Styling
+*/
+
+body {
+	--ibm-blue: #0f62fe;
+	--ibm-blue-dark: #0353e9;
+	--ibm-blue-darker: #0043ce;
+	--ibm-black: #393939;
+	--ibm-black-dark: #4c4c4c;
+	--ibm-light-gray: #f4f4f4;
+	--ibm-font-fam: 'IBM Plex Sans', sans-serif;
+	--ibm-font-size: 14px;
+	--ibm-line-height: 18px;
+}
+
+/**
+ * Links
+ */
+a {
+	color: var(--ibm-blue);
+	text-decoration: none;
+}
+a:hover {
+	color: var(--ibm-blue-darker);
+}
+
+/**
+ * Buttons
+ */
+
+button {
+	height: 40px;
+	background: var(--ibm-blue);
+	border: none;
+	color: #fff;
+	padding: 0 32px 0 16px;
+	font-family: var(--ibm-font-fam);
+	font-size: var(--ibm-font-size);
+	cursor: pointer;
+}
+button:hover {
+	background: var(--ibm-blue-dark);
+}
+button.secondary {
+	background: var(--ibm-black);
+	color: #fff;
+}
+button.secondary:hover {
+	background: var(--ibm-black-dark);
+}
+button.tertiary {
+	background: transparent;
+	color: var(--ibm-black);
+	border: 1px solid var(--ibm-black);
+}
+button.tertiary:hover {
+	border-color: var(--ibm-blue-dark);
+}
+
+/**
+ * Dropdowns
+ */
+.ibm-dropdown {
+	display: flex;
+	flex-direction: column;
+	position: relative;
+	width: 240px;
+	color: var(--ibm-black);
+}
+.ibm-dropdown .ibm-label-txt {
+	font-size: 12px;
+	line-height: 16px;
+	margin-bottom: 8px;
+}
+.ibm-dropdown .ibm-dd-display {
+	height: 40px;
+	background: var(--ibm-light-gray);
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	z-index: 1;
+	border-bottom: solid 1px #8d8d8d;
+	box-sizing: border-box;
+	font-size: 14px;
+	line-height: 40px;
+	padding: 0 16px;
+	pointer-events: none;
+	user-select: none;
+}
+.ibm-dropdown .ibm-dd-display::after {
+	content: '';
+	display: block;
+	height: 40px;
+	width: 50px;
+	background: url('data:image/svg+xml;utf8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22%23161616%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M8%2011L3%205.99999L3.7%205.29999L8%209.59999L12.3%205.29999L13%205.99999L8%2011Z%22%2F%3E%3C%2Fsvg%3E')
+		center center no-repeat;
+	position: absolute;
+	right: 0;
+	top: 0;
+}
+.ibm-dropdown select {
+	height: 40px;
+	width: 100%;
+	/* visibility: hidden; */
+}
+.ibm-icn-caret {
+	background: url('data:image/svg+xml;utf8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22%23161616%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M8%2011L3%205.99999L3.7%205.29999L8%209.59999L12.3%205.29999L13%205.99999L8%2011Z%22%2F%3E%3C%2Fsvg%3E')
+		0 0 no-repeat;
+}

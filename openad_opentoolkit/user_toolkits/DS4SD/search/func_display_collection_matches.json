@@ -1,0 +1,18 @@
+{
+	"fplugin": "ds4sd",
+	"command": "display collection matches for",
+	"subject":	"display collection matches",
+	"SINGLE_PARM": {"search_string": "desc"	},
+	"SAVE_AS":{},
+	"exec_type": "standard_statement",
+	"exec_cmd": "display collection matches for",
+	"help": {
+		"name": "display collection matches",
+		"category": "Search Collections",
+		"command": "display collection matches for '<search_string>' [save as '<csv_file_name>']",
+		"description": "This command searches all collections for documents that contain a given Deep Search <search_string>. This helps choose document collection(s) for subsequent search. Use <index_key> from the returned table in a search.\nIf you use the <cmd>SAVE AS</cmd> clause, it will save a csv file to the current workspace.",
+		"url": ""
+	},
+	"library": "ds4sd_display_collection_matches",
+	"method": "display_collection_matches"
+}

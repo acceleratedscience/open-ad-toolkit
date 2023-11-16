@@ -1,0 +1,17 @@
+{
+	"fplugin": "ds4sd",
+	"command": "display all collections",
+	"subject":	"search collections",
+	"SAVE_AS":{},
+	"exec_type": "standard_statement",
+	"exec_cmd": "display all collections",
+	"help": {
+		"name": "display all collections",
+		"category": "Collections",
+		"command": "display all collections [save as '<csv_file_name>'] ",
+		"description": "This function displays all available collections in Deep Search.\nIf you use the <cmd>SAVE AS</cmd> clause, it will save a csv file to the current workspace.",
+		"url": ""
+	},
+	"library": "ds4sd_display_collection_all",
+	"method": "display_all_collections"
+}

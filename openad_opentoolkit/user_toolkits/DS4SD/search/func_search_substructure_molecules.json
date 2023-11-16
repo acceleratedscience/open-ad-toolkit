@@ -1,0 +1,18 @@
+{
+	"fplugin": "ds4sd",
+	"command": "search for substructure instances of",
+	"subject":	"Search",
+	"SINGLE_PARM": {"smiles": "desc" },
+	"SAVE_AS":{},
+	"exec_type": "standard_statement",
+	"exec_cmd": "search for substructure instances of  ",
+	"help": {
+		"name": "search for substructure instances of   ",
+		"category": "Search Molecules",
+		"command": "search for substructure instances of '<smiles_string>' [save as '<csv_file_name>']",
+		"description": "This command searches for molecules with the instance of a molecule in their substructure, as defined in the <smiles_string> string. \nIf you use the <cmd>SAVE AS</cmd> clause, it will save a csv file to the current workspace.\n\n For example: <cmd> search for substructure instances of 'C1(C(=C)C([O-])C1C)=O' save as 'my_mol'</cmd>",
+		"url": ""
+	},
+	"library": "ds4sd_search_substructure_molecules",
+	"method": "search_substructure_molecules"
+}
