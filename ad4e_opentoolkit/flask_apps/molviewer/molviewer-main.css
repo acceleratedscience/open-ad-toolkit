@@ -113,6 +113,23 @@ body {
 	margin-bottom: 4px;
 }
 
+/**
+ * Parameters
+ */
+
+.array:not(.expand) span:nth-child(10):not(.show) ~ span {
+	display: none;
+}
+.array:not(.expand) span:nth-child(10)::after {
+	content: '...';
+}
+.array .show-more::after {
+	content: 'more';
+}
+.array.expand .show-more::after {
+	content: 'less';
+}
+
 /*
  * TEMP
  */

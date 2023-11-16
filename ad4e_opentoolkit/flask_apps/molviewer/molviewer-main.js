@@ -60,9 +60,21 @@ async function populateMolData(inchi) {
 
 		// Parameters
 		Object.entries(pubchem_data_simple).forEach(([key, val]) => {
-			console.log(key, val)
-			// const html = (document.createElement('div').innerHTML = `<b>${key}: </b>${val}`)
-			document.getElementById('parameters').insertAdjacentHTML('beforeend', `<div><b>${key}: </b>${val}</div>`)
+			if (Array.isArray(val)) {
+				const showMoreLink = val.length > 10 ? ` <a href="#" class="show-more"></a>` : ''
+				document.getElementById('parameters').insertAdjacentHTML('beforeend', `<div><b>${key}: </b><span class="array"><span>${val.join('</span><span>, ')}</span>${showMoreLink}</span></div>`)
+			} else {
+				document.getElementById('parameters').insertAdjacentHTML('beforeend', `<div><b>${key}: </b>${val}</div>`)
+			}
+		})
+
+		// Show-more links (masking long arrays)
+		// To see this in action, check ibuprofen - show mol 'CC(C)Cc1ccc(C(C)C(=O)O)cc1'
+		document.querySelectorAll('.show-more').forEach($elm => {
+			$elm.addEventListener('click', e => {
+				e.preventDefault()
+				$elm.closest('.array').classList.toggle('expand')
+			})
 		})
 
 		// JSON data
