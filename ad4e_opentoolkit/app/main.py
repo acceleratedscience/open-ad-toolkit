@@ -551,12 +551,20 @@ class run_cmd(Cmd):
                 if error_col_grabber(error_descriptor) == 0:
                     if self.notebook_mode is True:
                         return output_error(
-                            msg("err_invalid_cmd", 'Not a Valid Command, try "?" to list valid commands', split=True),
+                            msg(
+                                "err_invalid_cmd",
+                                "<soft>Run <cmd>?</cmd> to list all command options.</soft>",
+                                split=True,
+                            ),
                             self,
                         )
                     else:
                         output_error(
-                            msg("err_invalid_cmd", 'Not a Valid Command, try "?" to list valid commands', split=True),
+                            msg(
+                                "err_invalid_cmd",
+                                "<soft>Run <cmd>?</cmd> to list all command options.</soft>",
+                                split=True,
+                            ),
                             self,
                         )
                 else:

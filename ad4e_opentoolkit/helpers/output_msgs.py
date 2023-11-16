@@ -3,6 +3,7 @@ import os
 messages = {
     ##########################################################################
     # region - FILE SYSTEM
+    ##########################################################################
     # Success
     "success_import": lambda source_file, workspace_name: f"Imported the file {source_file} to your {workspace_name} workspace",
     "success_export": lambda source_file, workspace_name, dest_file: f"Copied the file {source_file} from your {workspace_name} workspace to {dest_file}",
@@ -15,10 +16,27 @@ messages = {
         f'Allowed file types: <yellow>{ "</yellow>, <yellow>".join(args) }</yellow>',
     ),
     "invalid_file_format_target": lambda *args: f'You can only save to <yellow>{ "</yellow>, <yellow>".join(args) }</yellow> files',
-    "fail_file_doesnt_exist": lambda *args: f"The selected file <yellow>{args[0]}</yellow> does not exist",
-    "fail_path_doesnt_exist": lambda path: f"The path <yellow>{path}</yellow> does not exist",  # ?
-    "fail_file_not_found": lambda path: (f"File not found", path),
-    "fail_save_data": "No data was stored",
+    "err_file_doesnt_exist": lambda *args: f"The selected file <yellow>{args[0]}</yellow> does not exist",
+    "err_path_doesnt_exist": lambda path: f"The path <yellow>{path}</yellow> does not exist",  # ?
+    "err_file_not_found": lambda file_path: (f"File <yellow>{file_path.split('/')[-1]}</yellow> not found", file_path),
+    "err_file_no_permission": lambda file_path: (
+        f"You don't have permission to open the file <yellow>{file_path.split('/')[-1]}</yellow>",
+        file_path,
+    ),
+    "err_file_is_dir": lambda file_path: (
+        f"The file you try to open (<yellow>{file_path.split('/')[-1]}</yellow>) is a directory",
+        file_path,
+    ),
+    "err_decode": lambda file_path: (
+        f"Unable to decode the file <yellow>{file_path.split('/')[-1]}</yellow>",
+        file_path,
+    ),
+    "err_io": lambda file_path, err_msg: (
+        f"An I/O error occurred while opening the file <yellow>{file_path.split('/')[-1]}</yellow>",
+        err_msg,
+        file_path,
+    ),
+    "err_save_data": "No data was stored",
     "err_import": lambda err: ("Import failed", err),
     "err_export": lambda err: ("Export failed", err),
     "err_copy": lambda err: ("Copying file failed", err),
@@ -29,6 +47,7 @@ messages = {
     # endregion
     ##########################################################################
     # region - WORKSPACES
+    ##########################################################################
     # General
     "workspace_description": lambda workspace_name, description, active=False: (
         "<soft>Active workspace:</soft>" if active else None,
@@ -55,6 +74,7 @@ messages = {
     # endregion
     ##########################################################################
     # region - RUNS
+    ##########################################################################
     # General
     "create_run_started": (
         "<yellow>Recording started</yellow>",
@@ -77,6 +97,7 @@ messages = {
     # endregion
     ##########################################################################
     # region - TOOLKITS
+    ##########################################################################
     # General
     "all_toolkits_currently_installed": (
         "These are the toolkits you currently have installed",
@@ -136,16 +157,17 @@ messages = {
     ),
     # endregion
     ##########################################################################
-    # region - MOLECULE VIEWER
+    # region - MOLECULE GRID
+    ##########################################################################
     # General
     "m2g_tip": (
         "Tip: To select what parameters to display:",
-        "<cmd>my_molsobject.display(**{ subset:['name'], tooltip:['smiles'] })</cmd>",
+        "<cmd>result.display(**{ subset:['name'], tooltip:['smiles'] })</cmd>",
         "",
         "For more options, see: https://mols2grid.readthedocs.io/en/latest/notebooks/customization.html",
     ),
-    "flask_launch": lambda app_name, port: (
-        f"<yellow>Launching the {app_name}</yellow> - Press ctrl+c to abort",
+    "flask_launch": lambda port: (
+        f"<yellow>Launching the web server</yellow> - Press ctrl+c to abort",
         f"<link>http://127.0.0.1:{port}</link>",
     ),
     "m2g_launch": (  # LEGACY – can be deleted after flask centralization is complete.
@@ -164,7 +186,28 @@ messages = {
     "err_m2g_open": lambda err: ("There was an error opening the molecule viewer", err),
     # endregion
     ##########################################################################
+    # region - MOLECULE GRID
+    ##########################################################################
+    # Error
+    "input_str_missing": "No input string was provided",
+    "invalid_sdf": lambda err: ("The selected SDF file is invalid", err),
+    "identifier_missing": lambda file_path: ("No identifier (Inchi or SMILES) found in the provided file", file_path),
+    # endregion
+    ##########################################################################
+    # region - MOLECULE VIEWER
+    ##########################################################################
+    # Error
+    "err_molfile_not_found": lambda filename, file_path: (
+        f"The requested molecule file {filename} does not exist.",
+        file_path,
+    ),
+    "err_molfile_invalid": lambda filename, file_path: (
+        f"The requested molecule file {filename} does not exist.",
+        file_path,
+    ),
+    # endregion
     # region - SESSIONS
+    ##########################################################################
     # General
     "confirm_clear_sessions": (
         "Terminate all other sessions?",
@@ -180,6 +223,7 @@ messages = {
     # endregion
     ##########################################################################
     # region - LOGIN
+    ##########################################################################
     # Success
     "success_login": lambda toolkit_name, expiry_datetime: (
         f"You successfully logged in to <yellow>{toolkit_name}</yellow>",
@@ -197,6 +241,7 @@ messages = {
     # endregion
     ##########################################################################
     # region - LLM
+    ##########################################################################
     # Success
     "success_llm_auth_cleared": "Your LLM authentication file has been cleared",
     # Error
@@ -205,11 +250,12 @@ messages = {
     # endregion
     ##########################################################################
     # region - OTHER
+    ##########################################################################
     # General
     "status": lambda *args: (  # TO BE DELETED
         "<yellow>Current workspace</yellow>: " + args[0],
         "<yellow>Current context</yellow>: " + args[1],
-        "<soft>To see more details, run <cmd>get workspace</cmd> or <cmd>get context</cmd>.</soft>",
+        "<soft>To see more details, run <cmd>get workspace</cmd> or <cmd>get context</cmd></soft>",
     ),
     "enter_to_skip": "<soft>Press enter to skip</soft>",
     "abort": "Aborted",
@@ -223,10 +269,10 @@ messages = {
     "table_is_empty": "No data to display",
     "memory_empty": lambda action: f"There is no result to {action}.",
     # Error
-    # 'invalid_cmd': 'Not a valid command',
     "err_invalid_cmd": lambda err: ("Not a valid command", err),
     "err_no_matching_cmds": lambda inp: (f'No commands containing "<yellow>{inp}</yellow>"'),
     "err_unknown": lambda err: ("Unknown error", err),
     "err_fetch_history": lambda err: ("There was an error fetching the history", err),
+    "err_load_splash": ("Something went wrong loading the splash page", "<yellow>But the show must go on</yellow>"),
     # endregion
 }

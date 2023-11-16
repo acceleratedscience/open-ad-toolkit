@@ -28,7 +28,7 @@ from ad4e_opentoolkit.core.lang_workspaces import (
     set_workspace,
     get_workspace,
 )
-from ad4e_opentoolkit.core.lang_mols import display_mols
+from ad4e_opentoolkit.core.lang_mols import show_molsgrid, show_mol
 from ad4e_opentoolkit.core.lang_runs import display_run, exec_run, save_run, list_runs
 from ad4e_opentoolkit.core.lang_dev import flask_example
 from ad4e_opentoolkit.core.grammar import create_statements
@@ -189,9 +189,11 @@ def lang_parse(cmd_pointer, parser):
 
     # Show molecules commands
     elif parser.getName() == "show_molecules":
-        return display_mols(cmd_pointer, parser)
+        return show_molsgrid(cmd_pointer, parser)
     elif parser.getName() == "show_molecules_df":
-        return display_mols(cmd_pointer, parser)
+        return show_molsgrid(cmd_pointer, parser)
+    elif parser.getName() == "show_molecule":
+        return show_mol(cmd_pointer, parser)
 
     # Toolkit execution
     elif str(parser.getName()).startswith("toolkit_exec_"):
@@ -461,7 +463,7 @@ def display_data(cmd_pointer, parser):
                 df = pd.read_csv(workspace_path + file_path)
                 return output_table(df, cmd_pointer, is_data=True)
             except FileNotFoundError:
-                return output_error(msg("fail_file_doesnt_exist", file_path), cmd_pointer)
+                return output_error(msg("err_file_doesnt_exist", file_path), cmd_pointer)
             except BaseException as err:
                 return output_error(msg("err_load_csv", err, split=True), cmd_pointer)
         else:
@@ -501,7 +503,7 @@ def display_data__save(cmd_pointer, parser):
         data.to_csv(workspace_path + file_path, index=False)
         return output_success(msg("success_save_data", file_path), cmd_pointer)
     else:
-        return output_error(msg("fail_save_data"), cmd_pointer)
+        return output_error(msg("err_save_data"), cmd_pointer)
 
 
 # --> Open data in browser UI.
@@ -581,6 +583,6 @@ def edit_config(cmd_pointer, parser):
         # JSON file not found, create new from schema.
         edit_json(file_to_edit, schema, new=True)
     else:
-        return output_error(msg("fail_file_doesnt_exist", parser.as_dict()["json_file"]), cmd_pointer)
+        return output_error(msg("err_file_doesnt_exist", parser.as_dict()["json_file"]), cmd_pointer)
 
     return True

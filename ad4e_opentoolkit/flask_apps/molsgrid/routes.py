@@ -13,7 +13,7 @@ mol_name_cache = {}
 from flask import render_template, send_from_directory, request
 
 
-def fetchRoutesMols2Grid(cmd_pointer, parser):
+def fetchRoutesMolsGrid(cmd_pointer, parser):
     # File and directory references.
     workspace_path = cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/"
     origin_file = parser.as_dict()["moles_file"] if "moles_file" in parser.as_dict() else None
@@ -23,7 +23,7 @@ def fetchRoutesMols2Grid(cmd_pointer, parser):
     if parser.getName() != "show_molecules_df":
         # Origin file doesn't exist.
         if origin_file and not os.path.exists(workspace_path + origin_file):
-            return None, output_error(msg("fail_file_doesnt_exist", origin_file), cmd_pointer)
+            return None, output_error(msg("err_file_doesnt_exist", origin_file), cmd_pointer)
 
         # Invalid origin file type.
         if origin_file and len(origin_file.strip()) > 0:
@@ -133,7 +133,7 @@ def fetchRoutesMols2Grid(cmd_pointer, parser):
     if cmd_pointer.notebook_mode:
         if "object" in parser:
             # Return the mols2grid object.
-            output_text(msg("m2g_tip"), cmd_pointer)  # force_print=True
+            output_text(msg("m2g_tip"), cmd_pointer, return_val=False)  # force_print=True
             return None, the_mols2grid
         else:
             # Display the grid.

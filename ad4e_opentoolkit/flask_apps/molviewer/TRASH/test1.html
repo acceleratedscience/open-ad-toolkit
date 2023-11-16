@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>3Dmol Example</title>
+		<script src="https://3Dmol.org/build/3Dmol-min.js"></script>
+		<script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+	</head>
+	<body>
+		<div style="height: 400px; width: 400px; position: relative" class="viewer_3Dmoljs" data-sdf="your_sdf_data_here"></div>
+
+		<script>
+			// Fetch SDF data and render the molecule
+			fetch('mol3.sdf')
+				.then(response => response.text())
+				.then(sdfData => {
+					let element = document.querySelector('.viewer_3Dmoljs')
+					console.log(sdfData)
+					let config = { backgroundColor: 'orange' }
+					let viewer = $3Dmol.createViewer(element, config)
+					// viewer.addModel(sdfData, 'sdf')
+					viewer.zoomTo()
+					viewer.render()
+				})
+				.catch(error => {
+					console.error('There was an error fetching the SDF data:', error)
+				})
+		</script>
+	</body>
+</html>

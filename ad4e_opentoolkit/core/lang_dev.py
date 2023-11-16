@@ -8,10 +8,10 @@ def flask_example(cmd_pointer, parser):
     # Load routes and launch browser UI.
     routes, return_data = fetchRoutesExample(data)
 
-    if routes and not cmd_pointer.notebook_mode:
-        # CLI
-        launcher.launch(cmd_pointer, routes, "example")
-    else:
+    if cmd_pointer.notebook_mode:
         # Jupyter
         launcher.launch(cmd_pointer, routes, "example")
         return return_data
+    else:
+        # CLI
+        launcher.launch(cmd_pointer, routes, "example")

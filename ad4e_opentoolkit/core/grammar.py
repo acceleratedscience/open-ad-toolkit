@@ -63,6 +63,7 @@ from ad4e_opentoolkit.app.global_var_lib import _all_toolkits
     save,
     runs,
     show,
+    mol,
     molecules,
     file,
     d_isplay,
@@ -72,7 +73,7 @@ from ad4e_opentoolkit.app.global_var_lib import _all_toolkits
     result,
 ) = map(
     CaselessKeyword,
-    "get list description using create set unset workspace workspaces context jobs exec as optimize with toolkits toolkit gpu experiment add run save runs show molecules file display history data remove result".split(),
+    "get list description using create set unset workspace workspaces context jobs exec as optimize with toolkits toolkit gpu experiment add run save runs show mol molecules file display history data remove result".split(),
 )
 string_value = alphanums
 
@@ -537,7 +538,7 @@ if not is_notebook_mode():
         )
     )
 
-# Show molecules.
+# Show molecules set grid.
 # Note: we don't allow dashes in dataframe names because it's a substraction operator and causes issues in Jupyter.
 statements.append(
     Forward(
@@ -573,6 +574,17 @@ Examples:
     <cmd>show molecules using file 'base_molecules.sdf' as molsobject</cmd>
     <cmd>show molecules using dataframe my_dataframe save as 'selection.sdf'</cmd>
 """,
+    )
+)
+
+# Show individual molecule detail page.
+statements.append(Forward(show("show") + mol + desc("input_str"))("show_molecule"))  # From mol json file
+grammar_help.append(
+    help_dict_create(
+        name="show molecule",
+        category="Utility",
+        command="show molecule '<json_mol_file> | <sdf_file> | <smiles_string> | <inchi_string> | <inchi_key>'",
+        description="Inspect a molecule in the browser.",
     )
 )
 
