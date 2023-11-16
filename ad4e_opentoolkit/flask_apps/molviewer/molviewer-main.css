@@ -82,12 +82,23 @@ body {
 #mol-render .mol-2d svg rect {
 	display: none;
 }
+
+/* 3dmol */
 #mol-render .mol-3d {
 	background: var(--black);
 }
 #mol-render .mol-3d canvas {
-	mix-blend-mode: screen;
+	/* mix-blend-mode: screen; */
+	outline: none;
 }
+
+/* jmol */
+.JSmolLoader {
+	display: none;
+}
+/* #jmolApplet1_waitimage {
+	display: none;
+} */
 
 /**
  * Header

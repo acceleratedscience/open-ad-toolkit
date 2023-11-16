@@ -7,8 +7,8 @@
 		<link rel="stylesheet" href="css/carbon.css" />
 		<link rel="stylesheet" href="css/main.css" />
 		<link rel="stylesheet" href="app/molviewer-main.css" />
-		<script src="https://3Dmol.org/build/3Dmol-min.js"></script>
-		<!-- <script src="https://jmol.sourceforge.net/jmol/JSmol.min.js"></script> -->
+		<script src="app/3dmol/3Dmol-min.js"></script>
+		<script src="app/jsmol/JSmol.min.js"></script>
 	</head>
 	<body>
 		<div id="mol-render">
@@ -16,8 +16,8 @@
 			<div class="mol-3d"></div>
 		</div>
 
-		<!-- <div id="JmolOuterDiv" style="width: 400px; height: 400px"></div> -->
-		<!-- <script type="text/javascript">
+		<!-- <div id="JmolOuterDiv" style="width: 400px; height: 400px"></div>
+		<script type="text/javascript">
 			var myJmol = 'myJmol'
 			var JmolInfo = {
 				width: '100%',
@@ -26,6 +26,7 @@
 				j2sPath: 'app/libs/j2s',
 				serverURL: 'app/libs/jsmol.php',
 				use: 'html5',
+				script: 'load $caffeine',
 			}
 
 			$('#JmolOuterDiv').css({ width: 'calc( 100% - 1.2em )', border: '1px dotted gray', 'border-radius': '0.6em', padding: '0.6em', 'min-height': '90vmin' })
@@ -36,7 +37,7 @@
 			// Jmol.script(jmolApplet, 'load INLINE "CC/C=C/c1cc(O)c(O)c(O)c1"')
 			// console.log(Jmol)
 			// Jmol.script(myJmol, 'load app/aspirina.mol')
-			Jmol.script(myJmol, 'load INLINE "CC/C=C/c1cc(O)c(O)c(O)c1"')
+			// Jmol.script(myJmol, 'load INLINE "CC/C=C/c1cc(O)c(O)c(O)c1"')
 		</script> -->
 
 		<div id="grid">
