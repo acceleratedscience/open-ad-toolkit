@@ -26,7 +26,7 @@ Download the this respository and place it in your Downloads directory on Window
 
         ln -s /mnt/c/Users/`<windows_user>`/Downloads ~/downloads
         mkdir -p ~/.ipython/profile_default/startup
-        cd ~/downloads/ad4e-opentoolkit/
+        cd ~/downloads/openad-opentoolkit/
         pip install .
         init_magic
         init_examples
