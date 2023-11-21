@@ -241,15 +241,15 @@ Only follow these instructions if you're contributing to the codebase.
     > **Note:** To exit the virtual environment, you can run `deactivate`
 
 1.  **Step 2: Installation**<br>
-    [Download](https://github.ibm.com/Accelerated-Discovery/openad-opentoolkit) or clone the right branch from GitHub:
+    [Download](https://github.com:acceleratedscience/open-ad-toolkit.git) or clone the right branch from GitHub:
 
-        git clone -b main git@github.ibm.com:Accelerated-Discovery/openad-opentoolkit.git
+        git clone -b main https://github.com/acceleratedscience/open-ad-toolkit.git
 
     > **Note:** To clone a particular branch, replace `main` with your branch name.
 
     Then, enter the repo's top directory and install the requirements
 
-        cd openad-opentoolkit
+        cd open-ad-opentoolkit
         pip install -e .
 
     > **Note:** The `-e` flag stands for "editable". This means that instead of copying the package's files to the Python site-packages directory as in a regular installation, pip creates a symbolic link (symlink) from your package's source code directory into your Python environment.<br><br>
@@ -261,7 +261,7 @@ Only follow these instructions if you're contributing to the codebase.
 
 To do a regular install from a particular branch, you can run:
 
-    pip install git+ssh://git@github.ibm.com/Accelerated-Discovery/openad-opentoolkit.git@<branch_name>
+    pip install (https://github.com/acceleratedscience/open-ad-toolkit.git)@<branch_name>
 
 <!--
 
