@@ -49,7 +49,7 @@
 
 1.  **Step 2: Installation**<br>
 
-        pip install git+ssh://github.com/acceleratedscience/open-ad-toolkit.git
+        pip install https://github.com/acceleratedscience/open-ad-toolkit.git
     
     > _**Note:** Before pip installing from git, ensure you have ssh set up for git install, otherwise you can download the repository and run `pip install .` from the top directory (openad-opentoolkit)._
 
