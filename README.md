@@ -20,7 +20,7 @@
 
 ## Notes
 
--   Only available for Linux and MacOS
+-   Only available for Linux (including Windows 11 WSL) and MacOS
 -   Currently only the OpenAI API is available for the _Tell Me_ Function (WatsonX coming soon)
 -   If you're on Mac and not installing into a virtual environment, you may need use `pip3` and `python3` instead of `pip` and `python` respectively.<br>
 
@@ -46,12 +46,15 @@
         source ~/ad-venv/bin/activate
 
     > **Note:** To exit the virtual environment, you can run `deactivate`
+    > Also Openad Supports a Poetry install
 
 1.  **Step 2: Installation**<br>
+       To Install into a global or Python virtual environment
+            `pip install git+https://github.com/acceleratedscience/open-ad-toolkit.git`
 
-        pip install https://github.com/acceleratedscience/open-ad-toolkit.git
+       To install into an Poetry Environment
+            `poetry add git+https://github.com/acceleratedscience/open-ad-toolkit.git`
     
-    > _**Note:** Before pip installing from git, ensure you have ssh set up for git install, otherwise you can download the repository and run `pip install .` from the top directory (openad-opentoolkit)._
 
 1.  **Launch**<br>
     To enter the command shell, simply enter `openad` from the command line.
@@ -103,10 +106,12 @@ If you plan to use this application inside Jupyter Notebook of JupyterLab, you s
 
         python -m ipykernel install --user --name=ad-kernel
 
+    if you are also using Poetry we suggest naming your kernel  `poetry-ad-kernel`
+
     > **Note:** To list your installed iPython kernels, you can run `jupyter kernelspec list`<br>
     > To remove the kernel you can run `jupyter kernelspec uninstall ad-kernel`
 
-3.  **Initiate the magic commands.**<br>
+4.  **Initiate the magic commands.**<br>
     This copies the magic commands into the iPython startup directory for your created profile:
 
         init_magic
@@ -117,7 +122,7 @@ If you plan to use this application inside Jupyter Notebook of JupyterLab, you s
     > • Initiate without installing anything: `run openad.ipynb` after installing examples (see next bullet)<br>
     > --> This executes the file `~/openad_notebooks/openad.ipynb` and needs to be run every time after restarting the kernel
 
-4.  **Install the Notebook examples**<br>
+5.  **Install the Notebook examples**<br>
     This creates the `~/openad_notebooks` folder with a number of demonstration notbeooks.<br>
     Start with `Table_of_Contents.ipynb`.
 
@@ -241,7 +246,7 @@ Only follow these instructions if you're contributing to the codebase.
     > **Note:** To exit the virtual environment, you can run `deactivate`
 
 1.  **Step 2: Installation**<br>
-    [Download](https://github.com:acceleratedscience/open-ad-toolkit.git) or clone the right branch from GitHub:
+    [Download](https://github.com/acceleratedscience/open-ad-toolkit) or clone the right branch from GitHub:
 
         git clone -b main https://github.com/acceleratedscience/open-ad-toolkit.git
 
@@ -261,7 +266,7 @@ Only follow these instructions if you're contributing to the codebase.
 
 To do a regular install from a particular branch, you can run:
 
-    pip install (https://github.com/acceleratedscience/open-ad-toolkit.git)@<branch_name>
+    pip install (git+git://github.com/acceleratedscience/open-ad-toolkit.git)@<branch_name>
 
 <!--
 
