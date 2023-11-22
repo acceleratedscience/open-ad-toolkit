@@ -268,7 +268,7 @@ Only follow these instructions if you're contributing to the codebase.
 
 To do a regular install from a particular branch, you can run:
 
-    pip install (git+git://github.com/acceleratedscience/open-ad-toolkit.git)@<branch_name>
+    pip install git+https://github.com/acceleratedscience/open-ad-toolkit.git@<branch_name>
 
 <!--
 
