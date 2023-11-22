@@ -9,10 +9,10 @@ import os
     }, """
 
 setup(
-    name="openad_opentoolkit",
+    name="openad",
     version="0.1.0",
     # packages=find_packages(),
-    packages=find_namespace_packages(include=["openad_opentoolkit.*"]),
+    packages=find_namespace_packages(include=["openad.*"]),
     include_package_data=True,
     install_requires=[
         "joblib",
@@ -74,9 +74,9 @@ setup(
     ],
     entry_points={
         "console_scripts": [
-            "openad=openad_opentoolkit.app.main:cmd_line",
-            "init_magic=openad_opentoolkit.app.init_magic:init_magic",
-            "init_examples=openad_opentoolkit.app.openad_examples:openad_create_examps",
+            "openad=openad.app.main:cmd_line",
+            "init_magic=openad.app.init_magic:init_magic",
+            "init_examples=openad.app.openad_examples:openad_create_examps",
         ],
     },
 )
