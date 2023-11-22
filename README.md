@@ -49,11 +49,13 @@
     > Also Openad Supports a Poetry install
 
 1.  **Step 2: Installation**<br>
-       To Install into a global or Python virtual environment
-            `pip install git+https://github.com/acceleratedscience/open-ad-toolkit.git`
+       To Install into a global or Python virtual environment<br>
+       
+               pip install git+https://github.com/acceleratedscience/open-ad-toolkit.git
 
        To install into an Poetry Environment
-            `poetry add git+https://github.com/acceleratedscience/open-ad-toolkit.git`
+
+                poetry add git+https://github.com/acceleratedscience/open-ad-toolkit.git
     
 
 1.  **Launch**<br>
