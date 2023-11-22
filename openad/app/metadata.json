@@ -1,0 +1,12 @@
+{
+	"banner": "OPENAD",
+	"title": "Welcome to the Open Accelerated Discovery CLI",
+	"version": "0.1.1",
+	"commands": {
+		"intro": "If this is your first time, let us help you getting started.",
+		"toolkits ?": "Learn about the toolkits.",
+		"?": "See what you can do.",
+		"<soft>...</soft> ?": "Get help whenever you get stuck.",
+		"docs": "Read the docs in your browser."
+	}
+}

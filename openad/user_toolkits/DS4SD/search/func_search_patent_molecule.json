@@ -1,0 +1,18 @@
+{
+	"fplugin": "ds4sd",
+	"command": "search for patents containing molecule",
+	"subject":	"Search",
+	"SINGLE_PARM": {"smiles": "desc"	},
+	"SAVE_AS":{},
+	"exec_type": "standard_statement",
+	"exec_cmd": "search for patents containing molecule",
+	"help": {
+		"name": "search for patents containing molecule",
+		"category": "Search Molecules",
+		"command": "search for patents containing molecule ['<smiles_molecule>'| '<inchi_molecule>'] [save as '<csv_file_name>']",
+		"description": "This command searches for mentions of a specified molecules in registered patents.\nAs input parameters you can provide either a SMILES version of a molecule <smiles_molecule> or Inchi <inchi_molecule>, which can either be in key or string format.\n\n <cmd> search for patents containing molecule 'CC(C)(c1ccccn1)C(CC(=O)O)Nc1nc(-c2c[nH]c3ncc(Cl)cc23)c(C#N)cc1F' </cmd> \n\nIf you use the <cmd>SAVE AS</cmd> clause, it will save a csv file to the current workspace.",
+		"url": ""
+	},
+	"library": "ds4sd_search_patent_molecule",
+	"method": "search_patent_molecule"
+}

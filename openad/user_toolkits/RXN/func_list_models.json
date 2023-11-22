@@ -1,0 +1,16 @@
+{
+	"fplugin": "rxn",
+	"command": "list rxn models",
+	"subject": "list_models",
+	"exec_type": "standard_statement",
+	"exec_cmd": "list rxn models ",
+	"help": {
+		"name": "list rxn models",
+		"category": "Queries",
+		"command": "list rxn models",
+		"description": "lists current rxn AI Models available to the user",
+		"url": ""
+	},
+	"library": "rxn_list_models",
+	"method": "list_models"
+}

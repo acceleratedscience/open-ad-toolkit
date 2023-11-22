@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>Molecule Viewer</title>
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600&display=swap" rel="stylesheet" />
+		<link rel="stylesheet" href="css/carbon.css" />
+		<link rel="stylesheet" href="css/main.css" />
+		<link rel="stylesheet" href="app/molsviewer.css" />
+		<script>
+			// Note: we are submitting the form with an ajax request,
+			// because otherwise we can't call window.close()
+
+			// Create a new XMLHttpRequest object
+			var xhr = new XMLHttpRequest()
+
+			function submitForm() {
+				// Get the selection.
+				// Note: SELECTION is defined within mols2grid -> interactive.js
+				keys = SELECTION.to_keys()
+
+				if (!keys.length) {
+					if (confirm('No selection was made. Do you want to close the window?')) {
+						window.close()
+						xhr.open('POST', '/exit', true)
+						xhr.send(null)
+					}
+					return
+				}
+
+				// Define the request method and URL
+				xhr.open('POST', '/submit', true)
+
+				// Set up a callback function to handle the response
+				xhr.onload = function () {
+					if (xhr.status === 200) {
+						// Success
+						countDownAndClose(keys.length)
+					} else {
+						// Error
+						console.log('Submit request failed with status code ' + xhr.status)
+					}
+				}
+
+				// Send the request
+				xhr.send(JSON.stringify(keys))
+			}
+
+			// Close window after 3 seconds.
+			function countDownAndClose(resultCount) {
+				function _count(s) {
+					var title = `${resultCount} molecules returned to CLI`
+					var message = `This window will close itself in ${s} seconds.`
+					var html = `<div style="height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;"><h2>${title}</h2>${message}</div>`
+					document.body.innerHTML = html
+
+					if (s == 0) {
+						window.close()
+					} else {
+						setTimeout(() => _count(s - 1), 1000)
+					}
+				}
+				_count(3)
+			}
+
+			// // Not sure if it is possible to differentiate between navigating
+			// // away or closing the window, disabling this for now - moe
+			// //
+			// // Shut down server when closing the window.
+			// window.onbeforeunload = function (e) {
+			// 	console.log(e)
+			// 	e = e || window.event
+			// 	if (e) {
+			// 		// Check if the user is navigating away from the page
+			// 		console.log(e.returnValue, typeof e.returnValue)
+			// 		if (e.returnValue == undefined) {
+			// 			// User is closing the window.
+			// 			xhr.open('POST', '/exit', true)
+			// 			xhr.send(null)
+			// 		}
+			// 	}
+			// 	return 'Are you sure?'
+			// }
+		</script>
+	</head>
+
+	<body>
+		<div id="top">
+			<div id="header">
+				<h1 aria-current="page">Molecule Viewer</h1>
+				<p class="soft">
+					Powered by
+					<a href="https://github.com/cbouy/mols2grid">Mols2Grid</a>
+				</p>
+				<p>Select the molecules you wish to keep, then hit submit.</p>
+				<input id="selection" name="selection" hidden />
+				<button onclick="submitForm()">Submit</button>
+			</div>
+
+			<!-- prettier-ignore -->
+			<div id="options">
+				<h3 class="title">Display Options</h3>
+				<p>Choose which fields to display.</p>
+				<div class="multiselect-wrap">
+					<div class="multiselect cell">
+						<h4>Cell</h4>
+						{% for param in available_params %}
+						<label class="option"><input type="checkbox" {{'checked' if param in m2g_params.subset else ''}} data-value="{{param}}"><div class="cb"></div>{{param}}</label>
+						{% endfor %}
+					</div>
+					<div class="multiselect tooltip">
+						<h4><br>Tooltip</h4>
+						{% for param in available_params %}
+						<label class="option"><input type="checkbox" {{'checked' if param in m2g_params.tooltip else ''}} data-value="{{param}}"><div class="cb"></div>{{param}}</label>
+						{% endfor %}
+					</div>
+				</div>
+				<div class="btn-wrap">
+					<button class="secondary">Apply</button>
+					<button class="tertiary">Cancel</button>
+				</div>
+			</div>
+
+			<button id="btn-options" class="tertiary">Display Options</button>
+		</div>
+
+		<!-- Grid -->
+		<!--
+			Mols2grid HTML gets loaded in here
+			together with all JS and CSS referenced
+		-->
+		{% block content %}
+		<div class="container">
+			<div>{{data|safe}}</div>
+		</div>
+		{% endblock %}
+
+		<script>
+			// Open option panel
+			document.getElementById('btn-options').addEventListener('click', function () {
+				document.getElementById('options').classList.add('show')
+			})
+
+			// Cancel option panel
+			document.querySelector('#options button.tertiary').addEventListener('click', function () {
+				document.getElementById('options').classList.remove('show')
+			})
+
+			// Select parameter
+			var checkboxes = document.querySelectorAll('#options .option input[type=checkbox]')
+			var cellParams = document.querySelector('#options .multiselect.cell')
+			var tooltipParams = document.querySelector('#options .multiselect.tooltip')
+			// When selecting a parameter, we unselect its equivalent in the other multiselect.
+			// So a value can either be displayed in the tooltip OR the cell.
+			for (const cb of checkboxes) {
+				cb.addEventListener('change', function (e) {
+					// Ignore when unselecting.
+					if (!e.target.checked) return
+
+					// Get index of clicked element.
+					var index = Array.prototype.indexOf.call(e.target.parentNode.parentNode.children, e.target.parentNode)
+
+					// Apply change to other multiselect.
+					var type = e.target.parentNode.parentNode.classList[1]
+					if (type == 'cell') {
+						var cb = tooltipParams.children[index].children[0]
+						cb.checked = !e.target.checked
+					} else if (type == 'tooltip') {
+						var cb = cellParams.children[index].children[0]
+						cb.checked = !e.target.checked
+					}
+				})
+			}
+
+			// Apply options
+			document.querySelector('#options button.secondary').addEventListener('click', function () {
+				// Gather subset values.
+				subset = []
+				for (var param of cellParams.querySelectorAll('label')) {
+					var cb = param.children[0]
+					var paramName = cb.getAttribute('data-value')
+					if (cb.checked) {
+						subset.push(paramName)
+					}
+				}
+
+				// Gather tooltip values.
+				tooltip = []
+				for (var param of tooltipParams.querySelectorAll('label')) {
+					var cb = param.children[0]
+					var paramName = cb.getAttribute('data-value')
+					if (cb.checked) {
+						tooltip.push(paramName)
+					}
+				}
+
+				// Create URL & reload page.
+				var url_params = ''
+				if (subset.length || tooltip.length) {
+					url_params = '?'
+					if (subset.length) {
+						url_params += 'subset=' + subset.join(',')
+					}
+					if (tooltip.length) {
+						if (subset.length) {
+							url_params += '&'
+						}
+						url_params += 'tooltip=' + tooltip.join(',')
+					}
+				}
+
+				var url = window.location.origin + url_params
+				window.location.href = url
+			})
+		</script>
+	</body>
+</html>

@@ -1,0 +1,27 @@
+{
+	"fplugin": "ds4sd",
+	"command": "search <in_clause> for",
+	"subject": "search_text",
+	"in_clause":{"collection":"desc"},
+	"USING": {
+		"page_size": "int",
+		"system_id": "str",
+		"edit_distance": "int",
+		"display_first": "int"
+	},
+	"SHOW": ["DATA", "DOCS"],
+	"ESTIMATE_ONLY": {},
+	"SAVE_AS": {},
+	"RETURN_AS_DATA": {},
+	"exec_type": "search_statement",
+	"exec_cmd": "search collection for ",
+	"help": {
+		"name": "search Collection",
+		"category": "Search Collection",
+		"command": "search collection '<collection name or key>' for '<search string>' using ( [ page_size=<int> system_id=<system_id> edit_distance=<integer> display_first=<integer>]) show (data|docs) [ estimate only|return as data|save as '<csv_filename>' ]",
+		"description": "Performs a document search of the Deep Search repository based on a given collection. The required USING clause specifies the collection to search. Use 'estimate only' to perform a general search, returning the potential number of hits.\n\n Parameters:\n    - <cmd>'<collection name or key>'</cmd> the name or index key for a collection. Use the command <cmd>display all collections</cmd> to identify collections.\n    - <cmd>'<search string>'</cmd> the search string for the search.\n\n Search String Syntax: DeepSearch uses Elastic Search string query syntax, supporting operators like the following:\n    -- <cmd>+</cmd> signifies AND operation\n    -- <cmd>|</cmd> signifies OR operation\n    -- <cmd>-</cmd> negates a single token\n    -- <cmd>\"</cmd> wraps a number of tokens to signify a phrase for searching\n    -- <cmd>*</cmd> at the end of a term signifies a prefix query\n    -- <cmd>(</cmd> and <cmd>)</cmd> signify precedence\n    -- <cmd>~N</cmd> after a word signifies edit distance (fuzziness)\n    -- <cmd>~N</cmd> after a phrase signifies slop amount\n\n<cmd>USING</cmd> clause Options:\n    - <cmd>page_size=<integer></cmd> - result pagination, the default is None.\n    - <cmd>system_id=<system_id> </cmd> - system cluster id, the default is the value 'default'.\n    - <cmd>edit_distance=<integer></cmd>  - Set the search word span criteria for key words for document searches. the default is 5. When set to 0, no snippets will be be returned.\n    - <cmd>display_first=<integer></cmd> - If display_first > 0, the displayed result set will be truncated at the given number. The default is 0.\n\nClauses:\n    - <cmd>show (data | docs ) </cmd> - <cmd>data</cmd> Display structured data from within the documents or <cmd>docs</cmd> Display document context.\n           It is permitted to specify both in a single command e.g. <cmd> show (data docs)</cmd> \n    - <cmd>estimate only</cmd> - Determine the potential number of hits.\n    - <cmd>return as data</cmd> - For Notebook or API mode. Removes all styling from the Pandas DataFrame, ready for further processing.\n\n Examples:\n- Look for documents that contain discussions on power conversion efficiency:\n\n    <cmd>search collection 'arxiv-abstract' for 'ide(\"power conversion efficiency\" OR PCE) AND organ*' using ( edit_distance=20 system_id=default) show (docs)</cmd>\n\n- Search the pubchem archive for 'Ibuprofen' and display related molecules' data:\n\n    <cmd>search collection 'pubchem' for 'Ibuprofen' show (data)</cmd>\n\n- Search for patents which mention a specific smiles molecule:\n\n    <cmd>search collection 'uspto-patent' for 'identifiers._name:\"smiles#ccc(coc(=o)cs)(c(=o)c(=o)cs)c(=o)c(=o)cs\"' show (data)</cmd>\n",
+		"url": ""
+	},
+	"library": "ds4sd_search",
+	"method": "search"
+}

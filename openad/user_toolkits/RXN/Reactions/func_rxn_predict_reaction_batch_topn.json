@@ -1,0 +1,21 @@
+{
+	"fplugin": "rxn",
+	"command": "predict reaction topn in batch",
+	"subject": "predict_reaction_topn_in_batch",
+    "from":["file","dataframe","list"],
+	"OLD_USING": {"prediction_id": "desc","ai_model":"desc","topn":"int"	},
+	"USING": {"ai_model":"desc","topn":"int"	},
+    "async":"both",
+    "use_saved":"True",
+	"exec_type": "standard_statement",
+	"exec_cmd": "predict reaction topn in batch",
+	"help": {
+		"name": "predict reaction in batch and view Top-N results",   
+		"category": "Prediction",
+		"command": "predict reaction topn in batch from (dataframe <dataframe_name> | file '<file_name.csv>' | list ['#smiles_reaction','#smiles_reaction') [USING (topn=<integer> ai_model='<existing_model>')] [use_saved]",
+		"description": "This command performs a reaction prediction for topn providing results for a given list of reactions. The list of reactions can be specified as a string list, data frame or csv file from the current workspace. For data frames and csv files it will take the column with the name ‘reactions’.\n\nIn the <cmd>FROM</cmd> clause reactions are defined by a list of reactions where are SMILES string is delimited by '.' e.g. <cmd>'BrBr.c1ccc2cc3ccccc3cc2c1'</cmd>\n\nThe optional <cmd>USING</cmd> clause can specify an AI model, a value for topn, or both:\n    - <cmd>ai_model=’<model_name>’ </cmd> The default value is '2020-07-01'\n    - <cmd>topn=<integer></cmd>  this sets the top n results, the default value is 3\n\nExamples:\n    <cmd>predict reaction topn batch from list ['BrBr.c1ccc2cc3ccccc3cc2c1CCO' , 'BrBr.c1ccc2cc3ccccc3cc2c1']</cmd>\n\n    <cmd>predict reaction topn batch from list ['BrBr.c1ccc2cc3ccccc3cc2c1CCO' , 'BrBr.c1ccc2cc3ccccc3cc2c1'] using ( topn=6)</cmd>\n\nYou can also use previously generated results buy optionally using <cmd>use_saved</cmd> at the end of the command and it will use the results of any previously run commands with the same parameters while the toolkit has been installed.\n \n   <cmd>predict reaction topn batch from list ['BrBr.c1ccc2cc3ccccc3cc2c1CCO' , 'BrBr.c1ccc2cc3ccccc3cc2c1'] using (topn=6) use_saved </cmd>\n",
+		"url": ""
+	},
+	"library": "rxn_predict_reaction_batch_topn",
+	"method": "predict_reaction_batch_topn"
+}

@@ -1,0 +1,18 @@
+{
+	"fplugin": "ds4sd",
+	"command": "display collections in domains",
+	"subject":	"display collections in domains",
+	"from": ["list"	],
+	"SAVE_AS":{},
+	"exec_type": "standard_statement",
+	"exec_cmd": "display in domains",
+	"help": {
+		"name": "display collections in domains ",
+		"category": "Collections",
+		"command": "display collections in domains from list [<list_of_domains>] [save as '<csv_file_name>'] ",
+		"description": "This function displays collections that belong to the listed domains.\nIf you use the <cmd>SAVE AS</cmd> clause, it will save a csv file to the current workspace.",
+		"url": ""
+	},
+	"library": "ds4sd_display_collection_from_domains",
+	"method": "display_all_collections"
+}

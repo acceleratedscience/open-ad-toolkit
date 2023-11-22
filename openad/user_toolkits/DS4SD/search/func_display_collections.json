@@ -1,0 +1,17 @@
+{
+	"fplugin": "ds4sd",
+	"command": "display collections for domain",
+	"subject":	" Queries",
+	"SINGLE_PARM": {"domain": "desc"	},
+	"exec_type": "standard_statement",
+	"exec_cmd": "display collections for domain",
+	"help": {
+		"name": "display collections for domain",
+		"category": "Collections",
+		"command": "display collections for domain '<domain_name>' ",
+		"description": "This command displays the available collections in a given Deep Search <domain_name>.",
+		"url": ""
+	},
+	"library": "ds4sd_display_collection",
+	"method": "display_collection"
+}
