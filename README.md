@@ -51,11 +51,11 @@
 1.  **Step 2: Installation**<br>
        To Install into a global or Python virtual environment<br>
        
-               pip install git+https://github.com/acceleratedscience/open-ad-toolkit.git
+               pip install openad
 
        To install into an Poetry Environment
 
-                poetry add git+https://github.com/acceleratedscience/open-ad-toolkit.git
+                poetry add openad
     
 
 1.  **Launch**<br>
@@ -72,7 +72,7 @@
 
         openad
 
-    ![Landing](readme/screenshot-landing.png)
+    ![screenshot-landing](https://github.com/acceleratedscience/open-ad-toolkit/assets/30096303/8c78414b-89fe-4662-8c23-5c5443e79084)
 
 -   **Exiting the Shell Environment**<br>
     Hit `ctrl+c` or run:
@@ -145,12 +145,14 @@ If you plan to use this application inside Jupyter Notebook of JupyterLab, you s
 <br>
 <figure>
     <figcaption align="center" style="font-size:0.9em;opacity:.6;margin-bottom:-15px"><i>Jupyter Notebook</i></figcaption>
-    <img src="readme/jupyter-notebook-kernel.png">
+    <img width="1112" alt="jupyter-notebook-kernel" src="https://github.com/acceleratedscience/open-ad-toolkit/assets/30096303/50dee4a9-80d9-4ddb-92f0-321d6c8328e5">
+
 </figure>
 
 <figure>
     <figcaption align="center" style="font-size:0.9em;opacity:.6;margin-bottom:-15px"><i>Jupyter Lab</i></figcaption>
-    <img src="readme/jupyter-lab-kernel.png">
+    <img width="1112" alt="jupyter-lab-kernel" src="https://github.com/acceleratedscience/open-ad-toolkit/assets/30096303/99e9fda1-e9e3-4533-b375-267eaed5c657">
+
 </figure>
 
 -   Magic commands are implemented by the _openad.py_ or _openad.ipynb_ files, and are invoked by the `%openad` prefix. For example:<br>
@@ -181,7 +183,8 @@ Below you find login instructions for RXN and DeepSearch. If you choose to use t
     - Once logged in, click the Toolkit/API icon in the top right hand corner, then open the HTTP section
     - Click the "Generate new API key" button<br>
       <br>
-      ![Landing](readme/ds4sd-api-key.png)
+    
+<img width="1112" alt="ds4sd-api-key" src="https://github.com/acceleratedscience/open-ad-toolkit/assets/30096303/60ed3108-b0f5-48eb-b0f9-eb5a9a4aa643">
 
 1. Once inside the OpenAD client, you'll be prompted to authenticate when activating the DeepSearch (DS4SD) toolkit. When running `set context ds4sd` :
 
@@ -202,7 +205,8 @@ Below you find login instructions for RXN and DeepSearch. If you choose to use t
     - Sign up for an RXN account at [rxn.app.accelerate.science](https://rxn.app.accelerate.science)
     - Obtain your API key by clicking the user profile icon in the top right hand corner and select "My profile".<br>
       <br>
-      ![Landing](readme/rxn-api-key.png)
+      <img width="1112" alt="rxn-api-key" src="https://github.com/acceleratedscience/open-ad-toolkit/assets/30096303/d00199c2-3a94-4f11-a345-27cbde313732">
+
 
 1. When setting the context to RXN using `set context rxn` you'll be prompted to create a new auth configuration file:
 
@@ -231,7 +235,8 @@ In order to use the "Tell me" functionality, you will need to create an account 
 
 1. Your hostname is [https://api.openai.com/v1/models](https://api.openai.com/v1/models)
 
-![Landing](readme/openai-api-key.png)
+<img width="1112" alt="openai-api-key" src="https://github.com/acceleratedscience/open-ad-toolkit/assets/30096303/b0ce5207-a1b7-4558-9e57-18aee87baaee">
+
 
 ## Installation for Development
 
