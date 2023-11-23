@@ -1,14 +1,24 @@
 [tool.poetry]
 name = "openad"
-version = "0.1.2"
+version = "0.1.3"
 description = "Open Accelerated Discovery Client "
 authors = ["Phil Downey <phil.downey1@ibm.com>"]
 readme = "README.md"
 license = "MIT"
+homepage = ""https://www.accelerate.science/"
+documentation = "https://acceleratedscience.github.io/open-ad-toolkit/"
+repository = "https://github.com/acceleratedscience/open-ad-toolkit"
+
+keywords= ["deepsearch", "rxn","jupyter","magic commands","accelerated Discovery","science","retrosynthesis"]
+classifiers = [
+    "Operating System :: OS Independent",
+   'Development Status :: 4 - Beta',
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Typing :: Typed",
+    "Programming Language :: Python :: 3.10.10"
+]
 [project.urls]
-Homepage = "https://github.com/acceleratedscience/open-ad-toolkit"
-Group_page = "https://www.accelerate.science/"
-Documentation = "https://acceleratedscience.github.io/open-ad-toolkit/"
 
 [tool.black]
 line-length=120
