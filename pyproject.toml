@@ -1,10 +1,14 @@
 [tool.poetry]
 name = "openad"
 version = "0.1.2"
-description = "Open Accelerated Discovery Client  https://www.accelerate.science/"
+description = "Open Accelerated Discovery Client "
 authors = ["Phil Downey <phil.downey1@ibm.com>"]
 readme = "README.md"
 license = "MIT"
+[project.urls]
+Homepage = "https://github.com/acceleratedscience/open-ad-toolkit"
+Group_page = "https://www.accelerate.science/"
+Documentation = "https://acceleratedscience.github.io/open-ad-toolkit/"
 
 [tool.black]
 line-length=120
