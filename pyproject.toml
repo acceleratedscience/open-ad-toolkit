@@ -5,7 +5,7 @@ description = "Open Accelerated Discovery Client "
 authors = ["Phil Downey <phil.downey1@ibm.com>"]
 readme = "README.md"
 license = "MIT"
-homepage = ""https://www.accelerate.science/"
+homepage = "https://www.accelerate.science/"
 documentation = "https://acceleratedscience.github.io/open-ad-toolkit/"
 repository = "https://github.com/acceleratedscience/open-ad-toolkit"
 
