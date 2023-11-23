@@ -1,7 +1,7 @@
 # OpenAD
 
 **Open Accelerated Discovery Client**<br>
-[Project homepage](https://pages.github.ibm.com/Accelerated-Discovery/openad-opentoolkit/)
+[Project homepage](https://acceleratedscience.github.io/open-ad-toolkit/)
 
 ---
 
