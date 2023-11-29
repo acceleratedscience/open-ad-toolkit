@@ -22,7 +22,13 @@ from openad.plugins.style_parser import style, a_len
 
 # Create the help dictionary object for a command.
 def help_dict_create(
-    name: str, command: str, description: str, url: str = None, category: str = "Uncategorized", parent: str = None
+    name: str,  # Name of the comand - used for ...?
+    command: str,  # Command structure
+    description: str,  # Description of the command
+    note: str = None,  # Additional note to the command (eg. To learn more about runs, run `run ?`)
+    url: str = None,  # Currently not used - URL to the documentation of the command?
+    category: str = "Uncategorized",  # Category used to organize the commands
+    parent: str = None  # Parent command, only relevant for follow-up commands like `result open`
 ):
     """Create a help dictionary"""
     return {
@@ -30,6 +36,7 @@ def help_dict_create(
         "name": name,
         "command": command,
         "description": description,
+        "note": note,
         "url": url,
         "parent": parent,
     }
@@ -177,16 +184,21 @@ def command_details(command: list, cmd_pointer):
     if cmd_pointer.notebook_mode:
         command_str = f"<cmd>{command_str}</cmd>"
         description = command["description"]
+        note = f'<soft>{command["note"]}</soft>' if command["note"] else None
     else:
         command_str = style(f"<cmd>{command_str}</cmd>", width=paragraph_width)
         description = style(command["description"], width=paragraph_width)
+        note = style(f'<soft>{command["note"]}</soft>', width=paragraph_width) if command["note"] else None
 
     # Separator
     sep_len = min(a_len(command_str), paragraph_width)
     sep = "<soft>" + sep_len * "-" + "</soft>"
 
     # Style description
-    return "\n".join([command_str, sep, description])
+    output = [command_str, sep, description]
+    if note:
+        output.append(note)
+    return "\n".join(output)
 
 
 # Display advanced help

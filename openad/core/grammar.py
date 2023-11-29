@@ -203,7 +203,8 @@ grammar_help.append(
         name="set workspace",
         category="Workspaces",
         command="set workspace <workspace_name>",
-        description=f"Change the current workspace.{INFO_WORKSPACES}",
+        description=f"Change the current workspace.",
+        note=INFO_WORKSPACES,
     )
 )
 
@@ -216,7 +217,8 @@ grammar_help.append(
         name="get workspace",
         category="Workspaces",
         command="get workspace [ <workspace_name> ]",
-        description=f"Display details a workspace. When no workspace name is passed, details of your current workspace are displayed.{INFO_WORKSPACES}",
+        description=f"Display details a workspace. When no workspace name is passed, details of your current workspace are displayed.",
+        note=INFO_WORKSPACES,
     )
 )
 
@@ -235,7 +237,8 @@ grammar_help.append(
         name="create workspace",
         category="Workspaces",
         command="create workspace <workspace_name> [ description('<description>') on path '<path>' ]",
-        description=f"Create a new workspace with an optional description and path.{INFO_WORKSPACES}",
+        description=f"Create a new workspace with an optional description and path.",
+        note=INFO_WORKSPACES,
     )
 )
 
@@ -250,7 +253,8 @@ grammar_help.append(
         name="remove workspace",
         category="Workspaces",
         command="remove workspace <workspace_name> ",
-        description=f"Remove a workspace from your registry. Note that this doesn't remove the workspace's directory.{INFO_WORKSPACES}",
+        description=f"Remove a workspace from your registry. Note that this doesn't remove the workspace's directory.",
+        note=INFO_WORKSPACES,
     )
 )
 
@@ -261,7 +265,8 @@ grammar_help.append(
         name="list workspaces",
         category="Workspaces",
         command="list workspaces",
-        description=f"Lists all your workspaces.{INFO_WORKSPACES}",
+        description=f"Lists all your workspaces.",
+        note=INFO_WORKSPACES,
     )
 )
 
@@ -272,8 +277,8 @@ grammar_help.append(
 # Note toolkits is the Caseless key word now .. simply changed in metadata
 ##########################################################################
 
-INFO_TOOLKITS_SEE_ALL = "\n<soft>To see all available toolkits, run <cmd>list all toolkits</cmd>.</soft>"
-INFO_TOOLKITS = "\n<soft>To learn more about toolkits, run <cmd>toolkit ?</cmd>.</soft>"
+NOTE_TOOLKITS_SEE_ALL = "<soft>To see all available toolkits, run <cmd>list all toolkits</cmd>.</soft>"
+NOTE_TOOLKITS = "<soft>To learn more about toolkits, run <cmd>toolkit ?</cmd>.</soft>"
 
 
 # Available commands per toolkit.
@@ -298,7 +303,8 @@ grammar_help.append(
         name="list toolkits",
         category="Toolkits",
         command="list toolkits",
-        description=f"List all installed toolkits. To see all available toolkits, run <cmd>list all toolkits</cmd>.{INFO_TOOLKITS_SEE_ALL}{INFO_TOOLKITS}",
+        description=f"List all installed toolkits. To see all available toolkits, run <cmd>list all toolkits</cmd>.",
+        note=f"{NOTE_TOOLKITS_SEE_ALL}\n{NOTE_TOOLKITS}",
     )
 )
 
@@ -309,7 +315,8 @@ grammar_help.append(
         name="list all toolkits",
         category="Toolkits",
         command="list all toolkits",
-        description=f"List all available toolkits.{INFO_TOOLKITS}",
+        description=f"List all available toolkits.",
+        note=NOTE_TOOLKITS,
     )
 )
 
@@ -321,7 +328,8 @@ grammar_help.append(
         name="add toolkit",
         category="Toolkits",
         command="add toolkit <toolkit_name>",
-        description=f"Install a toolkit.{INFO_TOOLKITS_SEE_ALL}{INFO_TOOLKITS}",
+        description=f"Install a toolkit.",
+        note=f"{NOTE_TOOLKITS_SEE_ALL}\n{NOTE_TOOLKITS}",
     )
 )
 
@@ -335,10 +343,10 @@ grammar_help.append(
         description=(
             "Remove a toolkit from the registry.\n"
             "Note: This doesn't delete the toolkit code. If the toolkit is added again, a backup of the previous install is created in the toolkit directory at <yellow>~/.openad/toolkits</yellow>."
-            f"{INFO_TOOLKITS}"
-        )
+        ),
+        note=NOTE_TOOLKITS,
         # Correct description but we have to update the functionality first.
-        # description="Remove a toolkit from the registry. This affects all workspaces. A backup of the toolkit directory is stored in <yellow>~/.openad/toolkits_archive</yellow>.{INFO_TOOLKITS}"
+        # description="Remove a toolkit from the registry. This affects all workspaces. A backup of the toolkit directory is stored in <yellow>~/.openad/toolkits_archive</yellow>."
     )
 )
 
@@ -356,7 +364,8 @@ grammar_help.append(
         name="set context",
         category="Toolkits",
         command="set context <toolkit_name> [ reset ]",
-        description=f"Set your context to the chosen toolkit. By setting the context, the selected toolkit functions become available to you. The optional parameter 'reset' can be used to reset your login information.{INFO_TOOLKITS}",
+        description=f"Set your context to the chosen toolkit. By setting the context, the selected toolkit functions become available to you. The optional parameter 'reset' can be used to reset your login information.",
+        note=NOTE_TOOLKITS,
     )
 )
 
@@ -378,7 +387,8 @@ grammar_help.append(
         name="unset context",
         category="Toolkits",
         command="unset context",
-        description=f"Exit your toolkit context. You will no longer have access to toolkit-specific functions.{INFO_TOOLKITS}",
+        description=f"Exit your toolkit context. You will no longer have access to toolkit-specific functions.",
+        note=NOTE_TOOLKITS,
     )
 )
 
@@ -388,13 +398,17 @@ grammar_help.append(
 # region - Runs
 ##########################################################################
 
-INFO_RUNS = "\n<soft>To learn more about runs, run <cmd>run ?</cmd>.</soft>"
+NOTE_RUNS = "<soft>To learn more about runs, run <cmd>run ?</cmd>.</soft>"
 
 # Create run
 statements.append(Forward(create + run("run"))("create_run"))
 grammar_help.append(
     help_dict_create(
-        name="create run", category="Runs", command="create run", description=f"Start recording a run.{INFO_RUNS}"
+        name="create run",
+        category="Runs",
+        command="create run",
+        description=f"Start recording a run.",
+        note=NOTE_RUNS,
     )
 )
 
@@ -405,7 +419,8 @@ grammar_help.append(
         name="save run",
         category="Runs",
         command="save run as <run_name>",
-        description=f"Stop recording a run and save it.{INFO_RUNS}",
+        description=f"Stop recording a run and save it.",
+        note=NOTE_RUNS,
     )
 )
 
@@ -416,7 +431,8 @@ grammar_help.append(
         name="run",
         category="Runs",
         command="run <run_name>",
-        description=f"Execute a previously recorded run. This will execute every command and continue regardless of any failures.{INFO_RUNS}",
+        description=f"Execute a previously recorded run. This will execute every command and continue regardless of any failures.",
+        note=NOTE_RUNS,
     )
 )
 
@@ -427,7 +443,8 @@ grammar_help.append(
         name="list runs",
         category="Runs",
         command="list runs",
-        description=f"List all runs saved in the current workspace.{INFO_RUNS}",
+        description=f"List all runs saved in the current workspace.",
+        note=NOTE_RUNS,
     )
 )
 
@@ -438,7 +455,8 @@ grammar_help.append(
         name="display run",
         category="Runs",
         command="display run <run_name>",
-        description=f"Display the commands stored in a certain run.{INFO_RUNS}",
+        description=f"Display the commands stored in a certain run.",
+        note=NOTE_RUNS,
     )
 )
 
@@ -997,7 +1015,7 @@ def statement_builder(toolkit_pointer, inp_statement):
 
         toolkit_pointer.methods_dict.append(inp_statement)
 
-        ####### Clause Amendment
+        # Clause Amendment
         clause_amendment = ""
         if "USING" in inp_statement:
             if inp_statement["USING"] is not None:
