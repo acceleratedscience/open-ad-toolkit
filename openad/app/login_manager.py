@@ -72,9 +72,9 @@ def load_login_api(cmd_pointer, toolkit_name, reset=False):
                 return login_success, expiry_datetime
             else:
                 if not suppress:
-                    output_error(msg("error_login", toolkit_name, split=True), return_val=False)
+                    output_error(msg("err_login", toolkit_name, split=True), return_val=False)
                 return False, None
 
         except Exception as err:
-            output_error(msg("error_login", err, toolkit_name, split=True), return_val=False)
+            output_error(msg("err_login", err, toolkit_name, split=True), return_val=False)
             return False, None
