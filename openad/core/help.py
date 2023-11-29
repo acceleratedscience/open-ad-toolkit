@@ -28,7 +28,7 @@ def help_dict_create(
     note: str = None,  # Additional note to the command (eg. To learn more about runs, run `run ?`)
     url: str = None,  # Currently not used - URL to the documentation of the command?
     category: str = "Uncategorized",  # Category used to organize the commands
-    parent: str = None  # Parent command, only relevant for follow-up commands like `result open`
+    parent: str = None,  # Parent command, only relevant for follow-up commands like `result open`
 ):
     """Create a help dictionary"""
     return {
@@ -173,7 +173,6 @@ def command_details(command: list, cmd_pointer):
     )
 
     # Define optimal paragraph width.
-
     try:
         columns, lines = shutil.get_terminal_size()
     except Exception:
@@ -188,7 +187,7 @@ def command_details(command: list, cmd_pointer):
     else:
         command_str = style(f"<cmd>{command_str}</cmd>", width=paragraph_width)
         description = style(command["description"], width=paragraph_width)
-        note = style(f'<soft>{command["note"]}</soft>', width=paragraph_width) if command["note"] else None
+        note = style(f'<soft>{command["note"]}</soft>', width=paragraph_width) if "note" in command else None
 
     # Separator
     sep_len = min(a_len(command_str), paragraph_width)

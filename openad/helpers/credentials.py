@@ -11,7 +11,7 @@ DEFAULT_CREDS_TO_SET = ["host", "auth:user_name", "auth:api_key"]
 
 
 def get_credentials(cmd_pointer, credentials=DEFAULT_CREDENTIALS, creds_to_set=DEFAULT_CREDS_TO_SET) -> dict:
-    """prompts user for set of credentials"""
+    """Prompts user for toolkit credentials"""
     new_credentials = credentials.copy()
     for cred in creds_to_set:
         value_to_prompt = cred.split(":", maxsplit=1)[-1]
@@ -23,6 +23,11 @@ def get_credentials(cmd_pointer, credentials=DEFAULT_CREDENTIALS, creds_to_set=D
             prompted_value = user_input(cmd_pointer, value_to_prompt)
         if readline.get_current_history_length() > 0:
             readline.remove_history_item(readline.get_current_history_length() - 1)
+
+        # Allow hostname to be submitted without http
+        if cred == "host" and not prompted_value.startswith("https://") and not prompted_value.startswith("http://"):
+            prompted_value = "https://" + prompted_value
+
         new_credentials = assign_dict_value(new_credentials, cred, prompted_value)
     return new_credentials
 

@@ -4,7 +4,7 @@ which can then be included in the just-the-docs documentation.
 
 Run:
 
-    python3 openad/helpers/cmds-to-md.py
+    python3 openad/helpers/cmds-to-markdown.py
 
 Find the generated markdown file on the root level of the repo
 and move it to the just-the-docs folder:
@@ -15,21 +15,23 @@ Note: for now just-the-docs is in a separate repo.
 """
 
 import os
+import re
 import glob
 import json
 
 from openad.app.main import RUNCMD as cmd_pointer
 from openad.app.global_var_lib import _all_toolkits
-from openad.core.grammar import load_toolkit
 from openad.core.grammar import statement_builder
 from openad.toolkit.toolkit_main import Toolkit
+from openad.plugins.style_parser import tags_to_markdown
 
 
 import pprint
 
 
 def cmds_to_markdown():
-    output = ""
+    output = []  # Markdown
+    toc = []  # Table of content
 
     # Just-the-docs markdown context
     context = (
@@ -39,7 +41,7 @@ def cmds_to_markdown():
         "nav_order: 4",
         "---",
     )
-    output += "\n".join(context) + "\n\n"
+    output.append("\n".join(context) + "\n")
 
     # Intro comment
     comment = (
@@ -47,42 +49,58 @@ def cmds_to_markdown():
         "To regenerate it, please see openad/helpers/cmds-to-markdown.py for documentation.",
     )
     comment = "\n".join(comment)
-    output += f"<!-- {comment} -->" + "\n\n"
+    output.append(f"<!-- {comment} -->" + "\n")
 
     # Parse main commands
-    output += f"## OpenAD\n\n"
+    output.append(f"## OpenAD\n")
+    toc.append(_toc_link("OpenAD"))
     cmds = cmd_pointer.current_help.help_current
     cmds_organized = _organize(cmds)
-    output += compile_markdown(cmds_organized)
+    compile_markdown(output, toc, cmds_organized)
 
     # Parse tookit commands
     for toolkit_name in _all_toolkits:
-        output += f"## {toolkit_name}\n\n"
+        output.append(f"## {toolkit_name}\n\n")
+        toc.append(_toc_link(toolkit_name))
         toolkit = _load_toolkit(toolkit_name)
         toolkit_cmds = toolkit.methods_help
         toolkit_cmds_organized = _organize(toolkit_cmds)
-        output += compile_markdown(toolkit_cmds_organized)
+        compile_markdown(output, toc, toolkit_cmds_organized)
 
     # print(output)
     # Get the path of this python file's parent folder
     repo_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 
     # Write output to file to this python file's parent folder
+    toc = "### Table of Contents\n" + "\n".join(toc) + "\n"
+    output = output[:2] + [toc] + output[2:]
+    output = "\n".join(output)
     with open(f"{repo_path}/commands.md", "w") as f:
         f.write(output)
 
 
-def compile_markdown(cmds_organized):
-    output = ""
-    output += '<details markdown="block">\n'
-    output += "<summary>See commands</summary>\n\n"
+def compile_markdown(output, toc, cmds_organized):
+    output.append('<details markdown="block">')
+    output.append("<summary>See commands</summary>\n")
     for category in cmds_organized:
-        output += f"### {category}\n\n"
+        output.append(f"### {category}\n")
+        toc.append(_toc_link(category, 1))
         for cmd_str, cmd_description in cmds_organized[category]:
-            output += f"`{cmd_str}`{{: .cmd }}\n{cmd_description}<br><br>\n\n"
-        output += "<br>\n\n"
-    output += "</details>\n\n"
-    return output
+            output.append(f"`{cmd_str.strip()}`{{: .cmd }}\n{_parse_description(cmd_description)}<br><br>\n")
+        output.append("<br>\n")
+    output.append("</details>\n")
+
+
+def _parse_description(description):
+    description = tags_to_markdown(description)
+    description = description.replace("<br><br>", "<br>\n")
+    description = description.replace("<br>", "\n")
+    # description = re.sub(r"<(.*?)>", r"`<\1>`", description)
+    # description = re.sub(r"(?<!`)(')?<(.*?)>(')?(?!`)", r"`\1<\2>\3`", description)
+    description = re.sub(r"(?<!`')(<.*?>)(?!'`)", r"`\1`", description)
+    description = description.splitlines()
+    description = "\n".join([line.strip() for line in description])
+    return description
 
 
 def _organize(cmds, toolkit_name=None):
@@ -146,6 +164,14 @@ def _load_toolkit(toolkit_name):
     #     print('\n')
 
     return the_toolkit
+
+
+# Take a title and turn it into a markdown
+# link for the table of contents.
+# Foo Bar --> #foobar
+def _toc_link(title, level=0):
+    dash = "  " * level + "- "
+    return f"{dash}[{title}](#{title.replace(' ', '-').lower()})"
 
 
 cmds_to_markdown()

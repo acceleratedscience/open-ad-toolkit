@@ -36,6 +36,12 @@ def load_toolkit(toolkit_name):
     for i in glob.glob(_meta_dir_toolkits + "/" + toolkit_name + "/**/func_*.json", recursive=True):
         func_file = open(i, "r")
         x = json.load(func_file)
+        if x["help"]["description"] == "external":
+            try:
+                txt_file = open(i.replace(".json", "--description.txt"), "r")
+                x["help"]["description"] = txt_file.read()
+            except BaseException:
+                x["help"]["description"] = "Failed to load description"
         statement_builder(the_toolkit, x)
 
     return True, the_toolkit
