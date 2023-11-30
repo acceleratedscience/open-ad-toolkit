@@ -116,9 +116,6 @@ def login(cmd_pointer):
             cmd_pointer=cmd_pointer,
             return_val=False,
         )
-        output_error(
-            msg("err_login", "DS4SD", f"system error {e}", split=True), cmd_pointer=cmd_pointer, return_val=False
-        )
         return False, None
 
 
@@ -128,7 +125,7 @@ def get_creds(cred_file, cmd_pointer):
     if api_config is None:
         output_warning("Please Enter in Credentials for Deep Search", cmd_pointer=cmd_pointer, return_val=False)
         output_text(
-            f"Enter the URL / Hostname: if the hostname is left blank it will default to '{DEFAULT_URL} ",
+            f"Enter the URL / Hostname: if the hostname is left blank it will default to '{DEFAULT_URL}' ",
             cmd_pointer=cmd_pointer,
             return_val=False,
         )
