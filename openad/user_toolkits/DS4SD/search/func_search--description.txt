@@ -1,4 +1,4 @@
-PPPPerforms a document search of the Deep Search repository based on a given collection. The required <cmd>using</cmd> clause specifies the collection to search. Use <cmd>estimate only</cmd> to perform a general search, returning the potential number of hits.
+Performs a document search of the Deep Search repository based on a given collection. The required <cmd>using</cmd> clause specifies the collection to search. Use <cmd>estimate only</cmd> to perform a general search, returning the potential number of hits.
 
 Parameters:
 - <cmd>'<collection name or key>'</cmd>: The name or index key for a collection. Use the command <cmd>display all collections</cmd> to identify collections.

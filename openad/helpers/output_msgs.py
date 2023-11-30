@@ -228,5 +228,6 @@ messages = {
     "err_no_matching_cmds": lambda inp: (f'No commands containing@ "<yellow>{inp}</yellow>"'),
     "err_unknown": lambda err: ("Unknown error", err),
     "err_fetch_history": lambda err: ("There was an error fetching the history", err),
+    "err_readme": lambda err: ("There was an error reading the README file", err),
     # endregion
 }
