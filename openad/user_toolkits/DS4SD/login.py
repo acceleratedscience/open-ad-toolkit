@@ -116,9 +116,6 @@ def login(cmd_pointer):
             cmd_pointer=cmd_pointer,
             return_val=False,
         )
-        output_error(
-            msg("err_login", "DS4SD", f"system error {e}", split=True), cmd_pointer=cmd_pointer, return_val=False
-        )
         return False, None
 
 

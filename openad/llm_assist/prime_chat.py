@@ -73,7 +73,7 @@ class Chatobject:
     def __init__(
         self,
         target="OPENAPI",
-        organisation="org-V3VSRAXasFUnufPII8o1DIIk",
+        organisation=None,
         API_key=None,
         vector_db="FAISS",
         document_folders=["./"],
