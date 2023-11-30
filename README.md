@@ -36,7 +36,7 @@
 > **Note:** If you're installing a development version of OpenAD, please jump to [Installation for Development](#installation-for-development)
 
 1.  **Step 0: Before you start**<br>
-    Ensure you're running Python 3.10.10 or above.<br>
+    Ensure you're running Python 3.10.10 or 3.11.<br>
     We do not have a requirement on how to install Python on your local machine;however, we recommend Pyenv.
 
     ```shell
