@@ -126,8 +126,8 @@ If you plan to use this application inside Jupyter Notebook of JupyterLab, you s
     > **Note:** You can also:<br>
     > • Initiate in a single notebook only: `init_magic .` followed by `run openad.py`<br>
     > • Initiate within another iPython profile: `init_magic <profile_name>`<br>
-    > • Initiate without installing anything: `run openad.ipynb` after installing examples (see next bullet)<br>
-    > --> This executes the file `~/openad_notebooks/openad.ipynb` and needs to be run every time after restarting the kernel
+    > • Initiate without installing anything: `run openad_magicnb` after installing examples (see next bullet)<br>
+    > --> This executes the file `~/openad_notebooks/openad_magicnb` and needs to be run every time after restarting the kernel
 
 5.  **Install the Notebook examples**<br>
     This creates the `~/openad_notebooks` folder with a number of demonstration notbeooks.<br>
@@ -160,7 +160,7 @@ If you plan to use this application inside Jupyter Notebook of JupyterLab, you s
 
 </figure>
 
--   Magic commands are implemented by the _openad.py_ or _openad.ipynb_ files, and are invoked by the `%openad` prefix. For example:<br>
+-   Magic commands are implemented by the _openad.py_ or _openad_magicnb_ files, and are invoked by the `%openad` prefix. For example:<br>
 
         %openad list files
 
