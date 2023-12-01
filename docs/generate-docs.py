@@ -1,3 +1,6 @@
+############################################################
+# region - setup
+
 """
 This script generates the commands.md and installation.md files
 for the just-the-docs documentation.
@@ -24,13 +27,17 @@ import json
 
 from openad.app.main import RUNCMD as cmd_pointer
 from openad.app.global_var_lib import _all_toolkits
-from openad.core.grammar import statement_builder
-from openad.toolkit.toolkit_main import Toolkit
+from openad.toolkit.toolkit_main import load_toolkit
 from openad.plugins.style_parser import tags_to_markdown
 from openad.helpers.output import msg, output_error
 
 # Get the path of this python file's parent folder
 REPO_PATH = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+
+# endregion
+
+############################################################
+# region - commands.md
 
 
 # Loop through all commands and export them to a markdown file
@@ -70,7 +77,7 @@ def render_commands_md(filename):
     for toolkit_name in _all_toolkits:
         output.append(f"## {toolkit_name}\n\n")
         toc.append(_toc_link(toolkit_name))
-        toolkit = _load_toolkit(toolkit_name)
+        success, toolkit = load_toolkit(toolkit_name, True)
         toolkit_cmds = toolkit.methods_help
         toolkit_cmds_organized = _organize(toolkit_cmds)
         _compile_section(output, toc, toolkit_cmds_organized)
@@ -126,24 +133,12 @@ def _parse_description(description):
     description = tags_to_markdown(description)
     description = description.replace("<br><br>", "<br>\n")
     description = description.replace("<br>", "\n")
-    # description = re.sub(r"<(.*?)>", r"`<\1>`", description)
-    # description = re.sub(r"(?<!`)(')?<(.*?)>(')?(?!`)", r"`\1<\2>\3`", description)
-    description = re.sub(r"(?<!`')(<.*?>)(?!'`)", r"`\1`", description)
-    description = description.splitlines()
-    description = "\n".join([line.strip() for line in description])
+
+    description = description.replace("**Note:**", "  > **Note:**")
+
+    # description = description.splitlines()
+    # description = "\n".join([line.strip() for line in description])
     return description
-
-
-# Load a toolkit's instance so we can parse the toolkit's commands.
-def _load_toolkit(toolkit_name):
-    the_toolkit = Toolkit(toolkit_name)
-
-    for i in glob.glob("openad/user_toolkits/" + toolkit_name + "/**/func_*.json", recursive=True):
-        func_file = open(i, "r", encoding="utf-8")
-        x = json.load(func_file)
-        statement_builder(the_toolkit, x)
-
-    return the_toolkit
 
 
 # Convert a title to a markdown
@@ -154,9 +149,10 @@ def _toc_link(title, level=0):
     return f"{dash}[{title}](#{title.replace(' ', '-').lower()})"
 
 
+# endregion
+
 ############################################################
-############################################################
-############################################################
+# region - installation.md
 
 
 # Adapt the README.md to be repurposed as
@@ -206,8 +202,8 @@ def render_installation_md(filename):
         f.write(readme)
 
 
-############################################################
-############################################################
+# endregion
+
 ############################################################
 
 if __name__ == "__main__":

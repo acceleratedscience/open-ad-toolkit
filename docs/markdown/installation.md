@@ -30,7 +30,7 @@ Get started with Jupyter:
 
 <br>
 
-<hr>
+---
 
 ### Before You Start 
 
@@ -44,23 +44,23 @@ Get started with Jupyter:
 - [Installation](#installation)
 - [Getting Started - CLI](#getting-started---cli)
 - [Getting Started - Jupyter](#getting-started---jupyter)
-	- [Setting up Jupyter](#setting-up-jupyter)
-	- [Launching OpenAD in Jupyter](#launching-openad-in-jupyter)
+  - [Setting up Jupyter](#setting-up-jupyter)
+  - [Launching OpenAD in Jupyter](#launching-openad-in-jupyter)
 - [Interacting with the Toolkits](#interacting-with-the-toolkits)
-		- [Registration](#registration)
-		- [Adding a Toolkit](#adding-a-toolkit)
-		- [Sample Commands](#sample-commands)
-		- [Running Bash Commands (CLI)](#running-bash-commands-cli)
+    - [Registration](#registration)
+    - [Adding a Toolkit](#adding-a-toolkit)
+    - [Sample Commands](#sample-commands)
+    - [Running Bash Commands (CLI)](#running-bash-commands-cli)
 - [AI Assistant](#ai-assistant)
 - [For Developers](#for-developers)
-	- [Installation for Development](#installation-for-development)
-	- [Testing a branch](#testing-a-branch)
+  - [Installation for Development](#installation-for-development)
+  - [Testing a branch](#testing-a-branch)
 - [Installing on Windows](#installing-on-windows)
-	- [Before you start](#before-you-start)
-	- [Installing WSL](#installing-wsl)
+  - [Before you start](#before-you-start)
+  - [Installing WSL](#installing-wsl)
 - [Linux Notes](#linux-notes)
 
-<hr>
+---
 
 <br>
 
@@ -189,8 +189,10 @@ The following commands only need to be run once after installation:
 
 OpenAD integrates with `DS4SD`, `RXN`, and has placeholder support for `GT4SD` and `ST4SD`.
 
-<div class="notice" style="margin-top: 16px;">
-<b>&#x26A0; Reminder:</b> when running commands from Jupyter, prepend them with `%openad`
+<div class="notice" style="margin-top: 16px;" markdown="block">
+
+**&#x26A0; Reminder:** when running commands from Jupyter, prepend them with `%openad`
+
 </div>
 
 ### Registration
@@ -200,6 +202,7 @@ Before you can interact with the toolkits, you'll need to register with each ind
 <details>
 <summary>Register with DS4SD (DeepSearch)</summary>
 <div markdown="block">
+
 1. First, you'll need to generate an API key on the DeepSearch website.
 
     - Visit the DeepSearch website and create an account:<br>
@@ -210,21 +213,24 @@ Before you can interact with the toolkits, you'll need to register with each ind
 
       <a href="assets/ds4sd-api-key.png" target="_blank"><img src="assets/ds4sd-api-key.png" /></a>
 
-2. Once inside the OpenAD client, you'll be prompted to authenticate when activating the DeepSearch (DS4SD) toolkit. When running `set context ds4sd` :
+1. Once inside the OpenAD client, you'll be prompted to authenticate when activating the DeepSearch (DS4SD) toolkit. When running `set context ds4sd` :
 
-    - **Hostname:** [https://sds.app.accelerate.science](https://sds.app.accelerate.science)
-    - **Email:** Your email
-    - **API_key:** The DS4SD API key you obtained following the instructions above.<br>
-        > **Note:** Your DS4SD auth config file is saved as `~/.openad/ds-auth.ext-v2.json`. If you ever want to reset your DS4SD login information, simply delete this file.<br>
+   - **Hostname:** [https://sds.app.accelerate.science](https://sds.app.accelerate.science)
+   - **Email:** Your email
+   - **API_key:** The DS4SD API key you obtained following the instructions above.
 
-3. You should get a message saying you successfully logged in.
+1. You should get a message saying you successfully logged in.
+
+    > **Note:** Your DS4SD auth config file is saved as `~/.openad/deepsearch_api.cred`. If you ever want to reset your DS4SD login information you can run `set context ds4sd reset`, or you can delete this file.<br>
+
 </div>
 </details>
 
 <details>
 <summary>Register with RXN</summary>
 <div markdown="block">
-1.  First, you'll need to generate an API key on the RXN website.
+
+1. First, you'll need to generate an API key on the RXN website.
 
     -   Sign up for an RXN account at [rxn.app.accelerate.science](https://rxn.app.accelerate.science)
     -   Obtain your API key by clicking the user profile icon in the top right hand corner and select "My profile".<br>
@@ -232,14 +238,15 @@ Before you can interact with the toolkits, you'll need to register with each ind
 
         <a href="assets/rxn-api-key.png" target="_blank"><img src="assets/rxn-api-key.png" /></a>
 
-2.  When setting the context to RXN using `set context rxn` you'll be prompted to create a new auth configuration file:
+1. When setting the context to RXN using `set context rxn` you'll be prompted to create a new auth configuration file:
 
     -   **Hostname:** [https://rxn.app.accelerate.science](https://rxn.app.accelerate.science)<br>
     -   **API_key:** The RXN API key you obtained following the instructions above.
 
-3.  You should get a message saying you successfully logged in.<br>
+1. You should get a message saying you successfully logged in.<br>
 
-    > **Note:** Your RXN auth config file is saved as `~/.openad/rxn-auth.ext-v2.json`. If you ever want to reset your RXN login information, simply delete this file. You can also do this by running `set context ds4sd reset`<br>
+    > **Note:** Your RXN auth config file is saved as `~/.openad/rxn_api.cred`. If you ever want to reset your RXN login information you can run `set context rxn reset`, or you can delete this file.<br>
+
 </div>
 </details>
 
@@ -270,7 +277,7 @@ To run a command in bash mode, prepend it with `openad` and make sure to escape 
 
 To enable our AI assistant, you'll need an account with OpenAI. There is a one month free trial.
 
-> **Note:** WatsonX coming soon
+> **Note:** watsonx coming soon
 
 1. Go to [platform.openai.com](https://platform.openai.com) and create an account
 
@@ -297,6 +304,7 @@ If you have any questions in the meantime, please [reach out]({% link about.md %
 <details>
 <summary>Install using the setup wizard (uses poetry)</summary>
 <div markdown="block">
+
 1.  **Step 1: Download the repo**
 
         git clone https://github.com/acceleratedscience/open-ad-toolkit.git
@@ -304,16 +312,18 @@ If you have any questions in the meantime, please [reach out]({% link about.md %
     > **Note:** To download a specific branch, you can run instead:<br>
     `git clone -b <branch_name> https://github.com/acceleratedscience/open-ad-toolkit.git`
 
-2.  **Step 2: Launch the setup wizard**
+1.  **Step 2: Launch the setup wizard**
 
         cd open-ad-toolkit
         ./setup.sh
+
 </div>
 </details>
 
 <details>
 <summary>Install using pip</summary>
 <div markdown="block">
+
 1.  **Step 0: Before you start**<br>
 Ensure you're running Python 3.10.10 or above. There's multiple ways of doing this, we'll use pyenv.
 
@@ -327,19 +337,20 @@ Ensure you're running Python 3.10.10 or above. There's multiple ways of doing th
 
     > **Note:** To exit the virtual environment, you can run `deactivate`
 
-2.  **Step 2: Download the repo**
+1.  **Step 2: Download the repo**
 
         git clone https://github.com/acceleratedscience/open-ad-toolkit.git
 
     > **Note:** To download a specific branch, you can run instead:<br>
     `git clone -b <branch_name> https://github.com/acceleratedscience/open-ad-toolkit.git`
 
-3.  **Step 2: Install the requirements**
+1.  **Step 2: Install the requirements**
 
         cd open-ad-toolkit
         pip install -e .
 
     > **Note:** The -e flag stands for "editable". This means that instead of copying the package's files to the Python site-packages directory as in a regular installation, pip creates a symbolic link (symlink) from your package's source code directory into your Python environment.<br>This way you can make changes to the source code of the package, and those changes are immediately reflected in your Python environment. You don't need to reinstall the package every time you make a change.
+
 </div>
 </details>
 

@@ -30,18 +30,29 @@ class Toolkit:
 
 
 # Load all toolkit statments.
-def load_toolkit(toolkit_name):
+def load_toolkit(toolkit_name, from_repo=False):
     the_toolkit = Toolkit(toolkit_name)
+    source = "openad/user_toolkits" if from_repo else _meta_dir_toolkits
 
-    for i in glob.glob(_meta_dir_toolkits + "/" + toolkit_name + "/**/func_*.json", recursive=True):
-        func_file = open(i, "r")
+    for i in glob.glob(source + "/" + toolkit_name + "/**/func_*.json", recursive=True):
+        func_file = open(i, "r", encoding="utf-8")
         x = json.load(func_file)
+
+        # Load description from separate file if it is external.
         if x["help"]["description"] == "external":
             try:
                 txt_file = open(i.replace(".json", "--description.txt"), "r")
                 x["help"]["description"] = txt_file.read()
             except BaseException:
                 x["help"]["description"] = "Failed to load description"
+
+        # Replace snippet tags with snippet content.
+        # - - -
+        # We centralize repeating text in one place per toolkit (_snippets.py)
+        # which is then referenced in a function's description by tags.
+        # For example "lorem ipsum {{FOO_BAR}}" -> "lorem ipsum foo bar"
+        # x["help"]["description"].replace
+
         statement_builder(the_toolkit, x)
 
     return True, the_toolkit

@@ -305,7 +305,7 @@ To run a command in bash mode, prepend it with `openad` and make sure to escape 
 
 To enable our AI assistant, you'll need an account with OpenAI. There is a one month free trial.
 
-> **Note:** WatsonX coming soon
+> **Note:** watsonx coming soon
 
 1. Go to [platform.openai.com](https://platform.openai.com) and create an account
 

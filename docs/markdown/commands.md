@@ -162,8 +162,9 @@ Launch the molecule viewer to examine and select molecules from a SMILES sdf/csv
 
 Examples:
 
-`show molecules using file 'base_molecules.sdf' as molsobject`
-`show molecules using dataframe my_dataframe save as 'selection.sdf'`<br><br>
+    `show molecules using file 'base_molecules.sdf' as molsobject`
+    `show molecules using dataframe my_dataframe save as 'selection.sdf'`
+<br><br>
 
 <br>
 
@@ -226,54 +227,96 @@ Display what a command does, or list all commands that contain this string.<br><
 ### Search Collection
 
 `search collection '<collection name or key>' for '<search string>' using ( [ page_size=<int> system_id=<system_id> edit_distance=<integer> display_first=<integer>]) show (data|docs) [ estimate only|return as data|save as '<csv_filename>' ]`{: .cmd }
-external
+PPPerforms a document search of the Deep Search repository based on a given collection. The required `using` clause specifies the collection to search. Use `estimate only` to return only the potential number of hits.
 
-NOTE: The Using Clause Requires all the Parameters added to the Using Clause be in the defined order as per in the above help documentation<br><br>
+Parameters:
+- `'<collection name or key>'` The name or index key for a collection. Use the command `display all collections` to identify collections.
+- `'<search string>'` The search string for the search.
+		
+Syntax for the `'<search string>'`:
+DeepSearch uses Elastic Search string query syntax, which supports operators like:
+- `+` Signifies AND operation.
+- `|` Signifies OR operation.
+- `-` Negates a single token.
+- `\"` Wraps a number of tokens to signify a phrase for searching.
+- `*` At the end of a term -> signifies a prefix query
+- `(` &amp; `)` Signifies precedence
+- `~N` After a word -> signifies edit distance (fuzziness)
+- `~N` After a phrase -> signifies slop amount
+
+Options for the `using` clause:
+
+  > **Note:** The `using` clause requires all enclosed parameters to be defined in the same order as documented above.
+
+- `page_size=<integer>` Result pagination, the default is None.
+- `system_id=<system_id>` System cluster id, the default is 'default'.
+- `edit_distance=<integer>` Sets the search word span criteria for key words for document searches, the default is 5. When set to 0, no snippets will be be returned.
+- `display_first=<integer>` When set, the displayed result set will be truncated at the given number.
+
+Clauses:
+- `show (data | docs)`:
+    - `data` Display structured data from within the documents.
+    - `docs` Display document context.
+    Both can be combined in a single command, e.g. `show (data docs)`
+- `estimate only` Determine the potential number of hits.
+- `return as data` For Notebook or API mode. Removes all styling from the Pandas DataFrame, ready for further processing.
+
+Examples:
+- Look for documents that contain discussions on power conversion efficiency:
+    
+    `search collection 'arxiv-abstract' for 'ide(\"power conversion efficiency\" OR PCE) AND organ*' using ( edit_distance=20 system_id=default) show (docs)`
+
+- Search the PubChem archive for 'Ibuprofen' and display related molecules' data:
+
+    `search collection 'pubchem' for 'Ibuprofen' show (data)`
+
+- Search for patents which mention a specific smiles molecule:
+
+    `search collection 'uspto-patent' for 'identifiers._name:\"smiles#ccc(coc(=o)cs)(c(=o)c(=o)cs)c(=o)c(=o)cs\"' show (data)`
+<br><br>
 
 `search collection '<collection name or key>' for '<search string>' using ( [ page_size=<int> system_id=<system_id> edit_distance=<integer> display_first=<integer>]) show (data|docs) [ estimate only|return as data|save as '<csv_filename>' ]`{: .cmd }
 Performs a document search of the Deep Search repository based on a given collection. The required USING clause specifies the collection to search. Use 'estimate only' to perform a general search, returning the potential number of hits.
 
-Parameters:
-- `'<collection name or key>'` the name or index key for a collection. Use the command `display all collections` to identify collections.
-- `'<search string>'` the search string for the search.
+ Parameters:
+    - `'<collection name or key>'` the name or index key for a collection. Use the command `display all collections` to identify collections.
+    - `'<search string>'` the search string for the search.
 
-Search String Syntax: DeepSearch uses Elastic Search string query syntax, supporting operators like the following:
--- `+` signifies AND operation
--- `|` signifies OR operation
--- `-` negates a single token
--- `"` wraps a number of tokens to signify a phrase for searching
--- `*` at the end of a term signifies a prefix query
--- `(` and `)` signify precedence
--- `~N` after a word signifies edit distance (fuzziness)
--- `~N` after a phrase signifies slop amount
+ Search String Syntax: DeepSearch uses Elastic Search string query syntax, supporting operators like the following:
+    -- `+` signifies AND operation
+    -- `|` signifies OR operation
+    -- `-` negates a single token
+    -- `"` wraps a number of tokens to signify a phrase for searching
+    -- `*` at the end of a term signifies a prefix query
+    -- `(` and `)` signify precedence
+    -- `~N` after a word signifies edit distance (fuzziness)
+    -- `~N` after a phrase signifies slop amount
 
 `USING` clause Options:
-- `page_size=`<integer>`` - result pagination, the default is None.
-- `system_id=`<system_id>` ` - system cluster id, the default is the value 'default'.
-- `edit_distance=`<integer>``  - Set the search word span criteria for key words for document searches. the default is 5. When set to 0, no snippets will be be returned.
-- `display_first=`<integer>`` - If display_first > 0, the displayed result set will be truncated at the given number. The default is 0.
+    - `page_size=<integer>` - result pagination, the default is None.
+    - `system_id=<system_id> ` - system cluster id, the default is the value 'default'.
+    - `edit_distance=<integer>`  - Set the search word span criteria for key words for document searches. the default is 5. When set to 0, no snippets will be be returned.
+    - `display_first=<integer>` - If display_first > 0, the displayed result set will be truncated at the given number. The default is 0.
 
 Clauses:
-- `show (data | docs ) ` - `data` Display structured data from within the documents or `docs` Display document context.
-It is permitted to specify both in a single command e.g. ` show (data docs)`
-- `estimate only` - Determine the potential number of hits.
-- `return as data` - For Notebook or API mode. Removes all styling from the Pandas DataFrame, ready for further processing.
+    - `show (data | docs ) ` - `data` Display structured data from within the documents or `docs` Display document context.
+           It is permitted to specify both in a single command e.g. ` show (data docs)` 
+    - `estimate only` - Determine the potential number of hits.
+    - `return as data` - For Notebook or API mode. Removes all styling from the Pandas DataFrame, ready for further processing.
 
-Examples:
+ Examples:
 - Look for documents that contain discussions on power conversion efficiency:
 
-`search collection 'arxiv-abstract' for 'ide("power conversion efficiency" OR PCE) AND organ*' using ( edit_distance=20 system_id=default) show (docs)`
+    `search collection 'arxiv-abstract' for 'ide("power conversion efficiency" OR PCE) AND organ*' using ( edit_distance=20 system_id=default) show (docs)`
 
 - Search the pubchem archive for 'Ibuprofen' and display related molecules' data:
 
-`search collection 'pubchem' for 'Ibuprofen' show (data)`
+    `search collection 'pubchem' for 'Ibuprofen' show (data)`
 
 - Search for patents which mention a specific smiles molecule:
 
-`search collection 'uspto-patent' for 'identifiers._name:"smiles#ccc(coc(=o)cs)(c(=o)c(=o)cs)c(=o)c(=o)cs"' show (data)`
-
-
-NOTE: The Using Clause Requires all the Parameters added to the Using Clause be in the defined order as per in the above help documentation<br><br>
+    `search collection 'uspto-patent' for 'identifiers._name:"smiles#ccc(coc(=o)cs)(c(=o)c(=o)cs)c(=o)c(=o)cs"' show (data)`
+<br><br>
 
 <br>
 
@@ -288,17 +331,17 @@ This function displays collections that belong to the listed domains.
 If you use the `SAVE AS` clause, it will save a csv file to the current workspace.<br><br>
 
 `display collection details '<collection_name>' | '<collection_key>'`{: .cmd }
-This function displays the details for a specified collection. You can specify either the name of a collection `<collection_name>` or its index key `<collection_key>`.<br><br>
+This function displays the details for a specified collection. You can specify either the name of a collection <span style="color: #ccc"><collection_name></span> or its index key <span style="color: #ccc"><collection_key></span>.<br><br>
 
 `display collections for domain '<domain_name>'`{: .cmd }
-This command displays the available collections in a given Deep Search `<domain_name>`.<br><br>
+This command displays the available collections in a given Deep Search <domain_name>.<br><br>
 
 <br>
 
 ### Search Molecules
 
 `search for similar molecules to '<smiles_string>' [save as '<csv_file_name>']`{: .cmd }
-This command searches for molecules that are similar to the provided molecule or molecule substructure `<smiles_string>` provided.
+This command searches for molecules that are similar to the provided molecule or molecule substructure <smiles_string> provided.
 
 For example `search for similar molecules to 'C1(C(=C)C([O-])C1C)=O'`
 
@@ -306,31 +349,31 @@ If you use the `SAVE AS` clause, it will save a csv file to the current workspac
 
 `search for patents containing molecule ['<smiles_molecule>'| '<inchi_molecule>'] [save as '<csv_file_name>']`{: .cmd }
 This command searches for mentions of a specified molecules in registered patents.
-As input parameters you can provide either a SMILES version of a molecule `<smiles_molecule>` or Inchi `<inchi_molecule>`, which can either be in key or string format.
+As input parameters you can provide either a SMILES version of a molecule <smiles_molecule> or Inchi <inchi_molecule>, which can either be in key or string format.
 
-` search for patents containing molecule 'CC(C)(c1ccccn1)C(CC(=O)O)Nc1nc(-c2c[nH]c3ncc(Cl)cc23)c(C#N)cc1F' `
+ ` search for patents containing molecule 'CC(C)(c1ccccn1)C(CC(=O)O)Nc1nc(-c2c[nH]c3ncc(Cl)cc23)c(C#N)cc1F' ` 
 
 If you use the `SAVE AS` clause, it will save a csv file to the current workspace.<br><br>
 
 `search for molecules in patents from [list ['<patent1>', '<patent2>' .....] | dataframe <dataframe_name> | file '<workspace_file name>'] [save as '<csv_file_name>']`{: .cmd }
 This command searches for molecules that are mentioned in the defined list of patents. If sourcing patents are from CSV or dataframe, these must contain a column with 'PATENT ID' or 'patent id' as the heading.
 
-For Example: ` search for molecules in patents from list ['CN108473493B','US20190023713A1'] `
+ For Example: ` search for molecules in patents from list ['CN108473493B','US20190023713A1'] ` 
 
 If you use the `SAVE AS` clause, it will save a csv file to the current workspace.<br><br>
 
 `search for substructure instances of '<smiles_string>' [save as '<csv_file_name>']`{: .cmd }
-This command searches for molecules with the instance of a molecule in their substructure, as defined in the `<smiles_string>` string.
+This command searches for molecules with the instance of a molecule in their substructure, as defined in the <smiles_string> string. 
 If you use the `SAVE AS` clause, it will save a csv file to the current workspace.
 
-For example: ` search for substructure instances of 'C1(C(=C)C([O-])C1C)=O' save as 'my_mol'`<br><br>
+ For example: ` search for substructure instances of 'C1(C(=C)C([O-])C1C)=O' save as 'my_mol'`<br><br>
 
 <br>
 
 ### Search Collections
 
 `display collection matches for '<search_string>' [save as '<csv_file_name>']`{: .cmd }
-This command searches all collections for documents that contain a given Deep Search `<search_string>`. This helps choose document collection(s) for subsequent search. Use `<index_key>` from the returned table in a search.
+This command searches all collections for documents that contain a given Deep Search <search_string>. This helps choose document collection(s) for subsequent search. Use <index_key> from the returned table in a search.
 If you use the `SAVE AS` clause, it will save a csv file to the current workspace.<br><br>
 
 <br>
@@ -358,20 +401,18 @@ This command performs a reaction prediction for topn providing results for a giv
 In the `FROM` clause reactions are defined by a list of reactions where are SMILES string is delimited by '.' e.g. `'BrBr.c1ccc2cc3ccccc3cc2c1'`
 
 The optional `USING` clause can specify an AI model, a value for topn, or both:
-- `ai_model=’`<model_name>`’ ` The default value is '2020-07-01'
-- `topn=`<integer>``  this sets the top n results, the default value is 3
+    - `ai_model=’<model_name>’ ` The default value is '2020-07-01'
+    - `topn=<integer>`  this sets the top n results, the default value is 3
 
 Examples:
-`predict reaction topn batch from list ['BrBr.c1ccc2cc3ccccc3cc2c1CCO' , 'BrBr.c1ccc2cc3ccccc3cc2c1']`
+    `predict reaction topn batch from list ['BrBr.c1ccc2cc3ccccc3cc2c1CCO' , 'BrBr.c1ccc2cc3ccccc3cc2c1']`
 
-`predict reaction topn batch from list ['BrBr.c1ccc2cc3ccccc3cc2c1CCO' , 'BrBr.c1ccc2cc3ccccc3cc2c1'] using ( topn=6)`
+    `predict reaction topn batch from list ['BrBr.c1ccc2cc3ccccc3cc2c1CCO' , 'BrBr.c1ccc2cc3ccccc3cc2c1'] using ( topn=6)`
 
 You can also use previously generated results buy optionally using `use_saved` at the end of the command and it will use the results of any previously run commands with the same parameters while the toolkit has been installed.
-
-`predict reaction topn batch from list ['BrBr.c1ccc2cc3ccccc3cc2c1CCO' , 'BrBr.c1ccc2cc3ccccc3cc2c1'] using (topn=6) use_saved `
-
-
-NOTE: The Using Clause Requires all the Parameters added to the Using Clause be in the defined order as per in the above help documentation<br><br>
+ 
+   `predict reaction topn batch from list ['BrBr.c1ccc2cc3ccccc3cc2c1CCO' , 'BrBr.c1ccc2cc3ccccc3cc2c1'] using (topn=6) use_saved `
+<br><br>
 
 `predict reaction '<reaction-smiles-string>' [USING (ai_model='<valid_ai_model>')] [use_saved]`{: .cmd }
 This command 'forward predicts' a reaction for a given SMILES string.
@@ -380,16 +421,14 @@ In the `FROM` clause is a list of reactions: SMILES strings delimited by a perio
 
 
 The optional `USING` clause specifies a particular AI model.
--`ai_model=’`<model_name>`’` The default value is '2020-07-01'
+    -`ai_model=’<model_name>’` The default value is '2020-07-01'
 
 Example:
-`predict reaction 'BrBr.c1ccc2cc3ccccc3cc2c1CCO'`
+    `predict reaction 'BrBr.c1ccc2cc3ccccc3cc2c1CCO'` 
 
-You can optionally use previously generated results with `use_saved` at the end of the command. It will use the results of any previous commands run with the same parameters.
+ You can optionally use previously generated results with `use_saved` at the end of the command. It will use the results of any previous commands run with the same parameters.
 
-`predict reaction 'BrBr.c1ccc2cc3ccccc3cc2c1CCO' use_saved`
-
-NOTE: The Using Clause Requires all the Parameters added to the Using Clause be in the defined order as per in the above help documentation<br><br>
+`predict reaction 'BrBr.c1ccc2cc3ccccc3cc2c1CCO' use_saved`<br><br>
 
 `predict reaction in batch from [dataframe < dataframe_name > ] | [file '<file_name.csv>'] | [list ['#smiles','#smiles']]  [USING ( ai_model='<existing_model>')] [use_saved]`{: .cmd }
 This command performs a reaction prediction providing results for a given list of possible reaction paths. The list of reactions can be specified as a string list, data frame or csv file from the current workspace. For data frames and csv files it will take the column with the name 'reactions'.
@@ -397,44 +436,40 @@ This command performs a reaction prediction providing results for a given list o
 In the `FROM` clause reactions are defined by a list of reactions where are SMILES string is delimited by '.' e.g. `'BrBr.c1ccc2cc3ccccc3cc2c1'`
 
 The optional `USING` clause specifies an AI model other than the default model.
-- `ai_model=’`<model_name>`’ `The default ai_model is '2020-07-01'
+    - `ai_model=’<model_name>’ `The default ai_model is '2020-07-01'
 Examples:
-`predict reaction batch from list ['BrBr.c1ccc2cc3ccccc3cc2c1CCO' , 'BrBr.c1ccc2cc3ccccc3cc2c1']`
+    `predict reaction batch from list ['BrBr.c1ccc2cc3ccccc3cc2c1CCO' , 'BrBr.c1ccc2cc3ccccc3cc2c1']`
 
 You can also use previously generated results by optionally using `use_saved` at the end of the command and it will use the results of any previously run commands with the same parameters while the toolkit has been installed.
 
-`predict reaction batch from list ['BrBr.c1ccc2cc3ccccc3cc2c1CCO' , 'BrBr.c1ccc2cc3ccccc3cc2c1'] use_saved`
-
-NOTE: The Using Clause Requires all the Parameters added to the Using Clause be in the defined order as per in the above help documentation<br><br>
+`predict reaction batch from list ['BrBr.c1ccc2cc3ccccc3cc2c1CCO' , 'BrBr.c1ccc2cc3ccccc3cc2c1'] use_saved`<br><br>
 
 <br>
 
 ### Retrosynthesis
 
 `interpret recipe '<recipe-paragraph> | <workspace-file>'`{: .cmd }
-This command builds a set of actions interpreted from a provided recipe defined as a provided string or a file in the current workspace in the parameter ``<recipe-paragraph>` | `<workspace-file>``<br><br>
+This command builds a set of actions interpreted from a provided recipe defined as a provided string or a file in the current workspace in the parameter `<recipe-paragraph> | <workspace-file>` <br><br>
 
 `predict retrosynthesis '<product_SMILES_string>' [USING ( option=<valid_input> option2=<valid_input> )]`{: .cmd }
-This command performs automatic retro synthesis route prediction on a given molecule.
+ This command performs automatic retro synthesis route prediction on a given molecule.
 
-The parameter `'<product_SMILES_string>'` takes a valid SMILES string.
+The parameter `'<product_SMILES_string>'` takes a valid SMILES string. 
 
-Options for `USING` clause are:
-- `availability_pricing_threshold=`<int>` ` maximum price in USD per g/ml of compounds. Default: no threshold.
-- `available_smiles='<list of SMILES>'` list of molecules available as precursors, with delimiter '.'
-- `exclude_smiles='<list of SMILES>'` list of molecules to exclude from the set of precursors, delimiter '.'
-- `exclude_substructures='<list of SMILES>'` substructures to exclude, delimiter '.'
-- `exclude_target_molecule=`<boolean>`` excluded target molecule, default True
-- `fap=`<float>`` Every retrosynthetic step is evaluated with the FAP, a step is retained when forward confidence is greater than FAP, default 0.6
-- `max_steps=`<int>`` The max steps, default is 3
-- `nbeams=`<int>` ` The maximum number of beams exploring the hypertree, default 10
-- `pruning_steps=`<int>`` The number of steps to prune a hypertree, default 2
-- `ai_model='<ai_model_name>'` default '2020-07-01'
+ Options for `USING` clause are: 
+ - `availability_pricing_threshold=<int> ` maximum price in USD per g/ml of compounds. Default: no threshold.
+         - `available_smiles='<list of SMILES>'` list of molecules available as precursors, with delimiter '.' 
+         - `exclude_smiles='<list of SMILES>'` list of molecules to exclude from the set of precursors, delimiter '.' 
+         - `exclude_substructures='<list of SMILES>'` substructures to exclude, delimiter '.'
+         - `exclude_target_molecule=<boolean>` excluded target molecule, default True 
+         - `fap=<float>` Every retrosynthetic step is evaluated with the FAP, a step is retained when forward confidence is greater than FAP, default 0.6
+         - `max_steps=<int>` The max steps, default is 3 
+         - `nbeams=<int> ` The maximum number of beams exploring the hypertree, default 10
+         - `pruning_steps=<int>` The number of steps to prune a hypertree, default 2 
+         - `ai_model='<ai_model_name>'` default '2020-07-01' 
 
-An example command is:
-`predict retrosynthesis 'BrCCc1cccc2c(Br)c3ccccc3cc12' using (max_steps=3) `
-
-NOTE: The Using Clause Requires all the Parameters added to the Using Clause be in the defined order as per in the above help documentation<br><br>
+ An example command is: 
+ `predict retrosynthesis 'BrCCc1cccc2c(Br)c3ccccc3cc12' using (max_steps=3) `<br><br>
 
 <br>
 

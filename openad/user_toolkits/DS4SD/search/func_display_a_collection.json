@@ -9,7 +9,7 @@
 		"name": "display collection details",
 		"category": "Collections",
 		"command": "display collection details '<collection_name>' | '<collection_key>'",
-		"description": "This function displays the details for a specified collection. You can specify either the name of a collection <collection_name> or its index key <collection_key>.",
+		"description": "This function displays the details for a specified collection. You can specify either the name of a collection <soft><collection_name></soft> or its index key <soft><collection_key></soft>.",
 		"url": ""
 	},
 	"library": "ds4sd_display_a_collection",

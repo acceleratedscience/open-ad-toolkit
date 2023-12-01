@@ -286,7 +286,6 @@ def tags_to_markdown(text: str):
     # Because html breaks (<br>) don't play well with headings,
     # and end of line characters don't play well with `code`
     # blocks, we have to do some trickery here.
-
     text = re.sub(
         r"(</h[123]>)(\n+)", lambda match: match.group(1) + len(match.group(2)) * "---LINEBREAKSOFT---", text
     )  # noqa
@@ -351,7 +350,7 @@ def _replace_soft_and_underline(text: str):
     text = re.sub(
         r"<cmd>(.*?)<\/cmd>", lambda x: x.group(0).replace("<underline>", "").replace("</underline>", ""), text
     )
-    text = re.sub(r"<cmd>(.*?)<\/cmd>", lambda x: x.group(0).replace("<soft>", "").replace("</soft>", ""), text)
+    text = re.sub(r"<cmd>(.*?)<\/cmd>", lambda x: x.group(0).replace("<soft>", "`").replace("</soft>", "`"), text)
 
     # Replace the tags outside of <cmd> tags.
     text = re.sub(r"<underline>(.*?)<\/underline>", r'<span style="text-decoration: underline">\1</span>', text)

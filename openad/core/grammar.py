@@ -1015,17 +1015,14 @@ def statement_builder(toolkit_pointer, inp_statement):
 
         toolkit_pointer.methods_dict.append(inp_statement)
 
-        # Clause Amendment
-        clause_amendment = ""
-        if "USING" in inp_statement:
-            if inp_statement["USING"] is not None:
-                clause_amendment = (
-                    clause_amendment
-                    + "\n\n NOTE: The Using Clause Requires all the Parameters added to the Using Clause be in the defined order as per in the above help documentation"
-                )
-
-        if clause_amendment != "":
-            inp_statement["help"]["description"] = inp_statement["help"]["description"] + clause_amendment
+        # # Clause Amendment
+        # if "USING" in inp_statement and inp_statement["USING"] is not None:
+        #     title = "Options for the <cmd>using</cmd> clause:"
+        #     inp_statement["help"]["description"] = inp_statement["help"]["description"].replace(
+        #         title,
+        #         title
+        #         + "\n\n<bold>Note:</bold> The <cmd>using</cmd> clause requires all enclosed parameters to be defined in the same order as documented above.\n",
+        #     )
 
         toolkit_pointer.methods_help.append(inp_statement["help"])
 
@@ -1293,6 +1290,12 @@ def load_toolkit(toolkit_name):
     for i in glob.glob(_meta_dir_toolkits + "/" + toolkit_name + "/**/func_*.json", recursive=True):
         func_file = open(i, "r", encoding="utf-8")
         x = json.load(func_file)
+        if x["help"]["description"] == "external":
+            try:
+                txt_file = open(i.replace(".json", "--description.txt"), "r")
+                x["help"]["description"] = txt_file.read()
+            except BaseException:
+                x["help"]["description"] = "Failed to load description"
         statement_builder(the_toolkit, x)
     try:
         with open(_meta_dir_toolkits + "/" + toolkit_name + "/description.txt", "r", encoding="utf-8") as toolkit_file:
