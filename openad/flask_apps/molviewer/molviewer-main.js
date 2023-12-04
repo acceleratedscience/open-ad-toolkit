@@ -14,6 +14,7 @@ function render3dMol() {
 }
 
 // Using the 3DMol library - https://3dmol.org
+// Not great because it renders 3D structures flat.
 function _render3dMol_3DMol() {
 	// let config = { backgroundColor: '#333' }
 	const config = { backgroundColor: '#000' }
@@ -47,6 +48,7 @@ function _render3dMol_3DMol() {
 }
 
 // Using the Jmol library - https://jmol.sourceforge.net
+// Better but still not great because it relies on 30MB library files.
 function _render3dMol_Jmol($wrap, inchi) {
 	const molInfo = {
 		width: '100%',

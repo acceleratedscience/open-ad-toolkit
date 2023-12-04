@@ -191,6 +191,7 @@ messages = {
     # Error
     "input_str_missing": "No input string was provided",
     "invalid_sdf": lambda err: ("The selected SDF file is invalid", err),
+    "invalid_csv": lambda err: ("The selected CSV file is invalid", err),
     "identifier_missing": lambda file_path: ("No identifier (Inchi or SMILES) found in the provided file", file_path),
     # endregion
     ##########################################################################

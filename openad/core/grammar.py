@@ -583,7 +583,7 @@ grammar_help.append(
     help_dict_create(
         name="show mol",
         category="Utility",
-        command="show mol '<json_mol_file> | <sdf_file> | <smiles_string> | <inchi_string> | <inchi_key>'",
+        command="show mol '<json_mol_file> | <sdf_file> | <smiles_string> | <inchi_string>'",
         description="Inspect a molecule in the browser.",
     )
 )

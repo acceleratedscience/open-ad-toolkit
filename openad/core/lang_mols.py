@@ -1,5 +1,6 @@
 """Commands to launch molecule grid and molecule viewer."""
 
+import pandas as pd
 from rdkit import Chem, RDLogger
 from openad.flask_apps import launcher
 from openad.flask_apps.molsgrid.routes import fetchRoutesMolsGrid
@@ -64,6 +65,9 @@ def _parse_mol(cmd_pointer, input_str):
     if input_type == "InChI":
         mol_obj = Chem.MolFromInchi(input_str)
         mol_dict = {"InChI": input_str}
+    # elif input_type == "InChIKey":
+    #     # We could check pubchem for this compound...
+    #     # https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/inchikey/BPGDAMSIGCZZLK-UHFFFAOYSA-N/SDF
     elif input_type == "SMILES":
         mol_obj = Chem.MolFromSmiles(input_str)
         mol_dict = {"SMILES": input_str}
@@ -83,9 +87,6 @@ def _parse_mol(cmd_pointer, input_str):
             if not "SMILES" in mol_dict and not "InChI" in mol_dict:
                 output_error(msg("identifier_missing", file_path, split=True), pad=1)
                 mol_dict = None
-        else:
-            # Unsupported file type.
-            output_error(msg("invalid_file_format", "sdf", "csv", "json", split=True), pad=1)
 
     return mol_dict, mol_obj
 
@@ -101,14 +102,9 @@ def __identitify_input_type(input_str):
         except Exception:
             pass
 
-    # Check if it's InChIKey
-    if len(input_str) == 27 and "-" in input_str and input_str.replace("-", "").isalnum():
-        try:
-            _ = Chem.MolFromInchiKey(input_str)
-            if _:
-                return "InChIKey"
-        except Exception:
-            pass
+    # # Check if it's InChIKey
+    # if len(input_str) == 27 and "-" in input_str and input_str.replace("-", "").isalnum():
+    #     return "InChIKey"
 
     # Check if it's SMILES
     try:
@@ -131,6 +127,10 @@ def __file2dict(file_path):
     if ext == "json" or ext == "cjson":
         mol_dict = openFile(file_path)
 
+        # Unsupported file type.
+        if not mol_dict:
+            output_error(msg("invalid_file_format", "sdf", "csv", "json", split=True), pad=1)
+
     # SDF
     elif ext == "sdf":
         try:
@@ -142,10 +142,38 @@ def __file2dict(file_path):
                 raise ValueError("SDF file does not contain valid molecular data")
             if len(molecules) > 1:
                 raise ValueError("SDF file contains more than one molecule")
+
             mol_pdb = molecules[0]
             mol_dict = mol_pdb.GetPropsAsDict()
         except Exception as err:
-            output_error(msg("invalid_sdf", err, split=True), pad=1)
+            output_error(msg("invalid_sdf", err, split=True), pad=1, return_val=False)
+
+    # CSV
+    elif ext == "csv":
+        import csv
+
+        def _get_delimiter(file_path, bytes=4096):
+            sniffer = csv.Sniffer()
+            data = open(file_path, "r").read(bytes)
+            delimiter = sniffer.sniff(data).delimiter
+            return delimiter
+
+        delimiter = _get_delimiter(file_path)
+
+        try:
+            df = pd.read_csv(file_path, delimiter=delimiter)
+
+            # Check the number of molecules
+            molecules = [mol for mol in df.iterrows() if mol is not None]
+            print(333, molecules)
+            if len(molecules) == 0:
+                raise ValueError("CSV file does not contain valid molecular data")
+            if len(molecules) > 1:
+                raise ValueError("CSV file contains more than one molecule")
+
+            mol_dict = df.to_dict(orient="records")[0]
+        except Exception as err:
+            output_error(msg("invalid_csv", err, split=True), pad=1, return_val=False)
 
     # PDB - current molviewer is not equipped to properly display most proteins.
     # Would require different visualization but not a priority since we're focusing
