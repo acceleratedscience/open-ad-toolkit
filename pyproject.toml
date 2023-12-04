@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "ad4e_opentoolkit"
+name = "openad"
 version = "0.1.0"
 description = ""
 authors = ["Phil Downey"]
@@ -61,9 +61,9 @@ nbformat = "5.8.0"
 notebook = "6.5.4"
 
 [tool.poetry.scripts]
-openad = "ad4e_opentoolkit.app.main:cmd_line"
-init_magic = "ad4e_opentoolkit.app.init_magic:init_magic"
-init_examples = "ad4e_opentoolkit.app.openad_examples:openad_create_examps"
+openad = "openad.app.main:cmd_line"
+init_magic = "openad.app.init_magic:init_magic"
+init_examples = "openad.app.openad_examples:openad_create_examps"
 
 [tool.poetry.group.dev.dependencies]
 pyright = "^1.1.331"
