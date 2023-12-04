@@ -251,6 +251,7 @@ def predict_retro(inputs: dict, cmd_pointer):
                 output_text(
                     "<success> Reaction: </success>" + reactions_text[i], cmd_pointer=cmd_pointer, return_val=False
                 )
+                i = i + 1
                 if cmd_pointer.notebook_mode is True:
                     display(Chem.Draw.ReactionToImage(reaction))
                 else:

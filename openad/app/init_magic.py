@@ -22,19 +22,22 @@ def init_magic():
             if not os.path.exists(default_path):
                 os.mkdir(default_path)
             if len(sys.argv) == 1:
-                destination = os.path.expanduser("~/.ipython/profile_default/startup/openad.py")
-
+                destination = os.path.expanduser("~/.ipython/profile_default/startup/openad_magic.py")
+                destination_old = os.path.expanduser(f"~/.ipython/profile_default/startup/openad.py")
             else:
                 inp = sys.argv[1]
-                destination = os.path.expanduser(f"~/.ipython/profile_{inp}/startup/openad.py")
+                destination = os.path.expanduser(f"~/.ipython/profile_{inp}/startup/openad_magic.py")
+                destination_old = os.path.expanduser(f"~/.ipython/profile_{inp}/startup/openad.py")
 
             if inp == ".":
-                destination = os.getcwd() + "/openad.py"
+                destination = os.getcwd() + "/openad_magic.py"
 
             if os.path.exists(destination):
                 os.remove(destination)
-            shutil.copyfile(_repo_dir + "/magic/openad.py", destination)
-            print("Successully copied openad.py to " + destination)
+            if os.path.exists(destination_old):
+                os.remove(destination_old)
+            shutil.copyfile(_repo_dir + "/magic/openad_magic.py", destination)
+            print("Successully copied openad_magic.py to " + destination)
     except Exception as e:
         print("Error: Unable to copy magic file, destination may not exist")
         print(destination)
