@@ -471,7 +471,7 @@ def display_data(cmd_pointer, parser):
                 df = pd.read_csv(workspace_path + file_path)
                 return output_table(df, cmd_pointer, is_data=True)
             except FileNotFoundError:
-                return output_error(msg("fail_file_doesnt_exist", file_path), cmd_pointer)
+                return output_error(msg("err_file_doesnt_exist", file_path), cmd_pointer)
             except Exception as err:  # pylint: disable=broad-exception-caught
                 # do not care what exception is, just returning failure
                 return output_error(msg("err_load_csv", err, split=True), cmd_pointer)

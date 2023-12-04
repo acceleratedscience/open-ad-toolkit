@@ -82,6 +82,10 @@ def _parse_mol(cmd_pointer, input_str):
             # Abort if needed.
             if not "SMILES" in mol_dict and not "InChI" in mol_dict:
                 output_error(msg("identifier_missing", file_path, split=True), pad=1)
+                mol_dict = None
+        else:
+            # Unsupported file type.
+            output_error(msg("invalid_file_format", "sdf", "csv", "json", split=True), pad=1)
 
     return mol_dict, mol_obj
 
@@ -143,19 +147,21 @@ def __file2dict(file_path):
         except Exception as err:
             output_error(msg("invalid_sdf", err, split=True), pad=1)
 
-    # PDB
-    elif ext == "pdb":
-        try:
-            mol_pdb = Chem.MolFromPDBFile(file_path)
+    # PDB - current molviewer is not equipped to properly display most proteins.
+    # Would require different visualization but not a priority since we're focusing
+    # on small molecules.
+    # elif ext == "pdb":
+    #     try:
+    #         mol_pdb = Chem.MolFromPDBFile(file_path)
 
-            # May need to check for the numbe of molecules.
-            # This can be done with biopython
-            mol_dict = {
-                "InChI": Chem.MolToInchi(mol_pdb),
-                "SMILES": Chem.MolToSmiles(mol_pdb),
-            }
-        except Exception as err:
-            output_error(msg("invalid_sdf", err, split=True), pad=1)
+    #         # May need to check for the numbe of molecules.
+    #         # This can be done with biopython
+    #         mol_dict = {
+    #             "InChI": Chem.MolToInchi(mol_pdb),
+    #             "SMILES": Chem.MolToSmiles(mol_pdb),
+    #         }
+    #     except Exception as err:
+    #         output_error(msg("invalid_sdf", err, split=True), pad=1)
 
     return mol_dict
 

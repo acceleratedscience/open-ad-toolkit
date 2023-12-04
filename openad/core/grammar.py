@@ -539,7 +539,7 @@ if not is_notebook_mode():
         )
     )
 
-# Show molecules set grid.
+# Show molecules grid.
 # Note: we don't allow dashes in dataframe names because it's a substraction operator and causes issues in Jupyter.
 statements.append(
     Forward(
@@ -567,13 +567,12 @@ grammar_help.append(
     help_dict_create(
         name="show molecules",
         category="Utility",
-        command="show molecules using ( file '<mols_file>' | dataframe <dataframe> )\n    [ save as '<sdf_or_csv_file>' | as molsobject ]",
+        command="show molecules using ( file '<mols_file>' | dataframe <dataframe> ) [ save as '<sdf_or_csv_file>' | as molsobject ]",
         description=f"""Launch the molecule viewer { 'in your browser ' if is_notebook_mode() else '' }to examine and select molecules from a SMILES sdf/csv dataset.
 
 Examples:
-
-    <cmd>show molecules using file 'base_molecules.sdf' as molsobject</cmd>
-    <cmd>show molecules using dataframe my_dataframe save as 'selection.sdf'</cmd>
+- <cmd>show molecules using file 'base_molecules.sdf' as molsobject</cmd>
+- <cmd>show molecules using dataframe my_dataframe save as 'selection.sdf'</cmd>
 """,
     )
 )
@@ -582,9 +581,9 @@ Examples:
 statements.append(Forward(show("show") + mol + desc("input_str"))("show_molecule"))  # From mol json file
 grammar_help.append(
     help_dict_create(
-        name="show molecule",
+        name="show mol",
         category="Utility",
-        command="show molecule '<json_mol_file> | <sdf_file> | <smiles_string> | <inchi_string> | <inchi_key>'",
+        command="show mol '<json_mol_file> | <sdf_file> | <smiles_string> | <inchi_string> | <inchi_key>'",
         description="Inspect a molecule in the browser.",
     )
 )
