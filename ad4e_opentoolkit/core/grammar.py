@@ -83,7 +83,7 @@ from ad4e_opentoolkit.app.global_var_lib import _meta_dir_toolkits
 ) = map(
     CaselessKeyword,
     "get list description using create set unset workspace workspaces context jobs exec\
-    as optimize with toolkits toolkit gpu experiment add run save runs show molecules mol\
+    as optimize with toolkits toolkit gpu experiment add run save runs show mol molecules\
     file display history data remove result".split(),
 )
 STRING_VALUE = alphanums
