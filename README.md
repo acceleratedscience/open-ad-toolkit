@@ -228,12 +228,12 @@ OpenAD integrates with `DS4SD`, `RXN`, and has placeholder support for `GT4SD` a
 Before you can interact with the toolkits, you'll need to register with each individual toolkit.
 
 <details>
-<summary>Register with DS4SD (DeepSearch)</summary>
+<summary>Register with DS4SD (Deep Search)</summary>
 <div markdown="block">
 
-1. First, you'll need to generate an API key on the DeepSearch website.
+1. First, you'll need to generate an API key on the Deep Search website.
 
-    - Visit the DeepSearch website and create an account:<br>
+    - Visit the Deep Search website and create an account:<br>
       [deepsearch-experience.res.ibm.com](https://deepsearch-experience.res.ibm.com)<br>
     - Once logged in, click the Toolkit/API icon in the top right hand corner, then open the HTTP section
     - Click the "Generate new API key" button<br>
@@ -241,7 +241,7 @@ Before you can interact with the toolkits, you'll need to register with each ind
       <!-- ![Landing](assets/ds4sd-api-key.png) -->
       <a href="assets/ds4sd-api-key.png" target="_blank"><img src="assets/ds4sd-api-key.png" /></a>
 
-1. Once inside the OpenAD client, you'll be prompted to authenticate when activating the DeepSearch (DS4SD) toolkit. When running `set context ds4sd` :
+1. Once inside the OpenAD client, you'll be prompted to authenticate when activating the Deep Search (DS4SD) toolkit. When running `set context ds4sd` :
 
    - **Hostname:** [https://sds.app.accelerate.science](https://sds.app.accelerate.science)
    - **Email:** Your email

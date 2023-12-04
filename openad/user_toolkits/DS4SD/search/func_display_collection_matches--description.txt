@@ -1,0 +1,6 @@
+Search all collections for documents that contain a given Deep Search <cmd><search_string></cmd>. This is useful when narrowing down document collection(s) for subsequent search. You can use the <cmd><index_key></cmd> from the returned table in your next search.
+
+{{SAVE_AS_CLAUSE}}
+
+Example:
+<cmd>display collection matches for 'Ibuprofen'</cmd>

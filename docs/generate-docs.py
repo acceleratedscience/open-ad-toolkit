@@ -123,7 +123,7 @@ def _compile_section(output, toc, cmds_organized):
         output.append(f"### {category}\n")
         toc.append(_toc_link(category, 1))
         for cmd_str, cmd_description in cmds_organized[category]:
-            output.append(f"`{cmd_str.strip()}`{{: .cmd }}\n{_parse_description(cmd_description)}<br><br>\n")
+            output.append(f"`{cmd_str.strip()}`{{: .cmd }}\n{_parse_description(cmd_description)}<br>\n")
         output.append("<br>\n")
     output.append("</details>\n")
 
@@ -131,14 +131,22 @@ def _compile_section(output, toc, cmds_organized):
 # Prepare the command description for proper rendering.
 def _parse_description(description):
     description = tags_to_markdown(description)
-    description = description.replace("<br><br>", "<br>\n")
-    description = description.replace("<br>", "\n")
 
-    description = description.replace("**Note:**", "  > **Note:**")
+    # Style notes as blockquotes, and ensure they're always
+    # followed by an empty line, to avoid the next lines to
+    # be treated as part of the blockquote.
+    description = re.sub(
+        r"(\*\*Note:\*\*.+?)(\n{1,})",
+        lambda match: f"  > {match.group(1)}\n\n"
+        if len(match.group(2)) == 1
+        else f"  > {match.group(1)}{match.group(2)}",
+        description,
+        flags=re.MULTILINE,
+    )
 
     # description = description.splitlines()
     # description = "\n".join([line.strip() for line in description])
-    return description
+    return description.strip()
 
 
 # Convert a title to a markdown

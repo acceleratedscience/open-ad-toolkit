@@ -103,7 +103,7 @@ def login(cmd_pointer):
             workspace = cmd_pointer.settings["workspace"]
             email = cred_config["auth"]["username"]
             output_text(
-                f"<success>loggining into DeepSearch as: </success> {email}\n <success>Workspace: </success> {workspace}",
+                f"<success>loggining into Deep Search as: </success> {email}\n <success>Workspace: </success> {workspace}",
                 cmd_pointer=cmd_pointer,
                 return_val=False,
             )

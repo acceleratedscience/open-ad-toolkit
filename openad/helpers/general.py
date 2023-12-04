@@ -205,6 +205,23 @@ def next_avail_port(port=5000, host="127.0.0.1"):
     return port, host
 
 
+# Load python module from a dynamic path
+def load_module_from_path(module_name, file_path):
+    import importlib.util
+    import sys
+
+    try:
+        spec = importlib.util.spec_from_file_location(module_name, file_path)
+        module = importlib.util.module_from_spec(spec)
+        sys.modules[module_name] = module
+        spec.loader.exec_module(module)
+        return module
+    except BaseException as err:
+        # Silent fail - only enable this for debugging
+        # output_error(f"load_module_from_path('{module_name}', {file_path})\n<soft>{err}</soft>")
+        return None
+
+
 #
 #
 #

@@ -24,17 +24,15 @@ To update it, see openad/docs/generate-docs.py
   - [File System](#file-system)
   - [Help](#help)
 - [DS4SD](#ds4sd)
-  - [Search Collection](#search-collection)
-  - [Collections](#collections)
   - [Search Molecules](#search-molecules)
   - [Search Collections](#search-collections)
+  - [Collections](#collections)
 - [RXN](#rxn)
   - [Queries](#queries)
-  - [Prediction](#prediction)
   - [Retrosynthesis](#retrosynthesis)
+  - [Prediction](#prediction)
 - [ST4SD](#st4sd)
 - [GT4SD](#gt4sd)
-  - [Generative Toolkit](#generative-toolkit)
 
 ## OpenAD
 
@@ -100,11 +98,12 @@ List all available toolkits.<br><br>
 Install a toolkit.<br><br>
 
 `remove toolkit <toolkit_name>`{: .cmd }
-Remove a toolkit from the registry.
-Note: This doesn't delete the toolkit code. If the toolkit is added again, a backup of the previous install is created in the toolkit directory at ~/.openad/toolkits.<br><br>
+Remove a toolkit from the registry.<br>
+
+<b>Note:</b> This doesn't delete the toolkit code. If the toolkit is added again, a backup of the previous install is created in the toolkit directory at `~/.openad/toolkits`.<br><br>
 
 `set context <toolkit_name> [ reset ]`{: .cmd }
-Set your context to the chosen toolkit. By setting the context, the selected toolkit functions become available to you. The optional parameter 'reset' can be used to reset your login information.<br><br>
+Set your context to the chosen toolkit. By setting the context, the selected toolkit functions become available to you. The optional parameter `reset` can be used to reset your login information.<br><br>
 
 `get context`{: .cmd }
 Display the currently selected toolkit.<br><br>
@@ -156,15 +155,12 @@ Display the result in the CLI.<br><br>
 `edit config '<json_config_file>' [ schema '<schema_file>']`{: .cmd }
 Edit any JSON file in your workspace directly from the CLI. If a schema is specified, it will be used for validation and documentation.<br><br>
 
-`show molecules using ( file '<mols_file>' | dataframe <dataframe> )
-    [ save as '<sdf_or_csv_file>' | as molsobject ]`{: .cmd }
-Launch the molecule viewer to examine and select molecules from a SMILES sdf/csv dataset.
+`show molecules using ( file '<mols_file>' | dataframe <dataframe> ) [ save as '<sdf_or_csv_filename>' | as molsobject ]`{: .cmd }
+Launch the molecule viewer to examine and select molecules from a SMILES sdf/csv dataset.<br>
 
-Examples:
-
-    `show molecules using file 'base_molecules.sdf' as molsobject`
-    `show molecules using dataframe my_dataframe save as 'selection.sdf'`
-<br><br>
+Examples:<br>
+- `show molecules using file 'base_molecules.sdf' as molsobject`<br>
+- `show molecules using dataframe my_dataframe save as 'selection.sdf'`<br><br>
 
 <br>
 
@@ -174,7 +170,7 @@ Examples:
 Ask your AI assistant how to do anything in OpenAD.<br><br>
 
 `set llm  <language_model_name>`{: .cmd }
-Set the target language model name for the "tell me" command.<br><br>
+Set the target language model name for the `tell me` command.<br><br>
 
 `clear llm auth`{: .cmd }
 Clear the language model's authentication file.<br><br>
@@ -224,157 +220,129 @@ Display what a command does, or list all commands that contain this string.<br><
 <details markdown="block">
 <summary>See commands</summary>
 
-### Search Collection
-
-`search collection '<collection name or key>' for '<search string>' using ( [ page_size=<int> system_id=<system_id> edit_distance=<integer> display_first=<integer>]) show (data|docs) [ estimate only|return as data|save as '<csv_filename>' ]`{: .cmd }
-PPPerforms a document search of the Deep Search repository based on a given collection. The required `using` clause specifies the collection to search. Use `estimate only` to return only the potential number of hits.
-
-Parameters:
-- `'<collection name or key>'` The name or index key for a collection. Use the command `display all collections` to identify collections.
-- `'<search string>'` The search string for the search.
-		
-Syntax for the `'<search string>'`:
-DeepSearch uses Elastic Search string query syntax, which supports operators like:
-- `+` Signifies AND operation.
-- `|` Signifies OR operation.
-- `-` Negates a single token.
-- `\"` Wraps a number of tokens to signify a phrase for searching.
-- `*` At the end of a term -> signifies a prefix query
-- `(` &amp; `)` Signifies precedence
-- `~N` After a word -> signifies edit distance (fuzziness)
-- `~N` After a phrase -> signifies slop amount
-
-Options for the `using` clause:
-
-  > **Note:** The `using` clause requires all enclosed parameters to be defined in the same order as documented above.
-
-- `page_size=<integer>` Result pagination, the default is None.
-- `system_id=<system_id>` System cluster id, the default is 'default'.
-- `edit_distance=<integer>` Sets the search word span criteria for key words for document searches, the default is 5. When set to 0, no snippets will be be returned.
-- `display_first=<integer>` When set, the displayed result set will be truncated at the given number.
-
-Clauses:
-- `show (data | docs)`:
-    - `data` Display structured data from within the documents.
-    - `docs` Display document context.
-    Both can be combined in a single command, e.g. `show (data docs)`
-- `estimate only` Determine the potential number of hits.
-- `return as data` For Notebook or API mode. Removes all styling from the Pandas DataFrame, ready for further processing.
-
-Examples:
-- Look for documents that contain discussions on power conversion efficiency:
-    
-    `search collection 'arxiv-abstract' for 'ide(\"power conversion efficiency\" OR PCE) AND organ*' using ( edit_distance=20 system_id=default) show (docs)`
-
-- Search the PubChem archive for 'Ibuprofen' and display related molecules' data:
-
-    `search collection 'pubchem' for 'Ibuprofen' show (data)`
-
-- Search for patents which mention a specific smiles molecule:
-
-    `search collection 'uspto-patent' for 'identifiers._name:\"smiles#ccc(coc(=o)cs)(c(=o)c(=o)cs)c(=o)c(=o)cs\"' show (data)`
-<br><br>
-
-`search collection '<collection name or key>' for '<search string>' using ( [ page_size=<int> system_id=<system_id> edit_distance=<integer> display_first=<integer>]) show (data|docs) [ estimate only|return as data|save as '<csv_filename>' ]`{: .cmd }
-Performs a document search of the Deep Search repository based on a given collection. The required USING clause specifies the collection to search. Use 'estimate only' to perform a general search, returning the potential number of hits.
-
- Parameters:
-    - `'<collection name or key>'` the name or index key for a collection. Use the command `display all collections` to identify collections.
-    - `'<search string>'` the search string for the search.
-
- Search String Syntax: DeepSearch uses Elastic Search string query syntax, supporting operators like the following:
-    -- `+` signifies AND operation
-    -- `|` signifies OR operation
-    -- `-` negates a single token
-    -- `"` wraps a number of tokens to signify a phrase for searching
-    -- `*` at the end of a term signifies a prefix query
-    -- `(` and `)` signify precedence
-    -- `~N` after a word signifies edit distance (fuzziness)
-    -- `~N` after a phrase signifies slop amount
-
-`USING` clause Options:
-    - `page_size=<integer>` - result pagination, the default is None.
-    - `system_id=<system_id> ` - system cluster id, the default is the value 'default'.
-    - `edit_distance=<integer>`  - Set the search word span criteria for key words for document searches. the default is 5. When set to 0, no snippets will be be returned.
-    - `display_first=<integer>` - If display_first > 0, the displayed result set will be truncated at the given number. The default is 0.
-
-Clauses:
-    - `show (data | docs ) ` - `data` Display structured data from within the documents or `docs` Display document context.
-           It is permitted to specify both in a single command e.g. ` show (data docs)` 
-    - `estimate only` - Determine the potential number of hits.
-    - `return as data` - For Notebook or API mode. Removes all styling from the Pandas DataFrame, ready for further processing.
-
- Examples:
-- Look for documents that contain discussions on power conversion efficiency:
-
-    `search collection 'arxiv-abstract' for 'ide("power conversion efficiency" OR PCE) AND organ*' using ( edit_distance=20 system_id=default) show (docs)`
-
-- Search the pubchem archive for 'Ibuprofen' and display related molecules' data:
-
-    `search collection 'pubchem' for 'Ibuprofen' show (data)`
-
-- Search for patents which mention a specific smiles molecule:
-
-    `search collection 'uspto-patent' for 'identifiers._name:"smiles#ccc(coc(=o)cs)(c(=o)c(=o)cs)c(=o)c(=o)cs"' show (data)`
-<br><br>
-
-<br>
-
-### Collections
-
-`display all collections [save as '<csv_file_name>']`{: .cmd }
-This function displays all available collections in Deep Search.
-If you use the `SAVE AS` clause, it will save a csv file to the current workspace.<br><br>
-
-`display collections in domains from list [<list_of_domains>] [save as '<csv_file_name>']`{: .cmd }
-This function displays collections that belong to the listed domains.
-If you use the `SAVE AS` clause, it will save a csv file to the current workspace.<br><br>
-
-`display collection details '<collection_name>' | '<collection_key>'`{: .cmd }
-This function displays the details for a specified collection. You can specify either the name of a collection <span style="color: #ccc"><collection_name></span> or its index key <span style="color: #ccc"><collection_key></span>.<br><br>
-
-`display collections for domain '<domain_name>'`{: .cmd }
-This command displays the available collections in a given Deep Search <domain_name>.<br><br>
-
-<br>
-
 ### Search Molecules
 
-`search for similar molecules to '<smiles_string>' [save as '<csv_file_name>']`{: .cmd }
-This command searches for molecules that are similar to the provided molecule or molecule substructure <smiles_string> provided.
+`search for patents containing molecule '<smiles>' | '<inchi>' | '<inchi_key>' [ save as '<csv_filename>' ]`{: .cmd }
+Search for mentions of a specified molecules in registered patents. The queried molecule can be described as a SMILES string, InChI or InChiKey.<br>
 
-For example `search for similar molecules to 'C1(C(=C)C([O-])C1C)=O'`
+Use the `save as` clause to save the results as a csv file in your current workspace.<br>
 
-If you use the `SAVE AS` clause, it will save a csv file to the current workspace.<br><br>
+Example:<br>
+`search for patents containing molecule 'CC(C)(c1ccccn1)C(CC(=O)O)Nc1nc(-c2c[nH]c3ncc(Cl)cc23)c(C#N)cc1F'`<br><br>
 
-`search for patents containing molecule ['<smiles_molecule>'| '<inchi_molecule>'] [save as '<csv_file_name>']`{: .cmd }
-This command searches for mentions of a specified molecules in registered patents.
-As input parameters you can provide either a SMILES version of a molecule <smiles_molecule> or Inchi <inchi_molecule>, which can either be in key or string format.
+`search for similar molecules to '<smiles>' [ save as '<csv_filename>' ]`{: .cmd }
+Search for molecules that are similar to the provided molecule or molecule substructure as provided in the `<smiles_string>`.<br>
 
- ` search for patents containing molecule 'CC(C)(c1ccccn1)C(CC(=O)O)Nc1nc(-c2c[nH]c3ncc(Cl)cc23)c(C#N)cc1F' ` 
+Use the `save as` clause to save the results as a csv file in your current workspace.<br>
 
-If you use the `SAVE AS` clause, it will save a csv file to the current workspace.<br><br>
+Example:<br>
+`search for similar molecules to 'C1(C(=C)C([O-])C1C)=O'`<br><br>
 
-`search for molecules in patents from [list ['<patent1>', '<patent2>' .....] | dataframe <dataframe_name> | file '<workspace_file name>'] [save as '<csv_file_name>']`{: .cmd }
-This command searches for molecules that are mentioned in the defined list of patents. If sourcing patents are from CSV or dataframe, these must contain a column with 'PATENT ID' or 'patent id' as the heading.
+`search for molecules in patents from list ['<patent1>', '<patent2>', ...] | dataframe <dataframe_name> | file '<csv_filename>' [ save as '<csv_filename>' ]`{: .cmd }
+Search for molecules mentioned in a defined list of patents. When sourcing patents from a CSV or DataFrame, there must be column named "PATENT ID" or "patent id".<br>
 
- For Example: ` search for molecules in patents from list ['CN108473493B','US20190023713A1'] ` 
+Use the `save as` clause to save the results as a csv file in your current workspace.<br>
 
-If you use the `SAVE AS` clause, it will save a csv file to the current workspace.<br><br>
+Example:<br>
+`search for molecules in patents from list ['CN108473493B','US20190023713A1']`<br><br>
 
-`search for substructure instances of '<smiles_string>' [save as '<csv_file_name>']`{: .cmd }
-This command searches for molecules with the instance of a molecule in their substructure, as defined in the <smiles_string> string. 
-If you use the `SAVE AS` clause, it will save a csv file to the current workspace.
+`search for substructure instances of '<smiles>' [ save as '<csv_filename>' ]`{: .cmd }
+Search for molecules by substructure, as defined by the `<smiles_string>`.<br>
 
- For example: ` search for substructure instances of 'C1(C(=C)C([O-])C1C)=O' save as 'my_mol'`<br><br>
+Use the `save as` clause to save the results as a csv file in your current workspace.<br>
+
+Example:<br>
+`search for substructure instances of 'C1(C(=C)C([O-])C1C)=O' save as 'my_mol'`<br><br>
 
 <br>
 
 ### Search Collections
 
-`display collection matches for '<search_string>' [save as '<csv_file_name>']`{: .cmd }
-This command searches all collections for documents that contain a given Deep Search <search_string>. This helps choose document collection(s) for subsequent search. Use <index_key> from the returned table in a search.
-If you use the `SAVE AS` clause, it will save a csv file to the current workspace.<br><br>
+`search collection '<collection_name_or_key>' for '<search_string>' [ using (page_size=<int> system_id=<system_id> edit_distance=<integer> display_first=<integer>) ] show (data | docs) [ estimate only | return as data | save as '<csv_filename>' ]`{: .cmd }
+Performs a document search of the Deep Search repository based on a given collection. The required `using` clause specifies the collection to search. Use `estimate only` to return only the potential number of hits.<br>
+
+Parameters:<br>
+- `<collection_name_or_key>` The name or index key for a collection. Use the command `display all collections` to list available collections.<br>
+- `<search_string>` The search string for the search.<br>
+
+The `<search_string>` supports elastic search string query syntax:<br>
+- `+` Signifies AND operation.<br>
+- `|` Signifies OR operation.<br>
+- `-` Negates a single token.<br>
+- `\"` Wraps a number of tokens to signify a phrase for searching.<br>
+- `*` At the end of a term -> signifies a prefix query<br>
+- `(` &amp; `)` Signifies precedence<br>
+- `~N` After a word -> signifies edit distance (fuzziness)<br>
+- `~N` After a phrase -> signifies slop amount<br>
+
+Options for the `using` clause:<br>
+  > **Note:** The `using` clause requires all enclosed parameters to be defined in the same order as documented below.<br>
+
+- `page_size=<integer>` Result pagination, the default is None.<br>
+- `system_id=<system_id>` System cluster id, the default is 'default'.<br>
+- `edit_distance=<integer>` Sets the search word span criteria for key words for document searches, the default is 5. When set to 0, no snippets will be be returned.<br>
+- `display_first=<integer>` When set, the displayed result set will be truncated at the given number.<br>
+
+Clauses:<br>
+- `show (data | docs)`:<br>
+    - `data` Display structured data from within the documents.<br>
+    - `docs` Display document context.<br>
+    Both can be combined in a single command, e.g. `show (data docs)`<br>
+- `estimate only` Determine the potential number of hits.<br>
+- `return as data` For Notebook or API mode. Removes all styling from the Pandas DataFrame, ready for further processing.<br>
+
+Examples:<br>
+- Look for documents that contain discussions on power conversion efficiency:<br>
+`search collection 'arxiv-abstract' for 'ide(\"power conversion efficiency\" OR PCE) AND organ*' using ( edit_distance=20 system_id=default) show (docs)`<br>
+
+- Search the PubChem archive for 'Ibuprofen' and display related molecules' data:<br>
+`search collection 'pubchem' for 'Ibuprofen' show (data)`<br>
+
+- Search for patents which mention a specific smiles molecule:<br>
+`search collection 'patent-uspto' for '\"smiles#ccc(coc(=o)cs)(c(=o)c(=o)cs)c(=o)c(=o)cs\"' show (data)`<br><br>
+
+`display collection matches for '<search_string>' [ save as '<csv_filename>' ]`{: .cmd }
+Search all collections for documents that contain a given Deep Search `<search_string>`. This is useful when narrowing down document collection(s) for subsequent search. You can use the `<index_key>` from the returned table in your next search.<br>
+
+Use the `save as` clause to save the results as a csv file in your current workspace.<br>
+
+Example:<br>
+`display collection matches for 'Ibuprofen'`<br><br>
+
+<br>
+
+### Collections
+
+`display collections for domain '<domain_name>'`{: .cmd }
+Display the available collections in a given Deep Search domain.<br>
+
+Use the command `display all collections` to find available domains.<br>
+
+Example:<br>
+`display collections for domain 'Business Insights'`<br><br>
+
+`display all collections [ save as '<csv_filename>' ]`{: .cmd }
+Display all available collections in Deep Search.<br>
+
+Use the `save as` clause to save the results as a csv file in your current workspace.<br><br>
+
+`display collections in domains from list <list_of_domains> [ save as '<csv_filename>' ]`{: .cmd }
+Display collections that belong to the listed domains.<br>
+
+Use the `save as` clause to save the results as a csv file in your current workspace.<br>
+
+Use the command `display all collections` to find available domains.<br>
+
+Example:<br>
+`display collections in domains from list ['Scientific Literature']`<br><br>
+
+`display collection details '<collection_name>' | '<collection_key>'`{: .cmd }
+Display the details for a specified collection. You can specify a collection by its name or key.<br>
+
+Use the command `display all collections` to list available collections.<br>
+
+Example:<br>
+`display collection details 'Patents from USPTO'`<br><br>
 
 <br>
 
@@ -389,87 +357,84 @@ If you use the `SAVE AS` clause, it will save a csv file to the current workspac
 ### Queries
 
 `list rxn models`{: .cmd }
-lists current rxn AI Models available to the user<br><br>
-
-<br>
-
-### Prediction
-
-`predict reaction topn in batch from (dataframe <dataframe_name> | file '<file_name.csv>' | list ['#smiles_reaction','#smiles_reaction') [USING (topn=<integer> ai_model='<existing_model>')] [use_saved]`{: .cmd }
-This command performs a reaction prediction for topn providing results for a given list of reactions. The list of reactions can be specified as a string list, data frame or csv file from the current workspace. For data frames and csv files it will take the column with the name ‘reactions’.
-
-In the `FROM` clause reactions are defined by a list of reactions where are SMILES string is delimited by '.' e.g. `'BrBr.c1ccc2cc3ccccc3cc2c1'`
-
-The optional `USING` clause can specify an AI model, a value for topn, or both:
-    - `ai_model=’<model_name>’ ` The default value is '2020-07-01'
-    - `topn=<integer>`  this sets the top n results, the default value is 3
-
-Examples:
-    `predict reaction topn batch from list ['BrBr.c1ccc2cc3ccccc3cc2c1CCO' , 'BrBr.c1ccc2cc3ccccc3cc2c1']`
-
-    `predict reaction topn batch from list ['BrBr.c1ccc2cc3ccccc3cc2c1CCO' , 'BrBr.c1ccc2cc3ccccc3cc2c1'] using ( topn=6)`
-
-You can also use previously generated results buy optionally using `use_saved` at the end of the command and it will use the results of any previously run commands with the same parameters while the toolkit has been installed.
- 
-   `predict reaction topn batch from list ['BrBr.c1ccc2cc3ccccc3cc2c1CCO' , 'BrBr.c1ccc2cc3ccccc3cc2c1'] using (topn=6) use_saved `
-<br><br>
-
-`predict reaction '<reaction-smiles-string>' [USING (ai_model='<valid_ai_model>')] [use_saved]`{: .cmd }
-This command 'forward predicts' a reaction for a given SMILES string.
-
-In the `FROM` clause is a list of reactions: SMILES strings delimited by a period '.', e.g. `'BrBr.c1ccc2cc3ccccc3cc2c1'`
-
-
-The optional `USING` clause specifies a particular AI model.
-    -`ai_model=’<model_name>’` The default value is '2020-07-01'
-
-Example:
-    `predict reaction 'BrBr.c1ccc2cc3ccccc3cc2c1CCO'` 
-
- You can optionally use previously generated results with `use_saved` at the end of the command. It will use the results of any previous commands run with the same parameters.
-
-`predict reaction 'BrBr.c1ccc2cc3ccccc3cc2c1CCO' use_saved`<br><br>
-
-`predict reaction in batch from [dataframe < dataframe_name > ] | [file '<file_name.csv>'] | [list ['#smiles','#smiles']]  [USING ( ai_model='<existing_model>')] [use_saved]`{: .cmd }
-This command performs a reaction prediction providing results for a given list of possible reaction paths. The list of reactions can be specified as a string list, data frame or csv file from the current workspace. For data frames and csv files it will take the column with the name 'reactions'.
-
-In the `FROM` clause reactions are defined by a list of reactions where are SMILES string is delimited by '.' e.g. `'BrBr.c1ccc2cc3ccccc3cc2c1'`
-
-The optional `USING` clause specifies an AI model other than the default model.
-    - `ai_model=’<model_name>’ `The default ai_model is '2020-07-01'
-Examples:
-    `predict reaction batch from list ['BrBr.c1ccc2cc3ccccc3cc2c1CCO' , 'BrBr.c1ccc2cc3ccccc3cc2c1']`
-
-You can also use previously generated results by optionally using `use_saved` at the end of the command and it will use the results of any previously run commands with the same parameters while the toolkit has been installed.
-
-`predict reaction batch from list ['BrBr.c1ccc2cc3ccccc3cc2c1CCO' , 'BrBr.c1ccc2cc3ccccc3cc2c1'] use_saved`<br><br>
+Lists all RXN AI models currently available.<br><br>
 
 <br>
 
 ### Retrosynthesis
 
-`interpret recipe '<recipe-paragraph> | <workspace-file>'`{: .cmd }
-This command builds a set of actions interpreted from a provided recipe defined as a provided string or a file in the current workspace in the parameter `<recipe-paragraph> | <workspace-file>` <br><br>
+`predict retrosynthesis '<smiles>' [ using (option1=<value> option2=<value>) ]`{: .cmd }
+Perform a retrosynthesis route prediction on a molecule.<br>
 
-`predict retrosynthesis '<product_SMILES_string>' [USING ( option=<valid_input> option2=<valid_input> )]`{: .cmd }
- This command performs automatic retro synthesis route prediction on a given molecule.
+Options for the optional `using` clause:<br>
+- `availability_pricing_threshold=<int>` Maximum price in USD per g/ml of compounds. Default: no threshold.<br>
+- `available_smiles='<smiles>.<smiles>.<smiles>'` List of molecules available as precursors, delimited with a period.<br>
+- `exclude_smiles='<smiles>.<smiles>.<smiles>'` List of molecules to exlude from the set of precursors, delimited with a period.<br>
+- `exclude_substructures='<smiles>.<smiles>.<smiles>'` List of substructures to excludefrom the set of precursors, delimited with a period.<br>
+- `exclude_target_molecule=<boolean>` Excluded target molecule. The default is True<br>
+- `fap=<float>` Every retrosynthetic step is evaluated with the FAP, and is only retained when forward confidence is greater than the FAP value. The default is 0.6.<br>
+- `max_steps=<int>` The maximum number steps in the results. The default is 3.<br>
+- `nbeams=<int>` The maximum number of beams exploring the hypertree. The default is 10.<br>
+- `pruning_steps=<int>` The number of steps to prune a hypertree. The default is 2.<br>
+- `ai_model='<model_name>'` What model to use. Use the command `list rxn models` to list all available models. The default is '2020-07-01'.<br>
 
-The parameter `'<product_SMILES_string>'` takes a valid SMILES string. 
+Example:<br>
+`predict retrosynthesis 'BrCCc1cccc2c(Br)c3ccccc3cc12' using (max_steps=3)`<br><br>
 
- Options for `USING` clause are: 
- - `availability_pricing_threshold=<int> ` maximum price in USD per g/ml of compounds. Default: no threshold.
-         - `available_smiles='<list of SMILES>'` list of molecules available as precursors, with delimiter '.' 
-         - `exclude_smiles='<list of SMILES>'` list of molecules to exclude from the set of precursors, delimiter '.' 
-         - `exclude_substructures='<list of SMILES>'` substructures to exclude, delimiter '.'
-         - `exclude_target_molecule=<boolean>` excluded target molecule, default True 
-         - `fap=<float>` Every retrosynthetic step is evaluated with the FAP, a step is retained when forward confidence is greater than FAP, default 0.6
-         - `max_steps=<int>` The max steps, default is 3 
-         - `nbeams=<int> ` The maximum number of beams exploring the hypertree, default 10
-         - `pruning_steps=<int>` The number of steps to prune a hypertree, default 2 
-         - `ai_model='<ai_model_name>'` default '2020-07-01' 
+`interpret recipe '<recipe_paragraph>' | '<txt_filename>'`{: .cmd }
+Build a ordered list of actions interpreted from a provided text-based recipe. The recipe can be provided as a string or as a text file from your current workspace.<br>
 
- An example command is: 
- `predict retrosynthesis 'BrCCc1cccc2c(Br)c3ccccc3cc12' using (max_steps=3) `<br><br>
+Examples:<br>
+- `interpret recipe 'my_recipe.txt'`<br>
+- `interpret recipe 'A solution of ((1S,2S)-1-{[(methoxymethyl-biphenyl-4-yl)-(2-pyridin-2-yl-cyclopropanecarbonyl)-amino]-methyl}-2-methyl-butyl)-carbamic acid tert-butyl ester (25 mg, 0.045 mmol) and dichloromethane (4 mL) was treated with a solution of HCl in dioxane (4 N, 0.5 mL) and the resulting reaction mixture was maintained at room temperature for 12 h. The reaction was then concentrated to dryness to afford (1R,2R)-2-pyridin-2-yl-cyclopropanecarboxylic acid ((2S,3S)-2-amino-3-methylpentyl)-(methoxymethyl-biphenyl-4-yl)-amide (18 mg, 95% yield) as a white solid.'`<br><br>
+
+<br>
+
+### Prediction
+
+`predict reaction in batch from dataframe <dataframe_name> | file '<csv_filename>' | list '<smiles>.<smiles>'  [ using (ai_model='<ai_model>') ] [ use_saved ]`{: .cmd }
+Run a batch of reaction predictions. The provided list of reactions can be specified as a DataFrame, a CSV file from your current workspace or a list of strings. When proving a DataFrame or CSV file, we will look for the "reactions" column.<br>
+
+Reactions are defined by combining two SMILES strings delimited by a period. For example: `'BrBr.c1ccc2cc3ccccc3cc2c1'`<br>
+
+Options for the optional `using` clause:<br>
+- `ai_model='<model_name>'` What model to use. Use the command `list rxn models` to list all available models. The default is '2020-07-01'.<br>
+
+You can reuse previously generated results by appending the optional `use_saved` clause. This will reuse the results of a previously run command with the same parameters, if available.<br>
+
+Examples:<br>
+- `predict reaction in batch from list ['BrBr.c1ccc2cc3ccccc3cc2c1CCO' , 'BrBr.c1ccc2cc3ccccc3cc2c1']`<br>
+- `predict reaction in batch from list ['BrBr.c1ccc2cc3ccccc3cc2c1CCO' , 'BrBr.c1ccc2cc3ccccc3cc2c1'] use_saved`<br><br>
+
+`predict reaction '<smiles>.<smiles>' [ using (ai_model='<ai_model>') ] [ use_saved ]`{: .cmd }
+Predict the reaction between two molecules.<br>
+
+Reactions are defined by combining two SMILES strings delimited by a period. For example: `'BrBr.c1ccc2cc3ccccc3cc2c1'`<br>
+
+Options for the optional `using` clause:<br>
+- `ai_model='<model_name>'` What model to use. Use the command `list rxn models` to list all available models. The default is '2020-07-01'.<br>
+
+You can reuse previously generated results by appending the optional `use_saved` clause. This will reuse the results of a previously run command with the same parameters, if available.<br>
+
+Examples:<br>
+- `predict reaction 'BrBr.c1ccc2cc3ccccc3cc2c1CCO'`<br>
+- `predict reaction 'BrBr.c1ccc2cc3ccccc3cc2c1CCO' use_saved`<br><br>
+
+`predict reaction topn in batch from dataframe <dataframe_name> | file '<csv_filename>' | list ['<smiles>.<smiles>','<smiles>.<smiles>'] [ using (topn=<integer> ai_model='<ai_model>') ] [ use_saved ]`{: .cmd }
+Run a batch of reaction predictions for topn. The provided list of reactions can be specified as a DataFrame, a CSV file from your current workspace or a list of strings. When proving a DataFrame or CSV file, we will look for the "reactions" column.<br>
+
+Reactions are defined by combining two SMILES strings delimited by a period. For example: `'BrBr.c1ccc2cc3ccccc3cc2c1'`<br>
+
+Options for the optional `using` clause:<br>
+- `ai_model='<model_name>'` What model to use. Use the command `list rxn models` to list all available models. The default is '2020-07-01'.<br>
+- `topn=<integer>` Defined the number of results being returned. The default value is 3.<br>
+
+You can reuse previously generated results by appending the optional `use_saved` clause. This will reuse the results of a previously run command with the same parameters, if available.<br>
+
+Examples:<br>
+- `predict reaction topn in batch from list ['BrBr.c1ccc2cc3ccccc3cc2c1CCO' , 'BrBr.c1ccc2cc3ccccc3cc2c1']`<br>
+- `predict reaction topn in batch from list ['BrBr.c1ccc2cc3ccccc3cc2c1CCO' , 'BrBr.c1ccc2cc3ccccc3cc2c1'] using (topn=6)`<br>
+- `predict reaction topn in batch from list ['BrBr.c1ccc2cc3ccccc3cc2c1CCO' , 'BrBr.c1ccc2cc3ccccc3cc2c1'] use_saved `<br><br>
 
 <br>
 
@@ -488,12 +453,5 @@ The parameter `'<product_SMILES_string>'` takes a valid SMILES string.
 
 <details markdown="block">
 <summary>See commands</summary>
-
-### Generative Toolkit
-
-`exec inference()`{: .cmd }
-this is a gt4sd test function<br><br>
-
-<br>
 
 </details>

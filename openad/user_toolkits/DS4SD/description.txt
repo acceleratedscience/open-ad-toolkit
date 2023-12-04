@@ -1,6 +1,6 @@
-Below is a description of the DeepSearch toolkit and how to access its capabilities using statements in the OpenAD client.
+Below is a description of the Deep Search toolkit and how to access its capabilities using statements in the OpenAD client.
 
-The DeepSearch Toolkit is called DS4SD. To add the Deepsearch Toolkit, type `add toolkit ds4sd`.
+The Deep Search Toolkit is called DS4SD. To add the Deepsearch Toolkit, type `add toolkit ds4sd`.
 
 Deep Search uses natural language processing to ingest and analyze massive amounts of data—structured and unstructured. Researchers can then extract, explore, and make connections faster than ever.
 Solutions that once took months to find are now being discovered in a matter of days.
@@ -18,20 +18,20 @@ Group Search Collection:
     `search collection '<collection Name or key>' for '<search string>' using ( [ page_size=<int> system_id=<system_id> edit_distance=<integer> display_first=<integer>]) show (data|docs) [ estimate only|return as data|save as '<csv_filename>' ]`
     
 Group Collections:
-    `display all collections [save as '<csv_file_name>']`
-    `display collections in domains from list [<list_of_domains>] [save as '<csv_file_name>']`
+    `display all collections [ save as '<csv_filename>' ]`
+    `display collections in domains from list [<list_of_domains>] [ save as '<csv_filename>' ]`
     `display collection details '<collection_name>' | '<collection_key>'`
-    `display collections for domain '<domain_name>' [save as '<csv_file_name>']`
+    `display collections for domain '<domain_name>' [ save as '<csv_filename>' ]`
     
 Group Function:
     `exec display_collection( domain='<domain_name>')`
     
 Group Search Molecules:
-    `search for similar molecules to '<SMILES_string>' [save as '<csv_file_name>']`
-    `search for patents containing molecule  ['<SMILES_molecule>'| '<inchi_molecule>'] [save as '<csv_file_name>']`
-    `search for molecules in patents from [list ['<patent1>', '<patent2>' ...] | dataframe <dataframe_name> | file '<workspace_file name>'] [save as '<csv_file_name>']`
-    `search for substructure instances of '<SMILES_string>' [save as '<csv_file_name>']`
+    `search for similar molecules to '<SMILES_string>' [ save as '<csv_filename>' ]`
+    `search for patents containing molecule  ['<SMILES_molecule>'| '<inchi_molecule>'] [ save as '<csv_filename>' ]`
+    `search for molecules in patents from [list ['<patent1>', '<patent2>' ...] | dataframe <dataframe_name> | file '<workspace_file name>'] [ save as '<csv_filename>' ]`
+    `search for substructure instances of '<SMILES_string>' [ save as '<csv_filename>' ]`
     
 Group Search Collections:
-    `display collection matches for '<search_string>' [save as '<csv_file_name>']`
+    `display collection matches for '<search_string>' [ save as '<csv_filename>' ]`
 

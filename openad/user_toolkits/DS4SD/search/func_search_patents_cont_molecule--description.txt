@@ -1,0 +1,6 @@
+Search for mentions of a specified molecules in registered patents. The queried molecule can be described as a SMILES string, InChI or InChiKey.
+
+{{SAVE_AS_CLAUSE}}
+
+Example:
+<cmd>search for patents containing molecule 'CC(C)(c1ccccn1)C(CC(=O)O)Nc1nc(-c2c[nH]c3ncc(Cl)cc23)c(C#N)cc1F'</cmd>

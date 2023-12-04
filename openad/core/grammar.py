@@ -341,8 +341,8 @@ grammar_help.append(
         category="Toolkits",
         command="remove toolkit <toolkit_name>",
         description=(
-            "Remove a toolkit from the registry.\n"
-            "Note: This doesn't delete the toolkit code. If the toolkit is added again, a backup of the previous install is created in the toolkit directory at <yellow>~/.openad/toolkits</yellow>."
+            "Remove a toolkit from the registry.\n\n"
+            "<b>Note:</b> This doesn't delete the toolkit code. If the toolkit is added again, a backup of the previous install is created in the toolkit directory at <cmd>~/.openad/toolkits</cmd>."
         ),
         note=NOTE_TOOLKITS,
         # Correct description but we have to update the functionality first.
@@ -364,7 +364,7 @@ grammar_help.append(
         name="set context",
         category="Toolkits",
         command="set context <toolkit_name> [ reset ]",
-        description=f"Set your context to the chosen toolkit. By setting the context, the selected toolkit functions become available to you. The optional parameter 'reset' can be used to reset your login information.",
+        description=f"Set your context to the chosen toolkit. By setting the context, the selected toolkit functions become available to you. The optional parameter <cmd>reset</cmd> can be used to reset your login information.",
         note=NOTE_TOOLKITS,
     )
 )
@@ -584,13 +584,12 @@ grammar_help.append(
     help_dict_create(
         name="show molecules",
         category="Utility",
-        command="show molecules using ( file '<mols_file>' | dataframe <dataframe> )\n    [ save as '<sdf_or_csv_file>' | as molsobject ]",
+        command="show molecules using ( file '<mols_file>' | dataframe <dataframe> ) [ save as '<sdf_or_csv_filename>' | as molsobject ]",
         description=f"""Launch the molecule viewer { 'in your browser ' if is_notebook_mode() else '' }to examine and select molecules from a SMILES sdf/csv dataset.
 
 Examples:
-
-    <cmd>show molecules using file 'base_molecules.sdf' as molsobject</cmd>
-    <cmd>show molecules using dataframe my_dataframe save as 'selection.sdf'</cmd>
+- <cmd>show molecules using file 'base_molecules.sdf' as molsobject</cmd>
+- <cmd>show molecules using dataframe my_dataframe save as 'selection.sdf'</cmd>
 """,
     )
 )
@@ -630,7 +629,7 @@ grammar_help.append(
         name="set llm",
         category="LLM",
         command="set llm  <language_model_name>",
-        description='Set the target language model name for the "tell me" command.',
+        description="Set the target language model name for the <cmd>tell me</cmd> command.",
     )
 )
 
@@ -1014,15 +1013,6 @@ def statement_builder(toolkit_pointer, inp_statement):
         toolkit_pointer.methods_library.append(inp_statement["library"])
 
         toolkit_pointer.methods_dict.append(inp_statement)
-
-        # # Clause Amendment
-        # if "USING" in inp_statement and inp_statement["USING"] is not None:
-        #     title = "Options for the <cmd>using</cmd> clause:"
-        #     inp_statement["help"]["description"] = inp_statement["help"]["description"].replace(
-        #         title,
-        #         title
-        #         + "\n\n<bold>Note:</bold> The <cmd>using</cmd> clause requires all enclosed parameters to be defined in the same order as documented above.\n",
-        #     )
 
         toolkit_pointer.methods_help.append(inp_statement["help"])
 

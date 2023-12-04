@@ -1,0 +1,17 @@
+{
+	"fplugin": "rxn",
+	"command": "interpret recipe",
+	"subject": "interpret_recipe",
+	"SINGLE_PARM": { "recipe": "desc" },
+	"exec_type": "standard_statement",
+	"exec_cmd": "interpret recipe",
+	"help": {
+		"name": "interpret recipe",
+		"category": "Retrosynthesis",
+		"command": "interpret recipe '<recipe_paragraph>' | '<txt_filename>' ",
+		"description": null,
+		"url": ""
+	},
+	"library": "rxn_recipe_interpret",
+	"method": "interpret_recipe"
+}

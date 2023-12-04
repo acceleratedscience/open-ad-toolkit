@@ -286,14 +286,11 @@ def tags_to_markdown(text: str):
     # Because html breaks (<br>) don't play well with headings,
     # and end of line characters don't play well with `code`
     # blocks, we have to do some trickery here.
-    text = re.sub(
-        r"(</h[123]>)(\n+)", lambda match: match.group(1) + len(match.group(2)) * "---LINEBREAKSOFT---", text
-    )  # noqa
-    text = re.sub(
-        r"(\n+)(<h[123]>)", lambda match: len(match.group(1)) * "---LINEBREAKSOFT---" + match.group(2), text
-    )  # noqa
+    text = re.sub(r"(</h[123]>)(\n+)", lambda match: match.group(1) + len(match.group(2)) * "---LINEBREAKSOFT---", text)
+    text = re.sub(r"(\n+)(<h[123]>)", lambda match: len(match.group(1)) * "---LINEBREAKSOFT---" + match.group(2), text)
     text = _replace_linebreaks_inside_cmdblocks(text, "---LINEBREAK3---")
-    text = text.replace("\n", "---LINEBREAK3---")
+    # Every linebreak becomes a hard <br> except when the line has no text.
+    text = "".join([line + "---LINEBREAK3---" if line.strip() else "---LINEBREAKSOFT---" for line in text.splitlines()])
 
     # Expand error and success tags.
     text = _expand_error_success_tags(text, True)
@@ -319,7 +316,7 @@ def tags_to_markdown(text: str):
 
     # Restore line breaks.
     text = text.replace("---LINEBREAKSOFT---", "\n")
-    text = text.replace("---LINEBREAK3---", "<br>")
+    text = text.replace("---LINEBREAK3---", "<br>\n")
     return text
 
 
