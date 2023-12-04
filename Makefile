@@ -1,4 +1,12 @@
-.PHONY: check-lint test setup lint
+.PHONY: check-lint test setupt setup lint
+
+setup_file_path := $(PWD)/setup.sh
+
+setupt:
+	@if ! [ -x "$(setup_file_path)" ]; then \
+		chmod +x ./setup.sh; \
+	fi
+	@./setup.sh
 
 setup:
 	poetry install

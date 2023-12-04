@@ -776,8 +776,12 @@ def cmd_line():
     for i in sys.argv[1:]:
         inp = inp + a_space + i
         a_space = " "
+    try:
+        command_line = RUNCMD()
+    except KeyboardInterrupt:
+        output_error("Keyboard Initiated Exit before OpenAD Initialised")
+        return
 
-    command_line = RUNCMD()
     # Check for help from a command line request.
     if len(inp.strip()) > 0:
         words = inp.split()
