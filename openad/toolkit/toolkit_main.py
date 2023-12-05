@@ -33,10 +33,14 @@ class Toolkit:
 
 # Load all toolkit statments.
 def load_toolkit(toolkit_name, from_repo=False):
-    from_repo = True  # TEMP FOR TESTING! DELETE THIS LINE!!
+    # from_repo = True  # TEMP FOR TESTING! DELETE THIS LINE!!
 
     the_toolkit = Toolkit(toolkit_name)
-    source = "openad/user_toolkits" if from_repo else _meta_dir_toolkits
+    if from_repo:
+        openad_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+        source = openad_dir + "/user_toolkits"
+    else:
+        source = _meta_dir_toolkits
 
     # Load toolkit description snippets.
     snippetsModule = load_module_from_path("snippets", f"{source}/{toolkit_name}/_snippets.py")

@@ -24,7 +24,7 @@ Options for the <cmd>using</cmd> clause:
 Clauses:
 - <cmd>show (data | docs)</cmd>:
     - <cmd>data</cmd> Display structured data from within the documents.
-    - <cmd>docs</cmd> Display document context.
+    - <cmd>docs</cmd> Display document context and preview snippet.
     Both can be combined in a single command, e.g. <cmd>show (data docs)</cmd>
 - <cmd>estimate only</cmd> Determine the potential number of hits.
 - <cmd>return as data</cmd> For Notebook or API mode. Removes all styling from the Pandas DataFrame, ready for further processing.

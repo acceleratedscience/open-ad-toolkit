@@ -4,9 +4,10 @@
 	"version": "0.1.5",
 	"commands": {
 		"intro": "If this is your first time, let us help you getting started.",
-		"toolkits ?": "Learn about the toolkits.",
-		"?": "See what you can do.",
-		"<soft>...</soft> ?": "Get help whenever you get stuck.",
+		"? toolkits": "Learn about the toolkits.",
+		"?": "List all commands.",
+		"<soft>...</soft> ?": "List commands starting with \"...\"",
+		"? <soft>...</soft>": "List commands containing \"...\"",
 		"docs": "Read the docs in your browser."
 	}
 }

@@ -117,7 +117,6 @@ def queried_commands(matching_commands: object, inp: str = None):
 
     Command: `<string> ?` or `? <string>`
     """
-
     inp_singular = singular(inp)
     output = [f'<yellow>Commands containing "{inp}"</yellow>']
 
@@ -183,7 +182,7 @@ def command_details(command: list, cmd_pointer):
     if cmd_pointer.notebook_mode:
         command_str = f"<cmd>{command_str}</cmd>"
         description = command["description"]
-        note = f'<soft>{command["note"]}</soft>' if command["note"] else None
+        note = f'<soft>{command["note"]}</soft>' if "note" in command else None
     else:
         command_str = style(f"<cmd>{command_str}</cmd>", width=paragraph_width)
         description = style(command["description"], width=paragraph_width)

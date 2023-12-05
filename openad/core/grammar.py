@@ -6,6 +6,7 @@
 # - Collapse to any level:      first expand everything, then hold cmd, then hit K followed by any number
 
 import os
+import re
 import glob
 import json
 
@@ -39,7 +40,7 @@ from pyparsing import (
 from openad.core.help import help_dict_create
 
 # Helpers
-from openad.helpers.general import is_notebook_mode
+from openad.helpers.general import is_notebook_mode, load_module_from_path
 from openad.helpers.output import output_error, msg
 
 # Global variables
@@ -765,10 +766,18 @@ grammar_help.append(
 # Note - this is controlled directly from do_help.
 grammar_help.append(
     help_dict_create(
-        name="command help",
+        name="command help 1",
         category="Help",
-        command="<soft>...</soft> ?",
-        description="Display what a command does, or list all commands that contain this string.",
+        command='? <soft>[...] --> List all commands containing "..."</soft>',
+        description="",
+    )
+)
+grammar_help.append(
+    help_dict_create(
+        name="command help 2",
+        category="Help",
+        command='<soft>[...]</soft> ? <soft>--> List all commands starting with "..."</soft>',
+        description="",
     )
 )
 
@@ -1272,21 +1281,47 @@ class Toolkit:
         self.methods_library = []
 
 
+# @Phil this is doing exactly the same as Toolkit/load_toolkit in toolkit_main.py,
+# except it loads the description. I think we should merge the two classes,
+# - - -
 # Load all toolkit statments.
 def load_toolkit(toolkit_name):
     """Load a user toolkits defintion"""
     the_toolkit = Toolkit(toolkit_name)
 
+    # Load toolkit description snippets.
+    snippetsModule = load_module_from_path("snippets", f"{_meta_dir_toolkits}/{toolkit_name}/_snippets.py")
+    snippets = snippetsModule.snippets if snippetsModule else None
+
     for i in glob.glob(_meta_dir_toolkits + "/" + toolkit_name + "/**/func_*.json", recursive=True):
         func_file = open(i, "r", encoding="utf-8")
         x = json.load(func_file)
-        if x["help"]["description"] == "external":
+
+        # Load description from separate file if it is external.
+        if x["help"]["description"] == None:
             try:
                 txt_file = open(i.replace(".json", "--description.txt"), "r")
                 x["help"]["description"] = txt_file.read()
             except BaseException:
                 x["help"]["description"] = "Failed to load description"
+
+        # Replace snippet tags with snippet content.
+        # - - -
+        # We centralize repeating text in one place per toolkit (_snippets.py)
+        # which is then referenced in a function's description by tags.
+        # For example "lorem ipsum {{FOO_BAR}}" -> "lorem ipsum foo bar"
+        if snippets:
+            x["help"]["description"] = re.sub(
+                r"\{\{(\w+)\}\}",
+                lambda match: str(snippets.get(match.group(1), f"[[missing snippet: {match.group(1)}]]").strip()),
+                x["help"]["description"],
+            )
+
         statement_builder(the_toolkit, x)
+
+    ########################################
+    # @Phil this is the only difference with load_toolkit() in toolkit_main.py
+    # Could easily just be a parameter.
     try:
         with open(_meta_dir_toolkits + "/" + toolkit_name + "/description.txt", "r", encoding="utf-8") as toolkit_file:
             the_toolkit.toolkit_description = toolkit_file.read()
@@ -1294,4 +1329,6 @@ def load_toolkit(toolkit_name):
     except Exception:
         # If unable to load move on
         the_toolkit.toolkit_description = None
+    ########################################
+
     return True, the_toolkit
