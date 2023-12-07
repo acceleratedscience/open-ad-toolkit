@@ -103,7 +103,7 @@ def login(cmd_pointer):
             workspace = cmd_pointer.settings["workspace"]
             email = cred_config["auth"]["username"]
             output_text(
-                f"<success>loggining into Deep Search as: </success> {email}\n <success>Workspace: </success> {workspace}",
+                f"<success>loggining into DeepSearch as: </success> {email}\n <success>Workspace: </success> {workspace}",
                 cmd_pointer=cmd_pointer,
                 return_val=False,
             )
@@ -123,9 +123,9 @@ def get_creds(cred_file, cmd_pointer):
     """get the nominated API key for the LLM"""
     api_config = load_credentials(cred_file)
     if api_config is None:
-        output_warning("Please provide your DS4SD credentials", cmd_pointer=cmd_pointer, return_val=False)
+        output_warning("Please Enter in Credentials for Deep Search", cmd_pointer=cmd_pointer, return_val=False)
         output_text(
-            f"<soft>Leave this blank to use the default: {DEFAULT_URL}</soft>",
+            f"Enter the URL / Hostname: if the hostname is left blank it will default to '{DEFAULT_URL}' ",
             cmd_pointer=cmd_pointer,
             return_val=False,
         )

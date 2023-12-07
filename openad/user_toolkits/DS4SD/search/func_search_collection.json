@@ -2,17 +2,6 @@
 	"fplugin": "ds4sd",
 	"command": "search <in_clause> for",
 	"subject": "search_text",
-	"in_clause": { "collection": "desc" },
-	"USING": {
-		"page_size": "int",
-		"system_id": "str",
-		"edit_distance": "int",
-		"display_first": "int"
-	},
-	"SHOW": ["DATA", "DOCS"],
-	"ESTIMATE_ONLY": {},
-	"SAVE_AS": {},
-	"RETURN_AS_DATA": {},
 	"exec_type": "search_statement",
 	"exec_cmd": "search collection for",
 	"help": {
@@ -23,5 +12,16 @@
 		"url": ""
 	},
 	"library": "ds4sd_search",
-	"method": "search"
+	"method": "search",
+	"in_clause": { "collection": "desc" },
+	"USING": {
+		"page_size": "int",
+		"system_id": "str",
+		"edit_distance": "int",
+		"display_first": "int"
+	},
+	"SHOW": ["DATA", "DOCS"],
+	"ESTIMATE_ONLY": {},
+	"SAVE_AS": {},
+	"RETURN_AS_DATA": {}
 }

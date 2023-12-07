@@ -1,10 +1,14 @@
+// This file is only for documentation.
+
 {
 	"fplugin": "ds4sd",
 	// Part of metadate used to build the command
+	
 	"command": "search <in_clause> for",
 	"subject": "search_text",
 	// Would it make sense to list the variables at the bottom?
 	// Shouldn't this be "IN" to be consistent
+	
 	"in_clause": { "collection": "desc" },
 	"USING": {
 		"page_size": "int",

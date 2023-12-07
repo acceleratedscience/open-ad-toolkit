@@ -198,6 +198,7 @@ class RUNCMD(Cmd):
             inp = inp.lstrip("?")
         elif len(inp.strip()) > 0 and inp.split()[-1] == "?":
             # End
+
             starts_with_only = True
             inp = inp.rstrip("?")
 
@@ -263,24 +264,34 @@ class RUNCMD(Cmd):
                     matching_commands["match_word"].append(command)
 
         # Then list commands starting with the input string.
+
         for command in all_commands:
             if re.match(re.escape(inp), command["command"]) and command not in matching_commands["match_word"]:
                 matching_commands["match_start"].append(command)
 
         # Then list commands containing the input string.
-        if not starts_with_only:
-            for command in all_commands:
-                if (
-                    re.search(re.escape(inp), command["command"])
-                    and command not in matching_commands["match_word"]
-                    and command not in matching_commands["match_start"]
-                ):
-                    matching_commands["match_anywhere"].append(command)
+        for command in all_commands:
+            if (
+                re.search(re.escape(inp), command["command"])
+                and command not in matching_commands["match_word"]
+                and command not in matching_commands["match_start"]
+            ):
+                matching_commands["match_anywhere"].append(command)
 
-        # else:
-        all_matching_commands = (
-            matching_commands["match_word"] + matching_commands["match_start"] + matching_commands["match_anywhere"]
-        )
+        if starts_with_only is True:
+            new_matching_commands = {
+                "match_word": [],
+                "match_start": [],
+                "match_anywhere": [],
+            }
+            all_matching_commands = matching_commands["match_start"]
+            new_matching_commands["match_start"] = matching_commands["match_start"]
+            matching_commands = new_matching_commands
+
+        else:
+            all_matching_commands = (
+                matching_commands["match_word"] + matching_commands["match_start"] + matching_commands["match_anywhere"]
+            )
 
         result_count = len(all_matching_commands)
 
@@ -292,19 +303,15 @@ class RUNCMD(Cmd):
 
         # This lets us pass a custom padding value.
         # This is used when suggesting commands after your input was not recognized.
-        # After "You may want to try:" we don't want a linebreak.
+        # After "You may want to try:" we don't want a linebreak
+        # the suggestions
         if "pad" in kwargs:
             pad = kwargs["pad"]
             del kwargs["pad"]
         else:
             pad = 1
-
-        # DISPLAY:
-        # No matching commands -> error.
         if result_count == 0 and not exact_match:
             return output_error(msg("err_no_matching_cmds", inp), self, **kwargs)
-
-        # Single command -> show details.
         elif result_count == 1 or exact_match:
             return output_text(
                 openad_help.command_details(all_matching_commands[0], self),
@@ -314,8 +321,6 @@ class RUNCMD(Cmd):
                 nowrap=True,
                 **kwargs
             )
-
-        # List of commands
         else:
             return output_text(
                 openad_help.queried_commands(matching_commands, inp=inp), self, pad=pad, nowrap=True, **kwargs

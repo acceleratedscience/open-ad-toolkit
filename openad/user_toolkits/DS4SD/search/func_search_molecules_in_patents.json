@@ -2,8 +2,6 @@
 	"fplugin": "ds4sd",
 	"command": "search for molecules in patents",
 	"subject": "Search",
-	"from": ["file", "list", "dataframe"],
-	"SAVE_AS": {},
 	"exec_type": "standard_statement",
 	"exec_cmd": "search for molecules in patents",
 	"help": {
@@ -14,5 +12,7 @@
 		"url": ""
 	},
 	"library": "ds4sd_search_Patent_molecules",
-	"method": "search_patent_molecules"
+	"method": "search_patent_molecules",
+	"from": ["file", "list", "dataframe"],
+	"SAVE_AS": {}
 }

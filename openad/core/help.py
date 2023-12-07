@@ -23,11 +23,11 @@ from openad.plugins.style_parser import style, a_len
 # Create the help dictionary object for a command.
 def help_dict_create(
     name: str,  # Name of the comand - used for ...?
-    command: str,  # Command structure
-    description: str,  # Description of the command
-    note: str = None,  # Additional note to the command (eg. To learn more about runs, run `run ?`)
+    command: str,  # Command structure, used for help, docs, training
+    description: str,  # Description of the command, used for help, docs, training
+    note: str = None,  # Additional note to the command, only used in help (eg. To learn more about runs, run `run ?`)
     url: str = None,  # Currently not used - URL to the documentation of the command?
-    category: str = "Uncategorized",  # Category used to organize the commands
+    category: str = "Uncategorized",  # Category used to organize the commands in help & docs
     parent: str = None,  # Parent command, only relevant for follow-up commands like `result open`
 ):
     """Create a help dictionary"""

@@ -12,7 +12,6 @@ import json
 
 
 # Globals
-
 from pyparsing import (
     Word,
     delimitedList,
@@ -36,8 +35,9 @@ from pyparsing import (
     # ParseException,
 )
 
-# Core
+# Main
 from openad.core.help import help_dict_create
+from openad.toolkit.toolkit_main import load_toolkit
 
 # Helpers
 from openad.helpers.general import is_notebook_mode, load_module_from_path
@@ -1223,7 +1223,7 @@ def output_train_statements(cmd_pointer):
     training_file.close()
 
     for i in cmd_pointer.settings["toolkits"]:
-        token, a_toolkit = load_toolkit(i)
+        token, a_toolkit = load_toolkit(i, for_training=True)
         training_statements = []
         training_file = open(
             os.path.expanduser(cmd_pointer.home_dir + "/prompt_train/toolkit_" + i + ".cdoc"),
@@ -1265,70 +1265,3 @@ def output_train_statements(cmd_pointer):
 
 # Need to fix later
 #!/usr/local/opt/python@3.9/bin/python3.9
-
-
-class Toolkit:
-    """toolkit class"""
-
-    def __init__(self, name) -> None:
-        self.toolkit_name = name
-        self.toolkit_description = None
-        self.methods = []
-        self.methods_grammar = []
-        self.methods_execute = []
-        self.methods_help = []
-        self.methods_dict = []
-        self.methods_library = []
-
-
-# @Phil this is doing exactly the same as Toolkit/load_toolkit in toolkit_main.py,
-# except it loads the description. I think we should merge the two classes,
-# - - -
-# Load all toolkit statments.
-def load_toolkit(toolkit_name):
-    """Load a user toolkits defintion"""
-    the_toolkit = Toolkit(toolkit_name)
-
-    # Load toolkit description snippets.
-    snippetsModule = load_module_from_path("snippets", f"{_meta_dir_toolkits}/{toolkit_name}/_snippets.py")
-    snippets = snippetsModule.snippets if snippetsModule else None
-
-    for i in glob.glob(_meta_dir_toolkits + "/" + toolkit_name + "/**/func_*.json", recursive=True):
-        func_file = open(i, "r", encoding="utf-8")
-        x = json.load(func_file)
-
-        # Load description from separate file if it is external.
-        if x["help"]["description"] == None:
-            try:
-                txt_file = open(i.replace(".json", "--description.txt"), "r")
-                x["help"]["description"] = txt_file.read()
-            except BaseException:
-                x["help"]["description"] = "Failed to load description"
-
-        # Replace snippet tags with snippet content.
-        # - - -
-        # We centralize repeating text in one place per toolkit (_snippets.py)
-        # which is then referenced in a function's description by tags.
-        # For example "lorem ipsum {{FOO_BAR}}" -> "lorem ipsum foo bar"
-        if snippets:
-            x["help"]["description"] = re.sub(
-                r"\{\{(\w+)\}\}",
-                lambda match: str(snippets.get(match.group(1), f"[[missing snippet: {match.group(1)}]]").strip()),
-                x["help"]["description"],
-            )
-
-        statement_builder(the_toolkit, x)
-
-    ########################################
-    # @Phil this is the only difference with load_toolkit() in toolkit_main.py
-    # Could easily just be a parameter.
-    try:
-        with open(_meta_dir_toolkits + "/" + toolkit_name + "/description.txt", "r", encoding="utf-8") as toolkit_file:
-            the_toolkit.toolkit_description = toolkit_file.read()
-            toolkit_file.close()
-    except Exception:
-        # If unable to load move on
-        the_toolkit.toolkit_description = None
-    ########################################
-
-    return True, the_toolkit

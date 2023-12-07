@@ -2,7 +2,6 @@
 	"fplugin": "ds4sd",
 	"command": "display collections for domain",
 	"subject": " Queries",
-	"SINGLE_PARM": { "domain": "desc" },
 	"exec_type": "standard_statement",
 	"exec_cmd": "display collections for domain",
 	"help": {
@@ -13,5 +12,6 @@
 		"url": ""
 	},
 	"library": "ds4sd_display_collection",
-	"method": "display_collection"
+	"method": "display_collection",
+	"SINGLE_PARM": { "domain": "desc" }
 }

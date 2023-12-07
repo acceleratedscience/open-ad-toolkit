@@ -2,8 +2,6 @@
 	"fplugin": "ds4sd",
 	"command": "display collections in domains",
 	"subject": "display collections in domains",
-	"from": ["list"],
-	"SAVE_AS": {},
 	"exec_type": "standard_statement",
 	"exec_cmd": "display in domains",
 	"help": {
@@ -14,5 +12,7 @@
 		"url": ""
 	},
 	"library": "ds4sd_display_collection_from_domains",
-	"method": "display_all_collections"
+	"method": "display_all_collections",
+	"from": ["list"],
+	"SAVE_AS": {}
 }

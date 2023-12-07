@@ -2,8 +2,6 @@
 	"fplugin": "ds4sd",
 	"command": "display collection matches for",
 	"subject": "display collection matches",
-	"SINGLE_PARM": { "search_string": "desc" },
-	"SAVE_AS": {},
 	"exec_type": "standard_statement",
 	"exec_cmd": "display collection matches for",
 	"help": {
@@ -14,5 +12,7 @@
 		"url": ""
 	},
 	"library": "ds4sd_display_collection_matches",
-	"method": "display_collection_matches"
+	"method": "display_collection_matches",
+	"SINGLE_PARM": { "search_string": "desc" },
+	"SAVE_AS": {}
 }

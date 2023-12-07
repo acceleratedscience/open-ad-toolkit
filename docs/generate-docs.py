@@ -77,7 +77,7 @@ def render_commands_md(filename):
     for toolkit_name in _all_toolkits:
         output.append(f"## {toolkit_name}\n\n")
         toc.append(_toc_link(toolkit_name))
-        success, toolkit = load_toolkit(toolkit_name, True)
+        success, toolkit = load_toolkit(toolkit_name, from_repo=True)
         toolkit_cmds = toolkit.methods_help
         toolkit_cmds_organized = _organize(toolkit_cmds)
         _compile_section(output, toc, toolkit_cmds_organized)

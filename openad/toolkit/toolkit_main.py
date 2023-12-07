@@ -32,7 +32,19 @@ class Toolkit:
 
 
 # Load all toolkit statments.
-def load_toolkit(toolkit_name, from_repo=False):
+def load_toolkit(toolkit_name, from_repo=False, for_training=False):
+    """
+    Parameters
+    ----------
+    from_repo
+        Load the toolkit from the repo instead of the user folder.
+        This is used to generate commands.md, where we need to fetch all
+        commands from all toolkits, including those that are not installed.
+
+    for_training
+        Used by grammar.py to generate the training data.
+
+    """
     # from_repo = True  # TEMP FOR TESTING! DELETE THIS LINE!!
 
     the_toolkit = Toolkit(toolkit_name)
@@ -46,7 +58,7 @@ def load_toolkit(toolkit_name, from_repo=False):
     snippetsModule = load_module_from_path("snippets", f"{source}/{toolkit_name}/_snippets.py")
     snippets = snippetsModule.snippets if snippetsModule else None
 
-    for i in glob.glob(source + "/" + toolkit_name + "/**/func_*.json", recursive=True):
+    for i in glob.glob(f"{source}/{toolkit_name}/**/func_*.json", recursive=True):
         func_file = open(i, "r", encoding="utf-8")
         x = json.load(func_file)
 
@@ -71,6 +83,18 @@ def load_toolkit(toolkit_name, from_repo=False):
             )
 
         statement_builder(the_toolkit, x)
+
+    # Load toolkit LLM training text.
+    if for_training:
+        try:
+            with open(
+                _meta_dir_toolkits + "/" + toolkit_name + "/description.txt", "r", encoding="utf-8"
+            ) as toolkit_file:
+                the_toolkit.toolkit_description = toolkit_file.read()
+                toolkit_file.close()
+        except Exception:
+            # If unable to load, move on.
+            the_toolkit.toolkit_description = None
 
     return True, the_toolkit
 
