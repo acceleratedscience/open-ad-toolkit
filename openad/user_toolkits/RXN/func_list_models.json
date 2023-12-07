@@ -8,7 +8,7 @@
 		"name": "list rxn models",
 		"category": "Queries",
 		"command": "list rxn models",
-		"description": "lists current rxn AI Models available to the user",
+		"description": "Lists all RXN AI models currently available.",
 		"url": ""
 	},
 	"library": "rxn_list_models",

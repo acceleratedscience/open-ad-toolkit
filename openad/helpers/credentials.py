@@ -11,7 +11,7 @@ DEFAULT_CREDS_TO_SET = ["host", "auth:user_name", "auth:api_key"]
 
 
 def get_credentials(cmd_pointer, credentials=DEFAULT_CREDENTIALS, creds_to_set=DEFAULT_CREDS_TO_SET) -> dict:
-    """prompts user for set of credentials"""
+    """Prompts user for toolkit credentials"""
     new_credentials = credentials.copy()
     for cred in creds_to_set:
         value_to_prompt = cred.split(":", maxsplit=1)[-1]

@@ -3,7 +3,6 @@
 # Re-initiate it by executing first cell in all_command.ipynb
 
 
-
 # Toolkits
 list toolkits
 list all toolkits
@@ -11,6 +10,7 @@ add toolkit DS4SD
 list all toolkits
 set context DS4SD
 remove toolkit DS4SD
+
 
 # Workspaces
 create workspace cli_test1
@@ -22,6 +22,7 @@ set workspace default
 remove workspace cli_test1
 remove workspace cli_test2
 
+
 # File system
 list files
 import from '_for_testing/base_molecules.sdf' to 'base_molecules.sdf'
@@ -31,6 +32,7 @@ import from '~/Desktop/exported_molecules.sdf' to 'imported_molecules.sdf'
 copy file 'imported_molecules.sdf' to 'keeper'
 remove 'imported_molecules.sdf'
 
+
 # General
 get status
 display history
@@ -38,11 +40,8 @@ clear sessions
 import from '_for_testing/func_display_collection.json' to 'func_display_collection.json'
 edit config 'func_display_collection.json'
 
-# Help
 
-intro
-
-#DeepSearch
+# DeepSearch
 remove toolkit DS4SD
 add toolkit DS4SD
 set context DS4SD
@@ -55,9 +54,7 @@ show molecules using file 'test.csv'
 display collections for domain 'Business Insights'
 
 
-
-
-#RXN
+# RXN
 remove toolkit rxn
 add toolkit RXN
 set context rxn
@@ -70,7 +67,8 @@ predict reaction in batch from list ['BrBr.c1ccc2cc3ccccc3cc2c1CCO' ,'Cl.CCC(=O)
 predict reaction in batch  from list ['BrBr.c1ccc2cc3ccccc3cc2c1CCO' ,'BrBr.c1ccc2cc3ccccc3cc2c1','Cl.CCC(=O)NCCC.O'] use_saved
 
 
-#help
+# Help
+intro
 ?
 ? pred
 ? predict re
