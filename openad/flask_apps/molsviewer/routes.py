@@ -30,7 +30,7 @@ def fetchRoutesMols2Grid(cmd_pointer, parser):
     if parser.getName() != "show_molecules_df":
         # Origin file doesn't exist.
         if origin_file and not os.path.exists(workspace_path + origin_file):
-            return None, output_error(msg("fail_file_doesnt_exist", origin_file), cmd_pointer)
+            return None, output_error(msg("err_file_doesnt_exist", origin_file), cmd_pointer)
 
         # Invalid origin file type.
         if origin_file and len(origin_file.strip()) > 0:

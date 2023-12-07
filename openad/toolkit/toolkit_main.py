@@ -5,7 +5,8 @@ import imp
 import glob
 import json
 import logging
-from openad.core.grammar import statement_builder
+
+import openad.core.grammar as grammar  # Not using "from" to avoid circular import.
 from openad.helpers.output import msg, output_error
 from openad.helpers.general import load_module_from_path
 
@@ -82,7 +83,7 @@ def load_toolkit(toolkit_name, from_repo=False, for_training=False):
                 x["help"]["description"],
             )
 
-        statement_builder(the_toolkit, x)
+        grammar.statement_builder(the_toolkit, x)
 
     # Load toolkit LLM training text.
     if for_training:

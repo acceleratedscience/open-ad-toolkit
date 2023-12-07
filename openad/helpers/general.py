@@ -1,8 +1,10 @@
-import sys
 import os
 import re
+import sys
+import json
 import getpass
 import readline
+import pandas as pd
 from IPython.display import display
 from openad.helpers.output import msg, output_text, output_error
 
@@ -203,6 +205,90 @@ def next_avail_port(port=5000, host="127.0.0.1"):
     while not is_port_open(host, port):
         port += 1
     return port, host
+
+
+# Standardized file opener.
+# Detects file type and returns appropriate data format:
+# - JSON/CJSON: dict
+# - CSV: pandas dataframe
+# - Other: string
+def open_file(file_path, mode="r", return_err=False):
+    ext = file_path.split(".")[-1].lower()
+    err_msg = None
+    try:
+        with open(file_path, mode) as f:
+            data = None
+            if ext == "json" or ext == "cjson":
+                # Return JSON object
+                data = json.load(f)
+            elif ext == "csv":
+                # Return pandas dataframe
+                data = pd.read_csv(f)
+            else:
+                # Return string
+                data = f.read()
+
+            # Return data
+            if return_err:
+                return data, None
+            else:
+                return data
+    except FileNotFoundError:
+        err_msg = msg("err_file_not_found", file_path, split=True)
+    except PermissionError:
+        err_msg = msg("err_file_no_permission_read", file_path, split=True)
+    except IsADirectoryError:
+        err_msg = msg("err_file_is_dir", file_path, split=True)
+    except UnicodeDecodeError:
+        err_msg = msg("err_decode", file_path, split=True)
+    except IOError as err:
+        err_msg = msg("err_io", file_path, err.strerror, split=True)
+    except BaseException as err:
+        err_msg = msg("err_unknown", err, split=True)
+
+    # Return error
+    if return_err:
+        return None, err_msg
+
+    # Display error
+    else:
+        output_error(err_msg)
+        return None
+
+
+# Standardized file writer.
+def write_file(file_path, data, return_err=False):
+    err_msg = None
+    try:
+        with open(file_path, "w") as f:
+            f.write(data)
+
+            # Return success
+            if return_err:
+                return True, None
+            else:
+                return True
+    except FileNotFoundError:
+        err_msg = msg("err_file_not_found", file_path, split=True)
+    except PermissionError:
+        err_msg = msg("err_file_no_permission_write", file_path, split=True)
+    except IsADirectoryError:
+        err_msg = msg("err_file_is_dir", file_path, split=True)
+    except UnicodeDecodeError:
+        err_msg = msg("err_decode", file_path, split=True)
+    except IOError as err:
+        err_msg = msg("err_io", file_path, err.strerror, split=True)
+    except BaseException as err:
+        err_msg = msg("err_unknown", err, split=True)
+
+    # Return error
+    if return_err:
+        return None, err_msg
+
+    # Display error
+    else:
+        output_error(err_msg)
+        return None
 
 
 # Load python module from a dynamic path

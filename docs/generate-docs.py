@@ -22,16 +22,15 @@ After being regenerated, copy the files over to the documentation repo.
 
 import os
 import re
-import glob
-import json
 
 from openad.app.main import RUNCMD as cmd_pointer
 from openad.app.global_var_lib import _all_toolkits
 from openad.toolkit.toolkit_main import load_toolkit
 from openad.plugins.style_parser import tags_to_markdown
-from openad.helpers.output import msg, output_error
+from openad.helpers.output import msg, output_error, output_text
+from openad.helpers.general import open_file, write_file
 
-# Get the path of this python file's parent folder
+# Get the repo path, this python file's parent folder.
 REPO_PATH = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
 # endregion
@@ -213,7 +212,91 @@ def render_installation_md(filename):
 # endregion
 
 ############################################################
+# region - toolkits -> description.txt
+
+
+# Update commands in the description.txt file per toolkit.
+# Used as training data by the LLM for the "tell me" command.
+# - - -
+# Note: description.txt needs to be set up with the toolkit
+# LLM briefing set up and the following line will define where
+# the commands are to be inserted - any text after this line
+# will be overwritten:
+# "The following commands are available for this toolkit:"
+def render_description_txt(filename):
+    # Loop through all toolkits
+    for toolkit_name in _all_toolkits:
+        flag_toolkit = f"<on_white><black> {toolkit_name} </black></on_white>"
+        flag_success = f"<on_green> Success </on_green>"
+        flag_error = f"<on_red> Failed </on_red>"
+        # Load toolkit
+        success, toolkit = load_toolkit(toolkit_name, from_repo=True)
+        if not success:
+            err_msg = toolkit
+            output_text("\n" + flag_toolkit + flag_error, cmd_pointer, pad=0)
+            output_error(msg("err_load_toolkit", toolkit_name), cmd_pointer, pad=0)
+            continue
+
+        toolkit_cmds = toolkit.methods_help
+        toolkit_cmds_organized = _organize(toolkit_cmds)
+        output = _compile_commands(toolkit_cmds_organized)
+
+        # Load description.txt
+        file_path = f"{REPO_PATH}/openad/user_toolkits/{toolkit_name}/{filename}"
+        description_txt, err_msg = open_file(file_path, return_err=True)
+        if not description_txt:
+            output_text("\n" + flag_toolkit + flag_error, cmd_pointer, pad=0)
+            output_error(msg("err_load_toolkit_description", toolkit_name), cmd_pointer, pad=0)
+            output_error(err_msg, cmd_pointer, pad=0)
+            continue
+
+        # Insert commands into description.txt
+        splitter = "The following commands are available for this toolkit:"
+        if splitter not in description_txt:
+            output_text("\n" + flag_toolkit + flag_error, cmd_pointer, pad=0)
+            output_error(msg("err_invalid_description_txt", toolkit_name, splitter), cmd_pointer, pad=0)
+            continue
+        description_txt = description_txt.split(splitter)[0] + splitter + "\n\n"
+        description_txt += "\n".join(output)
+        description_txt = description_txt.strip()
+
+        # print(("----" * 50) + "\n" + description_txt + "\n" + ("----" * 50))
+
+        # Write to file
+        success, err_msg = write_file(file_path, description_txt, return_err=True)
+        if success:
+            output_text("\n" + flag_toolkit + flag_success, cmd_pointer, pad=0)
+        else:
+            output_text("\n" + flag_toolkit + flag_error, cmd_pointer, pad=0)
+            output_error(err_msg, cmd_pointer, pad=0)
+
+
+# Compile all commands for a single toolkit's description.txt.
+def _compile_commands(cmds_organized):
+    output = []
+    for category in cmds_organized:
+        output.append(category + ":")
+        for cmd_str, cmd_description in cmds_organized[category]:
+            # Add command
+            output.append(f"\t`{cmd_str.strip()}`")
+
+            # Add command description
+            cmd_description = tags_to_markdown(cmd_description).strip()
+            cmd_description = cmd_description.replace("<br>", "")
+            cmd_description = cmd_description.splitlines()
+            cmd_description = "\n\t\t".join([line.strip() for line in cmd_description])
+            output.append(f"\n\t\tAbout this command:\n\t\t{cmd_description}\n")
+        output.append("")
+
+    return output
+
+
+# endregion
+
+############################################################
 
 if __name__ == "__main__":
     render_commands_md("commands.md")
     render_installation_md("installation.md")
+    render_description_txt("description.txt")
+    # pass

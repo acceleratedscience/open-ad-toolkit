@@ -96,7 +96,7 @@ def import_file(cmd_pointer, parser):
 
     if not os.path.exists(source_file):
         # Source does not exist
-        return output_error(msg("fail_file_doesnt_exist", source_file), cmd_pointer)
+        return output_error(msg("err_file_doesnt_exist", source_file), cmd_pointer)
     elif os.path.exists(workspace_path + "/" + dest_file):
         # Destination already exists
         if not confirm_prompt("Destination file already exists. Overwrite?"):
@@ -126,7 +126,7 @@ def export_file(cmd_pointer, parser):
 
     if not os.path.exists(workspace + "/" + source_file):
         # Source does not exist
-        return output_error(msg("fail_file_doesnt_exist", workspace + "/" + source_file), cmd_pointer)
+        return output_error(msg("err_file_doesnt_exist", workspace + "/" + source_file), cmd_pointer)
 
     elif os.path.exists(dest_file) is True:
         # Destination already exists
@@ -155,7 +155,7 @@ def copy_file(cmd_pointer, parser):
 
     if not os.path.exists(source_file_path):
         # Source does not exist
-        return output_error(msg("fail_file_doesnt_exist", source_file_path), cmd_pointer)
+        return output_error(msg("err_file_doesnt_exist", source_file_path), cmd_pointer)
     elif (
         parser["destination"].upper() != source_workspace_name
         and dest_workspace_name not in cmd_pointer.settings["workspaces"]
@@ -185,7 +185,7 @@ def remove_file(cmd_pointer, parser):
 
     if not os.path.exists(file_path):
         # Source does not exist
-        return output_error(msg("fail_file_doesnt_exist", file_path), cmd_pointer)
+        return output_error(msg("err_file_doesnt_exist", file_path), cmd_pointer)
     if not confirm_prompt("Are you sure? This cannot be undone."):
         # Confirm prompt
         return output_error(msg("abort"), cmd_pointer)

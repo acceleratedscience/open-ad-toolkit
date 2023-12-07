@@ -34,7 +34,7 @@ def splash(toolkit_name=None, cmd_pointer=None, startup=False, raw=False):
             data = json.load(json_file)
     except FileNotFoundError:
         return output_error(
-            msg("fail_file_not_found", os.path.dirname(os.path.abspath(__file__)) + "/" + json_file_path, split=True)
+            msg("err_file_not_found", os.path.dirname(os.path.abspath(__file__)) + "/" + json_file_path, split=True)
         )
 
     # Make up for missing data.

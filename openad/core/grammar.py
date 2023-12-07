@@ -37,15 +37,14 @@ from pyparsing import (
 
 # Main
 from openad.core.help import help_dict_create
-from openad.toolkit.toolkit_main import load_toolkit
+import openad.toolkit.toolkit_main as toolkit_main  # Not using "from" to avoid circular import.
 
 # Helpers
-from openad.helpers.general import is_notebook_mode, load_module_from_path
+from openad.helpers.general import is_notebook_mode
 from openad.helpers.output import output_error, msg
 
 # Global variables
 from openad.app.global_var_lib import _all_toolkits
-from openad.app.global_var_lib import _meta_dir_toolkits
 
 
 (
@@ -1223,7 +1222,7 @@ def output_train_statements(cmd_pointer):
     training_file.close()
 
     for i in cmd_pointer.settings["toolkits"]:
-        token, a_toolkit = load_toolkit(i, for_training=True)
+        token, a_toolkit = toolkit_main.load_toolkit(i, for_training=True)
         training_statements = []
         training_file = open(
             os.path.expanduser(cmd_pointer.home_dir + "/prompt_train/toolkit_" + i + ".cdoc"),
