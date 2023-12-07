@@ -121,9 +121,9 @@ def get_creds(cred_file, cmd_pointer):
     """get the nominated API key for the LLM"""
     api_config = load_credentials(cred_file)
     if api_config is None:
-        output_warning("Please provide your RXN credentials:", cmd_pointer=cmd_pointer, return_val=False)
+        output_warning("Setting Authentication Details for RXN:", cmd_pointer=cmd_pointer, return_val=False)
         output_text(
-            f"<soft>Leave this blank to use the default: {DEFAULT_URL}</soft>",
+            f"Enter the Hostname: if the hostname is left blank it will default to '{DEFAULT_URL}' ",
             cmd_pointer=cmd_pointer,
             return_val=False,
         )
