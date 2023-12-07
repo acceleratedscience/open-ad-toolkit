@@ -42,7 +42,7 @@ edit config 'func_display_collection.json'
 
 intro
 
-# Deep Search
+#DeepSearch
 remove toolkit DS4SD
 add toolkit DS4SD
 set context DS4SD
@@ -57,7 +57,7 @@ display collections for domain 'Business Insights'
 
 
 
-# RXN
+#RXN
 remove toolkit rxn
 add toolkit RXN
 set context rxn
@@ -70,7 +70,7 @@ predict reaction in batch from list ['BrBr.c1ccc2cc3ccccc3cc2c1CCO' ,'Cl.CCC(=O)
 predict reaction in batch  from list ['BrBr.c1ccc2cc3ccccc3cc2c1CCO' ,'BrBr.c1ccc2cc3ccccc3cc2c1','Cl.CCC(=O)NCCC.O'] use_saved
 
 
-# Help
+#help
 ?
 ? pred
 ? predict re

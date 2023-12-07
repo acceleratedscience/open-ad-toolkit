@@ -3,7 +3,7 @@
 # See toolkit_main.py -> load_toolkit()
 
 NOTE_USING_CLAUSE = """
-<bold>Note:</bold> The <cmd>using</cmd> clause requires all enclosed parameters to be defined in the same order as documented below.
+<bold>Note:</bold> The <cmd>using</cmd> clause requires all enclosed parameters to be defined in the same order as listed below.
 """
 
 SAVE_AS_CLAUSE = """
