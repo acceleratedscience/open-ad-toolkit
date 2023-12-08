@@ -238,6 +238,7 @@ messages = {
     "enter_to_skip": "<soft>Press enter to skip</soft>",
     "abort": "Aborted",
     "data_copied": "<success>Data copied to clipboard</success>",
+    "run_?": "<soft>Run <cmd>?</cmd> to list all command options.</soft>",
     # Negative
     "table_headers_dont_match_columns": lambda headers, col_count: (
         f"The provided headers ({len(headers)}) don't match the number of columns in the data ({col_count})",
@@ -248,8 +249,9 @@ messages = {
     "memory_empty": lambda action: f"There is no result to {action}.",
     # Error
     # 'invalid_cmd': 'Not a valid command',
-    "err_invalid_cmd": lambda err: ("Not a valid command", err),
-    "err_no_matching_cmds": lambda inp: (f'No commands containing "<yellow>{inp}</yellow>"'),
+    "err_invalid_cmd": lambda err="": ("Not a valid command", err),
+    "err_no_cmds_matching": lambda inp: (f'No commands containing "<yellow>{inp}</yellow>"'),
+    "err_no_cmds_starting": lambda inp: (f'No commands starting with "<yellow>{inp}</yellow>"'),
     "err_unknown": lambda err: ("Unknown error", err),
     "err_fetch_history": lambda err: ("There was an error fetching the history", err),
     # "err_readme": lambda err: ("There was an error reading the README file", err), # trash

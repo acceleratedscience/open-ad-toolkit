@@ -64,7 +64,7 @@ def load_toolkit(toolkit_name, from_repo=False, for_training=False):
         x = json.load(func_file)
 
         # Load description from separate file if it is external.
-        if x["help"]["description"] == None:
+        if x["help"]["description"] == "":
             try:
                 txt_file = open(i.replace(".json", "--description.txt"), "r")
                 x["help"]["description"] = txt_file.read()

@@ -8,7 +8,7 @@
 		"name": "search collection",
 		"category": "Search Collections",
 		"command": "search collection '<collection_name_or_key>' for '<search_string>' [ using (page_size=<int> system_id=<system_id> edit_distance=<integer> display_first=<integer>) ] show (data | docs) [ estimate only | return as data | save as '<csv_filename>' ]",
-		"description": null,
+		"description": "",
 		"url": ""
 	},
 	"library": "ds4sd_search",

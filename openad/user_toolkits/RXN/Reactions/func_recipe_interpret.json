@@ -9,7 +9,7 @@
 		"name": "interpret recipe",
 		"category": "Retrosynthesis",
 		"command": "interpret recipe '<recipe_paragraph>' | '<txt_filename>' ",
-		"description": null,
+		"description": "",
 		"url": ""
 	},
 	"library": "rxn_recipe_interpret",

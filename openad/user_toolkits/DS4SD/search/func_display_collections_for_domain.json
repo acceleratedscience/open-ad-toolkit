@@ -8,7 +8,7 @@
 		"name": "display collections for domain",
 		"category": "Collections",
 		"command": "display collections for domain '<domain_name>' ",
-		"description": null,
+		"description": "",
 		"url": ""
 	},
 	"library": "ds4sd_display_collection",

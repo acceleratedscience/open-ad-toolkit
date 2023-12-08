@@ -11,7 +11,7 @@
 		"name": "predict reaction",
 		"category": "Prediction",
 		"command": "predict reaction '<smiles>.<smiles>' [ using (ai_model='<ai_model>') ] [ use_saved ]",
-		"description": null,
+		"description": "",
 		"url": ""
 	},
 	"library": "rxn_predict_reaction",

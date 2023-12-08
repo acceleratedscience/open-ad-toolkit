@@ -12,7 +12,7 @@
 		"name": "predict reaction in batch",
 		"category": "Prediction",
 		"command": "predict reaction in batch from dataframe <dataframe_name> | file '<csv_filename>' | list '<smiles>.<smiles>'  [ using (ai_model='<ai_model>') ] [ use_saved ]",
-		"description": null,
+		"description": "",
 		"url": ""
 	},
 	"library": "rxn_predict_reaction_batch",

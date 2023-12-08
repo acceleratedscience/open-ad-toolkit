@@ -8,7 +8,7 @@
 		"name": "display collection details",
 		"category": "Collections",
 		"command": "display collection details '<collection_name_or_key>'",
-		"description": null,
+		"description": "",
 		"url": ""
 	},
 	"library": "ds4sd_display_a_collection",

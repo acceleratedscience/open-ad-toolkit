@@ -111,14 +111,17 @@ def all_commands(
         return main_commands + toolkit_commands
 
 
-def queried_commands(matching_commands: object, inp: str = None):
+def queried_commands(matching_commands: object, inp: str = None, starts_with_only: bool = False):
     """
     Return a styles list with all commands matching the query.
 
     Command: `<string> ?` or `? <string>`
     """
     inp_singular = singular(inp)
-    output = [f'<yellow>Commands containing "{inp}"</yellow>']
+    if starts_with_only:
+        output = [f'<yellow>Commands starting with "{inp}"</yellow>']
+    else:
+        output = [f'<yellow>Commands containing "{inp}"</yellow>']
 
     # First list commands that have an exact word match.
     if matching_commands["match_word"]:

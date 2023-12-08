@@ -30,7 +30,7 @@ from openad.app.memory import Memory
 
 # Helpers
 from openad.helpers.general import singular, confirm_prompt
-from openad.helpers.output import msg, output_text, output_error, output_warning
+from openad.helpers.output import msg, output_text, output_error, output_warning, strip_tags
 from openad.helpers.general import refresh_prompt
 from openad.helpers.splash import splash
 from openad.helpers.output_content import info_workspaces, info_toolkits, info_runs, info_context
@@ -169,7 +169,7 @@ class RUNCMD(Cmd):
 
         output_train_statements(self)
 
-    def do_help(self, inp, display_info=False, starts_with_only=False, **kwargs):
+    def do_help(self, inp, display_info=True, starts_with_only=False, **kwargs):
         """CMD class called function:
         Display help about a command, for example 'list'.
 
@@ -228,7 +228,7 @@ class RUNCMD(Cmd):
             )
 
         # Display info text about important key concepts.
-        if display_info:
+        if display_info and ("return_val" not in kwargs or not kwargs["return_val"]):
             if inp.lower() == "workspace" or inp.lower() == "workspaces":
                 output_text("<h1>About Workspaces</h1>\n" + info_workspaces, self, edge=True, pad=1, return_val=False)
             elif inp.lower() == "toolkit" or inp.lower() == "toolkits":
@@ -305,25 +305,37 @@ class RUNCMD(Cmd):
         # This is used when suggesting commands after your input was not recognized.
         # After "You may want to try:" we don't want a linebreak
         # the suggestions
-        if "pad" in kwargs:
-            pad = kwargs["pad"]
-            del kwargs["pad"]
+        if "pad_top" in kwargs:
+            pad = None
+            pad_top = kwargs["pad_top"]
+            del kwargs["pad_top"]
         else:
             pad = 1
+            pad_top = None
+
         if result_count == 0 and not exact_match:
-            return output_error(msg("err_no_matching_cmds", inp), self, **kwargs)
+            if starts_with_only:
+                return output_error(msg("err_no_cmds_starting", inp), self, **kwargs)
+            else:
+                return output_error(msg("err_no_cmds_matching", inp), self, **kwargs)
         elif result_count == 1 or exact_match:
             return output_text(
                 openad_help.command_details(all_matching_commands[0], self),
                 self,
                 edge=True,
                 pad=pad,
+                pad_top=pad_top,
                 nowrap=True,
                 **kwargs
             )
         else:
             return output_text(
-                openad_help.queried_commands(matching_commands, inp=inp), self, pad=pad, nowrap=True, **kwargs
+                openad_help.queried_commands(matching_commands, inp=inp, starts_with_only=starts_with_only),
+                self,
+                pad=pad,
+                pad_top=pad_top,
+                nowrap=True,
+                **kwargs
             )
 
     def preloop(self):
@@ -496,7 +508,8 @@ class RUNCMD(Cmd):
         if convert(inp).split()[-1] == "?" and (
             not convert(inp).lower().startswith("tell me") or convert(inp).lower() == "tell me ?"
         ):
-            return self.do_help(inp, display_info=True)
+            # ... ?
+            return self.do_help(inp, display_info=False)
 
         try:
             try:
@@ -558,18 +571,11 @@ class RUNCMD(Cmd):
 
             # Print error
             if invalid_command:
-                # Note: error_descriptor is optional.
+                # Example input: `search for molecules in parents`
+
+                # To be double checked but... this is an impossible condition. value will always be 1 or more.
                 if error_col_grabber(error_descriptor) == 0:
-                    if self.notebook_mode is True:
-                        return output_error(
-                            msg("err_invalid_cmd", 'Not a Valid Command, try "?" to list valid commands', split=True),
-                            self,
-                        )
-                    else:
-                        output_error(
-                            msg("err_invalid_cmd", 'Not a Valid Command, try "?" to list valid commands', split=True),
-                            self,
-                        )
+                    return output_error(msg("err_invalid_cmd", strip_tags(msg("run_?")), split=True), self, pad=0)
                 else:
                     # Determine if the user input is a partially correct command
                     # or an incorrect command.
@@ -582,65 +588,82 @@ class RUNCMD(Cmd):
 
                     # Isolate the string we want to use to search for related commands.
                     if error_col_grabber(error_descriptor) == 1:
-                        # No full word recognized.
+                        # No full word recognized --> grab first word.
                         help_ref = error_first_word_grabber(error_descriptor)
                     else:
-                        # One of more words recognized.
+                        # One of more words recognized --> grab all recognized words.
                         help_ref = inp[0 : error_col_grabber(error_descriptor) - 1]
 
-                    # Check if we found any alternative commands to suggest.
-                    do_help_output = self.do_help(
-                        help_ref + " ?", return_val=True, jup_return_format="plain", starts_with_only=True
+                    # Not for printing
+                    # Fetch commands matching the entire input.
+                    # Example input -> `search for molecules in parents`
+                    do_help_output_A = self.do_help(
+                        inp + " ?", return_val=True, jup_return_format="plain", starts_with_only=True
                     )
 
-                    do_help_output_optimistic = self.do_help(
+                    # Not for printing
+                    # Fetch commands matching recognized words, plus
+                    # the first letter of the first unrecognized word.
+                    # Example input -> `search for molecules in p`
+                    do_help_output_B = self.do_help(
                         inp[0 : error_col_grabber(error_descriptor)] + " ?",
                         jup_return_format="plain",
                         starts_with_only=True,
                         return_val=True,
                     )
-                    do_help_output_optimistic_x = self.do_help(
-                        inp + " ?", return_val=True, jup_return_format="plain", starts_with_only=True
-                    )
-                    if "No commands containing" in do_help_output_optimistic_x:
-                        if "No commands containing" in do_help_output_optimistic:
-                            show_suggestions = "No commands containing" not in do_help_output
-                            multiple_suggestions = "Commands containing" in do_help_output
-                        else:
-                            show_suggestions = "No commands containing" not in do_help_output_optimistic
-                            multiple_suggestions = "Commands containing" in do_help_output_optimistic
-                            help_ref = inp[0 : error_col_grabber(error_descriptor)]
-                    else:
-                        show_suggestions = "No commands containing" not in str(do_help_output_optimistic_x)
-                        multiple_suggestions = "Commands containing" in str(do_help_output_optimistic_x)
-                        help_ref = inp
 
-                    # If there are no True suggestions, we loop backwards through the input string
-                    # to find a matching initial string.
+                    # Not for printing
+                    # Fetch commands matching recognized words, or the first word.
+                    # Example input -> `search for molecules in`
+                    do_help_output_C = self.do_help(
+                        help_ref + " ?", return_val=True, jup_return_format="plain", starts_with_only=True
+                    )
+
+                    # Check for scenario A, B, C in that order.
+                    if "No commands" not in do_help_output_A:
+                        # Scenario A
+                        show_suggestions = True
+                        multiple_suggestions = "Commands starting with" in str(do_help_output_A)
+                        help_ref = inp
+                    elif "No commands" not in do_help_output_B:
+                        # Scenario B
+                        show_suggestions = True
+                        multiple_suggestions = "Commands starting with" in do_help_output_B
+                        help_ref = inp[0 : error_col_grabber(error_descriptor)]
+                    else:
+                        # Scenario C
+                        show_suggestions = "No commands" not in do_help_output_C
+                        multiple_suggestions = "Commands starting with" in do_help_output_C
+
+                    # If there are still no suggestions, we loop backwards through
+                    # the input string letter by letter until something pops up.
                     if not show_suggestions:
                         error_col = error_col_grabber(error_descriptor)
-                        while error_col != 0 and not show_suggestions:
+                        while error_col > 1 and not show_suggestions:
                             error_col = error_col - 1
-                            do_help_output_optimistic_x = self.do_help(
+                            # Not for printing
+                            do_help_output_A = self.do_help(
                                 inp[0:error_col] + " ?",
                                 return_val=True,
                                 jup_return_format="plain",
                                 starts_with_only=True,
                             )
-                            show_suggestions = "No commands containing" not in str(do_help_output_optimistic_x)
-                            multiple_suggestions = "Commands containing" in str(do_help_output_optimistic_x)
+                            show_suggestions = "No commands" not in str(do_help_output_A)
+                            multiple_suggestions = "Commands starting with" in str(do_help_output_A)
                             help_ref = inp[0:error_col]
 
                     # Display error.
-                    output_warning(msg("err_invalid_cmd", error_msg, split=True), self, return_val=False)
+                    output_error(msg("err_invalid_cmd", error_msg, split=True), self, return_val=False)
                     if show_suggestions:
                         if not multiple_suggestions:
                             output_text("<yellow>You may want to try:</yellow>", self, return_val=False)
+                            pad_top = 1  # Single command should get a linebreak before and after.
+                        else:
+                            pad_top = 0  # List of commands should not get padded.
 
-                        self.do_help(help_ref + " ?", starts_with_only=True, return_val=False, pad=0)
-                        output_text(
-                            "<soft>Run <cmd>?</cmd> to list all command options.</soft>", self, return_val=False, pad=1
-                        )
+                        # Example to trigger this: `list xxx`
+                        self.do_help(help_ref + " ?", starts_with_only=True, return_val=False, pad_top=pad_top)
+                        output_text(msg("run_?"), self, return_val=False, pad=1)
                     return
 
             else:
@@ -678,8 +701,6 @@ def error_first_word_grabber(error):
 # If the application is called with parameters, it executes the parameters.
 # If called without parameters, the command line enters the shell environment.
 # History is only kept for commands executed once in the shell.
-
-
 def api_remote(
     inp: str,
     api_context: dict = {"workspace": None, "toolkit": None},
@@ -748,7 +769,9 @@ def api_remote(
             elif inp.strip() == "??":
                 inp = "?"
 
-            return magic_prompt.do_help(inp, display_info=True)
+            # Triggered by magic commands, eg. `%openad list files ?`
+            display_info = inp.split()[0] == "?" and inp.strip() != "??"
+            return magic_prompt.do_help(inp.strip(), display_info=display_info)
 
         # If there is a argument and it is not a help attempt to run the command.
         # Note, may be possible add code completion here #revisit
@@ -786,11 +809,16 @@ def cmd_line():
     if len(inp.strip()) > 0:
         words = inp.split()
         if inp.split()[0] == "?" or inp.split()[-1] == "?" or inp.strip() == "??":
+            # Impossible clause...?
+            # you can't add `?` to `openad <command>` because the terminal interprets the `?` separately.
             if inp.strip() == "?":
                 inp = ""
             elif inp.strip() == "??":
                 inp = "?"
-            command_line.do_help(inp.strip())
+
+            # Supposedly triggered by running commands from main terminal prepended with `openad`.
+            display_info = inp.split()[0] == "?" and inp.strip() != "??"
+            command_line.do_help(inp.strip(), display_info=display_info)
 
         # If user wants to run command line and specify toolkit, for a specific command:
         elif words[0].lower() == "-s" and len(words) > 3:

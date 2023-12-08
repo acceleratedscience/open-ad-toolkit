@@ -8,7 +8,7 @@
 		"name": "display collections in domains ",
 		"category": "Collections",
 		"command": "display collections in domains from list <list_of_domains> [ save as '<csv_filename>' ] ",
-		"description": null,
+		"description": "",
 		"url": ""
 	},
 	"library": "ds4sd_display_collection_from_domains",
