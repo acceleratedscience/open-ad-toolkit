@@ -40,7 +40,7 @@ The goal of openAD is to provide a common language for scientists to interact wi
 <a href="https://acceleratedscience.github.io/openad-docs/" style="display: block; height:40px; line-height:40px; padding: 0 20px 0 10px; background: #0f62fe; color: #fff;">
 Documentations
 </a>
-<button style="display: block; height:40px; line-height:40px; padding: 0 20px 0 10px; background: #0f62fe; color: #fff;">DOCS</button>
+[<button style="display: block; height:40px; line-height:40px; padding: 0 20px 0 10px; background: #0f62fe; color: #fff;">DOCS</button>](https://acceleratedscience.github.io/openad-docs/)
 <!-- [Documentation](https://acceleratedscience.github.io/openad-docs/) -->
 
 ---
