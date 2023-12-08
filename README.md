@@ -37,8 +37,8 @@ OpenAD is an open-source framework developed by IBM Research, aggregating a numb
 
 The goal of openAD is to provide a common language for scientists to interact with a multitude of of molecular tools to simplify the triage process and drastically accelerate your development timelines.
 
-<a href="https://acceleratedscience.github.io/openad-docs/" style="height:40px; line-height:40px; padding: 0 20px 0 10px; background: #0f62fe;">
-Documentation
+<a href="https://acceleratedscience.github.io/openad-docs/" style="display: block; height:40px; line-height:40px; padding: 0 20px 0 10px; background: #0f62fe; color: #fff;">
+Documentations
 </a>
 <!-- [Documentation](https://acceleratedscience.github.io/openad-docs/) -->
 
