@@ -31,7 +31,6 @@ for (var i=0; i< urls.length; i++) {
 [![Docs](https://img.shields.io/badge/website-live-brightgreen)](https://github.com/acceleratedscience/open-ad-toolkit)
 
 **Open Accelerated Discovery Client**<br>
-<br>
 
 <!-- intro-start -->
 OpenAD is an open-source framework developed by IBM Research, aggregating a number of molecular science toolkits into a single API that can be accessed by command line, a Jupyter Notebook and (soon) an API.
