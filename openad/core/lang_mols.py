@@ -5,7 +5,7 @@ from rdkit import Chem, RDLogger
 from openad.flask_apps import launcher
 from openad.flask_apps.molsgrid.routes import fetchRoutesMolsGrid
 from openad.flask_apps.molviewer.routes import fetchRoutesMolViewer
-from openad.helpers.general import openFile
+from openad.helpers.general import open_file
 from openad.helpers.output import msg, output_error
 
 # Disable RDKit warnings
@@ -125,7 +125,7 @@ def __file2dict(file_path):
 
     # JSON
     if ext == "json" or ext == "cjson":
-        mol_dict = openFile(file_path)
+        mol_dict = open_file(file_path)
 
         # Unsupported file type.
         if not mol_dict:

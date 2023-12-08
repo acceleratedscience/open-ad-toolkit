@@ -212,7 +212,7 @@ def next_avail_port(port=5000, host="127.0.0.1"):
 # - JSON/CJSON: dict
 # - CSV: pandas dataframe
 # - Other: string
-def openFile(file_path, mode="r", suppress_error=False):
+def open_file(file_path, mode="r", return_err=False):
     ext = file_path.split(".")[-1].lower()
     err_msg = None
     try:
@@ -227,23 +227,68 @@ def openFile(file_path, mode="r", suppress_error=False):
             else:
                 # Return string
                 data = f.read()
-            return data
+
+            # Return data
+            if return_err:
+                return data, None
+            else:
+                return data
     except FileNotFoundError:
         err_msg = msg("err_file_not_found", file_path, split=True)
     except PermissionError:
-        err_msg = msg("err_file_no_permission", file_path, split=True)
+        err_msg = msg("err_file_no_permission_read", file_path, split=True)
     except IsADirectoryError:
         err_msg = msg("err_file_is_dir", file_path, split=True)
     except UnicodeDecodeError:
         err_msg = msg("err_decode", file_path, split=True)
     except IOError as err:
         err_msg = msg("err_io", file_path, err.strerror, split=True)
+    except BaseException as err:
+        err_msg = msg("err_unknown", err, split=True)
+
+    # Return error
+    if return_err:
+        return None, err_msg
 
     # Display error
-    if not suppress_error:
+    else:
         output_error(err_msg)
+        return None
 
-    return None
+
+# Standardized file writer.
+def write_file(file_path, data, return_err=False):
+    err_msg = None
+    try:
+        with open(file_path, "w") as f:
+            f.write(data)
+
+            # Return success
+            if return_err:
+                return True, None
+            else:
+                return True
+    except FileNotFoundError:
+        err_msg = msg("err_file_not_found", file_path, split=True)
+    except PermissionError:
+        err_msg = msg("err_file_no_permission_write", file_path, split=True)
+    except IsADirectoryError:
+        err_msg = msg("err_file_is_dir", file_path, split=True)
+    except UnicodeDecodeError:
+        err_msg = msg("err_decode", file_path, split=True)
+    except IOError as err:
+        err_msg = msg("err_io", file_path, err.strerror, split=True)
+    except BaseException as err:
+        err_msg = msg("err_unknown", err, split=True)
+
+    # Return error
+    if return_err:
+        return None, err_msg
+
+    # Display error
+    else:
+        output_error(err_msg)
+        return None
 
 
 #
