@@ -285,7 +285,7 @@ def _compile_commands(cmds_organized):
             cmd_description = cmd_description.replace("<br>", "")
             cmd_description = cmd_description.splitlines()
             cmd_description = "\n\t\t".join([line.strip() for line in cmd_description])
-            output.append(f"\n\t\tAbout this command:\n\t\t{cmd_description}\n")
+            # output.append(f"\n\t\tAbout this command:\n\t\t{cmd_description}\n")
         output.append("")
 
     return output

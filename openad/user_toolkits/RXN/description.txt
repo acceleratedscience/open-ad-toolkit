@@ -10,88 +10,11 @@ The following commands are available for this toolkit:
 Queries:
 	`list rxn models`
 
-		About this command:
-		lists current rxn AI Models available to the user
-
-
 Retrosynthesis:
 	`predict retrosynthesis '<smiles>' [ using (option1=<value> option2=<value>) ]`
-
-		About this command:
-		Perform a retrosynthesis route prediction on a molecule.
-		
-		Options for the optional `using` clause:
-		- `availability_pricing_threshold=<int>` Maximum price in USD per g/ml of compounds. Default: no threshold.
-		- `available_smiles='<smiles>.<smiles>.<smiles>'` List of molecules available as precursors, delimited with a period.
-		- `exclude_smiles='<smiles>.<smiles>.<smiles>'` List of molecules to exlude from the set of precursors, delimited with a period.
-		- `exclude_substructures='<smiles>.<smiles>.<smiles>'` List of substructures to excludefrom the set of precursors, delimited with a period.
-		- `exclude_target_molecule=<boolean>` Excluded target molecule. The default is True
-		- `fap=<float>` Every retrosynthetic step is evaluated with the FAP, and is only retained when forward confidence is greater than the FAP value. The default is 0.6.
-		- `max_steps=<int>` The maximum number steps in the results. The default is 3.
-		- `nbeams=<int>` The maximum number of beams exploring the hypertree. The default is 10.
-		- `pruning_steps=<int>` The number of steps to prune a hypertree. The default is 2.
-		- `ai_model='<model_name>'` What model to use. Use the command `list rxn models` to list all available models. The default is '2020-07-01'.
-		
-		Example:
-		`predict retrosynthesis 'BrCCc1cccc2c(Br)c3ccccc3cc12' using (max_steps=3)`
-
 	`interpret recipe '<recipe_paragraph>' | '<txt_filename>'`
-
-		About this command:
-		Build a ordered list of actions interpreted from a provided text-based recipe. The recipe can be provided as a string or as a text file from your current workspace.
-		
-		Examples:
-		- `interpret recipe 'my_recipe.txt'`
-		- `interpret recipe 'A solution of ((1S,2S)-1-{[(methoxymethyl-biphenyl-4-yl)-(2-pyridin-2-yl-cyclopropanecarbonyl)-amino]-methyl}-2-methyl-butyl)-carbamic acid tert-butyl ester (25 mg, 0.045 mmol) and dichloromethane (4 mL) was treated with a solution of HCl in dioxane (4 N, 0.5 mL) and the resulting reaction mixture was maintained at room temperature for 12 h. The reaction was then concentrated to dryness to afford (1R,2R)-2-pyridin-2-yl-cyclopropanecarboxylic acid ((2S,3S)-2-amino-3-methylpentyl)-(methoxymethyl-biphenyl-4-yl)-amide (18 mg, 95% yield) as a white solid.'`
-
 
 Prediction:
 	`predict reaction in batch from dataframe <dataframe_name> | file '<csv_filename>' | list '<smiles>.<smiles>'  [ using (ai_model='<ai_model>') ] [ use_saved ]`
-
-		About this command:
-		Run a batch of reaction predictions. The provided list of reactions can be specified as a DataFrame, a CSV file from your current workspace or a list of strings. When proving a DataFrame or CSV file, we will look for the "reactions" column.
-		
-		Reactions are defined by combining two SMILES strings delimited by a period. For example: `'BrBr.c1ccc2cc3ccccc3cc2c1'`
-		
-		Options for the optional `using` clause:
-		- `ai_model='<model_name>'` What model to use. Use the command `list rxn models` to list all available models. The default is '2020-07-01'.
-		
-		You can reuse previously generated results by appending the optional `use_saved` clause. This will reuse the results of a previously run command with the same parameters, if available.
-		
-		Examples:
-		- `predict reaction in batch from list ['BrBr.c1ccc2cc3ccccc3cc2c1CCO' , 'BrBr.c1ccc2cc3ccccc3cc2c1']`
-		- `predict reaction in batch from list ['BrBr.c1ccc2cc3ccccc3cc2c1CCO' , 'BrBr.c1ccc2cc3ccccc3cc2c1'] use_saved`
-
 	`predict reaction '<smiles>.<smiles>' [ using (ai_model='<ai_model>') ] [ use_saved ]`
-
-		About this command:
-		Predict the reaction between two molecules.
-		
-		Reactions are defined by combining two SMILES strings delimited by a period. For example: `'BrBr.c1ccc2cc3ccccc3cc2c1'`
-		
-		Options for the optional `using` clause:
-		- `ai_model='<model_name>'` What model to use. Use the command `list rxn models` to list all available models. The default is '2020-07-01'.
-		
-		You can reuse previously generated results by appending the optional `use_saved` clause. This will reuse the results of a previously run command with the same parameters, if available.
-		
-		Examples:
-		- `predict reaction 'BrBr.c1ccc2cc3ccccc3cc2c1CCO'`
-		- `predict reaction 'BrBr.c1ccc2cc3ccccc3cc2c1CCO' use_saved`
-
 	`predict reaction topn in batch from dataframe <dataframe_name> | file '<csv_filename>' | list ['<smiles>.<smiles>','<smiles>.<smiles>'] [ using (topn=<integer> ai_model='<ai_model>') ] [ use_saved ]`
-
-		About this command:
-		Run a batch of reaction predictions for topn. The provided list of reactions can be specified as a DataFrame, a CSV file from your current workspace or a list of strings. When proving a DataFrame or CSV file, we will look for the "reactions" column.
-		
-		Reactions are defined by combining two SMILES strings delimited by a period. For example: `'BrBr.c1ccc2cc3ccccc3cc2c1'`
-		
-		Options for the optional `using` clause:
-		- `ai_model='<model_name>'` What model to use. Use the command `list rxn models` to list all available models. The default is '2020-07-01'.
-		- `topn=<integer>` Defined the number of results being returned. The default value is 3.
-		
-		You can reuse previously generated results by appending the optional `use_saved` clause. This will reuse the results of a previously run command with the same parameters, if available.
-		
-		Examples:
-		- `predict reaction topn in batch from list ['BrBr.c1ccc2cc3ccccc3cc2c1CCO' , 'BrBr.c1ccc2cc3ccccc3cc2c1']`
-		- `predict reaction topn in batch from list ['BrBr.c1ccc2cc3ccccc3cc2c1CCO' , 'BrBr.c1ccc2cc3ccccc3cc2c1'] using (topn=6)`
-		- `predict reaction topn in batch from list ['BrBr.c1ccc2cc3ccccc3cc2c1CCO' , 'BrBr.c1ccc2cc3ccccc3cc2c1'] use_saved `

@@ -207,8 +207,11 @@ Open the documentation webpage.<br><br>
 `?`{: .cmd }
 List all available commands.<br><br>
 
-`<soft>...</soft> ?`{: .cmd }
-Display what a command does, or list all commands that contain this string.<br><br>
+`? <soft>[...] --> List all commands containing "..."</soft>`{: .cmd }
+<br>
+
+`<soft>[...]</soft> ? <soft>--> List all commands starting with "..."</soft>`{: .cmd }
+<br>
 
 <br>
 
@@ -271,22 +274,22 @@ The `<search_string>` supports elastic search string query syntax:<br>
 - `-` Negates a single token.<br>
 - `\"` Wraps a number of tokens to signify a phrase for searching.<br>
 - `*` At the end of a term -> signifies a prefix query<br>
-- `(` &amp; `)` Signifies precedence<br>
+- `(` & `)` Signifies precedence<br>
 - `~N` After a word -> signifies edit distance (fuzziness)<br>
 - `~N` After a phrase -> signifies slop amount<br>
 
 Options for the `using` clause:<br>
-  > **Note:** The `using` clause requires all enclosed parameters to be defined in the same order as documented below.<br>
+  > **Note:** The `using` clause requires all enclosed parameters to be defined in the same order as listed below.<br>
 
 - `page_size=<integer>` Result pagination, the default is None.<br>
 - `system_id=<system_id>` System cluster id, the default is 'default'.<br>
-- `edit_distance=<integer>` Sets the search word span criteria for key words for document searches, the default is 5. When set to 0, no snippets will be be returned.<br>
+- `edit_distance=<integer>` (0-5) Sets the search word span criteria for key words for document searches, the default is 5. When set to 0, no snippets will be be returned.<br>
 - `display_first=<integer>` When set, the displayed result set will be truncated at the given number.<br>
 
 Clauses:<br>
 - `show (data | docs)`:<br>
     - `data` Display structured data from within the documents.<br>
-    - `docs` Display document context.<br>
+    - `docs` Display document context and preview snippet.<br>
     Both can be combined in a single command, e.g. `show (data docs)`<br>
 - `estimate only` Determine the potential number of hits.<br>
 - `return as data` For Notebook or API mode. Removes all styling from the Pandas DataFrame, ready for further processing.<br>
@@ -336,7 +339,7 @@ Use the command `display all collections` to find available domains.<br>
 Example:<br>
 `display collections in domains from list ['Scientific Literature']`<br><br>
 
-`display collection details '<collection_name>' | '<collection_key>'`{: .cmd }
+`display collection details '<collection_name_or_key>'`{: .cmd }
 Display the details for a specified collection. You can specify a collection by its name or key.<br>
 
 Use the command `display all collections` to list available collections.<br>
@@ -357,7 +360,7 @@ Example:<br>
 ### Queries
 
 `list rxn models`{: .cmd }
-Lists all RXN AI models currently available.<br><br>
+lists current rxn AI Models available to the user<br><br>
 
 <br>
 

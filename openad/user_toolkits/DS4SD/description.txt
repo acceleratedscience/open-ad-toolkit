@@ -16,138 +16,16 @@ The following commands are available for this toolkit:
 
 Search Molecules:
 	`search for patents containing molecule '<smiles>' | '<inchi>' | '<inchi_key>' [ save as '<csv_filename>' ]`
-
-		About this command:
-		Search for mentions of a specified molecules in registered patents. The queried molecule can be described as a SMILES string, InChI or InChiKey.
-		
-		Use the `save as` clause to save the results as a csv file in your current workspace.
-		
-		Example:
-		`search for patents containing molecule 'CC(C)(c1ccccn1)C(CC(=O)O)Nc1nc(-c2c[nH]c3ncc(Cl)cc23)c(C#N)cc1F'`
-
 	`search for similar molecules to '<smiles>' [ save as '<csv_filename>' ]`
-
-		About this command:
-		Search for molecules that are similar to the provided molecule or molecule substructure as provided in the `<smiles_string>`.
-		
-		Use the `save as` clause to save the results as a csv file in your current workspace.
-		
-		Example:
-		`search for similar molecules to 'C1(C(=C)C([O-])C1C)=O'`
-
 	`search for molecules in patents from list ['<patent1>', '<patent2>', ...] | dataframe <dataframe_name> | file '<csv_filename>' [ save as '<csv_filename>' ]`
-
-		About this command:
-		Search for molecules mentioned in a defined list of patents. When sourcing patents from a CSV or DataFrame, there must be column named "PATENT ID" or "patent id".
-		
-		Use the `save as` clause to save the results as a csv file in your current workspace.
-		
-		Example:
-		`search for molecules in patents from list ['CN108473493B','US20190023713A1']`
-
 	`search for substructure instances of '<smiles>' [ save as '<csv_filename>' ]`
-
-		About this command:
-		Search for molecules by substructure, as defined by the `<smiles_string>`.
-		
-		Use the `save as` clause to save the results as a csv file in your current workspace.
-		
-		Example:
-		`search for substructure instances of 'C1(C(=C)C([O-])C1C)=O' save as 'my_mol'`
-
 
 Search Collections:
 	`search collection '<collection_name_or_key>' for '<search_string>' [ using (page_size=<int> system_id=<system_id> edit_distance=<integer> display_first=<integer>) ] show (data | docs) [ estimate only | return as data | save as '<csv_filename>' ]`
-
-		About this command:
-		Performs a document search of the Deep Search repository based on a given collection. The required `using` clause specifies the collection to search. Use `estimate only` to return only the potential number of hits.
-		
-		Parameters:
-		- `<collection_name_or_key>` The name or index key for a collection. Use the command `display all collections` to list available collections.
-		- `<search_string>` The search string for the search.
-		
-		The `<search_string>` supports elastic search string query syntax:
-		- `+` Signifies AND operation.
-		- `|` Signifies OR operation.
-		- `-` Negates a single token.
-		- `\"` Wraps a number of tokens to signify a phrase for searching.
-		- `*` At the end of a term -> signifies a prefix query
-		- `(` & `)` Signifies precedence
-		- `~N` After a word -> signifies edit distance (fuzziness)
-		- `~N` After a phrase -> signifies slop amount
-		
-		Options for the `using` clause:
-		**Note:** The `using` clause requires all enclosed parameters to be defined in the same order as listed below.
-		- `page_size=<integer>` Result pagination, the default is None.
-		- `system_id=<system_id>` System cluster id, the default is 'default'.
-		- `edit_distance=<integer>` (0-5) Sets the search word span criteria for key words for document searches, the default is 5. When set to 0, no snippets will be be returned.
-		- `display_first=<integer>` When set, the displayed result set will be truncated at the given number.
-		
-		Clauses:
-		- `show (data | docs)`:
-		- `data` Display structured data from within the documents.
-		- `docs` Display document context and preview snippet.
-		Both can be combined in a single command, e.g. `show (data docs)`
-		- `estimate only` Determine the potential number of hits.
-		- `return as data` For Notebook or API mode. Removes all styling from the Pandas DataFrame, ready for further processing.
-		
-		Examples:
-		- Look for documents that contain discussions on power conversion efficiency:
-		`search collection 'arxiv-abstract' for 'ide(\"power conversion efficiency\" OR PCE) AND organ*' using ( edit_distance=20 system_id=default) show (docs)`
-		
-		- Search the PubChem archive for 'Ibuprofen' and display related molecules' data:
-		`search collection 'pubchem' for 'Ibuprofen' show (data)`
-		
-		- Search for patents which mention a specific smiles molecule:
-		`search collection 'patent-uspto' for '\"smiles#ccc(coc(=o)cs)(c(=o)c(=o)cs)c(=o)c(=o)cs\"' show (data)`
-
 	`display collection matches for '<search_string>' [ save as '<csv_filename>' ]`
-
-		About this command:
-		Search all collections for documents that contain a given Deep Search `<search_string>`. This is useful when narrowing down document collection(s) for subsequent search. You can use the `<index_key>` from the returned table in your next search.
-		
-		Use the `save as` clause to save the results as a csv file in your current workspace.
-		
-		Example:
-		`display collection matches for 'Ibuprofen'`
-
 
 Collections:
 	`display collections for domain '<domain_name>'`
-
-		About this command:
-		Display the available collections in a given Deep Search domain.
-		
-		Use the command `display all collections` to find available domains.
-		
-		Example:
-		`display collections for domain 'Business Insights'`
-
 	`display all collections [ save as '<csv_filename>' ]`
-
-		About this command:
-		Display all available collections in Deep Search.
-		
-		Use the `save as` clause to save the results as a csv file in your current workspace.
-
 	`display collections in domains from list <list_of_domains> [ save as '<csv_filename>' ]`
-
-		About this command:
-		Display collections that belong to the listed domains.
-		
-		Use the `save as` clause to save the results as a csv file in your current workspace.
-		
-		Use the command `display all collections` to find available domains.
-		
-		Example:
-		`display collections in domains from list ['Scientific Literature']`
-
 	`display collection details '<collection_name_or_key>'`
-
-		About this command:
-		Display the details for a specified collection. You can specify a collection by its name or key.
-		
-		Use the command `display all collections` to list available collections.
-		
-		Example:
-		`display collection details 'Patents from USPTO'`
