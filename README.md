@@ -23,7 +23,7 @@ for (var i=0; i< urls.length; i++) {
 
 -->
 
-# OpenAD
+# OpenAD Beta
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/openad)](https://pypi.org/project/openad/)
 [![PyPI version](https://img.shields.io/pypi/v/openad)](https://pypi.org/project/openad/)
 [![License MIT](https://img.shields.io/github/license/acceleratedscience/open-ad-toolkit)](https://opensource.org/licenses/MIT)
@@ -65,7 +65,7 @@ Get started with Jupyter:
 
 ## Table of Contents <!-- omit from toc -->
 
-- [OpenAD](#openad)
+- [OpenAD Beta](#openad-beta)
 - [Installation](#installation)
 - [Getting Started - CLI](#getting-started---cli)
 - [Getting Started - Jupyter](#getting-started---jupyter)
