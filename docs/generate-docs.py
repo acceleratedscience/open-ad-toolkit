@@ -32,6 +32,8 @@ from openad.helpers.general import open_file, write_file
 
 # Get the repo path, this python file's parent folder.
 REPO_PATH = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+FLAG_SUCCESS = f"<on_green> Success </on_green>"
+FLAG_ERROR = f"<on_red> Failed </on_red>"
 
 # endregion
 
@@ -42,6 +44,8 @@ REPO_PATH = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 # Loop through all commands and export them to a markdown file
 # that is ready to be included in the just-the-docs documentation.
 def render_commands_md(filename):
+    output_text("<h1>Generating <yellow>commands.md</yellow> from help</h1>", cmd_pointer, pad_top=1)
+
     output = []  # Markdown
     toc = []  # Table of content
 
@@ -85,8 +89,15 @@ def render_commands_md(filename):
     toc = "### Table of Contents\n" + "\n".join(toc) + "\n"
     output = output[:2] + [toc] + output[2:]
     output = "\n".join(output)
-    with open(f"{REPO_PATH}/docs/markdown/{filename}", "w") as f:
-        f.write(output)
+
+    # Write to file
+    success, err_msg = write_file(f"{REPO_PATH}/docs/markdown/{filename}", output, return_err=True)
+    if success:
+        output_text(FLAG_SUCCESS, cmd_pointer, pad_top=1)
+        output_text("<soft>Exported to</soft> <reset>/docs/readme/{filename}</reset>", cmd_pointer, pad_top=1)
+    else:
+        output_text(FLAG_ERROR, cmd_pointer, pad_top=1)
+        output_error(err_msg, cmd_pointer)
 
 
 # Organize commands of a single section by category.
@@ -165,12 +176,13 @@ def _toc_link(title, level=0):
 # Adapt the README.md to be repurposed as
 # instalation page for just-the-docs.
 def render_installation_md(filename):
-    readme = ""
-    try:
-        with open("README.md", "r") as f:
-            readme = f.read()
-    except BaseException as err:
-        output_error(msg("err_readme", err, split=True), cmd_pointer, return_val=True)
+    output_text("<h1>Generating <yellow>installation.md</yellow> based off of README.md</h1>", cmd_pointer, pad_top=4)
+
+    # Open README.md
+    readme, err_msg = open_file("README.md", return_err=True)
+    if not readme:
+        output_text(FLAG_ERROR, cmd_pointer, pad_top=1)
+        output_error(err_msg, cmd_pointer)
         return
 
     # Remove all comments.
@@ -205,8 +217,13 @@ def render_installation_md(filename):
     readme = "\n".join(jtd_identifier) + "\n\n" + comment + "\n\n" + splitter + readme.split(splitter)[1]
 
     # Write to file
-    with open(f"{REPO_PATH}/docs/markdown/{filename}", "w") as f:
-        f.write(readme)
+    success, err_msg = write_file(f"{REPO_PATH}/docs/markdown/{filename}", readme, return_err=True)
+    if success:
+        output_text(FLAG_SUCCESS, cmd_pointer, pad_top=1)
+        output_text("<soft>Exported to</soft> <reset>/docs/readme/{filename}</reset>", cmd_pointer, pad_top=1)
+    else:
+        output_text(FLAG_ERROR, cmd_pointer, pad_top=1)
+        output_error(err_msg, cmd_pointer)
 
 
 # endregion
@@ -224,16 +241,18 @@ def render_installation_md(filename):
 # will be overwritten:
 # "The following commands are available for this toolkit:"
 def render_description_txt(filename):
+    output_text(
+        "<h1>Updating commands in <yellow>description.txt</yellow> for all toolkits</h1>", cmd_pointer, pad_top=4
+    )
+
     # Loop through all toolkits
     for toolkit_name in _all_toolkits:
         flag_toolkit = f"<on_white><black> {toolkit_name} </black></on_white>"
-        flag_success = f"<on_green> Success </on_green>"
-        flag_error = f"<on_red> Failed </on_red>"
         # Load toolkit
         success, toolkit = load_toolkit(toolkit_name, from_repo=True)
         if not success:
             err_msg = toolkit
-            output_text("\n" + flag_toolkit + flag_error, cmd_pointer, pad=0)
+            output_text("\n" + flag_toolkit + FLAG_ERROR, cmd_pointer)
             output_error(msg("err_load_toolkit", toolkit_name), cmd_pointer, pad=0)
             continue
 
@@ -245,16 +264,16 @@ def render_description_txt(filename):
         file_path = f"{REPO_PATH}/openad/user_toolkits/{toolkit_name}/{filename}"
         description_txt, err_msg = open_file(file_path, return_err=True)
         if not description_txt:
-            output_text("\n" + flag_toolkit + flag_error, cmd_pointer, pad=0)
-            output_error(msg("err_load_toolkit_description", toolkit_name), cmd_pointer, pad=0)
-            output_error(err_msg, cmd_pointer, pad=0)
+            output_text("\n" + flag_toolkit + FLAG_ERROR, cmd_pointer)
+            # output_error(msg("err_load_toolkit_description", toolkit_name), cmd_pointer, pad=0) # Maybe overkill
+            output_error(err_msg, cmd_pointer, pad=1)
             continue
 
         # Insert commands into description.txt
         splitter = "The following commands are available for this toolkit:"
         if splitter not in description_txt:
-            output_text("\n" + flag_toolkit + flag_error, cmd_pointer, pad=0)
-            output_error(msg("err_invalid_description_txt", toolkit_name, splitter), cmd_pointer, pad=0)
+            output_text("\n" + flag_toolkit + FLAG_ERROR, cmd_pointer)
+            output_error(msg("err_invalid_description_txt", toolkit_name, splitter), cmd_pointer, pad=1)
             continue
         description_txt = description_txt.split(splitter)[0] + splitter + "\n\n"
         description_txt += "\n".join(output)
@@ -265,10 +284,16 @@ def render_description_txt(filename):
         # Write to file
         success, err_msg = write_file(file_path, description_txt, return_err=True)
         if success:
-            output_text("\n" + flag_toolkit + flag_success, cmd_pointer, pad=0)
+            output_text(flag_toolkit + FLAG_SUCCESS, cmd_pointer, pad_top=1)
+            output_text(
+                f"<soft>Updated in</soft> <reset>/docs/openad/user_toolkits/<toolkit_name>/{filename}</reset>",
+                cmd_pointer,
+                pad_top=1,
+                pad_btm=1,
+            )
         else:
-            output_text("\n" + flag_toolkit + flag_error, cmd_pointer, pad=0)
-            output_error(err_msg, cmd_pointer, pad=0)
+            output_text(flag_toolkit + FLAG_ERROR, cmd_pointer, pad_top=1)
+            output_error(err_msg, cmd_pointer, pad=1)
 
 
 # Compile all commands for a single toolkit's description.txt.

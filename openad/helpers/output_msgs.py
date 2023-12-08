@@ -143,7 +143,7 @@ messages = {
         "Please check your spelling",
     ),
     "err_load_toolkit": lambda *args: f"There was an error loading the <yellow>{args[0]}</yellow> toolkit",
-    "err_load_toolkit_description": lambda *args: f"There was an error loading 'descriptions.txt' for the <yellow>{args[0]}</yellow> toolkit",
+    # "err_load_toolkit_description": lambda *args: f"There was an error loading 'descriptions.txt' for the <yellow>{args[0]}</yellow> toolkit", # trash
     "err_invalid_description_txt": lambda *args: f"The 'descriptions.txt' for the <yellow>{args[0]}</yellow> toolkit should contain the line:\n<yellow>{args[1]}</yellow>",
     "fail_toolkit_not_registered": lambda toolkit_name: f"The <yellow>{toolkit_name}</yellow> toolkit is not currently registered",
     "err_toolkit_install": lambda toolkit_name, err: (
@@ -252,6 +252,6 @@ messages = {
     "err_no_matching_cmds": lambda inp: (f'No commands containing "<yellow>{inp}</yellow>"'),
     "err_unknown": lambda err: ("Unknown error", err),
     "err_fetch_history": lambda err: ("There was an error fetching the history", err),
-    "err_readme": lambda err: ("There was an error reading the README file", err),
+    # "err_readme": lambda err: ("There was an error reading the README file", err), # trash
     # endregion
 }
