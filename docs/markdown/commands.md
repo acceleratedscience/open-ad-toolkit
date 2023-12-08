@@ -207,10 +207,10 @@ Open the documentation webpage.<br><br>
 `?`{: .cmd }
 List all available commands.<br><br>
 
-`? <soft>[...] --> List all commands containing "..."</soft>`{: .cmd }
+`? <soft>... --> List all commands containing "..."</soft>`{: .cmd }
 <br>
 
-`<soft>[...]</soft> ? <soft>--> List all commands starting with "..."</soft>`{: .cmd }
+`<soft>...</soft> ? <soft>--> List all commands starting with "..."</soft>`{: .cmd }
 <br>
 
 <br>

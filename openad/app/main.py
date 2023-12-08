@@ -203,20 +203,24 @@ class RUNCMD(Cmd):
             inp = inp.rstrip("?")
 
         inp = inp.lower().strip()
-        all_commands = self.current_help.help_current
+        # [:] is to make a copy of the list, so we don't modify the original.
+        all_commands = self.current_help.help_current[:]
         matching_commands = {
             "match_word": [],
             "match_start": [],
             "match_anywhere": [],
         }
 
-        # Remove the `[...] ?` and `? [...]` commands because
-        # their documentation is included in the command string
-        # and we don't want them to show up when you query eg. `all ?`
+        # When returning result for a help query, we have to remove
+        # the `... ?` and `? ...` commands because their documentation
+        # is included in the command string and we don't want them to
+        # show up when you query eg. `all ?`. When you just run `?`
+        # the inp will be "" and we don't want to remove anything.
         # See grammar.py -> "command help 1" and "command help 2".
-        cmds_to_ignore = [cmd for cmd in all_commands if "-->" in cmd["command"]]
-        for cmd in cmds_to_ignore:
-            all_commands.remove(cmd)
+        if len(inp):
+            cmds_to_ignore = [cmd for cmd in all_commands if "-->" in cmd["command"]]
+            for cmd in cmds_to_ignore:
+                all_commands.remove(cmd)
 
         # `?` --> Display all commands.
         if len(inp.split()) == 0:
