@@ -31,8 +31,6 @@ for (var i=0; i< urls.length; i++) {
 [![Docs](https://img.shields.io/badge/website-live-brightgreen)](https://github.com/acceleratedscience/open-ad-toolkit)
 
 **Open Accelerated Discovery Client**<br>
-[Project homepage](https://acceleratedscience.github.io/open-ad-toolkit/)
-
 <br>
 
 <!-- intro-start -->
@@ -40,6 +38,8 @@ OpenAD is an open-source framework developed by IBM Research, aggregating a numb
 
 The goal of openAD is to provide a common language for scientists to interact with a multitude of of molecular tools to simplify the triage process and drastically accelerate your development timelines.
 <!-- intro-end -->
+
+[Documentation](https://acceleratedscience.github.io/openad-docs/)
 
 ---
 
