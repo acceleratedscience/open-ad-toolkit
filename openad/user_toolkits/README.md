@@ -13,9 +13,18 @@ The toolkit architecture depends on a few basic files to work. You can copy the 
 
 ### metadata.json
 
-```
-Foo
-```
+    {
+        "banner": "ST4SD",
+        "title": "Simulation Toolkit for Scientific Discovery",
+        "author": "IBM Research",
+        "version": "0.0.1",
+        "intro": "The Simulation Toolkit simplifies the development, execution and dissemination of virtual experiments by providing powerful querying capabilities, robust and multi-environment execution support, AI acceleration capabilities and a global showcase.",
+        "commands": {
+            "st4sd ?": "See what you can do.",
+            "st4sd docs": "Read the docs in your browser."
+        }
+    }
+
 
 ## LLM Training
 
