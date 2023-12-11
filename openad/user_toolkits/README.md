@@ -4,14 +4,19 @@ Integrating your own workflows into OpenAD is relatively straightforward. If you
 
 ## Setup
 
-The toolkit architecture depends on a few basic files to work. You can copy the [DEMO](./DEMO) toolkit to hit the ground running.
+The toolkit architecture depends on a few basic files to work. You can copy the [DEMO](./DEMO) toolkit directory to hit the ground running.
 
 
-- `metadata.json` This file controls the splash screen when the toolkit is launched.
-- `login.py` (optional) If your toolkit requires authentication, it can be exposed here.
-- `oneline_desc.txt` (optional) If you wish to publish your toolkit, this is how it will be listed.
+1. `metadata.json` This file controls the splash screen when the toolkit is launched.
+2. `login.py` (optional) If your toolkit requires authentication, it can be exposed here.
+
+If you wish to publish your toolkit, a few more files are required:
+3. `description.txt` (optional) Used to train a large language model (LLM)
+4. `oneline_desc.txt` (optional) This file is required if you wish to publish your toolkit.
 
 ### metadata.json
+
+This file is responsible for generating the splash screen. This is displayed when the user enters the toolkit context by running `set context demo`.
 
     {
         "banner": "DEMO",
@@ -24,6 +29,10 @@ The toolkit architecture depends on a few basic files to work. You can copy the 
             "demo docs": "Read the docs in your browser"
         }
     }
+
+The splash screen generated from the JSON file above looks like this:
+
+![demo-splash-page](readme/demo-splash.png)
 
 
 ## LLM Training
