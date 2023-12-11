@@ -4,7 +4,7 @@ Integrating your own workflows into OpenAD is relatively straightforward. If you
 
 ## Setup
 
-The toolkit architecture depends on a few basic files to work. You can copy the [DEMO](/DEMO) toolkit to hit the ground running.
+The toolkit architecture depends on a few basic files to work. You can copy the [DEMO](./DEMO) toolkit to hit the ground running.
 
 
 - `metadata.json` This file controls the splash screen when the toolkit is launched.
@@ -14,14 +14,14 @@ The toolkit architecture depends on a few basic files to work. You can copy the 
 ### metadata.json
 
     {
-        "banner": "ST4SD",
-        "title": "Simulation Toolkit for Scientific Discovery",
-        "author": "IBM Research",
+        "banner": "DEMO",
+        "title": "This is a Demo Toolkit",
+        "author": "Jane Doe",
         "version": "0.0.1",
-        "intro": "The Simulation Toolkit simplifies the development, execution and dissemination of virtual experiments by providing powerful querying capabilities, robust and multi-environment execution support, AI acceleration capabilities and a global showcase.",
+        "intro": "This toolkit is meant as a demonstration on how to set up a toolkit. This intro paragraph should contain a brief description of what the toolkit does, ideally not much longer than ~250 characters.",
         "commands": {
-            "st4sd ?": "See what you can do.",
-            "st4sd docs": "Read the docs in your browser."
+            "hello world": "Say hello",
+            "demo docs": "Read the docs in your browser"
         }
     }
 
