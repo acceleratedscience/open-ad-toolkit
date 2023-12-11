@@ -12,7 +12,7 @@ per toolkit, used to train the LLM.
 
 To generate:
 
-    python3 docs/generate-docs.py
+    python3 docs/generate_docs.py
 
 Output:
     
@@ -67,7 +67,7 @@ def render_commands_md(filename):
         "DO NOT EDIT",
         "-----------",
         "This file auto-generated.",
-        "To update it, see openad/docs/generate-docs.py",
+        "To update it, see openad/docs/generate_docs.py",
     )
     comment = "\n".join(comment)
     output.append(f"<!--\n\n{comment}\n\n-->" + "\n")
@@ -213,7 +213,7 @@ def render_installation_md(filename):
         "-----------",
         "This file auto-generated from the main OpenAD README.md",
         "To update it, edit the main README.md and then regenerate this file.",
-        "For instructions, see openad/docs/generate-docs.py",
+        "For instructions, see openad/docs/generate_docs.py",
     )
     comment = "\n".join(comment)
     comment = f"<!--\n\n{comment}\n\n-->" + "\n"

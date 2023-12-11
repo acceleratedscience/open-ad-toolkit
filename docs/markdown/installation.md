@@ -10,7 +10,7 @@ DO NOT EDIT
 -----------
 This file auto-generated from the main OpenAD README.md
 To update it, edit the main README.md and then regenerate this file.
-For instructions, see openad/docs/generate-docs.py
+For instructions, see openad/docs/generate_docs.py
 
 -->
 

@@ -7,16 +7,12 @@ Integrating your own workflows into OpenAD is relatively straightforward. If you
 The toolkit architecture depends on a few basic files to work. You can copy the [DEMO](./DEMO) toolkit directory to hit the ground running.
 
 
-1. [`metadata.json`](#metadatajson) This file controls the splash screen when the toolkit is launched.
-1. [`login.py`](#loginpy) (optional) If your toolkit requires authentication, it can be exposed here.
-
-If you wish to publish your toolkit, a few more files are required:
-1. [`description.txt`](descriptiontxt) (optional) Used to train a large language model (LLM)
-1. [`oneline_desc.txt`](oneline_desctxt) (optional) This file is required if you wish to publish your toolkit.
+1. [`metadata.json`](#metadatajson)
+2. [`login.py`](#loginpy) (optional)
 
 ### metadata.json
 
-This file is responsible for generating the splash screen. This is displayed when the user enters the toolkit context by running `set context demo`.
+This mandatory file is responsible for generating the toolkit's splash screen. This is displayed when the user enters the toolkit context by running `set context <toolkit_name>`.
 
     {
         "banner": "DEMO",
@@ -39,24 +35,32 @@ The splash screen generated from the JSON file above looks like this:
 
 Here you can expose your authentication API. If this file is present, is will be called whenever the user enters the toolkit context by running `set context <toolit_name>`. If this file is not present, authentication will be skipped. (@Phil correct?)
 
-The [`login.py`](./DEMO/login.py) template takes care of success and error handling and ensures a unified user experience across all tookits. Instructions are in the file. You may have to customize it a bit more if your authentication API doesn't follow jwt / host / email conventions. (@Phil what about other variables like username instead of email?)
+The [`login.py`](./DEMO/login.py) template takes care of success and error handling and ensures a unified user experience across all tookits. Instructions are in the file. You may have to customize it a bit more if your authentication API doesn't follow jwt/host/email/api_key conventions. (@Phil what about other variables like username instead of email?)
 
+<br>
 
-## LLM Training
+## Publishing a Toolkit
 
-Every toolkit should have a `description.txt` file which is used to train the LLM with the toolkit functionality.
+If you wish to publish your toolkit to the OpenAD comminity, a few more files are required.
+1. [`description.txt`](descriptiontxt) Used to train a large language model (LLM).
+2. [`oneline_desc.txt`](oneline_desctxt) Used to describe your toolkit in the list of available toolkits.
 
-All the toolkit commands are listed in the description file, but they are auto-generated. See `/docs/generate-docs.py` for instructions on how to update the description file with the latest version of the toolkit commands.
+<br>
 
-**Important:** The toolkit's `description.txt` file should contain the following line:
+## description.txt
+
+The `description.txt` file is used to train the LLM with the toolkit functionality. It should contain a detailed description of how your toolkit works and what it is meant to achieve, written in an unambiguous way. You can look at the other toolkits for inspiration.
+
+At the bottom of your file, on a separate line, you should include the following line, verbatim:
 
     The following commands are available for this toolkit:
 
-The `generate-docs.py` script will look for this line and replace everything after with the updated commands. If this exact line is not present, the script will abort and throw an error.
+Then you should run a script that gathers all your toolkit commands and lists them at the bottom of the description file. The script will look for this line described above and replace everything after with the updated commands. If this exact line is not present, the script will abort and throw an error.
 
+    python openad/user_toolkits/<toolkit_name>/description_update.py
 
-<details>
-<summary markdown="block"></summary>
-<div markdown="block">
-</div>
-</details>
+<br>
+
+## oneline_desc.txt
+
+This file contains a very brief description of the toolkit, using only 4-5 words. This wil be displayed when listing available toolkits.

@@ -9,7 +9,7 @@ nav_order: 4
 DO NOT EDIT
 -----------
 This file auto-generated.
-To update it, see openad/docs/generate-docs.py
+To update it, see openad/docs/generate_docs.py
 
 -->
 
