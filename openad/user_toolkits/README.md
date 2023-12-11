@@ -14,10 +14,24 @@ If you wish to publish your toolkit, a few more files are required:
 1. `description.txt` (optional) Used to train a large language model (LLM)
 1. `oneline_desc.txt` (optional) This file is required if you wish to publish your toolkit.
 
+1. Foo
+    <details markdown="block">
+    <summary markdown="block">`description.txt`</summary>
+    Foo bar
+    </details>
+
+1. Foo
 <details markdown="block">
 <summary markdown="block">`description.txt`</summary>
 Foo bar
 </details>
+
+1. Foo
+    
+    <details markdown="block">
+    <summary markdown="block">`description.txt`</summary>
+    Foo bar
+    </details>
 
 ### metadata.json
 
