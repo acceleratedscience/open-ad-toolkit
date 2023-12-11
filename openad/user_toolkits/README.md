@@ -8,14 +8,7 @@ The toolkit architecture depends on a few basic files to work. You can copy the 
 
 
 1. [`metadata.json`](#metadatajson) This file controls the splash screen when the toolkit is launched.
-    <details>
-    <summary markdown="block">`description.txt`</summary>
-    <div markdown="block">
-    Foo bar
-    </div>
-    </details>
-    
-2. [`login.py`](#loginpy) (optional) If your toolkit requires authentication, it can be exposed here.
+1. [`login.py`](#loginpy) (optional) If your toolkit requires authentication, it can be exposed here.
 
 If you wish to publish your toolkit, a few more files are required:
 1. [`description.txt`](descriptiontxt) (optional) Used to train a large language model (LLM)
@@ -24,6 +17,10 @@ If you wish to publish your toolkit, a few more files are required:
 <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
 
 ### metadata.json
+
+<details>
+<summary markdown="block"></summary>
+<div markdown="block">
 
 This file is responsible for generating the splash screen. This is displayed when the user enters the toolkit context by running `set context demo`.
 
@@ -42,6 +39,9 @@ This file is responsible for generating the splash screen. This is displayed whe
 The splash screen generated from the JSON file above looks like this:
 
 ![demo-splash-page](readme/demo-splash.png)
+
+</div>
+</details>
 
 <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
 
