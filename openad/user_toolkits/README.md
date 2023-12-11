@@ -14,13 +14,7 @@ If you wish to publish your toolkit, a few more files are required:
 1. [`description.txt`](descriptiontxt) (optional) Used to train a large language model (LLM)
 1. [`oneline_desc.txt`](oneline_desctxt) (optional) This file is required if you wish to publish your toolkit.
 
-<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
-
 ### metadata.json
-
-<details>
-<summary markdown="block"></summary>
-<div markdown="block">
 
 This file is responsible for generating the splash screen. This is displayed when the user enters the toolkit context by running `set context demo`.
 
@@ -40,12 +34,13 @@ The splash screen generated from the JSON file above looks like this:
 
 ![demo-splash-page](readme/demo-splash.png)
 
-</div>
-</details>
-
-<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
 
 ### login.py
+
+Here you can expose your authentication API. If this file is present, is will be called whenever the user enters the toolkit context by running `set context <toolit_name>`. If this file is not present, authentication will be skipped. (@Phil correct?)
+
+The [`login.py`](./DEMO/login.py) template takes care of success and error handling and ensures a unified user experience across all tookits. Instructions are in the file. You may have to customize it a bit more if your authentication API doesn't follow jwt / host / email conventions. (@Phil what about other variables like username instead of email?)
+
 
 ## LLM Training
 
@@ -58,3 +53,10 @@ All the toolkit commands are listed in the description file, but they are auto-g
     The following commands are available for this toolkit:
 
 The `generate-docs.py` script will look for this line and replace everything after with the updated commands. If this exact line is not present, the script will abort and throw an error.
+
+
+<details>
+<summary markdown="block"></summary>
+<div markdown="block">
+</div>
+</details>

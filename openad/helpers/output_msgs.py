@@ -205,15 +205,15 @@ messages = {
     ##########################################################################
     # region - LOGIN
     # Success
+    "success_login_init": "Login registry initialized",
     "success_login": lambda toolkit_name, expiry_datetime: (
         f"You successfully logged in to <yellow>{toolkit_name}</yellow>",
         f"Your access token does not have an expiration date"
         if expiry_datetime == "No Expiry"
         else f"Your access token expires on {expiry_datetime}",
     ),
-    "success_login_init": "Login registry initialized",
-    "error_login_init": lambda err: ("Something went wrong while initializing the registry", err),
     # Error
+    "error_login_init": lambda err: ("Something went wrong while initializing the registry", err),
     "err_login": lambda toolkit_name, err="": (
         f"Something went wrong logging you in to {toolkit_name}.\n<reset>Please check your credentials and run <cmd>set context {toolkit_name} reset </cmd></reset>",
         err,

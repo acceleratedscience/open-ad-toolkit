@@ -325,6 +325,13 @@ def set_context(cmd_pointer, parser):
     toolkit_name = parser["toolkit_name"].upper()
     toolkit_current = None
 
+    # Handle login error.
+    def _handle_login_error(err):
+        output_error(msg("err_login", toolkit_name, err, split=True), cmd_pointer=cmd_pointer, return_val=False)
+        cmd_pointer.settings["context"] = old_cmd_pointer_context
+        cmd_pointer.toolkit_current = old_toolkit_current
+        unset_context(cmd_pointer, None)
+
     if toolkit_name.upper() not in cmd_pointer.settings["toolkits"]:
         # if toolkit_name is None: # Trash, without toolkit_name the command is invalidated
         #     return get_context(cmd_pointer, parser)
@@ -351,20 +358,15 @@ def set_context(cmd_pointer, parser):
                 # raise BaseException('Error message') # For testing
                 login_success, expiry_datetime = login_manager.load_login_api(cmd_pointer, toolkit_name, reset=reset)
 
-            except (
-                Exception  # pylint: disable=broad-exception-caught
-            ) as err:  # do not care what exception is, just returning failure
-                # Error logging in.
-                output_error(msg("err_login", toolkit_name, err, split=True), cmd_pointer=cmd_pointer, return_val=False)
-                cmd_pointer.settings["context"] = old_cmd_pointer_context
-                cmd_pointer.toolkit_current = old_toolkit_current
+            except Exception as err:  # pylint: disable=broad-exception-caught
+                # Error loading login API.
+                _handle_login_error(err)
                 return False
 
             if not login_success:
-                # Failed to log in. # error reporting handled by Toolkit
-                cmd_pointer.settings["context"] = old_cmd_pointer_context
-                cmd_pointer.toolkit_current = old_toolkit_current
-                unset_context(cmd_pointer, None)
+                # Failed to log in.
+                err = expiry_datetime  # On fail, error is passed as second parameter instead of expiry.
+                _handle_login_error(err)
                 return False
 
             # Success switching context & loggin in.
