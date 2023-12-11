@@ -10,6 +10,8 @@ The toolkit architecture depends on a few basic files to work. You can copy the 
 1. [`metadata.json`](#metadatajson)
 2. [`login.py`](#loginpy) (optional)
 
+<br>
+
 ### metadata.json
 
 This mandatory file is responsible for generating the toolkit's splash screen. This is displayed when the user enters the toolkit context by running `set context <toolkit_name>`.
@@ -30,6 +32,7 @@ The splash screen generated from the JSON file above looks like this:
 
 ![demo-splash-page](readme/demo-splash.png)
 
+<br>
 
 ### login.py
 
