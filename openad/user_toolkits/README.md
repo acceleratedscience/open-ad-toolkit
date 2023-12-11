@@ -7,8 +7,8 @@ Integrating your own workflows into OpenAD is relatively straightforward. If you
   - [metadata.json](#metadatajson)
   - [login.py](#loginpy)
 - [Publishing a Toolkit](#publishing-a-toolkit)
-- [description.txt](#descriptiontxt)
-- [oneline\_desc.txt](#oneline_desctxt)
+  - [description.txt](#descriptiontxt)
+  - [oneline\_desc.txt](#oneline_desctxt)
 
 
 ## Setup
@@ -59,7 +59,7 @@ If you wish to publish your toolkit to the OpenAD comminity, a few more files ar
 
 <br>
 
-## description.txt
+### description.txt
 
 The `description.txt` file is used to train the LLM with the toolkit functionality. It should contain a detailed description of how your toolkit works and what it is meant to achieve, written in an unambiguous way. You can look at the other toolkits for inspiration.
 
@@ -73,6 +73,6 @@ Then you should run a script that gathers all your toolkit commands and lists th
 
 <br>
 
-## oneline_desc.txt
+### oneline_desc.txt
 
 This file contains a very brief description of the toolkit, using only 4-5 words. This wil be displayed when listing available toolkits.
