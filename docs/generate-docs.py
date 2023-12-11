@@ -3,10 +3,12 @@
 
 """
 This script generates the commands.md and installation.md files
-for the just-the-docs documentation.
+for the just-the-docs documentation, and updates the description.txt
+per toolkit, used to train the LLM.
 
 - commands.md --> Generated from the command help
 - installation.md --> Adapted from the main README.md
+- description.txt --> Updated commands
 
 To generate:
 
@@ -16,8 +18,9 @@ Output:
     
     docs/markdown/commands.md
     docs/markdown/installation.md
+    openad/user_toolkits/<toolkit_name>/description.txt
 
-After being regenerated, copy the files over to the documentation repo.
+After being regenerated, copy the markdown files over to the documentation repo.
 """
 
 import os
@@ -324,4 +327,3 @@ if __name__ == "__main__":
     render_commands_md("commands.md")
     render_installation_md("installation.md")
     render_description_txt("description.txt")
-    # pass
