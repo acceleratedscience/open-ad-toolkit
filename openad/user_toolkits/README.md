@@ -15,7 +15,7 @@ The toolkit architecture depends on a few basic files to work. You can copy the 
     </div>
     </details>
     
-2. `login.py` (optional) If your toolkit requires authentication, it can be exposed here.
+2. [`login.py`](#login-py) (optional) If your toolkit requires authentication, it can be exposed here.
 
 If you wish to publish your toolkit, a few more files are required:
 1. `description.txt` (optional) Used to train a large language model (LLM)
@@ -44,6 +44,8 @@ The splash screen generated from the JSON file above looks like this:
 
 ![demo-splash-page](readme/demo-splash.png)
 
+
+### login.py
 
 ## LLM Training
 
