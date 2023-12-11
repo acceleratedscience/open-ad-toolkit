@@ -8,11 +8,11 @@ The toolkit architecture depends on a few basic files to work. You can copy the 
 
 
 1. `metadata.json` This file controls the splash screen when the toolkit is launched.
-2. `login.py` (optional) If your toolkit requires authentication, it can be exposed here.
+1. `login.py` (optional) If your toolkit requires authentication, it can be exposed here.
 
 If you wish to publish your toolkit, a few more files are required:
-3. `description.txt` (optional) Used to train a large language model (LLM)
-4. `oneline_desc.txt` (optional) This file is required if you wish to publish your toolkit.
+1. `description.txt` (optional) Used to train a large language model (LLM)
+1. `oneline_desc.txt` (optional) This file is required if you wish to publish your toolkit.
 
 ### metadata.json
 
