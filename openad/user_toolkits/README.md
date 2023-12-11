@@ -6,10 +6,12 @@ Integrating your own workflows into OpenAD is relatively straightforward. If you
 - [Setup](#setup)
   - [metadata.json](#metadatajson)
   - [login.py](#loginpy)
+- [Adding functions](#adding-functions)
 - [Publishing a Toolkit](#publishing-a-toolkit)
   - [description.txt](#descriptiontxt)
   - [oneline\_desc.txt](#oneline_desctxt)
 
+<br><br>
 
 ## Setup
 
@@ -49,7 +51,13 @@ Here you can expose your authentication API. If this file is present, is will be
 
 The [`login.py`](./DEMO/login.py) template takes care of success and error handling and ensures a unified user experience across all tookits. Instructions are in the file. You may have to customize it a bit more if your authentication API doesn't follow jwt/host/email/api_key conventions. (@Phil what about other variables like username instead of email?)
 
-<br>
+<br><br>
+
+## Adding functions
+
+Lorem
+
+<br><br>
 
 ## Publishing a Toolkit
 
