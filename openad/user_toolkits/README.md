@@ -90,6 +90,7 @@ Then you should run the script below, which gathers all your toolkit commands an
 
 This file contains a very brief description of the toolkit, using only 4-5 words. This wil be displayed when listing available toolkits.
 
+<br>
 
 ### Publishing your toolkit
 
