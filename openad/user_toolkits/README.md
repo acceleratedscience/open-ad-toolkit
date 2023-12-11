@@ -1,6 +1,6 @@
 # Creating Your Own Toolkit <!-- omit from toc -->
 
-Integrating your own workflows into OpenAD is relatively straightforward. If you would like to publish your toolkit for the entire OpenAD community, please [get in touch](https://acceleratedscience.github.io/openad-docs/about.html)
+Integrating your own workflows into OpenAD is relatively straightforward.
 
 ### Table of Contents <!-- omit from toc -->
 - [Setup](#setup)
@@ -10,6 +10,7 @@ Integrating your own workflows into OpenAD is relatively straightforward. If you
 - [Publishing a Toolkit](#publishing-a-toolkit)
   - [description.txt](#descriptiontxt)
   - [oneline\_desc.txt](#oneline_desctxt)
+  - [Publishing your toolkit](#publishing-your-toolkit)
 
 <br><br>
 
@@ -55,13 +56,15 @@ The [`login.py`](./DEMO/login.py) template takes care of success and error handl
 
 ## Adding functions
 
-Lorem
+Lorem ipsum
 
 <br><br>
 
 ## Publishing a Toolkit
 
-If you wish to publish your toolkit to the OpenAD comminity, a few more files are required.
+By publishing a toolkit to the OpenAD comminity, it will be made available for all OpenAD users to install. This means that it will be displayed in the list of toolkits when you run `list all toolkits`, and users will be able to install it simply by running `add toolkit <toolkit_name>`.
+
+If you wish to publish your toolkit, a few more files are required.
 1. [`description.txt`](descriptiontxt) Used to train a large language model (LLM).
 2. [`oneline_desc.txt`](oneline_desctxt) Used to describe your toolkit in the list of available toolkits.
 
@@ -75,12 +78,19 @@ At the bottom of your file, on a separate line, you should include the following
 
     The following commands are available for this toolkit:
 
-Then you should run a script that gathers all your toolkit commands and lists them at the bottom of the description file. The script will look for this line described above and replace everything after with the updated commands. If this exact line is not present, the script will abort and throw an error.
+Then you should run the script below, which gathers all your toolkit commands and lists them at the bottom of the description file. The script will look for the line described above and replace everything after with the updated commands. If this exact line is not present, the script will abort and throw an error.
 
     python openad/user_toolkits/<toolkit_name>/description_update.py
+
+@Phil how can do `from docs.generate_docs import render_description_txt`
 
 <br>
 
 ### oneline_desc.txt
 
 This file contains a very brief description of the toolkit, using only 4-5 words. This wil be displayed when listing available toolkits.
+
+
+### Publishing your toolkit
+
+Once your toolkit adheres to the aformentioned specifications, [get in touch](https://acceleratedscience.github.io/openad-docs/about.html) so we can review it and add it to the publicly available OpenAD tookits.
