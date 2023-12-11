@@ -1,9 +1,9 @@
-# Creating Your Own Toolkit
+# Creating Your Own Toolkit <!-- no toc -->
 
 Integrating your own workflows into OpenAD is relatively straightforward. If you would like to publish your toolkit for the entire OpenAD community, please [get in touch](https://acceleratedscience.github.io/openad-docs/about.html)
 
 ### Table of Contents <!-- no toc -->
-- [Creating Your Own Toolkit](#creating-your-own-toolkit)
+- [Creating Your Own Toolkit ](#creating-your-own-toolkit-)
     - [Table of Contents ](#table-of-contents-)
   - [Setup](#setup)
     - [metadata.json](#metadatajson)
