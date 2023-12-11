@@ -2,6 +2,17 @@
 
 Integrating your own workflows into OpenAD is relatively straightforward. If you would like to publish your toolkit for the entire OpenAD community, please [get in touch](https://acceleratedscience.github.io/openad-docs/about.html)
 
+### Table of Contents <!-- no toc -->
+- [Creating Your Own Toolkit](#creating-your-own-toolkit)
+    - [Table of Contents ](#table-of-contents-)
+  - [Setup](#setup)
+    - [metadata.json](#metadatajson)
+    - [login.py](#loginpy)
+  - [Publishing a Toolkit](#publishing-a-toolkit)
+  - [description.txt](#descriptiontxt)
+  - [oneline\_desc.txt](#oneline_desctxt)
+
+
 ## Setup
 
 The toolkit architecture depends on a few basic files to work. You can copy the [DEMO](./DEMO) toolkit directory to hit the ground running.
