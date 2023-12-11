@@ -7,7 +7,7 @@ Integrating your own workflows into OpenAD is relatively straightforward. If you
 The toolkit architecture depends on a few basic files to work. You can copy the [DEMO](./DEMO) toolkit directory to hit the ground running.
 
 
-1. [`metadata.json`](#metadata.json) This file controls the splash screen when the toolkit is launched.
+1. [`metadata.json`](#metadatajson) This file controls the splash screen when the toolkit is launched.
     <details>
     <summary markdown="block">`description.txt`</summary>
     <div markdown="block">
@@ -15,14 +15,13 @@ The toolkit architecture depends on a few basic files to work. You can copy the 
     </div>
     </details>
     
-2. [`login.py`](#login-py) (optional) If your toolkit requires authentication, it can be exposed here.
+2. [`login.py`](#loginpy) (optional) If your toolkit requires authentication, it can be exposed here.
 
 If you wish to publish your toolkit, a few more files are required:
-1. `description.txt` (optional) Used to train a large language model (LLM)
-1. `oneline_desc.txt` (optional) This file is required if you wish to publish your toolkit.
+1. [`description.txt`](descriptiontxt) (optional) Used to train a large language model (LLM)
+1. [`oneline_desc.txt`](oneline_desctxt) (optional) This file is required if you wish to publish your toolkit.
 
 <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
-    
 
 ### metadata.json
 
@@ -44,6 +43,7 @@ The splash screen generated from the JSON file above looks like this:
 
 ![demo-splash-page](readme/demo-splash.png)
 
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
 
 ### login.py
 
