@@ -14,6 +14,11 @@ If you wish to publish your toolkit, a few more files are required:
 1. `description.txt` (optional) Used to train a large language model (LLM)
 1. `oneline_desc.txt` (optional) This file is required if you wish to publish your toolkit.
 
+<details markdown="block">
+<summary markdown="block">`description.txt`</summary>
+Foo bar
+</details>
+
 ### metadata.json
 
 This file is responsible for generating the splash screen. This is displayed when the user enters the toolkit context by running `set context demo`.
