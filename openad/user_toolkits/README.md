@@ -7,7 +7,7 @@ Integrating your own workflows into OpenAD is relatively straightforward. If you
 The toolkit architecture depends on a few basic files to work. You can copy the [DEMO](./DEMO) toolkit directory to hit the ground running.
 
 
-1. `metadata.json` This file controls the splash screen when the toolkit is launched.
+1. [`metadata.json`](#metadata.json) This file controls the splash screen when the toolkit is launched.
     <details>
     <summary markdown="block">`description.txt`</summary>
     <div markdown="block">
