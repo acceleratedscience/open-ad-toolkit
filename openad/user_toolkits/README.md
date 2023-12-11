@@ -65,8 +65,8 @@ Lorem ipsum
 By publishing a toolkit to the OpenAD comminity, it will be made available for all OpenAD users to install. This means that it will be displayed in the list of toolkits when you run `list all toolkits`, and users will be able to install it simply by running `add toolkit <toolkit_name>`.
 
 If you wish to publish your toolkit, a few more files are required.
-1. [`description.txt`](descriptiontxt) Used to train a large language model (LLM).
-2. [`oneline_desc.txt`](oneline_desctxt) Used to describe your toolkit in the list of available toolkits.
+1. [`description.txt`](descriptiontxt)
+2. [`oneline_desc.txt`](oneline_desctxt)
 
 <br>
 
