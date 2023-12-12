@@ -77,7 +77,7 @@ Each command is contained within a single JSON file. The structure looks as foll
         "SAVE_AS": {}
     }
 
--   `fplugin`
+-   `fplugin`<br>
     The name of your toolkit, the same as your tookit directory (case insensitive).
 -   `command`
     TBD
