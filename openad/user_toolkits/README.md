@@ -120,19 +120,15 @@ These are common built-in command patterns that represent certain behaviors. Tog
     Whenever relevant, this (always optional) clause should cause the output of your command function to be saved to disk instead of being displayed.
     
     JSON notation: `"SAVE_AS": {}`
-
     Function access: `if "save_as" in inputs:`
-
     Command notation: `hello world [ save as '<filename.txt>' ]`
 
 -   `ESTIMATE_ONLY`<br>
     This (always optional) clause is meant for functions that may take a long time to return results, and should cause yoru function to return an estimate of result count rather than the actual results.
 
-    JSON notation: `"ESTIMATE_ONLY": {}`
-
-    Function access: `if "estimate_only" in inputs:`
-
-    Command notation: `hello world [ estimate only ]`
+    - JSON notation: `"ESTIMATE_ONLY": {}`
+    - Function access: `if "estimate_only" in inputs:`
+    - Command notation: `hello world [ estimate only ]`
 -   `RETURN_AS_DATA`<br>
     Foo
 
