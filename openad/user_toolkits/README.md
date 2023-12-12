@@ -144,13 +144,13 @@ These are common built-in command patterns that represent certain behaviors. Tog
 -   `SHOW`<br>
     This (always optional) clause is meant for fuctions that may return different types or formats of data, and should be used to specify what kind of data to return.
 
-    -   **JSON notation:** `"SHOW": ["foo", "bar"],`
+    -   **JSON notation:** `"SHOW": ["foo", "bar"]`
     -   **Function access:**
-        
-            if "show_data" in inputs:
-                for option in inputs["show_data"]:
-                    if option == "foo":
-                
+        ```
+        if "show_data" in inputs:
+            for option in inputs["show_data"]:
+                if option == "foo":
+        ```     
     -   **Command notation:** `hello world show(foo | bar)`
 -   `AAA`<br>
     Foo
