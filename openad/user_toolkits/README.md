@@ -8,7 +8,7 @@ Integrating your own workflows into OpenAD is relatively straightforward.
   - [login.py](#loginpy)
 - [Adding functions](#adding-functions)
   - [Command clauses](#command-clauses)
-  - [Command Documentation](#command-documentation)
+  - [Command Notation](#command-notation)
 - [Publishing a Toolkit](#publishing-a-toolkit)
   - [description.txt](#descriptiontxt)
   - [oneline\_desc.txt](#oneline_desctxt)
@@ -50,9 +50,10 @@ The splash screen generated from the JSON file above looks like this:
 
 ### login.py
 
-Here you can expose your authentication API. If this file is present, is will be called whenever the user enters the toolkit context by running `set context <toolit_name>`. If this file is not present, authentication will be skipped. (@Phil correct?)
+Here you can expose your authentication API. If this file is present, is will be called whenever the user enters the toolkit context by running `set context <toolit_name>`. If this file is not present, authentication will be skipped.
+<!-- Todo: remove need for login file -->
 
-The [`login.py`](./DEMO/login.py) template takes care of success and error handling and ensures a unified user experience across all tookits. Instructions are in the file. You may have to customize it a bit more if your authentication API doesn't follow jwt/host/email/api_key conventions. (@Phil what about other variables like username instead of email?)
+The [`login.py`](./DEMO/login.py) template takes care of success and error handling and ensures a unified user experience across all tookits. Instructions are in the file. You may have to customize it a bit more if your authentication API doesn't follow jwt/host/email/api_key conventions.
 
 <br><br>
 
@@ -107,7 +108,7 @@ Our `func_hello_world.json` file structure would look as follows:
     -   `url`<br>
         TBD - A link to online documentation for this command.
 -   `library`<br>
-    TBD
+    The base name (no extension) of the Python file in the same directory as the JSON file, that contains the actual command function.
 -   `method`<br>
     TBD
 
@@ -115,7 +116,7 @@ Our `func_hello_world.json` file structure would look as follows:
 
 ### Command clauses
 
-These are common built-in command patterns that represent certain behaviors. Together with the `command` (@ph) parameter of your JSON file, they define the structure of your command.
+These are common built-in command patterns that represent certain behaviors. Together with the `command` <!-- @Phil -->parameter of your JSON file, they define the structure of your command.
 -   `SAVE_AS`<br>
     This (always optional) clause is meant for functions that output data, and should cause the output of your command function to be saved to disk instead of being displayed.
     
@@ -130,7 +131,7 @@ These are common built-in command patterns that represent certain behaviors. Tog
     -   **Function access:** `if "estimate_only" in inputs:`
     -   **Command notation:** `hello world [ estimate only ]`
 -   `RETURN_AS_DATA`<br>
-    This (always optional) clause is meant for fuctions that return styled data, and should remove any styling from your data so it can be consumed by endpoints where the styling is not welcome.
+    This (always optional) clause is meant for functions that return styled data, and should remove any styling from your data so it can be consumed by endpoints where the styling is not welcome.
 
     -   **JSON notation:** `"RETURN_AS_DATA": {}`
     -   **Function access:** `if "return_as_data" in inputs:`
@@ -142,7 +143,7 @@ These are common built-in command patterns that represent certain behaviors. Tog
     -   **Function access:** `if "return_as_data" in inputs:`
     -   **Command notation:** `hello world [ return as data ]`
 -   `SHOW`<br>
-    This (always optional) clause is meant for fuctions that may return different types or formats of data, and should be used to specify what kind of data to return.
+    This (always optional) clause is meant for functions that may return different types or formats of data, and should be used to specify what kind of data to return.
 
     -   **JSON notation:** `"SHOW": ["foo", "bar"]`
     -   **Function access:**
@@ -160,15 +161,47 @@ These are common built-in command patterns that represent certain behaviors. Tog
         "USING": {
             "id": "str",
             "page_size": "int",
-            "foo_bar": "desc" @ph
+            "foo_bar": "desc"
         }
         ```
+        <!-- @Phil desc? -->
     -   **Function access:**
         ```
         if "page_size" in inputs:
             page_size = inputs["page_size"][val]
         ```
     -   **Command notation:** `hello world using (id='<str>' page_size=<int> foo_bar=?)`
+-   `FROM`<br><!-- @Phil needs to be made uppercase -->
+     This clause is meant for functions that allow for different input types, where it indicates the provided input type. Only "dataframe", "file" and "list" are supported as input types.
+
+    -   **JSON notation:** `"FROM": ["dataframe", "file", "list"]`
+    -   **Function access:**
+        ```
+        if isinstance(inputs["from_source"], dict) and inputs["from_source"]["from_list"] is not None:
+            from_list = inputs["from_source"]["from_list"]
+        elif "from_list" in inputs["from_source"][0]:
+            from_list = inputs["from_source"][0]["from_list"]
+        elif "from_dataframe" in inputs:
+            dataframe = inputs["from_dataframe"]
+        elif "from_file" in inputs:
+            from_file = inputs["from_file"]
+        ```
+        <!-- @Phil why not "from_list" in inputs? -->
+    -   **Command notation:** `hello world from dataframe <dataframe_name> | file '<csv_filename>' | list ['<string>','<string>']`
+-   `USE_SAVED`<br><!-- @Phil needs to be made uppercase -->
+    This clause is meant for functions that use cacheing, where it indicated that a cashed result can be used instead of re-running the function.
+
+    -   **JSON notation:** `"USE_SAVED": "True"` <!-- @Phil why not {}? func_predict_retro has "use_saved": "False" -->
+    -   **Function access:** `if "use_saved" in inputs:`
+    -   **Command notation:** `hello world [ use_saved ]`
+-   `ASYNC`<br><!-- @Phil needs to be made uppercase -->
+    TBD
+
+    -   **JSON notation:** `"ASYNC": "both"` `"ASYNC": "only"`
+    -   **Function access:** `TBD (do_async/async)`
+    -   **Command notation:** `TBD`
+
+    
 
 <!--
 - "SAVE_AS": {}
@@ -210,7 +243,7 @@ x "USING": {
 
 <br>
 
-### Command Documentation
+### Command Notation
 
 -   Optional clauses should be encapsulated in square brackets padded with a space.
 
@@ -259,8 +292,6 @@ At the bottom of your file, on a separate line, you should include the following
 Then you should run the script below, which gathers all your toolkit commands and lists them at the bottom of the description file. The script will look for the line described above and replace everything after with the updated commands. If this exact line is not present, the script will abort and throw an error.
 
     python openad/user_toolkits/<toolkit_name>/description_update.py
-
-@Phil how can do `from docs.generate_docs import render_description_txt`
 
 <br>
 

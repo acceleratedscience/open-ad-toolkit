@@ -584,7 +584,7 @@ grammar_help.append(
     help_dict_create(
         name="show molecules",
         category="Utility",
-        command="show molecules using ( file '<mols_file>' | dataframe <dataframe> ) [ save as '<sdf_or_csv_filename>' | as molsobject ]",
+        command="show molecules using file '<mols_file>' | dataframe <dataframe> [ save as '<sdf_or_csv_filename>' | as molsobject ]",
         description=f"""Launch the molecule viewer { 'in your browser ' if is_notebook_mode() else '' }to examine and select molecules from a SMILES sdf/csv dataset.
 
 Examples:

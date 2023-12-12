@@ -11,7 +11,7 @@
 	"help": {
 		"name": "predict reaction in batch",
 		"category": "Prediction",
-		"command": "predict reaction in batch from dataframe <dataframe_name> | file '<csv_filename>' | list '<smiles>.<smiles>'  [ using (ai_model='<ai_model>') ] [ use_saved ]",
+		"command": "predict reaction in batch from dataframe <dataframe_name> | file '<csv_filename>' | list ['<smiles>.<smiles>','<smiles>.<smiles>'] [ using (ai_model='<ai_model>') ] [ use_saved ]",
 		"description": "",
 		"url": ""
 	},
