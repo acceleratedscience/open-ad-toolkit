@@ -72,7 +72,7 @@ If you wish to publish your toolkit, a few more files are required.
 
 ### description.txt
 
-The `description.txt` file is used to train the LLM with the toolkit functionality. It should contain a detailed description of how your toolkit works and what it is meant to achieve, written in an unambiguous way. You can look at the other toolkits for inspiration.
+The `description.txt` file is used to train the LLM with the toolkit functionality. It should contain a detailed, unambiguous description of how your toolkit works and what it is meant to achieve. You can look at the other toolkits for inspiration.
 
 At the bottom of your file, on a separate line, you should include the following line, verbatim:
 
