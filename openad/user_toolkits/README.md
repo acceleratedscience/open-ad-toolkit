@@ -94,15 +94,42 @@ Each command is contained within a single JSON file. The structure looks as foll
     -   `category`<br>
         The category under which this command is organized. If you don't have different categories for yout commands, you can set this to "General".
     -   `command`
-        The structure of the command as it will be displayed in the list of commands, or when a user requests help about this particular command. See (#command-documentation) below for guidance about notation.
+        The structure of the command as it will be displayed in the list of commands, or when a user requests help about this particular command. See [Command Documentation](#command-documentation) below for guidance about notation.
     -   `description`<br>
-        A description of what the command does. If your command requires a lot of explanation, it 
+        A description of what the command does. If your command description is going to be longer than one or two lines, we recommand to set this value to an empty string "" and store the description in a separate text file with the same base filename with "--decription.txt" appended. So if your function file were to be called "func_hello_world.json", your description file would be called "func_hello_world--description.txt".
+
+        > **Important:** Because the desciption text is parsed for different outputs (CLI, Jupyter, HTML, API) it needs to use a specific OpenAD styling syntax, the documentation for which you can find [here].
     -   `url`<br>
-        Foo
+        TBD - A link to online documentation for this command.
 -   `library`<br>
-    Foo
+    TBD
 -   `method`<br>
-    Foo
+    TBD
+-   Command clauses: TBD
+    -   `AAA`<br>
+        Foo
+    -   `AAA`<br>
+        Foo
+    -   `AAA`<br>
+        Foo
+    -   `AAA`<br>
+        Foo
+    -   `AAA`<br>
+        Foo
+    -   `AAA`<br>
+        Foo
+    -   `AAA`<br>
+        Foo
+    -   `AAA`<br>
+        Foo
+    -   `AAA`<br>
+        Foo
+    -   `AAA`<br>
+        Foo
+    -   `AAA`<br>
+        Foo
+    -   `AAA`<br>
+        Foo
 
 ### Command Documentation
 
