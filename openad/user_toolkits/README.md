@@ -119,39 +119,39 @@ These are common built-in command patterns that represent certain behaviors. Tog
 -   `SAVE_AS`<br>
     This (always optional) clause is meant for functions that output data, and should cause the output of your command function to be saved to disk instead of being displayed.
     
-    - **JSON notation:** `"SAVE_AS": {}`
-    - **Function access:** `if "save_as" in inputs:`
-    - **Command notation:** `hello world [ save as '<filename.txt>' ]`
+    -   **JSON notation:** `"SAVE_AS": {}`
+    -   **Function access:** `if "save_as" in inputs:`
+    -   **Command notation:** `hello world [ save as '<filename.txt>' ]`
 
 -   `ESTIMATE_ONLY`<br>
     This (always optional) clause is meant for functions that may take a long time to return results, and should cause your function to return an estimate of result count rather than the actual results.
 
-    - **JSON notation:** `"ESTIMATE_ONLY": {}`
-    - **Function access:** `if "estimate_only" in inputs:`
-    - **Command notation:** `hello world [ estimate only ]`
+    -   **JSON notation:** `"ESTIMATE_ONLY": {}`
+    -   **Function access:** `if "estimate_only" in inputs:`
+    -   **Command notation:** `hello world [ estimate only ]`
 -   `RETURN_AS_DATA`<br>
     This (always optional) clause is meant for fuctions that return styled data, and should remove any styling from your data so it can be consumed by endpoints where the styling is not welcome.
 
-    - **JSON notation:** `"RETURN_AS_DATA": {}`
-    - **Function access:** `if "return_as_data" in inputs:`
-    - **Command notation:** `hello world [ return as data ]`
+    -   **JSON notation:** `"RETURN_AS_DATA": {}`
+    -   **Function access:** `if "return_as_data" in inputs:`
+    -   **Command notation:** `hello world [ return as data ]`
 -   `SINGLE_PARM`<br>
     TBD
     
-    - **JSON notation:** `"SINGLE_PARM": { "smiles": "desc" }`
-    - **Function access:** `if "return_as_data" in inputs:`
-    - **Command notation:** `hello world [ return as data ]`
+    -   **JSON notation:** `"SINGLE_PARM": { "smiles": "desc" }`
+    -   **Function access:** `if "return_as_data" in inputs:`
+    -   **Command notation:** `hello world [ return as data ]`
 -   `SHOW`<br>
     This (always optional) clause is meant for fuctions that may return different types or formats of data, and should be used to specify what kind of data to return.
 
-    - **JSON notation:** `"SHOW": ["foo", "bar"],`
-    - **Function access:**
+    -   **JSON notation:** `"SHOW": ["foo", "bar"],`
+    -   **Function access:**
         
             if "show_data" in inputs:
                 for option in inputs["show_data"]:
                     if option == "foo":
                 
-    - **Command notation:** `hello world show(foo | bar)`
+    -   **Command notation:** `hello world show(foo | bar)`
 -   `AAA`<br>
     Foo
 -   `AAA`<br>
