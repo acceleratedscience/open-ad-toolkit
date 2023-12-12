@@ -7,6 +7,7 @@ Integrating your own workflows into OpenAD is relatively straightforward.
   - [metadata.json](#metadatajson)
   - [login.py](#loginpy)
 - [Adding functions](#adding-functions)
+  - [Command Documentation](#command-documentation)
 - [Publishing a Toolkit](#publishing-a-toolkit)
   - [description.txt](#descriptiontxt)
   - [oneline\_desc.txt](#oneline_desctxt)
@@ -56,7 +57,49 @@ The [`login.py`](./DEMO/login.py) template takes care of success and error handl
 
 ## Adding functions
 
-Lorem ipsum
+Each command is contained within a single JSON file. The structure looks as follows:
+
+    {
+        "fplugin": "demo",
+        "command": "hello world", 
+        "subject": "search collections",
+        "exec_type": "standard_statement",
+        "exec_cmd": "display all collections",
+        "help": {
+            "name": "display all collections",
+            "category": "Collections",
+            "command": "display all collections [ save as '<csv_filename>' ]",
+            "description": "",
+            "url": ""
+        },
+        "library": "ds4sd_display_collection_all",
+        "method": "display_all_collections",
+        "SAVE_AS": {}
+    }
+
+-   `fplugin`
+    The name of your toolkit, the same as your tookit directory (case insensitive).
+-   `command`
+    TBD
+-   `subject`
+    TBD
+-   `exec_type`
+    TBD standard_statement or method
+-   `exec_cmd`
+    TBD
+-   `help`
+    Contains all we need to plug into the OpenAD help functionality
+    -   `name`
+        TBD
+    -   `category` The category under which this command is organized. If you don't have different categories of commands, you can set this to "General".
+    -   `command` The structure of the command as it will be displayed in the list of commands, or when a user requests help about this particular command. See [#command-documentation] below for guidance about notation.
+    -   `description` A description of what the command does. If your command requires a lot of explanation, it 
+    -   `url`
+-   `library`
+-   `method`
+
+### Command Documentation
+
 
 <br><br>
 
