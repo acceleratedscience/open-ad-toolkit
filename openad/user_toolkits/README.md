@@ -117,30 +117,36 @@ Our `func_hello_world.json` file structure would look as follows:
 
 These are common built-in command patterns that represent certain behaviors. Together with the `command` (@ph) parameter of your JSON file, they define the structure of your command.
 -   `SAVE_AS`<br>
-    Whenever relevant, this (always optional) clause should cause the output of your command function to be saved to disk instead of being displayed.
+    This (always optional) clause is meant for functions that output data, and should cause the output of your command function to be saved to disk instead of being displayed.
     
-    - **JSON notation:** `"SAVE_AS": {}`<br>
-    - **Function access:** `if "save_as" in inputs:`<br>
-    - **Command notation:** `hello world [ save as '<filename.txt>' ]`<br>
+    - **JSON notation:** `"SAVE_AS": {}`
+    - **Function access:** `if "save_as" in inputs:`
+    - **Command notation:** `hello world [ save as '<filename.txt>' ]`
 
 -   `ESTIMATE_ONLY`<br>
-    This (always optional) clause is meant for functions that may take a long time to return results, and should cause yoru function to return an estimate of result count rather than the actual results.
+    This (always optional) clause is meant for functions that may take a long time to return results, and should cause your function to return an estimate of result count rather than the actual results.
 
     - **JSON notation:** `"ESTIMATE_ONLY": {}`
     - **Function access:** `if "estimate_only" in inputs:`
     - **Command notation:** `hello world [ estimate only ]`
 -   `RETURN_AS_DATA`<br>
-    Foo
+    This (always optional) clause is meant for fuctions that return styled data, and should remove any styling from your data so it can be consumed by endpoints where the styling is not welcome.
 
-    **JSON notation:** `"RETURN_AS_DATA": {}`<br>
-    **Function access:** `if "return_as_data" in inputs:`<br>
-    **Command notation:** `hello world [ return as data ]`<br>
+    - **JSON notation:** `"RETURN_AS_DATA": {}`
+    - **Function access:** `if "return_as_data" in inputs:`
+    - **Command notation:** `hello world [ return as data ]`
 -   `SINGLE_PARM`<br>
-    Foo
+    TBD
     
-    JSON notation: `"SINGLE_PARM": { "smiles": "desc" }`
--   `AAA`<br>
-    Foo
+    - **JSON notation:** `"SINGLE_PARM": { "smiles": "desc" }`
+    - **Function access:** `if "return_as_data" in inputs:`
+    - **Command notation:** `hello world [ return as data ]`
+-   `SHOW`<br>
+    This (always optional) clause is meant for fuctions that may return different types or formats of data, and should be used to specify what kind of data to return.
+
+    - **JSON notation:** `"SHOW": ["foo", "bar"],`
+    - **Function access:** `if "show_data" in inputs:` -> `for option in inputs["show_data"]:` -> `if option == "foo":`
+    - **Command notation:** `hello world show(foo | bar)`
 -   `AAA`<br>
     Foo
 -   `AAA`<br>
@@ -158,9 +164,9 @@ These are common built-in command patterns that represent certain behaviors. Tog
 
 <!--
 - "SAVE_AS": {}
-"SINGLE_PARM": { "collection": "desc" }
-"SINGLE_PARM": { "search_string": "desc" },
-"SINGLE_PARM": { "domain": "desc" }
+- "SINGLE_PARM": { "collection": "desc" }
+- "SINGLE_PARM": { "search_string": "desc" },
+- "SINGLE_PARM": { "domain": "desc" }
 "USING": {
     "page_size": "int",
     "system_id": "str",
@@ -168,17 +174,17 @@ These are common built-in command patterns that represent certain behaviors. Tog
     "display_first": "int"
 },
 "SHOW": ["DATA", "DOCS"],
-"ESTIMATE_ONLY": {},
-"SAVE_AS": {},
-"RETURN_AS_DATA": {}
-"SINGLE_PARM": { "smiles": "desc" },
-"OLD_USING": { "prediction_id": "desc", "ai_model": "desc", "topn": "int" },
+- "ESTIMATE_ONLY": {},
+- "SAVE_AS": {},
+- "RETURN_AS_DATA": {}
+- "SINGLE_PARM": { "smiles": "desc" },
+x "OLD_USING": { "prediction_id": "desc", "ai_model": "desc", "topn": "int" },
 "USING": { "ai_model": "desc", "topn": "int" },
-"USING_old": { "prediction_id": "desc", "ai_model": "desc" },
-"USING": { "prediction_id": "desc", "ai_model": "desc" },
-"SINGLE_PARM": { "molecule": "desc" },
-"USING": { "prediction_id": "desc", "ai_model": "desc" },
-"SINGLE_PARM": { "molecule": "desc" },
+x "USING_old": { "prediction_id": "desc", "ai_model": "desc" },
+x "USING": { "prediction_id": "desc", "ai_model": "desc" },
+- "SINGLE_PARM": { "molecule": "desc" },
+x "USING": { "prediction_id": "desc", "ai_model": "desc" },
+- "SINGLE_PARM": { "molecule": "desc" },
 "USING": {
     "availability_pricing_threshold": "int",
     "available_smiles": "desc",
@@ -191,7 +197,7 @@ These are common built-in command patterns that represent certain behaviors. Tog
     "pruning_steps": "int",
     "ai_model": "desc"
 },
-"SINGLE_PARM": { "recipe": "desc" },
+- "SINGLE_PARM": { "recipe": "desc" },
 -->
 
 <br>
