@@ -57,24 +57,26 @@ The [`login.py`](./DEMO/login.py) template takes care of success and error handl
 
 ## Adding functions
 
-Each command is contained within a single JSON file. The structure looks as follows:
+Each command is contained within a single JSON file that follows the structure "func_<funcname>.json". "func_hello_world.json".
+
+The structure looks as follows:
 
     {
         "fplugin": "demo",
         "command": "hello world", 
-        "subject": "search collections",
+        "subject": "hello world",
         "exec_type": "standard_statement",
-        "exec_cmd": "display all collections",
+        "exec_cmd": "hello world",
         "help": {
-            "name": "display all collections",
-            "category": "Collections",
-            "command": "display all collections [ save as '<csv_filename>' ]",
-            "description": "",
-            "url": ""
+            "name": "hello world",
+            "category": "General",
+            "command": "hello world",
+            "description": "Display \"Hello, world\"",
+            "url": "https://helloworld.app/docs#hello-world"
         },
-        "library": "ds4sd_display_collection_all",
-        "method": "display_all_collections",
-        "SAVE_AS": {}
+        "library": "hello_world",
+        "method": "print_hello_world",
+        (Command clauses)
     }
 
 -   `fplugin`<br>
