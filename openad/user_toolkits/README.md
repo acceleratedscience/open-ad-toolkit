@@ -57,9 +57,11 @@ The [`login.py`](./DEMO/login.py) template takes care of success and error handl
 
 ## Adding functions
 
-Each command is contained within a single JSON file that follows the structure "func_\<funcname\>.json". "func_hello_world.json".
+Each command is contained within a single JSON file whose name follows the structure "func_\<funcname\>.json". A hello world function file would thus be called "func_hello_world.json".
 
-The structure looks as follows:
+You can store your function files flat, or organize them into a directory structure as desired. We will scan your entire toolkit directory tree for function files and parse them all.
+
+Our "func_hello_world.json" file structure would look as follows:
 
     {
         "fplugin": "demo",
