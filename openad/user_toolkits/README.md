@@ -79,24 +79,30 @@ Each command is contained within a single JSON file. The structure looks as foll
 
 -   `fplugin`<br>
     The name of your toolkit, the same as your tookit directory (case insensitive).
--   `command`
+-   `command`<br>
     TBD
--   `subject`
+-   `subject`<br>
     TBD
--   `exec_type`
-    TBD standard_statement or method
--   `exec_cmd`
+-   `exec_type`<br>
+    TBD "standard_statement" or "method"
+-   `exec_cmd`<br>
     TBD
--   `help`
-    Contains all we need to plug into the OpenAD help functionality
-    -   `name`
+-   `help`<br>
+    Contains all we need to plug into the OpenAD help functionality.
+    -   `name`<br>
         TBD
-    -   `category` The category under which this command is organized. If you don't have different categories of commands, you can set this to "General".
-    -   `command` The structure of the command as it will be displayed in the list of commands, or when a user requests help about this particular command. See [#command-documentation] below for guidance about notation.
-    -   `description` A description of what the command does. If your command requires a lot of explanation, it 
-    -   `url`
--   `library`
--   `method`
+    -   `category`<br>
+        The category under which this command is organized. If you don't have different categories for yout commands, you can set this to "General".
+    -   `command`
+        The structure of the command as it will be displayed in the list of commands, or when a user requests help about this particular command. See (#command-documentation) below for guidance about notation.
+    -   `description`<br>
+        A description of what the command does. If your command requires a lot of explanation, it 
+    -   `url`<br>
+        Foo
+-   `library`<br>
+    Foo
+-   `method`<br>
+    Foo
 
 ### Command Documentation
 
