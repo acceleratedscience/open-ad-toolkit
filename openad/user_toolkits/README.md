@@ -57,11 +57,11 @@ The [`login.py`](./DEMO/login.py) template takes care of success and error handl
 
 ## Adding functions
 
-Each command is contained within a single JSON file whose name follows the structure "func_\<funcname\>.json". A hello world function file would thus be called "func_hello_world.json".
+Each command is contained within a single JSON file whose name follows the structure `func_\<funcname\>.json`. A hello world function file would thus be called `func_hello_world.json`.
 
 You can store your function files flat, or organize them into a directory structure as desired. We will scan your entire toolkit directory tree for function files and parse them all.
 
-Our "func_hello_world.json" file structure would look as follows:
+Our `func_hello_world.json` file structure would look as follows:
 
     {
         "fplugin": "demo",
@@ -96,11 +96,11 @@ Our "func_hello_world.json" file structure would look as follows:
     -   `name`<br>
         TBD
     -   `category`<br>
-        The category under which this command is organized. If you don't have different categories for yout commands, you can set this to "General".
+        The category under which this command is organized. If you don't have different categories for your commands, you can set this to "General".
     -   `command`
         The structure of the command as it will be displayed in the list of commands, or when a user requests help about this particular command. See [Command Documentation](#command-documentation) below for guidance about notation.
     -   `description`<br>
-        A description of what the command does. If your command description is going to be longer than one or two lines, we recommand to set this value to an empty string "" and store the description in a separate text file with the same base filename with "--decription.txt" appended. So if your function file were to be called "func_hello_world.json", your description file would be called "func_hello_world--description.txt".
+        A description of what the command does. If your command description is going to be longer than one or two lines, we recommand to set this value to an empty string "" and store the description in a separate text file with the same base filename with "--decription.txt" appended. So if your function file were to be called `func_hello_world.json`, your description file would be called `func_hello_world--description.txt`.
 
         > **Important:** Because the desciption text is parsed for different outputs (CLI, Jupyter, HTML, API) it needs to use a specific OpenAD styling syntax, the documentation for which you can find [here].
     -   `url`<br>
@@ -135,7 +135,70 @@ Our "func_hello_world.json" file structure would look as follows:
     -   `AAA`<br>
         Foo
 
+<!--
+"SAVE_AS": {}
+"SINGLE_PARM": { "collection": "desc" }
+"SINGLE_PARM": { "search_string": "desc" },
+"SINGLE_PARM": { "domain": "desc" }
+"USING": {
+    "page_size": "int",
+    "system_id": "str",
+    "edit_distance": "int",
+    "display_first": "int"
+},
+"SHOW": ["DATA", "DOCS"],
+"ESTIMATE_ONLY": {},
+"SAVE_AS": {},
+"RETURN_AS_DATA": {}
+"SINGLE_PARM": { "smiles": "desc" },
+"OLD_USING": { "prediction_id": "desc", "ai_model": "desc", "topn": "int" },
+"USING": { "ai_model": "desc", "topn": "int" },
+"USING_old": { "prediction_id": "desc", "ai_model": "desc" },
+"USING": { "prediction_id": "desc", "ai_model": "desc" },
+"SINGLE_PARM": { "molecule": "desc" },
+"USING": { "prediction_id": "desc", "ai_model": "desc" },
+"SINGLE_PARM": { "molecule": "desc" },
+"USING": {
+    "availability_pricing_threshold": "int",
+    "available_smiles": "desc",
+    "exclude_smiles": "desc",
+    "exclude_substructures": "desc",
+    "exclude_target_molecule": "str",
+    "fap": "number",
+    "max_steps": "int",
+    "nbeams": "int",
+    "pruning_steps": "int",
+    "ai_model": "desc"
+},
+"SINGLE_PARM": { "recipe": "desc" },
+-->
+
+<br>
+
 ### Command Documentation
+
+-   Optional clauses should be encapsulated in square brackets padded with a space.
+
+        hello world [ repeat 2 ]
+    
+-   Variable names should be displayed with angle brackets and underscores instead of spaces. When a variable is to be quoted, make sure to include the quotation marks in the command.
+
+        hello [ <audience_name> ]
+        hello [ '<first_name>' ]
+
+-   When describing different options for a clause, list them separated by a pipe. For long commands, it may be unclear which word is part of the main command or the clause options. To avoid confusion, make sure to add examples to your command documentation that will resolve any confusion.
+
+        hello world pink | red | green
+
+-   When describing a filename, add the extension(s) in the variable name, as such:
+
+        hello world [ save as <filename.txt> ]
+        hello world [ save as <csv_or_sdf_filename> ]
+
+- When describing lists, make sure to notate them without spaces between the square brackets, to avoid confusion with optional clauses. Also make it clear what is supposed to go in the list. Use ellipsis to indicate whether the length of the list can be infinite.
+
+        hello [<audience>,<audience>,...]
+
 
 
 <br><br>
