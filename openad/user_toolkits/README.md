@@ -109,9 +109,14 @@ Our `func_hello_world.json` file structure would look as follows:
     TBD
 -   `method`<br>
     TBD
--   Command clauses: TBD
-    -   `AAA`<br>
-        Foo
+-   Command clauses: these are command patterns that are repeated across commands and have a certain behavior connected to them. Together with the `command` (@ph) clause they define the structure of your command.
+    -   `SAVE_AS`<br>
+        This will cause the output of your command to be saved to disk instead of being displayed.
+        
+        JSON notation: `"SAVE_AS": {}`
+
+            hello world save as 'helloworld.txt'
+
     -   `AAA`<br>
         Foo
     -   `AAA`<br>
@@ -197,7 +202,7 @@ Our `func_hello_world.json` file structure would look as follows:
 
 - When describing lists, make sure to notate them without spaces between the square brackets, to avoid confusion with optional clauses. Also make it clear what is supposed to go in the list. Use ellipsis to indicate whether the length of the list can be infinite.
 
-        hello [<audience>,<audience>,...]
+        hello ['<first_name>','<first_name>',...]
 
 
 
@@ -232,6 +237,8 @@ Then you should run the script below, which gathers all your toolkit commands an
 ### oneline_desc.txt
 
 This file contains a very brief description of the toolkit, using only 4-5 words. This wil be displayed when listing available toolkits.
+
+![toolkit-list](readme/toolkit-list.png)
 
 <br>
 
