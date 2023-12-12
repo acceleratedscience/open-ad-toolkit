@@ -57,7 +57,7 @@ The [`login.py`](./DEMO/login.py) template takes care of success and error handl
 
 ## Adding functions
 
-Each command is contained within a single JSON file that follows the structure "func_<funcname>.json". "func_hello_world.json".
+Each command is contained within a single JSON file that follows the structure "func_\<funcname\>.json". "func_hello_world.json".
 
 The structure looks as follows:
 
