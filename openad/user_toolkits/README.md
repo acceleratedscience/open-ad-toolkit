@@ -109,20 +109,25 @@ Our `func_hello_world.json` file structure would look as follows:
     TBD
 -   `method`<br>
     TBD
--   Command clauses: these are command patterns that are repeated across commands and have a certain behavior connected to them. Together with the `command` (@ph) clause they define the structure of your command.
+-   **Command clauses:**<br>
+    These are command patterns that are repeated across commands and have a certain behavior connected to them. Together with the `command` (@ph) parameter of your JSON file, they define the structure of your command.
     -   `SAVE_AS`<br>
-        This will cause the output of your command to be saved to disk instead of being displayed.
+        This (always optional) clause will cause the output of your command function to be saved to disk instead of being displayed.
         
         JSON notation: `"SAVE_AS": {}`
 
-            hello world save as 'helloworld.txt'
+        Function access: `if "save_as" in inputs:`
 
-    -   `AAA`<br>
+        Command notation: `hello world [ save as '<filename.txt>' ]`
+
+    -   `ESTIMATE_ONLY`<br>
+        This (always optional) clause is meant for functions that may take a long time to return results, and is meant cause the output of your command
+    -   `RETURN_AS_DATA`<br>
         Foo
-    -   `AAA`<br>
+    -   `SINGLE_PARM`<br>
         Foo
-    -   `AAA`<br>
-        Foo
+        
+        JSON notation: `"SINGLE_PARM": { "smiles": "desc" }`
     -   `AAA`<br>
         Foo
     -   `AAA`<br>
@@ -141,7 +146,7 @@ Our `func_hello_world.json` file structure would look as follows:
         Foo
 
 <!--
-"SAVE_AS": {}
+- "SAVE_AS": {}
 "SINGLE_PARM": { "collection": "desc" }
 "SINGLE_PARM": { "search_string": "desc" },
 "SINGLE_PARM": { "domain": "desc" }
