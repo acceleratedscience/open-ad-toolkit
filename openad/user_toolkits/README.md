@@ -151,21 +151,24 @@ These are common built-in command patterns that represent certain behaviors. Tog
             for option in inputs["show_data"]:
                 if option == "foo":
         ```     
-    -   **Command notation:** `hello world show(foo | bar)`
--   `AAA`<br>
-    Foo
--   `AAA`<br>
-    Foo
--   `AAA`<br>
-    Foo
--   `AAA`<br>
-    Foo
--   `AAA`<br>
-    Foo
--   `AAA`<br>
-    Foo
--   `AAA`<br>
-    Foo
+    -   **Command notation:** `hello world show (foo | bar)`
+-   `USING`<br>
+    This clause is meant to pass a number of custom, optional variables to your function.
+
+    -   **JSON notation:**
+        ```
+        "USING": {
+            "id": "str",
+            "page_size": "int",
+            "foo_bar": "desc" @ph
+        }
+        ```
+    -   **Function access:**
+        ```
+        if "page_size" in inputs:
+            page_size = inputs["page_size"][val]
+        ```
+    -   **Command notation:** `hello world using (id='<str>' page_size=<int> foo_bar=?)`
 
 <!--
 - "SAVE_AS": {}
@@ -178,19 +181,19 @@ These are common built-in command patterns that represent certain behaviors. Tog
     "edit_distance": "int",
     "display_first": "int"
 },
-"SHOW": ["DATA", "DOCS"],
+- "SHOW": ["DATA", "DOCS"],
 - "ESTIMATE_ONLY": {},
 - "SAVE_AS": {},
 - "RETURN_AS_DATA": {}
 - "SINGLE_PARM": { "smiles": "desc" },
 x "OLD_USING": { "prediction_id": "desc", "ai_model": "desc", "topn": "int" },
-"USING": { "ai_model": "desc", "topn": "int" },
+x "USING": { "ai_model": "desc", "topn": "int" },
 x "USING_old": { "prediction_id": "desc", "ai_model": "desc" },
 x "USING": { "prediction_id": "desc", "ai_model": "desc" },
 - "SINGLE_PARM": { "molecule": "desc" },
 x "USING": { "prediction_id": "desc", "ai_model": "desc" },
 - "SINGLE_PARM": { "molecule": "desc" },
-"USING": {
+x "USING": {
     "availability_pricing_threshold": "int",
     "available_smiles": "desc",
     "exclude_smiles": "desc",
