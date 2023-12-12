@@ -147,9 +147,9 @@ These are common built-in command patterns that represent certain behaviors. Tog
     - **JSON notation:** `"SHOW": ["foo", "bar"],`
     - **Function access:**
         
-        if "show_data" in inputs:
-            for option in inputs["show_data"]:
-                if option == "foo":
+            if "show_data" in inputs:
+                for option in inputs["show_data"]:
+                    if option == "foo":
                 
     - **Command notation:** `hello world show(foo | bar)`
 -   `AAA`<br>
