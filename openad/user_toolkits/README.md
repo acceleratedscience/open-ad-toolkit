@@ -7,6 +7,7 @@ Integrating your own workflows into OpenAD is relatively straightforward.
   - [metadata.json](#metadatajson)
   - [login.py](#loginpy)
 - [Adding functions](#adding-functions)
+  - [Command clauses](#command-clauses)
   - [Command Documentation](#command-documentation)
 - [Publishing a Toolkit](#publishing-a-toolkit)
   - [description.txt](#descriptiontxt)
@@ -109,53 +110,57 @@ Our `func_hello_world.json` file structure would look as follows:
     TBD
 -   `method`<br>
     TBD
--   **Command clauses:**<br>
-    These are common built-in command patterns that represent certain behaviors. Together with the `command` (@ph) parameter of your JSON file, they define the structure of your command.
-    -   `SAVE_AS`<br>
-        Whenever relevant, this (always optional) clause should cause the output of your command function to be saved to disk instead of being displayed.
-        
-        JSON notation: `"SAVE_AS": {}`
 
-        Function access: `if "save_as" in inputs:`
+<br>
 
-        Command notation: `hello world [ save as '<filename.txt>' ]`
+### Command clauses
 
-    -   `ESTIMATE_ONLY`<br>
-        This (always optional) clause is meant for functions that may take a long time to return results, and should cause yoru function to return an estimate of result count rather than the actual results.
+These are common built-in command patterns that represent certain behaviors. Together with the `command` (@ph) parameter of your JSON file, they define the structure of your command.
+-   `SAVE_AS`<br>
+    Whenever relevant, this (always optional) clause should cause the output of your command function to be saved to disk instead of being displayed.
+    
+    JSON notation: `"SAVE_AS": {}`
 
-        JSON notation: `"ESTIMATE_ONLY": {}`
+    Function access: `if "save_as" in inputs:`
 
-        Function access: `if "estimate_only" in inputs:`
+    Command notation: `hello world [ save as '<filename.txt>' ]`
 
-        Command notation: `hello world [ estimate only ]`
-    -   `RETURN_AS_DATA`<br>
-        Foo
+-   `ESTIMATE_ONLY`<br>
+    This (always optional) clause is meant for functions that may take a long time to return results, and should cause yoru function to return an estimate of result count rather than the actual results.
 
-        JSON notation: `"RETURN_AS_DATA": {}`
+    JSON notation: `"ESTIMATE_ONLY": {}`
 
-        Function access: `if "return_as_data" in inputs:`
+    Function access: `if "estimate_only" in inputs:`
 
-        Command notation: `hello world [ return as data ]`
-    -   `SINGLE_PARM`<br>
-        Foo
-        
-        JSON notation: `"SINGLE_PARM": { "smiles": "desc" }`
-    -   `AAA`<br>
-        Foo
-    -   `AAA`<br>
-        Foo
-    -   `AAA`<br>
-        Foo
-    -   `AAA`<br>
-        Foo
-    -   `AAA`<br>
-        Foo
-    -   `AAA`<br>
-        Foo
-    -   `AAA`<br>
-        Foo
-    -   `AAA`<br>
-        Foo
+    Command notation: `hello world [ estimate only ]`
+-   `RETURN_AS_DATA`<br>
+    Foo
+
+    JSON notation: `"RETURN_AS_DATA": {}`
+
+    Function access: `if "return_as_data" in inputs:`
+
+    Command notation: `hello world [ return as data ]`
+-   `SINGLE_PARM`<br>
+    Foo
+    
+    JSON notation: `"SINGLE_PARM": { "smiles": "desc" }`
+-   `AAA`<br>
+    Foo
+-   `AAA`<br>
+    Foo
+-   `AAA`<br>
+    Foo
+-   `AAA`<br>
+    Foo
+-   `AAA`<br>
+    Foo
+-   `AAA`<br>
+    Foo
+-   `AAA`<br>
+    Foo
+-   `AAA`<br>
+    Foo
 
 <!--
 - "SAVE_AS": {}
