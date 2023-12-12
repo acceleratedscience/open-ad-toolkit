@@ -110,9 +110,9 @@ Our `func_hello_world.json` file structure would look as follows:
 -   `method`<br>
     TBD
 -   **Command clauses:**<br>
-    These are command patterns that are repeated across commands and have a certain behavior connected to them. Together with the `command` (@ph) parameter of your JSON file, they define the structure of your command.
+    These are common built-in command patterns that represent certain behaviors. Together with the `command` (@ph) parameter of your JSON file, they define the structure of your command.
     -   `SAVE_AS`<br>
-        This (always optional) clause will cause the output of your command function to be saved to disk instead of being displayed.
+        Whenever relevant, this (always optional) clause should cause the output of your command function to be saved to disk instead of being displayed.
         
         JSON notation: `"SAVE_AS": {}`
 
@@ -121,9 +121,21 @@ Our `func_hello_world.json` file structure would look as follows:
         Command notation: `hello world [ save as '<filename.txt>' ]`
 
     -   `ESTIMATE_ONLY`<br>
-        This (always optional) clause is meant for functions that may take a long time to return results, and is meant cause the output of your command
+        This (always optional) clause is meant for functions that may take a long time to return results, and should cause yoru function to return an estimate of result count rather than the actual results.
+
+        JSON notation: `"ESTIMATE_ONLY": {}`
+
+        Function access: `if "estimate_only" in inputs:`
+
+        Command notation: `hello world [ estimate only ]`
     -   `RETURN_AS_DATA`<br>
         Foo
+
+        JSON notation: `"RETURN_AS_DATA": {}`
+
+        Function access: `if "return_as_data" in inputs:`
+
+        Command notation: `hello world [ return as data ]`
     -   `SINGLE_PARM`<br>
         Foo
         
