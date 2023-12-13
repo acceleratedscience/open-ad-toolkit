@@ -324,7 +324,7 @@ It's output:
 
 Only one description text file can exist per JSON command file. When "help.description" in the JSON command file is set to an empty string (""), we'll automatically look for the description text file, which is linked by having the same base filename.
 
-The desciption text is parsed for different outputs (CLI, Jupyter, HTML, API) and is required to follow a specific OpenAD styling syntax, the documentation for which you can find [here](#).
+The description text is parsed for different outputs (CLI, Jupyter, HTML, API) and is required to follow a specific OpenAD styling syntax, the documentation for which you can find [here](#).
 
 Our [`func_hello_world.txt`](./DEMO/commands/func_hello_world.txt) example covers the most important aspects and follows a template consistent with other toolkits. We highly recommend to stick to this template as much as possible.
 
@@ -334,7 +334,7 @@ You can preview its content by running `set context demo` followed by `? hello w
 
 ## Publishing a Toolkit
 
-If you think your tookit can provide value for the OpenAD community, we encourage you to submit it to our official toolkit library. By doing so, it will be made available for all OpenAD users to install, simply by running `add toolkit <toolkit_name>`, and it will be displayed in the list of toolkits when you run `list all toolkits`.
+If you think your toolkit can provide value for the OpenAD community, we encourage you to submit it to our official toolkit library. By doing so, it will be made available for all OpenAD users to install, simply by running `add toolkit <toolkit_name>`, and it will be displayed in the list of toolkits when you run `list all toolkits`.
 
 Your toolkit can also be made available through other channels, so people can download it elsewhere and install it by running `add toolkit <toolkit_name> from <toolkit_path>`.
 
@@ -361,7 +361,7 @@ Then you should run the script below, which gathers all your toolkit commands an
 
 ### oneline_desc.txt
 
-This file contains a very brief description of the toolkit, using only 4-5 words. This wil be displayed when listing available or installed toolkits.
+This file contains a very brief description of the toolkit, using only 4-5 words. This will be displayed when listing available or installed toolkits.
 
 <a href="readme/toolkit-list.png" target="_blank"><img src="readme/toolkit-list.png" style="width:482px"></a>
 
@@ -369,4 +369,4 @@ This file contains a very brief description of the toolkit, using only 4-5 words
 
 ### Submitting
 
-Once your toolkit adheres to the specifications described on this page, [get in touch](https://acceleratedscience.github.io/openad-docs/about.html) so we can review it and consider it for the list of publicly available OpenAD tookits.
+Once your toolkit adheres to the specifications described on this page, [get in touch](https://acceleratedscience.github.io/openad-docs/about.html) so we can review and consider it for the list of publicly available OpenAD toolkits.
