@@ -87,7 +87,7 @@ This file is the "entry point". It describes the command to the language parser 
 
 Multiple JSON command files may point to a single Python function file containing multiple methods. They are linked through the `library` parameter in the JSON command file.
 
-Our `func_hello_world.json` file structure looks as follows:
+Our example `func_hello_world.json` file structure looks as follows:
 
     {
         "fplugin": "demo",
@@ -130,11 +130,11 @@ Our `func_hello_world.json` file structure looks as follows:
     -   `command`
         The structure of the command as it will be displayed in the list of commands, or when a user requests help about this particular command. See [Command Documentation](#command-documentation) below for guidance about notation.
     -   `description`<br>
-        A description of what the command does. If your command description is going to be longer than one or two lines, we recommand to set this value to an empty string "" and store the description in a separate text file. See [3. Description file - func\_hello\_world.txt](#3-description-file---func_hello_worldtxt)
+        A description of what the command does. If your command description is going to be longer than one or two lines, we recommand to set this value to an empty string ("") and store the description in a separate text file. See [3. Description file - func\_hello\_world.txt](#3-description-file---func_hello_worldtxt)
     -   `url`<br>
         TBD - A link to online documentation for this command.
 -   `library`<br>
-    The base name (no extension) of the Python file in the same directory as the JSON file, that contains the command function.
+    The base name (no extension) of the Python function file that is being called. The Python function file needs to be in the same directory as the JSON command file.
 -   `method`<br>
     TBD
 
@@ -166,8 +166,8 @@ These are common built-in command patterns that represent certain behaviors. Tog
     TBD
     
     -   **JSON notation:** `"SINGLE_PARM": { "smiles": "desc" }`
-    -   **Function access:** `if "return_as_data" in inputs:`
-    -   **Command notation:** `hello world [ return as data ]`
+    -   **Function access:** `TBD`
+    -   **Command notation:** `TBD`
 -   `SHOW`<br>
     This (always optional) clause is meant for functions that may return different types or formats of data, and should be used to specify what kind of data to return.
 
@@ -196,7 +196,7 @@ These are common built-in command patterns that represent certain behaviors. Tog
         if "page_size" in inputs:
             page_size = inputs["page_size"][val]
         ```
-    -   **Command notation:** `hello world using (id='<str>' page_size=<int> foo_bar=?)`
+    -   **Command notation:** `hello world using (id='<str>' page_size=<int> foo_bar=TBD)`
 -   `FROM`<br><!-- @Phil needs to be made uppercase -->
      This clause is meant for functions that allow for different input types, where it indicates the provided input type. Only "dataframe", "file" and "list" are supported as input types.
 
@@ -215,11 +215,11 @@ These are common built-in command patterns that represent certain behaviors. Tog
         <!-- @Phil why not "from_list" in inputs? -->
     -   **Command notation:** `hello world from dataframe <dataframe_name> | file '<csv_filename>' | list ['<string>','<string>']`
 -   `USE_SAVED`<br><!-- @Phil needs to be made uppercase -->
-    This clause is meant for functions that use cacheing, where it indicated that a cashed result can be used instead of re-running the function.
+    This clause is meant for functions that use cacheing, where it indicates that a cached result can be used instead of re-running the function.
 
     -   **JSON notation:** `"USE_SAVED": "True"` <!-- @Phil why not {}? func_predict_retro has "use_saved": "False" -->
     -   **Function access:** `if "use_saved" in inputs:`
-    -   **Command notation:** `hello world [ use_saved ]`
+    -   **Command notation:** `hello world [ use_saved ]`<!-- @Phil shouldn't have underscore -->
 -   `ASYNC`<br><!-- @Phil needs to be made uppercase -->
     TBD
 
@@ -299,10 +299,10 @@ x "USING": {
 ### 2. Function file - func_hello_world.py
 
 This file contains your command function which get executes when running the command. It gets passed two parameters:
-- `inputs` A dictionary containing all information relating to the command the user typed.
+- `inputs` A dictionary containing all information relating to the command that was run.
 - `cmd_pointer` An instance of the [RUNCMD class](../app/main.py), which is a subclass of the [`Cmd`](https://docs.python.org/3/library/cmd.html) library class.
 
-What our "hello world" example's function file looks like:
+Our example `func_hello_world.py` file structure looks as follows:
 
     def hello_world(inputs: dict, cmd_pointer):
         print('hello, world')
