@@ -346,6 +346,7 @@ For either scenario to work smoothly, two more files are required:
 
 ### description.txt
 
+<!-- @Phil I think we should rename this to llm_description.txt -->
 The `description.txt` file is used to train the LLM with the toolkit functionality. This way our AI assistant can help OpenAD users figuring out how to use your toolkit. The text file should contain a detailed, unambiguous description of how your toolkit works and what it is meant to achieve. You can look at the other toolkits for inspiration.
 
 At the bottom of your file, on a separate line, you should include the following line, verbatim:
@@ -362,7 +363,8 @@ Then you should run the script below, which gathers all your toolkit commands an
 
 This file contains a very brief description of the toolkit, using only 4-5 words. This wil be displayed when listing available or installed toolkits.
 
-![toolkit-list](readme/toolkit-list.png)
+<!-- ![toolkit-list](readme/toolkit-list.png) -->
+<img src="readme/toolkit-list.png" style="width:482px" >
 
 <br>
 
