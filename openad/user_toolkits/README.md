@@ -369,4 +369,4 @@ This file contains a very brief description of the toolkit, using only 4-5 words
 
 ### Submitting
 
-Once your toolkit adheres to the aformentioned specifications, [get in touch](https://acceleratedscience.github.io/openad-docs/about.html) so we can review it and add it to the publicly available OpenAD tookits.
+Once your toolkit adheres to the specifications described on this page, [get in touch](https://acceleratedscience.github.io/openad-docs/about.html) so we can review it and consider it for the list of publicly available OpenAD tookits.
