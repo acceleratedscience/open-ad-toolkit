@@ -328,6 +328,8 @@ The desciption text is parsed for different outputs (CLI, Jupyter, HTML, API) an
 
 Our [`func_hello_world.txt`](./DEMO/commands/func_hello_world.txt) example covers the most important aspects and follows a template consistent with other toolkits. We highly recommend to stick to this template as much as possible.
 
+You can preview its content by running `set context demo` followed by `? hello world` in the CLI, or the same commands prepended by `%openad` in a Jupyter Notebook.
+
 <br><br>
 
 ## Publishing a Toolkit
