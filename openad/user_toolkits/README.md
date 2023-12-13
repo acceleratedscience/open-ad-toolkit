@@ -49,7 +49,7 @@ This mandatory file is responsible for generating the toolkit's splash screen. T
 
 The splash screen generated from the JSON file above looks like this:
 
-![demo-splash-page](readme/demo-splash.png)
+<a href="readme/demo-splash.png" target="_blank"><img src="readme/demo-splash.png" style="width:550px"></a>
 
 <br>
 
@@ -363,8 +363,7 @@ Then you should run the script below, which gathers all your toolkit commands an
 
 This file contains a very brief description of the toolkit, using only 4-5 words. This wil be displayed when listing available or installed toolkits.
 
-<!-- ![toolkit-list](readme/toolkit-list.png) -->
-<img src="readme/toolkit-list.png" style="width:482px" >
+<a href="readme/toolkit-list.png" target="_blank"><img src="readme/toolkit-list.png" style="width:482px"></a>
 
 <br>
 
