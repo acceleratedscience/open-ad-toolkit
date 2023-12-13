@@ -12,7 +12,7 @@ Integrating your own workflows into OpenAD is relatively straightforward.
   - [login.py](#loginpy)
 - [Adding Commands](#adding-commands)
   - [1. Command File - `func_hello_world.json`](#1-command-file---func_hello_worldjson)
-  - [2. Function file = `func_hello_world.py`](#2-function-file--func_hello_worldpy)
+  - [2. Function file - `func_hello_world.py`](#2-function-file---func_hello_worldpy)
   - [3. Description file - `func_hello_world.txt`](#3-description-file---func_hello_worldtxt)
   - [Command Notation](#command-notation)
 - [Publishing a Toolkit](#publishing-a-toolkit)
@@ -70,7 +70,7 @@ Each command is contained in two (or three) files. Their filename structure shou
 We'll document the "hello world" example from our demo toolkit.
 1. **The command file (JSON):** [`func_hello_world.json`](#1-command-file---func_hello_worldjson) contains the command structure and help parameters.
 2. **The function file (Python):** [`func_hello_world.py`](#2-function-file---func_hello_worldpy) contains the command function to be executed.
-3. **The description file (text):** [`func_hello_world.txt`](#3-function-file---func_hello_worldtxt) (optional) may contain a more elaborate command description, when a field in the JSON command file is not enough.
+3. **The description file (text):** [`func_hello_world.txt`](#3-description-file---func_hello_worldtxt) (optional) may contain a more elaborate command description, when a field in the JSON command file is not enough.
 
 Per function, these three files should be stored in the same directory. However the total of all your functions can be organized into a directory structure as desired. We will scan your entire toolkit directory tree and parse any command files we find.
 
@@ -263,8 +263,10 @@ x "USING": {
 
 <br>
 
-### 2. Function file = `func_hello_world.py`
+### 2. Function file - `func_hello_world.py`
 <!-- @Phil thoughts on keeping the filename consistent? -->
+
+    func_hello_world.py
 
 This file contains your command function. It gets passed two parameters:
 - `inputs`: A dictionary containing all information relating to the command the user typed.
