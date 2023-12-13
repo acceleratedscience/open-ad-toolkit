@@ -87,7 +87,7 @@ This file is the "entry point". It describes the command to the language parser 
 
 Multiple JSON command files may point to a single Python function file containing multiple methods. They are linked through the `library` parameter in the JSON command file.
 
-Our `func_hello_world.json` file structure would look as follows:
+Our `func_hello_world.json` file structure looks as follows:
 
     {
         "fplugin": "demo",
@@ -111,7 +111,8 @@ Our `func_hello_world.json` file structure would look as follows:
 <summary><b>JSON Breakdown</b></summary>
 
 -   `fplugin`<br>
-    The name of your toolkit, the same as your tookit directory (case insensitive).
+    The name of your toolkit, the same as your tookit directory but written lowercase.
+<!-- @Phil what does the f stand for? Maybe rename this field? -->
 -   `command`<br>
     TBD
 -   `subject`<br>
@@ -129,7 +130,7 @@ Our `func_hello_world.json` file structure would look as follows:
     -   `command`
         The structure of the command as it will be displayed in the list of commands, or when a user requests help about this particular command. See [Command Documentation](#command-documentation) below for guidance about notation.
     -   `description`<br>
-        A description of what the command does. If your command description is going to be longer than one or two lines, we recommand to set this value to an empty string "" and store the description in a separate text file with the same base filename with "--decription.txt" appended. So if your function file were to be called `func_hello_world.json`, your description file would be called `func_hello_world--description.txt`.
+        A description of what the command does. If your command description is going to be longer than one or two lines, we recommand to set this value to an empty string "" and store the description in a separate text file. See [3. Description file - func\_hello\_world.txt](#3-description-file---func_hello_worldtxt)
     -   `url`<br>
         TBD - A link to online documentation for this command.
 -   `library`<br>
