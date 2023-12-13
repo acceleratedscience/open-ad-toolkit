@@ -308,7 +308,7 @@ Our example `func_hello_world.py` file structure looks as follows:
         print('hello, world')
         # to do: print inputs and cmd_pointer content
 
-What it outputs:
+It's output:
 
     hello, world
 
@@ -322,11 +322,11 @@ What it outputs:
 
 ### 3. Description file - func_hello_world.txt
 
-Only one description text file can exist per JSON command file. When the "help.description" in the JSON command file is set to an empty string (""), we'll automatically look for the description text file, which is linked by having the same base filename.
+Only one description text file can exist per JSON command file. When "help.description" in the JSON command file is set to an empty string (""), we'll automatically look for the description text file, which is linked by having the same base filename.
 
 The desciption text is parsed for different outputs (CLI, Jupyter, HTML, API) and is required to follow a specific OpenAD styling syntax, the documentation for which you can find [here](#).
 
-The [description file for our hello world example](./DEMO/func_hello_world.txt) covers the most important aspects and follows a template consistent with other toolkits. We highly recommend to stick to this template as much as possible.
+The [description file for our hello world example](./DEMO/commands/func_hello_world.txt) covers the most important aspects and follows a template consistent with other toolkits. We highly recommend to stick to this template as much as possible.
 
 <br><br>
 
