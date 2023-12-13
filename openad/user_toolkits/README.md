@@ -69,14 +69,14 @@ Each command is contained in two (or three) files. Their filename structure shou
 
 We'll document the "hello world" example from our demo toolkit.
 1. [**The command file (JSON)**](#1-command-file---func_hello_worldjson)<br>
-`func_hello_world.json`<br>
-Contains the command structure and help parameters.
-2. [**The function file (Python)**](#2-function-file---func_hello_worldpy)<br>
-`func_hello_world.py`<br>
-Contains the command function to be executed.
-3. [**The description file (text)**](#3-description-file---func_hello_worldtxt)<br>
-`func_hello_world.txt`<br>
-(Optional) May contain a more elaborate command description, when a field in the JSON command file is not enough.
+Contains the command structure and help parameters.<br>
+`func_hello_world.json`
+1. [**The function file (Python)**](#2-function-file---func_hello_worldpy)<br>
+Contains the command function to be executed.<br>
+`func_hello_world.py`
+1. [**The description file (text)**](#3-description-file---func_hello_worldtxt)<br>
+(Optional) May contain a more elaborate command description, when a field in the JSON command file is not enough.<br>
+`func_hello_world.txt`
 
 Per function, these three files should be stored in the same directory. However the total of all your functions can be organized into a directory structure as desired. We will scan your entire toolkit directory tree and parse any command files we find.
 
