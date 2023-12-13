@@ -12,6 +12,21 @@ import pandas as pd
 from openad.flask_apps import launcher
 from openad.flask_apps.dataviewer.routes import fetchRoutesDataViewer
 
+# molecules
+from openad.molecules.mol_commands import (
+    display_molecule,
+    add_molecule,
+    remove_molecule,
+    list_molecules,
+    save_molecules,
+    load_molecules,
+    list_molsets,
+    display_molsets,
+    export_molecule,
+)
+
+from openad.molecules.molecule_cache import attach_all_results, clear_results
+
 import openad.app.login_manager as login_manager
 
 # Core
@@ -149,6 +164,36 @@ def lang_parse(cmd_pointer, parser):
         return display_run(cmd_pointer, parser)
     elif parser.getName() == "exec_run":
         exec_run(cmd_pointer, parser)
+    # molecules
+    elif parser.getName() == "display_molecule":
+        return display_molecule(cmd_pointer, parser)
+
+    elif parser.getName() == "add_molecule":
+        return add_molecule(cmd_pointer, parser)
+
+    elif parser.getName() == "remove_molecule":
+        return remove_molecule(cmd_pointer, parser)
+
+    elif parser.getName() == "list_molecules":
+        return list_molecules(cmd_pointer, parser)
+
+    elif parser.getName() == "save_molecule-set":
+        return save_molecules(cmd_pointer, parser)
+
+    elif parser.getName() == "load_molecule-set":
+        return load_molecules(cmd_pointer, parser)
+
+    elif parser.getName() == "list_molecule-sets":
+        return display_molsets(cmd_pointer, parser)
+
+    elif parser.getName() == "load_analysis":
+        return attach_all_results(cmd_pointer, parser)
+
+    elif parser.getName() == "export_molecule":
+        return export_molecule(cmd_pointer, parser)
+
+    elif parser.getName() == "clear_analysis":
+        return clear_results(cmd_pointer, parser)
 
     # File system commands
     elif parser.getName() == "list_files":

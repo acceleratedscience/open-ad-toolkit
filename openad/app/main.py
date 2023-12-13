@@ -95,6 +95,10 @@ class RUNCMD(Cmd):
     # Instantiate memory class
     memory = Memory()
 
+    # Instantiate list of Molecuels for reference
+    molecule_list = []
+    last_external_molecule = None
+
     def workspace_path(self, workspace: str):
         """Returns the default workspace directory path"""
         try:
@@ -410,6 +414,7 @@ class RUNCMD(Cmd):
                 if (
                     x.split(",")[0].find("Expected CaselessKeyword") > -1
                     or x.split(",")[0].find("Expected Keyword") > -1
+                    or x.split(",")[0].find("Expected {") > -1
                 ) and x.split(",")[0].find("'" + orig_word.lower()) > -1:
                     yy = x.split(",")[0].split("'")[1]
                     readline.insert_text(yy[len(orig_word) :])
@@ -426,15 +431,25 @@ class RUNCMD(Cmd):
                 c = i[1]
                 x = c.explain()
                 x = x.replace(orig_line, "")
+
                 if (
                     x.split(",")[0].find("Expected CaselessKeyword") > -1
                     or x.split(",")[0].find("Expected Keyword") > -1
+                    or x.split(",")[0].find("Expected {") > -1
                 ) and x.split(",")[1].find("at char 0") > -1:
                     if (
                         str(str(i[1]).split(",", maxsplit=1)[0].split("Keyword")[1].split("'")[1]).strip().upper()
                         == str(i[0] + x.split(",")[0].split("Keyword")[1].split("'")[1]).strip().upper()
                     ):
                         readline.insert_text(x.split(",")[0].split("Keyword")[1].split("'")[1].strip())
+                        readline.insert_text(" ")
+                        readline.redisplay()
+                        return ""
+                    if (
+                        str(str(i[1]).split(",", maxsplit=1)[0].split("{")[1].split("'")[1]).strip().upper()
+                        == str(i[0] + x.split(",")[0].split("{")[1].split("'")[1]).strip().upper()
+                    ):
+                        readline.insert_text(x.split(",")[0].split("{")[1].split("'")[1].strip())
                         readline.insert_text(" ")
                         readline.redisplay()
                         return ""
@@ -483,6 +498,8 @@ class RUNCMD(Cmd):
                     return ""  # return Nothing Changed
 
                 if x.split(",")[0].find("Expected string enclosed in '\"'"):
+                    if x.find("Expected W:(A-Za-z, #(),-/-9=A-Z_a-z)"):
+                        return ""
                     readline.insert_text("'")
                     readline.redisplay()
                     return ""  # return Nothing Changed
@@ -680,7 +697,7 @@ class RUNCMD(Cmd):
         if self.notebook_mode is True:
             return x
         elif self.api_mode is False:
-            if x not in (True, False, None):
+            if x is not None and not isinstance(x, bool):
                 print(x)
             else:
                 return
@@ -772,10 +789,10 @@ def api_remote(
                 inp = ""
             elif inp.strip() == "??":
                 inp = "?"
-
+            return magic_prompt.do_help(inp, display_info=True)
             # Triggered by magic commands, eg. `%openad list files ?`
-            display_info = inp.split()[0] == "?" and inp.strip() != "??"
-            return magic_prompt.do_help(inp.strip(), display_info=display_info)
+            # display_info = inp.split()[0] == "?" and inp.strip() != "??"
+            # return magic_prompt.do_help(inp.strip(), display_info=display_info)
 
         # If there is a argument and it is not a help attempt to run the command.
         # Note, may be possible add code completion here #revisit

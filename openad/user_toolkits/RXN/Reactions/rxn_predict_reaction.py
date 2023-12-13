@@ -4,7 +4,7 @@ import importlib.util as ilu
 from openad.helpers.output import output_table
 from openad.helpers.output import output_text
 from openad.helpers.output import output_error
-
+from openad.molecules.molecule_cache import create_analysis_record, save_result
 import pandas as pd
 from rdkit import Chem
 from rdkit.Chem import AllChem
@@ -47,7 +47,7 @@ def predict_reaction(inputs: dict, cmd_pointer):
         predict_id = inputs["prediction_id"][val]
     if "ai_model" in inputs:
         ai_model = inputs["ai_model"][val]
-
+    result_parameters = {"ai_model": ai_model}
     error_list = []
     if "use_saved" in inputs:
         use_saved = True
@@ -165,6 +165,10 @@ def predict_reaction(inputs: dict, cmd_pointer):
             sources = sources + " + " + x
         else:
             sources = x
+    save_result(
+        create_analysis_record(x_y, "RXN", "Predict_Reaction", result_parameters, {"sources": sources, "result": x_y}),
+        cmd_pointer=cmd_pointer,
+    )
 
     output_text(
         "<success>Reaction:</success> " + sources + "    ---->    " + x_y, cmd_pointer=cmd_pointer, return_val=False

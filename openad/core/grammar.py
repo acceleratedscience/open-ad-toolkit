@@ -6,9 +6,7 @@
 # - Collapse to any level:      first expand everything, then hold cmd, then hit K followed by any number
 
 import os
-import re
 import glob
-import json
 
 
 # Globals
@@ -38,6 +36,7 @@ from pyparsing import (
 # Main
 from openad.core.help import help_dict_create
 import openad.toolkit.toolkit_main as toolkit_main  # Not using "from" to avoid circular import.
+from openad.molecules.mol_grammar import mol_grammar_add
 
 # Helpers
 from openad.helpers.general import is_notebook_mode
@@ -217,7 +216,7 @@ grammar_help.append(
         name="get workspace",
         category="Workspaces",
         command="get workspace [ <workspace_name> ]",
-        description=f"Display details a workspace. When no workspace name is passed, details of your current workspace are displayed.",
+        description="Display details a workspace. When no workspace name is passed, details of your current workspace are displayed.",
         note=INFO_WORKSPACES,
     )
 )
@@ -237,7 +236,7 @@ grammar_help.append(
         name="create workspace",
         category="Workspaces",
         command="create workspace <workspace_name> [ description('<description>') on path '<path>' ]",
-        description=f"Create a new workspace with an optional description and path.",
+        description="Create a new workspace with an optional description and path.",
         note=INFO_WORKSPACES,
     )
 )
@@ -253,7 +252,7 @@ grammar_help.append(
         name="remove workspace",
         category="Workspaces",
         command="remove workspace <workspace_name> ",
-        description=f"Remove a workspace from your registry. Note that this doesn't remove the workspace's directory.",
+        description="Remove a workspace from your registry. Note that this doesn't remove the workspace's directory.",
         note=INFO_WORKSPACES,
     )
 )
@@ -265,11 +264,13 @@ grammar_help.append(
         name="list workspaces",
         category="Workspaces",
         command="list workspaces",
-        description=f"Lists all your workspaces.",
+        description="Lists all your workspaces.",
         note=INFO_WORKSPACES,
     )
 )
 
+# Add molecule Grammar
+mol_grammar_add(statements=statements, grammar_help=grammar_help)
 # endregion
 
 ##########################################################################
@@ -315,7 +316,7 @@ grammar_help.append(
         name="list all toolkits",
         category="Toolkits",
         command="list all toolkits",
-        description=f"List all available toolkits.",
+        description="List all available toolkits.",
         note=NOTE_TOOLKITS,
     )
 )
@@ -328,7 +329,7 @@ grammar_help.append(
         name="add toolkit",
         category="Toolkits",
         command="add toolkit <toolkit_name>",
-        description=f"Install a toolkit.",
+        description="Install a toolkit.",
         note=f"{NOTE_TOOLKITS_SEE_ALL}\n{NOTE_TOOLKITS}",
     )
 )
@@ -364,7 +365,7 @@ grammar_help.append(
         name="set context",
         category="Toolkits",
         command="set context <toolkit_name> [ reset ]",
-        description=f"Set your context to the chosen toolkit. By setting the context, the selected toolkit functions become available to you. The optional parameter <cmd>reset</cmd> can be used to reset your login information.",
+        description="Set your context to the chosen toolkit. By setting the context, the selected toolkit functions become available to you. The optional parameter <cmd>reset</cmd> can be used to reset your login information.",
         note=NOTE_TOOLKITS,
     )
 )
@@ -387,7 +388,7 @@ grammar_help.append(
         name="unset context",
         category="Toolkits",
         command="unset context",
-        description=f"Exit your toolkit context. You will no longer have access to toolkit-specific functions.",
+        description="Exit your toolkit context. You will no longer have access to toolkit-specific functions.",
         note=NOTE_TOOLKITS,
     )
 )
@@ -407,7 +408,7 @@ grammar_help.append(
         name="create run",
         category="Runs",
         command="create run",
-        description=f"Start recording a run.",
+        description="Start recording a run.",
         note=NOTE_RUNS,
     )
 )
@@ -419,7 +420,7 @@ grammar_help.append(
         name="save run",
         category="Runs",
         command="save run as <run_name>",
-        description=f"Stop recording a run and save it.",
+        description="Stop recording a run and save it.",
         note=NOTE_RUNS,
     )
 )
@@ -431,7 +432,7 @@ grammar_help.append(
         name="run",
         category="Runs",
         command="run <run_name>",
-        description=f"Execute a previously recorded run. This will execute every command and continue regardless of any failures.",
+        description="Execute a previously recorded run. This will execute every command and continue regardless of any failures.",
         note=NOTE_RUNS,
     )
 )
@@ -443,7 +444,7 @@ grammar_help.append(
         name="list runs",
         category="Runs",
         command="list runs",
-        description=f"List all runs saved in the current workspace.",
+        description="List all runs saved in the current workspace.",
         note=NOTE_RUNS,
     )
 )
@@ -455,7 +456,7 @@ grammar_help.append(
         name="display run",
         category="Runs",
         command="display run <run_name>",
-        description=f"Display the commands stored in a certain run.",
+        description="Display the commands stored in a certain run.",
         note=NOTE_RUNS,
     )
 )

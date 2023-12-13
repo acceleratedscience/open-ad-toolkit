@@ -7,6 +7,7 @@ from openad.helpers.output import output_error
 from rdkit import Chem
 from rdkit.Chem import AllChem
 from time import sleep
+from openad.molecules.molecule_cache import create_analysis_record, save_result
 
 
 _tableformat = "simple"
@@ -111,28 +112,38 @@ def predict_retro(inputs: dict, cmd_pointer):
         view.show()
         output_text("<success>Target Molecule:</success> " + product_smiles, cmd_pointer=cmd_pointer, return_val=False)
     #######################
-
+    result_parameters = {}
     if "availability_pricing_threshold" in inputs:
         availability_pricing_threshold = int(inputs["availability_pricing_threshold"][val])
+        result_parameters["availability_pricing_threshold"] = availability_pricing_threshold
     if "available_smiles" in inputs:
         available_smiles = inputs["available_smiles"][val]
+        result_parameters["available_smiles"] = available_smiles
     if "exclude_smiles" in inputs:
         exclude_smiles = inputs["exclude_smiles"][val]
+        result_parameters["exclude_smiles"] = exclude_smiles
     if "exclude_substructures" in inputs:
         exclude_substructures = inputs["exclude_substructures"][val]
+        result_parameters["exclude_substructures"] = exclude_substructures
     if "exclude_target_molecule" in inputs:
         if inputs["exclude_substructures"][val].upper() == "TRUE":
             exclude_target_molecule = True
+            result_parameters["exclude_target_molecule"] = exclude_target_molecule
     if "fap" in inputs:
         fap = float(inputs["fap"][val])
+        result_parameters["fap"] = fap
     if "max_steps" in inputs:
         max_steps = int(inputs["max_steps"][val])
+        result_parameters["max_steps"] = max_steps
     if "nbeams" in inputs:
         nbeams = int(inputs["nbeams"][val])
+        result_parameters["nbeams"] = nbeams
     if "pruning_steps" in inputs:
         pruning_steps = int(inputs["pruning_steps"][val])
+        result_parameters["pruning_steps"] = pruning_steps
     if "ai_model" in inputs:
         ai_model = inputs["ai_model"][val]
+        result_parameters["ai_model"] = ai_model
     rxn4chemistry_wrapper = cmd_pointer.login_settings["client"][cmd_pointer.login_settings["toolkits"].index("RXN")]
 
     # Prepare the data query
@@ -228,17 +239,23 @@ def predict_retro(inputs: dict, cmd_pointer):
         raise Exception(
             "The following Error message was received while trying to process results:" + str(e)
         ) from e  # pylint: disable=broad-exception-raised
-    i = 0
+    num_results = 0
     try:
         newspin.succeed("Finished Processing")
         newspin.start()
         newspin.stop()
+        results = {}
+        i = 0
         for index, tree in enumerate(predict_automatic_retrosynthesis_results["retrosynthetic_paths"]):
+            num_results = num_results + 1
             output_text(
                 "",
                 cmd_pointer=cmd_pointer,
                 return_val=False,
             )
+            if num_results < 4:
+                results[str(index)] = {"confidence": tree["confidence"], "reactions": []}
+
             output_text(
                 "<h2> <success>Showing path </success> {} <success> with confidence </success>{}:".format(
                     index, tree["confidence"]
@@ -247,7 +264,10 @@ def predict_retro(inputs: dict, cmd_pointer):
                 cmd_pointer=cmd_pointer,
                 return_val=False,
             )
+
             for reaction in collect_reactions_from_retrosynthesis(tree):
+                if num_results < 4:
+                    results[str(index)]["reactions"].append(reactions_text[i])
                 output_text(
                     "<success> Reaction: </success>" + reactions_text[i], cmd_pointer=cmd_pointer, return_val=False
                 )
@@ -257,6 +277,10 @@ def predict_retro(inputs: dict, cmd_pointer):
                 else:
                     output_text("", cmd_pointer=cmd_pointer, return_val=False)
 
+        save_result(
+            create_analysis_record(product_smiles.upper(), "RXN", "Predict_Retrosynthesis", result_parameters, results),
+            cmd_pointer=cmd_pointer,
+        )
     except Exception as e:  # pylint: disable=broad-exception
         output_error(
             "The following error message was received while trying to display results: " + str(e),
