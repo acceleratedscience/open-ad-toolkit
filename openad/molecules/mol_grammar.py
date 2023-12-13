@@ -65,11 +65,12 @@ from pyparsing import (
     load,
     results,
     export,
+    create,
 ) = map(
     CaselessKeyword,
     "get list description using create set unset workspace workspaces context jobs exec\
           as optimize with toolkits toolkit gpu experiment add run save runs show \
-              file display history data remove result from inchi inchikey smiles formula name last load results export".split(),
+              file display history data remove result from inchi inchikey smiles formula name last load results export create".split(),
 )
 mol = ["molecule", "mol"]
 mols = ["molecules", "mols"]
@@ -217,6 +218,21 @@ def mol_grammar_add(statements, grammar_help):
             category="Molecules",
             command="clear analysis cache",
             description="Clears the cache of analysis results for the current workspace.",
+            note=INFO_MOLECULES,
+        )
+    )
+    statements.append(
+        Forward(create + molecule + molecule_identifier("smiles") + name + (Word(alphas, alphanums + "_")("name")))(
+            "create_molecule"
+        )
+    )
+
+    grammar_help.append(
+        help_dict_create(
+            name="create molecule",
+            category="Molecules",
+            command="create molecule <smiles_string> name <molecule_name>",
+            description="creates a base molecule and adds it to the current list",
             note=INFO_MOLECULES,
         )
     )

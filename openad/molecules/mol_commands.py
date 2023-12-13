@@ -18,6 +18,7 @@ from openad.molecules.mol_functions import (
     get_mol_from_name,
     get_mol_from_smiles,
     get_mol_from_cid,
+    new_molecule,
 )
 from openad.molecules.mol_functions import get_properties, get_identifiers
 import sys, os
@@ -75,6 +76,24 @@ def add_molecule(cmd_pointer, inp):
     if mol == None:
         output_text("Unable to identify molecule", cmd_pointer=cmd_pointer, return_val=False)
         return True
+    identifier = mol["name"] + "   " + mol["properties"]["canonical_smiles"]
+    if retrieve_mol_from_list(cmd_pointer, mol["properties"]["canonical_smiles"]) != None:
+        print("Molecule already in list")
+        return True
+    if confirm_prompt("Are you wish to add " + identifier + " to your working list ?"):
+        cmd_pointer.molecule_list.append(mol.copy())
+        print("Molecule was Added.")
+        return True
+
+    print("Molecule was not added")
+    return False
+
+
+def create_molecule(cmd_pointer, inp):
+    """creates a blank molecule"""
+    molecule_identifier = inp.as_dict()["smiles"]
+    molecule_name = inp.as_dict()["name"]
+    mol = new_molecule(molecule_name, molecule_identifier)
     identifier = mol["name"] + "   " + mol["properties"]["canonical_smiles"]
     if retrieve_mol_from_list(cmd_pointer, mol["properties"]["canonical_smiles"]) != None:
         print("Molecule already in list")

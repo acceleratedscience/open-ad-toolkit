@@ -16,6 +16,70 @@ MOL_SDF_INDEX = "sdf"
 MOL_FORMULA = "formula"
 
 
+def new_molecule(Name: str, smiles: str):
+    try:
+        smiles = Chem.MolToSmiles(Chem.MolFromSmiles(smiles), True)
+    except:
+        return None
+
+    mol = {
+        "name": Name,
+        "synonyms": [],
+        "properties": {
+            "cid": None,
+            "molecular_formula": None,
+            "molecular_weight": None,
+            "canonical_smiles": smiles,
+            "isomeric_smiles": None,
+            "inchi": None,
+            "inchikey": None,
+            "iupac_name": None,
+            "xlogp": None,
+            "exact_mass": None,
+            "monoisotopic_mass": None,
+            "multipoles_3d": None,
+            "tpsa": None,
+            "complexity": None,
+            "charge": None,
+            "h_bond_donor_count": None,
+            "h_bond_acceptor_count": None,
+            "rotatable_bond_count": None,
+            "heavy_atom_count": None,
+            "isotope_atom_count": None,
+            "atom_stereo_count": None,
+            "defined_atom_stereo_count": None,
+            "undefined_atom_stereo_count": None,
+            "bond_stereo_count": None,
+            "defined_bond_stereo_count": None,
+            "undefined_bond_stereo_count": None,
+            "covalent_unit_count": None,
+            "volume_3d": None,
+            "conformer_rmsd_3d": None,
+            "conformer_model_rmsd_3d": None,
+            "x_steric_quadrupole_3d": None,
+            "y_steric_quadrupole_3d": None,
+            "z_steric_quadrupole_3d": None,
+            "feature_count_3d": None,
+            "feature_acceptor_count_3d": None,
+            "feature_donor_count_3d": None,
+            "feature_anion_count_3d": None,
+            "feature_cation_count_3d": None,
+            "feature_ring_count_3d": None,
+            "feature_hydrophobe_count_3d": None,
+            "effective_rotor_count_3d": None,
+            "conformer_count_3d": None,
+            "pharmacophore_features_3d": None,
+            "conformer_id_3d": None,
+            "coordinate_type": None,
+            "mmff94_energy_3d": None,
+            "mmff94_partial_charges_3d": None,
+        },
+        "commments": {},
+        "analysis": [],
+    }
+    return mol
+
+
 def valid_smiles(input_molecule) -> bool:
     input_molecule = Chem.MolFromSmiles(input_molecule, sanitize=False)
     if input_molecule is None:
@@ -76,7 +140,7 @@ def get_mol(mol_id, mol_id_type):
         "name": None,
         "synonyms": [],
         "sources": {},
-        "properties": {"data": {}},
+        "properties": {},
         "commments": {},
         "analysis": [],
     }
