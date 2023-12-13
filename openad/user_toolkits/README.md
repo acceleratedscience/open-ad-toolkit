@@ -11,9 +11,9 @@ Integrating your own workflows into OpenAD is relatively straightforward.
   - [metadata.json](#metadatajson)
   - [login.py](#loginpy)
 - [Adding Commands](#adding-commands)
-  - [1. Command File - `func_hello_world.json`](#1-command-file---func_hello_worldjson)
-  - [2. Function file - `func_hello_world.py`](#2-function-file---func_hello_worldpy)
-  - [3. Description file - `func_hello_world.txt`](#3-description-file---func_hello_worldtxt)
+  - [1. Command File - func\_hello\_world.json](#1-command-file---func_hello_worldjson)
+  - [2. Function file - func\_hello\_world.py](#2-function-file---func_hello_worldpy)
+  - [3. Description file - func\_hello\_world.txt](#3-description-file---func_hello_worldtxt)
 - [Publishing a Toolkit](#publishing-a-toolkit)
   - [description.txt](#descriptiontxt)
   - [oneline\_desc.txt](#oneline_desctxt)
@@ -81,7 +81,7 @@ Per function, these three files should be stored in the same directory. However 
 
 <br>
 
-### 1. Command File - `func_hello_world.json`
+### 1. Command File - func_hello_world.json
 
 This file is the "entry point". It describes the command to the language parser and contains the command documentation used for displaying help.
 
@@ -295,7 +295,7 @@ x "USING": {
 
 <br>
 
-### 2. Function file - `func_hello_world.py`
+### 2. Function file - func_hello_world.py
 
 This file contains your command function which get executes when running the command. It gets passed two parameters:
 - `inputs` A dictionary containing all information relating to the command the user typed.
@@ -319,7 +319,7 @@ What it outputs:
 
 <br>
 
-### 3. Description file - `func_hello_world.txt`
+### 3. Description file - func_hello_world.txt
 
 Only one description text file can exist per JSON command file. When the "help.description" in the JSON command file is set to an empty string (""), we'll automatically look for the description text file, which is linked by having the same base filename.
 
