@@ -135,9 +135,6 @@ Our `func_hello_world.json` file structure would look as follows:
     TBD
 
 </details>
-
-<br>
-
 <details>
 <summary><b>Command Clauses</b></summary>
 
