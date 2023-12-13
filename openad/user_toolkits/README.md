@@ -68,9 +68,9 @@ The [`login.py`](./DEMO/login.py) template takes care of success and error handl
 Each command is contained in two (or three) files. Their filename structure should follow the pattern `func_\<func_name\>.<ext>`.
 
 We'll document the "hello world" example from our demo toolkit.
-1. **The command file (JSON):** [`func_hello_world.json`](#command-file---func_hello_worldjson) contains the command structure and help parameters.
-2. **The function file (Python):** [`func_hello_world.py`](#function-file---func_hello_worldpy) contains the command function to be executed.
-3. **The description file (text):** [`func_hello_world.txt`](#function-file---func_hello_worldtxt) (optional) may contain a more elaborate command description, when a field in the JSON command file is not enough.
+1. **The command file (JSON):** [`func_hello_world.json`](#1-command-file---func_hello_worldjson) contains the command structure and help parameters.
+2. **The function file (Python):** [`func_hello_world.py`](#2-function-file---func_hello_worldpy) contains the command function to be executed.
+3. **The description file (text):** [`func_hello_world.txt`](#3-function-file---func_hello_worldtxt) (optional) may contain a more elaborate command description, when a field in the JSON command file is not enough.
 
 Per function, these three files should be stored in the same directory. However the total of all your functions can be organized into a directory structure as desired. We will scan your entire toolkit directory tree and parse any command files we find.
 
