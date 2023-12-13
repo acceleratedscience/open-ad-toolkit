@@ -17,7 +17,7 @@ Integrating your own workflows into OpenAD is relatively straightforward.
 - [Publishing a Toolkit](#publishing-a-toolkit)
   - [description.txt](#descriptiontxt)
   - [oneline\_desc.txt](#oneline_desctxt)
-  - [Publishing your toolkit](#publishing-your-toolkit)
+  - [Submitting](#submitting)
 
 <br><br>
 
@@ -331,9 +331,11 @@ The [description file for our hello world example](./DEMO/func_hello_world.txt) 
 
 ## Publishing a Toolkit
 
-By publishing a toolkit to the OpenAD comminity, it will be made available for all OpenAD users to install. This means that it will be displayed in the list of toolkits when you run `list all toolkits`, and users will be able to install it simply by running `add toolkit <toolkit_name>`.
+If you think your tookit can provide value for the OpenAD community, we encourage you to submit it to our official toolkit library. By doing so, it will be made available for all OpenAD users to install, simply by running `add toolkit <toolkit_name>`, and it will be displayed in the list of toolkits when you run `list all toolkits`.
 
-If you wish to publish your toolkit, a few more files are required.
+Your toolkit can also be made available through other channels, so people can download it elsewhere and install it by running `add toolkit <toolkit_name> from <toolkit_path>`.
+
+For either scenario to work smoothly, two more files are required:
 1. [`description.txt`](descriptiontxt)
 2. [`oneline_desc.txt`](oneline_desctxt)
 
@@ -341,7 +343,7 @@ If you wish to publish your toolkit, a few more files are required.
 
 ### description.txt
 
-The `description.txt` file is used to train the LLM with the toolkit functionality. It should contain a detailed, unambiguous description of how your toolkit works and what it is meant to achieve. You can look at the other toolkits for inspiration.
+The `description.txt` file is used to train the LLM with the toolkit functionality. This way our AI assistant can help OpenAD users figuring out how to use your toolkit. The text file should contain a detailed, unambiguous description of how your toolkit works and what it is meant to achieve. You can look at the other toolkits for inspiration.
 
 At the bottom of your file, on a separate line, you should include the following line, verbatim:
 
@@ -355,12 +357,12 @@ Then you should run the script below, which gathers all your toolkit commands an
 
 ### oneline_desc.txt
 
-This file contains a very brief description of the toolkit, using only 4-5 words. This wil be displayed when listing available toolkits.
+This file contains a very brief description of the toolkit, using only 4-5 words. This wil be displayed when listing available or installed toolkits.
 
 ![toolkit-list](readme/toolkit-list.png)
 
 <br>
 
-### Publishing your toolkit
+### Submitting
 
 Once your toolkit adheres to the aformentioned specifications, [get in touch](https://acceleratedscience.github.io/openad-docs/about.html) so we can review it and add it to the publicly available OpenAD tookits.
