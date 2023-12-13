@@ -11,8 +11,9 @@ Integrating your own workflows into OpenAD is relatively straightforward.
   - [metadata.json](#metadatajson)
   - [login.py](#loginpy)
 - [Adding Commands](#adding-commands)
-  - [2. func\_hello\_world.json](#2-func_hello_worldjson)
-  - [1. func\_hello\_world.py](#1-func_hello_worldpy)
+  - [1. func\_hello\_world.json](#1-func_hello_worldjson)
+  - [2. func\_hello\_world.py](#2-func_hello_worldpy)
+  - [3. func\_hello\_world.txt](#3-func_hello_worldtxt)
   - [Command Notation](#command-notation)
 - [Publishing a Toolkit](#publishing-a-toolkit)
   - [description.txt](#descriptiontxt)
@@ -77,7 +78,7 @@ On the other hand, only one description text file can exist per JSON command fil
 
 <br>
 
-### 2. func_hello_world.json
+### 1. func_hello_world.json
 
 The command file's filename follows the structure `func_\<func_name\>.json`. Hence our "hello world" command file would be named `func_hello_world.json`.
 
@@ -267,7 +268,7 @@ x "USING": {
 
 <br>
 
-### 1. func_hello_world.py
+### 2. func_hello_world.py
 <!-- @Phil thoughts on keeping the filename consistent? -->
 
 This file contains your command function. It gets passed two parameters:
@@ -289,6 +290,12 @@ What it outputs:
 
     cmd_pointer:
     - ...
+
+<br>
+
+### 3. func_hello_world.txt
+
+Lorem
 
 <br>
 
