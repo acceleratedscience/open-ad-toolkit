@@ -1,3 +1,7 @@
+> **WARNING:** This documentation page is still under construction. It is incomplete and may have incorrect information.
+
+---
+
 # Creating Your Own Toolkit <!-- omit from toc -->
 
 Integrating your own workflows into OpenAD is relatively straightforward.
@@ -6,8 +10,9 @@ Integrating your own workflows into OpenAD is relatively straightforward.
 - [Setup](#setup)
   - [metadata.json](#metadatajson)
   - [login.py](#loginpy)
-- [Adding functions](#adding-functions)
-  - [Command clauses](#command-clauses)
+- [Adding Commands](#adding-commands)
+  - [2. func\_hello\_world.json](#2-func_hello_worldjson)
+  - [1. func\_hello\_world.py](#1-func_hello_worldpy)
   - [Command Notation](#command-notation)
 - [Publishing a Toolkit](#publishing-a-toolkit)
   - [description.txt](#descriptiontxt)
@@ -57,11 +62,24 @@ The [`login.py`](./DEMO/login.py) template takes care of success and error handl
 
 <br><br>
 
-## Adding functions
+## Adding Commands
 
-Each command is contained within a single JSON file whose name follows the structure `func_\<funcname\>.json`. A hello world function file would thus be called `func_hello_world.json`.
+Each command is contained in two (or three) files. We'll document the "hello world" example from our demo toolkit.
+1. [`func_hello_world.json`](#func_hello_worldjson) The command file (JSON) which contains the command structure and help parameters.
+2. [`func_hello_world.py`](#func_hello_worldpy) The function file (Python) which contains the command function to be executed.
+3. Optional: [`func_hello_world.txt`] The description file (text) which may contain a more elaborate command description, when a field in the JSON command file is not enough.
 
-You can store your function files flat, or organize them into a directory structure as desired. We will scan your entire toolkit directory tree for function files and parse them all.
+Per function, these three files should be stored in the same directory. However the total of all your functions can be organized into a directory structure as desired. We will scan your entire toolkit directory tree and parse any command files we find. 
+
+Multiple JSON command files may point to a single Python function file containing multiple methods. They are linked through the `library` parameter in the JSON command file.
+
+On the other hand, only one description text file can exist per JSON command file, and they are linked by having the same base filename.
+
+<br>
+
+### 2. func_hello_world.json
+
+The command file's filename follows the structure `func_\<func_name\>.json`. Hence our "hello world" command file would be named `func_hello_world.json`.
 
 Our `func_hello_world.json` file structure would look as follows:
 
@@ -82,6 +100,9 @@ Our `func_hello_world.json` file structure would look as follows:
         "method": "print_hello_world",
         (Command clauses)
     }
+
+<details>
+<summary><b>JSON Breakdown</b></summary>
 
 -   `fplugin`<br>
     The name of your toolkit, the same as your tookit directory (case insensitive).
@@ -108,13 +129,16 @@ Our `func_hello_world.json` file structure would look as follows:
     -   `url`<br>
         TBD - A link to online documentation for this command.
 -   `library`<br>
-    The base name (no extension) of the Python file in the same directory as the JSON file, that contains the actual command function.
+    The base name (no extension) of the Python file in the same directory as the JSON file, that contains the command function.
 -   `method`<br>
     TBD
 
+</details>
+
 <br>
 
-### Command clauses
+<details>
+<summary><b>Command Clauses</b></summary>
 
 These are common built-in command patterns that represent certain behaviors. Together with the `command` <!-- @Phil -->parameter of your JSON file, they define the structure of your command.
 -   `SAVE_AS`<br>
@@ -201,8 +225,6 @@ These are common built-in command patterns that represent certain behaviors. Tog
     -   **Function access:** `TBD (do_async/async)`
     -   **Command notation:** `TBD`
 
-    
-
 <!--
 - "SAVE_AS": {}
 - "SINGLE_PARM": { "collection": "desc" }
@@ -240,6 +262,33 @@ x "USING": {
 },
 - "SINGLE_PARM": { "recipe": "desc" },
 -->
+
+</details>
+
+<br>
+
+### 1. func_hello_world.py
+<!-- @Phil thoughts on keeping the filename consistent? -->
+
+This file contains your command function. It gets passed two parameters:
+- `inputs`: A dictionary containing all information relating to the command the user typed.
+- `cmd_pointer`: An instance of the [RUNCMD class](../app/main.py), which is a subclass of the [`Cmd`](https://docs.python.org/3/library/cmd.html) library class.
+
+What our "hello world" example's function file looks like:
+
+    def hello_world(inputs: dict, cmd_pointer):
+        print('hello, world')
+        # to do: print inputs and cmd_pointer content
+
+What it outputs:
+
+    hello, world
+
+    inputs:
+    - ...
+
+    cmd_pointer:
+    - ...
 
 <br>
 
