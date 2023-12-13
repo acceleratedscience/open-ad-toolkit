@@ -102,7 +102,7 @@ Our `func_hello_world.json` file structure would look as follows:
             "description": "Display \"Hello, world\"",
             "url": "https://helloworld.app/docs#hello-world"
         },
-        "library": "hello_world",
+        "library": "func_hello_world",
         "method": "print_hello_world",
         // Command clauses go here
     }
@@ -130,8 +130,6 @@ Our `func_hello_world.json` file structure would look as follows:
         The structure of the command as it will be displayed in the list of commands, or when a user requests help about this particular command. See [Command Documentation](#command-documentation) below for guidance about notation.
     -   `description`<br>
         A description of what the command does. If your command description is going to be longer than one or two lines, we recommand to set this value to an empty string "" and store the description in a separate text file with the same base filename with "--decription.txt" appended. So if your function file were to be called `func_hello_world.json`, your description file would be called `func_hello_world--description.txt`.
-
-        > **Important:** Because the desciption text is parsed for different outputs (CLI, Jupyter, HTML, API) it needs to use a specific OpenAD styling syntax, the documentation for which you can find [here].
     -   `url`<br>
         TBD - A link to online documentation for this command.
 -   `library`<br>
@@ -280,7 +278,7 @@ x "USING": {
         hello [ <audience_name> ]
         hello [ '<first_name>' ]
 
--   When describing different options for a clause, list them separated by a pipe. For long commands, it may be unclear which word is part of the main command or the clause options. To avoid confusion, make sure to add examples to your command documentation that will resolve any confusion.
+-   When describing different options for a clause, list them separated by a pipe. For long commands, it may be unclear which word is part of the main command or the clause options. To avoid confusion, make sure to add examples to your command description that will resolve any confusion.
 
         hello world pink | red | green
 
@@ -298,13 +296,10 @@ x "USING": {
 <br>
 
 ### 2. Function file - `func_hello_world.py`
-<!-- @Phil thoughts on keeping the filename consistent? -->
 
-    func_hello_world.py
-
-This file contains your command function. It gets passed two parameters:
-- `inputs`: A dictionary containing all information relating to the command the user typed.
-- `cmd_pointer`: An instance of the [RUNCMD class](../app/main.py), which is a subclass of the [`Cmd`](https://docs.python.org/3/library/cmd.html) library class.
+This file contains your command function which get executes when running the command. It gets passed two parameters:
+- `inputs` A dictionary containing all information relating to the command the user typed.
+- `cmd_pointer` An instance of the [RUNCMD class](../app/main.py), which is a subclass of the [`Cmd`](https://docs.python.org/3/library/cmd.html) library class.
 
 What our "hello world" example's function file looks like:
 
@@ -326,9 +321,11 @@ What it outputs:
 
 ### 3. Description file - `func_hello_world.txt`
 
-On the other hand, only one description text file can exist per JSON command file, and they are linked by having the same base filename.
+Only one description text file can exist per JSON command file. When the "help.description" in the JSON command file is set to an empty string (""), we'll automatically look for the description text file, which is linked by having the same base filename.
 
+The desciption text is parsed for different outputs (CLI, Jupyter, HTML, API) and is required to follow a specific OpenAD styling syntax, the documentation for which you can find [here](#).
 
+The [description file for our hello world example](./DEMO/func_hello_world.txt) covers the most important aspects and follows a template consistent with other toolkits. We highly recommend to stick to this template as much as possible.
 
 <br><br>
 
