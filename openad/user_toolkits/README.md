@@ -14,7 +14,6 @@ Integrating your own workflows into OpenAD is relatively straightforward.
   - [1. Command File - `func_hello_world.json`](#1-command-file---func_hello_worldjson)
   - [2. Function file - `func_hello_world.py`](#2-function-file---func_hello_worldpy)
   - [3. Description file - `func_hello_world.txt`](#3-description-file---func_hello_worldtxt)
-  - [Command Notation](#command-notation)
 - [Publishing a Toolkit](#publishing-a-toolkit)
   - [description.txt](#descriptiontxt)
   - [oneline\_desc.txt](#oneline_desctxt)
@@ -84,6 +83,8 @@ Per function, these three files should be stored in the same directory. However 
 
 ### 1. Command File - `func_hello_world.json`
 
+This file is the "entry point". It describes the command to the language parser and contains the command documentation used for displaying help.
+
 Multiple JSON command files may point to a single Python function file containing multiple methods. They are linked through the `library` parameter in the JSON command file.
 
 Our `func_hello_world.json` file structure would look as follows:
@@ -97,13 +98,13 @@ Our `func_hello_world.json` file structure would look as follows:
         "help": {
             "name": "hello world",
             "category": "General",
-            "command": "hello world",
+            "command": "hello world", // <-- See Command Notation
             "description": "Display \"Hello, world\"",
             "url": "https://helloworld.app/docs#hello-world"
         },
         "library": "hello_world",
         "method": "print_hello_world",
-        (Command clauses)
+        // Command clauses go here
     }
 
 <details>
@@ -267,6 +268,33 @@ x "USING": {
 
 </details>
 
+<details>
+<summary>Command Notation</summary>
+
+-   Optional clauses should be encapsulated in square brackets padded with a space.
+
+        hello world [ repeat 2 ]
+    
+-   Variable names should be displayed with angle brackets and underscores instead of spaces. When a variable is to be quoted, make sure to include the quotation marks in the command.
+
+        hello [ <audience_name> ]
+        hello [ '<first_name>' ]
+
+-   When describing different options for a clause, list them separated by a pipe. For long commands, it may be unclear which word is part of the main command or the clause options. To avoid confusion, make sure to add examples to your command documentation that will resolve any confusion.
+
+        hello world pink | red | green
+
+-   When describing a filename, add the extension(s) in the variable name, as such:
+
+        hello world [ save as <filename.txt> ]
+        hello world [ save as <csv_or_sdf_filename> ]
+
+- When describing lists, make sure to notate them without spaces between the square brackets, to avoid confusion with optional clauses. Also make it clear what is supposed to go in the list. Use ellipsis to indicate whether the length of the list can be infinite.
+
+        hello ['<first_name>','<first_name>',...]
+
+</details>
+
 <br>
 
 ### 2. Function file - `func_hello_world.py`
@@ -299,32 +327,6 @@ What it outputs:
 ### 3. Description file - `func_hello_world.txt`
 
 On the other hand, only one description text file can exist per JSON command file, and they are linked by having the same base filename.
-
-<br>
-
-### Command Notation
-
--   Optional clauses should be encapsulated in square brackets padded with a space.
-
-        hello world [ repeat 2 ]
-    
--   Variable names should be displayed with angle brackets and underscores instead of spaces. When a variable is to be quoted, make sure to include the quotation marks in the command.
-
-        hello [ <audience_name> ]
-        hello [ '<first_name>' ]
-
--   When describing different options for a clause, list them separated by a pipe. For long commands, it may be unclear which word is part of the main command or the clause options. To avoid confusion, make sure to add examples to your command documentation that will resolve any confusion.
-
-        hello world pink | red | green
-
--   When describing a filename, add the extension(s) in the variable name, as such:
-
-        hello world [ save as <filename.txt> ]
-        hello world [ save as <csv_or_sdf_filename> ]
-
-- When describing lists, make sure to notate them without spaces between the square brackets, to avoid confusion with optional clauses. Also make it clear what is supposed to go in the list. Use ellipsis to indicate whether the length of the list can be infinite.
-
-        hello ['<first_name>','<first_name>',...]
 
 
 
