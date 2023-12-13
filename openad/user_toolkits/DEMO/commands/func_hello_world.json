@@ -1,0 +1,16 @@
+{
+	"fplugin": "demo",
+	"command": "hello world",
+	"subject": "hello world",
+	"exec_type": "standard_statement",
+	"exec_cmd": "hello world",
+	"help": {
+		"name": "hello world",
+		"category": "General",
+		"command": "hello world",
+		"description": "Display \"Hello, world\"",
+		"url": "https://helloworld.app/docs#hello-wooooorld"
+	},
+	"library": "func_hello_world",
+	"method": "hello_world"
+}
