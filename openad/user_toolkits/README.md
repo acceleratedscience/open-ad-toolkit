@@ -269,7 +269,7 @@ x "USING": {
 </details>
 
 <details>
-<summary>Command Notation</summary>
+<summary><b>Command Notation</b></summary>
 
 -   Optional clauses should be encapsulated in square brackets padded with a space.
 
