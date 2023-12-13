@@ -11,9 +11,9 @@ Integrating your own workflows into OpenAD is relatively straightforward.
   - [metadata.json](#metadatajson)
   - [login.py](#loginpy)
 - [Adding Commands](#adding-commands)
-  - [1. func\_hello\_world.json](#1-func_hello_worldjson)
-  - [2. func\_hello\_world.py](#2-func_hello_worldpy)
-  - [3. func\_hello\_world.txt](#3-func_hello_worldtxt)
+  - [1. Command File - `func_hello_world.json`](#1-command-file---func_hello_worldjson)
+  - [2. Function file = `func_hello_world.py`](#2-function-file--func_hello_worldpy)
+  - [3. Description file - `func_hello_world.txt`](#3-description-file---func_hello_worldtxt)
   - [Command Notation](#command-notation)
 - [Publishing a Toolkit](#publishing-a-toolkit)
   - [description.txt](#descriptiontxt)
@@ -65,22 +65,20 @@ The [`login.py`](./DEMO/login.py) template takes care of success and error handl
 
 ## Adding Commands
 
-Each command is contained in two (or three) files. We'll document the "hello world" example from our demo toolkit.
-1. [`func_hello_world.json`](#func_hello_worldjson) The command file (JSON) which contains the command structure and help parameters.
-2. [`func_hello_world.py`](#func_hello_worldpy) The function file (Python) which contains the command function to be executed.
-3. Optional: [`func_hello_world.txt`](#func_hello_worldtxt) The description file (text) which may contain a more elaborate command description, when a field in the JSON command file is not enough.
+Each command is contained in two (or three) files. Their filename structure should follow the pattern `func_\<func_name\>.<ext>`.
 
-Per function, these three files should be stored in the same directory. However the total of all your functions can be organized into a directory structure as desired. We will scan your entire toolkit directory tree and parse any command files we find. 
+We'll document the "hello world" example from our demo toolkit.
+1. **The command file (JSON):** [`func_hello_world.json`](#command-file---func_hello_worldjson) contains the command structure and help parameters.
+2. **The function file (Python):** [`func_hello_world.py`](#function-file---func_hello_worldpy) contains the command function to be executed.
+3. **The description file (text):** [`func_hello_world.txt`](#function-file---func_hello_worldtxt) (optional) may contain a more elaborate command description, when a field in the JSON command file is not enough.
 
-Multiple JSON command files may point to a single Python function file containing multiple methods. They are linked through the `library` parameter in the JSON command file.
-
-On the other hand, only one description text file can exist per JSON command file, and they are linked by having the same base filename.
+Per function, these three files should be stored in the same directory. However the total of all your functions can be organized into a directory structure as desired. We will scan your entire toolkit directory tree and parse any command files we find.
 
 <br>
 
-### 1. func_hello_world.json
+### 1. Command File - `func_hello_world.json`
 
-The command file's filename follows the structure `func_\<func_name\>.json`. Hence our "hello world" command file would be named `func_hello_world.json`.
+Multiple JSON command files may point to a single Python function file containing multiple methods. They are linked through the `library` parameter in the JSON command file.
 
 Our `func_hello_world.json` file structure would look as follows:
 
@@ -265,7 +263,7 @@ x "USING": {
 
 <br>
 
-### 2. func_hello_world.py
+### 2. Function file = `func_hello_world.py`
 <!-- @Phil thoughts on keeping the filename consistent? -->
 
 This file contains your command function. It gets passed two parameters:
@@ -290,9 +288,9 @@ What it outputs:
 
 <br>
 
-### 3. func_hello_world.txt
+### 3. Description file - `func_hello_world.txt`
 
-Lorem
+On the other hand, only one description text file can exist per JSON command file, and they are linked by having the same base filename.
 
 <br>
 
