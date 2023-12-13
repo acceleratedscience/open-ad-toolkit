@@ -8,6 +8,7 @@ from openad.helpers.output import output_table
 from openad.helpers.output import output_error
 from openad.helpers.output import output_text
 from openad.helpers.output import output_warning
+from openad.molecules.molecule_cache import create_analysis_record, save_result
 
 _tableformat = "simple"
 
@@ -80,6 +81,7 @@ def search_patent_molecule(inputs: dict, cmd_pointer):
         output_error("Error in calling deepsearch:" + str(e), cmd_pointer=cmd_pointer, return_val=False)
         return False
     results_table = []
+    print(resp.outputs)
     for doc in resp.outputs["patents"]:
         result = {
             "PATENT ID": "",
@@ -108,6 +110,11 @@ def search_patent_molecule(inputs: dict, cmd_pointer):
         return_val=False,
     )
     output_text(inputs["smiles"], cmd_pointer=cmd_pointer, return_val=False)
+    print("here")
+    save_result(
+        create_analysis_record(inputs["smiles"], "DS4SD", "Patents_For_Molecule", "", results_table),
+        cmd_pointer=cmd_pointer,
+    )
 
     table = pd.DataFrame(results_table)
     return output_table(table, cmd_pointer, tablefmt=_tableformat)

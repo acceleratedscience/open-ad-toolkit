@@ -38,6 +38,8 @@ def display_molecule(cmd_pointer, inp):
             cmd_pointer.last_external_molecule = mol.copy()
             print_string = format_identifers(mol) + "\n" + format_properties(mol) + "\n" + format_analysis(mol)
             return print_s(print_string)
+        else:
+            print("molecule not available on pubchem")
         return None
 
 

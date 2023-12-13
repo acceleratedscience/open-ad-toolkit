@@ -90,6 +90,8 @@ def get_mol(mol_id, mol_id_type):
                 return False, None, None
             else:
                 cid = compounds[0].cid
+            if cid == None:
+                return False, None, None
         molecule = pcy.Compound.from_cid(cid).to_dict()
         openad_mol = OPENAD_MOL_DICT.copy()
         if molecule:

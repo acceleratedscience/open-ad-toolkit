@@ -83,7 +83,7 @@ molecules = MatchFirst(map(CaselessKeyword, mols))
 molecule = MatchFirst(map(CaselessKeyword, mol))
 molecule_set = MatchFirst(map(CaselessKeyword, molset))
 molecule_sets = MatchFirst(map(CaselessKeyword, molsets))
-molecule_identifier = Word(alphas, alphanums + "_" + "(" + ")" + "=" + "," + "-" + "/" + "#")
+molecule_identifier = Word(alphas, alphanums + "_" + "[" + "]" + "(" + ")" + "=" + "," + "-" + "+" + "/" + "#")
 INFO_MOLECULES = "\n<soft>To learn more about workspaces, run <cmd>workspace ?</cmd></soft>"
 
 
