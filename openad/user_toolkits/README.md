@@ -326,7 +326,7 @@ Only one description text file can exist per JSON command file. When "help.descr
 
 The desciption text is parsed for different outputs (CLI, Jupyter, HTML, API) and is required to follow a specific OpenAD styling syntax, the documentation for which you can find [here](#).
 
-The [description file for our hello world example](./DEMO/commands/func_hello_world.txt) covers the most important aspects and follows a template consistent with other toolkits. We highly recommend to stick to this template as much as possible.
+Our [`func_hello_world.txt`](./DEMO/commands/func_hello_world.txt) example covers the most important aspects and follows a template consistent with other toolkits. We highly recommend to stick to this template as much as possible.
 
 <br><br>
 
