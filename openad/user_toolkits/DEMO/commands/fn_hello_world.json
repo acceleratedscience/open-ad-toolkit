@@ -11,6 +11,6 @@
 		"description": "Display \"Hello, world\"",
 		"url": "https://helloworld.app/docs#hello-wooooorld"
 	},
-	"library": "func_hello_world",
+	"library": "fn_hello_world",
 	"method": "hello_world"
 }

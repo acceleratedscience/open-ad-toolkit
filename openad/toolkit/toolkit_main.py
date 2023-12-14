@@ -59,9 +59,9 @@ def load_toolkit(toolkit_name, from_repo=False, for_training=False):
     snippetsModule = load_module_from_path("snippets", f"{source}/{toolkit_name}/_snippets.py")
     snippets = snippetsModule.snippets if snippetsModule else None
 
-    for i in glob.glob(f"{source}/{toolkit_name}/**/func_*.json", recursive=True):
-        func_file = open(i, "r", encoding="utf-8")
-        x = json.load(func_file)
+    for i in glob.glob(f"{source}/{toolkit_name}/**/fn_*.json", recursive=True):
+        fn_file = open(i, "r", encoding="utf-8")
+        x = json.load(fn_file)
 
         # Load description from separate file if it is external.
         if x["help"]["description"] == "":
