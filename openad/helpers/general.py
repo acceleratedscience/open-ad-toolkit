@@ -137,7 +137,7 @@ def user_secret(cmd_pointer, question):
 # Return list of available toolkit names.
 def get_toolkits():
     folder_path = os.path.dirname(os.path.abspath(__file__)) + "/../user_toolkits"
-    ignore_dirs = ["__pycache__", "DEMO1", "readme"]
+    ignore_dirs = ["__pycache__", "DEMO", "readme"]
     toolkit_names = [
         name.upper()
         for name in os.listdir(folder_path)

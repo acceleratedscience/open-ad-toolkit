@@ -1,6 +1,6 @@
 <!-- @future todo:
-- Hide demo and readme from list of toolkits
-- Update list of toolkits with DEMO toolkit included
+√ - Hide demo and readme from list of toolkits
+√ - Update list of toolkits with DEMO toolkit included
 - Make hello world with bunch of options
 √ - Rename description.txt to llm_description.txt
 √ - Make login.py not required

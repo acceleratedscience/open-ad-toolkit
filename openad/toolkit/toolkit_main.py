@@ -89,7 +89,7 @@ def load_toolkit(toolkit_name, from_repo=False, for_training=False):
     if for_training:
         try:
             with open(
-                _meta_dir_toolkits + "/" + toolkit_name + "/description.txt", "r", encoding="utf-8"
+                _meta_dir_toolkits + "/" + toolkit_name + "/llm_description.txt", "r", encoding="utf-8"
             ) as toolkit_file:
                 the_toolkit.toolkit_description = toolkit_file.read()
                 toolkit_file.close()
