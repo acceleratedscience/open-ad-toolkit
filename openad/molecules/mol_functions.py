@@ -14,6 +14,55 @@ MOL_INCHIKEY_INDEX = "inchikey"
 MOL_CID_INDEX = "cid"
 MOL_SDF_INDEX = "sdf"
 MOL_FORMULA = "formula"
+MOL_PROPERTIES = [
+    "cid",
+    "molecular_formula",
+    "molecular_weight",
+    "canonical_smiles",
+    "isomeric_smiles",
+    "inchi",
+    "inchikey",
+    "iupac_name",
+    "xlogp",
+    "exact_mass",
+    "monoisotopic_mass",
+    "multipoles_3d",
+    "tpsa",
+    "complexity",
+    "charge",
+    "h_bond_donor_count",
+    "h_bond_acceptor_count",
+    "rotatable_bond_count",
+    "heavy_atom_count",
+    "isotope_atom_count",
+    "atom_stereo_count",
+    "defined_atom_stereo_count",
+    "undefined_atom_stereo_count",
+    "bond_stereo_count",
+    "defined_bond_stereo_count",
+    "undefined_bond_stereo_count",
+    "covalent_unit_count",
+    "volume_3d",
+    "conformer_rmsd_3d",
+    "conformer_model_rmsd_3d",
+    "x_steric_quadrupole_3d",
+    "y_steric_quadrupole_3d",
+    "z_steric_quadrupole_3d",
+    "feature_count_3d",
+    "feature_acceptor_count_3d",
+    "feature_donor_count_3d",
+    "feature_anion_count_3d",
+    "feature_cation_count_3d",
+    "feature_ring_count_3d",
+    "feature_hydrophobe_count_3d",
+    "effective_rotor_count_3d",
+    "conformer_count_3d",
+    "pharmacophore_features_3d",
+    "conformer_id_3d",
+    "coordinate_type",
+    "mmff94_energy_3d",
+    "mmff94_partial_charges_3d",
+]
 
 
 def new_molecule(Name: str, smiles: str):
@@ -24,59 +73,14 @@ def new_molecule(Name: str, smiles: str):
 
     mol = {
         "name": Name,
-        "synonyms": [],
-        "properties": {
-            "cid": None,
-            "molecular_formula": None,
-            "molecular_weight": None,
-            "canonical_smiles": smiles,
-            "isomeric_smiles": None,
-            "inchi": None,
-            "inchikey": None,
-            "iupac_name": None,
-            "xlogp": None,
-            "exact_mass": None,
-            "monoisotopic_mass": None,
-            "multipoles_3d": None,
-            "tpsa": None,
-            "complexity": None,
-            "charge": None,
-            "h_bond_donor_count": None,
-            "h_bond_acceptor_count": None,
-            "rotatable_bond_count": None,
-            "heavy_atom_count": None,
-            "isotope_atom_count": None,
-            "atom_stereo_count": None,
-            "defined_atom_stereo_count": None,
-            "undefined_atom_stereo_count": None,
-            "bond_stereo_count": None,
-            "defined_bond_stereo_count": None,
-            "undefined_bond_stereo_count": None,
-            "covalent_unit_count": None,
-            "volume_3d": None,
-            "conformer_rmsd_3d": None,
-            "conformer_model_rmsd_3d": None,
-            "x_steric_quadrupole_3d": None,
-            "y_steric_quadrupole_3d": None,
-            "z_steric_quadrupole_3d": None,
-            "feature_count_3d": None,
-            "feature_acceptor_count_3d": None,
-            "feature_donor_count_3d": None,
-            "feature_anion_count_3d": None,
-            "feature_cation_count_3d": None,
-            "feature_ring_count_3d": None,
-            "feature_hydrophobe_count_3d": None,
-            "effective_rotor_count_3d": None,
-            "conformer_count_3d": None,
-            "pharmacophore_features_3d": None,
-            "conformer_id_3d": None,
-            "coordinate_type": None,
-            "mmff94_energy_3d": None,
-            "mmff94_partial_charges_3d": None,
-        },
+        "synonyms": {},
+        "properties": {},
         "commments": {},
         "analysis": [],
     }
+    for i in MOL_PROPERTIES:
+        mol[i] = None
+    mol["cannonical_smile"] = smiles
     return mol
 
 
@@ -138,7 +142,7 @@ def get_mol(mol_id, mol_id_type):
     """gets molecule based on provided identifier"""
     OPENAD_MOL_DICT = {
         "name": None,
-        "synonyms": [],
+        "synonyms": {},
         "sources": {},
         "properties": {},
         "commments": {},
@@ -165,7 +169,7 @@ def get_mol(mol_id, mol_id_type):
                 openad_mol["name"] = molecule["iupac_name"]
             openad_mol["properties"] = molecule
             openad_mol["sources"]["pubchem"] = molecule
-            openad_mol["synonyms"] = pcy.get_synonyms(openad_mol["name"], "name")
+            openad_mol["synonyms"] = pcy.get_synonyms(openad_mol["name"], "name")[0]
             return True, openad_mol, molecule
     except Exception as e:
         print(e)

@@ -453,6 +453,16 @@ class RUNCMD(Cmd):
                         readline.insert_text(" ")
                         readline.redisplay()
                         return ""
+                    if len(orig_word.split(">>")) > 1:
+                        started_word = str(orig_word.split(">>")[-1]).strip()
+                        print(111)
+                        for match in x.split("'"):
+                            if match.upper().startswith(started_word.upper().strip()):
+                                # print(match.upper() + "     " + started_word.upper())
+                                # print(match[len(started_word) :])
+                                readline.insert_text(match[len(started_word.strip()) :])
+                                readline.redisplay()
+                                return ""
                     continue
         # if failed previously scan look for successfuly space is next logical character
         for i in test_list:
@@ -464,12 +474,27 @@ class RUNCMD(Cmd):
                 x = c.explain()
                 x = x.replace(orig_line, "")
                 if (
-                    x.split(",")[0].find("Expected CaselessKeyword") > -1
-                    or x.split(",")[0].find("Expected Keyword") > -1
-                ) and x.split(",")[0].find("'" + orig_word.lower()) == -1:
+                    (
+                        x.split(",")[0].find("Expected CaselessKeyword") > -1
+                        or x.split(",")[0].find("Expected Keyword") > -1
+                        or x.split(",")[0].find("Expected {") > -1
+                    )
+                    and x.split(",")[0].find("'" + orig_word.lower()) == -1
+                    or x.split(",")[0].find("'" + orig_word.split(">>").lower()) == -1
+                ):
                     spacing = ""
                     if len(orig_line) == len(i[0]):
                         spacing = " "
+
+                    if len(orig_word.split(">>")) > 1:
+                        started_word = str(orig_word.split(">>")[-1]).strip()
+                        for match in x.split("'"):
+                            if match.upper().startswith(started_word.upper().strip()):
+                                # print(match.upper() + "     " + started_word.upper())
+                                # print(match[len(started_word) :])
+                                readline.insert_text(match[len(started_word.strip()) :])
+                                readline.redisplay()
+                                return ""
 
                     if error_col_grabber(x) - 1 < len(orig_line):
                         if len(orig_line[error_col_grabber(x) - 1 : len(orig_line)].strip()) > 0:
@@ -478,6 +503,16 @@ class RUNCMD(Cmd):
                     readline.insert_text(" ")
                     readline.redisplay()
                     return ""  # return nothing changed
+
+                if (
+                    str(str(i[1]).split(",", maxsplit=1)[0].split("{")[1].split("'")[1]).strip().upper()
+                    == str(i[0] + x.split(",")[0].split("{")[1].split("'")[1]).strip().upper()
+                ):
+                    print(x)
+                    readline.insert_text(x.split(",")[0].split("{")[1].split("'")[1].strip())
+                    readline.insert_text(" ")
+                    readline.redisplay()
+                    return ""
         # look for a bracket match
         for i in test_list:
             if error_col_grabber(str(i)) < best_fit:
@@ -486,6 +521,7 @@ class RUNCMD(Cmd):
             if len(i) > 1:
                 c = i[1]
                 x = c.explain()
+
                 x = x.replace(orig_line, "")
 
                 if x.split(",")[0].find("Expected '('") > -1 or x.split(",")[0].find("Expected ')'") > -1:
@@ -595,6 +631,7 @@ class RUNCMD(Cmd):
                 # Example input: `search for molecules in parents`
 
                 # To be double checked but... this is an impossible condition. value will always be 1 or more.
+                print(x)
                 if error_col_grabber(error_descriptor) == 0:
                     return output_error(msg("err_invalid_cmd", strip_tags(msg("run_?")), split=True), self, pad=0)
                 else:

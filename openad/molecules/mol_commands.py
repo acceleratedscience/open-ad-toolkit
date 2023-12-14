@@ -9,6 +9,8 @@ import json
 from openad.helpers.general import confirm_prompt
 from openad.helpers.output import output_text, output_table
 from openad.molecules.mol_functions import cannonical_smiles
+from rdkit import Chem
+from rdkit.Chem import AllChem
 
 cli_width = shutil.get_terminal_size().columns
 from openad.molecules.mol_functions import (
@@ -22,7 +24,13 @@ from openad.molecules.mol_functions import (
 )
 from openad.molecules.mol_functions import get_properties, get_identifiers
 import sys, os
-from openad.plugins.style_parser import print_s
+from openad.plugins.style_parser import print_s, style
+
+
+class bold_style:
+    BOLD = "<b>"
+    END = "</b>"
+
 
 # from openad.molecules.rdkit_draw import print_mol_ascii
 
@@ -32,16 +40,44 @@ def display_molecule(cmd_pointer, inp):
     mol = retrieve_mol_from_list(cmd_pointer, molecule_identifier)
     if mol is not None:
         print_string = format_identifers(mol) + "\n" + format_properties(mol) + "\n" + format_analysis(mol)
-        return print_s(print_string)
+
+        # return print_s(print_string)
     else:
         mol = retrieve_mol(molecule_identifier)
         if mol is not None:
             cmd_pointer.last_external_molecule = mol.copy()
             print_string = format_identifers(mol) + "\n" + format_properties(mol) + "\n" + format_analysis(mol)
-            return print_s(print_string)
+            # return print_s(print_string)
         else:
             print("molecule not available on pubchem")
-        return None
+            return None
+    if cmd_pointer.notebook_mode is True:
+        import py3Dmol
+        from IPython.display import Markdown, display, HTML
+
+        astyle = "stick"
+        view_mol = Chem.MolFromSmiles(mol["properties"]["canonical_smiles"])  # pylint: disable=no-member
+        view_mol = Chem.AddHs(view_mol)  # pylint: disable=no-member
+        AllChem.EmbedMolecule(view_mol)  # pylint: disable=no-member
+        AllChem.MMFFOptimizeMolecule(view_mol, maxIters=200)  # pylint: disable=no-member
+        mblock = Chem.MolToMolBlock(view_mol)  # pylint: disable=no-member
+
+        view = py3Dmol.view(width=700, height=500)
+        view.addModel(mblock, "mol")
+        view.setStyle({astyle: {"model": -1}})
+        view.zoomTo()
+        view.animate({"loop": "forward"})
+        view.show()
+        print_string = print_string.replace("<success>", "<text style=color:green;white-space=pre>")
+        print_string = print_string.replace("</success>", "</text>")
+        print_string = print_string.replace("<yellow>", "<b>")
+        print_string = print_string.replace("</yellow>", "</b>")
+        print_string = print_string.replace("\n", "<br>")
+        display(HTML("<pre>" + print_string + "</pre>"))
+    else:
+        print_s(print_string)
+
+    return True
 
 
 def export_molecule(cmd_pointer, inp):
@@ -163,6 +199,10 @@ def retrieve_mol_from_list(cmd_pointer, molecule):
         m = is_molecule(mol, molecule)
         if m is not None:
             return m.copy()
+    for mol in cmd_pointer.molecule_list:
+        m = is_molecule_synonym(mol, molecule)
+        if m is not None:
+            return m.copy()
     return None
 
 
@@ -182,6 +222,14 @@ def is_molecule(mol, molecule):
             return mol
     except:
         pass
+    return None
+
+
+def is_molecule_synonym(mol, molecule):
+    for syn in mol["synonyms"]["Synonym"]:
+        if molecule.upper() == syn.upper():
+            return mol
+
     return None
 
 
@@ -213,6 +261,7 @@ def retrieve_mol(molecule):
 
 def format_identifers(mol):
     id_string = "\n<yellow>Name:</yellow> {} \n".format(mol["name"])
+
     identifiers = get_identifiers(mol)
     i = 0
     for key, value in identifiers.items():
@@ -229,7 +278,8 @@ def format_identifers(mol):
             elif len("{}: {} ".format(key, value)) > cli_width / 2 and i == 0:
                 id_string = id_string + "{:<40}".format("<{}:> {}".format(key, value)) + "\n"
                 i = 0
-    id_string = re.sub(r"<(.*?:)> ", r"<green>\1</green> ", id_string)
+    id_string = re.sub(r"<(.*?:)> ", r"<success>\1</success>", id_string)
+    id_string = id_string + "\n\n<yellow>Synonyms:</yellow> {} \n\n".format(mol["synonyms"]["Synonym"])
     return id_string
 
 
@@ -252,7 +302,7 @@ def format_properties(mol):
             elif len("{}: {} ".format(key, value)) > cli_width / 2 and i == 0:
                 id_string = id_string + "{:<40}".format("<{}:> {}".format(key, value)) + "\n"
                 i = 0
-    id_string = re.sub(r"<(.*?:)> ", r"<green>\1</green> ", id_string)
+    id_string = re.sub(r"<(.*?:)> ", r"<success>\1</success>", id_string)
     return id_string
 
 
@@ -287,7 +337,7 @@ def format_analysis(mol):
                 elif len("{}: {} ".format(key, value)) > cli_width / 2 and i == 0:
                     id_string = id_string + "{:<40}".format("<{}:> {}".format(key, value)) + "\n"
                     i = 0
-    id_string = re.sub(r"<(.*?:)> ", r"<green>\1</green> ", id_string) + "\n"
+    id_string = re.sub(r"<(.*?:)> ", r"<success>\1</success> ", id_string) + "\n"
     return id_string
 
 
@@ -341,6 +391,23 @@ def save_molecules(cmd_pointer, inp):
             name = inp["molecule-set_name"].upper() + "_" + mol["properties"]["inchikey"] + ".molecule"
             _write_molecules(mol, mol_file_path + "/" + name.strip())
     return True
+
+
+def get_property(cmd_pointer, inp):
+    molecule_identifier = inp.as_dict()["molecule_identifier"]
+    molecule_property = inp.as_dict()["property"]
+    mol = retrieve_mol_from_list(cmd_pointer, molecule_identifier)
+    if mol is None:
+        mol = retrieve_mol(molecule_identifier)
+        if mol is not None:
+            # if not cmd_pointer.notebook_mode:
+            #    print(mol["properties"][molecule_property.lower()])
+
+            return mol["properties"][molecule_property.lower()]
+            # return print_s(print_string)
+        else:
+            print("molecule not available on pubchem")
+            return None
 
 
 def _load_molecules(location):

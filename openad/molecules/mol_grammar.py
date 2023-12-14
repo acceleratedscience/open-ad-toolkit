@@ -1,4 +1,5 @@
 from openad.core.help import help_dict_create
+from openad.molecules.mol_functions import MOL_PROPERTIES as m_props
 from pyparsing import (
     Word,
     delimitedList,
@@ -16,6 +17,7 @@ from pyparsing import (
     Suppress,
     Optional,
     Group,
+    Combine,
     nums,
     # Literal,
     # replaceWith,
@@ -80,6 +82,7 @@ clear = CaselessKeyword("clear")
 cache = CaselessKeyword("cache")
 analysis = CaselessKeyword("analysis")
 enrich = CaselessKeyword("enrich")
+mol_properties = MatchFirst(map(CaselessKeyword, m_props))
 molecules = MatchFirst(map(CaselessKeyword, mols))
 molecule = MatchFirst(map(CaselessKeyword, mol))
 molecule_set = MatchFirst(map(CaselessKeyword, molset))
@@ -233,6 +236,22 @@ def mol_grammar_add(statements, grammar_help):
             category="Molecules",
             command="create molecule <smiles_string> name <molecule_name>",
             description="creates a base molecule and adds it to the current list",
+            note=INFO_MOLECULES,
+        )
+    )
+
+    statements.append(
+        Forward("@" + molecule_identifier("molecule_identifier") + ">>" + mol_properties("property"))("mol_property")
+    )
+    description = "allows you to inspect a valid set of properties for a molecule from the following list.\n" + str(
+        m_props
+    )
+    grammar_help.append(
+        help_dict_create(
+            name="@<molecule>",
+            category="Molecules",
+            command="@<molecule>>><molecule_property_name>",
+            description=description,
             note=INFO_MOLECULES,
         )
     )
