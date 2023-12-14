@@ -6,8 +6,8 @@
 √ - Make login.py not required
 - Cleanout current toolkits to follow same basename conventions
 - DS4SD -> create search/display folder
-- We should have a command update toolkit
-- reason not to archive toolkit at moment of `remove`?
+- @future We should have a command update toolkit
+- @future archiving of a toolkit should happen on the moment of `remove toolkit` instead of at moment of `add toolkit`.
 -->
 > **WARNING:** This documentation page is still under construction. It is incomplete and may have incorrect information.
 
@@ -60,7 +60,7 @@ This mandatory file is responsible for generating the toolkit's splash screen. T
 
 The splash screen generated from the JSON file above looks like this:
 
-<a href="readme/demo-splash.png" target="_blank"><img src="readme/demo-splash.png" style="width:550px"></a>
+<a href="readme/demo-splash.png" target="_blank"><img src="readme/demo-splash.png" style="width:530px"></a>
 
 <br>
 
@@ -346,7 +346,7 @@ Then you should run the script below, which gathers all your toolkit commands an
 
 This file contains a very brief description of the toolkit, using only 4-5 words. This will be displayed when listing available or installed toolkits.
 
-<a href="readme/toolkit-list.png" target="_blank"><img src="readme/toolkit-list.png" style="width:482px"></a>
+<a href="readme/toolkit-list.png" target="_blank"><img src="readme/toolkit-list.png" style="width:500px"></a>
 
 <br>
 
