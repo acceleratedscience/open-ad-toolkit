@@ -1,5 +1,5 @@
 <!-- @future todo:
-- Rename this to llm_description.txt
+√ - Rename this to llm_description.txt
 - Hide demo and readme from list of toolkits
 - Update list of toolkits with DEMO toolkit included
 - Make hello world with bunch of options
