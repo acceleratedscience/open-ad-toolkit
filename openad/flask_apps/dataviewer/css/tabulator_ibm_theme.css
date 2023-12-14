@@ -1,0 +1,610 @@
+/****************************/
+/* #region - General        */
+
+body {
+	--svg-arrow: url('data:image/svg+xml;utf8,%3Csvg%20width%3D%228%22%20height%3D%227%22%20viewBox%3D%220%200%208%207%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20fill%3D%22%23393939%22%20d%3D%22M3.5713%206.285L0.254304%200.757C0.0543037%200.424%200.295303%20-1.69163e-08%200.682304%200L7.3173%202.90025e-07C7.7053%203.06985e-07%207.9463%200.424%207.7453%200.757L4.4283%206.285C4.2343%206.609%203.7653%206.609%203.5713%206.285Z%22%2F%3E%3C%2Fsvg%3E');
+}
+
+.tabulator {
+	font-size: var(--font-size);
+	line-height: 20px;
+	--soft-bg: #fafafa;
+	--soft-bg-sel: #ebf1fd; /* --blue-15 + 50% fafafa */
+	--soft-bg-highlight: #fdf9e3; /* --highlight + 50% fafafa */
+}
+
+/* Min cell height - avoids ugliness when resizing rows */
+.tabulator .tabulator-row,
+.tabulator-row .tabulator-cell {
+	min-height: 26px;
+}
+
+/* Block selecting of text */
+.tabulator-row .tabulator-cell {
+	user-select: none;
+}
+
+/* Allow links to break mid-word */
+.tabulator-row .tabulator-cell {
+	line-break: anywhere;
+}
+
+/**
+ * Scroll behavior
+ */
+
+/* Page-wide scroll instead of table only */
+.tabulator,
+.tabulator .tabulator-tableholder {
+	overflow: visible;
+}
+
+/**
+ * Headers
+ */
+
+.tabulator .tabulator-header .tabulator-col .tabulator-col-content {
+	padding: 4px 8px;
+}
+.tabulator .tabulator-header .tabulator-col .tabulator-col-content .tabulator-header-popup-button {
+	margin-left: -8px;
+}
+
+/**
+ * Borders
+ */
+
+.tabulator .tabulator-header {
+	background-color: transparent;
+	border: none;
+}
+.tabulator .tabulator-header .tabulator-col {
+	background-color: var(--soft-bg);
+	border: solid 1px var(--black-10);
+	border-bottom-color: var(--black-20);
+	z-index: 1;
+}
+.tabulator .tabulator-header .tabulator-col:not(:first-of-type):not(.tabulator-moving) {
+	border-left: none;
+}
+.tabulator .tabulator-row .tabulator-cell,
+.tabulator .tabulator-row .tabulator-cell:last-of-type {
+	border-right: solid 1px var(--black-10);
+}
+.tabulator .tabulator-cell:first-of-type.tabulator-editing,
+.tabulator .tabulator-cell:first-of-type {
+	border-left: solid 1px var(--black-10);
+}
+.tabulator .tabulator-row {
+	border-bottom: solid 1px var(--black-10);
+}
+
+/**
+ * Sort arrows
+ */
+
+/* Built-in sort (unused) */
+.tabulator .tabulator-header .tabulator-col .tabulator-col-content .tabulator-col-sorter .tabulator-arrow,
+.tabulator .tabulator-header .tabulator-col.tabulator-sortable[aria-sort='none'] .tabulator-col-content .tabulator-col-sorter .tabulator-arrow {
+	border: none;
+	width: 8px;
+	height: 7px;
+}
+.tabulator .tabulator-header .tabulator-col.tabulator-sortable[aria-sort='ascending'] .tabulator-col-content .tabulator-col-sorter .tabulator-arrow,
+.tabulator .tabulator-header .tabulator-col.tabulator-sortable[aria-sort='descending'] .tabulator-col-content .tabulator-col-sorter .tabulator-arrow {
+	border: none;
+	background-image: var(--svg-arrow);
+}
+.tabulator .tabulator-header .tabulator-col.tabulator-sortable[aria-sort='descending'] .tabulator-col-content .tabulator-col-sorter .tabulator-arrow {
+	transform: rotate(180deg);
+}
+.tabulator .tabulator-header .tabulator-col.tabulator-sortable .tabulator-col-title {
+	padding-right: 17px;
+}
+
+/* Custom sort */
+.tabulator:not(.edit-mode) .tabulator-header .tabulator-col {
+	cursor: pointer;
+}
+.tabulator .tabulator-header .tabulator-col.sortable .tabulator-col-title {
+	position: relative;
+	padding-right: 16px;
+}
+.tabulator .tabulator-header .tabulator-col.sortable .tabulator-col-title::after {
+	content: '';
+	display: block;
+	position: absolute;
+	top: 0;
+	right: 0;
+	width: 16px;
+	height: 100%;
+	background: var(--svg-arrow) center center no-repeat;
+	display: none;
+}
+.tabulator .tabulator-header .tabulator-col.sortable[aria-sort='ascending'] .tabulator-col-title::after {
+	display: block;
+}
+.tabulator .tabulator-header .tabulator-col.sortable[aria-sort='descending'] .tabulator-col-title::after {
+	display: block;
+	transform: rotate(180deg);
+}
+
+/**
+ * Line numbers
+ */
+
+.tabulator {
+	counter-reset: rownr;
+}
+.tabulator .tabulator-row::before {
+	counter-increment: rownr;
+	content: counter(rownr);
+	position: absolute;
+	top: calc(50% - 7px);
+	left: -40px;
+	box-sizing: border-box;
+	width: 40px;
+	height: 14px;
+	line-height: 14px;
+	font-size: 11px;
+	padding: 0 5px;
+	text-align: right;
+	color: var(--black-30);
+
+	/* Truncate */
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	direction: rtl;
+}
+
+/**
+ * Grayed-out index column
+ */
+
+.tabulator .tabulator-row > .tabulator-cell:first-of-type[tabulator-field='Index'],
+.tabulator .tabulator-row > .tabulator-cell:first-of-type[tabulator-field='#'] {
+	color: var(--black-30);
+	background: var(--soft-bg);
+}
+
+/*
+ * Truncation
+ * - - -
+ * When truncation settings are set to 3 lines, this will
+ */
+
+.tabulator-row .tabulator-cell {
+	/*
+	Undo the overflow:hidden set by tabulator because
+	we use hover states with borders and #display-full-text
+	which  all need to be able to bleed outside the cell.
+	*/
+	white-space: normal;
+	overflow: visible;
+	text-overflow: unset;
+}
+
+/* Truncate text to 3 lines */
+/* Note: .expand goes with _expandCell and is not currently used */
+.tabulator.trunc-3 .tabulator-row .tabulator-cell .text-wrap:not(.expand),
+.tabulator.trunc-3 .tabulator-row .tabulator-cell a {
+	white-space: normal;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	display: -webkit-box;
+	-webkit-line-clamp: 3;
+	-webkit-box-orient: vertical;
+}
+
+/* Truncate text to 1 line */
+.tabulator.trunc-1 .tabulator-row .tabulator-cell .text-wrap:not(.expand),
+.tabulator.trunc-1 .tabulator-row .tabulator-cell a {
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+
+	/* Override trunc-3 */
+	display: block;
+	-webkit-line-clamp: 1;
+	background: pink;
+}
+
+/* Overlay displaying full text when clicking on truncated text */
+.tabulator-row .tabulator-cell #display-full-text {
+	position: absolute;
+	top: 0;
+	left: 0;
+	padding: 4px;
+	z-index: 10000;
+	background: white;
+	border: solid 1px var(--black-30);
+	margin: -1px;
+	box-shadow: 0 0 30px var(--black-20);
+}
+
+/* #endregion */
+/****************************/
+
+/****************************/
+/* #region - Interaction    */
+
+/**
+ * Movable header
+ */
+
+.tabulator .tabulator-header .tabulator-col.tabulator-col-placeholder {
+	background: #f6f6f6;
+	border: none;
+	box-shadow: inset 0 0 10px var(--black-10), inset 0 1px 0 var(--black-10), inset 0 -1px 0 var(--black-10);
+}
+.tabulator .tabulator-header .tabulator-col.tabulator-col-sorter-element:hover {
+	background: var(--black-10);
+	box-shadow: -1px 0 0 var(--black-10);
+	z-index: 2;
+	position: relative;
+}
+.tabulator .tabulator-header .tabulator-col.tabulator-moving {
+	z-index: 2;
+	background: #fff;
+	box-shadow: 0 0 5px var(--black-10);
+}
+
+/**
+ * Copy interaction
+ */
+
+/* Copy feedback blink */
+.tabulator-cell.copied,
+.tabulator-cell.copied a,
+.tabulator-row.copied .tabulator-cell,
+.tabulator-row.copied .tabulator-cell a {
+	animation: blink 0.14s 2;
+	color: #090;
+}
+.tabulator-cell:not(.copied),
+.tabulator-cell:not(.copied) a,
+.tabulator-row:not(.copied) .tabulator-cell,
+.tabulator-row.copied .tabulator-cell a {
+	transition: color 0.5s;
+}
+
+@keyframes blink {
+	0% {
+		color: transparent;
+	}
+	49% {
+		color: transparent;
+	}
+	50% {
+		color: #090;
+	}
+	100% {
+		color: #090;
+	}
+}
+
+/**
+ * Resize handles
+ */
+
+/* Resize handle - col */
+.tabulator .tabulator-col-resize-handle:hover::after {
+	content: '';
+	display: block;
+	width: 3px;
+	height: 100%;
+	background: var(--blue-30);
+	margin-left: 1px;
+}
+
+/* Resize handle - row */
+.tabulator-row .tabulator-row-resize-handle:hover::after {
+	content: '';
+	display: block;
+	width: 100%;
+	height: 3px;
+	background: var(--blue-30);
+	position: absolute;
+	top: 4px;
+	z-index: 1;
+}
+.tabulator-row .tabulator-row-resize-handle.prev:hover::after {
+	top: -2px;
+}
+.tabulator-row:first-child .tabulator-row-resize-handle.prev {
+	display: none;
+}
+
+/**
+ * Row hover
+ */
+
+.tabulator-row.tabulator-selectable:not(.tabulator-selected):hover {
+	background: transparent;
+}
+.tabulator:not(.edit-mode) .tabulator-row.tabulator-selectable:not(.tabulator-selected):hover {
+	background-color: var(--highlight);
+	border-color: var(--highlight-border);
+	box-shadow: 0 -1px 0 0 var(--highlight-border);
+}
+.tabulator:not(.edit-mode) .tabulator-row.tabulator-selectable:not(.tabulator-selected):hover .tabulator-cell {
+	border-right-color: var(--highlight-border);
+}
+
+/* Index field */
+.tabulator:not(.edit-mode) .tabulator-row.tabulator-selectable:not(.tabulator-selected):hover > .tabulator-cell:first-of-type[tabulator-field='Index'],
+.tabulator:not(.edit-mode) .tabulator-row.tabulator-selectable:not(.tabulator-selected):hover > .tabulator-cell:first-of-type[tabulator-field='#'] {
+	background: var(--soft-bg-highlight);
+}
+
+/**
+ * Row selection
+ */
+
+.tabulator .tabulator-row.tabulator-selected,
+.tabulator .tabulator-row.tabulator-selected:hover {
+	background: #eee;
+	border-top: solid 1px rgba(0, 0, 0, 0.1);
+	margin-top: -1px;
+}
+.tabulator:not(.edit-mode) .tabulator-row.tabulator-selected {
+	background: var(--blue-15);
+}
+.tabulator:not(.edit-mode) .tabulator-row.tabulator-selected:hover {
+	background-color: var(--blue-20);
+}
+
+/* Index field */
+.tabulator:not(.edit-mode) .tabulator-row.tabulator-selected > .tabulator-cell:first-of-type[tabulator-field='Index'],
+.tabulator:not(.edit-mode) .tabulator-row.tabulator-selected > .tabulator-cell:first-of-type[tabulator-field='#'] {
+	background: var(--soft-bg-sel);
+}
+.tabulator .tabulator-row.tabulator-selected > .tabulator-cell:first-of-type[tabulator-field='Index'],
+.tabulator .tabulator-row.tabulator-selected > .tabulator-cell:first-of-type[tabulator-field='#'] {
+	background: #e6e6e6;
+}
+
+/**
+ * Cell focus
+ */
+.tabulator .tabulator-cell.focus::after {
+	content: '';
+	display: block;
+	position: absolute;
+	top: -1px;
+	left: -1px;
+	right: -1px;
+	z-index: 2;
+	/* width: 100%; */
+	height: 100%;
+	border: dashed 1px var(--blue);
+	pointer-events: none;
+}
+
+/* To avoid the focus border to peep from behind the edit field */
+.tabulator .tabulator-cell.tabulator-editing.focus::after {
+	right: 0;
+}
+
+/**
+ * Dragging rows
+ */
+
+/* Original */
+.tabulator .tabulator-row.while-dragging::after {
+	content: '';
+	display: block;
+	position: absolute;
+	left: 0;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	background: #f6f6f6;
+	box-shadow: inset 0 0 10px var(--black-10);
+}
+
+/* Clone */
+.tabulator .tabulator-row.dragging,
+.tabulator .tabulator-row.dragging:hover {
+	position: absolute;
+	z-index: 3;
+	background-color: var(--highlight);
+	border-color: var(--highlight-border);
+	border-top: solid 1px var(--black-10);
+	box-shadow: 0 0 30px var(--black-20);
+	box-shadow: 0 5px 10px var(--black-10);
+	cursor: ns-resize;
+}
+.tabulator .tabulator-row.dragging::before {
+	content: '';
+}
+
+/* #endregion */
+/****************************/
+
+/****************************/
+/* #region - Edit  mode     */
+/* Note - also see .tabulator-editing above */
+
+/* Table edit state */
+.tabulator.edit-mode {
+	overflow: visible;
+}
+.tabulator.edit-mode .tabulator-header .tabulator-col {
+	border-bottom-color: var(--blue);
+	background: var(--blue-05);
+}
+.tabulator.edit-mode .tabulator-header .tabulator-col,
+.tabulator.edit-mode .tabulator-row,
+.tabulator.edit-mode .tabulator-cell,
+.tabulator.edit-mode .tabulator-cell:last-of-type {
+	border-color: var(--blue-30);
+}
+
+/* Line on left of table */
+.tabulator.edit-mode .tabulator-header,
+.tabulator.edit-mode .tabulator-tableholder {
+	overflow: visible;
+}
+.tabulator.edit-mode .tabulator-header::before,
+.tabulator.edit-mode .tabulator-tableholder::before {
+	content: '';
+	display: block;
+	height: 100%;
+	width: 10px;
+	position: absolute;
+	left: -40px;
+	top: 0;
+	z-index: 1;
+	background: var(--blue-30);
+	opacity: 1;
+}
+
+/* Cell hover */
+.tabulator.edit-mode .tabulator-row .tabulator-cell:not(.tabulator-editing):hover {
+	overflow: visible;
+}
+.tabulator.edit-mode .tabulator-row .tabulator-cell:not(.tabulator-editing):hover::after {
+	content: '';
+	display: block;
+	position: absolute;
+	top: -1px;
+	left: -1px;
+	z-index: 2;
+	width: 100%;
+	height: 100%;
+	border: solid 1px var(--blue);
+	pointer-events: none;
+}
+
+/* Cell edit active */
+.tabulator-row .tabulator-cell.tabulator-editing,
+.tabulator-row.tabulator-selectable:hover .tabulator-cell.tabulator-editing {
+	border: none !important;
+	overflow: visible;
+}
+.tabulator-row .tabulator-cell.tabulator-editing input,
+.tabulator-row .tabulator-cell.tabulator-editing textarea,
+.tabulator-row .tabulator-cell.tabulator-editing select {
+	background: white;
+	border: solid 2px var(--blue);
+	outline: none;
+
+	/* Clean edge */
+	position: relative;
+	z-index: 3;
+	width: calc(100% + 1px) !important;
+	margin-left: -1px !important;
+	margin-top: -1px !important;
+
+	/* Font style */
+	font-family: var(--font-fam) !important;
+	font-size: var(--font-size) !important;
+	line-height: 20px;
+	padding: 3px !important;
+	padding-left: 4px !important; /* <-- Shifts text 1px right, making edit mode more clear. */
+}
+.tabulator-row .tabulator-cell.tabulator-editing input {
+	height: calc(100% + 2px) !important;
+}
+.tabulator-row .tabulator-cell.tabulator-editing textarea {
+	height: calc(100% + 1px);
+	/* min-height: calc(100% + 1px); */
+	resize: vertical !important;
+	box-sizing: border-box;
+	margin-right: -1px;
+}
+.tabulator-row .tabulator-cell.tabulator-editing:first-of-type input,
+.tabulator-row .tabulator-cell.tabulator-editing:first-of-type select {
+	width: 100% !important;
+	margin-left: 0 !important;
+}
+
+/**
+ * Links
+ */
+.tabulator.edit-mode a {
+	color: var(--black);
+	pointer-events: none;
+}
+
+/* Validation yet to be implemented */
+
+/* .tabulator-row .tabulator-cell.tabulator-validation-fail {
+  border: 1px solid #dd0000;
+}
+
+.tabulator-row .tabulator-cell.tabulator-validation-fail input,
+.tabulator-row .tabulator-cell.tabulator-validation-fail select {
+  border: 1px;
+  background: transparent;
+  color: #dd0000;
+} */
+
+/* #endregion */
+/****************************/
+
+/****************************/
+/* #region - Context menus  */
+
+.tabulator-popup-container {
+	/* Overrides */
+	border: none;
+	font-size: inherit;
+	overflow-y: inherit;
+	box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+
+	outline: solid 1px rgba(0, 0, 0, 0.1);
+	min-width: min-content;
+	white-space: nowrap;
+}
+.tabulator-menu .tabulator-menu-item {
+	/* Overrides */
+	padding: 0 10px;
+
+	cursor: pointer;
+	height: 40px;
+	line-height: 39px;
+	box-sizing: border-box;
+}
+.tabulator-menu .tabulator-menu-item:not(:first-child) {
+	border-top: solid 1px transparent;
+	margin-top: -1px;
+}
+.tabulator-menu .tabulator-menu-item:not(:last-child) {
+	border-bottom: solid 1px rgba(0, 0, 0, 0.1);
+}
+.tabulator-menu .tabulator-menu-item:not(.tabulator-menu-item-disabled):hover {
+	background: var(--blue-15);
+	position: relative;
+	z-index: 1;
+	border-top-color: rgba(0, 0, 0, 0.1);
+}
+
+/* Separator */
+.tabulator-menu .tabulator-menu-separator {
+	margin-top: -1px;
+	border-top: solid 1px var(--black-30);
+	position: relative;
+	z-index: 2;
+}
+
+/* Submenu arrow */
+.tabulator-menu .tabulator-menu-item.tabulator-menu-item-submenu:after {
+	/* Override */
+	border: none;
+	display: block;
+	transform: rotate(-90deg);
+
+	/* Style */
+	top: 0;
+	right: 0;
+	width: 25px;
+	height: 100%;
+	background: var(--svg-arrow) center center no-repeat;
+	opacity: 0.3;
+}
+
+/* #endregion */
+/****************************/

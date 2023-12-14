@@ -1,0 +1,11 @@
+{
+	"banner": "DEMO",
+	"title": "This is a Demo Toolkit",
+	"author": "Jane Doe",
+	"version": "0.0.1",
+	"intro": "This toolkit is meant as a demonstration on how to set up a toolkit. This intro paragraph should contain a brief description of what the toolkit does, ideally not much longer than ~250 characters.",
+	"commands": {
+		"hello world": "Say hello",
+		"demo docs": "Read the docs in your browser"
+	}
+}

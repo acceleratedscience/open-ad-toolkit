@@ -1,0 +1,21 @@
+{
+	"fplugin": "rxn",
+	"command": "predict reaction topn in batch",
+	"subject": "predict_reaction_topn_in_batch",
+	"from": ["file", "dataframe", "list"],
+	"OLD_USING": { "prediction_id": "desc", "ai_model": "desc", "topn": "int" },
+	"USING": { "ai_model": "desc", "topn": "int" },
+	"async": "both",
+	"use_saved": "True",
+	"exec_type": "standard_statement",
+	"exec_cmd": "predict reaction topn in batch",
+	"help": {
+		"name": "predict reaction in batch and view Top-N results",
+		"category": "Prediction",
+		"command": "predict reaction topn in batch from dataframe <dataframe_name> | file '<filename.csv>' | list ['<smiles>.<smiles>','<smiles>.<smiles>'] [ using (topn=<integer> ai_model='<ai_model>') ] [ use_saved ]",
+		"description": "",
+		"url": ""
+	},
+	"library": "fn_predict_reaction_batch_topn",
+	"method": "predict_reaction_batch_topn"
+}

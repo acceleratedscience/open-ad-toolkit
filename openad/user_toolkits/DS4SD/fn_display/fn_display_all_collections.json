@@ -1,0 +1,17 @@
+{
+	"fplugin": "ds4sd",
+	"command": "display all collections",
+	"subject": "search collections",
+	"exec_type": "standard_statement",
+	"exec_cmd": "display all collections",
+	"help": {
+		"name": "display all collections",
+		"category": "Collections",
+		"command": "display all collections [ save as '<filename.csv>' ]",
+		"description": "",
+		"url": ""
+	},
+	"library": "fn_display_all_collections",
+	"method": "display_all_collections",
+	"SAVE_AS": {}
+}

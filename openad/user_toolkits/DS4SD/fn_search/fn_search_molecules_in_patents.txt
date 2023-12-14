@@ -1,0 +1,6 @@
+Search for molecules mentioned in a defined list of patents. When sourcing patents from a CSV or DataFrame, there must be column named "PATENT ID" or "patent id".
+
+{{SAVE_AS_CLAUSE}}
+
+Example:
+<cmd>search for molecules in patents from list ['CN108473493B','US20190023713A1']</cmd>

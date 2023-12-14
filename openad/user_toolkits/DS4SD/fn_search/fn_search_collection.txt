@@ -1,0 +1,40 @@
+Performs a document search of the Deep Search repository based on a given collection. The required <cmd>using</cmd> clause specifies the collection to search. Use <cmd>estimate only</cmd> to return only the potential number of hits.
+
+Parameters:
+- <cmd><collection_name_or_key></cmd> The name or index key for a collection. {{HOW_TO_LIST_COLLECTIONS}}
+- <cmd><search_string></cmd> The search string for the search.
+		
+The <cmd><search_string></cmd> supports elastic search string query syntax:
+- <cmd>+</cmd> Signifies AND operation.
+- <cmd>|</cmd> Signifies OR operation.
+- <cmd>-</cmd> Negates a single token.
+- <cmd>\"</cmd> Wraps a number of tokens to signify a phrase for searching.
+- <cmd>*</cmd> At the end of a term -> signifies a prefix query
+- <cmd>(</cmd> & <cmd>)</cmd> Signifies precedence
+- <cmd>~N</cmd> After a word -> signifies edit distance (fuzziness)
+- <cmd>~N</cmd> After a phrase -> signifies slop amount
+
+Options for the <cmd>using</cmd> clause:
+{{NOTE_USING_CLAUSE}}
+- <cmd>page_size=<integer></cmd> Result pagination, the default is None.
+- <cmd>system_id=<system_id></cmd> System cluster id, the default is 'default'.
+- <cmd>edit_distance=<integer></cmd> (0-5) Sets the search word span criteria for key words for document searches, the default is 5. When set to 0, no snippets will be be returned.
+- <cmd>display_first=<integer></cmd> When set, the displayed result set will be truncated at the given number.
+
+Clauses:
+- <cmd>show (data | docs)</cmd>:
+    - <cmd>data</cmd> Display structured data from within the documents.
+    - <cmd>docs</cmd> Display document context and preview snippet.
+    Both can be combined in a single command, e.g. <cmd>show (data docs)</cmd>
+- <cmd>estimate only</cmd> Determine the potential number of hits.
+- <cmd>return as data</cmd> For Notebook or API mode. Removes all styling from the Pandas DataFrame, ready for further processing.
+
+Examples:
+- Look for documents that contain discussions on power conversion efficiency:
+<cmd>search collection 'arxiv-abstract' for 'ide(\"power conversion efficiency\" OR PCE) AND organ*' using ( edit_distance=20 system_id=default) show (docs)</cmd>
+
+- Search the PubChem archive for 'Ibuprofen' and display related molecules' data:
+<cmd>search collection 'pubchem' for 'Ibuprofen' show (data)</cmd>
+
+- Search for patents which mention a specific smiles molecule:
+<cmd>search collection 'patent-uspto' for '\"smiles#ccc(coc(=o)cs)(c(=o)c(=o)cs)c(=o)c(=o)cs\"' show (data)</cmd>

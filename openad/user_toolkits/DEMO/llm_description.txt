@@ -1,0 +1,12 @@
+Below is a description of the Demo toolkit and how to access its capabilities using statements in the OpenAD client.
+
+The demo toolkit is called "Developer Demo Toolkit". To add the demo Toolkit, type `add toolkit ds4sd`.
+
+The Demo toolkit doesn't have any functionbality other than a simple "hello world" example. But if it would be a real toolkit, this very paragraph would be used to explain what it does in general terms.
+
+The following commands are available for this toolkit:
+
+[Note: all text below the line above is stripped and replaced by the description_update script]
+
+General:
+	`hello world`

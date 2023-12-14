@@ -1,0 +1,20 @@
+{
+	"fplugin": "rxn",
+	"command": "predict reaction in batch",
+	"subject": "predict_reaction_in_batch",
+	"from": ["file", "dataframe", "list"],
+	"USING_old": { "prediction_id": "desc", "ai_model": "desc" },
+	"USING": { "prediction_id": "desc", "ai_model": "desc" },
+	"use_saved": "True",
+	"exec_type": "standard_statement",
+	"exec_cmd": "predict reaction in batch",
+	"help": {
+		"name": "predict reaction in batch",
+		"category": "Prediction",
+		"command": "predict reaction in batch from dataframe <dataframe_name> | file '<filename.csv>' | list ['<smiles>.<smiles>','<smiles>.<smiles>'] [ using (ai_model='<ai_model>') ] [ use_saved ]",
+		"description": "",
+		"url": ""
+	},
+	"library": "fn_predict_reaction_batch",
+	"method": "predict_reaction_batch"
+}

@@ -1,0 +1,8 @@
+Display collections that belong to the listed domains.
+
+{{SAVE_AS_CLAUSE}}
+
+{{HOW_TO_LIST_DOMAINS}}
+
+Example:
+<cmd>display collections in domains from list ['Scientific Literature']</cmd>

@@ -1,0 +1,17 @@
+{
+	"fplugin": "rxn",
+	"command": "interpret recipe",
+	"subject": "interpret_recipe",
+	"SINGLE_PARM": { "recipe": "desc" },
+	"exec_type": "standard_statement",
+	"exec_cmd": "interpret recipe",
+	"help": {
+		"name": "interpret recipe",
+		"category": "General",
+		"command": "interpret recipe '<recipe_paragraph>' | '<txt_filename>' ",
+		"description": "",
+		"url": ""
+	},
+	"library": "fn_interpret_recipe",
+	"method": "interpret_recipe"
+}

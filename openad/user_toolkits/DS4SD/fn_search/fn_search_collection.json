@@ -1,0 +1,27 @@
+{
+	"fplugin": "ds4sd",
+	"command": "search <in_clause> for",
+	"subject": "search_text",
+	"exec_type": "search_statement",
+	"exec_cmd": "search collection for",
+	"help": {
+		"name": "search collection",
+		"category": "Search Collections",
+		"command": "search collection '<collection_name_or_key>' for '<search_string>' [ using (page_size=<int> system_id=<system_id> edit_distance=<integer> display_first=<integer>) ] show (data | docs) [ estimate only | return as data | save as '<filename.csv>' ]",
+		"description": "",
+		"url": ""
+	},
+	"library": "fn_search_collection",
+	"method": "search_collection",
+	"in_clause": { "collection": "desc" },
+	"USING": {
+		"page_size": "int",
+		"system_id": "str",
+		"edit_distance": "int",
+		"display_first": "int"
+	},
+	"SHOW": ["DATA", "DOCS"],
+	"ESTIMATE_ONLY": {},
+	"SAVE_AS": {},
+	"RETURN_AS_DATA": {}
+}
