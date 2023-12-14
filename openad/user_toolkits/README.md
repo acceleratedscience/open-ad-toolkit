@@ -1,3 +1,12 @@
+<!-- @moe todo:
+- Hide demo and readme from list of toolkits
+- Make hello world with bunch of options
+- Rename fun_ to fn_
+- Rename description.txt to llm_description.txt
+- Cleanout current toolkits to follow same basename conventions
+- @Phil DS4SD -> create search/display folder?
+-->
+
 > **WARNING:** This documentation page is still under construction. It is incomplete and may have incorrect information.
 
 ---
@@ -56,7 +65,7 @@ The splash screen generated from the JSON file above looks like this:
 ### login.py
 
 Here you can expose your authentication API. If this file is present, is will be called whenever the user enters the toolkit context by running `set context <toolit_name>`. If this file is not present, authentication will be skipped.
-<!-- Todo: remove need for login file -->
+<!-- @phil @moe will try to update code so login.py is optional -->
 
 The [`login.py`](./DEMO/login.py) template takes care of success and error handling and ensures a unified user experience across all tookits. Instructions are in the file. You may have to customize it a bit more if your authentication API doesn't follow jwt/host/email/api_key conventions.
 
@@ -364,6 +373,7 @@ Then you should run the script below, which gathers all your toolkit commands an
 This file contains a very brief description of the toolkit, using only 4-5 words. This will be displayed when listing available or installed toolkits.
 
 <a href="readme/toolkit-list.png" target="_blank"><img src="readme/toolkit-list.png" style="width:482px"></a>
+<!-- @moe update this image with DEMO toolkit -->
 
 <br>
 
