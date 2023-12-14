@@ -101,10 +101,15 @@ def import_file(cmd_pointer, parser):
         # Destination already exists
         if not confirm_prompt("Destination file already exists. Overwrite?"):
             return output_error(msg("abort"), cmd_pointer)
+
     try:
         # Success
         # shutil.copyfile(PosixPath(source_file).expanduser().resolve(), path + '/' + dest_file) # Trash
-        shutil.copyfile(os.path.expanduser(source_file), workspace_path + "/" + dest_file)
+        if os.path.isfile(source_file):
+            shutil.copyfile(source_file, workspace_path + "/" + dest_file)
+        else:
+            # @later: Change language to reflect dir instead of file
+            shutil.copytree(source_file, workspace_path + "/" + dest_file)
         return output_success(msg("success_import", source_file, workspace_name), cmd_pointer)
     except Exception as err:
         # Failure

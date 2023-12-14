@@ -168,7 +168,7 @@ def create_workspace(cmd_pointer, parser):
             output_text(msg("enter_to_skip"), cmd_pointer, pad_top=1)  # force_print=True
             description = user_input(cmd_pointer, "Workspace description")
             if description is None or len(description.strip()) == 0:
-                description = " No Workspace Description"
+                description = "No workspace description available"
 
         cmd_pointer.settings["descriptions"][workspace_name] = description
         write_registry(cmd_pointer.settings, cmd_pointer, True)  # Create registry

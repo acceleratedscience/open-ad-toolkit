@@ -74,7 +74,11 @@ def all_commands(
         output = [f'<h1>Available Commands - {toolkit_name if toolkit_name else "Main"}</h1>']
         if toolkit_name and not is_toolkit_installed(toolkit_name, cmd_pointer):
             err_msg = output_error(
-                msg("fail_toolkit_not_installed", toolkit_name, split=True), cmd_pointer, return_val=True, nowrap=True
+                msg("fail_toolkit_not_installed", toolkit_name, split=True),
+                cmd_pointer,
+                return_val=True,
+                jup_return_format="markdown_data",
+                nowrap=True,
             )
             output.append(err_msg)
         elif len(commands_organized):
