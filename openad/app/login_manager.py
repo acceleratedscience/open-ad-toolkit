@@ -78,3 +78,6 @@ def load_login_api(cmd_pointer, toolkit_name, reset=False):
         except Exception as err:
             output_error(msg("err_login", err, toolkit_name, split=True), return_val=False)
             return False, None
+    else:
+        # If no login file is present, assume no login is required.
+        return True, None

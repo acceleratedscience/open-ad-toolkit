@@ -1,10 +1,9 @@
 <!-- @future todo:
-√ - Rename this to llm_description.txt
 - Hide demo and readme from list of toolkits
 - Update list of toolkits with DEMO toolkit included
 - Make hello world with bunch of options
-- Rename description.txt to llm_description.txt
-- Make login.py not required
+√ - Rename description.txt to llm_description.txt
+√ - Make login.py not required
 - Cleanout current toolkits to follow same basename conventions
 - DS4SD -> create search/display folder
 - We should have a command update toolkit
