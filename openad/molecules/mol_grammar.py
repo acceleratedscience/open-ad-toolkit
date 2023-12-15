@@ -68,11 +68,12 @@ from pyparsing import (
     results,
     export,
     create,
+    rename,
 ) = map(
     CaselessKeyword,
     "get list description using create set unset workspace workspaces context jobs exec\
           as optimize with toolkits toolkit gpu experiment add run save runs show \
-              file display history data remove result from inchi inchikey smiles formula name last load results export create".split(),
+              file display history data remove result from inchi inchikey smiles formula name last load results export create rename".split(),
 )
 mol = ["molecule", "mol"]
 mols = ["molecules", "mols"]
@@ -87,7 +88,7 @@ molecules = MatchFirst(map(CaselessKeyword, mols))
 molecule = MatchFirst(map(CaselessKeyword, mol))
 molecule_set = MatchFirst(map(CaselessKeyword, molset))
 molecule_sets = MatchFirst(map(CaselessKeyword, molsets))
-molecule_identifier = Word(alphas, alphanums + "_" + "[" + "]" + "(" + ")" + "=" + "," + "-" + "+" + "/" + "#")
+molecule_identifier = Word(alphas, alphanums + "_" + "[" + "]" + "(" + ")" + "=" + "," + "-" + "+" + "/" + "#" + "@")
 INFO_MOLECULES = "\n<soft>To learn more about workspaces, run <cmd>workspace ?</cmd></soft>"
 
 
@@ -252,6 +253,26 @@ def mol_grammar_add(statements, grammar_help):
             category="Molecules",
             command="@<molecule>>><molecule_property_name>",
             description=description,
+            note=INFO_MOLECULES,
+        )
+    )
+
+    statements.append(
+        Forward(
+            rename
+            + molecule
+            + molecule_identifier("molecule_identifier")
+            + a_s
+            + (Word(alphas, alphanums + "_")("new_name"))
+        )("rename_molecule")
+    )
+
+    grammar_help.append(
+        help_dict_create(
+            name="rename molecule",
+            category="Molecules",
+            command="rename molecule <molecule_identifer_string> name <molecule_name>",
+            description="renames a molecule currently in the working_set",
             note=INFO_MOLECULES,
         )
     )

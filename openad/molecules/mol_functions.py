@@ -67,7 +67,22 @@ MOL_PROPERTIES = [
 
 def new_molecule(Name: str, smiles: str):
     try:
-        smiles = Chem.MolToSmiles(Chem.MolFromSmiles(smiles), True)
+        new_smiles = None
+        rdkit_mol = None
+        mol_weight = None
+        inchi = None
+        inchikey = None
+        formula = None
+
+        new_smiles = Chem.MolToSmiles(Chem.MolFromSmiles(smiles), False)
+        rdkit_mol = Chem.MolFromSmiles(new_smiles)
+        formula = Chem.rdMolDescriptors.CalcMolFormula(rdkit_mol)
+        inchi = Chem.rdinchi.MolToInchi(rdkit_mol)
+
+        # inchikey = Chem.rdinchi.MolToInchikey(rdkit_mol)
+
+        # mol_weight = Chem.Descriptors.ExactMolWt(rdkit_mol)
+
     except:
         return None
 
@@ -79,8 +94,15 @@ def new_molecule(Name: str, smiles: str):
         "analysis": [],
     }
     for i in MOL_PROPERTIES:
-        mol[i] = None
-    mol["cannonical_smile"] = smiles
+        mol["properties"][i] = None
+
+    mol["properties"]["molecular_weight"] = mol_weight
+    mol["properties"]["inchi"] = inchi
+
+    mol["properties"]["inchikey"] = inchikey
+    mol["properties"]["canonical_smiles"] = new_smiles
+
+    mol["properties"]["molecular_formula"] = formula
     return mol
 
 

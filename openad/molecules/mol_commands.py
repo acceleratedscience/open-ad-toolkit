@@ -37,7 +37,9 @@ class bold_style:
 
 def display_molecule(cmd_pointer, inp):
     molecule_identifier = inp.as_dict()["molecule_identifier"]
+
     mol = retrieve_mol_from_list(cmd_pointer, molecule_identifier)
+
     if mol is not None:
         print_string = format_identifers(mol) + "\n" + format_properties(mol) + "\n" + format_analysis(mol)
 
@@ -109,7 +111,7 @@ def add_molecule(cmd_pointer, inp):
         mol = cmd_pointer.last_external_molecule
     else:
         mol = retrieve_mol(molecule_identifier)
-    if mol == None:
+    if mol is None:
         output_text("Unable to identify molecule", cmd_pointer=cmd_pointer, return_val=False)
         return True
     identifier = mol["name"] + "   " + mol["properties"]["canonical_smiles"]
@@ -127,13 +129,18 @@ def add_molecule(cmd_pointer, inp):
 
 def create_molecule(cmd_pointer, inp):
     """creates a blank molecule"""
+
     molecule_identifier = inp.as_dict()["smiles"]
     molecule_name = inp.as_dict()["name"]
+
     mol = new_molecule(molecule_name, molecule_identifier)
+
     identifier = mol["name"] + "   " + mol["properties"]["canonical_smiles"]
+
     if retrieve_mol_from_list(cmd_pointer, mol["properties"]["canonical_smiles"]) != None:
         print("Molecule already in list")
         return True
+
     if confirm_prompt("Are you wish to add " + identifier + " to your working list ?"):
         cmd_pointer.molecule_list.append(mol.copy())
         print("Molecule was Added.")
@@ -177,33 +184,41 @@ def list_molecules(cmd_pointer, inp):
         return output_text("No Molecules to List", cmd_pointer=cmd_pointer)
 
 
-def retrieve_mol_from_list_old(cmd_pointer, molecule):
-    for mol in cmd_pointer.molecule_list:
-        if molecule.upper() == mol["name"].upper():
-            return mol
-        if molecule == mol["properties"]["cid"]:
-            return mol
-        if molecule == mol["properties"]["inchi"]:
-            return mol
-        if molecule == mol["properties"]["inchikey"]:
-            return mol
-        if molecule.upper() == mol["properties"]["isomeric_smiles"].upper():
-            return mol
-        if molecule.upper() == mol["properties"]["canonical_smiles"].upper():
-            return mol
-    return None
-
-
 def retrieve_mol_from_list(cmd_pointer, molecule):
     for mol in cmd_pointer.molecule_list:
         m = is_molecule(mol, molecule)
         if m is not None:
             return m.copy()
+
     for mol in cmd_pointer.molecule_list:
         m = is_molecule_synonym(mol, molecule)
         if m is not None:
             return m.copy()
     return None
+
+
+def rename_mol_in_list(cmd_pointer, inp):
+    if retrieve_mol_from_list(cmd_pointer, inp.as_dict()["new_name"]) is not None:
+        print_s("A molecule in Working Set already contains the new name.")
+        return False
+
+    for mol in cmd_pointer.molecule_list:
+        m = is_molecule(mol, inp.as_dict()["molecule_identifier"])
+        if m is not None:
+            m["name"] = inp.as_dict()["new_name"]
+            print_s("<success> molecule successfully re-named</success>")
+            return True
+
+    for mol in cmd_pointer.molecule_list:
+        m = is_molecule_synonym(mol, inp.as_dict()["molecule_identifier"])
+        if m is not None:
+            m["name"] = inp.as_dict()["new_name"]
+            print_s("<success> molecule successfully re-named</success>")
+            return True
+
+    print_s(" molecule was not renamed, no molecule found")
+
+    return False
 
 
 def is_molecule(mol, molecule):
@@ -215,7 +230,10 @@ def is_molecule(mol, molecule):
         return mol
     if molecule == mol["properties"]["inchikey"]:
         return mol
-    if molecule.upper() == mol["properties"]["isomeric_smiles"].upper():
+    if (
+        mol["properties"]["isomeric_smiles"] != None
+        and molecule.upper() == mol["properties"]["isomeric_smiles"].upper()
+    ):
         return mol
     try:
         if cannonical_smiles(molecule) == cannonical_smiles(mol["properties"]["canonical_smiles"]):
@@ -226,9 +244,10 @@ def is_molecule(mol, molecule):
 
 
 def is_molecule_synonym(mol, molecule):
-    for syn in mol["synonyms"]["Synonym"]:
-        if molecule.upper() == syn.upper():
-            return mol
+    if mol["synonyms"] is not None and "Synonym" in mol["synonyms"]:
+        for syn in mol["synonyms"]["Synonym"]:
+            if molecule.upper() == syn.upper():
+                return mol
 
     return None
 
@@ -266,6 +285,9 @@ def format_identifers(mol):
     i = 0
     for key, value in identifiers.items():
         if key != "name":
+            if value is None:
+                value = ""
+
             if len("{}: {} ".format(key, value)) < cli_width / 2 and i == 0:
                 id_string = id_string + "{:<40}".format("<{}:> {} ".format(key, value))
                 i = 1
@@ -279,7 +301,8 @@ def format_identifers(mol):
                 id_string = id_string + "{:<40}".format("<{}:> {}".format(key, value)) + "\n"
                 i = 0
     id_string = re.sub(r"<(.*?:)> ", r"<success>\1</success>", id_string)
-    id_string = id_string + "\n\n<yellow>Synonyms:</yellow> {} \n\n".format(mol["synonyms"]["Synonym"])
+    if mol["synonyms"] != None and "Synonym" in mol["synonyms"]:
+        id_string = id_string + "\n\n<yellow>Synonyms:</yellow> {} \n\n".format(mol["synonyms"]["Synonym"])
     return id_string
 
 
@@ -290,6 +313,8 @@ def format_properties(mol):
     i = 0
     for key, value in identifiers.items():
         if key != "name":
+            if value is None:
+                value = ""
             if len("{}: {} ".format(key, value)) < cli_width / 2 and i == 0:
                 id_string = id_string + "{:<40}".format("<{}:> {} ".format(key, value))
                 i = 1

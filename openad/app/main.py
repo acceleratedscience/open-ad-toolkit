@@ -455,7 +455,7 @@ class RUNCMD(Cmd):
                         return ""
                     if len(orig_word.split(">>")) > 1:
                         started_word = str(orig_word.split(">>")[-1]).strip()
-                        print(111)
+
                         for match in x.split("'"):
                             if match.upper().startswith(started_word.upper().strip()):
                                 # print(match.upper() + "     " + started_word.upper())
@@ -508,7 +508,6 @@ class RUNCMD(Cmd):
                     str(str(i[1]).split(",", maxsplit=1)[0].split("{")[1].split("'")[1]).strip().upper()
                     == str(i[0] + x.split(",")[0].split("{")[1].split("'")[1]).strip().upper()
                 ):
-                    print(x)
                     readline.insert_text(x.split(",")[0].split("{")[1].split("'")[1].strip())
                     readline.insert_text(" ")
                     readline.redisplay()
@@ -631,7 +630,7 @@ class RUNCMD(Cmd):
                 # Example input: `search for molecules in parents`
 
                 # To be double checked but... this is an impossible condition. value will always be 1 or more.
-                print(x)
+
                 if error_col_grabber(error_descriptor) == 0:
                     return output_error(msg("err_invalid_cmd", strip_tags(msg("run_?")), split=True), self, pad=0)
                 else:
