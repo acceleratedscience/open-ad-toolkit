@@ -12,10 +12,10 @@
 	"help": {
 		"name": "predict reaction in batch and view Top-N results",
 		"category": "Prediction",
-		"command": "predict reaction topn in batch from dataframe <dataframe_name> | file '<csv_filename>' | list ['<smiles>.<smiles>','<smiles>.<smiles>'] [ using (topn=<integer> ai_model='<ai_model>') ] [ use_saved ]",
+		"command": "predict reaction topn in batch from dataframe <dataframe_name> | file '<filename.csv>' | list ['<smiles>.<smiles>','<smiles>.<smiles>'] [ using (topn=<integer> ai_model='<ai_model>') ] [ use_saved ]",
 		"description": "",
 		"url": ""
 	},
-	"library": "rxn_predict_reaction_batch_topn",
+	"library": "fn_predict_reaction_batch_topn",
 	"method": "predict_reaction_batch_topn"
 }

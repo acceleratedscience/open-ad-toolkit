@@ -7,11 +7,11 @@
 	"help": {
 		"name": "display collection matches",
 		"category": "Search Collections",
-		"command": "display collection matches for '<search_string>' [ save as '<csv_filename>' ]",
+		"command": "display collection matches for '<search_string>' [ save as '<filename.csv>' ]",
 		"description": "",
 		"url": ""
 	},
-	"library": "ds4sd_display_collection_matches",
+	"library": "fn_display_collection_matches",
 	"method": "display_collection_matches",
 	"SINGLE_PARM": { "search_string": "desc" },
 	"SAVE_AS": {}

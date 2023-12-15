@@ -44,7 +44,7 @@ def valid_inchi(input_molecule) -> bool:
         return True
 
 
-def search_patent_molecule(inputs: dict, cmd_pointer):
+def search_patents_cont_molecule(inputs: dict, cmd_pointer):
     """Searches Patents for occurences of a molecule
     inputs: parser inputs from pyparsing
     cmd_pointer: pointer to runtime

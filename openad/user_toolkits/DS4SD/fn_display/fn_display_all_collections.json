@@ -7,11 +7,11 @@
 	"help": {
 		"name": "display all collections",
 		"category": "Collections",
-		"command": "display all collections [ save as '<csv_filename>' ]",
+		"command": "display all collections [ save as '<filename.csv>' ]",
 		"description": "",
 		"url": ""
 	},
-	"library": "ds4sd_display_collection_all",
+	"library": "fn_display_all_collections",
 	"method": "display_all_collections",
 	"SAVE_AS": {}
 }

@@ -8,7 +8,7 @@ from openad.helpers.output import output_text
 _tableformat = "simple"
 
 
-def display_all_collections(inputs: dict, cmd_pointer):
+def display_collections_in_domains_list(inputs: dict, cmd_pointer):
     """display all collections from a given Deep Sesrch Domain
     inputs: parser inputs from pyparsing
     cmd_pointer: pointer to runtime"""

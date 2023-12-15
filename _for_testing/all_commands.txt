@@ -35,8 +35,8 @@ remove 'imported_molecules.sdf'
 get status
 display history
 clear sessions
-import from '_for_testing/func_display_collection.json' to 'func_display_collection.json'
-edit config 'func_display_collection.json'
+import from '_for_testing/fn_display_collection.json' to 'fn_display_collection.json'
+edit config 'fn_display_collection.json'
 
 # Help
 

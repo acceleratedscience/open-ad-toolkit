@@ -6,11 +6,11 @@
 	"exec_cmd": "list rxn models ",
 	"help": {
 		"name": "list rxn models",
-		"category": "Queries",
+		"category": "General",
 		"command": "list rxn models",
 		"description": "lists current rxn AI Models available to the user",
 		"url": ""
 	},
-	"library": "rxn_list_models",
+	"library": "fn_list_models",
 	"method": "list_models"
 }

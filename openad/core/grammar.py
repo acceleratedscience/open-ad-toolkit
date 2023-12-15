@@ -473,7 +473,7 @@ grammar_help.append(
     help_dict_create(
         name="display data",
         category="Utility",
-        command="display data '<csv_filename>'",
+        command="display data '<filename.csv>'",
         description="Display data from a csv file.",
     )
 )
@@ -484,7 +484,7 @@ grammar_help.append(
     help_dict_create(
         name="save",
         category="Utility",
-        command="result save [as '<csv_filename>']",
+        command="result save [as '<filename.csv>']",
         description="Save table data to csv file.",
         parent="display data",
     )

@@ -134,10 +134,10 @@ Display the commands stored in a certain run.<br><br>
 
 ### Utility
 
-`display data '<csv_filename>'`{: .cmd }
+`display data '<filename.csv>'`{: .cmd }
 Display data from a csv file.<br><br>
 
-`-> result save [as '<csv_filename>']`{: .cmd }
+`-> result save [as '<filename.csv>']`{: .cmd }
 Save table data to csv file.<br><br>
 
 `-> result open`{: .cmd }
@@ -225,7 +225,7 @@ List all available commands.<br><br>
 
 ### Search Molecules
 
-`search for patents containing molecule '<smiles>' | '<inchi>' | '<inchi_key>' [ save as '<csv_filename>' ]`{: .cmd }
+`search for patents containing molecule '<smiles>' | '<inchi>' | '<inchi_key>' [ save as '<filename.csv>' ]`{: .cmd }
 Search for mentions of a specified molecules in registered patents. The queried molecule can be described as a SMILES string, InChI or InChiKey.<br>
 
 Use the `save as` clause to save the results as a csv file in your current workspace.<br>
@@ -233,7 +233,7 @@ Use the `save as` clause to save the results as a csv file in your current works
 Example:<br>
 `search for patents containing molecule 'CC(C)(c1ccccn1)C(CC(=O)O)Nc1nc(-c2c[nH]c3ncc(Cl)cc23)c(C#N)cc1F'`<br><br>
 
-`search for similar molecules to '<smiles>' [ save as '<csv_filename>' ]`{: .cmd }
+`search for similar molecules to '<smiles>' [ save as '<filename.csv>' ]`{: .cmd }
 Search for molecules that are similar to the provided molecule or molecule substructure as provided in the `<smiles_string>`.<br>
 
 Use the `save as` clause to save the results as a csv file in your current workspace.<br>
@@ -241,7 +241,7 @@ Use the `save as` clause to save the results as a csv file in your current works
 Example:<br>
 `search for similar molecules to 'C1(C(=C)C([O-])C1C)=O'`<br><br>
 
-`search for molecules in patents from list ['<patent1>', '<patent2>', ...] | dataframe <dataframe_name> | file '<csv_filename>' [ save as '<csv_filename>' ]`{: .cmd }
+`search for molecules in patents from list ['<patent1>', '<patent2>', ...] | dataframe <dataframe_name> | file '<filename.csv>' [ save as '<filename.csv>' ]`{: .cmd }
 Search for molecules mentioned in a defined list of patents. When sourcing patents from a CSV or DataFrame, there must be column named "PATENT ID" or "patent id".<br>
 
 Use the `save as` clause to save the results as a csv file in your current workspace.<br>
@@ -249,7 +249,7 @@ Use the `save as` clause to save the results as a csv file in your current works
 Example:<br>
 `search for molecules in patents from list ['CN108473493B','US20190023713A1']`<br><br>
 
-`search for substructure instances of '<smiles>' [ save as '<csv_filename>' ]`{: .cmd }
+`search for substructure instances of '<smiles>' [ save as '<filename.csv>' ]`{: .cmd }
 Search for molecules by substructure, as defined by the `<smiles_string>`.<br>
 
 Use the `save as` clause to save the results as a csv file in your current workspace.<br>
@@ -261,7 +261,7 @@ Example:<br>
 
 ### Search Collections
 
-`search collection '<collection_name_or_key>' for '<search_string>' [ using (page_size=<int> system_id=<system_id> edit_distance=<integer> display_first=<integer>) ] show (data | docs) [ estimate only | return as data | save as '<csv_filename>' ]`{: .cmd }
+`search collection '<collection_name_or_key>' for '<search_string>' [ using (page_size=<int> system_id=<system_id> edit_distance=<integer> display_first=<integer>) ] show (data | docs) [ estimate only | return as data | save as '<filename.csv>' ]`{: .cmd }
 Performs a document search of the Deep Search repository based on a given collection. The required `using` clause specifies the collection to search. Use `estimate only` to return only the potential number of hits.<br>
 
 Parameters:<br>
@@ -304,7 +304,7 @@ Examples:<br>
 - Search for patents which mention a specific smiles molecule:<br>
 `search collection 'patent-uspto' for '\"smiles#ccc(coc(=o)cs)(c(=o)c(=o)cs)c(=o)c(=o)cs\"' show (data)`<br><br>
 
-`display collection matches for '<search_string>' [ save as '<csv_filename>' ]`{: .cmd }
+`display collection matches for '<search_string>' [ save as '<filename.csv>' ]`{: .cmd }
 Search all collections for documents that contain a given Deep Search `<search_string>`. This is useful when narrowing down document collection(s) for subsequent search. You can use the `<index_key>` from the returned table in your next search.<br>
 
 Use the `save as` clause to save the results as a csv file in your current workspace.<br>
@@ -324,12 +324,12 @@ Use the command `display all collections` to find available domains.<br>
 Example:<br>
 `display collections for domain 'Business Insights'`<br><br>
 
-`display all collections [ save as '<csv_filename>' ]`{: .cmd }
+`display all collections [ save as '<filename.csv>' ]`{: .cmd }
 Display all available collections in Deep Search.<br>
 
 Use the `save as` clause to save the results as a csv file in your current workspace.<br><br>
 
-`display collections in domains from list <list_of_domains> [ save as '<csv_filename>' ]`{: .cmd }
+`display collections in domains from list <list_of_domains> [ save as '<filename.csv>' ]`{: .cmd }
 Display collections that belong to the listed domains.<br>
 
 Use the `save as` clause to save the results as a csv file in your current workspace.<br>
@@ -395,7 +395,7 @@ Examples:<br>
 
 ### Prediction
 
-`predict reaction in batch from dataframe <dataframe_name> | file '<csv_filename>' | list '<smiles>.<smiles>'  [ using (ai_model='<ai_model>') ] [ use_saved ]`{: .cmd }
+`predict reaction in batch from dataframe <dataframe_name> | file '<filename.csv>' | list '<smiles>.<smiles>'  [ using (ai_model='<ai_model>') ] [ use_saved ]`{: .cmd }
 Run a batch of reaction predictions. The provided list of reactions can be specified as a DataFrame, a CSV file from your current workspace or a list of strings. When proving a DataFrame or CSV file, we will look for the "reactions" column.<br>
 
 Reactions are defined by combining two SMILES strings delimited by a period. For example: `'BrBr.c1ccc2cc3ccccc3cc2c1'`<br>
@@ -423,7 +423,7 @@ Examples:<br>
 - `predict reaction 'BrBr.c1ccc2cc3ccccc3cc2c1CCO'`<br>
 - `predict reaction 'BrBr.c1ccc2cc3ccccc3cc2c1CCO' use_saved`<br><br>
 
-`predict reaction topn in batch from dataframe <dataframe_name> | file '<csv_filename>' | list ['<smiles>.<smiles>','<smiles>.<smiles>'] [ using (topn=<integer> ai_model='<ai_model>') ] [ use_saved ]`{: .cmd }
+`predict reaction topn in batch from dataframe <dataframe_name> | file '<filename.csv>' | list ['<smiles>.<smiles>','<smiles>.<smiles>'] [ using (topn=<integer> ai_model='<ai_model>') ] [ use_saved ]`{: .cmd }
 Run a batch of reaction predictions for topn. The provided list of reactions can be specified as a DataFrame, a CSV file from your current workspace or a list of strings. When proving a DataFrame or CSV file, we will look for the "reactions" column.<br>
 
 Reactions are defined by combining two SMILES strings delimited by a period. For example: `'BrBr.c1ccc2cc3ccccc3cc2c1'`<br>

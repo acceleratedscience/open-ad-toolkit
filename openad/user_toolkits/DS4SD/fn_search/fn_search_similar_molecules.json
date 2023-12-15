@@ -7,11 +7,11 @@
 	"help": {
 		"name": "search for similar molecules to",
 		"category": "Search Molecules",
-		"command": "search for similar molecules to '<smiles>' [ save as '<csv_filename>' ]",
+		"command": "search for similar molecules to '<smiles>' [ save as '<filename.csv>' ]",
 		"description": "",
 		"url": ""
 	},
-	"library": "ds4sd_search_similar_molecules",
+	"library": "fn_search_similar_molecules",
 	"method": "search_similar_molecules",
 	"SINGLE_PARM": { "smiles": "desc" },
 	"SAVE_AS": {}

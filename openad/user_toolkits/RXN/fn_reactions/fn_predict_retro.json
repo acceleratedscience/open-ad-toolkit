@@ -25,6 +25,6 @@
 		"description": "",
 		"url": {}
 	},
-	"library": "rxn_predict_retro",
+	"library": "fn_predict_retro",
 	"method": "predict_retro"
 }

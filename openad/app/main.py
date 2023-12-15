@@ -247,7 +247,7 @@ class RUNCMD(Cmd):
                 output_text("<h1>About Context</h1>\n" + info_context, self, edge=True, pad=1, return_val=False)
 
         # `<toolkit_name> ?` --> Display all toolkkit commands.
-        if inp.upper() in _all_toolkits:
+        if inp.upper() in _all_toolkits + ["DEMO"]:  # DEMO is omitted from _all_toolkits
             toolkit_name = inp.upper()
             ok, toolkit = load_toolkit(toolkit_name)
             return output_text(
@@ -602,9 +602,8 @@ class RUNCMD(Cmd):
                         c = i[1]
                         try:
                             x = c.explain()
-                        except (
-                            Exception  # pylint: disable=broad-exception-caught
-                        ):  # we do not know what the error could be, so no point in being more specific
+                        # we do not know what the error could be, so no point in being more specific
+                        except Exception as err:  # pylint: disable=broad-exception-caught
                             return output_error(msg("err_unknown", err1, split=True), self, return_val=False)
 
                         if x.find("Expected CaselessKeyword") > -1 and x.find("at char 0") == -1:
@@ -825,10 +824,15 @@ def api_remote(
                 inp = ""
             elif inp.strip() == "??":
                 inp = "?"
-            return magic_prompt.do_help(inp, display_info=True)
+
+            # return magic_prompt.do_help(inp, display_info=True)
             # Triggered by magic commands, eg. `%openad list files ?`
             # display_info = inp.split()[0] == "?" and inp.strip() != "??"
             # return magic_prompt.do_help(inp.strip(), display_info=display_info)
+
+            # Triggered by magic commands, eg. `%openad ? list files`
+            starts_with_qmark = len(inp) > 0 and inp.split()[0] == "?" and inp.strip() != "??"
+            return magic_prompt.do_help(inp.strip(), display_info=starts_with_qmark)
 
         # If there is a argument and it is not a help attempt to run the command.
         # Note, may be possible add code completion here #revisit
@@ -873,9 +877,9 @@ def cmd_line():
             elif inp.strip() == "??":
                 inp = "?"
 
-            # Supposedly triggered by running commands from main terminal prepended with `openad`.
-            display_info = inp.split()[0] == "?" and inp.strip() != "??"
-            command_line.do_help(inp.strip(), display_info=display_info)
+            # Triggered by running commands from main terminal prepended with `openad`.
+            starts_with_qmark = len(inp) > 0 and inp.split()[0] == "?" and inp.strip() != "??"
+            command_line.do_help(inp.strip(), display_info=starts_with_qmark)
 
         # If user wants to run command line and specify toolkit, for a specific command:
         elif words[0].lower() == "-s" and len(words) > 3:

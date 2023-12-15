@@ -46,7 +46,7 @@ def valid_smiles(input_molecule) -> bool:
     return True
 
 
-def search_patent_molecules(inputs: dict, cmd_pointer):
+def search_molecules_in_patents(inputs: dict, cmd_pointer):
     """search patents for all mentioned molecules
     inputs: parser inputs from pyparsing
     cmd_pointer: pointer to runtime
@@ -146,7 +146,7 @@ def search_patent_molecules(inputs: dict, cmd_pointer):
             "\n <success>File successfully saved to workspace.</success>", cmd_pointer=cmd_pointer, return_val=False
         )
     output_text(" ", cmd_pointer=cmd_pointer, return_val=False)
-    output_text(" <h3>  Molecules Mentioned in listed Patents: </h3>", cmd_pointer=cmd_pointer, return_val=False)
+    output_text("<h2>Molecules Mentioned in listed Patents:</h2>", cmd_pointer=cmd_pointer, return_val=False)
     output_text(" / ".join(from_list) + "", cmd_pointer=cmd_pointer, return_val=False)
 
     if cmd_pointer.notebook_mode is True:

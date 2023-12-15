@@ -27,7 +27,7 @@ aggs = {
 }
 
 
-def search(inputs: dict, cmd_pointer):
+def search_collection(inputs: dict, cmd_pointer):
     if cmd_pointer.notebook_mode is True:
         from tqdm.notebook import tqdm
         import IPython.display as display
@@ -200,7 +200,7 @@ def search(inputs: dict, cmd_pointer):
         df = pd.json_normalize(all_aggs)
         if cmd_pointer.notebook_mode is True:
             if len(df.columns) > 1:
-                display.display(output_text("<h3>Distribution of Returned Documents by Year</h3>"))
+                display.display(output_text("<h2>Distribution of Returned Documents by Year</h2>"))
                 display.display(output_table(df, cmd_pointer=cmd_pointer))
         elif all_aggs != {}:
             if len(df.columns) > 1:

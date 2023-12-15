@@ -15,17 +15,17 @@ Once the data has been consolidated and extracted, Deep Search organizes and str
 The following commands are available for this toolkit:
 
 Search Molecules:
-	`search for patents containing molecule '<smiles>' | '<inchi>' | '<inchi_key>' [ save as '<csv_filename>' ]`
-	`search for similar molecules to '<smiles>' [ save as '<csv_filename>' ]`
-	`search for molecules in patents from list ['<patent1>', '<patent2>', ...] | dataframe <dataframe_name> | file '<csv_filename>' [ save as '<csv_filename>' ]`
-	`search for substructure instances of '<smiles>' [ save as '<csv_filename>' ]`
+	`search for patents containing molecule '<smiles>' | '<inchi>' | '<inchi_key>' [ save as '<filename.csv>' ]`
+	`search for similar molecules to '<smiles>' [ save as '<filename.csv>' ]`
+	`search for molecules in patents from list ['<patent1>', '<patent2>', ...] | dataframe <dataframe_name> | file '<filename.csv>' [ save as '<filename.csv>' ]`
+	`search for substructure instances of '<smiles>' [ save as '<filename.csv>' ]`
 
 Search Collections:
-	`search collection '<collection_name_or_key>' for '<search_string>' [ using (page_size=<int> system_id=<system_id> edit_distance=<integer> display_first=<integer>) ] show (data | docs) [ estimate only | return as data | save as '<csv_filename>' ]`
-	`display collection matches for '<search_string>' [ save as '<csv_filename>' ]`
+	`search collection '<collection_name_or_key>' for '<search_string>' [ using (page_size=<int> system_id=<system_id> edit_distance=<integer> display_first=<integer>) ] show (data | docs) [ estimate only | return as data | save as '<filename.csv>' ]`
+	`display collection matches for '<search_string>' [ save as '<filename.csv>' ]`
 
 Collections:
 	`display collections for domain '<domain_name>'`
-	`display all collections [ save as '<csv_filename>' ]`
-	`display collections in domains from list <list_of_domains> [ save as '<csv_filename>' ]`
+	`display all collections [ save as '<filename.csv>' ]`
+	`display collections in domains from list <list_of_domains> [ save as '<filename.csv>' ]`
 	`display collection details '<collection_name_or_key>'`

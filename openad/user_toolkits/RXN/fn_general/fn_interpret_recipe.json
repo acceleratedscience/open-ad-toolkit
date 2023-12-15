@@ -7,11 +7,11 @@
 	"exec_cmd": "interpret recipe",
 	"help": {
 		"name": "interpret recipe",
-		"category": "Retrosynthesis",
+		"category": "General",
 		"command": "interpret recipe '<recipe_paragraph>' | '<txt_filename>' ",
 		"description": "",
 		"url": ""
 	},
-	"library": "rxn_recipe_interpret",
+	"library": "fn_interpret_recipe",
 	"method": "interpret_recipe"
 }

@@ -59,14 +59,14 @@ def load_toolkit(toolkit_name, from_repo=False, for_training=False):
     snippetsModule = load_module_from_path("snippets", f"{source}/{toolkit_name}/_snippets.py")
     snippets = snippetsModule.snippets if snippetsModule else None
 
-    for i in glob.glob(f"{source}/{toolkit_name}/**/func_*.json", recursive=True):
-        func_file = open(i, "r", encoding="utf-8")
-        x = json.load(func_file)
+    for i in glob.glob(f"{source}/{toolkit_name}/**/fn_*.json", recursive=True):
+        fn_file = open(i, "r", encoding="utf-8")
+        x = json.load(fn_file)
 
         # Load description from separate file if it is external.
         if x["help"]["description"] == "":
             try:
-                txt_file = open(i.replace(".json", "--description.txt"), "r")
+                txt_file = open(i.replace(".json", ".txt"), "r")
                 x["help"]["description"] = txt_file.read()
             except BaseException:
                 x["help"]["description"] = "Failed to load description"
@@ -89,7 +89,7 @@ def load_toolkit(toolkit_name, from_repo=False, for_training=False):
     if for_training:
         try:
             with open(
-                _meta_dir_toolkits + "/" + toolkit_name + "/description.txt", "r", encoding="utf-8"
+                _meta_dir_toolkits + "/" + toolkit_name + "/llm_description.txt", "r", encoding="utf-8"
             ) as toolkit_file:
                 the_toolkit.toolkit_description = toolkit_file.read()
                 toolkit_file.close()

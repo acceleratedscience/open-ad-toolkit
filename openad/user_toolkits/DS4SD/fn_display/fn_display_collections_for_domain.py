@@ -5,7 +5,7 @@ from openad.helpers.output import output_table
 _tableformat = "simple"
 
 
-def display_collection(inputs: dict, cmd_pointer):
+def display_collections_for_domain(inputs: dict, cmd_pointer):
     """Displays a Domains Collections"""
     api = cmd_pointer.login_settings["toolkits_api"][cmd_pointer.login_settings["toolkits"].index("DS4SD")]
     collections = api.elastic.list(domain=inputs["domain"])

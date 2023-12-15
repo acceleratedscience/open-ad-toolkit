@@ -4,7 +4,7 @@ from openad.helpers.output import output_error
 _tableformat = "simple"
 
 
-def display_a_collection(inputs: dict, cmd_pointer):
+def display_collection_details(inputs: dict, cmd_pointer):
     """Displays the details for a given collection
     inputs: parser inputs from pyparsing
        cmd_pointer: pointer to runtime"""

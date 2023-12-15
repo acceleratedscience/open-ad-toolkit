@@ -99,8 +99,16 @@ def mol_grammar_add(statements, grammar_help):
         help_dict_create(
             name="add molecule",
             category="Molecules",
-            command="add molecule|mol <name> | <smiles> | <inchi> | <inchkey> | <cid>",
-            description="adds a given molecule from pubchem to the working List.",
+            command="add molecule|mol  <name> | <smiles> | <inchi> | <inchkey> | <cid>",
+            description="""Adds a given molecule from pubchem to the current working set of molecules. Users can specify a Molecule by A name given to it, a SMILES string, inchi String, Inchkey or its cid.\n
+            For example:\n 
+                - Adding a molecule by name: <cmd> add molecule Aspirin </cmd>\n
+                - Adding a molecule by SMILES string: <cmd> add molecule CC(=O)OC1=CC=CC=C1C(=O)O </cmd>\n
+                - Adding a molecule by cid: <cmd> add mol 2244 </cmd>\n
+                - Adding a molecule by inchikey string: <cmd> add mol  BSYNRYMUTXBXSQ-UHFFFAOYSA-N </cmd>\n
+                - Adding a molecule by inchi inchi: <cmd> add mol  InChI=1S/C9H8O4/c1-6(10)13-8-5-3-2-4-7(8)9(11)12/h2-5H,1H3,(H,11,12) </cmd> \n
+                
+                Note: when adding a moelcule its name when added to the working list will be the identifying string you added it by. you can use the <cmd> rename </cmd> command to change it""",
             note=INFO_MOLECULES,
         )
     )
@@ -110,7 +118,38 @@ def mol_grammar_add(statements, grammar_help):
             name="display molecule",
             category="Molecules",
             command="display molecule|mol <name> | <smiles> | <inchi> | <inchkey> |  <cid>",
-            description="Displays a molecule from pubchem or a current working list.",
+            description="""Displays a given molecule by first checking the current working set of molecules, then if not in the working set will search pubchem. Users can specify a Molecule by A name given to it, a SMILES string, inchi String, Inchkey or its cid.\n
+            For example:\n 
+                - Displaying a molecule by name: <cmd> display molecule Aspirin </cmd>\n
+                - Displaying a molecule by SMILES string: <cmd> display molecule CC(=O)OC1=CC=CC=C1C(=O)O </cmd>\n
+                - Displaying a molecule by cid: <cmd> display mol 2244 </cmd>\n
+                - Displaying a molecule by inchikey string: <cmd> display mol  BSYNRYMUTXBXSQ-UHFFFAOYSA-N </cmd>\n
+                - Displaying a molecule by inchi inchi: <cmd> display mol  InChI=1S/C9H8O4/c1-6(10)13-8-5-3-2-4-7(8)9(11)12/h2-5H,1H3,(H,11,12) </cmd> \n
+                """,
+            note=INFO_MOLECULES,
+        )
+    )
+    statements.append(
+        Forward(
+            rename
+            + molecule
+            + molecule_identifier("molecule_identifier")
+            + a_s
+            + (Word(alphas, alphanums + "_")("new_name"))
+        )("rename_molecule")
+    )
+
+    grammar_help.append(
+        help_dict_create(
+            name="rename molecule",
+            category="Molecules",
+            command="rename molecule <molecule_identifer_string> name <molecule_name>",
+            description="""This command renames a molecule in the current working set to a name you provide it.
+            For example:
+            I have added a molecule by the molecule 'CC(=O)OC1=CC=CC=C1C(=O)O'to the current working set of molecules, but I want to rename it to 'Aspirin'. the command to do this would be:
+
+            <cmd> rename molecule CC(=O)OC1=CC=CC=C1C(=O)O as Aspirin </cmd>
+            """,
             note=INFO_MOLECULES,
         )
     )
@@ -127,7 +166,10 @@ def mol_grammar_add(statements, grammar_help):
             name="export molecule",
             category="Molecules",
             command="export molecule|mol <name> | <smiles> | <inchi> | <inchkey> |  <cid> [as file]",
-            description="exports a molecule from pubchem or the current list to a file named as the molecules given name and or as a dictionary(when in Notebooks).",
+            description="""exports a molecule from pubchem or the current list to a file named as the molecules given name and or as a dictionary(when in Notebooks) The molecule does not have to be form the current working set, and if not the request will be made to pubchem.
+            For Example: 
+                    - The following will return a dictionary when called in jupyter notebooks or from the command line it will save it to the current workspace directory as a '.json' file. <cmd> export molecule aspirin <cmd>
+                    - The following will  save it to the current workspace directory as a '.json' file. <cmd> export molecule aspirin as file <cmd> """,
             note=INFO_MOLECULES,
         )
     )
@@ -137,7 +179,15 @@ def mol_grammar_add(statements, grammar_help):
             name="remove molecules",
             category="Molecules",
             command="remove molecule|mol <name> | <smiles> | <inchi> | <inchkey> | <formula> | <cid> ",
-            description="removes molecule from working list of molecules.",
+            description="""removes molecule from the current working set of molecules.
+            
+            For example:\n 
+                - Remove a molecule by name: <cmd> display molecule Aspirin </cmd>\n
+                - Remove a molecule by SMILES string: <cmd> display molecule CC(=O)OC1=CC=CC=C1C(=O)O </cmd>\n
+                - Remove a molecule by cid: <cmd> display mol 2244 </cmd>\n
+                - Remove a molecule by inchikey string: <cmd> display mol  BSYNRYMUTXBXSQ-UHFFFAOYSA-N </cmd>\n
+                - Remove a molecule by inchi inchi: <cmd> display mol  InChI=1S/C9H8O4/c1-6(10)13-8-5-3-2-4-7(8)9(11)12/h2-5H,1H3,(H,11,12) </cmd> \n
+                """,
             note=INFO_MOLECULES,
         )
     )
@@ -148,17 +198,11 @@ def mol_grammar_add(statements, grammar_help):
             name="list molecules",
             category="Molecules",
             command="list molecules|mols",
-            description="lists the molecules in the working list of molecules.",
-            note=INFO_MOLECULES,
-        )
-    )
-    statements.append(Forward(add + l_ast + molecule)("add_last_molecule"))
-    grammar_help.append(
-        help_dict_create(
-            name="add last molecule|mol",
-            category="Molecules",
-            command="add last molecule|mol",
-            description="Adds the last molecule retrieved from external source to working list of molecules.",
+            description="""lists the molecules in the current working set of molecules.
+            For example:
+            <cmd>list molecules<cmd>
+            
+            """,
             note=INFO_MOLECULES,
         )
     )
@@ -172,7 +216,8 @@ def mol_grammar_add(statements, grammar_help):
             name="save molecule-set",
             category="Molecules",
             command="save molecule-set|molset as <molecule-set_name>",
-            description="saves a molecule set to the current  workspace.",
+            description="""Saves the current molecule working set to the current workspace.
+             For example: <cmd> save molecule-set as my_working_set</cmd>""",
             note=INFO_MOLECULES,
         )
     )
@@ -185,7 +230,8 @@ def mol_grammar_add(statements, grammar_help):
             name="load molecule-set",
             category="Molecules",
             command="load molecule-set|molset <molecule-set_name>",
-            description="loads the molecules from the current workspace.",
+            description="""loads the molecules from the current workspace.
+            For example: <cmd> load molecule-set my_working_set</cmd>""",
             note=INFO_MOLECULES,
         )
     )
@@ -197,7 +243,9 @@ def mol_grammar_add(statements, grammar_help):
             name="list molecule-sets",
             category="Molecules",
             command="list molecule-sets|molsets",
-            description="lists molecule sets in the current workspace.",
+            description="""lists molecule sets in the current workspace.
+            For Example:
+            <cmd> List molecule-sets </cmd> or <cmd>list molsets</cmd>""",
             note=INFO_MOLECULES,
         )
     )
@@ -236,7 +284,11 @@ def mol_grammar_add(statements, grammar_help):
             name="create molecule",
             category="Molecules",
             command="create molecule <smiles_string> name <molecule_name>",
-            description="creates a base molecule and adds it to the current list",
+            description="""creates a base molecule and adds it to the current list
+            For example: 
+                <cmd>create  molecule CC(=O)OC1=CC=CC=C1C(=O)O name my_aspirin</cmd>
+                 
+                Note it will try and calclculate other idenfiers in the molecule data structure, other propoerties are left as None. """,
             note=INFO_MOLECULES,
         )
     )
@@ -244,35 +296,22 @@ def mol_grammar_add(statements, grammar_help):
     statements.append(
         Forward("@" + molecule_identifier("molecule_identifier") + ">>" + mol_properties("property"))("mol_property")
     )
-    description = "allows you to inspect a valid set of properties for a molecule from the following list.\n" + str(
+    description = """allows you to get a molecule property by using one of the propoerties listed below. The molecule can be identified by a name, SMILES, Inchi key or cid.
+
+    For example:
+        - Obtain the molecular weight of the molecule known as aspirin. <cmd> @aspirin>>molecular_weight </cmd>
+        - Obtain a molecules xlogp value using a SMILES string. <cmd> @CC(=O)OC1=CC=CC=C1C(=O)O>>xlogp </cmd>
+
+     
+      Here is a list of valid properties that can be requested. \n""" + str(
         m_props
     )
     grammar_help.append(
         help_dict_create(
             name="@<molecule>",
             category="Molecules",
-            command="@<molecule>>><molecule_property_name>",
+            command="@(<name> | <smiles> | <inchi> | <inchkey> | <cid>)>><molecule_property_name>",
             description=description,
-            note=INFO_MOLECULES,
-        )
-    )
-
-    statements.append(
-        Forward(
-            rename
-            + molecule
-            + molecule_identifier("molecule_identifier")
-            + a_s
-            + (Word(alphas, alphanums + "_")("new_name"))
-        )("rename_molecule")
-    )
-
-    grammar_help.append(
-        help_dict_create(
-            name="rename molecule",
-            category="Molecules",
-            command="rename molecule <molecule_identifer_string> name <molecule_name>",
-            description="renames a molecule currently in the working_set",
             note=INFO_MOLECULES,
         )
     )

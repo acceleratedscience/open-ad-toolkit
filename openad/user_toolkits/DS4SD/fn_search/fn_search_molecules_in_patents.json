@@ -7,12 +7,12 @@
 	"help": {
 		"name": "search for molecules in patents",
 		"category": "Search Molecules",
-		"command": "search for molecules in patents from list ['<patent1>', '<patent2>', ...] | dataframe <dataframe_name> | file '<csv_filename>' [ save as '<csv_filename>' ]",
+		"command": "search for molecules in patents from list ['<patent1>', '<patent2>', ...] | dataframe <dataframe_name> | file '<filename.csv>' [ save as '<filename.csv>' ]",
 		"description": "",
 		"url": ""
 	},
-	"library": "ds4sd_search_Patent_molecules",
-	"method": "search_patent_molecules",
+	"library": "fn_search_molecules_in_patents",
+	"method": "search_molecules_in_patents",
 	"from": ["file", "list", "dataframe"],
 	"SAVE_AS": {}
 }

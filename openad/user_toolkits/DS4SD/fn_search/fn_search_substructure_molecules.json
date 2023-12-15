@@ -7,11 +7,11 @@
 	"help": {
 		"name": "search for substructure instances of",
 		"category": "Search Molecules",
-		"command": "search for substructure instances of '<smiles>' [ save as '<csv_filename>' ]",
+		"command": "search for substructure instances of '<smiles>' [ save as '<filename.csv>' ]",
 		"description": "",
 		"url": ""
 	},
-	"library": "ds4sd_search_substructure_molecules",
+	"library": "fn_search_substructure_molecules",
 	"method": "search_substructure_molecules",
 	"SINGLE_PARM": { "smiles": "desc" },
 	"SAVE_AS": {}

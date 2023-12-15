@@ -11,7 +11,7 @@
 		"description": "",
 		"url": ""
 	},
-	"library": "ds4sd_display_collection",
-	"method": "display_collection",
+	"library": "fn_display_collections_for_domain",
+	"method": "display_collections_for_domain",
 	"SINGLE_PARM": { "domain": "desc" }
 }

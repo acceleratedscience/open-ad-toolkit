@@ -15,6 +15,6 @@ Retrosynthesis:
 	`interpret recipe '<recipe_paragraph>' | '<txt_filename>'`
 
 Prediction:
-	`predict reaction in batch from dataframe <dataframe_name> | file '<csv_filename>' | list '<smiles>.<smiles>'  [ using (ai_model='<ai_model>') ] [ use_saved ]`
+	`predict reaction in batch from dataframe <dataframe_name> | file '<filename.csv>' | list '<smiles>.<smiles>'  [ using (ai_model='<ai_model>') ] [ use_saved ]`
 	`predict reaction '<smiles>.<smiles>' [ using (ai_model='<ai_model>') ] [ use_saved ]`
-	`predict reaction topn in batch from dataframe <dataframe_name> | file '<csv_filename>' | list ['<smiles>.<smiles>','<smiles>.<smiles>'] [ using (topn=<integer> ai_model='<ai_model>') ] [ use_saved ]`
+	`predict reaction topn in batch from dataframe <dataframe_name> | file '<filename.csv>' | list ['<smiles>.<smiles>','<smiles>.<smiles>'] [ using (topn=<integer> ai_model='<ai_model>') ] [ use_saved ]`

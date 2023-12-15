@@ -7,12 +7,12 @@
 	"help": {
 		"name": "search for patents containing molecule",
 		"category": "Search Molecules",
-		"command": "search for patents containing molecule '<smiles>' | '<inchi>' | '<inchi_key>' [ save as '<csv_filename>' ]",
+		"command": "search for patents containing molecule '<smiles>' | '<inchi>' | '<inchi_key>' [ save as '<filename.csv>' ]",
 		"description": "",
 		"url": ""
 	},
-	"library": "ds4sd_search_patent_molecule",
-	"method": "search_patent_molecule",
+	"library": "fn_search_patents_cont_molecule",
+	"method": "search_patents_cont_molecule",
 	"SINGLE_PARM": { "smiles": "desc" },
 	"SAVE_AS": {}
 }
