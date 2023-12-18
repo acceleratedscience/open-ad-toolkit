@@ -14,7 +14,15 @@ naming_cache = {}
 
 
 def load_batch_molecules(cmd_pointer, inp):
-    mol_dataframe = load_mol(inp.as_dict()["moles_file"], cmd_pointer)
+    mol_dataframe = None
+    print(inp.as_dict())
+    if "load_molecules_dataframe" in inp.as_dict():
+        mol_dataframe = cmd_pointer.api_variables[inp.as_dict()["in_dataframe"]]
+    else:
+        mol_dataframe = load_mol(inp.as_dict()["moles_file"], cmd_pointer)
+    if mol_dataframe is None:
+        print_s("\n Source not Found \n")
+        return True
     if "pubchem_merge" in inp.as_dict():
         batch_pubchem(cmd_pointer, mol_dataframe)
     if mol_dataframe is not None:
@@ -128,7 +136,10 @@ def shred_merge_add_Dataframe_mols(dataframe, cmd_pointer):
         i = 0
         updated_flag = False
         while i < len(cmd_pointer.molecule_list):
-            if cannonical_smiles(a_mol["SMILES"]) == cmd_pointer.molecule_list[i]["properties"]["canonical_smiles"]:
+            if (
+                merge_mol["properties"]["canonical_smiles"]
+                == cmd_pointer.molecule_list[i]["properties"]["canonical_smiles"]
+            ):
                 cmd_pointer.molecule_list[i] = merge_mol
                 i = len(cmd_pointer.molecule_list)
                 updated_flag = True

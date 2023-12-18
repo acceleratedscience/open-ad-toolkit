@@ -354,6 +354,27 @@ def mol_grammar_add(statements, grammar_help):
         )
     )
 
+    statements.append(
+        Forward(
+            load
+            + molecules
+            + using
+            + CaselessKeyword("dataframe")
+            + molecule_identifier("in_dataframe")
+            + Optional((merge + w_ith + pubchem))("pubchem_merge")
+        )("load_molecules_dataframe")
+    )  # From mols file
+
+    grammar_help.append(
+        help_dict_create(
+            name="load molecules",
+            category="Utility",
+            command="load molecules using dataframe '<filename>' ",
+            description="""load molecules into the molecule working set from a dataframe""",
+            note=INFO_MOLECULES,
+        )
+    )
+
     statements.append(Forward((export + molecules)("export_molecules")))
 
     grammar_help.append(
