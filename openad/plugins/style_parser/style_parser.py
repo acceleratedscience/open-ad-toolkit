@@ -291,6 +291,7 @@ def tags_to_markdown(text: str):
     text = _replace_linebreaks_inside_cmdblocks(text, "---LINEBREAK3---")
     # Every linebreak becomes a hard <br> except when the line has no text.
     text = "".join([line + "---LINEBREAK3---" if line.strip() else "---LINEBREAKSOFT---" for line in text.splitlines()])
+    print(text)
 
     # Expand error and success tags.
     text = _expand_error_success_tags(text, True)
@@ -307,6 +308,14 @@ def tags_to_markdown(text: str):
     text = re.sub(r"<cmd>(.*?)<\/cmd>", r"`\1`", text)
     text = re.sub(r"<on_red>(.*?)<\/on_red>", r'<span style="background: #d00; color: #fff">\1</span>', text)
     text = re.sub(r"<on_green>(.*?)<\/on_green>", r'<span style="background: #0d0; color: #fff">\1</span>', text)
+
+    # Remove empty code tags.
+    # These can be generated when having style tags
+    # (which will be removed) inside of a command tag.
+    # For example "<cmd>foo <soft>bar</soft></cmd>" will 
+    # become "`foo `bar``" which can cause problems
+    # when it's followed by a linebreak.
+    text = re.sub(r"``", "", text)
 
     # Escape quotes.
     text = text.replace("'", "'")

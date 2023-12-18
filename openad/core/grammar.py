@@ -780,7 +780,7 @@ grammar_help.append(
     help_dict_create(
         name="command help 1",
         category="Help",
-        command='? ...   <soft>--> List all commands containing "..."</soft>',
+        command='? ...<soft>   --> List all commands containing "..."</soft>',
         description="",
     )
 )
@@ -788,7 +788,7 @@ grammar_help.append(
     help_dict_create(
         name="command help 2",
         category="Help",
-        command='... ?   <soft>--> List all commands starting with "..."</soft>',
+        command='... ?<soft>   --> List all commands starting with "..."</soft>',
         description="",
     )
 )
