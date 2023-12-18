@@ -346,10 +346,26 @@ def mol_grammar_add(statements, grammar_help):
 
     grammar_help.append(
         help_dict_create(
-            name="show molecules",
+            name="load molecules",
             category="Utility",
             command="load molecules using file '<filename>' ",
             description="""load molecules into the molecule working set from a file""",
+            note=INFO_MOLECULES,
+        )
+    )
+
+    statements.append(Forward((export + molecules)("export_molecules")))
+
+    grammar_help.append(
+        help_dict_create(
+            name="export molecules",
+            category="Utility",
+            command="export molecules ",
+            description="""Exports the molecules in the current Working Set
+             
+            If the command is issued from a command line the molecule will be exprted to your workspace and named resul_#.csv. # being a incramental number of results sets, with the highest being the latest. 
+               
+            In Jupyter notebooks the molecules are exported as a pandas Dataframe. """,
             note=INFO_MOLECULES,
         )
     )

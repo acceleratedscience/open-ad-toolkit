@@ -195,7 +195,7 @@ def list_molecules(cmd_pointer, inp):
             display_list = pd.concat([display_list, pd.DataFrame([identifiers])])
         return display_list
     else:
-        return output_text("No Molecules to List", cmd_pointer=cmd_pointer)
+        return output_text("No Molecules in List", cmd_pointer=cmd_pointer)
 
 
 def retrieve_mol_from_list(cmd_pointer, molecule):
@@ -233,6 +233,49 @@ def rename_mol_in_list(cmd_pointer, inp):
     print_s(" molecule was not renamed, no molecule found")
 
     return False
+
+
+def export_molecule_set(cmd_pointer, inp):
+    """exports molecule Set to Data frame on Notebook or file in workspace"""
+    if len(cmd_pointer.molecule_list) == 0:
+        print_s("\nNo Molecules in Molecule-Set")
+        return True
+
+    if cmd_pointer.notebook_mode:
+        return moleculelist_to_data_frame(cmd_pointer.molecule_list.copy())
+    else:
+        i = 0
+        file_name = (
+            cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/" + "result_" + str(i) + ".csv"
+        )
+        while os.path.exists(
+            cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/" + "result_" + str(i) + ".csv"
+        ):
+            i = i + 1
+        file_name = (
+            cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/" + "result_" + str(i) + ".csv"
+        )
+        result = moleculelist_to_data_frame(cmd_pointer.molecule_list.copy())
+        result.to_csv(file_name)
+        print_s("Result set saved in Workspace as result_" + str(i) + ".csv")
+
+
+def moleculelist_to_data_frame(molecule_set):
+    """Turns the molecule list properties to a dataframe"""
+    molecule_list = []
+    for molecule in molecule_set:
+        mol = {"mol_name": molecule["name"]}
+        mol["canonical_smiles"] = molecule["properties"]["canonical_smiles"]
+        mol["isomeric_smiles"] = molecule["properties"]["isomeric_smiles"]
+        mol["inchi"] = molecule["properties"]["inchi"]
+        mol["inchikey"] = molecule["properties"]["inchikey"]
+        mol["formula"] = molecule["properties"]["molecular_formula"]
+
+        for mol_property in molecule["properties"]:
+            if mol_property not in mol:
+                mol[mol_property] = molecule["properties"][mol_property]
+        molecule_list.append(mol.copy())
+    return pd.DataFrame(molecule_list)
 
 
 def is_molecule(mol, molecule):
@@ -389,13 +432,15 @@ def _create_workspace_dir_if_nonexistent(cmd_pointer, dir_name):
 def load_molecules(cmd_pointer, inp):
     if "molecule-set_name" not in inp:
         return False
+
     mol_file_path = _create_workspace_dir_if_nonexistent(cmd_pointer, "_mols")
-    cmd_pointer.molecule_list = []
+    cmd_pointer.molecule_list.clear()
 
     for i in glob.glob(mol_file_path + "/" + inp["molecule-set_name"].upper() + "_*.molecule", recursive=True):
         func_file = open(i, "rb")
-        cmd_pointer.molecule_list.append(pickle.load(func_file))
-
+        mol = dict(pickle.load(func_file))
+        cmd_pointer.molecule_list.append(mol.copy())
+    print_s(len(cmd_pointer.molecule_list))
     return True
 
 
@@ -417,7 +462,7 @@ def list_molsets(cmd_pointer):
             in_list.append(molset)
             molsets.append([molset])
     if len(in_list) > 0:
-        output_table(molsets, cmd_pointer=cmd_pointer, headers=["Stored Molecule Sets"])
+        return output_table(molsets, cmd_pointer=cmd_pointer, headers=["Stored Molecule Sets"])
     return True
 
 
@@ -447,6 +492,8 @@ def get_property(cmd_pointer, inp):
         else:
             print("molecule not available on pubchem")
             return None
+    else:
+        return mol["properties"][molecule_property.lower()]
 
 
 def _load_molecules(location):

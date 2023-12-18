@@ -29,6 +29,7 @@ from openad.molecules.mol_commands import (
     get_property,
     rename_mol_in_list,
     clear_workset,
+    export_molecule_set,
 )
 
 from openad.molecules.molecule_cache import attach_all_results, clear_results
@@ -209,7 +210,10 @@ def lang_parse(cmd_pointer, parser):
     elif parser.getName() == "clear_molecules":
         return clear_workset(cmd_pointer, parser)
     elif parser.getName() == "load_molecules_file":
-        load_batch_molecules(cmd_pointer, parser)
+        return load_batch_molecules(cmd_pointer, parser)
+
+    elif parser.getName() == "export_molecules":
+        return export_molecule_set(cmd_pointer, parser)
 
     # File system commands
     elif parser.getName() == "list_files":
