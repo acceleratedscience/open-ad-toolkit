@@ -10,14 +10,7 @@ from openad.core.lang_sessions_and_registry import write_registry, update_main_r
 # Global variables
 
 # Helpers
-from openad.helpers.output import (
-    msg,
-    output_text,
-    output_error,
-    output_warning,
-    output_success,
-    output_table,
-)
+from openad.helpers.output import msg, output_text, output_error, output_warning, output_success, output_table
 from openad.helpers.general import other_sessions_exist, user_input
 from openad.helpers.spinner import spinner
 

@@ -1,5 +1,7 @@
+import os
 import json
 
+from openad.helpers.general import openFile
 from openad.helpers.output import msg, output_text, output_error
 from openad.helpers.ascii_type import ascii_type
 
@@ -22,20 +24,16 @@ def splash(toolkit_name=None, cmd_pointer=None, startup=False, raw=False):
     # Toolkit splashes use full character.
     char = 0 if main_splash else 1
 
-    # Load metadata from JSON file.
-    import os
-
+    base__path = os.path.dirname(os.path.abspath(__file__)) + "/../"
     if main_splash:
-        json_file_path = f"/app/metadata.json"
+        file_path = base__path + f"app/metadata.json"
     else:
-        json_file_path = f"user_toolkits/{toolkit_name}/metadata.json"
-    try:
-        with open(os.path.dirname(os.path.abspath(__file__)) + "/../" + json_file_path) as json_file:
-            data = json.load(json_file)
-    except FileNotFoundError:
-        return output_error(
-            msg("err_file_not_found", os.path.dirname(os.path.abspath(__file__)) + "/" + json_file_path, split=True)
-        )
+        file_path = base__path + f"user_toolkits/{toolkit_name}/metadata.json"
+
+    # Load metadata from JSON file.
+    data = openFile(file_path)
+    if not data:
+        return output_error(msg("err_load_splash"), return_val=True)
 
     # Make up for missing data.
     required_fields = "banner title intro author version commands".split()

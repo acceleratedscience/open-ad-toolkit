@@ -3,6 +3,7 @@ import os
 messages = {
     ##########################################################################
     # region - FILE SYSTEM
+    ##########################################################################
     # Success
     "success_import": lambda source_file, workspace_name: f"Imported the file {source_file} to your {workspace_name} workspace",
     "success_export": lambda source_file, workspace_name, dest_file: f"Copied the file {source_file} from your {workspace_name} workspace to {dest_file}",
@@ -50,6 +51,7 @@ messages = {
     # endregion
     ##########################################################################
     # region - WORKSPACES
+    ##########################################################################
     # General
     "workspace_description": lambda workspace_name, description, active=False: (
         "<soft>Active workspace:</soft>" if active else None,
@@ -76,6 +78,7 @@ messages = {
     # endregion
     ##########################################################################
     # region - RUNS
+    ##########################################################################
     # General
     "create_run_started": (
         "<yellow>Recording started</yellow>",
@@ -98,6 +101,7 @@ messages = {
     # endregion
     ##########################################################################
     # region - TOOLKITS
+    ##########################################################################
     # General
     "all_toolkits_currently_installed": (
         "These are the toolkits you currently have installed",
@@ -160,16 +164,17 @@ messages = {
     ),
     # endregion
     ##########################################################################
-    # region - MOLECULE VIEWER
+    # region - MOLECULE GRID
+    ##########################################################################
     # General
     "m2g_tip": (
         "Tip: To select what parameters to display:",
-        "<cmd>my_molsobject.display(**{ subset:['name'], tooltip:['smiles'] })</cmd>",
+        "<cmd>result.display(**{ subset:['name'], tooltip:['smiles'] })</cmd>",
         "",
         "For more options, see: https://mols2grid.readthedocs.io/en/latest/notebooks/customization.html",
     ),
-    "flask_launch": lambda app_name, port: (
-        f"<yellow>Launching the {app_name}</yellow> - Press ctrl+c to abort",
+    "flask_launch": lambda port: (
+        f"<yellow>Launching the web server</yellow> - Press ctrl+c to abort",
         f"<link>http://127.0.0.1:{port}</link>",
     ),
     "m2g_launch": (  # LEGACY – can be deleted after flask centralization is complete.
@@ -188,7 +193,29 @@ messages = {
     "err_m2g_open": lambda err: ("There was an error opening the molecule viewer", err),
     # endregion
     ##########################################################################
+    # region - MOLECULE GRID
+    ##########################################################################
+    # Error
+    "input_str_missing": "No input string was provided",
+    "invalid_sdf": lambda err: ("The selected SDF file is invalid", err),
+    "invalid_csv": lambda err: ("The selected CSV file is invalid", err),
+    "identifier_missing": lambda file_path: ("No identifier (Inchi or SMILES) found in the provided file", file_path),
+    # endregion
+    ##########################################################################
+    # region - MOLECULE VIEWER
+    ##########################################################################
+    # Error
+    "err_molfile_not_found": lambda filename, file_path: (
+        f"The requested molecule file {filename} does not exist.",
+        file_path,
+    ),
+    "err_molfile_invalid": lambda filename, file_path: (
+        f"The requested molecule file {filename} does not exist.",
+        file_path,
+    ),
+    # endregion
     # region - SESSIONS
+    ##########################################################################
     # General
     "confirm_clear_sessions": (
         "Terminate all other sessions?",
@@ -204,6 +231,7 @@ messages = {
     # endregion
     ##########################################################################
     # region - LOGIN
+    ##########################################################################
     # Success
     "success_login_init": "Login registry initialized",
     "success_login": lambda toolkit_name, expiry_datetime: (
@@ -221,6 +249,7 @@ messages = {
     # endregion
     ##########################################################################
     # region - LLM
+    ##########################################################################
     # Success
     "success_llm_auth_cleared": "Your LLM authentication file has been cleared",
     # Error
@@ -229,11 +258,12 @@ messages = {
     # endregion
     ##########################################################################
     # region - OTHER
+    ##########################################################################
     # General
     "status": lambda *args: (  # TO BE DELETED
         "<yellow>Current workspace</yellow>: " + args[0],
         "<yellow>Current context</yellow>: " + args[1],
-        "<soft>To see more details, run <cmd>get workspace</cmd> or <cmd>get context</cmd>.</soft>",
+        "<soft>To see more details, run <cmd>get workspace</cmd> or <cmd>get context</cmd></soft>",
     ),
     "enter_to_skip": "<soft>Press enter to skip</soft>",
     "abort": "Aborted",
@@ -254,6 +284,7 @@ messages = {
     "err_no_cmds_starting": lambda inp: (f'No commands starting with "<yellow>{inp}</yellow>"'),
     "err_unknown": lambda err: ("Unknown error", err),
     "err_fetch_history": lambda err: ("There was an error fetching the history", err),
+    "err_load_splash": ("Something went wrong loading the splash page", "<yellow>But the show must go on</yellow>"),
     # "err_readme": lambda err: ("There was an error reading the README file", err), # trash
     # endregion
 }

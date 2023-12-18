@@ -71,6 +71,7 @@ from openad.app.global_var_lib import _all_toolkits
     save,
     runs,
     show,
+    mol,
     molecules,
     file,
     d_isplay,
@@ -81,8 +82,8 @@ from openad.app.global_var_lib import _all_toolkits
 ) = map(
     CaselessKeyword,
     "get list description using create set unset workspace workspaces context jobs exec\
-          as optimize with toolkits toolkit gpu experiment add run save runs show molecules\
-              file display history data remove result".split(),
+    as optimize with toolkits toolkit gpu experiment add run save runs show mol molecules\
+    file display history data remove result".split(),
 )
 STRING_VALUE = alphanums
 
@@ -557,7 +558,7 @@ if not is_notebook_mode():
         )
     )
 
-# Show molecules.
+# Show molecules grid.
 # Note: we don't allow dashes in dataframe names because it's a substraction operator and causes issues in Jupyter.
 statements.append(
     Forward(
@@ -585,18 +586,24 @@ grammar_help.append(
     help_dict_create(
         name="show molecules",
         category="Utility",
-        command="show molecules using file '<mols_file>' | dataframe <dataframe> [ save as '<sdf_or_csv_filename>' | as molsobject ]",
-        description=f"""Launch the molecule viewer { 'in your browser ' if is_notebook_mode() else '' }to view a selection of molecules and associated information soted in a dataframe, csv or sdf file. 
-
-        This  command is to provide a utility to work with molecules in SMILES format that have been provided in a data set format.
-
-        For detailed analysis and collection of data for molecules you can also use the add molecule, display molecule and create Molecule functions to work in depth with selected molecules.
-
+        command="show molecules using ( file '<mols_file>' | dataframe <dataframe> ) [ save as '<sdf_or_csv_file>' | as molsobject ]",
+        description=f"""Launch the molecule viewer { 'in your browser ' if is_notebook_mode() else '' }to examine and select molecules from a SMILES sdf/csv dataset.
 
 Examples:
 - <cmd>show molecules using file 'base_molecules.sdf' as molsobject</cmd>
 - <cmd>show molecules using dataframe my_dataframe save as 'selection.sdf'</cmd>
 """,
+    )
+)
+
+# Show individual molecule detail page.
+statements.append(Forward(show("show") + mol + desc("input_str"))("show_molecule"))  # From mol json file
+grammar_help.append(
+    help_dict_create(
+        name="show mol",
+        category="Utility",
+        command="show mol '<json_mol_file> | <sdf_file> | <smiles_string> | <inchi_string>'",
+        description="Inspect a molecule in the browser.",
     )
 )
 

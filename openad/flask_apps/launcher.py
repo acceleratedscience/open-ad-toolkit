@@ -88,7 +88,7 @@ def launch(cmd_pointer=None, routes=None, app_name="", query="", hash=""):
     log.setLevel(logging.ERROR)
 
     # Display our own launch message.
-    output_text(msg("flask_launch", "Data Viewer", port), cmd_pointer, pad_top=1)
+    output_text(msg("flask_launch", port), cmd_pointer, pad_top=1)
 
     # Launch server.
     if cmd_pointer.notebook_mode:

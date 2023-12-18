@@ -54,7 +54,7 @@ from openad.core.lang_workspaces import (
     set_workspace,
     get_workspace,
 )
-from openad.core.lang_mols import display_mols
+from openad.core.lang_mols import show_molsgrid, show_mol
 from openad.core.lang_runs import display_run, exec_run, save_run, list_runs
 from openad.core.lang_dev import flask_example
 from openad.core.grammar import create_statements
@@ -75,14 +75,7 @@ from openad.app.global_var_lib import _meta_workspaces
 from openad.app.global_var_lib import _all_toolkits
 
 # Helpers
-from openad.helpers.output import (
-    msg,
-    output_text,
-    output_error,
-    output_warning,
-    output_success,
-    output_table,
-)
+from openad.helpers.output import msg, output_text, output_error, output_warning, output_success, output_table
 from openad.helpers.general import refresh_prompt, user_input, validate_file_path, ensure_file_path
 from openad.helpers.splash import splash
 from openad.helpers.output_content import openad_intro
@@ -259,9 +252,11 @@ def lang_parse(cmd_pointer, parser):
 
     # Show molecules commands
     elif parser.getName() == "show_molecules":
-        return display_mols(cmd_pointer, parser)
+        return show_molsgrid(cmd_pointer, parser)
     elif parser.getName() == "show_molecules_df":
-        return display_mols(cmd_pointer, parser)
+        return show_molsgrid(cmd_pointer, parser)
+    elif parser.getName() == "show_molecule":
+        return show_mol(cmd_pointer, parser)
 
     # Toolkit execution
     elif str(parser.getName()).startswith("toolkit_exec_"):
