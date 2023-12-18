@@ -20,8 +20,8 @@ clear analysis cache;Molecules
 clear molecules;Molecules
 create molecule <smiles_string> name <molecule_name>;Molecules
 @(<name> | <smiles> | <inchi> | <inchkey> | <cid>)>><molecule_property_name>;Molecules
-load molecules using file '<filename>' ;Molecules
-export molecules ;Molecules
+load molecules using file '<csv_or_sdf_filename>';Molecules
+export molecules;Molecules
 show molecules using ( file '<mols_file>' | dataframe <dataframe> ) [ save as '<sdf_or_csv_file>' | as molsobject ];Molecules
 show mol '<json_mol_file> | <sdf_file> | <smiles_string> | <inchi_string>';Molecules
 ds4sd;Toolkits

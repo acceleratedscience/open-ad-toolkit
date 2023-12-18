@@ -78,115 +78,124 @@ Lists all your workspaces.<br><br>
 ### Molecules
 
 `add molecule|mol <name> | <smiles> | <inchi> | <inchkey> | <cid>`{: .cmd }
-Adds a molecule to the current working set of molecules. You can specify any molecule by SMILES or InChI, and PubChem classified molecules also by name, InChIKey or their PubChem CID.<br>
+Add a molecule to the current working set of molecules.<br>
 
-When adding a molecule by name, this name will become the molecule's identifying string. You can set or override an identifying string for any molecule by running `rename`.<br>
+You can specify any molecule by SMILES or InChI, and PubChem classified molecules also by name, InChIKey or their PubChem CID.<br>
+
+When adding a molecule by name, this name will become the molecule's identifying string. You can set or override an identifying string for any molecule with the `rename molecule` command.<br>
 
 Examples:<br>
-- Adding a molecule by name: `add molecule aspirin`<br>
-- Adding a molecule by SMILES: `add molecule CC(=O)OC1=CC=CC=C1C(=O)O`<br>
-- Adding a molecule by CID: `add mol 2244`<br>
-- Adding a molecule by InChI: `add mol InChI=1S/C9H8O4/c1-6(10)13-8-5-3-2-4-7(8)9(11)12/h2-5H,1H3,(H,11,12)`<br>
-- Adding a molecule by InChIKey: `add mol BSYNRYMUTXBXSQ-UHFFFAOYSA-N`<br><br>
+- Add a molecule by name:<br>
+`add molecule aspirin`<br>
+- Add a molecule by SMILES:<br>
+`add molecule CC(=O)OC1=CC=CC=C1C(=O)O`<br>
+- Add a molecule by CID:<br>
+`add mol 2244`<br>
+- Add a molecule by InChI:<br>
+`add mol InChI=1S/C9H8O4/c1-6(10)13-8-5-3-2-4-7(8)9(11)12/h2-5H,1H3,(H,11,12)`<br>
+- Add a molecule by InChIKey:<br>
+`add mol BSYNRYMUTXBXSQ-UHFFFAOYSA-N`<br><br>
 
 `display molecule|mol <name> | <smiles> | <inchi> | <inchkey> |  <cid>`{: .cmd }
-Displays a given molecule by first checking the current working set of molecules, then if not in the working set will search for a provided molecule on pubchem. Users can specify a Molecule by Name, a SMILES string, inchi String, Inchkey or its cid.<br>
+Display a molecule's properties.<br>
 
+If the requested molecule exists in your current working set, that version will be used.<br>
 
-            For example:<br>
+You can specify any molecule by SMILES or InChI, and PubChem classified molecules also by name, InChIKey or their PubChem CID.<br>
 
-                - Displaying a molecule by name: ` display molecule Aspirin `<br>
-
-                - Displaying a molecule by SMILES string: ` display molecule CC(=O)OC1=CC=CC=C1C(=O)O `<br>
-
-                - Displaying a molecule by cid: ` display mol 2244 `<br>
-
-                - Displaying a molecule by inchikey string: ` display mol  BSYNRYMUTXBXSQ-UHFFFAOYSA-N `<br>
-
-                - Displaying a molecule by inchi inchi: ` display mol  InChI=1S/C9H8O4/c1-6(10)13-8-5-3-2-4-7(8)9(11)12/h2-5H,1H3,(H,11,12) ` <br><br>
+Examples:<br>
+- Display a molecule by name:<br>
+`display molecule Aspirin`<br>
+- Display a molecule by SMILES:<br>
+`display molecule CC(=O)OC1=CC=CC=C1C(=O)O`<br>
+- Display a molecule by InChI:<br>
+`display mol InChI=1S/C9H8O4/c1-6(10)13-8-5-3-2-4-7(8)9(11)12/h2-5H,1H3,(H,11,12)`<br>
+- Display a molecule by InChIKey string:<br>
+`display mol BSYNRYMUTXBXSQ-UHFFFAOYSA-N`<br>
+- Display a molecule by CID:<br>
+`display mol 2244`<br><br>
 
 `rename molecule <molecule_identifer_string> name <molecule_name>`{: .cmd }
-This command renames a molecule in the current working set to a name you provide it.<br>
-            For example:<br>
-            I have added a molecule by the molecule 'CC(=O)OC1=CC=CC=C1C(=O)O'to the current working set of molecules, but I want to rename it to 'Aspirin'. the command to do this would be:<br>
+Rename a molecule in the current working set.<br>
 
-            ` rename molecule CC(=O)OC1=CC=CC=C1C(=O)O as Aspirin `<br><br>
+Example:<br>
+Let's say you've added a molecule "CC(=O)OC1=CC=CC=C1C(=O)O" to your current working set, you can then rename it as such:<br>
+`rename molecule CC(=O)OC1=CC=CC=C1C(=O)O as Aspirin`<br><br>
 
 `export molecule|mol <name> | <smiles> | <inchi> | <inchkey> |  <cid> [as file]`{: .cmd }
-exports a molecule from pubchem or the current list to a file named as the molecules given name and or as a dictionary(when in Notebooks) The molecule does not have to be form the current working set, and if not the request will be made to pubchem.<br>
-            For Example: <br>
-                    - The following will return a dictionary when called in jupyter notebooks or from the command line it will save it to the current workspace directory as a '.json' file. <cmd> export molecule aspirin <cmd><br>
-                    - The following will  save it to the current workspace directory as a '.json' file. <cmd> export molecule aspirin as file <cmd> <br><br>
+When run inside a Notebook, this will return a dictionary of the molecule's properties. When run from the command line, or when `as file` is set, the molecule will be saved to your workspace as a JSON file, named after the molecule's identifying string.<br>
+
+If the requested molecule exists in your current working set, that version will be used.<br>
+
+Examples<br>
+- <cmd>export molecule aspirin<cmd><br>
+- <cmd>export molecule aspirin as file<cmd><br><br>
 
 `remove molecule|mol <name> | <smiles> | <inchi> | <inchkey> | <formula> | <cid>`{: .cmd }
-removes molecule from the current working set of molecules.<br>
+Remove a molecule from the current working set.<br>
 
-            For example:<br>
-
-                - Remove a molecule by name: ` display molecule Aspirin `<br>
-
-                - Remove a molecule by SMILES string: ` display molecule CC(=O)OC1=CC=CC=C1C(=O)O `<br>
-
-                - Remove a molecule by cid: ` display mol 2244 `<br>
-
-                - Remove a molecule by inchikey string: ` display mol  BSYNRYMUTXBXSQ-UHFFFAOYSA-N `<br>
-
-                - Remove a molecule by inchi inchi: ` display mol  InChI=1S/C9H8O4/c1-6(10)13-8-5-3-2-4-7(8)9(11)12/h2-5H,1H3,(H,11,12) ` <br><br>
+Examples:<br>
+- Remove a molecule by name: `display molecule Aspirin`<br>
+- Remove a molecule by SMILES: `display molecule CC(=O)OC1=CC=CC=C1C(=O)O`<br>
+- Remove a molecule by InChIKey string: `display mol  BSYNRYMUTXBXSQ-UHFFFAOYSA-N`<br>
+- Remove a molecule by InChI: `display mol  InChI=1S/C9H8O4/c1-6(10)13-8-5-3-2-4-7(8)9(11)12/h2-5H,1H3,(H,11,12)`<br>
+- Remove a molecule by CID: `display mol 2244`<br><br>
 
 `list molecules|mols`{: .cmd }
-lists the molecules in the current working set of molecules.<br>
-            For example:<br>
-            <cmd>list molecules<cmd><br><br>
+List all molecules in the current working set.<br><br>
 
 `save molecule-set|molset as <molecule-set_name>`{: .cmd }
-Saves the current molecule working set to the current workspace.<br>
-             For example: ` save molecule-set as my_working_set`<br><br>
+Save the current molecule working set to your workspace.<br>
+
+Example:<br>
+`save molset as my_working_set`<br><br>
 
 `load molecule-set|molset <molecule-set_name>`{: .cmd }
-loads the molecules from the current workspace.<br>
-            For example: ` load molecule-set my_working_set`<br><br>
+Load a molecule set from your workspace, and set it as your current working set.<br>
+
+Example:<br>
+`load molecule-set my_working_set`<br><br>
 
 `list molecule-sets|molsets`{: .cmd }
-lists molecule sets in the current workspace.<br>
-            For Example:<br>
-            ` List molecule-sets ` or `list molsets`<br><br>
+List all molecule sets in your workspace.<br><br>
 
 `enrich molecule-set with analysis`{: .cmd }
-Loads the previous results of analysis into the molecule records where the focus of the Analysis was the given molecule<br><br>
+Enrich every molecule in your current working set with the last analysis result. This assumes that the current working set was the input for the analysis.<br><br>
 
 `clear analysis cache`{: .cmd }
-Clears the cache of analysis results for the current workspace.<br><br>
+Clear the cache of analysis results for your current workspace.<br><br>
 
 `clear molecules`{: .cmd }
-Clears the working set of molecules.<br><br>
+Clear the working set of molecules.<br><br>
 
 `create molecule <smiles_string> name <molecule_name>`{: .cmd }
-creates a base molecule and adds it to the current list<br>
-            For example: <br>
-                `create  molecule CC(=O)OC1=CC=CC=C1C(=O)O name my_aspirin`<br>
+Create a base molecule and add it to your working list.<br>
 
-                Note it will try and calclculate other idenfiers in the molecule data structure, other propoerties are left as None. <br><br>
+Note that other identifiers (InChI and formula) will be calculated, but no other properties (like InChIKey, CID, etc.) will be fetched from PubChem.<br>
+
+Example:<br>
+`create molecule CC(=O)OC1=CC=CC=C1C(=O)O name my_aspirin`<br><br>
 
 `@(<name> | <smiles> | <inchi> | <inchkey> | <cid>)>><molecule_property_name>`{: .cmd }
-allows you to get a molecule property by using one of the propoerties listed below. The molecule can be identified by a name, SMILES, Inchi key or cid.<br>
+Request a molecule's certain property.<br>
 
-    For example:<br>
-        - Obtain the molecular weight of the molecule known as aspirin. ` @aspirin>>molecular_weight `<br>
-        - Obtain a molecules xlogp value using a SMILES string. ` @CC(=O)OC1=CC=CC=C1C(=O)O>>xlogp `<br>
+You can specify any molecule by SMILES or InChI, and PubChem classified molecules also by name, InChIKey or their PubChem CID.<br>
 
+For example:<br>
+- Obtain the molecular weight of the molecule known as Aspirin.<br>
+`@aspirin>>molecular_weight`<br>
+- Obtain a molecules xlogp value using a SMILES string.<br>
+`@CC(=O)OC1=CC=CC=C1C(=O)O>>xlogp`<br>
 
-      Here is a list of valid properties that can be requested. <br>
-['cid', 'molecular_formula', 'molecular_weight', 'canonical_smiles', 'isomeric_smiles', 'inchi', 'inchikey', 'iupac_name', 'xlogp', 'exact_mass', 'monoisotopic_mass', 'multipoles_3d', 'tpsa', 'complexity', 'charge', 'h_bond_donor_count', 'h_bond_acceptor_count', 'rotatable_bond_count', 'heavy_atom_count', 'isotope_atom_count', 'atom_stereo_count', 'defined_atom_stereo_count', 'undefined_atom_stereo_count', 'bond_stereo_count', 'defined_bond_stereo_count', 'undefined_bond_stereo_count', 'covalent_unit_count', 'volume_3d', 'conformer_rmsd_3d', 'conformer_model_rmsd_3d', 'x_steric_quadrupole_3d', 'y_steric_quadrupole_3d', 'z_steric_quadrupole_3d', 'feature_count_3d', 'feature_acceptor_count_3d', 'feature_donor_count_3d', 'feature_anion_count_3d', 'feature_cation_count_3d', 'feature_ring_count_3d', 'feature_hydrophobe_count_3d', 'effective_rotor_count_3d', 'conformer_count_3d', 'pharmacophore_features_3d', 'conformer_id_3d', 'coordinate_type', 'mmff94_energy_3d', 'mmff94_partial_charges_3d']<br><br>
+The properties that can be requested are cid, molecular_formula, molecular_weight, canonical_smiles, isomeric_smiles, inchi, inchikey, iupac_name, xlogp, exact_mass, monoisotopic_mass, multipoles_3d, tpsa, complexity, charge, h_bond_donor_count, h_bond_acceptor_count, rotatable_bond_count, heavy_atom_count, isotope_atom_count, atom_stereo_count, defined_atom_stereo_count, undefined_atom_stereo_count, bond_stereo_count, defined_bond_stereo_count, undefined_bond_stereo_count, covalent_unit_count, volume_3d, conformer_rmsd_3d, conformer_model_rmsd_3d, x_steric_quadrupole_3d, y_steric_quadrupole_3d, z_steric_quadrupole_3d, feature_count_3d, feature_acceptor_count_3d, feature_donor_count_3d, feature_anion_count_3d, feature_cation_count_3d, feature_ring_count_3d, feature_hydrophobe_count_3d, effective_rotor_count_3d, conformer_count_3d, pharmacophore_features_3d, conformer_id_3d, coordinate_type, mmff94_energy_3d and mmff94_partial_charges_3d.<br><br>
 
-`load molecules using file '<filename>'`{: .cmd }
-Load molecules from a file into the molecule working set.<br><br>
+`load molecules using file '<csv_or_sdf_filename>'`{: .cmd }
+Load molecules from a CSV or SDF file into the molecule working set.<br><br>
 
 `export molecules`{: .cmd }
-Exports the molecules in the current Working Set<br>
+Export the molecules in the current working set.<br>
 
-            If the command is issued from a command line the molecule will be exprted to your workspace and named resul_#.csv. # being a incramental number of results sets, with the highest being the latest. <br>
-
-            In Jupyter notebooks the molecules are exported as a pandas Dataframe. <br><br>
+When run inside a Notebook, this will return a dataframe. When run from the command line, the molecules will be saved to your workspace as a CSV file named "result_#.csv". The rows will be numbered with the highest number representing the latest molecule that was added.<br><br>
 
 `show molecules using ( file '<mols_file>' | dataframe <dataframe> ) [ save as '<sdf_or_csv_file>' | as molsobject ]`{: .cmd }
 Launch the molecule viewer to examine and select molecules from a SMILES sdf/csv dataset.<br>

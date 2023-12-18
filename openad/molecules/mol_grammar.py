@@ -127,7 +127,7 @@ Examples:
             name="display molecule",
             category="Molecules",
             command="display molecule|mol <name> | <smiles> | <inchi> | <inchkey> |  <cid>",
-            description="""
+            description=f"""
 Display a molecule's properties.
 
 {WORKING_SET_PRIORITY}
@@ -181,14 +181,14 @@ Let's say you've added a molecule "CC(=O)OC1=CC=CC=C1C(=O)O" to your current wor
             name="export molecule",
             category="Molecules",
             command="export molecule|mol <name> | <smiles> | <inchi> | <inchkey> |  <cid> [as file]",
-            description="""
+            description=f"""
 When run inside a Notebook, this will return a dictionary of the molecule's properties. When run from the command line, or when `as file` is set, the molecule will be saved to your workspace as a JSON file, named after the molecule's identifying string.
 
 {WORKING_SET_PRIORITY}
 
 Examples
-- <cmd>export molecule aspirin<cmd>
-- <cmd>export molecule aspirin as file<cmd>
+- <cmd>export molecule aspirin</cmd>
+- <cmd>export molecule aspirin as file</cmd>
 """
         )
     )
@@ -202,12 +202,12 @@ Examples
 Remove a molecule from the current working set.
             
 Examples:
-- Remove a molecule by name: <cmd>display molecule Aspirin</cmd>
-- Remove a molecule by SMILES: <cmd>display molecule CC(=O)OC1=CC=CC=C1C(=O)O</cmd>
-- Remove a molecule by InChIKey string: <cmd>display mol  BSYNRYMUTXBXSQ-UHFFFAOYSA-N</cmd>
-- Remove a molecule by InChI: <cmd>display mol  InChI=1S/C9H8O4/c1-6(10)13-8-5-3-2-4-7(8)9(11)12/h2-5H,1H3,(H,11,12)</cmd>
-- Remove a molecule by CID: <cmd>display mol 2244</cmd>
-                """
+- Remove a molecule by name:\n<cmd>display molecule Aspirin</cmd>
+- Remove a molecule by SMILES:\n<cmd>display molecule CC(=O)OC1=CC=CC=C1C(=O)O</cmd>
+- Remove a molecule by InChIKey:\n<cmd>display mol  BSYNRYMUTXBXSQ-UHFFFAOYSA-N</cmd>
+- Remove a molecule by InChI:\n<cmd>display mol  InChI=1S/C9H8O4/c1-6(10)13-8-5-3-2-4-7(8)9(11)12/h2-5H,1H3,(H,11,12)</cmd>
+- Remove a molecule by CID:\n<cmd>display mol 2244</cmd>
+"""
         )
     )
     statements.append(Forward(lister + molecules)("list_molecules"))
@@ -251,7 +251,7 @@ Example:
 Load a molecule set from your workspace, and set it as your current working set.
 
 Example:
-<cmd>load molecule-set my_working_set</cmd>"""
+<cmd>load molset my_working_set</cmd>"""
         )
     )
 
