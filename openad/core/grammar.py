@@ -6,9 +6,7 @@
 # - Collapse to any level:      first expand everything, then hold cmd, then hit K followed by any number
 
 import os
-import re
 import glob
-import json
 
 
 # Globals
@@ -38,6 +36,7 @@ from pyparsing import (
 # Main
 from openad.core.help import help_dict_create
 import openad.toolkit.toolkit_main as toolkit_main  # Not using "from" to avoid circular import.
+from openad.molecules.mol_grammar import mol_grammar_add
 
 # Helpers
 from openad.helpers.general import is_notebook_mode
@@ -217,7 +216,7 @@ grammar_help.append(
         name="get workspace",
         category="Workspaces",
         command="get workspace [ <workspace_name> ]",
-        description=f"Display details a workspace. When no workspace name is passed, details of your current workspace are displayed.",
+        description="Display details a workspace. When no workspace name is passed, details of your current workspace are displayed.",
         note=INFO_WORKSPACES,
     )
 )
@@ -237,7 +236,7 @@ grammar_help.append(
         name="create workspace",
         category="Workspaces",
         command="create workspace <workspace_name> [ description('<description>') on path '<path>' ]",
-        description=f"Create a new workspace with an optional description and path.",
+        description="Create a new workspace with an optional description and path.",
         note=INFO_WORKSPACES,
     )
 )
@@ -253,7 +252,7 @@ grammar_help.append(
         name="remove workspace",
         category="Workspaces",
         command="remove workspace <workspace_name> ",
-        description=f"Remove a workspace from your registry. Note that this doesn't remove the workspace's directory.",
+        description="Remove a workspace from your registry. Note that this doesn't remove the workspace's directory.",
         note=INFO_WORKSPACES,
     )
 )
@@ -265,11 +264,13 @@ grammar_help.append(
         name="list workspaces",
         category="Workspaces",
         command="list workspaces",
-        description=f"Lists all your workspaces.",
+        description="Lists all your workspaces.",
         note=INFO_WORKSPACES,
     )
 )
 
+# Add molecule Grammar
+mol_grammar_add(statements=statements, grammar_help=grammar_help)
 # endregion
 
 ##########################################################################
@@ -315,7 +316,7 @@ grammar_help.append(
         name="list all toolkits",
         category="Toolkits",
         command="list all toolkits",
-        description=f"List all available toolkits.",
+        description="List all available toolkits.",
         note=NOTE_TOOLKITS,
     )
 )
@@ -328,7 +329,7 @@ grammar_help.append(
         name="add toolkit",
         category="Toolkits",
         command="add toolkit <toolkit_name>",
-        description=f"Install a toolkit.",
+        description="Install a toolkit.",
         note=f"{NOTE_TOOLKITS_SEE_ALL}\n{NOTE_TOOLKITS}",
     )
 )
@@ -364,7 +365,7 @@ grammar_help.append(
         name="set context",
         category="Toolkits",
         command="set context <toolkit_name> [ reset ]",
-        description=f"Set your context to the chosen toolkit. By setting the context, the selected toolkit functions become available to you. The optional parameter <cmd>reset</cmd> can be used to reset your login information.",
+        description="Set your context to the chosen toolkit. By setting the context, the selected toolkit functions become available to you. The optional parameter <cmd>reset</cmd> can be used to reset your login information.",
         note=NOTE_TOOLKITS,
     )
 )
@@ -387,7 +388,7 @@ grammar_help.append(
         name="unset context",
         category="Toolkits",
         command="unset context",
-        description=f"Exit your toolkit context. You will no longer have access to toolkit-specific functions.",
+        description="Exit your toolkit context. You will no longer have access to toolkit-specific functions.",
         note=NOTE_TOOLKITS,
     )
 )
@@ -407,7 +408,7 @@ grammar_help.append(
         name="create run",
         category="Runs",
         command="create run",
-        description=f"Start recording a run.",
+        description="Start recording a run.",
         note=NOTE_RUNS,
     )
 )
@@ -419,7 +420,7 @@ grammar_help.append(
         name="save run",
         category="Runs",
         command="save run as <run_name>",
-        description=f"Stop recording a run and save it.",
+        description="Stop recording a run and save it.",
         note=NOTE_RUNS,
     )
 )
@@ -431,7 +432,7 @@ grammar_help.append(
         name="run",
         category="Runs",
         command="run <run_name>",
-        description=f"Execute a previously recorded run. This will execute every command and continue regardless of any failures.",
+        description="Execute a previously recorded run. This will execute every command and continue regardless of any failures.",
         note=NOTE_RUNS,
     )
 )
@@ -443,7 +444,7 @@ grammar_help.append(
         name="list runs",
         category="Runs",
         command="list runs",
-        description=f"List all runs saved in the current workspace.",
+        description="List all runs saved in the current workspace.",
         note=NOTE_RUNS,
     )
 )
@@ -455,7 +456,7 @@ grammar_help.append(
         name="display run",
         category="Runs",
         command="display run <run_name>",
-        description=f"Display the commands stored in a certain run.",
+        description="Display the commands stored in a certain run.",
         note=NOTE_RUNS,
     )
 )
@@ -585,7 +586,12 @@ grammar_help.append(
         name="show molecules",
         category="Utility",
         command="show molecules using file '<mols_file>' | dataframe <dataframe> [ save as '<sdf_or_csv_filename>' | as molsobject ]",
-        description=f"""Launch the molecule viewer { 'in your browser ' if is_notebook_mode() else '' }to examine and select molecules from a SMILES sdf/csv dataset.
+        description=f"""Launch the molecule viewer { 'in your browser ' if is_notebook_mode() else '' }to view a selection of molecules and associated information soted in a dataframe, csv or sdf file. 
+
+        This  command is to provide a utility to work with molecules in SMILES format that have been provided in a data set format.
+
+        For detailed analysis and collection of data for molecules you can also use the add molecule, display molecule and create Molecule functions to work in depth with selected molecules.
+
 
 Examples:
 - <cmd>show molecules using file 'base_molecules.sdf' as molsobject</cmd>
@@ -1183,7 +1189,7 @@ def output_train_statements(cmd_pointer):
 
 
 
-        The below describes cdccl clients domain specific language (DSL) for managing science activities using the DSL
+        The below describes openad clients domain specific language (DSL) for managing science activities using the DSL
 
         Vocabulary:
             DSL: Domain Specific Language or DSL  that is implemented for the openad client and all commands are formatted in
@@ -1195,7 +1201,7 @@ def output_train_statements(cmd_pointer):
             Create: create an object (e.g. workspace or run)
             Search: a repository or object
             Exec/Execute: execute a function
-            Display: display a file or result set
+            Display: display molecule, file or result set
             Show:  Show a data set using a utility that enables you to manipulate or diagramatically view it.
             Backup: backup a plugin or workspace
             Add: add a function or plugin
@@ -1207,6 +1213,22 @@ def output_train_statements(cmd_pointer):
             toolkit: these are contextual plugins that are available one at a time for providing specific functionality to the user. Valid toolkits are DS4SD (deepSearch), GT4SD(generative AI toolkit), RXN (retro synthesis), ST4SD(simulation toolkit)
             History: History of DSL commands for a given Workspace
             run: list of sequential commands saved by the user')
+            molecule-set: set of molecules maipulated by commands suchs as 'display molecule', 'add Molecule','create molecule', 'remove molecule'
+            The Following commands are used to work with molecule sets:
+                - clear molecules
+                - create molecule <smiles_string> name <molecule_name>
+                - show molecules using file '<mols_file>' | dataframe <dataframe> [ save as '<sdf_or_csv_filename>' | as molsobject ]
+                - add molecule|mol  <name> | <smiles> | <inchi> | <inchkey> | <cid>
+                - display molecule|mol <name> | <smiles> | <inchi> | <inchkey> |  <cid>
+                - export molecule|mol <name> | <smiles> | <inchi> | <inchkey> |  <cid> [as file]
+                - remove molecule|mol <name> | <smiles> | <inchi> | <inchkey> | <formula> | <cid> 
+                - list molecules|mols
+                - save molecule-set|molset as <molecule-set_name>
+                - load molecule-set|molset <molecule-set_name>
+                - list molecule-sets|molsets
+                - enrich molecule-set with analysis
+                - @(<name> | <smiles> | <inchi> | <inchkey> | <cid>)>><molecule_property_name>
+
             ?: will display help and if positioned prior to a command will display help options for that command \\@ \n\n"""
     )
 
