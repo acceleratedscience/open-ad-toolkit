@@ -1,0 +1,26 @@
+{
+	"fplugin": "demo",
+	"command": "test clauses1 <in_clause>",
+	"subject": "",
+	"exec_type": "standard_statement",
+	"exec_cmd": "",
+	"help": {
+		"name": "test clauses1",
+		"category": "General",
+		"command": "test clauses1 in 'test' using (foo=<int> bar=<str> baz=desc) [ save as 'foobar.txt' ] [ estimate only ] [ return as data ]",
+		"description": "Demo the IN_CLAUSE, USING, SAVE_AS, ESTIMATE_ONLY, and RETURN_AS_DATA clauses",
+		"url": ""
+	},
+	"library": "fn_test_clauses",
+	"method": "test_clauses1",
+	"in_clause": { "test": "desc" },
+	"USING": {
+		"foo": "int",
+		"bar": "str",
+		"baz": "desc"
+	},
+	"SAVE_AS": {},
+	"ESTIMATE_ONLY": {},
+	"RETURN_AS_DATA": {},
+	"SHOW": ["black", "white"]
+}

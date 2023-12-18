@@ -1,0 +1,14 @@
+Run a batch of reaction predictions for topn. The provided list of reactions can be specified as a DataFrame, a CSV file from your current workspace or a list of strings. When proving a DataFrame or CSV file, we will look for the "reactions" column.
+
+{{REACTION_NOTATION}}
+
+{{USING_CLAUSE_OPTIONS}}
+- {{USING_AI_MODEL}}
+- <cmd>topn=<integer></cmd> Defined the number of results being returned. The default value is 3.
+
+{{USE_SAVED_CLAUSE}}
+
+Examples:
+- <cmd>predict reaction topn in batch from list ['BrBr.c1ccc2cc3ccccc3cc2c1CCO' , 'BrBr.c1ccc2cc3ccccc3cc2c1']</cmd>
+- <cmd>predict reaction topn in batch from list ['BrBr.c1ccc2cc3ccccc3cc2c1CCO' , 'BrBr.c1ccc2cc3ccccc3cc2c1'] using (topn=6)</cmd>
+- <cmd>predict reaction topn in batch from list ['BrBr.c1ccc2cc3ccccc3cc2c1CCO' , 'BrBr.c1ccc2cc3ccccc3cc2c1'] use_saved </cmd>

@@ -168,7 +168,7 @@ def create_workspace(cmd_pointer, parser):
             output_text(msg("enter_to_skip"), cmd_pointer, pad_top=1)  # force_print=True
             description = user_input(cmd_pointer, "Workspace description")
             if description is None or len(description.strip()) == 0:
-                description = " No Workspace Description"
+                description = "No workspace description available"
 
         cmd_pointer.settings["descriptions"][workspace_name] = description
         write_registry(cmd_pointer.settings, cmd_pointer, True)  # Create registry
@@ -186,7 +186,7 @@ def create_workspace(cmd_pointer, parser):
         path = os.path.expanduser(path)
 
         if not os.path.exists(path):
-            return output_error(msg("fail_path_doesnt_exist", path), cmd_pointer)
+            return output_error(msg("err_path_doesnt_exist", path), cmd_pointer)
         cmd_pointer.settings["paths"][workspace_name] = path
     spinner.start("Creating workspace")
     sleep(0.5)  # Ensure the spinner is displayed for at least a moment.

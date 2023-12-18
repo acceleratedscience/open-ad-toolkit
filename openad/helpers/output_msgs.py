@@ -15,10 +15,31 @@ messages = {
         f'Allowed file types: <yellow>{ "</yellow>, <yellow>".join(args) }</yellow>',
     ),
     "invalid_file_format_target": lambda *args: f'You can only save to <yellow>{ "</yellow>, <yellow>".join(args) }</yellow> files',
-    "fail_file_doesnt_exist": lambda *args: f"The selected file <yellow>{args[0]}</yellow> does not exist",
-    "fail_path_doesnt_exist": lambda path: f"The path <yellow>{path}</yellow> does not exist",  # ?
-    "fail_file_not_found": lambda path: (f"File not found", path),
-    "fail_save_data": "No data was stored",
+    "err_file_doesnt_exist": lambda *args: f"The selected file <yellow>{args[0]}</yellow> does not exist",
+    "err_path_doesnt_exist": lambda path: f"The path <yellow>{path}</yellow> does not exist",  # ?
+    "err_file_not_found": lambda path: (f"File not found", path),
+    "err_file_no_permission_read": lambda file_path: (
+        f"You don't have permission to open the file <yellow>{file_path.split('/')[-1]}</yellow>",
+        file_path,
+    ),
+    "err_file_no_permission_write": lambda file_path: (
+        f"You don't have permission to write to the file <yellow>{file_path.split('/')[-1]}</yellow>",
+        file_path,
+    ),
+    "err_file_is_dir": lambda file_path: (
+        f"The file you try to open (<yellow>{file_path.split('/')[-1]}</yellow>) is a directory",
+        file_path,
+    ),
+    "err_decode": lambda file_path: (
+        f"Unable to decode the file <yellow>{file_path.split('/')[-1]}</yellow>",
+        file_path,
+    ),
+    "err_io": lambda file_path, err_msg: (
+        f"An I/O error occurred while opening the file <yellow>{file_path.split('/')[-1]}</yellow>",
+        err_msg,
+        file_path,
+    ),
+    "err_save_data": "No data was stored",
     "err_import": lambda err: ("Import failed", err),
     "err_export": lambda err: ("Export failed", err),
     "err_copy": lambda err: ("Copying file failed", err),
@@ -105,6 +126,7 @@ messages = {
         f"<soft>To activate this toolkit, run <cmd>set context {toolkit_name.lower()}</cmd></soft>",  # Repeat B2
         f"<soft>To see what you can do, run <cmd>{toolkit_name.lower()} ?</cmd></soft>",  # Repeat C2
     ),
+    "success_instructions_txt": lambda toolkit_name: f"The <yellow>{toolkit_name}</yellow> toolkit's instructions.txt file was successfully updated",
     "success_toolkit_remove": lambda toolkit_name: f"The <yellow>{toolkit_name}</yellow> toolkit was removed",
     # Error
     "fail_toolkit_exec_cmd": "Failed to execute toolkit command",
@@ -120,7 +142,9 @@ messages = {
         f"There is no toolkit named <yellow>{toolkit_name}</yellow> available",
         "Please check your spelling",
     ),
-    "fail_toolkit_loading": lambda *args: f"There was an error loading the <yellow>{args[0]}</yellow> toolkit",
+    "err_load_toolkit": lambda *args: f"There was an error loading the <yellow>{args[0]}</yellow> toolkit",
+    # "err_load_toolkit_description": lambda *args: f"There was an error loading 'descriptions.txt' for the <yellow>{args[0]}</yellow> toolkit", # trash
+    "err_invalid_description_txt": lambda *args: f"The 'descriptions.txt' for the <yellow>{args[0]}</yellow> toolkit should contain the line:\n<yellow>{args[1]}</yellow>",
     "fail_toolkit_not_registered": lambda toolkit_name: f"The <yellow>{toolkit_name}</yellow> toolkit is not currently registered",
     "err_toolkit_install": lambda toolkit_name, err: (
         f"There was an error installing the <yellow>{toolkit_name}</yellow> toolkit",
@@ -181,15 +205,15 @@ messages = {
     ##########################################################################
     # region - LOGIN
     # Success
+    "success_login_init": "Login registry initialized",
     "success_login": lambda toolkit_name, expiry_datetime: (
         f"You successfully logged in to <yellow>{toolkit_name}</yellow>",
         f"Your access token does not have an expiration date"
         if expiry_datetime == "No Expiry"
         else f"Your access token expires on {expiry_datetime}",
     ),
-    "success_login_init": "Login registry initialized",
-    "error_login_init": lambda err: ("Something went wrong while initializing the registry", err),
     # Error
+    "error_login_init": lambda err: ("Something went wrong while initializing the registry", err),
     "err_login": lambda toolkit_name, err="": (
         f"Something went wrong logging you in to {toolkit_name}.\n<reset>Please check your credentials and run <cmd>set context {toolkit_name} reset </cmd></reset>",
         err,
@@ -214,6 +238,7 @@ messages = {
     "enter_to_skip": "<soft>Press enter to skip</soft>",
     "abort": "Aborted",
     "data_copied": "<success>Data copied to clipboard</success>",
+    "run_?": "<soft>Run <cmd>?</cmd> to list all command options.</soft>",
     # Negative
     "table_headers_dont_match_columns": lambda headers, col_count: (
         f"The provided headers ({len(headers)}) don't match the number of columns in the data ({col_count})",
@@ -224,9 +249,11 @@ messages = {
     "memory_empty": lambda action: f"There is no result to {action}.",
     # Error
     # 'invalid_cmd': 'Not a valid command',
-    "err_invalid_cmd": lambda err: ("Not a valid command", err),
-    "err_no_matching_cmds": lambda inp: (f'No commands containing "<yellow>{inp}</yellow>"'),
+    "err_invalid_cmd": lambda err="": ("Not a valid command", err),
+    "err_no_cmds_matching": lambda inp: (f'No commands containing "<yellow>{inp}</yellow>"'),
+    "err_no_cmds_starting": lambda inp: (f'No commands starting with "<yellow>{inp}</yellow>"'),
     "err_unknown": lambda err: ("Unknown error", err),
     "err_fetch_history": lambda err: ("There was an error fetching the history", err),
+    # "err_readme": lambda err: ("There was an error reading the README file", err), # trash
     # endregion
 }

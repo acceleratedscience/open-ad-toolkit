@@ -1,0 +1,18 @@
+{
+	"fplugin": "ds4sd",
+	"command": "display collection matches for",
+	"subject": "display collection matches",
+	"exec_type": "standard_statement",
+	"exec_cmd": "display collection matches for",
+	"help": {
+		"name": "display collection matches",
+		"category": "Search Collections",
+		"command": "display collection matches for '<search_string>' [ save as '<filename.csv>' ]",
+		"description": "",
+		"url": ""
+	},
+	"library": "fn_display_collection_matches",
+	"method": "display_collection_matches",
+	"SINGLE_PARM": { "search_string": "desc" },
+	"SAVE_AS": {}
+}

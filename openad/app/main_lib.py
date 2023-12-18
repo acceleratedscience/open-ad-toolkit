@@ -325,6 +325,13 @@ def set_context(cmd_pointer, parser):
     toolkit_name = parser["toolkit_name"].upper()
     toolkit_current = None
 
+    # Handle login error.
+    def _handle_login_error(err):
+        output_error(msg("err_login", toolkit_name, err, split=True), cmd_pointer=cmd_pointer, return_val=False)
+        cmd_pointer.settings["context"] = old_cmd_pointer_context
+        cmd_pointer.toolkit_current = old_toolkit_current
+        unset_context(cmd_pointer, None)
+
     if toolkit_name.upper() not in cmd_pointer.settings["toolkits"]:
         # if toolkit_name is None: # Trash, without toolkit_name the command is invalidated
         #     return get_context(cmd_pointer, parser)
@@ -351,20 +358,15 @@ def set_context(cmd_pointer, parser):
                 # raise BaseException('Error message') # For testing
                 login_success, expiry_datetime = login_manager.load_login_api(cmd_pointer, toolkit_name, reset=reset)
 
-            except (
-                Exception  # pylint: disable=broad-exception-caught
-            ) as err:  # do not care what exception is, just returning failure
-                # Error logging in.
-                output_error(msg("err_login", toolkit_name, err, split=True), cmd_pointer=cmd_pointer, return_val=False)
-                cmd_pointer.settings["context"] = old_cmd_pointer_context
-                cmd_pointer.toolkit_current = old_toolkit_current
+            except Exception as err:  # pylint: disable=broad-exception-caught
+                # Error loading login API.
+                _handle_login_error(err)
                 return False
 
             if not login_success:
-                # Failed to log in. # error reporting handled by Toolkit
-                cmd_pointer.settings["context"] = old_cmd_pointer_context
-                cmd_pointer.toolkit_current = old_toolkit_current
-                unset_context(cmd_pointer, None)
+                # Failed to log in.
+                err = expiry_datetime  # On fail, error is passed as second parameter instead of expiry.
+                _handle_login_error(err)
                 return False
 
             # Success switching context & loggin in.
@@ -382,7 +384,7 @@ def set_context(cmd_pointer, parser):
             # Failed to load the toolkit
             cmd_pointer.settings["context"] = old_cmd_pointer_context
             cmd_pointer.toolkit_current = old_toolkit_current
-            return output_error(msg("fail_toolkit_loading", toolkit_name), cmd_pointer)
+            return output_error(msg("err_load_toolkit", toolkit_name), cmd_pointer)
 
 
 # Display your current context.
@@ -476,7 +478,7 @@ def display_data(cmd_pointer, parser):
                 df = pd.read_csv(workspace_path + file_path)
                 return output_table(df, cmd_pointer, is_data=True)
             except FileNotFoundError:
-                return output_error(msg("fail_file_doesnt_exist", file_path), cmd_pointer)
+                return output_error(msg("err_file_doesnt_exist", file_path), cmd_pointer)
             except Exception as err:  # pylint: disable=broad-exception-caught
                 # do not care what exception is, just returning failure
                 return output_error(msg("err_load_csv", err, split=True), cmd_pointer)
@@ -518,7 +520,7 @@ def display_data__save(cmd_pointer, parser):
         data.to_csv(workspace_path + file_path, index=False)
         return output_success(msg("success_save_data", file_path), cmd_pointer)
     else:
-        return output_error(msg("fail_save_data"), cmd_pointer)
+        return output_error(msg("err_save_data"), cmd_pointer)
 
 
 # --> Open data in browser UI.
@@ -601,6 +603,6 @@ def edit_config(cmd_pointer, parser):
         # JSON file not found, create new from schema.
         edit_json(file_to_edit, schema, new=True)  # pylint: disable=not-callable # it is callable
     else:
-        return output_error(msg("fail_file_doesnt_exist", parser.as_dict()["json_file"]), cmd_pointer)
+        return output_error(msg("err_file_doesnt_exist", parser.as_dict()["json_file"]), cmd_pointer)
 
     return True

@@ -1,0 +1,30 @@
+{
+	"fplugin": "rxn",
+	"command": "predict retrosynthesis",
+	"subject": "predict_retrosynthesis",
+	"SINGLE_PARM": { "molecule": "desc" },
+	"USING": {
+		"availability_pricing_threshold": "int",
+		"available_smiles": "desc",
+		"exclude_smiles": "desc",
+		"exclude_substructures": "desc",
+		"exclude_target_molecule": "str",
+		"fap": "number",
+		"max_steps": "int",
+		"nbeams": "int",
+		"pruning_steps": "int",
+		"ai_model": "desc"
+	},
+	"use_saved": "False",
+	"exec_type": "standard_statement",
+	"exec_cmd": "predict retrosynthesis",
+	"help": {
+		"name": "predict retrosynthesis",
+		"category": "Retrosynthesis",
+		"command": "predict retrosynthesis '<smiles>' [ using (option1=<value> option2=<value>) ]",
+		"description": "",
+		"url": {}
+	},
+	"library": "fn_predict_retro",
+	"method": "predict_retro"
+}
