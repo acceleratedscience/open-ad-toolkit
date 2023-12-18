@@ -77,15 +77,16 @@ def new_molecule(Name: str, smiles: str):
         new_smiles = Chem.MolToSmiles(Chem.MolFromSmiles(smiles), False)
         rdkit_mol = Chem.MolFromSmiles(new_smiles)
         formula = Chem.rdMolDescriptors.CalcMolFormula(rdkit_mol)
-        inchi = Chem.rdinchi.MolToInchi(rdkit_mol)
+
+        inchi = Chem.rdinchi.MolToInchi(rdkit_mol)[0]
 
         # inchikey = Chem.rdinchi.MolToInchikey(rdkit_mol)
 
         # mol_weight = Chem.Descriptors.ExactMolWt(rdkit_mol)
 
     except:
-        return None
-
+        if new_smiles is None:
+            return None
     mol = {
         "name": Name,
         "synonyms": {},
@@ -103,6 +104,20 @@ def new_molecule(Name: str, smiles: str):
     mol["properties"]["canonical_smiles"] = new_smiles
 
     mol["properties"]["molecular_formula"] = formula
+    return mol
+
+
+def merge_molecule_properties(molecule_dict, mol):
+    """merges a molecules property with those from a dictionary"""
+
+    if mol is None:
+        return None
+    if "ROMol" in molecule_dict:
+        del molecule_dict["ROMol"]
+
+    for key in molecule_dict:
+        mol["properties"][key] = molecule_dict[key]
+
     return mol
 
 
@@ -139,7 +154,7 @@ def get_mol_from_inchikey(inchikey_str: str):
 def get_mol_from_smiles(smiles_str: str):
     """return pubchem molecule data based on smiles"""
     if valid_smiles(smiles_str):
-        print("getting smiles")
+        # print("getting smiles")
         return get_mol(smiles_str, MOL_SMILES_INDEX)
     else:
         return False, "Invalid Smiles", None
@@ -162,6 +177,7 @@ def get_mol_from_cid(mol_cid: str):
 
 def get_mol(mol_id, mol_id_type):
     """gets molecule based on provided identifier"""
+    cid = None
     OPENAD_MOL_DICT = {
         "name": None,
         "synonyms": {},
@@ -191,7 +207,9 @@ def get_mol(mol_id, mol_id_type):
                 openad_mol["name"] = molecule["iupac_name"]
             openad_mol["properties"] = molecule
             openad_mol["sources"]["pubchem"] = molecule
-            openad_mol["synonyms"] = pcy.get_synonyms(openad_mol["name"], "name")[0]
+            names = pcy.get_synonyms(openad_mol["name"], "name")
+            if len(names) > 0:
+                openad_mol["synonyms"] = names[0]
             return True, openad_mol, molecule
     except Exception as e:
         print(e)
@@ -200,33 +218,9 @@ def get_mol(mol_id, mol_id_type):
 
 def get_properties(mol):
     properties_dict = {}
-    properties_dict["molecular_weight"] = mol["properties"]["molecular_weight"]
-    properties_dict["exact_mass"] = mol["properties"]["exact_mass"]
-    properties_dict["monoisotopic_mass"] = mol["properties"]["monoisotopic_mass"]
-    properties_dict["xlogp"] = mol["properties"]["xlogp"]
-    properties_dict["tpsa"] = mol["properties"]["tpsa"]
-    properties_dict["charge"] = mol["properties"]["charge"]
-    properties_dict["rotatable_bond_count"] = mol["properties"]["rotatable_bond_count"]
-    properties_dict["atom_stereo_count"] = mol["properties"]["atom_stereo_count"]
-    properties_dict["bond_stereo_count"] = mol["properties"]["bond_stereo_count"]
-    properties_dict["complexity"] = mol["properties"]["complexity"]
-    properties_dict["conformer_id_3d"] = mol["properties"]["conformer_id_3d"]
-    properties_dict["conformer_rmsd_3d"] = mol["properties"]["conformer_rmsd_3d"]
-    properties_dict["coordinate_type"] = mol["properties"]["coordinate_type"]
-    properties_dict["covalent_unit_count"] = mol["properties"]["covalent_unit_count"]
-    properties_dict["defined_atom_stereo_count"] = mol["properties"]["defined_atom_stereo_count"]
-    properties_dict["defined_bond_stereo_count"] = mol["properties"]["defined_bond_stereo_count"]
-    properties_dict["h_bond_acceptor_count"] = mol["properties"]["h_bond_acceptor_count"]
-    properties_dict["h_bond_donor_count"] = mol["properties"]["h_bond_donor_count"]
-    properties_dict["heavy_atom_count"] = mol["properties"]["heavy_atom_count"]
-    properties_dict["isotope_atom_count"] = mol["properties"]["isotope_atom_count"]
-    properties_dict["mmff94_energy_3d"] = mol["properties"]["mmff94_energy_3d"]
-    properties_dict["mmff94_partial_charges_3d"] = mol["properties"]["mmff94_partial_charges_3d"]
-    properties_dict["multipoles_3d"] = mol["properties"]["multipoles_3d"]
-    properties_dict["pharmacophore_features_3d"] = mol["properties"]["pharmacophore_features_3d"]
-    properties_dict["undefined_atom_stereo_count"] = mol["properties"]["undefined_atom_stereo_count"]
-    properties_dict["undefined_bond_stereo_count"] = mol["properties"]["undefined_bond_stereo_count"]
-    properties_dict["volume_3d"] = mol["properties"]["volume_3d"]
+    for mol_property in MOL_PROPERTIES:
+        if mol_property in mol["properties"]:
+            properties_dict[mol_property] = mol["properties"][mol_property]
     return properties_dict
 
 

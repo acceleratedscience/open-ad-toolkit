@@ -69,11 +69,13 @@ from pyparsing import (
     export,
     create,
     rename,
+    merge,
+    pubchem,
 ) = map(
     CaselessKeyword,
     "get list description using create set unset workspace workspaces context jobs exec\
           as optimize with toolkits toolkit gpu experiment add run save runs show \
-              file display history data remove result from inchi inchikey smiles formula name last load results export create rename".split(),
+              file display history data remove result from inchi inchikey smiles formula name last load results export create rename merge pubchem".split(),
 )
 mol = ["molecule", "mol"]
 mols = ["molecules", "mols"]
@@ -90,6 +92,7 @@ molecule_set = MatchFirst(map(CaselessKeyword, molset))
 molecule_sets = MatchFirst(map(CaselessKeyword, molsets))
 molecule_identifier = Word(alphas, alphanums + "_" + "[" + "]" + "(" + ")" + "=" + "," + "-" + "+" + "/" + "#" + "@")
 INFO_MOLECULES = "\n<soft>To learn more about workspaces, run <cmd>workspace ?</cmd></soft>"
+desc = QuotedString("'", escQuote="\\")
 
 
 def mol_grammar_add(statements, grammar_help):
@@ -100,7 +103,8 @@ def mol_grammar_add(statements, grammar_help):
             name="add molecule",
             category="Molecules",
             command="add molecule|mol  <name> | <smiles> | <inchi> | <inchkey> | <cid>",
-            description="""Adds a given molecule from pubchem to the current working set of molecules. Users can specify a Molecule by A name given to it, a SMILES string, inchi String, Inchkey or its cid.\n
+            description="""Adds a given molecule from pubchem to the current working set of molecules. Users can specify a Molecule by Name, a SMILES string, inchi String, Inchkey or its cid.\n
+            
             For example:\n 
                 - Adding a molecule by name: <cmd> add molecule Aspirin </cmd>\n
                 - Adding a molecule by SMILES string: <cmd> add molecule CC(=O)OC1=CC=CC=C1C(=O)O </cmd>\n
@@ -118,7 +122,8 @@ def mol_grammar_add(statements, grammar_help):
             name="display molecule",
             category="Molecules",
             command="display molecule|mol <name> | <smiles> | <inchi> | <inchkey> |  <cid>",
-            description="""Displays a given molecule by first checking the current working set of molecules, then if not in the working set will search pubchem. Users can specify a Molecule by A name given to it, a SMILES string, inchi String, Inchkey or its cid.\n
+            description="""Displays a given molecule by first checking the current working set of molecules, then if not in the working set will search for a provided molecule on pubchem. Users can specify a Molecule by Name, a SMILES string, inchi String, Inchkey or its cid.\n
+            
             For example:\n 
                 - Displaying a molecule by name: <cmd> display molecule Aspirin </cmd>\n
                 - Displaying a molecule by SMILES string: <cmd> display molecule CC(=O)OC1=CC=CC=C1C(=O)O </cmd>\n
@@ -279,6 +284,23 @@ def mol_grammar_add(statements, grammar_help):
         )
     )
 
+    statements.append(Forward(clear + molecules)("clear_molecules"))
+
+    grammar_help.append(
+        help_dict_create(
+            name="clear Molecules",
+            category="Molecules",
+            command="clear molecules",
+            description="Clears the working set of molecules.",
+            note=INFO_MOLECULES,
+        )
+    )
+    statements.append(
+        Forward(create + molecule + molecule_identifier("smiles") + name + (Word(alphas, alphanums + "_")("name")))(
+            "create_molecule"
+        )
+    )
+
     grammar_help.append(
         help_dict_create(
             name="create molecule",
@@ -312,6 +334,22 @@ def mol_grammar_add(statements, grammar_help):
             category="Molecules",
             command="@(<name> | <smiles> | <inchi> | <inchkey> | <cid>)>><molecule_property_name>",
             description=description,
+            note=INFO_MOLECULES,
+        )
+    )
+
+    statements.append(
+        Forward(
+            load + molecules + using + file + desc("moles_file") + Optional((merge + w_ith + pubchem))("pubchem_merge")
+        )("load_molecules_file")
+    )  # From mols file
+
+    grammar_help.append(
+        help_dict_create(
+            name="show molecules",
+            category="Utility",
+            command="load molecules using file '<filename>' ",
+            description="""load molecules into the molecule working set from a file""",
             note=INFO_MOLECULES,
         )
     )

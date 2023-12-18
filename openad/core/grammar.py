@@ -586,7 +586,12 @@ grammar_help.append(
         name="show molecules",
         category="Utility",
         command="show molecules using file '<mols_file>' | dataframe <dataframe> [ save as '<sdf_or_csv_filename>' | as molsobject ]",
-        description=f"""Launch the molecule viewer { 'in your browser ' if is_notebook_mode() else '' }to examine and select molecules from a SMILES sdf/csv dataset.
+        description=f"""Launch the molecule viewer { 'in your browser ' if is_notebook_mode() else '' }to view a selection of molecules and associated information soted in a dataframe, csv or sdf file. 
+
+        This  command is to provide a utility to work with molecules in SMILES format that have been provided in a data set format.
+
+        For detailed analysis and collection of data for molecules you can also use the add molecule, display molecule and create Molecule functions to work in depth with selected molecules.
+
 
 Examples:
 - <cmd>show molecules using file 'base_molecules.sdf' as molsobject</cmd>
@@ -1184,7 +1189,7 @@ def output_train_statements(cmd_pointer):
 
 
 
-        The below describes cdccl clients domain specific language (DSL) for managing science activities using the DSL
+        The below describes openad clients domain specific language (DSL) for managing science activities using the DSL
 
         Vocabulary:
             DSL: Domain Specific Language or DSL  that is implemented for the openad client and all commands are formatted in
@@ -1196,7 +1201,7 @@ def output_train_statements(cmd_pointer):
             Create: create an object (e.g. workspace or run)
             Search: a repository or object
             Exec/Execute: execute a function
-            Display: display a file or result set
+            Display: display molecule, file or result set
             Show:  Show a data set using a utility that enables you to manipulate or diagramatically view it.
             Backup: backup a plugin or workspace
             Add: add a function or plugin
@@ -1208,6 +1213,22 @@ def output_train_statements(cmd_pointer):
             toolkit: these are contextual plugins that are available one at a time for providing specific functionality to the user. Valid toolkits are DS4SD (deepSearch), GT4SD(generative AI toolkit), RXN (retro synthesis), ST4SD(simulation toolkit)
             History: History of DSL commands for a given Workspace
             run: list of sequential commands saved by the user')
+            molecule-set: set of molecules maipulated by commands suchs as 'display molecule', 'add Molecule','create molecule', 'remove molecule'
+            The Following commands are used to work with molecule sets:
+                - clear molecules
+                - create molecule <smiles_string> name <molecule_name>
+                - show molecules using file '<mols_file>' | dataframe <dataframe> [ save as '<sdf_or_csv_filename>' | as molsobject ]
+                - add molecule|mol  <name> | <smiles> | <inchi> | <inchkey> | <cid>
+                - display molecule|mol <name> | <smiles> | <inchi> | <inchkey> |  <cid>
+                - export molecule|mol <name> | <smiles> | <inchi> | <inchkey> |  <cid> [as file]
+                - remove molecule|mol <name> | <smiles> | <inchi> | <inchkey> | <formula> | <cid> 
+                - list molecules|mols
+                - save molecule-set|molset as <molecule-set_name>
+                - load molecule-set|molset <molecule-set_name>
+                - list molecule-sets|molsets
+                - enrich molecule-set with analysis
+                - @(<name> | <smiles> | <inchi> | <inchkey> | <cid>)>><molecule_property_name>
+
             ?: will display help and if positioned prior to a command will display help options for that command \\@ \n\n"""
     )
 

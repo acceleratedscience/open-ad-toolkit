@@ -102,8 +102,11 @@ def export_molecule(cmd_pointer, inp):
     return True
 
 
-def add_molecule(cmd_pointer, inp):
-    molecule_identifier = inp.as_dict()["molecule_identifier"]
+def add_molecule(cmd_pointer, inp, force=False):
+    if isinstance(inp, dict):
+        molecule_identifier = inp["molecule_identifier"]
+    else:
+        molecule_identifier = inp.as_dict()["molecule_identifier"]
     if (
         cmd_pointer.last_external_molecule != None
         and is_molecule(cmd_pointer.last_external_molecule, molecule_identifier) != None
@@ -114,17 +117,23 @@ def add_molecule(cmd_pointer, inp):
     if mol is None:
         output_text("Unable to identify molecule", cmd_pointer=cmd_pointer, return_val=False)
         return True
+
     identifier = mol["name"] + "   " + mol["properties"]["canonical_smiles"]
+
     if retrieve_mol_from_list(cmd_pointer, mol["properties"]["canonical_smiles"]) != None:
         print("Molecule already in list")
         return True
-    if confirm_prompt("Are you wish to add " + identifier + " to your working list ?"):
-        cmd_pointer.molecule_list.append(mol.copy())
-        print("Molecule was Added.")
-        return True
 
-    print("Molecule was not added")
-    return False
+    if force is False:
+        if confirm_prompt("Are you wish to add " + identifier + " to your working list ?"):
+            cmd_pointer.molecule_list.append(mol.copy())
+            print("Molecule was Added.")
+            return True
+
+        print("Molecule was not added")
+        return False
+    cmd_pointer.molecule_list.append(mol.copy())
+    return True
 
 
 def create_molecule(cmd_pointer, inp):
@@ -148,6 +157,11 @@ def create_molecule(cmd_pointer, inp):
 
     print("Molecule was not added")
     return False
+
+
+def clear_workset(cmd_pointer, inp):
+    if confirm_prompt("Are you wish to clear the Molecule Workset ?"):
+        cmd_pointer.molecule_list = []
 
 
 def remove_molecule(cmd_pointer, inp):

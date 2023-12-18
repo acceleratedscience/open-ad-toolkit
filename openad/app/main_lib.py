@@ -13,6 +13,8 @@ from openad.flask_apps import launcher
 from openad.flask_apps.dataviewer.routes import fetchRoutesDataViewer
 
 # molecules
+from openad.molecules.mol_batch_files import load_batch_molecules
+
 from openad.molecules.mol_commands import (
     display_molecule,
     add_molecule,
@@ -26,6 +28,7 @@ from openad.molecules.mol_commands import (
     create_molecule,
     get_property,
     rename_mol_in_list,
+    clear_workset,
 )
 
 from openad.molecules.molecule_cache import attach_all_results, clear_results
@@ -203,6 +206,10 @@ def lang_parse(cmd_pointer, parser):
         return get_property(cmd_pointer, parser)
     elif parser.getName() == "rename_molecule":
         return rename_mol_in_list(cmd_pointer, parser)
+    elif parser.getName() == "clear_molecules":
+        return clear_workset(cmd_pointer, parser)
+    elif parser.getName() == "load_molecules_file":
+        load_batch_molecules(cmd_pointer, parser)
 
     # File system commands
     elif parser.getName() == "list_files":
