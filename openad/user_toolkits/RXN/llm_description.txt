@@ -7,14 +7,14 @@ The Toolkit  is based on molecular transformer models that understand the natura
 
 The following commands are available for this toolkit:
 
-Queries:
+General:
+	`interpret recipe '<recipe_paragraph>' | '<txt_filename>'`
 	`list rxn models`
 
 Retrosynthesis:
 	`predict retrosynthesis '<smiles>' [ using (option1=<value> option2=<value>) ]`
-	`interpret recipe '<recipe_paragraph>' | '<txt_filename>'`
 
 Prediction:
-	`predict reaction in batch from dataframe <dataframe_name> | file '<filename.csv>' | list '<smiles>.<smiles>'  [ using (ai_model='<ai_model>') ] [ use_saved ]`
+	`predict reaction in batch from dataframe <dataframe_name> | file '<filename.csv>' | list ['<smiles>.<smiles>','<smiles>.<smiles>'] [ using (ai_model='<ai_model>') ] [ use_saved ]`
 	`predict reaction '<smiles>.<smiles>' [ using (ai_model='<ai_model>') ] [ use_saved ]`
 	`predict reaction topn in batch from dataframe <dataframe_name> | file '<filename.csv>' | list ['<smiles>.<smiles>','<smiles>.<smiles>'] [ using (topn=<integer> ai_model='<ai_model>') ] [ use_saved ]`

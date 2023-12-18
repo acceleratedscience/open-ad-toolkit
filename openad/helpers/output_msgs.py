@@ -269,6 +269,7 @@ messages = {
     "abort": "Aborted",
     "data_copied": "<success>Data copied to clipboard</success>",
     "run_?": "<soft>Run <cmd>?</cmd> to list all command options.</soft>",
+    "csv_to_clipboard": "CSV data copied to clipboard",
     # Negative
     "table_headers_dont_match_columns": lambda headers, col_count: (
         f"The provided headers ({len(headers)}) don't match the number of columns in the data ({col_count})",

@@ -40,7 +40,7 @@ Get started with Jupyter:
 
 ## Table of Contents 
 
-- [OpenAD](#openad)
+- [OpenAD Beta](#openad-beta)
 - [Installation](#installation)
 - [Getting Started - CLI](#getting-started---cli)
 - [Getting Started - Jupyter](#getting-started---jupyter)

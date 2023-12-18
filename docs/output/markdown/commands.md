@@ -17,6 +17,7 @@ To update it, see openad/docs/generate_docs.py
 - [OpenAD](#openad)
   - [General](#general)
   - [Workspaces](#workspaces)
+  - [Molecules](#molecules)
   - [Toolkits](#toolkits)
   - [Runs](#runs)
   - [Utility](#utility)
@@ -28,7 +29,7 @@ To update it, see openad/docs/generate_docs.py
   - [Search Collections](#search-collections)
   - [Collections](#collections)
 - [RXN](#rxn)
-  - [Queries](#queries)
+  - [General](#general)
   - [Retrosynthesis](#retrosynthesis)
   - [Prediction](#prediction)
 - [ST4SD](#st4sd)
@@ -71,6 +72,131 @@ Remove a workspace from your registry. Note that this doesn't remove the workspa
 
 `list workspaces`{: .cmd }
 Lists all your workspaces.<br><br>
+
+<br>
+
+### Molecules
+
+`add molecule|mol <name> | <smiles> | <inchi> | <inchkey> | <cid>`{: .cmd }
+Adds a molecule to the current working set of molecules. You can specify any molecule by SMILES or InChI, and PubChem classified molecules also by name, InChIKey or their PubChem CID.<br>
+
+When adding a molecule by name, this name will become the molecule's identifying string. You can set or override an identifying string for any molecule by running `rename`.<br>
+
+Examples:<br>
+- Adding a molecule by name: `add molecule aspirin`<br>
+- Adding a molecule by SMILES: `add molecule CC(=O)OC1=CC=CC=C1C(=O)O`<br>
+- Adding a molecule by CID: `add mol 2244`<br>
+- Adding a molecule by InChI: `add mol InChI=1S/C9H8O4/c1-6(10)13-8-5-3-2-4-7(8)9(11)12/h2-5H,1H3,(H,11,12)`<br>
+- Adding a molecule by InChIKey: `add mol BSYNRYMUTXBXSQ-UHFFFAOYSA-N`<br><br>
+
+`display molecule|mol <name> | <smiles> | <inchi> | <inchkey> |  <cid>`{: .cmd }
+Displays a given molecule by first checking the current working set of molecules, then if not in the working set will search for a provided molecule on pubchem. Users can specify a Molecule by Name, a SMILES string, inchi String, Inchkey or its cid.<br>
+
+
+            For example:<br>
+
+                - Displaying a molecule by name: ` display molecule Aspirin `<br>
+
+                - Displaying a molecule by SMILES string: ` display molecule CC(=O)OC1=CC=CC=C1C(=O)O `<br>
+
+                - Displaying a molecule by cid: ` display mol 2244 `<br>
+
+                - Displaying a molecule by inchikey string: ` display mol  BSYNRYMUTXBXSQ-UHFFFAOYSA-N `<br>
+
+                - Displaying a molecule by inchi inchi: ` display mol  InChI=1S/C9H8O4/c1-6(10)13-8-5-3-2-4-7(8)9(11)12/h2-5H,1H3,(H,11,12) ` <br><br>
+
+`rename molecule <molecule_identifer_string> name <molecule_name>`{: .cmd }
+This command renames a molecule in the current working set to a name you provide it.<br>
+            For example:<br>
+            I have added a molecule by the molecule 'CC(=O)OC1=CC=CC=C1C(=O)O'to the current working set of molecules, but I want to rename it to 'Aspirin'. the command to do this would be:<br>
+
+            ` rename molecule CC(=O)OC1=CC=CC=C1C(=O)O as Aspirin `<br><br>
+
+`export molecule|mol <name> | <smiles> | <inchi> | <inchkey> |  <cid> [as file]`{: .cmd }
+exports a molecule from pubchem or the current list to a file named as the molecules given name and or as a dictionary(when in Notebooks) The molecule does not have to be form the current working set, and if not the request will be made to pubchem.<br>
+            For Example: <br>
+                    - The following will return a dictionary when called in jupyter notebooks or from the command line it will save it to the current workspace directory as a '.json' file. <cmd> export molecule aspirin <cmd><br>
+                    - The following will  save it to the current workspace directory as a '.json' file. <cmd> export molecule aspirin as file <cmd> <br><br>
+
+`remove molecule|mol <name> | <smiles> | <inchi> | <inchkey> | <formula> | <cid>`{: .cmd }
+removes molecule from the current working set of molecules.<br>
+
+            For example:<br>
+
+                - Remove a molecule by name: ` display molecule Aspirin `<br>
+
+                - Remove a molecule by SMILES string: ` display molecule CC(=O)OC1=CC=CC=C1C(=O)O `<br>
+
+                - Remove a molecule by cid: ` display mol 2244 `<br>
+
+                - Remove a molecule by inchikey string: ` display mol  BSYNRYMUTXBXSQ-UHFFFAOYSA-N `<br>
+
+                - Remove a molecule by inchi inchi: ` display mol  InChI=1S/C9H8O4/c1-6(10)13-8-5-3-2-4-7(8)9(11)12/h2-5H,1H3,(H,11,12) ` <br><br>
+
+`list molecules|mols`{: .cmd }
+lists the molecules in the current working set of molecules.<br>
+            For example:<br>
+            <cmd>list molecules<cmd><br><br>
+
+`save molecule-set|molset as <molecule-set_name>`{: .cmd }
+Saves the current molecule working set to the current workspace.<br>
+             For example: ` save molecule-set as my_working_set`<br><br>
+
+`load molecule-set|molset <molecule-set_name>`{: .cmd }
+loads the molecules from the current workspace.<br>
+            For example: ` load molecule-set my_working_set`<br><br>
+
+`list molecule-sets|molsets`{: .cmd }
+lists molecule sets in the current workspace.<br>
+            For Example:<br>
+            ` List molecule-sets ` or `list molsets`<br><br>
+
+`enrich molecule-set with analysis`{: .cmd }
+Loads the previous results of analysis into the molecule records where the focus of the Analysis was the given molecule<br><br>
+
+`clear analysis cache`{: .cmd }
+Clears the cache of analysis results for the current workspace.<br><br>
+
+`clear molecules`{: .cmd }
+Clears the working set of molecules.<br><br>
+
+`create molecule <smiles_string> name <molecule_name>`{: .cmd }
+creates a base molecule and adds it to the current list<br>
+            For example: <br>
+                `create  molecule CC(=O)OC1=CC=CC=C1C(=O)O name my_aspirin`<br>
+
+                Note it will try and calclculate other idenfiers in the molecule data structure, other propoerties are left as None. <br><br>
+
+`@(<name> | <smiles> | <inchi> | <inchkey> | <cid>)>><molecule_property_name>`{: .cmd }
+allows you to get a molecule property by using one of the propoerties listed below. The molecule can be identified by a name, SMILES, Inchi key or cid.<br>
+
+    For example:<br>
+        - Obtain the molecular weight of the molecule known as aspirin. ` @aspirin>>molecular_weight `<br>
+        - Obtain a molecules xlogp value using a SMILES string. ` @CC(=O)OC1=CC=CC=C1C(=O)O>>xlogp `<br>
+
+
+      Here is a list of valid properties that can be requested. <br>
+['cid', 'molecular_formula', 'molecular_weight', 'canonical_smiles', 'isomeric_smiles', 'inchi', 'inchikey', 'iupac_name', 'xlogp', 'exact_mass', 'monoisotopic_mass', 'multipoles_3d', 'tpsa', 'complexity', 'charge', 'h_bond_donor_count', 'h_bond_acceptor_count', 'rotatable_bond_count', 'heavy_atom_count', 'isotope_atom_count', 'atom_stereo_count', 'defined_atom_stereo_count', 'undefined_atom_stereo_count', 'bond_stereo_count', 'defined_bond_stereo_count', 'undefined_bond_stereo_count', 'covalent_unit_count', 'volume_3d', 'conformer_rmsd_3d', 'conformer_model_rmsd_3d', 'x_steric_quadrupole_3d', 'y_steric_quadrupole_3d', 'z_steric_quadrupole_3d', 'feature_count_3d', 'feature_acceptor_count_3d', 'feature_donor_count_3d', 'feature_anion_count_3d', 'feature_cation_count_3d', 'feature_ring_count_3d', 'feature_hydrophobe_count_3d', 'effective_rotor_count_3d', 'conformer_count_3d', 'pharmacophore_features_3d', 'conformer_id_3d', 'coordinate_type', 'mmff94_energy_3d', 'mmff94_partial_charges_3d']<br><br>
+
+`load molecules using file '<filename>'`{: .cmd }
+Load molecules from a file into the molecule working set.<br><br>
+
+`export molecules`{: .cmd }
+Exports the molecules in the current Working Set<br>
+
+            If the command is issued from a command line the molecule will be exprted to your workspace and named resul_#.csv. # being a incramental number of results sets, with the highest being the latest. <br>
+
+            In Jupyter notebooks the molecules are exported as a pandas Dataframe. <br><br>
+
+`show molecules using ( file '<mols_file>' | dataframe <dataframe> ) [ save as '<sdf_or_csv_file>' | as molsobject ]`{: .cmd }
+Launch the molecule viewer to examine and select molecules from a SMILES sdf/csv dataset.<br>
+
+Examples:<br>
+- `show molecules using file 'base_molecules.sdf' as molsobject`<br>
+- `show molecules using dataframe my_dataframe save as 'selection.sdf'`<br><br>
+
+`show mol '<json_mol_file> | <sdf_file> | <smiles_string> | <inchi_string>'`{: .cmd }
+Inspect a molecule in the browser.<br><br>
 
 <br>
 
@@ -155,13 +281,6 @@ Display the result in the CLI.<br><br>
 `edit config '<json_config_file>' [ schema '<schema_file>']`{: .cmd }
 Edit any JSON file in your workspace directly from the CLI. If a schema is specified, it will be used for validation and documentation.<br><br>
 
-`show molecules using ( file '<mols_file>' | dataframe <dataframe> ) [ save as '<sdf_or_csv_filename>' | as molsobject ]`{: .cmd }
-Launch the molecule viewer to examine and select molecules from a SMILES sdf/csv dataset.<br>
-
-Examples:<br>
-- `show molecules using file 'base_molecules.sdf' as molsobject`<br>
-- `show molecules using dataframe my_dataframe save as 'selection.sdf'`<br><br>
-
 <br>
 
 ### LLM
@@ -207,10 +326,10 @@ Open the documentation webpage.<br><br>
 `?`{: .cmd }
 List all available commands.<br><br>
 
-`? <soft>... --> List all commands containing "..."</soft>`{: .cmd }
+`? ...<soft>   --> List all commands containing "..."</soft>`{: .cmd }
 <br>
 
-`<soft>...</soft> ? <soft>--> List all commands starting with "..."</soft>`{: .cmd }
+`... ?<soft>   --> List all commands starting with "..."</soft>`{: .cmd }
 <br>
 
 <br>
@@ -224,14 +343,6 @@ List all available commands.<br><br>
 <summary>See commands</summary>
 
 ### Search Molecules
-
-`search for patents containing molecule '<smiles>' | '<inchi>' | '<inchi_key>' [ save as '<filename.csv>' ]`{: .cmd }
-Search for mentions of a specified molecules in registered patents. The queried molecule can be described as a SMILES string, InChI or InChiKey.<br>
-
-Use the `save as` clause to save the results as a csv file in your current workspace.<br>
-
-Example:<br>
-`search for patents containing molecule 'CC(C)(c1ccccn1)C(CC(=O)O)Nc1nc(-c2c[nH]c3ncc(Cl)cc23)c(C#N)cc1F'`<br><br>
 
 `search for similar molecules to '<smiles>' [ save as '<filename.csv>' ]`{: .cmd }
 Search for molecules that are similar to the provided molecule or molecule substructure as provided in the `<smiles_string>`.<br>
@@ -248,6 +359,14 @@ Use the `save as` clause to save the results as a csv file in your current works
 
 Example:<br>
 `search for molecules in patents from list ['CN108473493B','US20190023713A1']`<br><br>
+
+`search for patents containing molecule '<smiles>' | '<inchi>' | '<inchi_key>' [ save as '<filename.csv>' ]`{: .cmd }
+Search for mentions of a specified molecules in registered patents. The queried molecule can be described as a SMILES string, InChI or InChiKey.<br>
+
+Use the `save as` clause to save the results as a csv file in your current workspace.<br>
+
+Example:<br>
+`search for patents containing molecule 'CC(C)(c1ccccn1)C(CC(=O)O)Nc1nc(-c2c[nH]c3ncc(Cl)cc23)c(C#N)cc1F'`<br><br>
 
 `search for substructure instances of '<smiles>' [ save as '<filename.csv>' ]`{: .cmd }
 Search for molecules by substructure, as defined by the `<smiles_string>`.<br>
@@ -316,19 +435,6 @@ Example:<br>
 
 ### Collections
 
-`display collections for domain '<domain_name>'`{: .cmd }
-Display the available collections in a given Deep Search domain.<br>
-
-Use the command `display all collections` to find available domains.<br>
-
-Example:<br>
-`display collections for domain 'Business Insights'`<br><br>
-
-`display all collections [ save as '<filename.csv>' ]`{: .cmd }
-Display all available collections in Deep Search.<br>
-
-Use the `save as` clause to save the results as a csv file in your current workspace.<br><br>
-
 `display collections in domains from list <list_of_domains> [ save as '<filename.csv>' ]`{: .cmd }
 Display collections that belong to the listed domains.<br>
 
@@ -338,6 +444,19 @@ Use the command `display all collections` to find available domains.<br>
 
 Example:<br>
 `display collections in domains from list ['Scientific Literature']`<br><br>
+
+`display all collections [ save as '<filename.csv>' ]`{: .cmd }
+Display all available collections in Deep Search.<br>
+
+Use the `save as` clause to save the results as a csv file in your current workspace.<br><br>
+
+`display collections for domain '<domain_name>'`{: .cmd }
+Display the available collections in a given Deep Search domain.<br>
+
+Use the command `display all collections` to find available domains.<br>
+
+Example:<br>
+`display collections for domain 'Business Insights'`<br><br>
 
 `display collection details '<collection_name_or_key>'`{: .cmd }
 Display the details for a specified collection. You can specify a collection by its name or key.<br>
@@ -357,10 +476,17 @@ Example:<br>
 <details markdown="block">
 <summary>See commands</summary>
 
-### Queries
+### General
+
+`interpret recipe '<recipe_paragraph>' | '<txt_filename>'`{: .cmd }
+Build a ordered list of actions interpreted from a provided text-based recipe. The recipe can be provided as a string or as a text file from your current workspace.<br>
+
+Examples:<br>
+- `interpret recipe 'my_recipe.txt'`<br>
+- `interpret recipe 'A solution of ((1S,2S)-1-{[(methoxymethyl-biphenyl-4-yl)-(2-pyridin-2-yl-cyclopropanecarbonyl)-amino]-methyl}-2-methyl-butyl)-carbamic acid tert-butyl ester (25 mg, 0.045 mmol) and dichloromethane (4 mL) was treated with a solution of HCl in dioxane (4 N, 0.5 mL) and the resulting reaction mixture was maintained at room temperature for 12 h. The reaction was then concentrated to dryness to afford (1R,2R)-2-pyridin-2-yl-cyclopropanecarboxylic acid ((2S,3S)-2-amino-3-methylpentyl)-(methoxymethyl-biphenyl-4-yl)-amide (18 mg, 95% yield) as a white solid.'`<br><br>
 
 `list rxn models`{: .cmd }
-lists current rxn AI Models available to the user<br><br>
+Lists all RXN AI models currently available.<br><br>
 
 <br>
 
@@ -384,18 +510,11 @@ Options for the optional `using` clause:<br>
 Example:<br>
 `predict retrosynthesis 'BrCCc1cccc2c(Br)c3ccccc3cc12' using (max_steps=3)`<br><br>
 
-`interpret recipe '<recipe_paragraph>' | '<txt_filename>'`{: .cmd }
-Build a ordered list of actions interpreted from a provided text-based recipe. The recipe can be provided as a string or as a text file from your current workspace.<br>
-
-Examples:<br>
-- `interpret recipe 'my_recipe.txt'`<br>
-- `interpret recipe 'A solution of ((1S,2S)-1-{[(methoxymethyl-biphenyl-4-yl)-(2-pyridin-2-yl-cyclopropanecarbonyl)-amino]-methyl}-2-methyl-butyl)-carbamic acid tert-butyl ester (25 mg, 0.045 mmol) and dichloromethane (4 mL) was treated with a solution of HCl in dioxane (4 N, 0.5 mL) and the resulting reaction mixture was maintained at room temperature for 12 h. The reaction was then concentrated to dryness to afford (1R,2R)-2-pyridin-2-yl-cyclopropanecarboxylic acid ((2S,3S)-2-amino-3-methylpentyl)-(methoxymethyl-biphenyl-4-yl)-amide (18 mg, 95% yield) as a white solid.'`<br><br>
-
 <br>
 
 ### Prediction
 
-`predict reaction in batch from dataframe <dataframe_name> | file '<filename.csv>' | list '<smiles>.<smiles>'  [ using (ai_model='<ai_model>') ] [ use_saved ]`{: .cmd }
+`predict reaction in batch from dataframe <dataframe_name> | file '<filename.csv>' | list ['<smiles>.<smiles>','<smiles>.<smiles>'] [ using (ai_model='<ai_model>') ] [ use_saved ]`{: .cmd }
 Run a batch of reaction predictions. The provided list of reactions can be specified as a DataFrame, a CSV file from your current workspace or a list of strings. When proving a DataFrame or CSV file, we will look for the "reactions" column.<br>
 
 Reactions are defined by combining two SMILES strings delimited by a period. For example: `'BrBr.c1ccc2cc3ccccc3cc2c1'`<br>
