@@ -291,7 +291,6 @@ def tags_to_markdown(text: str):
     text = _replace_linebreaks_inside_cmdblocks(text, "---LINEBREAK3---")
     # Every linebreak becomes a hard <br> except when the line has no text.
     text = "".join([line + "---LINEBREAK3---" if line.strip() else "---LINEBREAKSOFT---" for line in text.splitlines()])
-    print(text)
 
     # Expand error and success tags.
     text = _expand_error_success_tags(text, True)
@@ -306,8 +305,18 @@ def tags_to_markdown(text: str):
     text = re.sub(r"<link>(.*?)<\/link>", r'<a target="_blank" href="\1">\1</a>', text)
     text = re.sub(r"<bold>(.*?)<\/bold>", r"**\1**", text)
     text = re.sub(r"<cmd>(.*?)<\/cmd>", r"`\1`", text)
+    text = re.sub(r"<red>(.*?)<\/red>", r'<span style="color: #d00">\1</span>', text)
+    text = re.sub(r"<green>(.*?)<\/green>", r'<span style="color: #5b0">\1</span>', text)
+    text = re.sub(r"<yellow>(.*?)<\/yellow>", r'<span style="color: #dc0">\1</span>', text)
+    text = re.sub(r"<blue>(.*?)<\/blue>", r'<span style="color: #00d">\1</span>', text)
+    text = re.sub(r"<magenta>(.*?)<\/magenta>", r'<span style="color: #d07">\1</span>', text)
+    text = re.sub(r"<cyan>(.*?)<\/cyan>", r'<span style="color: #0cc">\1</span>', text)
     text = re.sub(r"<on_red>(.*?)<\/on_red>", r'<span style="background: #d00; color: #fff">\1</span>', text)
-    text = re.sub(r"<on_green>(.*?)<\/on_green>", r'<span style="background: #0d0; color: #fff">\1</span>', text)
+    text = re.sub(r"<on_green>(.*?)<\/on_green>", r'<span style="background: #5b0; color: #fff">\1</span>', text)
+    text = re.sub(r"<on_yellow>(.*?)<\/on_yellow>", r'<span style="background: #dc0; color: #fff">\1</span>', text)
+    text = re.sub(r"<on_blue>(.*?)<\/on_blue>", r'<span style="background: #00d; color: #fff">\1</span>', text)
+    text = re.sub(r"<on_magenta>(.*?)<\/on_magenta>", r'<span style="background: #d07; color: #fff">\1</span>', text)
+    text = re.sub(r"<on_cyan>(.*?)<\/on_cyan>", r'<span style="background: #0cc; color: #fff">\1</span>', text)
 
     # Remove empty code tags.
     # These can be generated when having style tags
@@ -616,19 +625,19 @@ def _edge(text, edge):
 
 
 def _expand_error_success_tags(text, html=False):
-    """Turn error/success tags into text, for non-styles output."""
+    """Turn error/success tags into text, for non-styled output."""
 
     # Output for markdown: use HTML tags instead of ANSI codes.
     if html:
-        text = re.sub(r"^<error>(.*)<\/error>", r'<span style="color: red">\1</span>', text, flags=re.MULTILINE)
-        text = re.sub(r"^<success>(.*)<\/success>", r'<span style="color: green">\1</span>', text, flags=re.MULTILINE)
-        text = re.sub(r"^<warning>(.*)<\/warning>", r'<span style="color: orange">\1</span>', text, flags=re.MULTILINE)
+        text = re.sub(r"^<error>(.*?)<\/error>", r'<span style="color: #d00">\1</span>', text, flags=re.MULTILINE)
+        text = re.sub(r"^<success>(.*?)<\/success>", r'<span style="color: #0d0">\1</span>', text, flags=re.MULTILINE)
+        text = re.sub(r"^<warning>(.*?)<\/warning>", r'<span style="color: #ffa500">\1</span>', text, flags=re.MULTILINE)
 
-    # Output for non-styled output: displat status as text.
+    # Output for non-styled output: display status as text.
     else:
-        text = re.sub(r"^<error>(.*)<\/error>", r"Error: \1", text, flags=re.MULTILINE)
-        text = re.sub(r"^<success>(.*)<\/success>", r"Success: \1", text, flags=re.MULTILINE)
-        text = re.sub(r"^<warning>(.*)<\/warning>", r"Warning: \1", text, flags=re.MULTILINE)
+        text = re.sub(r"^<error>(.*?)<\/error>", r"Error: \1", text, flags=re.MULTILINE)
+        text = re.sub(r"^<success>(.*?)<\/success>", r"Success: \1", text, flags=re.MULTILINE)
+        text = re.sub(r"^<warning>(.*?)<\/warning>", r"Warning: \1", text, flags=re.MULTILINE)
     return text
 
 
