@@ -585,7 +585,7 @@ statements.append(
 grammar_help.append(
     help_dict_create(
         name="show molecules",
-        category="Utility",
+        category="Molecules",
         command="show molecules using ( file '<mols_file>' | dataframe <dataframe> ) [ save as '<sdf_or_csv_file>' | as molsobject ]",
         description=f"""Launch the molecule viewer { 'in your browser ' if is_notebook_mode() else '' }to examine and select molecules from a SMILES sdf/csv dataset.
 
@@ -601,7 +601,7 @@ statements.append(Forward(show("show") + mol + desc("input_str"))("show_molecule
 grammar_help.append(
     help_dict_create(
         name="show mol",
-        category="Utility",
+        category="Molecules",
         command="show mol '<json_mol_file> | <sdf_file> | <smiles_string> | <inchi_string>'",
         description="Inspect a molecule in the browser.",
     )
@@ -780,7 +780,7 @@ grammar_help.append(
     help_dict_create(
         name="command help 1",
         category="Help",
-        command='? <soft>...    --> List all commands containing "..."</soft>',
+        command='? ...   <soft>--> List all commands containing "..."</soft>',
         description="",
     )
 )
@@ -788,7 +788,7 @@ grammar_help.append(
     help_dict_create(
         name="command help 2",
         category="Help",
-        command='<soft>...</soft> ? <soft>   --> List all commands starting with "..."</soft>',
+        command='... ?   <soft>--> List all commands starting with "..."</soft>',
         description="",
     )
 )

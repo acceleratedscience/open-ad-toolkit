@@ -1,7 +1,7 @@
 import os
 import json
 
-from openad.helpers.general import openFile
+from openad.helpers.general import open_file
 from openad.helpers.output import msg, output_text, output_error
 from openad.helpers.ascii_type import ascii_type
 
@@ -31,7 +31,7 @@ def splash(toolkit_name=None, cmd_pointer=None, startup=False, raw=False):
         file_path = base__path + f"user_toolkits/{toolkit_name}/metadata.json"
 
     # Load metadata from JSON file.
-    data = openFile(file_path)
+    data = open_file(file_path)
     if not data:
         return output_error(msg("err_load_splash"), return_val=True)
 
