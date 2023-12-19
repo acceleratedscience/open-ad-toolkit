@@ -57,14 +57,17 @@ class Table extends Tabulator {
 
 			// Store the initial state of the table.
 			this._addHistoryEntry(this.getData())
+			// this._addHistoryEntry(this.options.data) // To be tested
 
 			// Used to check if the table has been edited - See hasEdits()
 			this.originalData = this.getData()
+			// this.originalData = this.options.data // To be tested
 
 			// Keyboard interaction
 			const onKeyDown = this.onKeyDown.bind(this)
 			document.removeEventListener('keydown', onKeyDown)
 			document.addEventListener('keydown', onKeyDown)
+			// console.log(111, this.options.data)
 		})
 
 		// Undo/redo
@@ -181,6 +184,7 @@ class Table extends Tabulator {
 	// Store copy of data so we can revert changes
 	_storeData() {
 		this.dataBeforeEdit = this.getData()
+		// this.dataBeforeEdit = this.options.data // To be tested
 	}
 
 	// Revert changes on cancel
@@ -204,6 +208,7 @@ class Table extends Tabulator {
 	hasEdits(sessionOnly) {
 		const dataBefore = sessionOnly ? this.dataBeforeEdit : this.originalData
 		const dataEdited = this.getData()
+		// const dataEdited = this.options.data // To be tested
 		if (dataBefore.length != dataEdited.length) return true
 		for (let i = 0; i < dataBefore.length; i++) {
 			const row1 = dataBefore[i]
@@ -257,7 +262,7 @@ class Table extends Tabulator {
 
 	// Add state of data to history
 	_addHistoryEntry(data) {
-		console.log('_addHistoryEntry')
+		// console.log('_addHistoryEntry')
 		data = JSON.parse(JSON.stringify(data))
 		if (this.history.length >= 10) {
 			this.history.shift()
@@ -279,8 +284,8 @@ class Table extends Tabulator {
 			await this.updateData(dataPrevious)
 			this.blockHistory = false
 			this.redraw(true)
-			console.log('<-- history_reverse:', JSON.stringify(this.history_reverse.map(state => state[0]['Test'])), this.history_reverse)
-			console.log('<-- history:', JSON.stringify(this.history.map(state => state[0]['Test'])), this.history)
+			// console.log('<-- history_reverse:', JSON.stringify(this.history_reverse.map(state => state[0]['Test'])), this.history_reverse)
+			// console.log('<-- history:', JSON.stringify(this.history.map(state => state[0]['Test'])), this.history)
 		}
 	}
 
@@ -293,8 +298,8 @@ class Table extends Tabulator {
 			this.updateData(data)
 			this.blockHistory = true
 			this.redraw(true)
-			console.log('--> history:', JSON.stringify(this.history.map(state => state[0]['Test'])))
-			console.log('--> history_reverse:', JSON.stringify(this.history_reverse.map(state => state[0]['Test'])))
+			// console.log('--> history:', JSON.stringify(this.history.map(state => state[0]['Test'])))
+			// console.log('--> history_reverse:', JSON.stringify(this.history_reverse.map(state => state[0]['Test'])))
 		}
 	}
 
@@ -542,6 +547,7 @@ class Table extends Tabulator {
 			$row.classList.remove('while-dragging')
 
 			const data = table.getData()
+			// const data = this.options.data // To be tested
 			const currentPos = row.getPosition() - 1
 			const newPos = currentPos + jump
 			data.splice(newPos, 0, data.splice(currentPos, 1)[0])
@@ -673,18 +679,18 @@ class Table extends Tabulator {
 			if (selectedRows.length) {
 				let lowIndex = Math.min(lastSelectedRowIndex, currentRowIndex)
 				let highIndex = Math.max(lastSelectedRowIndex, currentRowIndex)
-				console.log({ lastSelectedRowIndex, currentRowIndex, lowIndex, highIndex })
-				console.log('getRowsOrdered', this.getRowsOrdered())
-				console.log(
-					this.getRowsOrdered().map(row => {
-						try {
-							return row.getIndex()
-						} catch (err) {
-							console.log(row, err)
-							return null
-						}
-					})
-				)
+				// console.log({ lastSelectedRowIndex, currentRowIndex, lowIndex, highIndex })
+				// console.log('getRowsOrdered', this.getRowsOrdered())
+				// console.log(
+				// 	this.getRowsOrdered().map(row => {
+				// 		try {
+				// 			return row.getIndex()
+				// 		} catch (err) {
+				// 			console.log(row, err)
+				// 			return null
+				// 		}
+				// 	})
+				// )
 
 				// When you select from bottom to top, we gotta include the highIndex
 				// When you select from top to bottom, we gotta include the lowIndex
@@ -883,6 +889,7 @@ class Table extends Tabulator {
 	getDataFinal(selectedOnly) {
 		// let data = selectedOnly ? this.getSelectedData() : this.getData()
 		let data = this.getData()
+		// let data = this.options.data // To be tested better
 		const fields = this.getColumns().map(col => col.getField())
 
 		// Remove deleted column data.
@@ -917,6 +924,7 @@ class Table extends Tabulator {
 		// Rearrange data rows to match the order of the UI rows.
 		const rowSelector = selectedOnly ? '.tabulator-row.tabulator-selected' : '.tabulator-row'
 		const $rows = this.getRows()[0].getElement().closest('.tabulator-table').querySelectorAll(rowSelector)
+
 		data = Array.from($rows).map($row => {
 			const $indexCol = $row.querySelector(`.tabulator-cell[tabulator-field=${this.options.index}]`)
 			const rowIndex = +$indexCol.innerText

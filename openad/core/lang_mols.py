@@ -165,7 +165,6 @@ def __file2dict(file_path):
 
             # Check the number of molecules
             molecules = [mol for mol in df.iterrows() if mol is not None]
-            print(333, molecules)
             if len(molecules) == 0:
                 raise ValueError("CSV file does not contain valid molecular data")
             if len(molecules) > 1:
