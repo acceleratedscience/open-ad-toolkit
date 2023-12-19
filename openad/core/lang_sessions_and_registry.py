@@ -97,7 +97,7 @@ def delete_session_registry(session_id: str):
 def clear_other_sessions(cmd_pointer, parser):
     """burned earth strategy for cleaning up Sessions directory"""
     if not confirm_prompt(msg("confirm_clear_sessions")):
-        output_text(msg("no_sessions_cleared"), cmd_pointer, pad_btm=1, return_val=False)
+        output_error(msg("no_sessions_cleared"), cmd_pointer, pad_btm=1, return_val=False)
         return
 
     file_list = os.listdir(os.path.dirname(_meta_registry_session))

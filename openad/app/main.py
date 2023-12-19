@@ -325,7 +325,7 @@ class RUNCMD(Cmd):
                 return output_error(msg("err_no_cmds_starting", inp), self, **kwargs)
             else:
                 return output_error(msg("err_no_cmds_matching", inp), self, **kwargs)
-        
+
         # Single command -> show details.
         elif result_count == 1 or exact_match:
             return output_text(
@@ -929,7 +929,7 @@ def cmd_line():
                 lets_exit = True
             except KeyboardInterrupt:
                 command_line.postloop()
-                if confirm_prompt("Are you sure you wish to exit?"):
+                if confirm_prompt("Are you sure you wish to exit?", default=True):
                     lets_exit = True
                     command_line.do_exit("dummy do not remove")
             except Exception as err:  # pylint: disable=broad-exception-caught
