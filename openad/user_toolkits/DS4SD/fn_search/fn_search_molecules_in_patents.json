@@ -1,0 +1,18 @@
+{
+	"fplugin": "ds4sd",
+	"command": "search for molecules in patents",
+	"subject": "Search",
+	"exec_type": "standard_statement",
+	"exec_cmd": "search for molecules in patents",
+	"help": {
+		"name": "search for molecules in patents",
+		"category": "Search Molecules",
+		"command": "search for molecules in patents from list ['<patent1>', '<patent2>', ...] | dataframe <dataframe_name> | file '<filename.csv>' [ save as '<filename.csv>' ]",
+		"description": "",
+		"url": ""
+	},
+	"library": "fn_search_molecules_in_patents",
+	"method": "search_molecules_in_patents",
+	"from": ["file", "list", "dataframe"],
+	"SAVE_AS": {}
+}

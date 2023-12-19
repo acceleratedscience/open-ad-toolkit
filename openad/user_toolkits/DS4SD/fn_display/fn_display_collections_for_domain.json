@@ -1,0 +1,17 @@
+{
+	"fplugin": "ds4sd",
+	"command": "display collections for domain",
+	"subject": " Queries",
+	"exec_type": "standard_statement",
+	"exec_cmd": "display collections for domain",
+	"help": {
+		"name": "display collections for domain",
+		"category": "Collections",
+		"command": "display collections for domain '<domain_name>' ",
+		"description": "",
+		"url": ""
+	},
+	"library": "fn_display_collections_for_domain",
+	"method": "display_collections_for_domain",
+	"SINGLE_PARM": { "domain": "desc" }
+}

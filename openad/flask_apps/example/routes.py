@@ -69,5 +69,5 @@ def fetchRoutesExample(data):
         "/submit-ajax": {"func": submit_ajax, "method": "POST"},
         "/success": {"func": success, "method": "GET"},
     }
-
+    # raise Exception("Oops")
     return routes, result

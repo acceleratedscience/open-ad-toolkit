@@ -1,11 +1,14 @@
 #!/usr/local/opt/python@3.9/bin/python3.9
 import os
+import re
 import imp
 import glob
 import json
 import logging
-from openad.core.grammar import statement_builder
+
+import openad.core.grammar as grammar  # Not using "from" to avoid circular import.
 from openad.helpers.output import msg, output_error
+from openad.helpers.general import load_module_from_path
 
 # Globals
 from openad.app.global_var_lib import _meta_dir_toolkits
@@ -30,13 +33,69 @@ class Toolkit:
 
 
 # Load all toolkit statments.
-def load_toolkit(toolkit_name):
-    the_toolkit = Toolkit(toolkit_name)
+def load_toolkit(toolkit_name, from_repo=False, for_training=False):
+    """
+    Parameters
+    ----------
+    from_repo
+        Load the toolkit from the repo instead of the user folder.
+        This is used to generate commands.md, where we need to fetch all
+        commands from all toolkits, including those that are not installed.
 
-    for i in glob.glob(_meta_dir_toolkits + "/" + toolkit_name + "/**/func_*.json", recursive=True):
-        func_file = open(i, "r")
-        x = json.load(func_file)
-        statement_builder(the_toolkit, x)
+    for_training
+        Used by grammar.py to generate the training data.
+
+    """
+    # from_repo = True  # TEMP FOR TESTING! DELETE THIS LINE!!
+
+    the_toolkit = Toolkit(toolkit_name)
+    if from_repo:
+        openad_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+        source = openad_dir + "/user_toolkits"
+    else:
+        source = _meta_dir_toolkits
+
+    # Load toolkit description snippets.
+    snippetsModule = load_module_from_path("snippets", f"{source}/{toolkit_name}/_snippets.py")
+    snippets = snippetsModule.snippets if snippetsModule else None
+
+    for i in glob.glob(f"{source}/{toolkit_name}/**/fn_*.json", recursive=True):
+        fn_file = open(i, "r", encoding="utf-8")
+        x = json.load(fn_file)
+
+        # Load description from separate file if it is external.
+        if x["help"]["description"] == "":
+            try:
+                txt_file = open(i.replace(".json", ".txt"), "r")
+                x["help"]["description"] = txt_file.read()
+            except BaseException:
+                x["help"]["description"] = "Failed to load description"
+
+        # Replace snippet tags with snippet content.
+        # - - -
+        # We centralize repeating text in one place per toolkit (_snippets.py)
+        # which is then referenced in a function's description by tags.
+        # For example "lorem ipsum {{FOO_BAR}}" -> "lorem ipsum foo bar"
+        if snippets:
+            x["help"]["description"] = re.sub(
+                r"\{\{(\w+)\}\}",
+                lambda match: str(snippets.get(match.group(1), f"[[missing snippet: {match.group(1)}]]").strip()),
+                x["help"]["description"],
+            )
+
+        grammar.statement_builder(the_toolkit, x)
+
+    # Load toolkit LLM training text.
+    if for_training:
+        try:
+            with open(
+                _meta_dir_toolkits + "/" + toolkit_name + "/llm_description.txt", "r", encoding="utf-8"
+            ) as toolkit_file:
+                the_toolkit.toolkit_description = toolkit_file.read()
+                toolkit_file.close()
+        except Exception:
+            # If unable to load, move on.
+            the_toolkit.toolkit_description = None
 
     return True, the_toolkit
 

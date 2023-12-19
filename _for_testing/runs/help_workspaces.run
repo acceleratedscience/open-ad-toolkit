@@ -1,0 +1,5 @@
+set workspace ?
+get workspace ?
+create workspace ?
+remove workspace ?
+list workspaces ?
