@@ -90,7 +90,9 @@ molecules = MatchFirst(map(CaselessKeyword, mols))
 molecule = MatchFirst(map(CaselessKeyword, mol))
 molecule_set = MatchFirst(map(CaselessKeyword, molset))
 molecule_sets = MatchFirst(map(CaselessKeyword, molsets))
-molecule_identifier = Word(alphas, alphanums + "_" + "[" + "]" + "(" + ")" + "=" + "," + "-" + "+" + "/" + "#" + "@" + ".")
+molecule_identifier = Word(
+    alphas, alphanums + "_" + "[" + "]" + "(" + ")" + "=" + "," + "-" + "+" + "/" + "#" + "@" + "."
+)
 desc = QuotedString("'", escQuote="\\")
 
 SPECIFY_MOL = "You can specify any molecule by SMILES or InChI, and PubChem classified molecules also by name, InChIKey or their PubChem CID."
@@ -100,6 +102,7 @@ WORKING_SET_PRIORITY = "If the requested molecule exists in your current working
 def mol_grammar_add(statements, grammar_help):
     """defines the grammar available for managing molecules"""
 
+    # ---
     # Add molecule
     statements.append(Forward(add + molecule + molecule_identifier("molecule_identifier"))("add_molecule"))
     grammar_help.append(
@@ -120,10 +123,11 @@ Examples:
 - Add a molecule by CID:\n<cmd>add mol 2244</cmd>
 - Add a molecule by InChI:\n<cmd>add mol InChI=1S/C9H8O4/c1-6(10)13-8-5-3-2-4-7(8)9(11)12/h2-5H,1H3,(H,11,12)</cmd>
 - Add a molecule by InChIKey:\n<cmd>add mol BSYNRYMUTXBXSQ-UHFFFAOYSA-N</cmd>
-"""
+""",
         )
     )
 
+    # ---
     # Display molecule
     statements.append(Forward(d_isplay + molecule + (molecule_identifier)("molecule_identifier"))("display_molecule"))
     grammar_help.append(
@@ -144,10 +148,11 @@ Examples:
 - Display a molecule by InChI:\n<cmd>display mol InChI=1S/C9H8O4/c1-6(10)13-8-5-3-2-4-7(8)9(11)12/h2-5H,1H3,(H,11,12)</cmd>
 - Display a molecule by InChIKey string:\n<cmd>display mol BSYNRYMUTXBXSQ-UHFFFAOYSA-N</cmd>
 - Display a molecule by CID:\n<cmd>display mol 2244</cmd>
-"""
+""",
         )
     )
 
+    # ---
     # Rename molecule
     statements.append(
         Forward(
@@ -169,10 +174,11 @@ Rename a molecule in the current working set.
 Example:
 Let's say you've added a molecule "CC(=O)OC1=CC=CC=C1C(=O)O" to your current working set, you can then rename it as such:
 <cmd>rename molecule CC(=O)OC1=CC=CC=C1C(=O)O as Aspirin</cmd>
-"""
+""",
         )
     )
 
+    # ---
     # Export molecule
     statements.append(
         Forward(
@@ -196,10 +202,11 @@ When run inside a Notebook, this will return a dictionary of the molecule's prop
 Examples
 - <cmd>export molecule aspirin</cmd>
 - <cmd>export molecule aspirin as file</cmd>
-"""
+""",
         )
     )
 
+    # ---
     # Remove molecule
     statements.append(Forward(remove + molecule + molecule_identifier("molecule_identifier"))("remove_molecule"))
     grammar_help.append(
@@ -216,10 +223,11 @@ Examples:
 - Remove a molecule by InChIKey:\n<cmd>display mol  BSYNRYMUTXBXSQ-UHFFFAOYSA-N</cmd>
 - Remove a molecule by InChI:\n<cmd>display mol  InChI=1S/C9H8O4/c1-6(10)13-8-5-3-2-4-7(8)9(11)12/h2-5H,1H3,(H,11,12)</cmd>
 - Remove a molecule by CID:\n<cmd>display mol 2244</cmd>
-"""
+""",
         )
     )
 
+    # ---
     # List molecules
     statements.append(Forward(lister + molecules)("list_molecules"))
     grammar_help.append(
@@ -227,7 +235,7 @@ Examples:
             name="list molecules",
             category="Molecules",
             command="list molecules|mols",
-            description="List all molecules in the current working set."
+            description="List all molecules in the current working set.",
         )
     )
 
@@ -235,6 +243,7 @@ Examples:
         Forward(save + molecule_set + a_s + Word(alphas, alphanums + "_")("molecule-set_name"))("save_molecule-set")
     )
 
+    # ---
     # Save molecules
     grammar_help.append(
         help_dict_create(
@@ -246,10 +255,11 @@ Save the current molecule working set to your workspace.
 
 Example:
 <cmd>save molset as my_working_set</cmd>
-"""
+""",
         )
     )
 
+    # ---
     # Load molecule set
     statements.append(
         Forward(load + molecule_set + Word(alphas, alphanums + "_")("molecule-set_name"))("load_molecule-set")
@@ -263,10 +273,12 @@ Example:
 Load a molecule set from your workspace, and set it as your current working set.
 
 Example:
-<cmd>load molset my_working_set</cmd>"""
+<cmd>load molset my_working_set</cmd>
+""",
         )
     )
 
+    # ---
     # List molecule set
     statements.append(Forward(lister + molecule_sets)("list_molecule-sets"))
     grammar_help.append(
@@ -274,10 +286,11 @@ Example:
             name="list molecule-sets",
             category="Molecules",
             command="list molecule-sets|molsets",
-            description="List all molecule sets in your workspace."
+            description="List all molecule sets in your workspace.",
         )
     )
 
+    # ---
     # Enrich molecule set
     statements.append(Forward(enrich + molecule_set + w_ith + analysis)("load_analysis"))
     grammar_help.append(
@@ -285,10 +298,11 @@ Example:
             name="enrich molecule-set",
             category="Molecules",
             command="enrich molecule-set with analysis",
-            description="""Enrich every molecule in your current working set with the last analysis result. This assumes that the current working set was the input for the analysis."""
+            description="Enrich every molecule in your current working set with the last analysis result. This assumes that the current working set was the input for the analysis.",
         )
     )
 
+    # ---
     # Clear analysis cache
     statements.append(Forward(clear + analysis + cache)("clear_analysis"))
     grammar_help.append(
@@ -296,7 +310,7 @@ Example:
             name="clear analysis cache",
             category="Molecules",
             command="clear analysis cache",
-            description="Clear the cache of analysis results for your current workspace."
+            description="Clear the cache of analysis results for your current workspace.",
         )
     )
     statements.append(
@@ -305,6 +319,7 @@ Example:
         )
     )
 
+    # ---
     # Clear molecules
     statements.append(Forward(clear + molecules)("clear_molecules"))
     grammar_help.append(
@@ -312,7 +327,7 @@ Example:
             name="clear Molecules",
             category="Molecules",
             command="clear molecules",
-            description="Clear the working set of molecules."
+            description="Clear the working set of molecules.",
         )
     )
     statements.append(
@@ -321,6 +336,7 @@ Example:
         )
     )
 
+    # ---
     # Create molecule
     grammar_help.append(
         help_dict_create(
@@ -334,10 +350,11 @@ Note that other identifiers (InChI and formula) will be calculated, but no other
 
 Example:
 <cmd>create molecule CC(=O)OC1=CC=CC=C1C(=O)O name my_aspirin</cmd>
-"""
+""",
         )
     )
 
+    # ---
     # Get molecule property
     statements.append(
         Forward("@" + molecule_identifier("molecule_identifier") + ">>" + mol_properties("property"))("mol_property")
@@ -357,10 +374,11 @@ For example:
 - Obtain a molecules xlogp value using a SMILES string.\n<cmd>@CC(=O)OC1=CC=CC=C1C(=O)O>>xlogp</cmd>
 
 The properties that can be requested are {', '.join(m_props[:-1])} and {m_props[-1]}.
-"""
+""",
         )
     )
 
+    # ---
     # Load molecules from file
     statements.append(
         Forward(
@@ -372,10 +390,11 @@ The properties that can be requested are {', '.join(m_props[:-1])} and {m_props[
             name="load molecules",
             category="Molecules",
             command="load molecules using file '<csv_or_sdf_filename>'",
-            description="Load molecules from a CSV or SDF file into the molecule working set."
+            description="Load molecules from a CSV or SDF file into the molecule working set.",
         )
     )
 
+    # ---
     # Load molecules from dataframe
     statements.append(
         Forward(
@@ -392,10 +411,11 @@ The properties that can be requested are {', '.join(m_props[:-1])} and {m_props[
             name="load molecules",
             category="Utility",
             command="load molecules using dataframe '<filename>' ",
-            description="""load molecules into the molecule working set from a dataframe"""
+            description="load molecules into the molecule working set from a dataframe.",
         )
     )
 
+    # ---
     # Export molecules
     statements.append(Forward((export + molecules + Optional(a_s + desc("csv_file_name")))("export_molecules")))
     grammar_help.append(
@@ -406,6 +426,7 @@ The properties that can be requested are {', '.join(m_props[:-1])} and {m_props[
             description="""
 Export the molecules in the current working set.
 
-When run inside a Notebook, this will return a dataframe. When run from the command line, the molecules will be saved to your workspace as a CSV file named "result_#.csv". The rows will be numbered with the highest number representing the latest molecule that was added."""
+When run inside a Notebook, this will return a dataframe. When run from the command line, the molecules will be saved to your workspace as a CSV file named "result_#.csv". The rows will be numbered with the highest number representing the latest molecule that was added.
+""",
         )
     )
