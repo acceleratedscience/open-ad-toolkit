@@ -7,7 +7,7 @@ import re
 import json
 
 from openad.helpers.general import confirm_prompt
-from openad.helpers.output import output_text, output_table, output_warning
+from openad.helpers.output import output_text, output_table
 from openad.molecules.mol_functions import cannonical_smiles
 from rdkit import Chem
 from rdkit.Chem import AllChem
@@ -237,45 +237,27 @@ def rename_mol_in_list(cmd_pointer, inp):
 
 def export_molecule_set(cmd_pointer, inp):
     """exports molecule Set to Data frame on Notebook or file in workspace"""
-
     if len(cmd_pointer.molecule_list) == 0:
         print_s("\nNo Molecules in Molecule-Set")
         return True
-    csv_file_name = None
 
-    if cmd_pointer.notebook_mode and "csv_file_name" not in inp.as_dict():
+    if cmd_pointer.notebook_mode:
         return moleculelist_to_data_frame(cmd_pointer.molecule_list.copy())
     else:
-        if "csv_file_name" not in inp.as_dict():
-            output_warning("WARNING no File Name Provided, reverting to Default.")
-            csv_file_name = "mols_export"
-        else:
-            csv_file_name = inp.as_dict()["csv_file_name"]
-        if csv_file_name.lower().endswith(".csv"):
-            csv_file_name = csv_file_name.split(".")[0]
-
-        file_name = cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/" + csv_file_name + ".csv"
-
-        if os.path.exists(file_name):
-            i = 0
-            while os.path.exists(
-                cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper())
-                + "/"
-                + csv_file_name
-                + str(i)
-                + ".csv"
-            ):
-                i = i + 1
-            file_name = (
-                cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper())
-                + "/"
-                + csv_file_name
-                + str(i)
-                + ".csv"
-            )
+        i = 0
+        file_name = (
+            cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/" + "result_" + str(i) + ".csv"
+        )
+        while os.path.exists(
+            cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/" + "result_" + str(i) + ".csv"
+        ):
+            i = i + 1
+        file_name = (
+            cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/" + "result_" + str(i) + ".csv"
+        )
         result = moleculelist_to_data_frame(cmd_pointer.molecule_list.copy())
         result.to_csv(file_name)
-        print_s(f"Result set saved in Workspace as {file_name.split('/')[-1]}")
+        print_s("Result set saved in Workspace as result_" + str(i) + ".csv")
 
 
 def moleculelist_to_data_frame(molecule_set):
@@ -407,8 +389,6 @@ def format_properties(mol):
 
 
 def format_analysis(mol):
-    if "analysis" not in mol:
-        return ""
     if mol["analysis"] == {}:
         return ""
     id_string = "\n<yellow>Analysis:</yellow>\n"
@@ -460,7 +440,7 @@ def load_molecules(cmd_pointer, inp):
         func_file = open(i, "rb")
         mol = dict(pickle.load(func_file))
         cmd_pointer.molecule_list.append(mol.copy())
-    print_s("\nNumber of Molecules Loaded = " + str(len(cmd_pointer.molecule_list)))
+    print_s(len(cmd_pointer.molecule_list))
     return True
 
 

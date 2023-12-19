@@ -28,6 +28,9 @@ from openad.core.lang_sessions_and_registry import write_registry, load_registry
 from openad.core.lang_workspaces import set_workspace
 from openad.app.memory import Memory
 
+
+from openad.llm_assist.model_reference import SUPPORTED_TELL_ME_MODELS, SUPPORTED_TELL_ME_MODELS_SETTINGS
+
 # Helpers
 from openad.helpers.general import singular, confirm_prompt
 from openad.helpers.output import msg, output_text, output_error, output_warning, strip_tags
@@ -88,10 +91,16 @@ class RUNCMD(Cmd):
         False  # Signals the Refresh of the vector DB should be done due to changes in Workspace or Toolkits
     )
     refresh_train = False  # Signals Refreshing of the training repository for help should be done
+
+    # Servicing the LLM related Function States
+    llm_handle = None  # connection handle for LLM for Tell Me and other functions
+    refresh_vector = (
+        False  # Signals the Refresh of the vector DB should be done due to changes in Workspace or Toolkits
+    )
+    refresh_train = False  # Signals Refreshing of the training repository for help should be done
     llm_service = "OPENAI"  # set with OPENAI as default type until WatsonX or alternative available
     llm_model = "gpt-3.5-turbo"
-    llm_models = {"OPENAI": "gpt-3.5-turbo", "WATSONX": "mosaicml/mpt-7b"}  # supported models list
-
+    llm_models = SUPPORTED_TELL_ME_MODELS_SETTINGS
     # Instantiate memory class
     memory = Memory()
 
@@ -411,6 +420,7 @@ class RUNCMD(Cmd):
                     or x.split(",")[0].find("Expected {") > -1
                 ) and x.split(",")[0].find("'" + orig_word.lower()) > -1:
                     yy = x.split(",")[0].split("'")[1]
+
                     readline.insert_text(yy[len(orig_word) :])
                     readline.insert_text(" ")
                     readline.redisplay()  # readline redisplay needed to push Macos prompt to update
@@ -438,14 +448,17 @@ class RUNCMD(Cmd):
                         readline.insert_text(x.split(",")[0].split("Keyword")[1].split("'")[1].strip())
                         readline.insert_text(" ")
                         readline.redisplay()
+
                         return ""
                     if (
                         str(str(i[1]).split(",", maxsplit=1)[0].split("{")[1].split("'")[1]).strip().upper()
                         == str(i[0] + x.split(",")[0].split("{")[1].split("'")[1]).strip().upper()
                     ):
                         readline.insert_text(x.split(",")[0].split("{")[1].split("'")[1].strip())
+
                         readline.insert_text(" ")
                         readline.redisplay()
+
                         return ""
                     if len(orig_word.split(">>")) > 1:
                         started_word = str(orig_word.split(">>")[-1]).strip()
@@ -454,11 +467,13 @@ class RUNCMD(Cmd):
                             if match.upper().startswith(started_word.upper().strip()):
                                 # print(match.upper() + "     " + started_word.upper())
                                 # print(match[len(started_word) :])
+
                                 readline.insert_text(match[len(started_word.strip()) :])
                                 readline.redisplay()
                                 return ""
                     continue
         # if failed previously scan look for successfuly space is next logical character
+
         for i in test_list:
             if error_col_grabber(str(i)) < best_fit:  # If worse match continue
                 continue
@@ -482,6 +497,14 @@ class RUNCMD(Cmd):
 
                     if len(orig_word.split(">>")) > 1:
                         started_word = str(orig_word.split(">>")[-1]).strip()
+
+                        if orig_word.strip()[-1] == ">":
+                            if len(x.split("'")) > 2:
+                                readline.insert_text(x.split("'")[1])
+                                readline.redisplay()
+
+                            return ""
+
                         for match in x.split("'"):
                             if match.upper().startswith(started_word.upper().strip()):
                                 # print(match.upper() + "     " + started_word.upper())
@@ -507,6 +530,7 @@ class RUNCMD(Cmd):
                     readline.redisplay()
                     return ""
         # look for a bracket match
+
         for i in test_list:
             if error_col_grabber(str(i)) < best_fit:
                 continue

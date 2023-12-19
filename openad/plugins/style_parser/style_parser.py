@@ -321,7 +321,7 @@ def tags_to_markdown(text: str):
     # Remove empty code tags.
     # These can be generated when having style tags
     # (which will be removed) inside of a command tag.
-    # For example "<cmd>foo <soft>bar</soft></cmd>" will 
+    # For example "<cmd>foo <soft>bar</soft></cmd>" will
     # become "`foo `bar``" which can cause problems
     # when it's followed by a linebreak.
     text = re.sub(r"``", "", text)

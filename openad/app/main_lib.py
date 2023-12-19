@@ -133,7 +133,9 @@ def lang_parse(cmd_pointer, parser):
         try:
             result = set_llm(cmd_pointer, parser)
             cmd_pointer.llm_model = cmd_pointer.llm_models[cmd_pointer.llm_service]
+
             update_main_registry_env_var(cmd_pointer, "llm_service", cmd_pointer.llm_service)
+
             cmd_pointer.refresh_vector = True
             cmd_pointer.refresh_train = True
             write_registry(cmd_pointer.settings, cmd_pointer, False)
@@ -202,7 +204,7 @@ def lang_parse(cmd_pointer, parser):
         return rename_mol_in_list(cmd_pointer, parser)
     elif parser.getName() == "clear_molecules":
         return clear_workset(cmd_pointer, parser)
-    elif parser.getName() == "load_molecules_file":
+    elif parser.getName() in ["load_molecules_file", "load_molecules_dataframe"]:
         return load_batch_molecules(cmd_pointer, parser)
 
     elif parser.getName() == "export_molecules":

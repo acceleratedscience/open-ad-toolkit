@@ -64,12 +64,9 @@ def clear_results(cmd_pointer, inp) -> list | bool:
 
 def attach_results(smiles, cmd_pointer) -> bool:
     """attaches a result to an existing molecule in the current working set, if it exists"""
-
     smiles = cannonical_smiles(smiles)
     results = _retrieve_results(smiles, cmd_pointer)
     for mol in cmd_pointer.molecule_list:
-        if "analysis" not in mol:
-            mol["analysis"] = []
         if mol["properties"]["canonical_smiles"] == smiles:
             for result in results:
                 if cannonical_smiles(mol["properties"]["canonical_smiles"]) == cannonical_smiles(
@@ -86,8 +83,6 @@ def attach_all_results(cmd_pointer, inp) -> bool:
 
     while i < len(cmd_pointer.molecule_list):
         mol = cmd_pointer.molecule_list[i].copy()
-        if "analysis" not in mol:
-            mol["analysis"] = []
         results = _retrieve_results(mol["properties"]["canonical_smiles"], cmd_pointer)
         for result in results:
             if result not in mol["analysis"] and cannonical_smiles(

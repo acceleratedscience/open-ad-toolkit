@@ -20,7 +20,10 @@ def valid_smiles(input_molecule) -> bool:
     from rdkit import rdBase
 
     blocker = rdBase.BlockLogs()  # pylint: disable=c-extension-no-member
-    m = Chem.MolFromSmiles(input_molecule, sanitize=False)  # pylint: disable=no-member
+    try:
+        m = Chem.MolFromSmiles(input_molecule, sanitize=False)  # pylint: disable=no-member
+    except:
+        return False
     if m is None:
         return False
     else:
@@ -37,7 +40,10 @@ def valid_inchi(input_molecule) -> bool:
     from rdkit import rdBase
 
     blocker = rdBase.BlockLogs()  # pylint: disable=c-extension-no-member
-    m = Chem.inchi.InchiToInchiKey(input_molecule)
+    try:
+        m = Chem.inchi.InchiToInchiKey(input_molecule)
+    except:
+        return False
     if m is None:
         return False
     else:
@@ -76,12 +82,14 @@ def search_patents_cont_molecule(inputs: dict, cmd_pointer):
                 cmd_pointer=cmd_pointer,
                 return_val=False,
             )
+
         resp = api.queries.run(query)
+        print(resp)
     except Exception as e:  # pylint: disable=broad-exception-caught
         output_error("Error in calling deepsearch:" + str(e), cmd_pointer=cmd_pointer, return_val=False)
         return False
     results_table = []
-    print(resp.outputs)
+
     for doc in resp.outputs["patents"]:
         result = {
             "PATENT ID": "",
@@ -110,7 +118,7 @@ def search_patents_cont_molecule(inputs: dict, cmd_pointer):
         return_val=False,
     )
     output_text(inputs["smiles"], cmd_pointer=cmd_pointer, return_val=False)
-    print("here")
+
     save_result(
         create_analysis_record(inputs["smiles"], "DS4SD", "Patents_For_Molecule", "", results_table),
         cmd_pointer=cmd_pointer,
