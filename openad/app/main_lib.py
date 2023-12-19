@@ -302,12 +302,8 @@ def initialise():
 # Open documentation webpage.
 def docs(cmd_pointer, parser):  # pylint: disable=unused-argument # generic pass through used or unused
     """points to online documentation"""
-    url = "https://research.ibm.com/topics/accelerated-discovery"
+    url = "https://acceleratedscience.github.io/openad-docs/commands.html"
     webbrowser.open_new(url)
-    return output_warning(
-        "Our documentation website is yet to be built,\nbut this command will open it in the browser.",
-        cmd_pointer,
-    )
 
 
 # adds a registry Toolkit Directory

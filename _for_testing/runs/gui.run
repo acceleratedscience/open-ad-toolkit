@@ -1,1 +1,1 @@
-show molecules ?
+show molecules using file 'base_molecules.sdf' as molsobject
