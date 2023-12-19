@@ -1,8 +1,0 @@
-interpret recipe ?
-list rxn models ?
-
-predict retrosynthesis ?
-
-predict reaction in batch ?
-predict reaction '<smiles>.<smiles>' ?
-predict reaction topn ?
