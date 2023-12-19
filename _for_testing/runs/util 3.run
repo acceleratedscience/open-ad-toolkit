@@ -1,0 +1,11 @@
+display data 'sample.csv'
+result save as 'sample_copy.csv'
+result save
+result open
+result edit
+result copy
+result display
+edit config 'sample_config.json'
+edit config 'sample_config.json' schema 'sample_config-schema.json'
+show molecules using file 'base_molecules.sdf'
+show molecules using file 'base_molecules.sdf' save as 'base_molecules-copy.sdf'
