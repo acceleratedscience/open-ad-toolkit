@@ -76,6 +76,7 @@ def predict_retro(inputs: dict, cmd_pointer):
             # Alternative spinners:
             # simpleDotsScrolling, interval=100
             super().__init__(spinner="dots", color="white")
+            # super().__init__(spinner="moon")
 
     val = "val"
     availability_pricing_threshold = 0
@@ -202,6 +203,7 @@ def predict_retro(inputs: dict, cmd_pointer):
         while status != "SUCCESS":
             try:
                 newspin.text = "Processing Retrosynthesis :" + status
+
                 predict_automatic_retrosynthesis_results = (
                     rxn4chemistry_wrapper.get_predict_automatic_retrosynthesis_results(
                         predict_retro_response["prediction_id"]
@@ -218,6 +220,7 @@ def predict_retro(inputs: dict, cmd_pointer):
                     else:
                         return False
                 status = predict_automatic_retrosynthesis_results["status"]
+
                 sleep(5)
 
             except Exception as e:  # pylint: disable=broad-exception-caught

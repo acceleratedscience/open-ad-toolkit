@@ -13,7 +13,7 @@ from openad.helpers.credentials import write_credentials, get_credentials
 
 # Constants
 TRAINING_LLM_DIR = "/prompt_train/"
-SUPPORTED_LLMS = ["WATSONX", "OPENAI"]
+SUPPORTED_LLMS = ["WATSONX", "OPENAI", "BAM"]
 PROMPT_DIR = "~/.chat_embedded"
 STANDARD_FILE_TYPES_EMBED = ["*.txt", "*.ipynb", "*.run", "*.cdoc"]
 EXTENDED_FILE_TYPES_EMBED = ["**/*.txt", "**/*.ipynb", "**/*.run", "**/*.cdoc"]
@@ -24,16 +24,18 @@ DEFAULT_SOURCES_LIST = []  #
 #       ``` search collection 'pubchem' for 'Ibuprofen' show (data)  ```. \
 #       Only format one line at a time. No "\n" characters in codeblocks. Do not mention formatting in response. Always format the response.
 #         Tell me """
-CHAT_PRIMER = """  In answering the following Question:
+CHAT_PRIMER = """  In answering the following
+            - Answer like a technical helpful writer
             -Explain what any requested commands do
             -Provide All syntax, Options, Parameters and Examples when answering a question
             -Provide All Command Syntax, Clauses or Option Syntax in codeblock Markdown
             -Only format one line at a time. codeblocks should not go over lines
             -No "\n" characters in codeblocks
-             Here is an correct version of an example command in codeblock format ``` search collection 'PubChem' for 'Ibuprofen' show (data)  ```. \
+             Here is an correct version of an example command in codeblock format ``` search collection 'PubChem' for 'Ibuprofen' show (data)  ``` 
             Only Use the above as a guide to how to respond not as content for a response. 
             Always format the answer.
             Tell me """
+CHAT_PRIMER = """ Tell me """
 CHAT_PRIMER_SUFFIX = """. Please provide information on options in response. Please format all code syntax, clauses and options in codeblock formatting on single lines in the response."""
 CHAT_HISTORY_PRIMER = """When answering questions in the following chats,
              Answer like a technical helpful writer.
@@ -132,7 +134,8 @@ def how_do_i(cmd_pointer, parser):
     # Now we are asking the prompt a Question
 
     try:
-        text = cmd_pointer.llm_handle.how_to_search(CHAT_PRIMER + " ".join(parser["Chat_String"]) + CHAT_PRIMER_SUFFIX)
+        # text = cmd_pointer.llm_handle.how_to_search(CHAT_PRIMER + " ".join(parser["Chat_String"]) + CHAT_PRIMER_SUFFIX)
+        text = cmd_pointer.llm_handle.how_to_search(CHAT_PRIMER + " ".join(parser["Chat_String"]))
     except Exception as e:
         newspin.fail("Running Request Failed")
         output_text(
@@ -185,8 +188,9 @@ def clean_up_llm_text(cmd_pointer, old_text):
         text = re.sub(r"[\s]+\%openad", r" ", text)
 
     # Replace ``` or ` with <cmd> bracing
-    text = re.sub(r"\`\`\`(\n*?)(\s*?)(\%*?)([a-z]\n*[\s\S]*?)(\n*?)(\s*?)\`\`\`", r" <cmd>\3\4</cmd> ", text)
     text = re.sub(r"\`\`\`([a-z]*[\s\S]*?)\`\`\`", r" <cmd>\1</cmd> ", text)
+    text = re.sub(r"\`\`\`(\n*?)(\s*?)(\%*?)([a-z]\n*[\s\S]*?)(\n*?)(\s*?)\`\`\`", r" <cmd>\3\4</cmd> ", text)
+    text = re.sub(r"\\'([a-z]*[\s\S]*?)\\'", r" '\1' ", text)
     text = re.sub(r"\`([a-z]*[\s\S]*?)\`", r" <cmd>\1</cmd> ", text)
     text = re.sub(r"\`(\n*?)(\s*?)(\%*?)([a-z]\n*[\s\S]*?)(\n*?)(\s*?)\`", r" <cmd>\3\4</cmd> ", text)
 
@@ -203,12 +207,14 @@ def clean_up_llm_text(cmd_pointer, old_text):
         # change bold to green
         text = re.sub(r"\*\*\*(.*?)\*\*\*", r"<green> \1 </green>", text)
         text = re.sub(r"\*\*(.*?)\*\*", r"<green> \1 </green>", text)
+    # print(text)
     return text
 
 
 def set_llm(cmd_pointer, parser):
     """Set the current llm Model API"""
     llm_name = str(parser["llm_name"][0])
+    print(llm_name)
     if llm_name.upper() in SUPPORTED_LLMS:
         cmd_pointer.llm_service = llm_name.upper()
         cmd_pointer.settings["env_vars"]["llm_service"] = llm_name.upper()

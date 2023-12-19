@@ -406,12 +406,12 @@ The properties that can be requested are {', '.join(m_props[:-1])} and {m_props[
         help_dict_create(
             name="export molecules",
             category="Utility",
-            command="export molecules ",
+            command="export molecules [ as '<file_name>' ]",
             description="""Exports the molecules in the current Working Set
              
-            If the command is issued from a command line the molecule will be exprted to your workspace and named resul_#.csv. # being a incramental number of results sets, with the highest being the latest. 
+            If the command is issued from a command line the molecule will be exported to your workspace automatically using a default named csv file, you can optionally add <cmd> as '<filename>' </cmd>. If a sile exists already it will simply add a number onto the name for versioning. 
                
-            In Jupyter notebooks the molecules are exported as a pandas Dataframe. """,
+            In Jupyter notebooks the molecules are exported as a pandas Dataframe unless you specify  <cmd> as <filename> </cmd> """,
             note=INFO_MOLECULES,
         )
     )
