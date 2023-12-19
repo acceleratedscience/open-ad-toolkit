@@ -1,3 +1,6 @@
+add toolkit ds4sd
+set context ds4sd
+
 search for similar molecules to 'C1(C(=C)C([O-])C1C)=O'
 search for molecules in patents from list ['CN108473493B','US20190023713A1']
 search for patents containing molecule 'CC(C)(c1ccccn1)C(CC(=O)O)Nc1nc(-c2c[nH]c3ncc(Cl)cc23)c(C#N)cc1F'

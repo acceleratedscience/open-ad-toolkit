@@ -167,7 +167,7 @@ Examples:
         help_dict_create(
             name="rename molecule",
             category="Molecules",
-            command="rename molecule <molecule_identifer_string> name <molecule_name>",
+            command="rename molecule <molecule_identifer_string> as <molecule_name>",
             description="""
 Rename a molecule in the current working set.
 
@@ -422,7 +422,7 @@ The properties that can be requested are {', '.join(m_props[:-1])} and {m_props[
         help_dict_create(
             name="export molecules",
             category="Molecules",
-            command="export molecules",
+            command="export molecules [ as <csv_filename> ]",
             description="""
 Export the molecules in the current working set.
 
