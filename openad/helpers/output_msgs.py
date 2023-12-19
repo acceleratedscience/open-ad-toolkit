@@ -172,7 +172,7 @@ messages = {
     ),
     "abort_clear_sessions": ("Action aborted", "Run <cmd>clear sessions</cmd> and try again"),
     # Negative
-    "no_sessions_cleared": "No sessions have been cleared",
+    "no_sessions_cleared": "<error>No sessions have been cleared</error>",
     # Success
     "success_clear_sessions": "All sessions have been cleared",
     # Error

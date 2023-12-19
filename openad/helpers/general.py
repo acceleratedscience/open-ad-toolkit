@@ -77,23 +77,18 @@ def parse_path_tree(path_string):
 
 
 # Confirm promt for True or False Questions
-def confirm_prompt(question: str) -> bool:
+def confirm_prompt(question: str, default=False) -> bool:
     reply = None
     while reply not in ("y", "n"):
         try:
-            question_formatted = output_text(f"<yellow>\n{question}</yellow>", return_val=True, pad=1)
-            if is_notebook_mode():
-                display(question_formatted)
-                reply = input("(y/n): ").casefold()
-            else:
-                space = "" if question_formatted[-1] == "\n" else " "
-                reply = input(question_formatted + f"{space}(y/n): ").casefold()
+            output_text(f"<yellow>{question}</yellow>", pad_top=1, return_val=False)
+            reply = input("(y/n): ").casefold()
             readline.remove_history_item(readline.get_current_history_length() - 1)
         except KeyboardInterrupt:
-            print("")
-            return True
+            print("\n")
+            return default
+    print("")
     if reply == "y":
-        print("")
         return True
 
 
