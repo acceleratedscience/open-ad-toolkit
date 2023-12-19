@@ -90,7 +90,9 @@ molecules = MatchFirst(map(CaselessKeyword, mols))
 molecule = MatchFirst(map(CaselessKeyword, mol))
 molecule_set = MatchFirst(map(CaselessKeyword, molset))
 molecule_sets = MatchFirst(map(CaselessKeyword, molsets))
-molecule_identifier = Word(alphas, alphanums + "_" + "[" + "]" + "(" + ")" + "=" + "," + "-" + "+" + "/" + "#" + "@")
+molecule_identifier = Word(
+    alphas, alphanums + "_" + "[" + "]" + "(" + ")" + "=" + "," + "-" + "+" + "/" + "#" + "@" + "."
+)
 INFO_MOLECULES = "\n<soft>To learn more about workspaces, run <cmd>workspace ?</cmd></soft>"
 desc = QuotedString("'", escQuote="\\")
 
@@ -375,7 +377,7 @@ def mol_grammar_add(statements, grammar_help):
         )
     )
 
-    statements.append(Forward((export + molecules)("export_molecules")))
+    statements.append(Forward((export + molecules + Optional(a_s + desc("csv_file_name")))("export_molecules")))
 
     grammar_help.append(
         help_dict_create(

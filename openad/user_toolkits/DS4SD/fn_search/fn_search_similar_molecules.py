@@ -18,14 +18,18 @@ def valid_smiles(input_molecule) -> bool:
     input_molecule: smiles string"""
     from rdkit import rdBase
 
-    blocker = rdBase.BlockLogs()
-    m = Chem.MolFromSmiles(input_molecule, sanitize=False)  # pylint: disable=no-member
+    blocker = rdBase.BlockLogs()  # pylint: disable=c-extension-no-member
+    try:
+        m = Chem.MolFromSmiles(input_molecule, sanitize=False)  # pylint: disable=no-member
+    except:
+        return False
     if m is None:
         return False
-    try:
-        Chem.SanitizeMol(m)  # pylint: disable=no-member
-    except:  # pylint: disable=bare-except
-        return False
+    else:
+        try:
+            Chem.SanitizeMol(m)  # pylint: disable=no-member
+        except Exception:  # pylint: disable=broad-exception-caught
+            return False
     return True
 
 

@@ -15,7 +15,6 @@ naming_cache = {}
 
 def load_batch_molecules(cmd_pointer, inp):
     mol_dataframe = None
-    print(inp.as_dict())
     if "load_molecules_dataframe" in inp.as_dict():
         mol_dataframe = cmd_pointer.api_variables[inp.as_dict()["in_dataframe"]]
     else:
@@ -209,7 +208,7 @@ def _normalize_mol_df(mol_df: pandas.DataFrame, cmd_pointer):
                 mol_df.loc[i.Index, "NAME"] = _smiles_to_iupac(mol_df.loc[i.Index, "SMILES"])
 
     except BaseException as err:
-        print(err)
+        print_s(err)
         return None
 
 

@@ -46,6 +46,7 @@ def collect_reactions_from_retrosynthesis(tree: Dict) -> List[str]:
 def collect_reactions_from_retrosynthesis_text(tree: Dict) -> List[str]:
     """collect all reactions from retrosynthesis tree"""
     reactions = []
+    # print(tree)
     if "children" in tree and len(tree["children"]):
         reactions.append(
             "{} --->> {}".format(" + ".join([node["smiles"] for node in tree["children"]]), tree["smiles"])
@@ -81,9 +82,9 @@ def predict_retro(inputs: dict, cmd_pointer):
     available_smiles = None
     exclude_smiles = None
     exclude_substructures = None
-    exclude_target_molecule = False
+    exclude_target_molecule = True
     fap = 0.6
-    max_steps = 3
+    max_steps = 5
     nbeams = 10
     pruning_steps = 2
     ai_model = "2020-07-01"
@@ -93,6 +94,14 @@ def predict_retro(inputs: dict, cmd_pointer):
 
     if not rxn_helper.valid_smiles(str(product_smiles)):
         output_error(" Invalid Smiles Supplied.", cmd_pointer=cmd_pointer, return_val=False)
+        return False
+
+    if len(product_smiles.split(".")) > 1:
+        output_error(
+            " SMILES provides describes a reaction. Use `predict reaction` to see probable result",
+            cmd_pointer=cmd_pointer,
+            return_val=False,
+        )
         return False
 
     if cmd_pointer.notebook_mode is True:
@@ -228,11 +237,14 @@ def predict_retro(inputs: dict, cmd_pointer):
         newspin.stop()
         raise Exception("Unable to complete processing " + str(e)) from e  # pylint: disable=broad-exception-raised
     reactions_text = []
-
+    # print(predict_automatic_retrosynthesis_results)
     try:
         for index, tree in enumerate(predict_automatic_retrosynthesis_results["retrosynthetic_paths"]):
+            # print("outer")
             for reaction in collect_reactions_from_retrosynthesis_text(tree):
                 reactions_text.append(str(reaction))
+                # print("inner")
+
     except Exception as e:  # pylint: disable=broad-exception-caught
         newspin.fail("Unable to Process")
         newspin.stop()
@@ -240,6 +252,7 @@ def predict_retro(inputs: dict, cmd_pointer):
             "The following Error message was received while trying to process results:" + str(e)
         ) from e  # pylint: disable=broad-exception-raised
     num_results = 0
+    # print(reactions_text)
     try:
         newspin.succeed("Finished Processing")
         newspin.start()
