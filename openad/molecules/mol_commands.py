@@ -161,7 +161,7 @@ def create_molecule(cmd_pointer, inp):
 
 def clear_workset(cmd_pointer, inp):
     if confirm_prompt("Are you wish to clear the Molecule Workset ?"):
-        cmd_pointer.molecule_list = []
+        cmd_pointer.molecule_list.clear()
 
 
 def remove_molecule(cmd_pointer, inp):
@@ -283,6 +283,7 @@ def moleculelist_to_data_frame(molecule_set):
     molecule_list = []
     for molecule in molecule_set:
         mol = {"mol_name": molecule["name"]}
+        mol["SMILES"] = molecule["properties"]["canonical_smiles"]
         mol["canonical_smiles"] = molecule["properties"]["canonical_smiles"]
         mol["isomeric_smiles"] = molecule["properties"]["isomeric_smiles"]
         mol["inchi"] = molecule["properties"]["inchi"]
