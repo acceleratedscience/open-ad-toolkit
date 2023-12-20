@@ -122,6 +122,7 @@ def merge_molecule_properties(molecule_dict, mol):
 
 
 def valid_smiles(input_molecule) -> bool:
+    blocker = rdBase.BlockLogs()
     input_molecule = Chem.MolFromSmiles(input_molecule, sanitize=False)
     if input_molecule is None:
         return False
@@ -133,7 +134,7 @@ def valid_smiles(input_molecule) -> bool:
     return True
 
 
-def cannonical_smiles(input_molecule):
+def canonical_smiles(input_molecule):
     return Chem.MolToSmiles(Chem.MolFromSmiles(input_molecule), True)
 
 
@@ -190,6 +191,8 @@ def get_mol(mol_id, mol_id_type):
         if mol_id_type == MOL_CID_INDEX:
             if not mol_id.isdigit():
                 return False, None, None
+            cid = int(mol_id)
+
         else:
             compounds = pcy.get_compounds(mol_id, mol_id_type)
             if len(compounds) == 0:

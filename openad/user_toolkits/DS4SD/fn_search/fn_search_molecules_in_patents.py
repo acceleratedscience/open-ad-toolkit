@@ -9,6 +9,7 @@ from openad.helpers.output import output_table
 from openad.helpers.output import output_error
 from openad.helpers.output import output_text
 
+
 _tableformat = "simple"
 
 """ needs to be migrated into Helper"""
@@ -28,22 +29,6 @@ def get_dataframe_from_file(cmd_pointer, filename):
     else:
         df = pd.read_csv(cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/" + filename)
     return df
-
-
-def valid_smiles(input_molecule) -> bool:
-    """tests to see if a input molecule is valid smiles definition
-    input_molecule: smiles string"""
-    from rdkit import rdBase
-
-    blocker = rdBase.BlockLogs()
-    m = Chem.MolFromSmiles(input_molecule, sanitize=False)  # pylint: disable=no-member
-    if m is None:
-        return False
-    try:
-        Chem.SanitizeMol(m)  # pylint: disable=no-member
-    except Exception:  # pylint: disable=broad-except
-        return False
-    return True
 
 
 def search_molecules_in_patents(inputs: dict, cmd_pointer):

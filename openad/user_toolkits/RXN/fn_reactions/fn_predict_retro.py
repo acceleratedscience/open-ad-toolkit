@@ -8,7 +8,7 @@ from rdkit import Chem
 from rdkit.Chem import AllChem
 from time import sleep
 from openad.molecules.molecule_cache import create_analysis_record, save_result
-
+from openad.molecules.mol_functions import canonical_smiles, valid_smiles
 
 _tableformat = "simple"
 
@@ -93,9 +93,11 @@ def predict_retro(inputs: dict, cmd_pointer):
     product_smiles = inputs["molecule"]
     #######################
 
-    if not rxn_helper.valid_smiles(str(product_smiles)):
+    if not valid_smiles(str(product_smiles)):
         output_error(" Invalid Smiles Supplied.", cmd_pointer=cmd_pointer, return_val=False)
         return False
+    else:
+        product_smiles = canonical_smiles(product_smiles)
 
     if len(product_smiles.split(".")) > 1:
         output_error(
@@ -294,7 +296,7 @@ def predict_retro(inputs: dict, cmd_pointer):
                     output_text("", cmd_pointer=cmd_pointer, return_val=False)
 
         save_result(
-            create_analysis_record(product_smiles.upper(), "RXN", "Predict_Retrosynthesis", result_parameters, results),
+            create_analysis_record(product_smiles, "RXN", "Predict_Retrosynthesis", result_parameters, results),
             cmd_pointer=cmd_pointer,
         )
     except Exception as e:  # pylint: disable=broad-exception

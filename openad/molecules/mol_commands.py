@@ -8,7 +8,7 @@ import json
 
 from openad.helpers.general import confirm_prompt
 from openad.helpers.output import output_text, output_table, output_warning
-from openad.molecules.mol_functions import cannonical_smiles
+from openad.molecules.mol_functions import canonical_smiles, valid_smiles
 from rdkit import Chem
 from rdkit.Chem import AllChem
 
@@ -299,8 +299,11 @@ def moleculelist_to_data_frame(molecule_set):
 def is_molecule(mol, molecule):
     if molecule.upper() == mol["name"].upper():
         return mol
-    if molecule == mol["properties"]["cid"]:
-        return mol
+    try:
+        if int(molecule) == int(mol["properties"]["cid"]):
+            return mol
+    except:
+        pass
     if molecule == mol["properties"]["inchi"]:
         return mol
     if molecule == mol["properties"]["inchikey"]:
@@ -311,7 +314,7 @@ def is_molecule(mol, molecule):
     ):
         return mol
     try:
-        if cannonical_smiles(molecule) == cannonical_smiles(mol["properties"]["canonical_smiles"]):
+        if canonical_smiles(molecule) == canonical_smiles(mol["properties"]["canonical_smiles"]):
             return mol
     except:
         pass

@@ -104,6 +104,7 @@ class Chatobject:
         """Load the Faiss Database Embeddings"""
         ###########################################################################
         # validation Testing
+
         main_db = None
 
         embeddings = get_embeddings_model(self.llm_service, self.API_key)
@@ -173,8 +174,11 @@ class Chatobject:
 
     def how_to_search(self, search: str):
         """Executing the Tell Me Function"""
+
         retriever = self.db_handle.as_retriever()
+
         model, template = get_tell_me_model(self.llm_service, self.API_key)
+
         if model is None:
             return "No Answer Coul Be Generated, Error Connecting to Model"
         try:

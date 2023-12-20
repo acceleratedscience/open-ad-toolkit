@@ -4,7 +4,7 @@ from openad.molecules.mol_functions import (
     merge_molecule_properties,
     valid_smiles,
     new_molecule,
-    cannonical_smiles,
+    canonical_smiles,
 )
 from openad.molecules.mol_commands import retrieve_mol_from_list, add_molecule
 from openad.helpers.output import output_error, msg, output_warning

@@ -91,8 +91,10 @@ molecule = MatchFirst(map(CaselessKeyword, mol))
 molecule_set = MatchFirst(map(CaselessKeyword, molset))
 molecule_sets = MatchFirst(map(CaselessKeyword, molsets))
 molecule_identifier = Word(
-    alphas, alphanums + "_" + "[" + "]" + "(" + ")" + "=" + "," + "-" + "+" + "/" + "#" + "@" + "."
-)
+    alphas, alphanums + "_" + "[" + "]" + "(" + ")" + "=" + "," + "-" + "+" + "/" + "#" + "@" + "." + "*" + ";"
+) | Word(nums)
+
+
 desc = QuotedString("'", escQuote="\\")
 
 SPECIFY_MOL = "You can specify any molecule by SMILES or InChI, and PubChem classified molecules also by name, InChIKey or their PubChem CID."

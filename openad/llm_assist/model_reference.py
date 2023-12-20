@@ -10,6 +10,7 @@ from langchain.embeddings import HuggingFaceEmbeddings
 from genai import Model
 from genai.schemas import GenerateParams
 from genai.credentials import Credentials
+
 from genai.extensions.langchain import LangChainInterface
 
 # Determine in the sentence transformer embbedings model is installed

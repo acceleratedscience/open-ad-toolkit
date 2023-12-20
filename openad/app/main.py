@@ -91,13 +91,6 @@ class RUNCMD(Cmd):
         False  # Signals the Refresh of the vector DB should be done due to changes in Workspace or Toolkits
     )
     refresh_train = False  # Signals Refreshing of the training repository for help should be done
-
-    # Servicing the LLM related Function States
-    llm_handle = None  # connection handle for LLM for Tell Me and other functions
-    refresh_vector = (
-        False  # Signals the Refresh of the vector DB should be done due to changes in Workspace or Toolkits
-    )
-    refresh_train = False  # Signals Refreshing of the training repository for help should be done
     llm_service = "OPENAI"  # set with OPENAI as default type until WatsonX or alternative available
     llm_model = "gpt-3.5-turbo"
     llm_models = SUPPORTED_TELL_ME_MODELS_SETTINGS
@@ -168,6 +161,7 @@ class RUNCMD(Cmd):
                 self.prompt = refresh_prompt(self.settings)
                 output_text("Unable to set context on Login, defaulting to no context set.", self, return_val=False)
         try:
+
             if self.settings["env_vars"]["refresh_help_ai"] is True:
                 self.refresh_vector = True
                 self.refresh_train = True

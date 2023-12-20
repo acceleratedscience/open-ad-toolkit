@@ -133,13 +133,13 @@ def lang_parse(cmd_pointer, parser):
         try:
             result = set_llm(cmd_pointer, parser)
             cmd_pointer.llm_model = cmd_pointer.llm_models[cmd_pointer.llm_service]
-
             update_main_registry_env_var(cmd_pointer, "llm_service", cmd_pointer.llm_service)
-
             cmd_pointer.refresh_vector = True
             cmd_pointer.refresh_train = True
+            cmd_pointer.settings["env_vars"]["refresh_help_ai"] = True
             write_registry(cmd_pointer.settings, cmd_pointer, False)
             write_registry(cmd_pointer.settings, cmd_pointer, True)
+            # update_main_registry_env_var(cmd_pointer, "refresh_help_ai", True)
         except (
             Exception  # pylint: disable=broad-exception-caught
         ) as e:  # do not care what exception is, just returning failure

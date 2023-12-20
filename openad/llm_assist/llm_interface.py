@@ -160,7 +160,6 @@ def clean_up_llm_text(cmd_pointer, old_text):
     """This function cleans up text based on common LLM formatting and translates to our standard formatting"""
 
     text = old_text
-
     # LLM sometimes places the code type used inside the markdown section this simply removes it
     # Needs tidyup
     text = re.sub(r"\`\`\`python\n", r"```\n", text)
@@ -175,7 +174,8 @@ def clean_up_llm_text(cmd_pointer, old_text):
     text = re.sub(r"\`python", r"`", text)
     text = re.sub(r"\`\`\`plaintext", r"```", text)
     text = re.sub(r"\`plaintext", r"`", text)
-
+    text = re.sub(r"\`\`\`\n", r"```", text)
+    text = re.sub(r"\n\`\`\`", r"```", text)
     if cmd_pointer.notebook_mode is not True:
         # Needs optimising
         text = re.sub(r"\`\`\`\n[\s]+%openad ", r"```\n ", text)
@@ -214,7 +214,7 @@ def clean_up_llm_text(cmd_pointer, old_text):
 def set_llm(cmd_pointer, parser):
     """Set the current llm Model API"""
     llm_name = str(parser["llm_name"][0])
-    print(llm_name)
+
     if llm_name.upper() in SUPPORTED_LLMS:
         cmd_pointer.llm_service = llm_name.upper()
         cmd_pointer.settings["env_vars"]["llm_service"] = llm_name.upper()

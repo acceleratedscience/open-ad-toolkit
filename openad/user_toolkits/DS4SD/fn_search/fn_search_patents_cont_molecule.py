@@ -9,29 +9,12 @@ from openad.helpers.output import output_error
 from openad.helpers.output import output_text
 from openad.helpers.output import output_warning
 from openad.molecules.molecule_cache import create_analysis_record, save_result
+from openad.molecules.mol_functions import canonical_smiles, valid_smiles
 
 _tableformat = "simple"
 
 
 # needs to be migrated into Helper
-def valid_smiles(input_molecule) -> bool:
-    """tests to see if a input molecule is valid smiles definition
-    input_molecule: smiles string"""
-    from rdkit import rdBase
-
-    blocker = rdBase.BlockLogs()  # pylint: disable=c-extension-no-member
-    try:
-        m = Chem.MolFromSmiles(input_molecule, sanitize=False)  # pylint: disable=no-member
-    except:
-        return False
-    if m is None:
-        return False
-    else:
-        try:
-            Chem.SanitizeMol(m)  # pylint: disable=no-member
-        except Exception:  # pylint: disable=broad-exception-caught
-            return False
-    return True
 
 
 def valid_inchi(input_molecule) -> bool:
@@ -61,9 +44,10 @@ def search_patents_cont_molecule(inputs: dict, cmd_pointer):
     try:
         if valid_smiles(inputs["smiles"]) is True:
             query = PatentsWithMoleculesQuery(
-                molecules=[MolId(type=MolIdType.SMILES, value=inputs["smiles"])],
+                molecules=[MolId(type=MolIdType.SMILES, value=canonical_smiles(inputs["smiles"]))],
                 num_items=20,
             )
+
             result_type = "SMILES"
         elif valid_inchi(inputs["smiles"]) is True:
             query = PatentsWithMoleculesQuery(
@@ -84,7 +68,7 @@ def search_patents_cont_molecule(inputs: dict, cmd_pointer):
             )
 
         resp = api.queries.run(query)
-        print(resp)
+
     except Exception as e:  # pylint: disable=broad-exception-caught
         output_error("Error in calling deepsearch:" + str(e), cmd_pointer=cmd_pointer, return_val=False)
         return False
