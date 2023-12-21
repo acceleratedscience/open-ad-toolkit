@@ -59,7 +59,7 @@ def display_molecule(cmd_pointer, inp):
             print_string = format_identifers(mol) + "\n" + format_properties(mol) + "\n" + format_analysis(mol)
             # return print_s(print_string)
         else:
-            print("molecule not available on pubchem")
+            print_s("molecule not available on pubchem")
             return None
     if cmd_pointer.notebook_mode is True:
         import py3Dmol
@@ -105,7 +105,7 @@ def export_molecule(cmd_pointer, inp):
             encoding="utf-8",
         )
         json.dump(mol, json_file)
-        print("file " + mol["name"] + ".json Saved to the current workspace")
+        print_s("file " + mol["name"] + ".json Saved to the current workspace")
     elif mol is not None and cmd_pointer.notebook_mode is True:
         return mol.copy()
     return True
@@ -131,16 +131,16 @@ def add_molecule(cmd_pointer, inp, force=False):
     identifier = mol["name"] + "   " + mol["properties"]["canonical_smiles"]
 
     if retrieve_mol_from_list(cmd_pointer, mol["properties"]["canonical_smiles"]) is not None:
-        print("Molecule already in list")
+        print_s("Molecule already in list")
         return True
 
     if force is False:
         if confirm_prompt("Are you wish to add " + identifier + " to your working list ?"):
             cmd_pointer.molecule_list.append(mol.copy())
-            print("Molecule was Added.")
+            print_s("Molecule was Added.")
             return True
 
-        print("Molecule was not added")
+        print_s("Molecule was not added")
         return False
     cmd_pointer.molecule_list.append(mol.copy())
     return True
@@ -157,15 +157,15 @@ def create_molecule(cmd_pointer, inp):
     identifier = mol["name"] + "   " + mol["properties"]["canonical_smiles"]
 
     if retrieve_mol_from_list(cmd_pointer, mol["properties"]["canonical_smiles"]) != None:
-        print("Molecule already in list")
+        print_s("Molecule already in list")
         return True
 
     if confirm_prompt("Are you wish to add " + identifier + " to your working list ?"):
         cmd_pointer.molecule_list.append(mol.copy())
-        print("Molecule was Added.")
+        print_s("Molecule was Added.")
         return True
 
-    print("Molecule was not added")
+    print_s("Molecule was not added")
     return False
 
 
@@ -535,7 +535,7 @@ def property_retrieve(molecule_identifier, molecule_property, cmd_pointer):
             return mol["properties"][molecule_property.lower()]
 
         else:
-            print("molecule not available on pubchem")
+            print_s("molecule not available on pubchem")
             return None
     else:
         return mol["properties"][molecule_property.lower()]
@@ -555,7 +555,7 @@ def get_property(cmd_pointer, inp):
             return mol["properties"][molecule_property.lower()]
             # return print_s(print_string)
         else:
-            print("molecule not available on pubchem")
+            print_s("molecule not available on pubchem")
             return None
     else:
         return mol["properties"][molecule_property.lower()]
