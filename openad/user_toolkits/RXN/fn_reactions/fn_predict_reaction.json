@@ -1,0 +1,19 @@
+{
+	"fplugin": "rxn",
+	"command": "predict reaction",
+	"subject": "predict_reaction",
+	"SINGLE_PARM": { "molecule": "desc" },
+	"USING": { "prediction_id": "desc", "ai_model": "desc" },
+	"use_saved": "True",
+	"exec_type": "standard_statement",
+	"exec_cmd": "predict reaction ",
+	"help": {
+		"name": "predict reaction",
+		"category": "Prediction",
+		"command": "predict reaction '<smiles>.<smiles>' [ using (ai_model='<ai_model>') ] [ use_saved ]",
+		"description": "",
+		"url": ""
+	},
+	"library": "fn_predict_reaction",
+	"method": "predict_reaction"
+}

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Document</title>
+		<link rel="stylesheet" href="css/carbon.css" />
+		<link rel="stylesheet" href="css/main.css" />
+		<link rel="stylesheet" href="app/molviewer-main.css" />
+		<script src="app/3dmol/3Dmol-min.js"></script>
+		<script src="app/jsmol/JSmol.min.js"></script>
+	</head>
+	<body>
+		<div id="mol-render">
+			<div class="mol-2d">{{ svg | safe }}</div>
+			<div class="mol-3d"></div>
+		</div>
+
+		<div id="grid">
+			<!-- <div class="grid grid-1"></div>
+			<div class="grid grid-2"></div>
+			<div class="grid grid-3"></div>
+			<div class="grid grid-4"></div>
+			<div class="grid grid-5"></div>
+			<div class="grid grid-6"></div>
+			<div class="grid grid-7"></div>
+			<div class="grid grid-8"></div>
+			<div class="grid grid-9"></div>
+			<div class="grid grid-10"></div>
+			<div class="grid grid-11"></div>
+			<div class="grid grid-12"></div> -->
+
+			<!-- Left -->
+			<div class="col-left">
+				<div id="breadcrumbs">Molecules &nbsp;&rsaquo;&nbsp; Ibuprofen.json</div>
+				<div id="title-wrap">
+					<div class="icn-mol"></div>
+					<h1 id="data-name" data-val="{{mol.name}}">{% if mol.name %}{{ mol.name }}{% else %}Unnamed Molecule{% endif %}</h1>
+					<!-- <div id="btn-bookmark" class="icn-star"></div> -->
+				</div>
+				<div id="identification">
+					<div><b>InChI: </b><span id="data-inchi">{{mol.InChI}}</span></div>
+					<div><b>InChIKey: </b>{{mol.InChIKey}}</div>
+					<div><b>SMILES: </b><span id="data-smiles">{{mol.SMILES}}</span></div>
+					<div><b>PubChem CID: </b><a id="data-cid" href="https://pubchem.ncbi.nlm.nih.gov/compound/{{mol.cid}}" target="_blank">{{mol.cid}}</a></div>
+				</div>
+
+				<br />
+				<hr />
+				<br />
+
+				<div id="parameters">
+					<h2>PubChem Parameters</h2>
+					<div><b>Foo: </b>bar</div>
+				</div>
+
+				<br />
+				<a class="toggle-expand" id="show-json" href="#">JSON</a>
+				<pre style="tab-size: 30px">{{mol_json}}</pre>
+				<br /><br />
+
+				<a class="toggle-expand" id="show-json-pubchem" href="#">PubChem JSON</a>
+				<pre style="tab-size: 30px"></pre>
+				<script>
+					document.querySelectorAll('.toggle-expand').forEach($elm => {
+						$elm.addEventListener('click', e => {
+							e.preventDefault()
+							$elm.classList.toggle('expand')
+						})
+					})
+				</script>
+			</div>
+
+			<!-- Right -->
+			<div class="col-right"></div>
+		</div>
+		<div id="mol-data" data-sdf="{{mol_sdf}}" data-json="{{mol_json}}"></div>
+
+		<script src="app/molviewer-main.js"></script>
+	</body>
+</html>

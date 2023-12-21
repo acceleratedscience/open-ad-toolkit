@@ -1,12 +1,12 @@
 [tool.poetry]
 name = "openad"
-version = "0.1.5"
+version = "0.2.0"
 description = "Open Accelerated Discovery Client "
 authors = ["Phil Downey <phil.downey1@ibm.com>"]
 readme = "README.md"
 license = "MIT"
 homepage = "https://www.accelerate.science/"
-documentation = "https://acceleratedscience.github.io/open-ad-toolkit/"
+documentation = "https://acceleratedscience.github.io/openad-docs/"
 repository = "https://github.com/acceleratedscience/open-ad-toolkit"
 
 keywords= ["deepsearch", "rxn","jupyter","magic commands","accelerated Discovery","science","retrosynthesis"]
@@ -60,11 +60,11 @@ tiktoken = "^0.5.1"
 rxn4chemistry = "^1.11.0"
 tabulate = "0.8.9"
 faiss-cpu = "^1.7.4"
-openai = "^0.28.1"
+openai = "0.27.10"
 coverage = "^7.3.2"
-langchain = "0.0.325"
+langchain = "^0.0.329"
 jupyter = "^1.0.0"
-ipykernel = "^6.25.2"
+ipykernel = "6.27.1"
 pyperclip =  ">=1.8.2"
 jupyter_client = "8.2.0"
 jupyter_core = "5.3.0"
@@ -74,6 +74,8 @@ nbclient = "0.7.3"
 nbconvert = "7.3.1"
 nbformat = "5.8.0"
 notebook = "6.5.4"
+ibm-generative-ai = "0.3.2"
+sentence-transformers = "2.2.2"
 
 [tool.poetry.scripts]
 openad = "openad.app.main:cmd_line"

@@ -1,0 +1,20 @@
+Information About IBM RXN Toolkit
+
+The rxn toolkit is called rxn and to add it simply type `add toolkit rxn`
+
+The toolkit  uses  AI to predict outcomes of chemical reactions for optimized synthesis methods, and to automatically generate chemical procedures for use in manual or automated lab operations.
+The Toolkit  is based on molecular transformer models that understand the natural language of chemistry, trained on 2.5 million chemical reactions. These models are flexible, adaptive to new data and non-rule-based.
+
+The following commands are available for this toolkit:
+
+General:
+	`interpret recipe '<recipe_paragraph>' | '<txt_filename>'`
+	`list rxn models`
+
+Retrosynthesis:
+	`predict retrosynthesis '<smiles>' [ using (option1=<value> option2=<value>) ]`
+
+Prediction:
+	`predict reaction in batch from dataframe <dataframe_name> | file '<filename.csv>' | list ['<smiles>.<smiles>','<smiles>.<smiles>'] [ using (ai_model='<ai_model>') ] [ use_saved ]`
+	`predict reaction '<smiles>.<smiles>' [ using (ai_model='<ai_model>') ] [ use_saved ]`
+	`predict reaction topn in batch from dataframe <dataframe_name> | file '<filename.csv>' | list ['<smiles>.<smiles>','<smiles>.<smiles>'] [ using (topn=<integer> ai_model='<ai_model>') ] [ use_saved ]`

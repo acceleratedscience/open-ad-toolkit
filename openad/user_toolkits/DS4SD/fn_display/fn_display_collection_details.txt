@@ -1,0 +1,6 @@
+Display the details for a specified collection. You can specify a collection by its name or key.
+
+{{HOW_TO_LIST_COLLECTIONS}}
+
+Example:
+<cmd>display collection details 'Patents from USPTO'</cmd>

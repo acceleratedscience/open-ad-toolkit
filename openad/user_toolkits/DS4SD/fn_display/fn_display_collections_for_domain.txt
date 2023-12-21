@@ -1,0 +1,6 @@
+Display the available collections in a given Deep Search domain.
+
+{{HOW_TO_LIST_DOMAINS}}
+
+Example:
+<cmd>display collections for domain 'Business Insights'</cmd>

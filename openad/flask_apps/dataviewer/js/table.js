@@ -3,6 +3,35 @@
  * Tabulator with some extra functionality.
  */
 
+/**
+ * TO DO
+ * - - -
+ * Tabulator doesn't let you turn off the built-in movableRows, and this caused some
+ * undesireable interference with other functionality in edit mode. For example, you
+ * won't be able to click the textarea resize handle without actiovating the drag
+ * functionality. To work around this, I built my own row reordering functionality
+ * (see onCellMouseDown()) but this was ill-conceived because now the table's built-in
+ * data object is not being rearranged, so to get the correct order of rows I had
+ * to loop through the DOM before exporting the data (see getDataFinal()). This is
+ * obviously a very ugly hack and it causes other problems which I decided not to fix
+ * in order not to dig a deeper hole.
+ *
+ * What needs to be done instead is either:
+ * A) Contribute a PR to the Tabulator library making moveableRows conditional
+ *    --> It should be able to take function instead of just a boolean
+ * B) Rebuild custom reorder functionality using the module architecture
+ *    --> See https://tabulator.info/docs/5.5/modules
+ *    --> Modules has access to internal methods and properties, so from here you
+ *        can manipulate the data object's order directly.
+ *
+ * This will affect:
+ * - onCellMouseDown()
+ * - getRowsOrdered()
+ * - getDataFinal()
+ *
+ * - Moenen, 2023-11-13
+ */
+
 class Table extends Tabulator {
 	constructor(element, options) {
 		// Initiate Tabulator
@@ -28,14 +57,17 @@ class Table extends Tabulator {
 
 			// Store the initial state of the table.
 			this._addHistoryEntry(this.getData())
+			// this._addHistoryEntry(this.options.data) // To be tested
 
 			// Used to check if the table has been edited - See hasEdits()
 			this.originalData = this.getData()
+			// this.originalData = this.options.data // To be tested
 
 			// Keyboard interaction
 			const onKeyDown = this.onKeyDown.bind(this)
 			document.removeEventListener('keydown', onKeyDown)
 			document.addEventListener('keydown', onKeyDown)
+			// console.log(111, this.options.data)
 		})
 
 		// Undo/redo
@@ -77,7 +109,10 @@ class Table extends Tabulator {
 
 		// Double-click to edit cell.
 		super.on('cellDblClick', (e, cell) => {
-			if (!this.isEditMode()) toggleEditMode(true)
+			if (!this.isEditMode()) {
+				toggleEditMode(true)
+				this.hideFullCellContent()
+			}
 			const $focusCell = cell.getElement()
 			setTimeout(() => {
 				$focusCell.click()
@@ -149,6 +184,7 @@ class Table extends Tabulator {
 	// Store copy of data so we can revert changes
 	_storeData() {
 		this.dataBeforeEdit = this.getData()
+		// this.dataBeforeEdit = this.options.data // To be tested
 	}
 
 	// Revert changes on cancel
@@ -172,6 +208,7 @@ class Table extends Tabulator {
 	hasEdits(sessionOnly) {
 		const dataBefore = sessionOnly ? this.dataBeforeEdit : this.originalData
 		const dataEdited = this.getData()
+		// const dataEdited = this.options.data // To be tested
 		if (dataBefore.length != dataEdited.length) return true
 		for (let i = 0; i < dataBefore.length; i++) {
 			const row1 = dataBefore[i]
@@ -225,7 +262,7 @@ class Table extends Tabulator {
 
 	// Add state of data to history
 	_addHistoryEntry(data) {
-		console.log('_addHistoryEntry')
+		// console.log('_addHistoryEntry')
 		data = JSON.parse(JSON.stringify(data))
 		if (this.history.length >= 10) {
 			this.history.shift()
@@ -247,8 +284,8 @@ class Table extends Tabulator {
 			await this.updateData(dataPrevious)
 			this.blockHistory = false
 			this.redraw(true)
-			console.log('<-- history_reverse:', JSON.stringify(this.history_reverse.map(state => state[0]['Test'])), this.history_reverse)
-			console.log('<-- history:', JSON.stringify(this.history.map(state => state[0]['Test'])), this.history)
+			// console.log('<-- history_reverse:', JSON.stringify(this.history_reverse.map(state => state[0]['Test'])), this.history_reverse)
+			// console.log('<-- history:', JSON.stringify(this.history.map(state => state[0]['Test'])), this.history)
 		}
 	}
 
@@ -261,8 +298,8 @@ class Table extends Tabulator {
 			this.updateData(data)
 			this.blockHistory = true
 			this.redraw(true)
-			console.log('--> history:', JSON.stringify(this.history.map(state => state[0]['Test'])))
-			console.log('--> history_reverse:', JSON.stringify(this.history_reverse.map(state => state[0]['Test'])))
+			// console.log('--> history:', JSON.stringify(this.history.map(state => state[0]['Test'])))
+			// console.log('--> history_reverse:', JSON.stringify(this.history_reverse.map(state => state[0]['Test'])))
 		}
 	}
 
@@ -510,6 +547,7 @@ class Table extends Tabulator {
 			$row.classList.remove('while-dragging')
 
 			const data = table.getData()
+			// const data = this.options.data // To be tested
 			const currentPos = row.getPosition() - 1
 			const newPos = currentPos + jump
 			data.splice(newPos, 0, data.splice(currentPos, 1)[0])
@@ -633,7 +671,6 @@ class Table extends Tabulator {
 		// So instead we have to figure out position from HTML:
 		const $row = row.getElement()
 		const currentRowIndex = Array.from($row.parentNode.querySelectorAll('.tabulator-row')).indexOf($row) + 1
-		console.log(33, currentRowIndex)
 
 		const lastSelectedRowIndex = this.lastSelectedRowIndex
 		if (e.shiftKey && this.lastSelectedRowSelState != null) {
@@ -642,6 +679,18 @@ class Table extends Tabulator {
 			if (selectedRows.length) {
 				let lowIndex = Math.min(lastSelectedRowIndex, currentRowIndex)
 				let highIndex = Math.max(lastSelectedRowIndex, currentRowIndex)
+				// console.log({ lastSelectedRowIndex, currentRowIndex, lowIndex, highIndex })
+				// console.log('getRowsOrdered', this.getRowsOrdered())
+				// console.log(
+				// 	this.getRowsOrdered().map(row => {
+				// 		try {
+				// 			return row.getIndex()
+				// 		} catch (err) {
+				// 			console.log(row, err)
+				// 			return null
+				// 		}
+				// 	})
+				// )
 
 				// When you select from bottom to top, we gotta include the highIndex
 				// When you select from top to bottom, we gotta include the lowIndex
@@ -820,8 +869,12 @@ class Table extends Tabulator {
 		const $rows = this.getRows()[0].getElement().closest('.tabulator-table').querySelectorAll(rowSelector)
 		rows = Array.from($rows).map($row => {
 			const $indexCol = $row.querySelector(`.tabulator-cell[tabulator-field=${this.options.index}]`)
-			const rowIndex = +$indexCol.innerText - 1
-			return rows[rowIndex]
+			const rowIndex = +$indexCol.innerText
+			for (let row of rows) {
+				if (row.getIndex() == rowIndex) {
+					return row
+				}
+			}
 		})
 		return rows
 	}
@@ -836,6 +889,7 @@ class Table extends Tabulator {
 	getDataFinal(selectedOnly) {
 		// let data = selectedOnly ? this.getSelectedData() : this.getData()
 		let data = this.getData()
+		// let data = this.options.data // To be tested better
 		const fields = this.getColumns().map(col => col.getField())
 
 		// Remove deleted column data.
@@ -870,10 +924,15 @@ class Table extends Tabulator {
 		// Rearrange data rows to match the order of the UI rows.
 		const rowSelector = selectedOnly ? '.tabulator-row.tabulator-selected' : '.tabulator-row'
 		const $rows = this.getRows()[0].getElement().closest('.tabulator-table').querySelectorAll(rowSelector)
+
 		data = Array.from($rows).map($row => {
 			const $indexCol = $row.querySelector(`.tabulator-cell[tabulator-field=${this.options.index}]`)
-			const rowIndex = +$indexCol.innerText - 1
-			return data[rowIndex]
+			const rowIndex = +$indexCol.innerText
+			for (let row of data) {
+				if (row[this.options.index] == rowIndex) {
+					return row
+				}
+			}
 		})
 
 		return data

@@ -1,0 +1,18 @@
+add molecule ?
+display molecule ?
+rename molecule ?
+export molecule ?
+remove molecule ?
+list molecules ?
+save molecule-set ?
+load molecule-set ?
+list molecule-sets ?
+enrich molecule-set ?
+clear analysis cache ?
+clear molecules ?
+create molecule ?
+@ ?
+load molecules ?
+export molecules ?
+show molecules ?
+show mol ?

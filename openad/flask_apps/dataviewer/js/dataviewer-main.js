@@ -329,7 +329,7 @@ function _customTextareaEditor(cell, onRendered, success, cancel, editorParams) 
 // do some trickery. In this order:
 // 1. Check if there already is a unique index column
 // 2. If there is, check if the values are unique
-// 3. If no valid index column is found, we create our own '#'
+// 3. If no valid index column is found, we create our own 'idx'
 function ensureUniqueIndex(data, columns) {
 	let index = _findUniqueIndex(data, columns)
 	let addedIndex = false
@@ -374,10 +374,18 @@ function _findUniqueIndex(data, columns) {
 		}
 	}
 
-	// Check for '#' column
-	if (fields.includes('#')) {
-		if (_areColumnValuesIncrementalIndex('#', data)) {
-			return '#'
+	// Check for 'idx' column
+	if (fields.includes('idx')) {
+		if (_areColumnValuesIncrementalIndex('idx', data)) {
+			return 'idx'
+		}
+	} else if (fields.includes('nr')) {
+		if (_areColumnValuesIncrementalIndex('nr', data)) {
+			return 'nr'
+		}
+	} else if (fields.includes('-')) {
+		if (_areColumnValuesIncrementalIndex('-', data)) {
+			return '-'
 		}
 	}
 
@@ -396,11 +404,11 @@ function _areColumnValuesIncrementalIndex(field, data) {
 }
 
 // Add index column if none is found.
-// This will usually be '#' but we gotta make sure there's no conflict.
+// This will usually be 'idx' but we gotta make sure there's no conflict.
 function _addIndexCol(data, columns) {
 	// Find a unique name for the index column that is not already taken.
 	const fields = columns.map(col => col['field'].toLowerCase())
-	const indexNameOptions = ['#', 'index', 'idx', 'nr', '*', '-']
+	const indexNameOptions = ['idx', 'index', 'nr', '-']
 	let i = 0
 	let indexName = indexNameOptions[i]
 	while (fields.includes(indexName)) {
@@ -604,6 +612,8 @@ function dispatchMainActions(e) {
 function submitData() {
 	table.isSubmitting = true
 	const data = table.getDataFinal()
+	// console.log(999, data.data)
+	// return
 
 	// Create a new XMLHttpRequest object
 	var xhr = new XMLHttpRequest()

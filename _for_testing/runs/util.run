@@ -1,0 +1,12 @@
+import from '_for_testing/test_files/sample.csv' to 'sample.csv'
+display data 'sample.csv'
+result save as 'sample_copy.csv'
+result save
+result open
+result edit
+result copy
+result display
+import from '_for_testing/test_files/sample_config.json' to 'sample_config.json'
+import from '_for_testing/test_files/sample_config-schema.json' to 'sample_config-schema.json'
+edit config 'sample_config.json'
+edit config 'sample_config.json' schema 'sample_config-schema.json'

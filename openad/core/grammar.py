@@ -7,11 +7,9 @@
 
 import os
 import glob
-import json
 
 
 # Globals
-
 from pyparsing import (
     Word,
     delimitedList,
@@ -35,8 +33,10 @@ from pyparsing import (
     # ParseException,
 )
 
-# Core
+# Main
 from openad.core.help import help_dict_create
+import openad.toolkit.toolkit_main as toolkit_main  # Not using "from" to avoid circular import.
+from openad.molecules.mol_grammar import mol_grammar_add
 
 # Helpers
 from openad.helpers.general import is_notebook_mode
@@ -44,7 +44,6 @@ from openad.helpers.output import output_error, msg
 
 # Global variables
 from openad.app.global_var_lib import _all_toolkits
-from openad.app.global_var_lib import _meta_dir_toolkits
 
 
 (
@@ -72,6 +71,7 @@ from openad.app.global_var_lib import _meta_dir_toolkits
     save,
     runs,
     show,
+    mol,
     molecules,
     file,
     d_isplay,
@@ -82,8 +82,8 @@ from openad.app.global_var_lib import _meta_dir_toolkits
 ) = map(
     CaselessKeyword,
     "get list description using create set unset workspace workspaces context jobs exec\
-          as optimize with toolkits toolkit gpu experiment add run save runs show molecules\
-              file display history data remove result".split(),
+    as optimize with toolkits toolkit gpu experiment add run save runs show mol molecules\
+    file display history data remove result".split(),
 )
 STRING_VALUE = alphanums
 
@@ -203,7 +203,8 @@ grammar_help.append(
         name="set workspace",
         category="Workspaces",
         command="set workspace <workspace_name>",
-        description=f"Change the current workspace.{INFO_WORKSPACES}",
+        description=f"Change the current workspace.",
+        note=INFO_WORKSPACES,
     )
 )
 
@@ -216,7 +217,8 @@ grammar_help.append(
         name="get workspace",
         category="Workspaces",
         command="get workspace [ <workspace_name> ]",
-        description=f"Display details a workspace. When no workspace name is passed, details of your current workspace are displayed.{INFO_WORKSPACES}",
+        description="Display details a workspace. When no workspace name is passed, details of your current workspace are displayed.",
+        note=INFO_WORKSPACES,
     )
 )
 
@@ -235,7 +237,8 @@ grammar_help.append(
         name="create workspace",
         category="Workspaces",
         command="create workspace <workspace_name> [ description('<description>') on path '<path>' ]",
-        description=f"Create a new workspace with an optional description and path.{INFO_WORKSPACES}",
+        description="Create a new workspace with an optional description and path.",
+        note=INFO_WORKSPACES,
     )
 )
 
@@ -250,7 +253,8 @@ grammar_help.append(
         name="remove workspace",
         category="Workspaces",
         command="remove workspace <workspace_name> ",
-        description=f"Remove a workspace from your registry. Note that this doesn't remove the workspace's directory.{INFO_WORKSPACES}",
+        description="Remove a workspace from your registry. Note that this doesn't remove the workspace's directory.",
+        note=INFO_WORKSPACES,
     )
 )
 
@@ -261,10 +265,13 @@ grammar_help.append(
         name="list workspaces",
         category="Workspaces",
         command="list workspaces",
-        description=f"Lists all your workspaces.{INFO_WORKSPACES}",
+        description="Lists all your workspaces.",
+        note=INFO_WORKSPACES,
     )
 )
 
+# Add molecule Grammar
+mol_grammar_add(statements=statements, grammar_help=grammar_help)
 # endregion
 
 ##########################################################################
@@ -272,8 +279,8 @@ grammar_help.append(
 # Note toolkits is the Caseless key word now .. simply changed in metadata
 ##########################################################################
 
-INFO_TOOLKITS_SEE_ALL = "\n<soft>To see all available toolkits, run <cmd>list all toolkits</cmd>.</soft>"
-INFO_TOOLKITS = "\n<soft>To learn more about toolkits, run <cmd>toolkit ?</cmd>.</soft>"
+NOTE_TOOLKITS_SEE_ALL = "<soft>To see all available toolkits, run <cmd>list all toolkits</cmd>.</soft>"
+NOTE_TOOLKITS = "<soft>To learn more about toolkits, run <cmd>toolkit ?</cmd>.</soft>"
 
 
 # Available commands per toolkit.
@@ -298,7 +305,8 @@ grammar_help.append(
         name="list toolkits",
         category="Toolkits",
         command="list toolkits",
-        description=f"List all installed toolkits. To see all available toolkits, run <cmd>list all toolkits</cmd>.{INFO_TOOLKITS_SEE_ALL}{INFO_TOOLKITS}",
+        description=f"List all installed toolkits. To see all available toolkits, run <cmd>list all toolkits</cmd>.",
+        note=f"{NOTE_TOOLKITS_SEE_ALL}\n{NOTE_TOOLKITS}",
     )
 )
 
@@ -309,7 +317,8 @@ grammar_help.append(
         name="list all toolkits",
         category="Toolkits",
         command="list all toolkits",
-        description=f"List all available toolkits.{INFO_TOOLKITS}",
+        description="List all available toolkits.",
+        note=NOTE_TOOLKITS,
     )
 )
 
@@ -321,7 +330,8 @@ grammar_help.append(
         name="add toolkit",
         category="Toolkits",
         command="add toolkit <toolkit_name>",
-        description=f"Install a toolkit.{INFO_TOOLKITS_SEE_ALL}{INFO_TOOLKITS}",
+        description="Install a toolkit.",
+        note=f"{NOTE_TOOLKITS_SEE_ALL}\n{NOTE_TOOLKITS}",
     )
 )
 
@@ -333,12 +343,12 @@ grammar_help.append(
         category="Toolkits",
         command="remove toolkit <toolkit_name>",
         description=(
-            "Remove a toolkit from the registry.\n"
-            "Note: This doesn't delete the toolkit code. If the toolkit is added again, a backup of the previous install is created in the toolkit directory at <yellow>~/.openad/toolkits</yellow>."
-            f"{INFO_TOOLKITS}"
-        )
+            "Remove a toolkit from the registry.\n\n"
+            "<b>Note:</b> This doesn't delete the toolkit code. If the toolkit is added again, a backup of the previous install is created in the toolkit directory at <cmd>~/.openad/toolkits</cmd>."
+        ),
+        note=NOTE_TOOLKITS,
         # Correct description but we have to update the functionality first.
-        # description="Remove a toolkit from the registry. This affects all workspaces. A backup of the toolkit directory is stored in <yellow>~/.openad/toolkits_archive</yellow>.{INFO_TOOLKITS}"
+        # description="Remove a toolkit from the registry. This affects all workspaces. A backup of the toolkit directory is stored in <yellow>~/.openad/toolkits_archive</yellow>."
     )
 )
 
@@ -356,7 +366,8 @@ grammar_help.append(
         name="set context",
         category="Toolkits",
         command="set context <toolkit_name> [ reset ]",
-        description=f"Set your context to the chosen toolkit. By setting the context, the selected toolkit functions become available to you. The optional parameter 'reset' can be used to reset your login information.{INFO_TOOLKITS}",
+        description="Set your context to the chosen toolkit. By setting the context, the selected toolkit functions become available to you. The optional parameter <cmd>reset</cmd> can be used to reset your login information.",
+        note=NOTE_TOOLKITS,
     )
 )
 
@@ -378,7 +389,8 @@ grammar_help.append(
         name="unset context",
         category="Toolkits",
         command="unset context",
-        description=f"Exit your toolkit context. You will no longer have access to toolkit-specific functions.{INFO_TOOLKITS}",
+        description="Exit your toolkit context. You will no longer have access to toolkit-specific functions.",
+        note=NOTE_TOOLKITS,
     )
 )
 
@@ -388,13 +400,17 @@ grammar_help.append(
 # region - Runs
 ##########################################################################
 
-INFO_RUNS = "\n<soft>To learn more about runs, run <cmd>run ?</cmd>.</soft>"
+NOTE_RUNS = "<soft>To learn more about runs, run <cmd>run ?</cmd>.</soft>"
 
 # Create run
 statements.append(Forward(create + run("run"))("create_run"))
 grammar_help.append(
     help_dict_create(
-        name="create run", category="Runs", command="create run", description=f"Start recording a run.{INFO_RUNS}"
+        name="create run",
+        category="Runs",
+        command="create run",
+        description="Start recording a run.",
+        note=NOTE_RUNS,
     )
 )
 
@@ -405,7 +421,8 @@ grammar_help.append(
         name="save run",
         category="Runs",
         command="save run as <run_name>",
-        description=f"Stop recording a run and save it.{INFO_RUNS}",
+        description="Stop recording a run and save it.",
+        note=NOTE_RUNS,
     )
 )
 
@@ -416,7 +433,8 @@ grammar_help.append(
         name="run",
         category="Runs",
         command="run <run_name>",
-        description=f"Execute a previously recorded run. This will execute every command and continue regardless of any failures.{INFO_RUNS}",
+        description="Execute a previously recorded run. This will execute every command and continue regardless of any failures.",
+        note=NOTE_RUNS,
     )
 )
 
@@ -427,7 +445,8 @@ grammar_help.append(
         name="list runs",
         category="Runs",
         command="list runs",
-        description=f"List all runs saved in the current workspace.{INFO_RUNS}",
+        description="List all runs saved in the current workspace.",
+        note=NOTE_RUNS,
     )
 )
 
@@ -438,7 +457,8 @@ grammar_help.append(
         name="display run",
         category="Runs",
         command="display run <run_name>",
-        description=f"Display the commands stored in a certain run.{INFO_RUNS}",
+        description="Display the commands stored in a certain run.",
+        note=NOTE_RUNS,
     )
 )
 
@@ -454,7 +474,7 @@ grammar_help.append(
     help_dict_create(
         name="display data",
         category="Utility",
-        command="display data '<csv_filename>'",
+        command="display data '<filename.csv>'",
         description="Display data from a csv file.",
     )
 )
@@ -465,7 +485,7 @@ grammar_help.append(
     help_dict_create(
         name="save",
         category="Utility",
-        command="result save [as '<csv_filename>']",
+        command="result save [as '<filename.csv>']",
         description="Save table data to csv file.",
         parent="display data",
     )
@@ -538,7 +558,7 @@ if not is_notebook_mode():
         )
     )
 
-# Show molecules.
+# Show molecules grid.
 # Note: we don't allow dashes in dataframe names because it's a substraction operator and causes issues in Jupyter.
 statements.append(
     Forward(
@@ -565,15 +585,25 @@ statements.append(
 grammar_help.append(
     help_dict_create(
         name="show molecules",
-        category="Utility",
-        command="show molecules using ( file '<mols_file>' | dataframe <dataframe> )\n    [ save as '<sdf_or_csv_file>' | as molsobject ]",
+        category="Molecules",
+        command="show molecules using ( file '<mols_file>' | dataframe <dataframe> ) [ save as '<sdf_or_csv_file>' | as molsobject ]",
         description=f"""Launch the molecule viewer { 'in your browser ' if is_notebook_mode() else '' }to examine and select molecules from a SMILES sdf/csv dataset.
 
 Examples:
-
-    <cmd>show molecules using file 'base_molecules.sdf' as molsobject</cmd>
-    <cmd>show molecules using dataframe my_dataframe save as 'selection.sdf'</cmd>
+- <cmd>show molecules using file 'base_molecules.sdf' as molsobject</cmd>
+- <cmd>show molecules using dataframe my_dataframe save as 'selection.sdf'</cmd>
 """,
+    )
+)
+
+# Show individual molecule detail page.
+statements.append(Forward(show("show") + mol + desc("input_str"))("show_molecule"))  # From mol json file
+grammar_help.append(
+    help_dict_create(
+        name="show mol",
+        category="Molecules",
+        command="show mol '<json_mol_file> | <sdf_file> | <smiles_string> | <inchi_string>'",
+        description="Inspect a molecule in the browser.",
     )
 )
 
@@ -588,7 +618,7 @@ statements.append(
     Forward(
         CaselessKeyword("tell")
         + CaselessKeyword("me")
-        + ZeroOrMore(Word(alphas, alphanums + "_" + "?" + "." + " " + "," + "'"))("Chat_String")
+        + ZeroOrMore(Word(alphas, alphanums + "_" + "?" + "." + " " + "," + "'" + "-" + "*" + "@" + ">"))("Chat_String")
     )("how_do_i")
 )
 grammar_help.append(
@@ -612,7 +642,7 @@ grammar_help.append(
         name="set llm",
         category="LLM",
         command="set llm  <language_model_name>",
-        description='Set the target language model name for the "tell me" command.',
+        description="Set the target language model name for the <cmd>tell me</cmd> command.",
     )
 )
 
@@ -748,10 +778,18 @@ grammar_help.append(
 # Note - this is controlled directly from do_help.
 grammar_help.append(
     help_dict_create(
-        name="command help",
+        name="command help 1",
         category="Help",
-        command="<soft>...</soft> ?",
-        description="Display what a command does, or list all commands that contain this string.",
+        command='? ...<soft>   --> List all commands containing "..."</soft>',
+        description="",
+    )
+)
+grammar_help.append(
+    help_dict_create(
+        name="command help 2",
+        category="Help",
+        command='... ?<soft>   --> List all commands starting with "..."</soft>',
+        description="",
     )
 )
 
@@ -997,18 +1035,6 @@ def statement_builder(toolkit_pointer, inp_statement):
 
         toolkit_pointer.methods_dict.append(inp_statement)
 
-        ####### Clause Amendment
-        clause_amendment = ""
-        if "USING" in inp_statement:
-            if inp_statement["USING"] is not None:
-                clause_amendment = (
-                    clause_amendment
-                    + "\n\n NOTE: The Using Clause Requires all the Parameters added to the Using Clause be in the defined order as per in the above help documentation"
-                )
-
-        if clause_amendment != "":
-            inp_statement["help"]["description"] = inp_statement["help"]["description"] + clause_amendment
-
         toolkit_pointer.methods_help.append(inp_statement["help"])
 
     except Exception as err:
@@ -1170,7 +1196,7 @@ def output_train_statements(cmd_pointer):
 
 
 
-        The below describes cdccl clients domain specific language (DSL) for managing science activities using the DSL
+        The below describes openad clients domain specific language (DSL) for managing science activities using the DSL
 
         Vocabulary:
             DSL: Domain Specific Language or DSL  that is implemented for the openad client and all commands are formatted in
@@ -1182,10 +1208,11 @@ def output_train_statements(cmd_pointer):
             Create: create an object (e.g. workspace or run)
             Search: a repository or object
             Exec/Execute: execute a function
-            Display: display a file or result set
+            Display: display molecule, file or result set
             Show:  Show a data set using a utility that enables you to manipulate or diagramatically view it.
             Backup: backup a plugin or workspace
             Add: add a function or plugin
+
             Remove: delete an object
             Save: Save a run or file of some kind
             Load: load a file from project directory to Target system
@@ -1194,6 +1221,25 @@ def output_train_statements(cmd_pointer):
             toolkit: these are contextual plugins that are available one at a time for providing specific functionality to the user. Valid toolkits are DS4SD (deepSearch), GT4SD(generative AI toolkit), RXN (retro synthesis), ST4SD(simulation toolkit)
             History: History of DSL commands for a given Workspace
             run: list of sequential commands saved by the user')
+            molecule-set: set of molecules maipulated by commands suchs as 'display molecule', 'add Molecule','create molecule', 'remove molecule'
+            The short form of  'molecule-set' is 'molset' 
+            The short form of  'molecule' is 'mol' 
+            
+            The Following commands are used to work with molecule sets:
+                - clear molecules
+                - create molecule <smiles_string> name <molecule_name>
+                - show molecules using file '<mols_file>' | dataframe <dataframe> [ save as '<sdf_or_csv_filename>' | as molsobject ]
+                - add molecule|mol  <name> | <smiles> | <inchi> | <inchkey> | <cid>
+                - display molecule|mol <name> | <smiles> | <inchi> | <inchkey> |  <cid>
+                - export molecule|mol <name> | <smiles> | <inchi> | <inchkey> |  <cid> [as file]
+                - remove molecule|mol <name> | <smiles> | <inchi> | <inchkey> | <formula> | <cid> 
+                - list molecules|mols
+                - save molecule-set|molset as <molecule-set_name>
+                - load molecule-set|molset <molecule-set_name>
+                - list molecule-sets|molsets
+                - enrich molecule-set with analysis
+                - @(<name> | <smiles> | <inchi> | <inchkey> | <cid>)>><molecule_property_name>
+
             ?: will display help and if positioned prior to a command will display help options for that command \\@ \n\n"""
     )
 
@@ -1209,7 +1255,7 @@ def output_train_statements(cmd_pointer):
     training_file.close()
 
     for i in cmd_pointer.settings["toolkits"]:
-        token, a_toolkit = load_toolkit(i)
+        token, a_toolkit = toolkit_main.load_toolkit(i, for_training=True)
         training_statements = []
         training_file = open(
             os.path.expanduser(cmd_pointer.home_dir + "/prompt_train/toolkit_" + i + ".cdoc"),
@@ -1251,36 +1297,3 @@ def output_train_statements(cmd_pointer):
 
 # Need to fix later
 #!/usr/local/opt/python@3.9/bin/python3.9
-
-
-class Toolkit:
-    """toolkit class"""
-
-    def __init__(self, name) -> None:
-        self.toolkit_name = name
-        self.toolkit_description = None
-        self.methods = []
-        self.methods_grammar = []
-        self.methods_execute = []
-        self.methods_help = []
-        self.methods_dict = []
-        self.methods_library = []
-
-
-# Load all toolkit statments.
-def load_toolkit(toolkit_name):
-    """Load a user toolkits defintion"""
-    the_toolkit = Toolkit(toolkit_name)
-
-    for i in glob.glob(_meta_dir_toolkits + "/" + toolkit_name + "/**/func_*.json", recursive=True):
-        func_file = open(i, "r", encoding="utf-8")
-        x = json.load(func_file)
-        statement_builder(the_toolkit, x)
-    try:
-        with open(_meta_dir_toolkits + "/" + toolkit_name + "/description.txt", "r", encoding="utf-8") as toolkit_file:
-            the_toolkit.toolkit_description = toolkit_file.read()
-            toolkit_file.close()
-    except Exception:
-        # If unable to load move on
-        the_toolkit.toolkit_description = None
-    return True, the_toolkit

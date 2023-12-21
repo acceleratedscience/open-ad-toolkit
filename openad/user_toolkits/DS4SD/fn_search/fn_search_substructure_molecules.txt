@@ -1,0 +1,6 @@
+Search for molecules by substructure, as defined by the <cmd><smiles_string></cmd>.
+
+{{SAVE_AS_CLAUSE}}
+
+Example:
+<cmd>search for substructure instances of 'C1(C(=C)C([O-])C1C)=O' save as 'my_mol'</cmd>

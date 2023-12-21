@@ -12,6 +12,28 @@ import pandas as pd
 from openad.flask_apps import launcher
 from openad.flask_apps.dataviewer.routes import fetchRoutesDataViewer
 
+# molecules
+from openad.molecules.mol_batch_files import load_batch_molecules
+
+from openad.molecules.mol_commands import (
+    display_molecule,
+    add_molecule,
+    remove_molecule,
+    list_molecules,
+    save_molecules,
+    load_molecules,
+    list_molsets,
+    display_molsets,
+    export_molecule,
+    create_molecule,
+    get_property,
+    rename_mol_in_list,
+    clear_workset,
+    export_molecule_set,
+)
+
+from openad.molecules.molecule_cache import attach_all_results, clear_results
+
 import openad.app.login_manager as login_manager
 
 # Core
@@ -32,7 +54,7 @@ from openad.core.lang_workspaces import (
     set_workspace,
     get_workspace,
 )
-from openad.core.lang_mols import display_mols
+from openad.core.lang_mols import show_molsgrid, show_mol
 from openad.core.lang_runs import display_run, exec_run, save_run, list_runs
 from openad.core.lang_dev import flask_example
 from openad.core.grammar import create_statements
@@ -53,14 +75,7 @@ from openad.app.global_var_lib import _meta_workspaces
 from openad.app.global_var_lib import _all_toolkits
 
 # Helpers
-from openad.helpers.output import (
-    msg,
-    output_text,
-    output_error,
-    output_warning,
-    output_success,
-    output_table,
-)
+from openad.helpers.output import msg, output_text, output_error, output_warning, output_success, output_table
 from openad.helpers.general import refresh_prompt, user_input, validate_file_path, ensure_file_path
 from openad.helpers.splash import splash
 from openad.helpers.output_content import openad_intro
@@ -121,8 +136,10 @@ def lang_parse(cmd_pointer, parser):
             update_main_registry_env_var(cmd_pointer, "llm_service", cmd_pointer.llm_service)
             cmd_pointer.refresh_vector = True
             cmd_pointer.refresh_train = True
+            cmd_pointer.settings["env_vars"]["refresh_help_ai"] = True
             write_registry(cmd_pointer.settings, cmd_pointer, False)
             write_registry(cmd_pointer.settings, cmd_pointer, True)
+            # update_main_registry_env_var(cmd_pointer, "refresh_help_ai", True)
         except (
             Exception  # pylint: disable=broad-exception-caught
         ) as e:  # do not care what exception is, just returning failure
@@ -149,6 +166,49 @@ def lang_parse(cmd_pointer, parser):
         return display_run(cmd_pointer, parser)
     elif parser.getName() == "exec_run":
         exec_run(cmd_pointer, parser)
+    # molecules
+    elif parser.getName() == "display_molecule":
+        return display_molecule(cmd_pointer, parser)
+
+    elif parser.getName() == "add_molecule":
+        return add_molecule(cmd_pointer, parser)
+
+    elif parser.getName() == "remove_molecule":
+        return remove_molecule(cmd_pointer, parser)
+
+    elif parser.getName() == "list_molecules":
+        return list_molecules(cmd_pointer, parser)
+
+    elif parser.getName() == "save_molecule-set":
+        return save_molecules(cmd_pointer, parser)
+
+    elif parser.getName() == "load_molecule-set":
+        return load_molecules(cmd_pointer, parser)
+
+    elif parser.getName() == "list_molecule-sets":
+        return display_molsets(cmd_pointer, parser)
+
+    elif parser.getName() == "load_analysis":
+        return attach_all_results(cmd_pointer, parser)
+
+    elif parser.getName() == "export_molecule":
+        return export_molecule(cmd_pointer, parser)
+
+    elif parser.getName() == "clear_analysis":
+        return clear_results(cmd_pointer, parser)
+    elif parser.getName() == "create_molecule":
+        return create_molecule(cmd_pointer, parser)
+    elif parser.getName() == "mol_property":
+        return get_property(cmd_pointer, parser)
+    elif parser.getName() == "rename_molecule":
+        return rename_mol_in_list(cmd_pointer, parser)
+    elif parser.getName() == "clear_molecules":
+        return clear_workset(cmd_pointer, parser)
+    elif parser.getName() in ["load_molecules_file", "load_molecules_dataframe"]:
+        return load_batch_molecules(cmd_pointer, parser)
+
+    elif parser.getName() == "export_molecules":
+        return export_molecule_set(cmd_pointer, parser)
 
     # File system commands
     elif parser.getName() == "list_files":
@@ -194,9 +254,11 @@ def lang_parse(cmd_pointer, parser):
 
     # Show molecules commands
     elif parser.getName() == "show_molecules":
-        return display_mols(cmd_pointer, parser)
+        return show_molsgrid(cmd_pointer, parser)
     elif parser.getName() == "show_molecules_df":
-        return display_mols(cmd_pointer, parser)
+        return show_molsgrid(cmd_pointer, parser)
+    elif parser.getName() == "show_molecule":
+        return show_mol(cmd_pointer, parser)
 
     # Toolkit execution
     elif str(parser.getName()).startswith("toolkit_exec_"):
@@ -240,12 +302,8 @@ def initialise():
 # Open documentation webpage.
 def docs(cmd_pointer, parser):  # pylint: disable=unused-argument # generic pass through used or unused
     """points to online documentation"""
-    url = "https://research.ibm.com/topics/accelerated-discovery"
+    url = "https://acceleratedscience.github.io/openad-docs/commands.html"
     webbrowser.open_new(url)
-    return output_warning(
-        "Our documentation website is yet to be built,\nbut this command will open it in the browser.",
-        cmd_pointer,
-    )
 
 
 # adds a registry Toolkit Directory
@@ -325,6 +383,13 @@ def set_context(cmd_pointer, parser):
     toolkit_name = parser["toolkit_name"].upper()
     toolkit_current = None
 
+    # Handle login error.
+    def _handle_login_error(err):
+        output_error(msg("err_login", toolkit_name, err, split=True), cmd_pointer=cmd_pointer, return_val=False)
+        cmd_pointer.settings["context"] = old_cmd_pointer_context
+        cmd_pointer.toolkit_current = old_toolkit_current
+        unset_context(cmd_pointer, None)
+
     if toolkit_name.upper() not in cmd_pointer.settings["toolkits"]:
         # if toolkit_name is None: # Trash, without toolkit_name the command is invalidated
         #     return get_context(cmd_pointer, parser)
@@ -351,20 +416,15 @@ def set_context(cmd_pointer, parser):
                 # raise BaseException('Error message') # For testing
                 login_success, expiry_datetime = login_manager.load_login_api(cmd_pointer, toolkit_name, reset=reset)
 
-            except (
-                Exception  # pylint: disable=broad-exception-caught
-            ) as err:  # do not care what exception is, just returning failure
-                # Error logging in.
-                output_error(msg("err_login", toolkit_name, err, split=True), cmd_pointer=cmd_pointer, return_val=False)
-                cmd_pointer.settings["context"] = old_cmd_pointer_context
-                cmd_pointer.toolkit_current = old_toolkit_current
+            except Exception as err:  # pylint: disable=broad-exception-caught
+                # Error loading login API.
+                _handle_login_error(err)
                 return False
 
             if not login_success:
-                # Failed to log in. # error reporting handled by Toolkit
-                cmd_pointer.settings["context"] = old_cmd_pointer_context
-                cmd_pointer.toolkit_current = old_toolkit_current
-                unset_context(cmd_pointer, None)
+                # Failed to log in.
+                err = expiry_datetime  # On fail, error is passed as second parameter instead of expiry.
+                _handle_login_error(err)
                 return False
 
             # Success switching context & loggin in.
@@ -382,7 +442,7 @@ def set_context(cmd_pointer, parser):
             # Failed to load the toolkit
             cmd_pointer.settings["context"] = old_cmd_pointer_context
             cmd_pointer.toolkit_current = old_toolkit_current
-            return output_error(msg("fail_toolkit_loading", toolkit_name), cmd_pointer)
+            return output_error(msg("err_load_toolkit", toolkit_name), cmd_pointer)
 
 
 # Display your current context.
@@ -476,7 +536,7 @@ def display_data(cmd_pointer, parser):
                 df = pd.read_csv(workspace_path + file_path)
                 return output_table(df, cmd_pointer, is_data=True)
             except FileNotFoundError:
-                return output_error(msg("fail_file_doesnt_exist", file_path), cmd_pointer)
+                return output_error(msg("err_file_doesnt_exist", file_path), cmd_pointer)
             except Exception as err:  # pylint: disable=broad-exception-caught
                 # do not care what exception is, just returning failure
                 return output_error(msg("err_load_csv", err, split=True), cmd_pointer)
@@ -518,7 +578,7 @@ def display_data__save(cmd_pointer, parser):
         data.to_csv(workspace_path + file_path, index=False)
         return output_success(msg("success_save_data", file_path), cmd_pointer)
     else:
-        return output_error(msg("fail_save_data"), cmd_pointer)
+        return output_error(msg("err_save_data"), cmd_pointer)
 
 
 # --> Open data in browser UI.
@@ -601,6 +661,6 @@ def edit_config(cmd_pointer, parser):
         # JSON file not found, create new from schema.
         edit_json(file_to_edit, schema, new=True)  # pylint: disable=not-callable # it is callable
     else:
-        return output_error(msg("fail_file_doesnt_exist", parser.as_dict()["json_file"]), cmd_pointer)
+        return output_error(msg("err_file_doesnt_exist", parser.as_dict()["json_file"]), cmd_pointer)
 
     return True

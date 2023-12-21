@@ -1,8 +1,10 @@
-import sys
 import os
 import re
+import sys
+import json
 import getpass
 import readline
+import pandas as pd
 from IPython.display import display
 from openad.helpers.output import msg, output_text, output_error
 
@@ -77,23 +79,17 @@ def parse_path_tree(path_string):
 
 
 # Confirm promt for True or False Questions
-def confirm_prompt(question: str) -> bool:
+def confirm_prompt(question: str, default=False) -> bool:
     reply = None
     while reply not in ("y", "n"):
         try:
-            question_formatted = output_text(f"<yellow>\n{question}</yellow>", return_val=True, pad=1)
-            if is_notebook_mode():
-                display(question_formatted)
-                reply = input("(y/n): ").casefold()
-            else:
-                space = "" if question_formatted[-1] == "\n" else " "
-                reply = input(question_formatted + f"{space}(y/n): ").casefold()
+            output_text(f"<yellow>{question}</yellow>", pad_top=1, return_val=False)
+            reply = input("(y/n): ").casefold()
             readline.remove_history_item(readline.get_current_history_length() - 1)
         except KeyboardInterrupt:
-            print("")
-            return True
+            print("\n")
+            return default
     if reply == "y":
-        print("")
         return True
 
 
@@ -135,9 +131,12 @@ def user_secret(cmd_pointer, question):
 # Return list of available toolkit names.
 def get_toolkits():
     folder_path = os.path.dirname(os.path.abspath(__file__)) + "/../user_toolkits"
-    toolkit_names = [name.upper() for name in os.listdir(folder_path) if os.path.isdir(os.path.join(folder_path, name))]
-    if "__PYCACHE__" in toolkit_names:
-        toolkit_names.remove("__PYCACHE__")
+    ignore_dirs = ["__pycache__", "DEMO", "readme"]
+    toolkit_names = [
+        name.upper()
+        for name in os.listdir(folder_path)
+        if os.path.isdir(os.path.join(folder_path, name)) and name not in ignore_dirs
+    ]
     return toolkit_names
 
 
@@ -203,6 +202,107 @@ def next_avail_port(port=5000, host="127.0.0.1"):
     while not is_port_open(host, port):
         port += 1
     return port, host
+
+
+# Standardized file opener.
+# Detects file type and returns appropriate data format:
+# - JSON/CJSON: dict
+# - CSV: pandas dataframe
+# - Other: string
+def open_file(file_path, mode="r", return_err=False):
+    ext = file_path.split(".")[-1].lower()
+    err_msg = None
+    try:
+        with open(file_path, mode) as f:
+            data = None
+            if ext == "json" or ext == "cjson":
+                # Return JSON object
+                data = json.load(f)
+            elif ext == "csv":
+                # Return pandas dataframe
+                data = pd.read_csv(f)
+            else:
+                # Return string
+                data = f.read()
+
+            # Return data
+            if return_err:
+                return data, None
+            else:
+                return data
+    except FileNotFoundError:
+        err_msg = msg("err_file_not_found", file_path, split=True)
+    except PermissionError:
+        err_msg = msg("err_file_no_permission_read", file_path, split=True)
+    except IsADirectoryError:
+        err_msg = msg("err_file_is_dir", file_path, split=True)
+    except UnicodeDecodeError:
+        err_msg = msg("err_decode", file_path, split=True)
+    except IOError as err:
+        err_msg = msg("err_io", file_path, err.strerror, split=True)
+    except BaseException as err:
+        err_msg = msg("err_unknown", err, split=True)
+
+    # Return error
+    if return_err:
+        return None, err_msg
+
+    # Display error
+    else:
+        output_error(err_msg)
+        return None
+
+
+# Standardized file writer.
+def write_file(file_path, data, return_err=False):
+    err_msg = None
+    try:
+        with open(file_path, "w") as f:
+            f.write(data)
+
+            # Return success
+            if return_err:
+                return True, None
+            else:
+                return True
+    except FileNotFoundError:
+        err_msg = msg("err_file_not_found", file_path, split=True)
+    except PermissionError:
+        err_msg = msg("err_file_no_permission_write", file_path, split=True)
+    except IsADirectoryError:
+        err_msg = msg("err_file_is_dir", file_path, split=True)
+    except UnicodeDecodeError:
+        err_msg = msg("err_decode", file_path, split=True)
+    except IOError as err:
+        err_msg = msg("err_io", file_path, err.strerror, split=True)
+    except BaseException as err:
+        err_msg = msg("err_unknown", err, split=True)
+
+    # Return error
+    if return_err:
+        return None, err_msg
+
+    # Display error
+    else:
+        output_error(err_msg)
+        return None
+
+
+# Load python module from a dynamic path
+def load_module_from_path(module_name, file_path):
+    import importlib.util
+    import sys
+
+    try:
+        spec = importlib.util.spec_from_file_location(module_name, file_path)
+        module = importlib.util.module_from_spec(spec)
+        sys.modules[module_name] = module
+        spec.loader.exec_module(module)
+        return module
+    except BaseException as err:
+        # Silent fail - only enable this for debugging
+        # output_error(f"load_module_from_path('{module_name}', {file_path})\n<soft>{err}</soft>")
+        return None
 
 
 #

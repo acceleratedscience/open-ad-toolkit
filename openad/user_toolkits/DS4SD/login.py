@@ -68,15 +68,13 @@ def login(cmd_pointer):
     if cred_config["host"].strip() == "":
         cred_config["host"] = DEFAULT_URL
     if uri_valid(cred_config["host"]) is False:
-        output_error(
-            "Invalid URL Provided please check URL or VPN and try again", cmd_pointer=cmd_pointer, return_val=False
-        )
+        output_error("Invalid url, try again", cmd_pointer=cmd_pointer, return_val=False)
         return False
     if cred_config["auth"]["username"].strip() == "":
-        output_error("Invalid username provided try again", cmd_pointer=cmd_pointer, return_val=False)
+        output_error("Invalid username, try again", cmd_pointer=cmd_pointer, return_val=False)
         return False
     if cred_config["auth"]["api_key"].strip() == "":
-        output_error("Invalid api key provided try again", cmd_pointer=cmd_pointer, return_val=False)
+        output_error("Invalid api key, try again", cmd_pointer=cmd_pointer, return_val=False)
         return False
 
     try:
@@ -103,7 +101,7 @@ def login(cmd_pointer):
             workspace = cmd_pointer.settings["workspace"]
             email = cred_config["auth"]["username"]
             output_text(
-                f"<success>loggining into DeepSearch as: </success> {email}\n <success>Workspace: </success> {workspace}",
+                f"<success>Logged into DS4SD as </success>{email}<success>\nWorkspace:</success> {workspace}",
                 cmd_pointer=cmd_pointer,
                 return_val=False,
             )
@@ -123,9 +121,9 @@ def get_creds(cred_file, cmd_pointer):
     """get the nominated API key for the LLM"""
     api_config = load_credentials(cred_file)
     if api_config is None:
-        output_warning("Please Enter in Credentials for Deep Search", cmd_pointer=cmd_pointer, return_val=False)
+        output_warning("Please provide your DS4SD credentials", cmd_pointer=cmd_pointer, return_val=False)
         output_text(
-            f"Enter the URL / Hostname: if the hostname is left blank it will default to '{DEFAULT_URL}' ",
+            f"<soft>Leave this blank to use the default: {DEFAULT_URL}</soft>",
             cmd_pointer=cmd_pointer,
             return_val=False,
         )

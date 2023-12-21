@@ -2,6 +2,7 @@
 body {
 	--font-fam: var(--ibm-font-fam);
 	--font-size: var(--ibm-font-size);
+	--font-size-small: 12px;
 	--line-height: var(--ibm-line-height);
 
 	--black: var(--ibm-black); /* #393939 */
@@ -50,6 +51,11 @@ p {
 }
 .soft {
 	color: #aaa;
+}
+hr {
+	height: 1px;
+	background-color: var(--black-10);
+	border: none;
 }
 
 /**

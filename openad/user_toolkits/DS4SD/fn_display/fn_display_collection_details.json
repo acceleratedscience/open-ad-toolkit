@@ -1,0 +1,17 @@
+{
+	"fplugin": "ds4sd",
+	"command": "display collection details",
+	"subject": "Queries",
+	"exec_type": "standard_statement",
+	"exec_cmd": "display collection details",
+	"help": {
+		"name": "display collection details",
+		"category": "Collections",
+		"command": "display collection details '<collection_name_or_key>'",
+		"description": "",
+		"url": ""
+	},
+	"library": "fn_display_collection_details",
+	"method": "display_collection_details",
+	"SINGLE_PARM": { "collection": "desc" }
+}

@@ -22,7 +22,13 @@ from openad.plugins.style_parser import style, a_len
 
 # Create the help dictionary object for a command.
 def help_dict_create(
-    name: str, command: str, description: str, url: str = None, category: str = "Uncategorized", parent: str = None
+    name: str,  # Name of the comand - used for ...?
+    command: str,  # Command structure, used for help, docs, training
+    description: str,  # Description of the command, used for help, docs, training
+    note: str = None,  # Additional note to the command, only used in help (eg. To learn more about runs, run `run ?`)
+    url: str = None,  # Currently not used - URL to the documentation of the command?
+    category: str = "Uncategorized",  # Category used to organize the commands in help & docs
+    parent: str = None,  # Parent command, only relevant for follow-up commands like `result open`
 ):
     """Create a help dictionary"""
     return {
@@ -30,6 +36,7 @@ def help_dict_create(
         "name": name,
         "command": command,
         "description": description,
+        "note": note,
         "url": url,
         "parent": parent,
     }
@@ -67,7 +74,11 @@ def all_commands(
         output = [f'<h1>Available Commands - {toolkit_name if toolkit_name else "Main"}</h1>']
         if toolkit_name and not is_toolkit_installed(toolkit_name, cmd_pointer):
             err_msg = output_error(
-                msg("fail_toolkit_not_installed", toolkit_name, split=True), cmd_pointer, return_val=True, nowrap=True
+                msg("fail_toolkit_not_installed", toolkit_name, split=True),
+                cmd_pointer,
+                return_val=True,
+                jup_return_format="markdown_data",
+                nowrap=True,
             )
             output.append(err_msg)
         elif len(commands_organized):
@@ -104,15 +115,17 @@ def all_commands(
         return main_commands + toolkit_commands
 
 
-def queried_commands(matching_commands: object, inp: str = None):
+def queried_commands(matching_commands: object, inp: str = None, starts_with_only: bool = False):
     """
     Return a styles list with all commands matching the query.
 
     Command: `<string> ?` or `? <string>`
     """
-
     inp_singular = singular(inp)
-    output = [f'<yellow>Commands containing "{inp}"</yellow>']
+    if starts_with_only:
+        output = [f'<yellow>Commands starting with "{inp}"</yellow>']
+    else:
+        output = [f'<yellow>Commands containing "{inp}"</yellow>']
 
     # First list commands that have an exact word match.
     if matching_commands["match_word"]:
@@ -166,7 +179,6 @@ def command_details(command: list, cmd_pointer):
     )
 
     # Define optimal paragraph width.
-
     try:
         columns, lines = shutil.get_terminal_size()
     except Exception:
@@ -177,16 +189,25 @@ def command_details(command: list, cmd_pointer):
     if cmd_pointer.notebook_mode:
         command_str = f"<cmd>{command_str}</cmd>"
         description = command["description"]
+        note = f'<soft>{command["note"]}</soft>' if "note" in command and command["note"] is not None else None
     else:
         command_str = style(f"<cmd>{command_str}</cmd>", width=paragraph_width)
         description = style(command["description"], width=paragraph_width)
+        note = (
+            style(f'<soft>{command["note"]}</soft>', width=paragraph_width)
+            if "note" in command and command["note"] is not None
+            else None
+        )
 
     # Separator
     sep_len = min(a_len(command_str), paragraph_width)
     sep = "<soft>" + sep_len * "-" + "</soft>"
 
     # Style description
-    return "\n".join([command_str, sep, description])
+    output = [command_str, sep, description]
+    if note is not None:
+        output.append(note)
+    return "\n".join(output)
 
 
 # Display advanced help
@@ -203,7 +224,7 @@ class OpenadHelp:
 
     def add_help(self, help_dict):
         for i in help_dict:
-            self.help_current.append[i]
+            self.help_current.append(i)
 
     def reset_help(self):
         self.help_current = self.help_orig.copy()
