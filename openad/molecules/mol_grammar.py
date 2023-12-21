@@ -99,6 +99,7 @@ desc = QuotedString("'", escQuote="\\")
 
 SPECIFY_MOL = "You can specify any molecule by SMILES or InChI, and PubChem classified molecules also by name, InChIKey or their PubChem CID."
 WORKING_SET_PRIORITY = "If the requested molecule exists in your current working set, that version will be used."
+USING_NAME = "If you use the name of a molecule, the tool will do a caseless search of the names and synonyms first in current working set, then on pubchem."
 
 
 def mol_grammar_add(statements, grammar_help):
@@ -116,6 +117,8 @@ def mol_grammar_add(statements, grammar_help):
 Add a molecule to the current working set of molecules.
 
 {SPECIFY_MOL}
+
+{USING_NAME}
 
 When adding a molecule by name, this name will become the molecule's identifying string. You can set or override an identifying string for any molecule with the <cmd>rename molecule</cmd> command.
             
@@ -143,6 +146,8 @@ Display a molecule's properties.
 {WORKING_SET_PRIORITY}
 
 {SPECIFY_MOL}
+
+{USING_NAME}
             
 Examples:
 - Display a molecule by name:\n<cmd>display molecule Aspirin</cmd>
@@ -201,6 +206,8 @@ When run inside a Notebook, this will return a dictionary of the molecule's prop
 
 {WORKING_SET_PRIORITY}
 
+{USING_NAME}
+
 Examples
 - <cmd>export molecule aspirin</cmd>
 - <cmd>export molecule aspirin as file</cmd>
@@ -220,11 +227,11 @@ Examples
 Remove a molecule from the current working set.
             
 Examples:
-- Remove a molecule by name:\n<cmd>display molecule Aspirin</cmd>
-- Remove a molecule by SMILES:\n<cmd>display molecule CC(=O)OC1=CC=CC=C1C(=O)O</cmd>
-- Remove a molecule by InChIKey:\n<cmd>display mol  BSYNRYMUTXBXSQ-UHFFFAOYSA-N</cmd>
-- Remove a molecule by InChI:\n<cmd>display mol  InChI=1S/C9H8O4/c1-6(10)13-8-5-3-2-4-7(8)9(11)12/h2-5H,1H3,(H,11,12)</cmd>
-- Remove a molecule by CID:\n<cmd>display mol 2244</cmd>
+- Remove a molecule by name:\n<cmd>remove molecule Aspirin</cmd>
+- Remove a molecule by SMILES:\n<cmd>remove molecule CC(=O)OC1=CC=CC=C1C(=O)O</cmd>
+- Remove a molecule by InChIKey:\n<cmd>remove mol  BSYNRYMUTXBXSQ-UHFFFAOYSA-N</cmd>
+- Remove a molecule by InChI:\n<cmd>remove mol  InChI=1S/C9H8O4/c1-6(10)13-8-5-3-2-4-7(8)9(11)12/h2-5H,1H3,(H,11,12)</cmd>
+- Remove a molecule by CID:\n<cmd>remove mol 2244</cmd>
 """,
         )
     )
@@ -303,10 +310,11 @@ Example:
             description="""Enrich every molecule in your current working set with the last analysis result. This assumes that the current working set was the input or result for the analysis.
 
             This command currently covers results from the following Analysis commands:
-            - RXN Toolkit Predict Reaction
-            - RXN Predict retrosynthesis 
-            - DS4SD search for patents containing Molecule
-            - DS4SD search for similiar molecules """,
+            - RXN Toolkit <cmd>Predict Reaction</cmd>
+            - RXN Toolkit <cmd>Predict retrosynthesis </cmd>
+            - DS4SD Toolkit <cmd>search for patents containing molecule</cmd>
+            - DS4SD Toolkit <cmd>search for similiar molecules</cmd>
+              """,
         )
     )
 
@@ -379,6 +387,8 @@ the `@` symbols should be followed by a molecules name, smiles, inchi or cid the
 e.g. <cmd>@aspirin>>xlogp</cmd>
 
 {SPECIFY_MOL}
+
+{USING_NAME}
 
 Other examples:
 - Obtain the molecular weight of the molecule known as Aspirin.\n<cmd>@aspirin>>molecular_weight</cmd>

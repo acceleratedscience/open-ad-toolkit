@@ -397,7 +397,6 @@ class RUNCMD(Cmd):
         for x in test_list:
             if error_col_grabber(str(x)) > best_fit:
                 best_fit = error_col_grabber(str(x))
-
         for i in test_list:
             if error_col_grabber(str(i)) < best_fit:
                 continue
@@ -412,6 +411,18 @@ class RUNCMD(Cmd):
                     or x.split(",")[0].find("Expected Keyword") > -1
                     or x.split(",")[0].find("Expected {") > -1
                 ) and x.split(",")[0].find("'" + orig_word.lower()) > -1:
+                    if len(orig_line.split(">>")) > 1:
+                        started_word = str(orig_word).strip()
+
+                        for match in x.split("'"):
+                            if match.upper().startswith(started_word.upper().strip()):
+                                # print(match.upper() + "     " + started_word.upper())
+                                # print(match[len(started_word) :])
+
+                                readline.insert_text(match[len(started_word.strip()) :])
+                                readline.redisplay()
+                                return ""
+
                     yy = x.split(",")[0].split("'")[1]
 
                     readline.insert_text(yy[len(orig_word) :])
@@ -420,15 +431,12 @@ class RUNCMD(Cmd):
                     return ""  # return Nothing Changed
 
         # Look for a whole word match
+
         for i in test_list:
             if error_col_grabber(str(i)) < best_fit:  # If worse match continue
                 continue
 
             if len(i) > 1:
-                c = i[1]
-                x = c.explain()
-                x = x.replace(orig_line, "")
-
                 if (
                     x.split(",")[0].find("Expected CaselessKeyword") > -1
                     or x.split(",")[0].find("Expected Keyword") > -1
@@ -455,7 +463,9 @@ class RUNCMD(Cmd):
                         return ""
                     if len(orig_word.split(">>")) > 1:
                         started_word = str(orig_word.split(">>")[-1]).strip()
-
+                        print(111)
+                        print(x)
+                        print(started_word)
                         for match in x.split("'"):
                             if match.upper().startswith(started_word.upper().strip()):
                                 # print(match.upper() + "     " + started_word.upper())
@@ -475,6 +485,7 @@ class RUNCMD(Cmd):
                 c = i[1]
                 x = c.explain()
                 x = x.replace(orig_line, "")
+
                 if (
                     (
                         x.split(",")[0].find("Expected CaselessKeyword") > -1
@@ -490,7 +501,9 @@ class RUNCMD(Cmd):
 
                     if len(orig_word.split(">>")) > 1:
                         started_word = str(orig_word.split(">>")[-1]).strip()
-
+                        print(222)
+                        print(x)
+                        print(started_word)
                         if orig_word.strip()[-1] == ">":
                             if len(x.split("'")) > 2:
                                 readline.insert_text(x.split("'")[1])
