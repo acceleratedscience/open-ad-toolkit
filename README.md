@@ -28,7 +28,7 @@ for (var i=0; i< urls.length; i++) {
 [![PyPI version](https://img.shields.io/pypi/v/openad)](https://pypi.org/project/openad/)
 [![License MIT](https://img.shields.io/github/license/acceleratedscience/open-ad-toolkit)](https://opensource.org/licenses/MIT)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-[![Docs](https://img.shields.io/badge/website-live-brightgreen)](https://github.com/acceleratedscience/open-ad-toolkit)
+[![Docs](https://img.shields.io/badge/website-live-brightgreen)](https://acceleratedscience.github.io/openad-docs/)
 
 **Open Accelerated Discovery Client**<br>
 [Documentation](https://acceleratedscience.github.io/openad-docs/)
@@ -38,6 +38,14 @@ OpenAD is an open-source framework developed by IBM Research, aggregating a numb
 The goal of openAD is to provide a common language for scientists to interact with a multitude of of molecular tools to simplify the triage process and drastically accelerate your development timelines.
 
 ---
+> **Pre-install Note:** 
+For updating to 0.2.0 first remove toolkits `remove toolkit DS4SD` and `remove toolkit RXN` prior to updating
+
+> **Whats New ?**
+- New Molecules Functions for retrieving from pubchem molecules or creating your own in a working set, including visualisation
+- 3D displaying of molecules in your working set or direct from pubchem
+- Attaching Analysis to target Molecules with the `enrich` command
+- Enhanced Help and Tell Me command
 
 ## Quick Install <!-- omit from toc -->
 
