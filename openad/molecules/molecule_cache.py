@@ -11,6 +11,7 @@ CACHE_DIR = "/_result_cache/"
 
 
 def create_analysis_record(smiles, toolkit, function, parameters, results):
+    """creates an analysis record for a molecule"""
     record = analysis_record.copy()
     record["smiles"] = smiles
     record["toolkit"] = toolkit
@@ -51,8 +52,6 @@ def _retrieve_results(smiles: str, cmd_pointer) -> list | bool:
 
 def clear_results(cmd_pointer, inp) -> list | bool:
     """clears results from workspace cache"""
-
-    results = []
     for i in glob.glob(
         _create_workspace_dir_if_nonexistent(cmd_pointer, CACHE_DIR) + "*.res",
         recursive=True,

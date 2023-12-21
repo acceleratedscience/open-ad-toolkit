@@ -1,3 +1,5 @@
+""" handles back load and unloading for molecule operations"""
+
 import pandas
 from rdkit.Chem import PandasTools
 from openad.molecules.mol_functions import (
@@ -8,12 +10,13 @@ from openad.molecules.mol_functions import (
 )
 from openad.molecules.mol_commands import retrieve_mol_from_list, add_molecule
 from openad.helpers.output import output_error, msg, output_warning
-from openad.plugins.style_parser import print_s, style
+from openad.plugins.style_parser import print_s
 
 naming_cache = {}
 
 
 def load_batch_molecules(cmd_pointer, inp):
+    """loads molecules in batch"""
     mol_dataframe = None
     if "load_molecules_dataframe" in inp.as_dict():
         mol_dataframe = cmd_pointer.api_variables[inp.as_dict()["in_dataframe"]]
@@ -30,8 +33,8 @@ def load_batch_molecules(cmd_pointer, inp):
 
 
 def batch_pubchem(cmd_pointer, dataframe):
+    """does the prompting of pubchem for data to merge in a bach operation"""
     if cmd_pointer.notebook_mode is True:
-        from IPython.display import display  # pylint: disable=import-outside-toplevel
         from halo import HaloNotebook as Halo  # pylint: disable=import-outside-toplevel
     else:
         from halo import Halo  # pylint: disable=import-outside-toplevel
@@ -86,6 +89,7 @@ def batch_pubchem(cmd_pointer, dataframe):
 
 
 def shred_merge_add_Dataframe_mols(dataframe, cmd_pointer):
+    """shreds the molecule relevent propoerties from data frame and loads into molecules"""
     dict_list = dataframe.to_dict("records")
     for a_mol in dict_list:
         Name_Flag = False
@@ -112,7 +116,7 @@ def shred_merge_add_Dataframe_mols(dataframe, cmd_pointer):
         if Name_Flag is True and merge_mol is None:
             print_s("There is already a molecule by the name " + name)
             continue
-        if Name_Flag is True and merge_mol["properties"]["canonical_smiles"] != cannonical_smiles(a_mol["SMILES"]):
+        if Name_Flag is True and merge_mol["properties"]["canonical_smiles"] != canonical_smiles(a_mol["SMILES"]):
             print_s("There is already a molecule by the name " + name)
             continue
 
@@ -150,6 +154,7 @@ def shred_merge_add_Dataframe_mols(dataframe, cmd_pointer):
 
 
 def load_mol(source_file, cmd_pointer):
+    """loads molecules from a souce file"""
     if source_file.split(".")[-1].lower() == "sdf":
         # From sdf file
         try:
@@ -194,7 +199,7 @@ def _normalize_mol_df(mol_df: pandas.DataFrame, cmd_pointer):
             mol_df.rename(columns={i: "IMG"}, inplace=True)
 
     # Normalize name column.
-    if has_name == False and contains_name is not None:
+    if has_name is False and contains_name is not None:
         mol_df.rename(columns={contains_name: "NAME"}, inplace=True)
 
     # Add names when missing.

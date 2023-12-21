@@ -66,6 +66,7 @@ MOL_PROPERTIES = [
 
 
 def new_molecule(Name: str, smiles: str):
+    """creates a new molecule object"""
     try:
         new_smiles = None
         rdkit_mol = None
@@ -122,6 +123,7 @@ def merge_molecule_properties(molecule_dict, mol):
 
 
 def valid_smiles(input_molecule) -> bool:
+    """determines if a molecule is valid"""
     blocker = rdBase.BlockLogs()
     input_molecule = Chem.MolFromSmiles(input_molecule, sanitize=False)
     if input_molecule is None:
@@ -135,6 +137,7 @@ def valid_smiles(input_molecule) -> bool:
 
 
 def canonical_smiles(input_molecule):
+    """returns a cannonical smiles string based on rdkit"""
     return Chem.MolToSmiles(Chem.MolFromSmiles(input_molecule), True)
 
 
@@ -199,7 +202,7 @@ def get_mol(mol_id, mol_id_type):
                 return False, None, None
             else:
                 cid = compounds[0].cid
-            if cid == None:
+            if cid is None:
                 return False, None, None
         molecule = pcy.Compound.from_cid(cid).to_dict()
         openad_mol = OPENAD_MOL_DICT.copy()
@@ -220,6 +223,7 @@ def get_mol(mol_id, mol_id_type):
 
 
 def get_properties(mol):
+    """pulls properties from list"""
     properties_dict = {}
     for mol_property in MOL_PROPERTIES:
         if mol_property in mol["properties"]:
@@ -228,6 +232,7 @@ def get_properties(mol):
 
 
 def get_identifiers(mol):
+    """pulls the identifiers from a molecule"""
     identifier_dict = {}
 
     identifier_dict["name"] = mol["name"]
