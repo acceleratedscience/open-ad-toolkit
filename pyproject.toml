@@ -6,7 +6,7 @@ authors = ["Phil Downey <phil.downey1@ibm.com>"]
 readme = "README.md"
 license = "MIT"
 homepage = "https://www.accelerate.science/"
-documentation = "https://acceleratedscience.github.io/open-ad-toolkit/"
+documentation = "https://acceleratedscience.github.io/openad-docs/"
 repository = "https://github.com/acceleratedscience/open-ad-toolkit"
 
 keywords= ["deepsearch", "rxn","jupyter","magic commands","accelerated Discovery","science","retrosynthesis"]

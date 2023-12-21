@@ -102,6 +102,9 @@ def get_tell_me_model(service: str, api_key: str):
 
     elif service == "BAM":
         if MINI_EMBEDDINGS_MODEL_PRESENT is False:
+            output_error(
+                "Error: Loading BAM Model you need to install `sentence-transformers` : \n" + e, return_val=False
+            )
             return False
         creds = Credentials(api_key=api_key, api_endpoint=SUPPORTED_TELL_ME_MODELS_SETTINGS[service]["url"])
         try:
