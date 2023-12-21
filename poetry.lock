@@ -2253,13 +2253,13 @@ text-helpers = ["chardet (>=5.1.0,<6.0.0)"]
 
 [[package]]
 name = "langsmith"
-version = "0.0.72"
+version = "0.0.73"
 description = "Client library to connect to the LangSmith LLM Tracing and Evaluation Platform."
 optional = false
 python-versions = ">=3.8.1,<4.0"
 files = [
-    {file = "langsmith-0.0.72-py3-none-any.whl", hash = "sha256:2cddd49cd7d1477409c8785746acf42dbd6709a7d36e751247a3cab5e3eee20e"},
-    {file = "langsmith-0.0.72.tar.gz", hash = "sha256:505f517e2e67836a4e831917d8223a18cc59d51bdae1e4295fc6dff2266bab5d"},
+    {file = "langsmith-0.0.73-py3-none-any.whl", hash = "sha256:cb99cc10a70d882a72cc2884d75b95744bd931ee24b0466c28b522a91354c566"},
+    {file = "langsmith-0.0.73.tar.gz", hash = "sha256:f21984aa8bb0a7749f355d3fc95e3f8bd663fb90f465b1692c18420d89241a0f"},
 ]
 
 [package.dependencies]
