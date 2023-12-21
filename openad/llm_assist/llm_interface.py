@@ -243,7 +243,18 @@ def get_api_key(llm_name, cmd_pointer):
     """get the nominated API key for the LLM"""
     api_config = load_credentials(f"{cmd_pointer.home_dir}/{llm_name.lower()}_api.cred")
     if api_config is None:
-        output_warning("No Stored LLM Credentials", cmd_pointer=cmd_pointer, return_val=False)
+        if llm_name.upper() == "OPENAI":
+            output_warning(
+                "No Stored LLM Credentials:\n Note: for OPENAI users place your OpenAI 'organisation' reference in the host field. This is found under your account settings \n https://platform.openai.com/account/organization.",
+                cmd_pointer=cmd_pointer,
+                return_val=False,
+            )
+        else:
+            output_warning(
+                "No Stored LLM Credentials:\n please enter your host/URL for your service and API key details",
+                cmd_pointer=cmd_pointer,
+                return_val=False,
+            )
         api_config = {"host": "None", "auth": {"username": "None", "api_key": "None"}, "verify_ssl": "false"}
         api_config = get_credentials(
             cmd_pointer=cmd_pointer, credentials=api_config, creds_to_set=["host", "auth:api_key"]
