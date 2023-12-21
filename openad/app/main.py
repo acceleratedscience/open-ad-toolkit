@@ -463,9 +463,7 @@ class RUNCMD(Cmd):
                         return ""
                     if len(orig_word.split(">>")) > 1:
                         started_word = str(orig_word.split(">>")[-1]).strip()
-                        print(111)
-                        print(x)
-                        print(started_word)
+
                         for match in x.split("'"):
                             if match.upper().startswith(started_word.upper().strip()):
                                 # print(match.upper() + "     " + started_word.upper())
@@ -501,9 +499,7 @@ class RUNCMD(Cmd):
 
                     if len(orig_word.split(">>")) > 1:
                         started_word = str(orig_word.split(">>")[-1]).strip()
-                        print(222)
-                        print(x)
-                        print(started_word)
+
                         if orig_word.strip()[-1] == ">":
                             if len(x.split("'")) > 2:
                                 readline.insert_text(x.split("'")[1])
