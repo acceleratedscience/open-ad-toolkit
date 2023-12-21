@@ -161,7 +161,6 @@ class RUNCMD(Cmd):
                 self.prompt = refresh_prompt(self.settings)
                 output_text("Unable to set context on Login, defaulting to no context set.", self, return_val=False)
         try:
-
             if self.settings["env_vars"]["refresh_help_ai"] is True:
                 self.refresh_vector = True
                 self.refresh_train = True

@@ -189,11 +189,15 @@ def command_details(command: list, cmd_pointer):
     if cmd_pointer.notebook_mode:
         command_str = f"<cmd>{command_str}</cmd>"
         description = command["description"]
-        note = f'<soft>{command["note"]}</soft>' if "note" in command else None
+        note = f'<soft>{command["note"]}</soft>' if "note" in command and command["note"] is not None else None
     else:
         command_str = style(f"<cmd>{command_str}</cmd>", width=paragraph_width)
         description = style(command["description"], width=paragraph_width)
-        note = style(f'<soft>{command["note"]}</soft>', width=paragraph_width) if "note" in command else None
+        note = (
+            style(f'<soft>{command["note"]}</soft>', width=paragraph_width)
+            if "note" in command and command["note"] is not None
+            else None
+        )
 
     # Separator
     sep_len = min(a_len(command_str), paragraph_width)
@@ -201,7 +205,7 @@ def command_details(command: list, cmd_pointer):
 
     # Style description
     output = [command_str, sep, description]
-    if note:
+    if note is not None:
         output.append(note)
     return "\n".join(output)
 
@@ -220,7 +224,7 @@ class OpenadHelp:
 
     def add_help(self, help_dict):
         for i in help_dict:
-            self.help_current.append[i]
+            self.help_current.append(i)
 
     def reset_help(self):
         self.help_current = self.help_orig.copy()

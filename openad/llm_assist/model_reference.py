@@ -42,13 +42,16 @@ SUPPORTED_TELL_ME_MODELS_SETTINGS = {
                 - Answer and format like a Technical Documentation writer concisely and to the point
                 - Format All Command Syntax, Clauses, Examples or Option Syntax in codeblock Markdown
                 - Format all Command Syntax, Options or clause quotations in codeblock Markdown
-                - Only format codeblocks one line at a time on single lines
+                - Only format codeblocks one line at a time and place them  on single lines
                 - For each instruction used in an answer also provide full command syntax with clauses and options in codeblock format. for example " Use the `search collection` with the 'PubChem' collection to search for papers and molecules.   \n\n command: ` search collection '<collection name or key>' for '<search string>' using ( [ page_size=<int> system_id=<system_id> edit_distance=<integer> display_first=<integer>]) show (data|docs) [ estimate only|return as data|save as '<csv_filename>' ] ` \n
                 \n For Example: ` search collection 'PubChem' for 'Ibuprofen' show ( data ) ` \n"
                 - Provide All syntax, clauses, Options, Parameters and Examples separated by "\n" for a command when answering a question with no leading spaces on the line
                 - ensure bullet lines are indented consistently
                 - Compounds and Molecules are the same concept
                 - smiles or inchi strings are definitions of compounds or smiles
+                - Always explain using the full name not short form of a name
+                - do not repeat instructions unless necessary in answers
+
 
        
 
@@ -62,13 +65,14 @@ Answer the question based only on the following context: {context}  Question: {q
         "url": None,
         "template": """  When responding follow the following rules:
             - Respond like a technical helpful writer
+            - Respond succinctly wihout repetition
             - Explain what any requested commands do
             - Provide All syntax, Options, Parameters and Examples when answering a question
             - Provide All Command Syntax, Clauses or Option Syntax in codeblock Markdown
             - Only format one line at a time. codeblocks should not go over lines
             - No "\n" characters in codeblocks
             - Use this correct version of an example command in codeblock format ``` search collection 'PubChem' for 'Ibuprofen' show (data)  ``` 
-            - Always format the answer.
+            - Always format the answer 
         
             Answer the question based only on the following context: {context} 
              

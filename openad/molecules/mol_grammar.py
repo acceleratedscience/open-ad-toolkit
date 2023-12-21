@@ -300,7 +300,13 @@ Example:
             name="enrich molecule-set",
             category="Molecules",
             command="enrich molecule-set with analysis",
-            description="Enrich every molecule in your current working set with the last analysis result. This assumes that the current working set was the input for the analysis.",
+            description="""Enrich every molecule in your current working set with the last analysis result. This assumes that the current working set was the input or result for the analysis.
+
+            This command currently covers results from the following Analysis commands:
+            - RXN Toolkit Predict Reaction
+            - RXN Predict retrosynthesis 
+            - DS4SD search for patents containing Molecule
+            - DS4SD search for similiar molecules """,
         )
     )
 
@@ -368,14 +374,18 @@ Example:
             command="@(<name> | <smiles> | <inchi> | <inchkey> | <cid>)>><molecule_property_name>",
             description=f"""
 Request a molecule's certain property.
+the `@` symbols should be followed by a molecules name, smiles, inchi or cid then after the `>>` include one of the below mentioned properties.
+
+e.g. <cmd>@aspirin>>xlogp</cmd>
 
 {SPECIFY_MOL}
 
-For example:
+Other examples:
 - Obtain the molecular weight of the molecule known as Aspirin.\n<cmd>@aspirin>>molecular_weight</cmd>
+- Obtain the canonical smiles string for a molecule known as Aspirin.\n<cmd>@aspirin>>canonical_smiles</cmd>
 - Obtain a molecules xlogp value using a SMILES string.\n<cmd>@CC(=O)OC1=CC=CC=C1C(=O)O>>xlogp</cmd>
 
-The properties that can be requested are {', '.join(m_props[:-1])} and {m_props[-1]}.
+The properties that can be requested are <cmd>{'</cmd>, <cmd>'.join(m_props[:-1])}</cmd> and <cmd>{m_props[-1]}</cmd>.
 """,
         )
     )

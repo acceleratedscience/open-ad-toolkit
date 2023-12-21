@@ -8,29 +8,14 @@ from deepsearch.chemistry.queries.molecules import MolQueryType
 from openad.helpers.output import output_table
 from openad.helpers.output import output_error
 from openad.helpers.output import output_text
+from openad.molecules.molecule_cache import create_analysis_record, save_result
+from openad.molecules.mol_functions import canonical_smiles, valid_smiles
+from openad.molecules.mol_commands import property_retrieve
 
 _tableformat = "simple"
 
 
 # needs to be migrated into Helper
-def valid_smiles(input_molecule) -> bool:
-    """tests to see if a input molecule is valid smiles definition
-    input_molecule: smiles string"""
-    from rdkit import rdBase
-
-    blocker = rdBase.BlockLogs()  # pylint: disable=c-extension-no-member
-    try:
-        m = Chem.MolFromSmiles(input_molecule, sanitize=False)  # pylint: disable=no-member
-    except:
-        return False
-    if m is None:
-        return False
-    else:
-        try:
-            Chem.SanitizeMol(m)  # pylint: disable=no-member
-        except Exception:  # pylint: disable=broad-exception-caught
-            return False
-    return True
 
 
 def search_similar_molecules(inputs: dict, cmd_pointer):
@@ -83,7 +68,16 @@ def search_similar_molecules(inputs: dict, cmd_pointer):
         "<h2>  Similarity Search Results for smiles molecule: </h2>  ", cmd_pointer=cmd_pointer, return_val=False
     )
     output_text(inputs["smiles"], cmd_pointer=cmd_pointer, return_val=False)
-
+    save_result(
+        create_analysis_record(
+            inputs["smiles"],
+            "DS4SD",
+            "Similar_Molecules",
+            "",
+            results_table,
+        ),
+        cmd_pointer=cmd_pointer,
+    )
     if cmd_pointer.notebook_mode is True:
         from IPython.display import display
 

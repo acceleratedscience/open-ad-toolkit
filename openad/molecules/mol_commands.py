@@ -501,6 +501,23 @@ def save_molecules(cmd_pointer, inp):
     return True
 
 
+def property_retrieve(molecule_identifier, molecule_property, cmd_pointer):
+    mol = retrieve_mol_from_list(cmd_pointer, molecule_identifier)
+    if mol is None:
+        mol = retrieve_mol(molecule_identifier)
+        if mol is not None:
+            # if not cmd_pointer.notebook_mode:
+            #    print(mol["properties"][molecule_property.lower()])
+
+            return mol["properties"][molecule_property.lower()]
+            # return print_s(print_string)
+        else:
+            print("molecule not available on pubchem")
+            return None
+    else:
+        return mol["properties"][molecule_property.lower()]
+
+
 def get_property(cmd_pointer, inp):
     molecule_identifier = inp.as_dict()["molecule_identifier"]
     molecule_property = inp.as_dict()["property"]

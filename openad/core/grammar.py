@@ -618,7 +618,7 @@ statements.append(
     Forward(
         CaselessKeyword("tell")
         + CaselessKeyword("me")
-        + ZeroOrMore(Word(alphas, alphanums + "_" + "?" + "." + " " + "," + "'"))("Chat_String")
+        + ZeroOrMore(Word(alphas, alphanums + "_" + "?" + "." + " " + "," + "'" + "-" + "*" + "@" + ">"))("Chat_String")
     )("how_do_i")
 )
 grammar_help.append(
@@ -1212,6 +1212,7 @@ def output_train_statements(cmd_pointer):
             Show:  Show a data set using a utility that enables you to manipulate or diagramatically view it.
             Backup: backup a plugin or workspace
             Add: add a function or plugin
+
             Remove: delete an object
             Save: Save a run or file of some kind
             Load: load a file from project directory to Target system
@@ -1221,6 +1222,9 @@ def output_train_statements(cmd_pointer):
             History: History of DSL commands for a given Workspace
             run: list of sequential commands saved by the user')
             molecule-set: set of molecules maipulated by commands suchs as 'display molecule', 'add Molecule','create molecule', 'remove molecule'
+            The short form of  'molecule-set' is 'molset' 
+            The short form of  'molecule' is 'mol' 
+            
             The Following commands are used to work with molecule sets:
                 - clear molecules
                 - create molecule <smiles_string> name <molecule_name>

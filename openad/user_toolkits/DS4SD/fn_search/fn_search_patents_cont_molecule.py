@@ -10,6 +10,7 @@ from openad.helpers.output import output_text
 from openad.helpers.output import output_warning
 from openad.molecules.molecule_cache import create_analysis_record, save_result
 from openad.molecules.mol_functions import canonical_smiles, valid_smiles
+from openad.molecules.mol_commands import property_retrieve
 
 _tableformat = "simple"
 
@@ -102,9 +103,14 @@ def search_patents_cont_molecule(inputs: dict, cmd_pointer):
         return_val=False,
     )
     output_text(inputs["smiles"], cmd_pointer=cmd_pointer, return_val=False)
-
     save_result(
-        create_analysis_record(inputs["smiles"], "DS4SD", "Patents_For_Molecule", "", results_table),
+        create_analysis_record(
+            property_retrieve(inputs["smiles"], "canonical_smiles", cmd_pointer),
+            "DS4SD",
+            "Patents_For_Molecule",
+            "",
+            results_table,
+        ),
         cmd_pointer=cmd_pointer,
     )
 
