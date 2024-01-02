@@ -1,6 +1,60 @@
-import os
+"""
+This file contains all output messages displayed by OpenAD.
 
-messages = {
+Output messages are stored in four different formats, or a combination of them:
+    - String: Returns simple static messages
+    - Tuple: Returns messages with multiple lines
+    - List: Returns multiple messages**
+    - Lambda function: Returns dynamic messages with variables
+
+    ** This is used by error/warning/success messages, eg. to display
+       the main error message in red, plus secondary error information in gray.
+
+
+Usage:
+
+    messages = {
+        # Simple string.
+        "example_1": "Hello world",
+
+        # Multi-line string.
+        "example_2": ("First line", "Second line"),
+
+        # Two separate messages.
+        "example_3": ["First message", "Second message"],
+
+        # Dynamic - simple string.
+        "example_4": lambda first_name, last_name: f"Hello {first_name} {last_name}",
+        
+        # Dynamic - multi-line string.
+        "example_5": lambda fav_food: ("I love:", fav_food),
+
+        # Dynamic - two separate messages.
+        "example_6": lambda err: ["Something went wrong", err],
+    }
+
+    msg("example_1")
+    --> "Hello world"
+
+    msg("example_2")
+    --> "First line\nSecond line"
+
+    msg("example_3")
+    --> ["First message", "Second message"]
+
+    msg("example_4", "John", "Doe")
+    --> "Hello John Doe"
+
+    msg("example_5", "Pizza")
+    --> "I love:\nPizza"
+
+    msg("example_6", "Error 400")
+    --> ["Something went wrong", "Error 400"]
+
+"""
+
+# This file uses VSCode regions. Click this line and hit Cmd+(K, 2) to collapse all.
+_messages = {
     ##########################################################################
     # region - FILE SYSTEM
     ##########################################################################
@@ -11,43 +65,43 @@ messages = {
     "success_delete": lambda file_name, workspace_name: f"Deleted the file {file_name} from your {workspace_name} workspace",
     "success_save_data": lambda file_path: f"Your data was successfully stored as <yellow>{file_path}</yellow>",
     # Error
-    "invalid_file_format": lambda *args: (
+    "err_invalid_file_format": lambda *args: [
         "Invalid file format",
         f'Allowed file types: <yellow>{ "</yellow>, <yellow>".join(args) }</yellow>',
-    ),
-    "invalid_file_format_target": lambda *args: f'You can only save to <yellow>{ "</yellow>, <yellow>".join(args) }</yellow> files',
+    ],
+    "err_invalid_file_format_target": lambda *args: f'You can only save to <yellow>{ "</yellow>, <yellow>".join(args) }</yellow> files',
     "err_file_doesnt_exist": lambda *args: f"The selected file <yellow>{args[0]}</yellow> does not exist",
     "err_path_doesnt_exist": lambda path: f"The path <yellow>{path}</yellow> does not exist",  # ?
-    "err_file_not_found": lambda path: (f"File not found", path),
-    "err_file_no_permission_read": lambda file_path: (
+    "err_file_not_found": lambda path: [f"File not found", path],
+    "err_file_no_permission_read": lambda file_path: [
         f"You don't have permission to open the file <yellow>{file_path.split('/')[-1]}</yellow>",
         file_path,
-    ),
-    "err_file_no_permission_write": lambda file_path: (
+    ],
+    "err_file_no_permission_write": lambda file_path: [
         f"You don't have permission to write to the file <yellow>{file_path.split('/')[-1]}</yellow>",
         file_path,
-    ),
-    "err_file_is_dir": lambda file_path: (
+    ],
+    "err_file_is_dir": lambda file_path: [
         f"The file you try to open (<yellow>{file_path.split('/')[-1]}</yellow>) is a directory",
         file_path,
-    ),
-    "err_decode": lambda file_path: (
+    ],
+    "err_decode": lambda file_path: [
         f"Unable to decode the file <yellow>{file_path.split('/')[-1]}</yellow>",
         file_path,
-    ),
-    "err_io": lambda file_path, err_msg: (
+    ],
+    "err_io": lambda file_path, err_msg: [
         f"An I/O error occurred while opening the file <yellow>{file_path.split('/')[-1]}</yellow>",
         err_msg,
         file_path,
-    ),
+    ],
     "err_save_data": "No data was stored",
-    "err_import": lambda err: ("Import failed", err),
-    "err_export": lambda err: ("Export failed", err),
-    "err_copy": lambda err: ("Copying file failed", err),
-    "err_delete": lambda err: ("Deleting file failed", err),
-    "err_load_dataframe": lambda err: ("Unable to load dataframe", err),
-    "err_load_sdf": lambda err: ("Unable to load sdf file", err),
-    "err_load_csv": lambda err: ("Unable to load csv file", err),
+    "err_import": lambda err: ["Import failed", err],
+    "err_export": lambda err: ["Export failed", err],
+    "err_copy": lambda err: ["Copying file failed", err],
+    "err_delete": lambda err: ["Deleting file failed", err],
+    "err_load_dataframe": lambda err: ["Unable to load dataframe", err],
+    "err_load_sdf": lambda err: ["Unable to load sdf file", err],
+    "err_load_csv": lambda err: ["Unable to load csv file", err],
     # endregion
     ##########################################################################
     # region - WORKSPACES
@@ -73,29 +127,29 @@ messages = {
     "invalid_workpace": lambda workspace_name: f"The workspace <yellow>{workspace_name}</yellow> does not exist",
     "fail_workspace_already_exists": lambda workspace_name: f"The workspace <yellow>{workspace_name}</yellow> already exists",
     "fail_workspace_delete_default": "You can't delete the default workspace",
-    "err_workspace_description": lambda err=None: ("Something went wrong fetching the workspace description", err),
-    "err_workspace_create": lambda err: ("Something went wrong creating the workspace", err),
+    "err_workspace_description": lambda err=None: ["Something went wrong fetching the workspace description", err],
+    "err_workspace_create": lambda err: ["Something went wrong creating the workspace", err],
     # endregion
     ##########################################################################
     # region - RUNS
     ##########################################################################
     # General
-    "create_run_started": (
+    "create_run_started": [
         "<yellow>Recording started</yellow>",
         "Run any number of commands and end with <cmd>save run as <run_name></cmd>",
-    ),
+    ],
     # Negative
-    "no_runs_saved_yet": (
+    "no_runs_saved_yet": [
         "<yellow>No runs saved yet</yellow>",
-        "<soft>To create a run, run <cmd>create run</cmd></soft>",
-    ),
+        "To create a run, run <cmd>create run</cmd>",
+    ],
     # Success
     "success_run_save": "Successfully saved your run",
     # Error
-    "fail_run_display": lambda run_name: (
+    "fail_run_display": lambda run_name: [
         f'No run named "{run_name}" found',
         "To see available runs, run <cmd>list runs</cmd>",
-    ),
+    ],
     "fail_run_create": "No <cmd>create run</cmd> found in history",
     "fail_run_execute": lambda run_line: f"Unable to execute <cmd>{run_line}</cmd>",
     # endregion
@@ -289,3 +343,34 @@ messages = {
     # "err_readme": lambda err: ("There was an error reading the README file", err), # trash
     # endregion
 }
+
+
+# Procure a display message from output_msgs.py.
+def msg(msg_name, *args):
+    """
+    Fetches and formats an output message from the messages dictionary.
+
+    Parameters
+    ----------
+    msg_name (str):
+        The name of the message to fetch.
+    args:
+        Any number of variables that are required for the lambda function.
+    """
+    output = _messages[msg_name]
+
+    # Lambda function -> execute to get output.
+    if callable(output):
+        output = output(*args)
+
+    # Tuple -> remove Nones, turn into multi-line string.
+    if isinstance(output, tuple):
+        output = [x for x in output if x is not None]
+        output = "\n".join(output)
+
+    # List -> remove Nones.
+    elif isinstance(output, list):
+        output = [x for x in output if x is not None]
+
+    # Output can be string or list of strings.
+    return output

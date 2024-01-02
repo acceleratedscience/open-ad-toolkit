@@ -542,7 +542,7 @@ def display_data(cmd_pointer, parser):
                 return output_error(msg("err_load_csv", err, split=True), cmd_pointer)
         else:
             # Other file formats --> error.
-            return output_error(msg("invalid_file_format", "csv", split=True), cmd_pointer)
+            return output_error(msg("err_invalid_file_format", "csv", split=True), cmd_pointer)
 
     except Exception as err:  # pylint: disable=broad-exception-caught
         output_error(msg("err_unknown", err, split=True), cmd_pointer)

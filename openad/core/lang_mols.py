@@ -129,7 +129,7 @@ def __file2dict(file_path):
 
         # Unsupported file type.
         if not mol_dict:
-            output_error(msg("invalid_file_format", "sdf", "csv", "json", split=True), pad=1)
+            output_error(msg("err_invalid_file_format", "sdf", "csv", "json", split=True), pad=1)
 
     # SDF
     elif ext == "sdf":

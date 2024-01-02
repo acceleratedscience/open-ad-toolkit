@@ -157,7 +157,7 @@ def validate_file_path(file_path: str, allowed_extensions: list, cmd_pointer):
     if len(file_path.split(".")) == 1:
         return file_path + "." + default_extension
     elif file_path.split(".")[-1].lower() not in allowed_extensions:
-        output_error(msg("invalid_file_format", "csv", split=True), cmd_pointer)
+        output_error(msg("err_invalid_file_format", "csv", split=True), cmd_pointer)
         return
     else:
         return file_path

@@ -28,17 +28,19 @@ def fetchRoutesMolsGrid(cmd_pointer, parser):
         # Invalid origin file type.
         if origin_file and len(origin_file.strip()) > 0:
             if origin_file.split(".")[-1].lower() not in ["sdf", "csv"]:
-                return None, output_error(msg("invalid_file_format", "sdf", "csv", split=True), cmd_pointer)
+                return None, output_error(msg("err_invalid_file_format", "sdf", "csv", split=True), cmd_pointer)
         else:
-            return None, output_error(msg("invalid_file_format", "sdf", "csv", split=True), cmd_pointer)
+            return None, output_error(msg("err_invalid_file_format", "sdf", "csv", split=True), cmd_pointer)
 
         # Invalid destination file type.
         if results_file is not None:
             if results_file and len(results_file.strip()) > 0:
                 if results_file and results_file.split(".")[-1].lower() not in ["sdf", "csv"]:
-                    return None, output_error(msg("invalid_file_format_target", "sdf", "csv", split=True), cmd_pointer)
+                    return None, output_error(
+                        msg("err_invalid_file_format_target", "sdf", "csv", split=True), cmd_pointer
+                    )
             else:
-                return None, output_error(msg("invalid_file_format_target", "sdf", "csv", split=True), cmd_pointer)
+                return None, output_error(msg("err_invalid_file_format_target", "sdf", "csv", split=True), cmd_pointer)
 
     # Parameters used to initialize our instance.
     # Used with mols2grid.MolGrid()
@@ -87,7 +89,7 @@ def fetchRoutesMolsGrid(cmd_pointer, parser):
                     return False
             else:
                 # This shouldn't happen because invalid file types are caught above.
-                output_error(msg("invalid_file_format", "sdf", "csv", split=True), cmd_pointer, return_val=False)
+                output_error(msg("err_invalid_file_format", "sdf", "csv", split=True), cmd_pointer, return_val=False)
                 return False
 
             return the_mols2grid, mol_frame
