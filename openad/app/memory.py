@@ -1,5 +1,5 @@
 "Result Memory Library"
-import openad.helpers.output as output
+import openad.helpers.LEGACY_output as LEGACY_output
 
 
 class Memory:
@@ -65,7 +65,7 @@ class Memory:
 
         # Abort if memory is empty.
         if self.store is None:
-            output.output_error(output.msg("no_data_memory"), self)
+            LEGACY_output.output_error(LEGACY_output.msg("no_data_memory"), self)
 
     def store(self, data):
         self._storage = data

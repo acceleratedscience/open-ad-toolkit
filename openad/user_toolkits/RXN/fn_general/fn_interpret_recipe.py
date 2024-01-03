@@ -1,7 +1,7 @@
 """ Interprets a free text paragraph into a set of Recipe instructions """
 import os
 import importlib.util as ilu
-from openad.helpers.output import output_text
+from openad.helpers.LEGACY_output import output_text
 
 list_of_reactions = []
 

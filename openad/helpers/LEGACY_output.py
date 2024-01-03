@@ -43,13 +43,7 @@ output_text(msg('workspace_description', workspace_name, description), cmd_point
 """
 
 from IPython.display import Markdown, display
-from openad.helpers.output_msgs import msg
-
-# from openad.helpers.output_msgs import _messages # trash
-
-# Importing our own plugins.
-# This is temporary until every plugin is available as a public pypi package.
-from openad.plugins.style_parser import style, print_s, strip_tags, tags_to_markdown
+from openad.helpers.LEGACY_output_msgs import messages
 
 
 # NOTE (moe) - I'm not able to do import memory from the core director
@@ -61,8 +55,13 @@ from openad.plugins.style_parser import style, print_s, strip_tags, tags_to_mark
 # from openad.core.test import foo # This also crashes the app, when test.py has `foo = 123`
 
 
+# Importing our own plugins.
+# This is temporary until every plugin is available as a public pypi package.
+from openad.plugins.style_parser import style, print_s, strip_tags, tags_to_markdown
+
+
 # Print or return styled text.
-def output_text(message, cmd_pointer=None, return_val=None, jup_return_format=None, **kwargs):
+def output_text(text, cmd_pointer=None, return_val=None, jup_return_format=None, **kwargs):
     """
     Print or return styled text according to the relevant display context (API/Jupyter/CLI).
 
@@ -77,100 +76,101 @@ def output_text(message, cmd_pointer=None, return_val=None, jup_return_format=No
         We can still figure out the CLI/Jupyter display context without it, but
         we won't be able to do that for the API.
     return_val (None/bool):
-        Returns the text instead of displaying it.
+        Return the text instead of displaying it.
         The default (None) results in True for Jupyter, False for CLI.
-        NOTE: This is confusing and will be refactored so return is always consistent regardless of environment.
     jup_return_format (None/'plain'/'markdown_data'):
         By default, we return a markdown object in Jupyter, but sometimes
         we just need plain text (eg. for input() or the Halo spinner).
         When we need to append the markdown content to another string
         pre-formatting, we want to return the markdown data instead.
         The latter is the case with the plash.py installation notice.
-    kwargs:
-        Additional parameters for style_parser.
     """
-
     from openad.helpers.general import is_notebook_mode
 
     notebook_mode = cmd_pointer.notebook_mode if cmd_pointer else is_notebook_mode()
     api_mode = cmd_pointer.api_mode if cmd_pointer else False
     return_val = notebook_mode if return_val is None else return_val
 
-    # When the message is a list of strings, the first string
-    # will be printed regularly and subsequent strings will be
-    # printed soft gray.
-    # - - -
-    # This is not really used but it's to ensure output
-    # is consistent between output_text and output_error etc.
-    if isinstance(message, list):
-        message = "\n".join([f"<soft>{string}</soft>" if i > 0 else string for i, string in enumerate(message)])
-
     # API
     if api_mode:
-        return strip_tags(message)
+        return strip_tags(text)
+
     # Jupyter
     elif notebook_mode:
         if return_val:
             if jup_return_format == "plain":
-                return strip_tags(message)
+                return strip_tags(text)
             if jup_return_format == "markdown_data":
-                return Markdown(tags_to_markdown(message)).data
+                return Markdown(tags_to_markdown(text)).data
             else:
-                return Markdown(tags_to_markdown(message))
+                return Markdown(tags_to_markdown(text))
         else:
-            display(Markdown(tags_to_markdown(message)))
+            display(Markdown(tags_to_markdown(text)))
 
     # CLI
     else:
         if return_val:
-            return style(message, **kwargs)
+            return style(text, **kwargs)
         else:
-            print_s(message, **kwargs)
+            print_s(text, **kwargs)
 
 
-def _output_status(message, status, cmd_pointer=None, pad=1, pad_top=None, pad_btm=None, *args, **kwargs):
+def _output_status(message, status, cmd_pointer=None, return_val=None, pad=1, pad_top=False, pad_btm=False, **kwargs):
     """
-    Assure consistent styling for error/warning/success messages.
+    Print or return styled error/warning/success message according
+    to the relevant display context (API/Jupyter/CLI).
 
-    This is simply a style wrapper around output_text() which takes care of:
-    - Displaying message in correct color
-    - Add 1 line of spacing before and after, unless specified otherwise
+    This is simply a style wrapper around output_text().
+    By default text is displayed with pad=1, unless either
+    pad_btm/pad_top is set.
 
     Parameters
     ----------
-    status (None/'error'/'warning'/'success'):
-        Controls what color (red/yellow/green) the status message is assigned.
-    pad (int, default=1):
-        Used by style_parser: Adds padding to the top and bottom of the message.
-        Gets ignored when either pad_top or pad_btm is set.
-    pad_top (bool, default=0):
-        Used by style_parser: Ignores the pad value and adds padding to the top of the message only.
-    pad_btm (bool, default=0):
-        Used by style_parser: Ignores the pad value and adds padding to the bottom of the message only.
+    msg (str/tuple, required):
+        The message to display. If a tuple is passed, the first item
+        is the main message in red/orange/green, and the second is a
+        secondary message in soft grey.
+    status (str, required):
+        The status type. One of 'error', 'warning' or 'success'.
+    cmd_pointer (object):
+        The run_cmd class instance which is used to determine the display context.
+    return_val (None/bool):
+        Return the styled text instead of printing it. This will override
+        the default which is True for Jupyter, False for CLI.
+    pad_top (bool):
+        Add padding to the top of the message only, instead of the default
+        of 1 line of padding both top and bottom (see style() documentation).
+    pad_btm (bool):
+        Add padding to the bottom of the message only, instead of the default
+        of 1 line of padding both top and bottom (see style() documentation).
+    kwargs:
+        Additional parameters to pass onto the style_parser.
     """
 
-    # When the message is a list of strings, the first string
-    # will be printed in the status color (red/yellow/green)
-    # and subsequent strings will be printed soft gray.
-    if isinstance(message, list):
-        message = "\n".join(
-            [
-                f"<soft>{string}</soft>" if i > 0 else f"<{status}>{string}</{status}>"
-                for i, string in enumerate(message)
-            ]
-        )
+    # Check if there's a secondary message.
+    if isinstance(message, tuple):
+        msg1 = message[0]
+        msg2 = message[1] if len(message) == 2 else None
     else:
-        message = f"<{status}>{message}</{status}>"
+        msg1 = message
+        msg2 = None
 
-    # Set default padding of 1, unless pad_top or pad_btm is set.
-    # These parameters are consumed by style_parser, hence they are
-    # wrapped into kwargs to keep output_text simple.
-    pad = 0 if type(pad_top) == int or type(pad_btm) == int else pad
-    kwargs["pad"] = pad
-    kwargs["pad_btm"] = pad_btm
-    kwargs["pad_top"] = pad_top
+    # Format secondary message.
+    msg2 = f"\n<soft>{msg2}</soft>" if msg2 else ""
 
-    return output_text(message, *args, **kwargs)
+    # Set padding.
+    pad = 0 if pad_top or pad_btm else pad
+
+    # Print.
+    return output_text(
+        f"<{status}>{msg1}</{status}>{msg2}",
+        cmd_pointer=cmd_pointer,
+        return_val=return_val,
+        pad=pad,
+        pad_btm=pad_btm,
+        pad_top=pad_top,
+        **kwargs,
+    )
 
 
 # Print or return error messages.
@@ -207,8 +207,8 @@ def output_table(table, cmd_pointer=None, is_data=False, headers=None, note=None
 
     Parameters
     ----------
-    table (dataframe/list, required)
-        A dataframe or a list of tuples, where each tuple is a row in the table.
+    data (list, required)
+        A dataframe or an array of tuples, where each tuple is a row in the table.
     cmd_pointer (object):
         The run_cmd class instance which is used to determine the display context.
     is_data (bool):
@@ -250,12 +250,11 @@ def output_table(table, cmd_pointer=None, is_data=False, headers=None, note=None
 
     # Enable follow-up commands.
     if is_data:
-        if cmd_pointer:
-            # Store data in memory so we can access it with follow-up commands.
-            cmd_pointer.memory.store(table)
-        else:
-            pass
-            # return output_error(msg("err_cmd_pointer_required"))
+        if not cmd_pointer:
+            raise Exception("cmd_pointer is required in display_data() to enable follow-up commands.")
+
+        # Store data in memory so we can access it with follow-up commands.
+        cmd_pointer.memory.store(table)
 
     # - -
     # Format data for Jupyter.
@@ -270,14 +269,13 @@ def output_table(table, cmd_pointer=None, is_data=False, headers=None, note=None
             # Remove styling tags from headers.
             if headers:
                 headers = list(map(lambda text: strip_tags(text), headers))
-            else:
-                headers = None
 
             # Remove styling tags from content.
             for i, row in enumerate(table):
                 for j, cell in enumerate(row):
                     table[i][j] = strip_tags(cell)
 
+            # return pandas.DataFrame(data, columns=headers) %%
             table = pandas.DataFrame(table, columns=headers)
 
     # - -
@@ -303,7 +301,7 @@ def output_table(table, cmd_pointer=None, is_data=False, headers=None, note=None
                     # updated with reset \u001b[0m for color tags which may be found later
                     table = table.replace(line, line[: cli_width - 3] + "...\u001b[0m")
 
-        # Make header line yellow.
+        # Make line yellow.
         table = table.splitlines()
         table[1] = style(f"<yellow>{table[1]}</yellow>", nowrap=True)
         table = "\n".join(table)
@@ -324,7 +322,7 @@ def output_table(table, cmd_pointer=None, is_data=False, headers=None, note=None
 
     # --> Optional custom note.
     if note:
-        footnote += f"<soft>{note}</soft>"
+        footnote += f"\n<soft>{note}</soft>"
 
     # Output
     if notebook_mode is True:
@@ -352,3 +350,38 @@ def _is_empty_table(data, is_df):
                 is_empty = False
                 break
         return is_empty
+
+
+# Procure a display message from output_msgs.py.
+def msg(msg_name, *args, split=False):
+    """
+    Fetches the correct output message from the messages dictionary.
+
+    Output messages are stored in output_msgs.py in three different
+    formats, or a combination of them:
+    - String: for simple static messages
+    - Lambda function: for messages with variables
+    - Tuple: for messages with multiple lines
+
+    Parameters
+    ----------
+    msg_name (str):
+        The name of the message to fetch.
+    args:
+        Any number of variables that are required for the lambda function.
+    split (bool):
+        Instead of parsing a tuple as different lines of the same string,
+        you can return it as a list of separate messages. This is used for
+        the error/warning/success messages, where the first message is the
+        main message, and the second message is a secondary message.
+    """
+    msg_name = messages[msg_name]
+    if callable(msg_name):
+        msg_name = msg_name(*args)
+    if isinstance(msg_name, tuple):
+        if not split:
+            # For output_error/warning/success we sometimes need to send
+            # None as second message, eg. load_toolkit_description().
+            msg_name = [x for x in msg_name if x is not None]
+            msg_name = "\n".join(msg_name)
+    return msg_name

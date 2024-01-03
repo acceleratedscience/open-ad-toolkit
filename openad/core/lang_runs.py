@@ -8,7 +8,7 @@ from IPython.display import display
 
 
 # Helpers
-from openad.helpers.output import msg, output_text, output_error, output_success, output_table
+from openad.helpers.LEGACY_output import msg, output_text, output_error, output_success, output_table
 
 
 # Create a directory inside the workspace in case it doesn't exit yet.

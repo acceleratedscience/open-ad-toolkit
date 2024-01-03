@@ -1,9 +1,9 @@
 """ Perform Predict Reaction on a Reaction String"""
 from time import sleep
 import importlib.util as ilu
-from openad.helpers.output import output_table
-from openad.helpers.output import output_text
-from openad.helpers.output import output_error
+from openad.helpers.LEGACY_output import output_table
+from openad.helpers.LEGACY_output import output_text
+from openad.helpers.LEGACY_output import output_error
 from openad.molecules.molecule_cache import create_analysis_record, save_result
 import pandas as pd
 from rdkit import Chem

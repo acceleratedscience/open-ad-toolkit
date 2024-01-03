@@ -1,10 +1,10 @@
 """ Performs TOPN anaysis on a set of Reactions defined in a provided list"""
 from time import sleep
 import importlib.util as ilu
-from openad.helpers.output import output_table
-from openad.helpers.output import output_text
-from openad.helpers.output import output_error
-from openad.helpers.output import output_warning
+from openad.helpers.LEGACY_output import output_table
+from openad.helpers.LEGACY_output import output_text
+from openad.helpers.LEGACY_output import output_error
+from openad.helpers.LEGACY_output import output_warning
 
 import pandas as pd
 from rdkit import Chem

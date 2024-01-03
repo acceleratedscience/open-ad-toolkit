@@ -5,9 +5,9 @@ import readline
 import numpy as np
 from deepsearch.cps.client.components.elastic import ElasticDataCollectionSource
 from deepsearch.cps.queries import DataQuery
-from openad.helpers.output import output_table
-from openad.helpers.output import output_text
-from openad.helpers.output import output_error
+from openad.helpers.LEGACY_output import output_table
+from openad.helpers.LEGACY_output import output_text
+from openad.helpers.LEGACY_output import output_error
 
 # Importing our own plugins.
 # This is temporary until every plugin is available as a public pypi package.

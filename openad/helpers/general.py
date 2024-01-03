@@ -6,7 +6,8 @@ import getpass
 import readline
 import pandas as pd
 from IPython.display import display
-from openad.helpers.output import msg, output_text, output_error
+from openad.helpers.output import output_text, output_error
+from openad.helpers.output_msgs import msg
 
 
 # Refreshes the command prompt when in the shell.
@@ -79,7 +80,7 @@ def parse_path_tree(path_string):
 
 
 # Confirm promt for True or False Questions
-def confirm_prompt(question: str, default=False) -> bool:
+def confirm_prompt(question: str = "", default=False) -> bool:
     reply = None
     while reply not in ("y", "n"):
         try:
@@ -104,7 +105,7 @@ def other_sessions_exist(cmd_pointer):
         pass
 
     if len(file_list) > 0:
-        return True, output_error(msg("abort_clear_sessions", split=True), cmd_pointer, return_val=False)
+        return True, output_error(msg("abort_clear_sessions"), cmd_pointer, return_val=False)
     else:
         return False, None
 
@@ -157,7 +158,7 @@ def validate_file_path(file_path: str, allowed_extensions: list, cmd_pointer):
     if len(file_path.split(".")) == 1:
         return file_path + "." + default_extension
     elif file_path.split(".")[-1].lower() not in allowed_extensions:
-        output_error(msg("err_invalid_file_format", "csv", split=True), cmd_pointer)
+        output_error(msg("err_invalid_file_format", "csv"), cmd_pointer)
         return
     else:
         return file_path
@@ -231,17 +232,17 @@ def open_file(file_path, mode="r", return_err=False):
             else:
                 return data
     except FileNotFoundError:
-        err_msg = msg("err_file_not_found", file_path, split=True)
+        err_msg = msg("err_file_not_found", file_path)
     except PermissionError:
-        err_msg = msg("err_file_no_permission_read", file_path, split=True)
+        err_msg = msg("err_file_no_permission_read", file_path)
     except IsADirectoryError:
-        err_msg = msg("err_file_is_dir", file_path, split=True)
+        err_msg = msg("err_file_is_dir", file_path)
     except UnicodeDecodeError:
-        err_msg = msg("err_decode", file_path, split=True)
+        err_msg = msg("err_decode", file_path)
     except IOError as err:
-        err_msg = msg("err_io", file_path, err.strerror, split=True)
+        err_msg = msg("err_io", file_path, err.strerror)
     except BaseException as err:
-        err_msg = msg("err_unknown", err, split=True)
+        err_msg = msg("err_unknown", err)
 
     # Return error
     if return_err:
@@ -266,17 +267,17 @@ def write_file(file_path, data, return_err=False):
             else:
                 return True
     except FileNotFoundError:
-        err_msg = msg("err_file_not_found", file_path, split=True)
+        err_msg = msg("err_file_not_found", file_path)
     except PermissionError:
-        err_msg = msg("err_file_no_permission_write", file_path, split=True)
+        err_msg = msg("err_file_no_permission_write", file_path)
     except IsADirectoryError:
-        err_msg = msg("err_file_is_dir", file_path, split=True)
+        err_msg = msg("err_file_is_dir", file_path)
     except UnicodeDecodeError:
-        err_msg = msg("err_decode", file_path, split=True)
+        err_msg = msg("err_decode", file_path)
     except IOError as err:
-        err_msg = msg("err_io", file_path, err.strerror, split=True)
+        err_msg = msg("err_io", file_path, err.strerror)
     except BaseException as err:
-        err_msg = msg("err_unknown", err, split=True)
+        err_msg = msg("err_unknown", err)
 
     # Return error
     if return_err:

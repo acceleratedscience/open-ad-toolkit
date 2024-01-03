@@ -7,7 +7,7 @@ import json
 import logging
 
 import openad.core.grammar as grammar  # Not using "from" to avoid circular import.
-from openad.helpers.output import msg, output_error
+from openad.helpers.LEGACY_output import msg, output_error
 from openad.helpers.general import load_module_from_path
 
 # Globals

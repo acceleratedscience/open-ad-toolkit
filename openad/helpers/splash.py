@@ -2,7 +2,8 @@ import os
 import json
 
 from openad.helpers.general import open_file
-from openad.helpers.output import msg, output_text, output_error
+from openad.helpers.output import output_text, output_error
+from openad.helpers.output_msgs import msg
 from openad.helpers.ascii_type import ascii_type
 
 # Importing our own plugins.
@@ -89,7 +90,7 @@ def splash(toolkit_name=None, cmd_pointer=None, startup=False, raw=False):
         # Not installed
         else:
             output += output_error(
-                msg("fail_this_toolkit_not_installed", toolkit_name, split=True),
+                msg("fail_this_toolkit_not_installed", toolkit_name),
                 cmd_pointer,
                 return_val=True,
                 jup_return_format="markdown_data",

@@ -4,8 +4,8 @@ import re
 import shutil
 import glob
 from openad.llm_assist.prime_chat import Chatobject
-from openad.helpers.output import output_text, output_error
-from openad.helpers.output import output_warning, output_success
+from openad.helpers.LEGACY_output import output_text, output_error
+from openad.helpers.LEGACY_output import output_warning, output_success
 from openad.app.global_var_lib import _repo_dir
 from openad.app.global_var_lib import _meta_dir
 from openad.helpers.credentials import load_credentials

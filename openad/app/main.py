@@ -33,7 +33,8 @@ from openad.llm_assist.model_reference import SUPPORTED_TELL_ME_MODELS, SUPPORTE
 
 # Helpers
 from openad.helpers.general import singular, confirm_prompt
-from openad.helpers.output import msg, output_text, output_error, output_warning, strip_tags
+from openad.helpers.output import output_text, output_error, output_warning
+from openad.helpers.output_msgs import msg
 from openad.helpers.general import refresh_prompt
 from openad.helpers.splash import splash
 from openad.helpers.output_content import info_workspaces, info_toolkits, info_runs, info_context
@@ -159,7 +160,7 @@ class RUNCMD(Cmd):
                 self.toolkit_current = None
                 unset_context(self, None)
                 self.prompt = refresh_prompt(self.settings)
-                output_text("Unable to set context on Login, defaulting to no context set.", self, return_val=False)
+                output_error(msg("err_set_context"), self, return_val=False)
         try:
             if self.settings["env_vars"]["refresh_help_ai"] is True:
                 self.refresh_vector = True
@@ -193,7 +194,7 @@ class RUNCMD(Cmd):
 
         # `??` --> Advanced help (to be implemented)
         if inp.strip() == "?":
-            return output_text(openad_help.advanced_help(), self, pad=1)
+            return output_warning(openad_help.advanced_help(), self)
 
         # Strip question marks at the beginning and end of input.
         if len(inp.strip()) > 0 and inp.split()[0] == "?":
@@ -328,7 +329,7 @@ class RUNCMD(Cmd):
                 pad=pad,
                 pad_top=pad_top,
                 nowrap=True,
-                **kwargs
+                **kwargs,
             )
 
         # List of commands
@@ -339,7 +340,7 @@ class RUNCMD(Cmd):
                 pad=pad,
                 pad_top=pad_top,
                 nowrap=True,
-                **kwargs
+                **kwargs,
             )
 
     def preloop(self):
@@ -624,7 +625,7 @@ class RUNCMD(Cmd):
                             x = c.explain()
                         # we do not know what the error could be, so no point in being more specific
                         except Exception as err:  # pylint: disable=broad-exception-caught
-                            return output_error(msg("err_unknown", err1, split=True), self, return_val=False)
+                            return output_error(msg("err_unknown", err1), self, return_val=False)
 
                         if x.find("Expected CaselessKeyword") > -1 and x.find("at char 0") == -1:
                             if error_col < error_col_grabber(x):
@@ -649,9 +650,8 @@ class RUNCMD(Cmd):
                 # Example input: `search for molecules in parents`
 
                 # To be double checked but... this is an impossible condition. value will always be 1 or more.
-
                 if error_col_grabber(error_descriptor) == 0:
-                    return output_error(msg("err_invalid_cmd", strip_tags(msg("run_?")), split=True), self, pad=0)
+                    return output_error(msg("err_invalid_cmd", msg("run_?")), self, pad=0)
                 else:
                     # Determine if the user input is a partially correct command
                     # or an incorrect command.
@@ -729,7 +729,7 @@ class RUNCMD(Cmd):
                             help_ref = inp[0:error_col]
 
                     # Display error.
-                    output_error(msg("err_invalid_cmd", error_msg, split=True), self, return_val=False)
+                    output_error(msg("err_invalid_cmd", error_msg), self, return_val=False)
                     if show_suggestions:
                         if not multiple_suggestions:
                             output_text("<yellow>You may want to try:</yellow>", self, return_val=False)
@@ -739,7 +739,8 @@ class RUNCMD(Cmd):
 
                         # Example to trigger this: `list xxx`
                         self.do_help(help_ref + " ?", starts_with_only=True, return_val=False, pad_top=pad_top)
-                        output_text(msg("run_?"), self, return_val=False, pad=1)
+                        note = msg("run_?")
+                        output_text(f"<soft>{note}</soft>", self, return_val=False, pad=1)
                     return
 
             else:
@@ -883,7 +884,7 @@ def cmd_line():
     try:
         command_line = RUNCMD()
     except KeyboardInterrupt:
-        output_error("Keyboard Initiated Exit before OpenAD Initialised")
+        output_error(msg("err_key_exit_before_init"))
         return
 
     # Check for help from a command line request.
@@ -935,8 +936,8 @@ def cmd_line():
                     lets_exit = True
                     command_line.do_exit("dummy do not remove")
             except Exception as err:  # pylint: disable=broad-exception-caught
-                # we do not know what the error could be, so no point in being more specific
-                output_error(msg("err_invalid_cmd", err, split=True), command_line)
+                # We do not know what the error could be, so no point in being more specific.
+                output_error(msg("err_invalid_cmd", err), command_line)
 
 
 if __name__ == "__main__":

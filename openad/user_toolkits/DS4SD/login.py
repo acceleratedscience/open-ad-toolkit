@@ -6,7 +6,7 @@ import time
 import requests
 import jwt
 import deepsearch as ds
-from openad.helpers.output import msg, output_text, output_error, output_warning
+from openad.helpers.LEGACY_output import msg, output_text, output_error, output_warning
 from openad.helpers.credentials import load_credentials, get_credentials, write_credentials
 
 DEFAULT_URL = "https://sds.app.accelerate.science/"

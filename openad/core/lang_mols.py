@@ -6,7 +6,7 @@ from openad.flask_apps import launcher
 from openad.flask_apps.molsgrid.routes import fetchRoutesMolsGrid
 from openad.flask_apps.molviewer.routes import fetchRoutesMolViewer
 from openad.helpers.general import open_file
-from openad.helpers.output import msg, output_error
+from openad.helpers.LEGACY_output import msg, output_error
 
 # Disable RDKit warnings
 logger = RDLogger.logger()

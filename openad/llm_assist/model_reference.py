@@ -1,7 +1,7 @@
 """CONTAINS CONSTANTS AND FUNCTIONS FOR MODELS"""
 import platform
 
-from openad.helpers.output import output_error, output_warning
+from openad.helpers.LEGACY_output import output_error, output_warning
 from langchain.chat_models import ChatOpenAI
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.embeddings import HuggingFaceEmbeddings

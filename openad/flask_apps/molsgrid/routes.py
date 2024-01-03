@@ -4,7 +4,8 @@ import mols2grid
 import signal
 import os
 import pandas
-from openad.helpers.output import msg, output_text, output_error, output_warning, output_success, output_table
+from openad.helpers.output import output_text, output_error, output_warning, output_success, output_table
+from openad.helpers.output_msgs import msg
 from openad.helpers.general import parse_path_tree, confirm_prompt
 from openad.helpers.spinner import spinner
 
@@ -28,19 +29,17 @@ def fetchRoutesMolsGrid(cmd_pointer, parser):
         # Invalid origin file type.
         if origin_file and len(origin_file.strip()) > 0:
             if origin_file.split(".")[-1].lower() not in ["sdf", "csv"]:
-                return None, output_error(msg("err_invalid_file_format", "sdf", "csv", split=True), cmd_pointer)
+                return None, output_error(msg("err_invalid_file_format", "sdf", "csv"), cmd_pointer)
         else:
-            return None, output_error(msg("err_invalid_file_format", "sdf", "csv", split=True), cmd_pointer)
+            return None, output_error(msg("err_invalid_file_format", "sdf", "csv"), cmd_pointer)
 
         # Invalid destination file type.
         if results_file is not None:
             if results_file and len(results_file.strip()) > 0:
                 if results_file and results_file.split(".")[-1].lower() not in ["sdf", "csv"]:
-                    return None, output_error(
-                        msg("err_invalid_file_format_target", "sdf", "csv", split=True), cmd_pointer
-                    )
+                    return None, output_error(msg("err_invalid_file_format_target", "sdf", "csv"), cmd_pointer)
             else:
-                return None, output_error(msg("err_invalid_file_format_target", "sdf", "csv", split=True), cmd_pointer)
+                return None, output_error(msg("err_invalid_file_format_target", "sdf", "csv"), cmd_pointer)
 
     # Parameters used to initialize our instance.
     # Used with mols2grid.MolGrid()
@@ -63,7 +62,7 @@ def fetchRoutesMolsGrid(cmd_pointer, parser):
                     mol_frame = _normalize_mol_df(mol_frame, cmd_pointer)
                     the_mols2grid = mols2grid.MolGrid(mol_frame, name=name, smiles_col="SMILES", **m2g_params_init)
                 except BaseException as err:
-                    output_error(msg("err_load_dataframe", err, split=True), cmd_pointer, return_val=False)
+                    output_error(msg("err_load_dataframe", err), cmd_pointer, return_val=False)
                     return False
             elif origin_file.split(".")[-1].lower() == "sdf":
                 # From sdf file
@@ -74,7 +73,7 @@ def fetchRoutesMolsGrid(cmd_pointer, parser):
                     mol_frame = PandasTools.LoadSDF(SDFFile)
                     the_mols2grid = mols2grid.MolGrid(mol_frame, name=name, **m2g_params_init)
                 except BaseException as err:
-                    output_error(msg("err_load_sdf", err, split=True), cmd_pointer, return_val=False)
+                    output_error(msg("err_load_sdf", err), cmd_pointer, return_val=False)
                     return False
             elif origin_file.split(".")[-1].lower() == "csv":
                 # From csv file.
@@ -85,17 +84,17 @@ def fetchRoutesMolsGrid(cmd_pointer, parser):
                     mol_frame = _normalize_mol_df(mol_frame, cmd_pointer)
                     the_mols2grid = mols2grid.MolGrid(mol_frame, name=name, **m2g_params_init)
                 except BaseException as err:
-                    output_error(msg("err_load_csv", err, split=True), cmd_pointer, return_val=False)
+                    output_error(msg("err_load_csv", err), cmd_pointer, return_val=False)
                     return False
             else:
                 # This shouldn't happen because invalid file types are caught above.
-                output_error(msg("err_invalid_file_format", "sdf", "csv", split=True), cmd_pointer, return_val=False)
+                output_error(msg("err_invalid_file_format", "sdf", "csv"), cmd_pointer, return_val=False)
                 return False
 
             return the_mols2grid, mol_frame
 
         except BaseException as err:
-            output_error(msg("err_m2g_open", err, split=True), cmd_pointer)
+            output_error(msg("err_m2g_open", err), cmd_pointer)
 
     if results_file:
         # In Jupyter "save as" is not allowed, because we don't

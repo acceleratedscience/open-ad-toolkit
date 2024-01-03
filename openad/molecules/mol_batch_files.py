@@ -9,7 +9,7 @@ from openad.molecules.mol_functions import (
     canonical_smiles,
 )
 from openad.molecules.mol_commands import retrieve_mol_from_list, add_molecule
-from openad.helpers.output import output_error, msg, output_warning
+from openad.helpers.LEGACY_output import output_error, msg, output_warning
 from openad.plugins.style_parser import print_s
 
 naming_cache = {}

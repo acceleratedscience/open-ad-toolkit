@@ -13,7 +13,7 @@ from rdkit.Chem import AllChem
 
 
 from openad.helpers.general import confirm_prompt
-from openad.helpers.output import output_text, output_table, output_warning
+from openad.helpers.LEGACY_output import output_text, output_table, output_warning
 from openad.molecules.mol_functions import canonical_smiles
 
 from openad.molecules.mol_functions import (

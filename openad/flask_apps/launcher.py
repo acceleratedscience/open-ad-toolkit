@@ -3,13 +3,14 @@ import socket
 import webbrowser
 from flask import Flask, send_from_directory
 from openad.app.global_var_lib import _repo_dir
-from openad.helpers.output import msg, output_text, output_error
+from openad.helpers.output import output_text, output_error
+from openad.helpers.output_msgs import msg
 from openad.helpers.general import next_avail_port
 
 
 def launch(cmd_pointer=None, routes=None, app_name="", query="", hash=""):
     if not routes:
-        output_error("Routes are required to launch Flask server.")
+        output_error(msg("err_routes_required"))
         return
 
     # Initialize Flask app.

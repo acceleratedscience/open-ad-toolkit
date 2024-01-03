@@ -5,9 +5,9 @@ from rdkit import Chem
 import pandas as pd
 from deepsearch.chemistry.queries.molecules import MoleculeQuery
 from deepsearch.chemistry.queries.molecules import MolQueryType
-from openad.helpers.output import output_table
-from openad.helpers.output import output_error
-from openad.helpers.output import output_text
+from openad.helpers.LEGACY_output import output_table
+from openad.helpers.LEGACY_output import output_error
+from openad.helpers.LEGACY_output import output_text
 from openad.molecules.molecule_cache import create_analysis_record, save_result
 from openad.molecules.mol_functions import canonical_smiles, valid_smiles
 from openad.molecules.mol_commands import property_retrieve

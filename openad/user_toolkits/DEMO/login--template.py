@@ -6,7 +6,7 @@ import time
 import requests
 import datetime
 from datetime import datetime, timezone
-from openad.helpers.output import msg, output_text, output_error, output_warning, output_success
+from openad.helpers.LEGACY_output import msg, output_text, output_error, output_warning, output_success
 from openad.helpers.credentials import load_credentials, get_credentials, write_credentials
 
 

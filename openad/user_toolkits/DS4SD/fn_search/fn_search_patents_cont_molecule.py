@@ -4,10 +4,10 @@ import pandas as pd
 from deepsearch.chemistry.queries.molecules import PatentsWithMoleculesQuery
 from deepsearch.chemistry.queries.molecules import MolId, MolIdType
 from rdkit import Chem
-from openad.helpers.output import output_table
-from openad.helpers.output import output_error
-from openad.helpers.output import output_text
-from openad.helpers.output import output_warning
+from openad.helpers.LEGACY_output import output_table
+from openad.helpers.LEGACY_output import output_error
+from openad.helpers.LEGACY_output import output_text
+from openad.helpers.LEGACY_output import output_warning
 from openad.molecules.molecule_cache import create_analysis_record, save_result
 from openad.molecules.mol_functions import canonical_smiles, valid_smiles
 from openad.molecules.mol_commands import property_retrieve

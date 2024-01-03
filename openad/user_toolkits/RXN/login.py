@@ -5,7 +5,7 @@ import datetime
 import importlib.util as ilu
 from datetime import datetime, timezone
 from rxn4chemistry import RXN4ChemistryWrapper
-from openad.helpers.output import msg, output_text, output_error, output_warning
+from openad.helpers.LEGACY_output import msg, output_text, output_error, output_warning
 from openad.helpers.credentials import load_credentials, get_credentials, write_credentials
 
 API_CONFIG_BLANK = {"host": "None", "auth": {"username": "None", "api_key": "None"}, "verify_ssl": "false"}

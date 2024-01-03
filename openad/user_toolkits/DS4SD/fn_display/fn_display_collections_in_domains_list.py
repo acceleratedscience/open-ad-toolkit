@@ -1,9 +1,9 @@
 """ display all collections from a given Deep Sesrch Domain """
 import numpy as np
 import pandas as pd
-from openad.helpers.output import output_table
-from openad.helpers.output import output_error
-from openad.helpers.output import output_text
+from openad.helpers.LEGACY_output import output_table
+from openad.helpers.LEGACY_output import output_error
+from openad.helpers.LEGACY_output import output_text
 
 _tableformat = "simple"
 

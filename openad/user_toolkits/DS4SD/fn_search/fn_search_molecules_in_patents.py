@@ -5,9 +5,9 @@ from rdkit.Chem import PandasTools
 from rdkit import Chem
 import pandas as pd
 from deepsearch.chemistry.queries.molecules import MoleculesInPatentsQuery
-from openad.helpers.output import output_table
-from openad.helpers.output import output_error
-from openad.helpers.output import output_text
+from openad.helpers.LEGACY_output import output_table
+from openad.helpers.LEGACY_output import output_error
+from openad.helpers.LEGACY_output import output_text
 
 
 _tableformat = "simple"

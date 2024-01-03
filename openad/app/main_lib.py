@@ -75,7 +75,8 @@ from openad.app.global_var_lib import _meta_workspaces
 from openad.app.global_var_lib import _all_toolkits
 
 # Helpers
-from openad.helpers.output import msg, output_text, output_error, output_warning, output_success, output_table
+from openad.helpers.output import output_text, output_error, output_warning, output_success, output_table
+from openad.helpers.output_msgs import msg
 from openad.helpers.general import refresh_prompt, user_input, validate_file_path, ensure_file_path
 from openad.helpers.splash import splash
 from openad.helpers.output_content import openad_intro
@@ -385,7 +386,7 @@ def set_context(cmd_pointer, parser):
 
     # Handle login error.
     def _handle_login_error(err):
-        output_error(msg("err_login", toolkit_name, err, split=True), cmd_pointer=cmd_pointer, return_val=False)
+        output_error(msg("err_login", toolkit_name, err), cmd_pointer=cmd_pointer, return_val=False)
         cmd_pointer.settings["context"] = old_cmd_pointer_context
         cmd_pointer.toolkit_current = old_toolkit_current
         unset_context(cmd_pointer, None)
@@ -395,7 +396,7 @@ def set_context(cmd_pointer, parser):
         #     return get_context(cmd_pointer, parser)
 
         # Toolkit doesn't exist.
-        return output_error(msg("fail_toolkit_not_installed", toolkit_name, split=True), cmd_pointer, nowrap=True)
+        return output_error(msg("fail_toolkit_not_installed", toolkit_name), cmd_pointer, nowrap=True)
 
     else:
         old_cmd_pointer_context = cmd_pointer.settings["context"]
@@ -431,7 +432,7 @@ def set_context(cmd_pointer, parser):
             if old_cmd_pointer_context != cmd_pointer.settings["context"]:
                 if cmd_pointer.notebook_mode or cmd_pointer.api_mode:
                     return output_success(
-                        msg("success_login", toolkit_name, expiry_datetime, split=True),
+                        msg("success_login", toolkit_name, expiry_datetime),
                         cmd_pointer=cmd_pointer,
                         return_val=False,
                     )
@@ -504,7 +505,7 @@ def display_history(cmd_pointer, parser):  # pylint: disable=unused-argument # g
             Exception  # pylint: disable=broad-exception-caught
             # do not care what exception is, just returning failure
         ) as err:
-            output_error(msg("err_fetch_history", err, split=True), cmd_pointer)
+            output_error(msg("err_fetch_history", err), cmd_pointer)
             i = 31
 
     # Add ellipsis if history is longer than 30 items.
@@ -539,13 +540,13 @@ def display_data(cmd_pointer, parser):
                 return output_error(msg("err_file_doesnt_exist", file_path), cmd_pointer)
             except Exception as err:  # pylint: disable=broad-exception-caught
                 # do not care what exception is, just returning failure
-                return output_error(msg("err_load_csv", err, split=True), cmd_pointer)
+                return output_error(msg("err_load_csv", err), cmd_pointer)
         else:
             # Other file formats --> error.
-            return output_error(msg("err_invalid_file_format", "csv", split=True), cmd_pointer)
+            return output_error(msg("err_invalid_file_format", "csv"), cmd_pointer)
 
     except Exception as err:  # pylint: disable=broad-exception-caught
-        output_error(msg("err_unknown", err, split=True), cmd_pointer)
+        output_error(msg("err_unknown", err), cmd_pointer)
 
 
 # --> Save data to a csv file.

@@ -2,7 +2,8 @@
 import re
 import shutil
 from openad.helpers.general import singular, is_toolkit_installed
-from openad.helpers.output import msg, output_text, output_error
+from openad.helpers.output import output_error
+from openad.helpers.output_msgs import msg
 
 # Importing our own plugins.
 # This is temporary until every plugin is available as a public pypi package.
@@ -74,7 +75,7 @@ def all_commands(
         output = [f'<h1>Available Commands - {toolkit_name if toolkit_name else "Main"}</h1>']
         if toolkit_name and not is_toolkit_installed(toolkit_name, cmd_pointer):
             err_msg = output_error(
-                msg("fail_toolkit_not_installed", toolkit_name, split=True),
+                msg("fail_toolkit_not_installed", toolkit_name),
                 cmd_pointer,
                 return_val=True,
                 jup_return_format="markdown_data",
@@ -213,7 +214,7 @@ def command_details(command: list, cmd_pointer):
 # Display advanced help
 def advanced_help():
     """Call advanced Help"""
-    return "<warning>Advanced help is yet to be implemented.</warning>"
+    return "Advanced help is yet to be implemented."
 
 
 class OpenadHelp:

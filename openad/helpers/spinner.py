@@ -4,7 +4,7 @@
 # Note: text_color='grey' results in black text, so we use our own styling instead.
 
 from openad.helpers.general import is_notebook_mode
-from openad.helpers.output import msg, output_text
+from openad.helpers.output import output_text
 
 if is_notebook_mode():
     from halo import HaloNotebook as Halo

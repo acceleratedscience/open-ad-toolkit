@@ -11,7 +11,7 @@ from langchain.document_loaders import TextLoader, DirectoryLoader
 from langchain.prompts import ChatPromptTemplate
 from langchain.schema.output_parser import StrOutputParser
 from langchain.schema.runnable import RunnablePassthrough
-from openad.helpers.output import output_error, output_warning
+from openad.helpers.LEGACY_output import output_error, output_warning
 from openad.llm_assist.model_reference import get_tell_me_model, get_embeddings_model
 
 

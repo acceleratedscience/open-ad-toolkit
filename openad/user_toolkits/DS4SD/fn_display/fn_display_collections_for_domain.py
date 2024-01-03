@@ -1,6 +1,6 @@
 """ Displays a Domains Collections"""
 import pandas as pd
-from openad.helpers.output import output_table
+from openad.helpers.LEGACY_output import output_table
 
 _tableformat = "simple"
 

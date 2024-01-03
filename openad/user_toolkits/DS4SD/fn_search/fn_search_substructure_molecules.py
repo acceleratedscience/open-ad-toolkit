@@ -4,9 +4,9 @@ from rdkit.Chem import PandasTools
 from rdkit import Chem
 from deepsearch.chemistry.queries.molecules import MoleculeQuery
 from deepsearch.chemistry.queries.molecules import MolQueryType
-from openad.helpers.output import output_table
-from openad.helpers.output import output_error
-from openad.helpers.output import output_text
+from openad.helpers.LEGACY_output import output_table
+from openad.helpers.LEGACY_output import output_error
+from openad.helpers.LEGACY_output import output_text
 
 _tableformat = "simple"
 

@@ -11,7 +11,9 @@ from pathlib import PosixPath
 
 # Helpers
 from openad.helpers.general import confirm_prompt
-from openad.helpers.output import msg, output_text, output_error, output_success, output_table
+from openad.helpers.output import output_text, output_error, output_success, output_table
+from openad.helpers.output_msgs import msg
+
 
 # Globals
 
@@ -113,7 +115,7 @@ def import_file(cmd_pointer, parser):
         return output_success(msg("success_import", source_file, workspace_name), cmd_pointer)
     except Exception as err:
         # Failure
-        return output_error(msg("err_import", err, split=True), cmd_pointer)
+        return output_error(msg("err_import", err), cmd_pointer)
 
 
 # Workspace path to external path
@@ -143,7 +145,7 @@ def export_file(cmd_pointer, parser):
         return output_success(msg("success_export", source_file, workspace_name, dest_file), cmd_pointer)
     except Exception as err:
         # Failure
-        return output_error(msg("err_export", err, split=True), cmd_pointer)
+        return output_error(msg("err_export", err), cmd_pointer)
 
 
 # Workspace path to workspace name
@@ -177,7 +179,7 @@ def copy_file(cmd_pointer, parser):
         return output_success(msg("success_copy", source_file, source_workspace_name, dest_workspace_name), cmd_pointer)
     except Exception as err:
         # Failure
-        return output_error(msg("err_copy", err, split=True), cmd_pointer)
+        return output_error(msg("err_copy", err), cmd_pointer)
 
 
 # Workspace path
@@ -200,4 +202,4 @@ def remove_file(cmd_pointer, parser):
         return output_success(msg("success_delete", file_name, workspace_name), cmd_pointer)
     except Exception as err:
         # Failure
-        return output_error(msg("err_delete", err, split=True), cmd_pointer)
+        return output_error(msg("err_delete", err), cmd_pointer)
