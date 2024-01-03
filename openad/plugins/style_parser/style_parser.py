@@ -631,7 +631,9 @@ def _expand_error_success_tags(text, html=False):
     if html:
         text = re.sub(r"^<error>(.*?)<\/error>", r'<span style="color: #d00">\1</span>', text, flags=re.MULTILINE)
         text = re.sub(r"^<success>(.*?)<\/success>", r'<span style="color: #0d0">\1</span>', text, flags=re.MULTILINE)
-        text = re.sub(r"^<warning>(.*?)<\/warning>", r'<span style="color: #ffa500">\1</span>', text, flags=re.MULTILINE)
+        text = re.sub(
+            r"^<warning>(.*?)<\/warning>", r'<span style="color: #ffa500">\1</span>', text, flags=re.MULTILINE
+        )
 
     # Output for non-styled output: display status as text.
     else:
