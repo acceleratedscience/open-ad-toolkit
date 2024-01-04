@@ -9,7 +9,8 @@ from openad.molecules.mol_functions import (
     canonical_smiles,
 )
 from openad.molecules.mol_commands import retrieve_mol_from_list, add_molecule
-from openad.helpers.LEGACY_output import output_error, msg, output_warning
+from openad.helpers.output import output_error, output_warning
+from openad.helpers.output_msgs import msg
 from openad.plugins.style_parser import print_s
 
 naming_cache = {}
@@ -69,7 +70,6 @@ def batch_pubchem(cmd_pointer, dataframe):
                     "error merging SMILES: "
                     + a_mol["SMILES"]
                     + " Smiles has been excluded by load, it is not recognised by RDKIT",
-                    cmd_pointer,
                     return_val=False,
                 )
                 continue
@@ -80,7 +80,6 @@ def batch_pubchem(cmd_pointer, dataframe):
             print(e)
             output_warning(
                 "error merging SMILES: " + a_mol["SMILES"] + " Smiles has been excluded by loadissues with input file",
-                cmd_pointer,
                 return_val=False,
             )
 
@@ -108,7 +107,6 @@ def shred_merge_add_Dataframe_mols(dataframe, cmd_pointer):
                 "error merging SMILES: "
                 + a_mol["SMILES"]
                 + " Smiles has been excluded by load, it is not recognised by RDKIT",
-                cmd_pointer,
                 return_val=False,
             )
             continue
@@ -131,7 +129,6 @@ def shred_merge_add_Dataframe_mols(dataframe, cmd_pointer):
                 "error merging SMILES: "
                 + a_mol["SMILES"]
                 + " Smiles has been excluded by load, it is not recognised by RDKIT",
-                cmd_pointer,
                 return_val=False,
             )
             pass
@@ -164,7 +161,7 @@ def load_mol(source_file, cmd_pointer):
             return PandasTools.LoadSDF(SDFFile)
 
         except BaseException as err:
-            output_error(msg("err_load_sdf", err, split=True), cmd_pointer, return_val=False)
+            output_error(msg("err_load_sdf", err), return_val=False)
             return None
     elif source_file.split(".")[-1].lower() == "csv":
         # From csv file.
@@ -175,7 +172,7 @@ def load_mol(source_file, cmd_pointer):
             return _normalize_mol_df(mol_frame, cmd_pointer)
 
         except BaseException as err:
-            output_error(msg("err_load_csv", err, split=True), cmd_pointer, return_val=False)
+            output_error(msg("err_load_csv", err), return_val=False)
             return None
 
 
@@ -205,7 +202,7 @@ def _normalize_mol_df(mol_df: pandas.DataFrame, cmd_pointer):
     # Add names when missing.
     try:
         if "NAME" not in mol_df.columns:
-            output_warning(msg("no_m2g_name_column"), cmd_pointer)
+            output_warning(msg("no_m2g_name_column"))
 
             mol_df["NAME"] = "unknown"
             for i in mol_df.itertuples():

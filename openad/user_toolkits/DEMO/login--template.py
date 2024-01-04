@@ -6,7 +6,8 @@ import time
 import requests
 import datetime
 from datetime import datetime, timezone
-from openad.helpers.LEGACY_output import msg, output_text, output_error, output_warning, output_success
+from openad.helpers.output import output_text, output_error, output_warning
+from openad.helpers.output_msgs import msg
 from openad.helpers.credentials import load_credentials, get_credentials, write_credentials
 
 
@@ -60,17 +61,17 @@ def login(cmd_pointer):
     valid, status = _uri_valid(cred_config["host"])
     if valid is False:
         if status == "invalid":
-            output_error("Invalid host URL, please check for typos", cmd_pointer=cmd_pointer, return_val=False)
+            output_error("Invalid host URL, please check for typos", return_val=False)
         else:
-            output_error("Host URL unreachable, response code {status}", cmd_pointer=cmd_pointer, return_val=False)
+            output_error("Host URL unreachable, response code {status}", return_val=False)
         return False
 
     # Verify the username and API key are valid.
     if cred_config["auth"]["username"].strip() == "":
-        output_error("Invalid username, please try again", cmd_pointer=cmd_pointer, return_val=False)
+        output_error("Invalid username, please try again", return_val=False)
         return False
     if cred_config["auth"]["api_key"].strip() == "":
-        output_error("Invalid API key, please try again", cmd_pointer=cmd_pointer, return_val=False)
+        output_error("Invalid API key, please try again", return_val=False)
         return False
 
     # Attempt login.
@@ -120,11 +121,10 @@ def reset(cmd_pointer):
 def _get_creds(cred_file, cmd_pointer):
     creds_config = load_credentials(cred_file)
     if creds_config is None:
-        output_warning(f"Please provide your {TOOLKIT_NAME} credentials", cmd_pointer=cmd_pointer, return_val=False)
+        output_warning(f"Please provide your {TOOLKIT_NAME} credentials", return_val=False)
         if PROMPT_AUTH_URL:
             output_text(
                 f"<soft>Leave this blank to use the default: {AUTH_URL_DEFAULT}</soft>",
-                cmd_pointer=cmd_pointer,
                 return_val=False,
             )
         creds_config = API_CONFIG_BLANK.copy()

@@ -7,7 +7,8 @@ import json
 import logging
 
 import openad.core.grammar as grammar  # Not using "from" to avoid circular import.
-from openad.helpers.LEGACY_output import msg, output_error
+from openad.helpers.output import output_error
+from openad.helpers.output_msgs import msg
 from openad.helpers.general import load_module_from_path
 
 # Globals
@@ -112,7 +113,7 @@ def load_toolkit_description(cmd_pointer, toolkit_name):
         )
         return str(desc_file.readline())
     except BaseException as err:
-        return output_error(msg("err_workspace_description"), cmd_pointer, return_val=True)
+        return output_error(msg("err_workspace_description"), return_val=True)
 
 
 # Enact a method call to a toolkit library.

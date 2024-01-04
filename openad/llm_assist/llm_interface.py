@@ -4,8 +4,7 @@ import re
 import shutil
 import glob
 from openad.llm_assist.prime_chat import Chatobject
-from openad.helpers.LEGACY_output import output_text, output_error
-from openad.helpers.LEGACY_output import output_warning, output_success
+from openad.helpers.output import output_text, output_error, output_warning, output_success
 from openad.app.global_var_lib import _repo_dir
 from openad.app.global_var_lib import _meta_dir
 from openad.helpers.credentials import load_credentials
@@ -98,7 +97,7 @@ def how_do_i(cmd_pointer, parser):
             if cmd_pointer.llm_handle is False:
                 return False
         except Exception as e:  # pylint: disable=broad-exception-caught
-            output_error("Problem Connecting to LLM: " + str(e), return_val=False, cmd_pointer=cmd_pointer)
+            output_error("Problem Connecting to LLM: " + str(e), return_val=False)
             return False  # if there any other error in calling LLM handle e.g. network , loss of connection etc.
 
         cmd_pointer.refresh_vector = False
@@ -111,7 +110,6 @@ def how_do_i(cmd_pointer, parser):
             output_text(
                 "Unable to Execute request. check LLM credentials and or Connectivity",
                 return_val=False,
-                cmd_pointer=cmd_pointer,
                 pad=1,
                 edge=True,
             )
@@ -141,7 +139,6 @@ def how_do_i(cmd_pointer, parser):
         output_text(
             "Unable to Execute request. check LLM credentials and or Connectivity",
             return_val=False,
-            cmd_pointer=cmd_pointer,
             pad=1,
             edge=True,
         )
@@ -150,9 +147,9 @@ def how_do_i(cmd_pointer, parser):
     text = clean_up_llm_text(cmd_pointer, text)
 
     if cmd_pointer.notebook_mode is True:
-        return output_text(text, return_val=True, cmd_pointer=cmd_pointer, pad=1, edge=True)
+        return output_text(text, return_val=True, pad=1, edge=True)
     else:
-        return output_text("\n" + text + "\n\n", return_val=True, cmd_pointer=cmd_pointer)
+        return output_text("\n" + text + "\n\n", return_val=True)
 
 
 # sets the support llm model to use
@@ -219,11 +216,9 @@ def set_llm(cmd_pointer, parser):
     if llm_name.upper() in SUPPORTED_LLMS:
         cmd_pointer.llm_service = llm_name.upper()
         cmd_pointer.settings["env_vars"]["llm_service"] = llm_name.upper()
-        return output_success(
-            " The Following has been set as the current llm service " + llm_name.upper(), cmd_pointer, pad=1
-        )
+        return output_success(" The Following has been set as the current llm service " + llm_name.upper(), pad=1)
 
-    return output_text("The following is an invalid service " + llm_name.upper(), cmd_pointer, pad=1)
+    return output_text("The following is an invalid service " + llm_name.upper(), pad=1)
 
 
 # removes the llm api key file
@@ -233,7 +228,7 @@ def clear_llm_auth(cmd_pointer, parser):  # pylint: disable=unused-argument
     """clears out the authentication file for the LLM"""
     if os.path.exists(f"{cmd_pointer.home_dir}/{cmd_pointer.llm_service.lower()}_api.cred"):
         os.remove(f"{cmd_pointer.home_dir}/{cmd_pointer.llm_service.lower()}_api.cred")
-    return output_text("cleared API Auth", cmd_pointer, pad=1)
+    return output_text("cleared API Auth", pad=1)
 
 
 # retrieves the api key from the home directory of the  app
@@ -246,13 +241,11 @@ def get_api_key(llm_name, cmd_pointer):
         if llm_name.upper() == "OPENAI":
             output_warning(
                 "No Stored LLM Credentials:\n Note: for OPENAI users place your OpenAI 'organisation' reference in the host field. This is found under your account settings \n https://platform.openai.com/account/organization.",
-                cmd_pointer=cmd_pointer,
                 return_val=False,
             )
         else:
             output_warning(
                 "No Stored LLM Credentials:\n please enter your host/URL for your service and API key details",
-                cmd_pointer=cmd_pointer,
                 return_val=False,
             )
         api_config = {"host": "None", "auth": {"username": "None", "api_key": "None"}, "verify_ssl": "false"}

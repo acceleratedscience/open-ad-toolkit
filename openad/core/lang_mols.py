@@ -6,7 +6,8 @@ from openad.flask_apps import launcher
 from openad.flask_apps.molsgrid.routes import fetchRoutesMolsGrid
 from openad.flask_apps.molviewer.routes import fetchRoutesMolViewer
 from openad.helpers.general import open_file
-from openad.helpers.LEGACY_output import msg, output_error
+from openad.helpers.output import output_error
+from openad.helpers.output_msgs import msg
 
 # Disable RDKit warnings
 logger = RDLogger.logger()
@@ -85,7 +86,7 @@ def _parse_mol(cmd_pointer, input_str):
 
             # Abort if needed.
             if not "SMILES" in mol_dict and not "InChI" in mol_dict:
-                output_error(msg("identifier_missing", file_path, split=True), pad=1)
+                output_error(msg("identifier_missing", file_path), pad=1)
                 mol_dict = None
 
     return mol_dict, mol_obj
@@ -129,7 +130,7 @@ def __file2dict(file_path):
 
         # Unsupported file type.
         if not mol_dict:
-            output_error(msg("err_invalid_file_format", "sdf", "csv", "json", split=True), pad=1)
+            output_error(msg("err_invalid_file_format", "sdf", "csv", "json"), pad=1)
 
     # SDF
     elif ext == "sdf":
@@ -146,7 +147,7 @@ def __file2dict(file_path):
             mol_pdb = molecules[0]
             mol_dict = mol_pdb.GetPropsAsDict()
         except Exception as err:
-            output_error(msg("invalid_sdf", err, split=True), pad=1, return_val=False)
+            output_error(msg("invalid_sdf", err), pad=1, return_val=False)
 
     # CSV
     elif ext == "csv":
@@ -172,7 +173,7 @@ def __file2dict(file_path):
 
             mol_dict = df.to_dict(orient="records")[0]
         except Exception as err:
-            output_error(msg("invalid_csv", err, split=True), pad=1, return_val=False)
+            output_error(msg("invalid_csv", err), pad=1, return_val=False)
 
     # PDB - current molviewer is not equipped to properly display most proteins.
     # Would require different visualization but not a priority since we're focusing

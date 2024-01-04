@@ -1,5 +1,4 @@
-from openad.helpers.LEGACY_output import output_text
-from openad.helpers.LEGACY_output import output_error
+from openad.helpers.output import output_text, output_error
 
 _tableformat = "simple"
 
@@ -12,7 +11,7 @@ def display_collection_details(inputs: dict, cmd_pointer):
     try:
         collections = api.elastic.list()
     except Exception as e:  # pylint: disable=broad-exception-caught
-        output_error("Error in calling deepsearch:" + str(e), cmd_pointer=cmd_pointer, return_val=False)
+        output_error("Error in calling deepsearch:" + str(e), return_val=False)
         return False
 
     collection = None
@@ -25,7 +24,7 @@ def display_collection_details(inputs: dict, cmd_pointer):
             break
 
     if collection == None:
-        output_error(" No Collection Found", cmd_pointer=cmd_pointer, return_val=False)
+        output_error(" No Collection Found", return_val=False)
         return False
 
     output = [
@@ -43,7 +42,7 @@ def display_collection_details(inputs: dict, cmd_pointer):
 
     if cmd_pointer.notebook_mode == True:  # Have to do individual rows because of Markdown Behaviour
         for x in output:
-            output_text(x, cmd_pointer=cmd_pointer, return_val=False)
+            output_text(x, return_val=False)
         return True
     else:
-        return output_text("\n".join(output) + "\n", cmd_pointer=cmd_pointer, return_val=True)
+        return output_text("\n".join(output) + "\n", return_val=True)
