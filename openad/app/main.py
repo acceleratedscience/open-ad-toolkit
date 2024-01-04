@@ -85,8 +85,6 @@ class RUNCMD(Cmd):
     current_help = openad_help.OpenadHelp()  # handle to the current help object
     current_help.help_orig = grammar_help.copy()  # copy of the base line command help functions (excludes Toolkits)
     current_help.reset_help()  # initialises help
-    notebook_mode = False  # set to denote if the calls are coming from a jupyter notebook
-    api_mode = False  # set to denote app is called from an external API
     login_settings = None  # where the login settings get intitialised to
     api_variables = {}  # variables passed to from external applications
     # Servicing the LLM related Function States
@@ -120,9 +118,7 @@ class RUNCMD(Cmd):
         self.settings["paths"][workspace.upper()] = os.path.expanduser(path)
 
     # Initialises the class for Run command.
-    def __init__(self, completekey="Tab", notebook=False, api=False):
-        self.notebook_mode = notebook
-        self.api_mode = api
+    def __init__(self, completekey="Tab", api=False):
         super().__init__()
 
         # This is necessary to ensure readline works predicably and compatibly across MacOS and Linux
@@ -750,9 +746,9 @@ class RUNCMD(Cmd):
         if self.refresh_train is True:
             output_train_statements(self)
             self.refresh_train = False
-        if self.notebook_mode is True:
+        if GLOBAL_SETTINGS["display"] == "notebook":
             return x
-        elif self.api_mode is False:
+        elif GLOBAL_SETTINGS["display"] != "api":
             if x is not None and not isinstance(x, bool):
                 print(x)
             else:
@@ -804,8 +800,7 @@ def api_remote(
     a_space = ""  # reset a_space
 
     # setup for notebook mode
-    magic_prompt = RUNCMD(notebook=True)
-    magic_prompt.notebook_mode = True
+    magic_prompt = RUNCMD()
 
     if api_context["workspace"] is None:
         api_context["workspace"] = magic_prompt.settings["workspace"]

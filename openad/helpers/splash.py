@@ -5,7 +5,6 @@ from openad.helpers.general import open_file
 from openad.helpers.output import output_text, output_error
 from openad.helpers.output_msgs import msg
 from openad.helpers.ascii_type import ascii_type
-from openad.app.global_var_lib import GLOBAL_SETTINGS
 
 # Importing our own plugins.
 # This is temporary until every plugin is available as a public pypi package.
@@ -14,6 +13,8 @@ from openad.plugins.style_parser import style, wrap_text, strip_tags
 
 def splash(toolkit_name=None, cmd_pointer=None, startup=False, raw=False):
     """Display the splash page for OpenAD or any of the toolkits."""
+
+    from openad.app.global_var_lib import GLOBAL_SETTINGS
 
     toolkit_name = toolkit_name.upper() if toolkit_name else None
 
