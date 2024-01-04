@@ -164,7 +164,7 @@ class RUNCMD(Cmd):
                 self.toolkit_current = None
                 unset_context(self, None)
                 self.prompt = refresh_prompt(self.settings)
-                output_error(msg("err_set_context"), self, return_val=False)
+                output_error(msg("err_set_context"), return_val=False)
         try:
             if self.settings["env_vars"]["refresh_help_ai"] is True:
                 self.refresh_vector = True
@@ -198,7 +198,7 @@ class RUNCMD(Cmd):
 
         # `??` --> Advanced help (to be implemented)
         if inp.strip() == "?":
-            return output_warning(openad_help.advanced_help(), self)
+            return output_warning(openad_help.advanced_help())
 
         # Strip question marks at the beginning and end of input.
         if len(inp.strip()) > 0 and inp.split()[0] == "?":
@@ -236,7 +236,6 @@ class RUNCMD(Cmd):
         if len(inp.split()) == 0:
             return output_text(
                 openad_help.all_commands(all_commands, toolkit_current=self.toolkit_current, cmd_pointer=self),
-                self,
                 pad=2,
                 tabs=1,
             )
@@ -244,20 +243,20 @@ class RUNCMD(Cmd):
         # Display info text about important key concepts.
         if display_info and ("return_val" not in kwargs or not kwargs["return_val"]):
             if inp.lower() == "workspace" or inp.lower() == "workspaces":
-                output_text("<h1>About Workspaces</h1>\n" + info_workspaces, self, edge=True, pad=1, return_val=False)
+                output_text("<h1>About Workspaces</h1>\n" + info_workspaces, edge=True, pad=1, return_val=False)
             elif inp.lower() == "toolkit" or inp.lower() == "toolkits":
-                output_text("<h1>About Toolkits</h1>\n" + info_toolkits, self, edge=True, pad=1, return_val=False)
+                output_text("<h1>About Toolkits</h1>\n" + info_toolkits, edge=True, pad=1, return_val=False)
             elif inp.lower() == "run" or inp.lower() == "runs":
-                output_text("<h1>About Runs</h1>\n" + info_runs, self, edge=True, pad=1, return_val=False)
+                output_text("<h1>About Runs</h1>\n" + info_runs, edge=True, pad=1, return_val=False)
             elif inp.lower() == "context" or inp.lower() == "contexts":
-                output_text("<h1>About Context</h1>\n" + info_context, self, edge=True, pad=1, return_val=False)
+                output_text("<h1>About Context</h1>\n" + info_context, edge=True, pad=1, return_val=False)
 
         # `<toolkit_name> ?` --> Display all toolkkit commands.
         if inp.upper() in _all_toolkits + ["DEMO"]:  # DEMO is omitted from _all_toolkits
             toolkit_name = inp.upper()
             ok, toolkit = load_toolkit(toolkit_name)
             return output_text(
-                openad_help.all_commands(toolkit.methods_help, toolkit_name, cmd_pointer=self), self, pad=2, tabs=1
+                openad_help.all_commands(toolkit.methods_help, toolkit_name, cmd_pointer=self), pad=2, tabs=1
             )
 
         # Add the current toolkit's commands to the list of all commands.
@@ -320,15 +319,14 @@ class RUNCMD(Cmd):
         # No matching commands -> error.
         if result_count == 0 and not exact_match:
             if starts_with_only:
-                return output_error(msg("err_no_cmds_starting", inp), self, **kwargs)
+                return output_error(msg("err_no_cmds_starting", inp), **kwargs)
             else:
-                return output_error(msg("err_no_cmds_matching", inp), self, **kwargs)
+                return output_error(msg("err_no_cmds_matching", inp), **kwargs)
 
         # Single command -> show details.
         elif result_count == 1 or exact_match:
             return output_text(
                 openad_help.command_details(all_matching_commands[0], self),
-                self,
                 edge=True,
                 pad=pad,
                 pad_top=pad_top,
@@ -340,7 +338,6 @@ class RUNCMD(Cmd):
         else:
             return output_text(
                 openad_help.queried_commands(matching_commands, inp=inp, starts_with_only=starts_with_only),
-                self,
                 pad=pad,
                 pad_top=pad_top,
                 nowrap=True,
@@ -600,7 +597,6 @@ class RUNCMD(Cmd):
                 # , shut down abruptly so as not to kill registry file.
                 output_error(
                     "Fatal error: the session registry is not avaiable, performing emergency shutdown" + str(e),
-                    cmd_pointer=self,
                     return_value=False,
                 )
                 self.do_exit("exit emergency")
@@ -629,7 +625,7 @@ class RUNCMD(Cmd):
                             x = c.explain()
                         # we do not know what the error could be, so no point in being more specific
                         except Exception as err:  # pylint: disable=broad-exception-caught
-                            return output_error(msg("err_unknown", err1), self, return_val=False)
+                            return output_error(msg("err_unknown", err1), return_val=False)
 
                         if x.find("Expected CaselessKeyword") > -1 and x.find("at char 0") == -1:
                             if error_col < error_col_grabber(x):
@@ -655,7 +651,7 @@ class RUNCMD(Cmd):
 
                 # To be double checked but... this is an impossible condition. value will always be 1 or more.
                 if error_col_grabber(error_descriptor) == 0:
-                    return output_error(msg("err_invalid_cmd", msg("run_?")), self, pad=0)
+                    return output_error(msg("err_invalid_cmd", msg("run_?")), pad=0)
                 else:
                     # Determine if the user input is a partially correct command
                     # or an incorrect command.
@@ -733,10 +729,10 @@ class RUNCMD(Cmd):
                             help_ref = inp[0:error_col]
 
                     # Display error.
-                    output_error(msg("err_invalid_cmd", error_msg), self, return_val=False)
+                    output_error(msg("err_invalid_cmd", error_msg), return_val=False)
                     if show_suggestions:
                         if not multiple_suggestions:
-                            output_text("<yellow>You may want to try:</yellow>", self, return_val=False)
+                            output_text("<yellow>You may want to try:</yellow>", return_val=False)
                             pad_top = 1  # Single command should get a linebreak before and after.
                         else:
                             pad_top = 0  # List of commands should not get padded.
@@ -744,11 +740,11 @@ class RUNCMD(Cmd):
                         # Example to trigger this: `list xxx`
                         self.do_help(help_ref + " ?", starts_with_only=True, return_val=False, pad_top=pad_top)
                         note = msg("run_?")
-                        output_text(f"<soft>{note}</soft>", self, return_val=False, pad=1)
+                        output_text(f"<soft>{note}</soft>", return_val=False, pad=1)
                     return
 
             else:
-                output_error(msg("err_unknown"), self, return_val=False)
+                output_error(msg("err_unknown"), return_val=False)
                 return
 
         if self.refresh_train is True:

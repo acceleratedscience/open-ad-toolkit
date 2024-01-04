@@ -105,7 +105,7 @@ def other_sessions_exist(cmd_pointer):
         pass
 
     if len(file_list) > 0:
-        return True, output_error(msg("abort_clear_sessions"), cmd_pointer, return_val=False)
+        return True, output_error(msg("abort_clear_sessions"), return_val=False)
     else:
         return False, None
 
@@ -115,7 +115,7 @@ def user_input(cmd_pointer, question):
     """
     Basically the same as input(), but with some extra styling and history disabled.
     """
-    prompt = output_text(f"<yellow>{question}: </yellow>", cmd_pointer, return_val=True, jup_return_format="plain")
+    prompt = output_text(f"<yellow>{question}: </yellow>", return_val=True, jup_return_format="plain")
     text = input(prompt)
     return text
 
@@ -124,7 +124,7 @@ def user_secret(cmd_pointer, question):
     """
     Basically the same as getpass.getpass(), but with some extra styling and history disabled.
     """
-    prompt = output_text(f"<yellow>{question}: </yellow>", cmd_pointer, return_val=True, jup_return_format="plain")
+    prompt = output_text(f"<yellow>{question}: </yellow>", return_val=True, jup_return_format="plain")
     text = getpass.getpass(prompt)
     return text
 
@@ -158,7 +158,7 @@ def validate_file_path(file_path: str, allowed_extensions: list, cmd_pointer):
     if len(file_path.split(".")) == 1:
         return file_path + "." + default_extension
     elif file_path.split(".")[-1].lower() not in allowed_extensions:
-        output_error(msg("err_invalid_file_format", "csv"), cmd_pointer)
+        output_error(msg("err_invalid_file_format", "csv"))
         return
     else:
         return file_path

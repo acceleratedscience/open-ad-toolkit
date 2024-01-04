@@ -45,7 +45,7 @@ output_text(msg('workspace_description', workspace_name, description), pad=1, ed
 import shutil
 import pandas
 from tabulate import tabulate
-from IPython.display import Markdown, display
+from IPython.display import Markdown
 from openad.helpers.output_msgs import msg
 
 # Importing our own plugins.
@@ -89,10 +89,8 @@ def output_text(message, return_val=None, jup_return_format=None, **kwargs):
     # Imported here to avoid circular imports.
     from openad.app.global_var_lib import GLOBAL_SETTINGS
 
-    display = GLOBAL_SETTINGS["display"]
-    return_val = display == "notebook" if return_val is None else return_val
-
-    print(style("<red>*** Display:</red>"), GLOBAL_SETTINGS["display"])
+    DISPLAY = GLOBAL_SETTINGS["display"]
+    return_val = DISPLAY == "notebook" if return_val is None else return_val
 
     # When the message is a list of strings, the first string
     # will be printed regularly and subsequent strings will be
@@ -104,11 +102,11 @@ def output_text(message, return_val=None, jup_return_format=None, **kwargs):
         message = "\n".join([f"<soft>{string}</soft>" if i > 0 else string for i, string in enumerate(message)])
 
     # API
-    if display == "api":
+    if DISPLAY == "api":
         return strip_tags(message)
 
     # Jupyter
-    elif display == "notebook":
+    elif DISPLAY == "notebook":
         if return_val:
             if jup_return_format == "plain":
                 return strip_tags(message)
@@ -117,10 +115,10 @@ def output_text(message, return_val=None, jup_return_format=None, **kwargs):
             else:
                 return Markdown(tags_to_markdown(message))
         else:
-            display(Markdown(tags_to_markdown(message)))
+            DISPLAY(Markdown(tags_to_markdown(message)))
 
     # CLI
-    elif display == "terminal":
+    elif DISPLAY == "terminal" or DISPLAY == None:
         if return_val:
             return style(message, **kwargs)
         else:
@@ -197,7 +195,7 @@ def output_success(message, *args, **kwargs):
 
 
 # Print or return a table.
-def output_table(table, is_data=False, headers=None, note=None, tablefmt="simple"):
+def output_table(table, is_data=True, headers=None, note=None, tablefmt="simple"):
     """
     Display a table:
     - CLI:      Print using tabulate with some custom home-made styling
@@ -209,8 +207,8 @@ def output_table(table, is_data=False, headers=None, note=None, tablefmt="simple
     table (dataframe/list, required)
         A dataframe or a list of tuples, where each tuple is a row in the table.
     is_data (bool):
-        This enables the follow-up commands to open/edit/save the table data.
-        Some tables are just displaying information and don't need this (eg workspace list.)
+        Enables the follow-up commands (open/edit/save/copy). Some tables are
+        just displaying information and don't need them (eg workspace list.)
     headers (list):
         A list of strings, where each string is a column header.
     note (str):
@@ -219,7 +217,11 @@ def output_table(table, is_data=False, headers=None, note=None, tablefmt="simple
         The table format used for tabulate (CLI only) - See https://github.com/astanin/python-tabulate#table-format
     """
 
+    # Imported here to avoid circular imports.
     from openad.app.global_var_lib import MEMORY
+    from openad.app.global_var_lib import GLOBAL_SETTINGS
+
+    DISPLAY = GLOBAL_SETTINGS["display"]
 
     headers = [] if headers is None else headers
     is_df = isinstance(table, pandas.DataFrame)
@@ -237,7 +239,7 @@ def output_table(table, is_data=False, headers=None, note=None, tablefmt="simple
     col_count = table.shape[1] if is_df else len(table[0])
 
     if headers and len(headers) != col_count:
-        output_warning(msg("table_headers_dont_match_columns", headers, col_count, split=True), return_val=False)
+        output_warning(msg("table_headers_dont_match_columns", headers, col_count), return_val=False)
         headers = headers[:col_count] + ["(?)"] * max(0, col_count - len(headers))
 
     # Enable follow-up commands.
@@ -246,7 +248,7 @@ def output_table(table, is_data=False, headers=None, note=None, tablefmt="simple
 
     # - -
     # Format data for Jupyter.
-    if display == "notebook":
+    if DISPLAY == "notebook":
         pandas.set_option("display.max_colwidth", None)
         # pandas.options.display.max_colwidth = 5
         # pandas.set_option('display.max_colwidth', 5)
@@ -269,7 +271,7 @@ def output_table(table, is_data=False, headers=None, note=None, tablefmt="simple
 
     # - -
     # Format data for terminal.
-    elif display == "terminal" or display == None:
+    elif DISPLAY == "terminal" or DISPLAY == None:
         if is_df:
             table = tabulate(table, headers="keys", tablefmt=tablefmt, showindex=False, numalign="left")
         else:
@@ -314,11 +316,11 @@ def output_table(table, is_data=False, headers=None, note=None, tablefmt="simple
         footnote += f"<soft>{note}</soft>"
 
     # Output
-    if display == "notebook":
+    if DISPLAY == "notebook":
         if footnote:
             output_text(footnote, return_val=False)
         return table
-    elif display == "terminal" or display == None:
+    elif DISPLAY == "terminal" or DISPLAY == None:
         if footnote:
             output = table + "\n\n" + footnote
         else:

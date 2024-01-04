@@ -4,9 +4,8 @@ from rdkit.Chem import PandasTools
 from rdkit import Chem
 from deepsearch.chemistry.queries.molecules import MoleculeQuery
 from deepsearch.chemistry.queries.molecules import MolQueryType
-from openad.helpers.LEGACY_output import output_table
-from openad.helpers.LEGACY_output import output_error
-from openad.helpers.LEGACY_output import output_text
+from openad.helpers.output import output_text, output_success, output_error, output_table
+from openad.helpers.output_msgs import msg
 
 _tableformat = "simple"
 
@@ -41,7 +40,7 @@ def search_substructure_molecules(inputs: dict, cmd_pointer):
         )
         resp = api.queries.run(query)
     except Exception as e:  # pylint: disable=broad-exception-caught
-        output_error("Error in calling deepsearch:" + str(e), cmd_pointer=cmd_pointer, return_val=False)
+        output_error("Error in calling deepsearch:" + str(e), return_val=False)
         return False
     results_table = []
     for row in resp.outputs["molecules"]:
@@ -69,16 +68,12 @@ def search_substructure_molecules(inputs: dict, cmd_pointer):
             cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/" + results_file, index=False
         )
         df = df.replace(np.nan, "", regex=True)
-        output_text(
-            "\n <success>File successfully saved to workspace.</success>", cmd_pointer=cmd_pointer, return_val=False
-        )
-    output_text(" ", cmd_pointer=cmd_pointer, return_val=False)
+        output_success(msg("success_file_saved"), return_val=False)
     output_text(
-        " <h2>  Search Results for smiles containing substructures of : </h2> ",
-        cmd_pointer=cmd_pointer,
+        "\n<h2>Search Results for smiles containing substructures of : </h2> ",
         return_val=False,
     )
-    output_text(inputs["smiles"], cmd_pointer=cmd_pointer, return_val=False)
+    output_text(inputs["smiles"], return_val=False)
 
     if cmd_pointer.notebook_mode is True:
         from IPython.display import display
@@ -87,9 +82,7 @@ def search_substructure_molecules(inputs: dict, cmd_pointer):
             try:
                 smiles_mol = Chem.MolFromSmiles(inputs["smiles"])
             except Exception as e:  # pylint: disable=broad-exception-caught
-                output_error(
-                    "Error with rdkit verification of smiles:" + str(e), cmd_pointer=cmd_pointer, return_val=False
-                )
+                output_error("Error with rdkit verification of smiles:" + str(e), return_val=False)
                 return False
 
             display(smiles_mol)
@@ -102,4 +95,4 @@ def search_substructure_molecules(inputs: dict, cmd_pointer):
         return df
     else:
         table = pd.DataFrame(results_table)
-        output_table(table, cmd_pointer, tablefmt=_tableformat)
+        output_table(table, tablefmt=_tableformat)

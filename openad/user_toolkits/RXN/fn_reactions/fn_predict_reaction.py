@@ -1,9 +1,7 @@
 """ Perform Predict Reaction on a Reaction String"""
 from time import sleep
 import importlib.util as ilu
-from openad.helpers.LEGACY_output import output_table
-from openad.helpers.LEGACY_output import output_text
-from openad.helpers.LEGACY_output import output_error
+from openad.helpers.output import output_text, output_error, output_table
 from openad.molecules.molecule_cache import create_analysis_record, save_result
 import pandas as pd
 from rdkit import Chem
@@ -60,8 +58,8 @@ def predict_reaction(inputs: dict, cmd_pointer):
 
     if len(error_list) > 0:
         df = pd.DataFrame(error_list, columns=["smiles"])
-        output_error(" The following invalid Smiles were supplied:", cmd_pointer=cmd_pointer, return_val=False)
-        output_table(df, cmd_pointer=cmd_pointer)
+        output_error(" The following invalid Smiles were supplied:", return_val=False)
+        output_table(df)
         return False
     ##################################################################################################################
     # check for cached reaction
@@ -78,24 +76,22 @@ def predict_reaction(inputs: dict, cmd_pointer):
 
         confidence = predict_reaction_results["response"]["payload"]["attempts"][0]["confidence"]
         x_y = smiles.split(">>")[1]
-        output_text("", cmd_pointer=cmd_pointer, return_val=False)
-        output_text("<h2>Saved Result</h2> ", cmd_pointer=cmd_pointer, return_val=False)
+        output_text("\n<h2>Saved Result</h2> ", return_val=False)
         for x in result:
             if len(sources) > 0:
                 sources = sources + " + " + x
             else:
                 sources = x
-            output_text("<success>Smiles:</success>    " + smiles, cmd_pointer=cmd_pointer, return_val=False)
+            output_text("<green>Smiles:</green>    " + smiles, return_val=False)
             output_text(
-                "<success>Reaction:</success> " + sources + "    ---->    " + x_y,
-                cmd_pointer=cmd_pointer,
+                "<green>Reaction:</green> " + sources + "    ---->    " + x_y,
                 return_val=False,
             )
-            output_text("<success>Confidence:</success> " + str(confidence), cmd_pointer=cmd_pointer, return_val=False)
+            output_text("<green>Confidence:</green> " + str(confidence), return_val=False)
         if cmd_pointer.notebook_mode is True:
             return get_reaction_from_smiles(smiles)
         else:
-            output_text("", cmd_pointer=cmd_pointer, return_val=False)
+            output_text("", return_val=False)
             return True
 
     ##################################################################################################################
@@ -156,9 +152,8 @@ def predict_reaction(inputs: dict, cmd_pointer):
         source.append(i)
     x_y = predict_reaction_results["response"]["payload"]["attempts"][0]["smiles"].split(">>")[1]
 
-    output_text("", cmd_pointer=cmd_pointer, return_val=False)
-    output_text("<h2>Generated Result</h2> ", cmd_pointer=cmd_pointer, return_val=False)
-    output_text("<success>Smiles:</success>    " + smiles, cmd_pointer=cmd_pointer, return_val=False)
+    output_text("\n<h2>Generated Result</h2> ", return_val=False)
+    output_text("<green>Smiles:</green>    " + smiles, return_val=False)
     sources = ""
     for x in source:
         if len(sources) > 0:
@@ -170,14 +165,12 @@ def predict_reaction(inputs: dict, cmd_pointer):
         cmd_pointer=cmd_pointer,
     )
 
-    output_text(
-        "<success>Reaction:</success> " + sources + "    ---->    " + x_y, cmd_pointer=cmd_pointer, return_val=False
-    )
-    output_text("<success>Confidence:</success> " + str(confidence), cmd_pointer=cmd_pointer, return_val=False)
+    output_text("<green>Reaction:</green> " + sources + "    ---->    " + x_y, return_val=False)
+    output_text("<green>Confidence:</green> " + str(confidence), return_val=False)
     if cmd_pointer.notebook_mode is True:
         return get_reaction_from_smiles(predict_reaction_results["response"]["payload"]["attempts"][0]["smiles"])
     else:
-        output_text("", cmd_pointer=cmd_pointer, return_val=False)
+        output_text("", return_val=False)
         return True
 
 

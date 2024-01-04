@@ -8,7 +8,8 @@ from IPython.display import display
 
 
 # Helpers
-from openad.helpers.LEGACY_output import msg, output_text, output_error, output_success, output_table
+from openad.helpers.output import output_text, output_error, output_success, output_table
+from openad.helpers.output_msgs import msg
 
 
 # Create a directory inside the workspace in case it doesn't exit yet.
@@ -30,7 +31,7 @@ def save_run(cmd_pointer, parser):
 
     while rows > 0 and " ".join(readline.get_history_item(rows).lower().split()) != "create run":
         if " ".join(readline.get_history_item(rows).lower().split()).startswith("save run"):
-            return output_error(msg("fail_run_create"), cmd_pointer)
+            return output_error(msg("fail_run_create"))
         runlist.insert(0, readline.get_history_item(rows))
         rows = rows - 1
 
@@ -41,14 +42,14 @@ def save_run(cmd_pointer, parser):
         + ".run"
     )
     if rows == 1 and " ".join(readline.get_history_item(rows).lower().split()) != "create run":
-        return output_error(msg("fail_run_create"), cmd_pointer)
+        return output_error(msg("fail_run_create"))
     run_file = open(f, "w", encoding="utf-8")
 
     for i in runlist:
         run_file.write(i + "\n")
     run_file.close()
 
-    return output_success(msg("success_run_save"), cmd_pointer)
+    return output_success(msg("success_run_save"))
 
 
 # executes a run file.
@@ -84,7 +85,7 @@ def exec_run(cmd_pointer, parser):
                     if output is not None:
                         display(output)
             except Exception as err:
-                return output_error(msg("fail_run_execute", run_line, err), cmd_pointer)
+                return output_error(msg("fail_run_execute", run_line, err))
 
         run_line = run_file.readline()
     run_file.close()
@@ -111,7 +112,7 @@ def display_run(cmd_pointer, parser):
     try:
         run_file = open(run_file_path, "r", encoding="utf-8")
     except FileNotFoundError:
-        return output_error(msg("fail_run_display", run_name, split=True), cmd_pointer)
+        return output_error(msg("fail_run_display", run_name))
     line = run_file.readline()
     while line:
         if notebook_mode is True:
@@ -124,9 +125,7 @@ def display_run(cmd_pointer, parser):
     if not notebook_mode and not cmd_pointer.api_mode:
         commands = list(
             map(
-                lambda t: [
-                    output_text(f'<soft>{t[0]}</soft>  { "<cmd>"+str(t[1])+"</cmd>" }', cmd_pointer, return_val=True)
-                ],
+                lambda t: [output_text(f'<soft>{t[0]}</soft>  { "<cmd>"+str(t[1])+"</cmd>" }', return_val=True)],
                 enumerate(commands),
             )
         )
@@ -134,7 +133,7 @@ def display_run(cmd_pointer, parser):
     table_headers = [f"<soft>Run:</soft> {run_name}"]
 
     # Display/return table.
-    return output_table(commands, cmd_pointer, headers=table_headers)
+    return output_table(commands, is_data=False, headers=table_headers)
 
 
 # Lists all Runs in the current workspace.
@@ -152,7 +151,7 @@ def list_runs(cmd_pointer, parser):
 
     # No runs saved yet.
     if len(runs) == 0:
-        return output_text(msg("no_runs_saved_yet"), cmd_pointer, pad=1)
+        return output_text(msg("no_runs_saved_yet"), pad=1)
 
     # Display/return table.
-    return output_table(runs, cmd_pointer, headers=["Stored Runs"])
+    return output_table(runs, is_data=False, headers=["Stored Runs"])

@@ -16,7 +16,7 @@ def fetchRoutesDataViewer(data, cmd_pointer):
     def submit():
         data_json = json.loads(request.data.decode("utf-8"))
         df = pandas.DataFrame(data_json)
-        output_table(df, cmd_pointer, is_data=True)
+        output_table(df)
         return "Success"
 
     def success():

@@ -64,6 +64,9 @@ _messages = {
     "success_copy": lambda source_file, source_workspace_name, dest_workspace_name: f"Copied the file {source_file} from your {source_workspace_name} to your {dest_workspace_name} workspace",
     "success_delete": lambda file_name, workspace_name: f"Deleted the file {file_name} from your {workspace_name} workspace",
     "success_save_data": lambda file_path: f"Your data was successfully stored as <yellow>{file_path}</yellow>",
+    "success_file_saved": "File successully saved to your workspace",
+    # Warning
+    "war_no_filename_provided": lambda default: f"No filename provided, reverting to the default '{default}'",
     # Error
     "err_invalid_file_format": lambda *args: [
         "Invalid file format",
@@ -160,22 +163,22 @@ _messages = {
     "all_toolkits_currently_installed": (
         "These are the toolkits you currently have installed",
         "To see all available toolkits, run <cmd>list all toolkits</cmd>",  # Repeat A1
-    ),  # ok
+    ),
     "toolkit_installed": lambda toolkit_name: (
         "<on_green> This toolkit is installed </on_green>",
         f"<soft>To activate this toolkit, run <cmd>set context {toolkit_name.lower()}</cmd></soft>",  # Repeat B1
         f"<soft>To see what you can do, run <cmd>{toolkit_name.lower()} ?</cmd></soft>",  # Repeat C1
-    ),  # ok
+    ),
     # Negative
     "no_toolkits_installed": [
         "<yellow>No toolkits installed yet</yellow>",
         "To see all available toolkits, run <cmd>list all toolkits</cmd>",  # Repeat A2
-    ],  # ok
+    ],
     "toolkit_already_installed": lambda toolkit_name: [
         f"The <reset>{toolkit_name}</reset> toolkit was already installed",
         f"To activate this toolkit, run <cmd>set context {toolkit_name.lower()}</cmd>",  # Repeat B2
         f"To see what you can do, run <cmd>{toolkit_name.lower()} ?</cmd>",  # Repeat C2
-    ],  # ok
+    ],
     "no_context_set": "<soft>No context was set</soft>",
     # Success
     "success_set_context": lambda toolkit_name: f"You successfully changed the toolkit context to <yellow>{toolkit_name}</yellow>",
@@ -183,7 +186,7 @@ _messages = {
         f"The <yellow>{toolkit_name}</yellow> toolkit was successfully installed",
         f"To activate this toolkit, run <cmd>set context {toolkit_name.lower()}</cmd>",  # Repeat B2
         f"To see what you can do, run <cmd>{toolkit_name.lower()} ?</cmd>",  # Repeat C2
-    ],  # ok
+    ],
     "success_instructions_txt": lambda toolkit_name: f"The <yellow>{toolkit_name}</yellow> toolkit's instructions.txt file was successfully updated",
     "success_toolkit_remove": lambda toolkit_name: f"The <yellow>{toolkit_name}</yellow> toolkit was removed",
     # Error
@@ -191,15 +194,15 @@ _messages = {
     "fail_toolkit_not_installed": lambda toolkit_name: [
         f"<on_red> The <yellow>{toolkit_name}</yellow> toolkit is not installed </on_red>",
         f"To install it, run <cmd>add toolkit {toolkit_name.lower()}</cmd>",
-    ],  # ok
+    ],
     "fail_this_toolkit_not_installed": lambda toolkit_name: [
         f"<on_red> This toolkit is not installed </on_red>",
         f"To install it, run <cmd>add toolkit {toolkit_name.lower()}</cmd>",
-    ],  # ok
+    ],
     "invalid_toolkit": lambda toolkit_name: [
         f"There is no toolkit named <yellow>{toolkit_name}</yellow> available",
         "Please check your spelling",
-    ],  # ok
+    ],
     "err_load_toolkit": lambda *args: f"There was an error loading the <yellow>{args[0]}</yellow> toolkit",
     # "err_load_toolkit_description": lambda *args: f"There was an error loading 'descriptions.txt' for the <yellow>{args[0]}</yellow> toolkit", # trash
     "err_invalid_description_txt": lambda *args: f"The 'descriptions.txt' for the <yellow>{args[0]}</yellow> toolkit should contain the line:\n<yellow>{args[1]}</yellow>",
@@ -207,7 +210,7 @@ _messages = {
     "err_toolkit_install": lambda toolkit_name, err: [
         f"There was an error installing the <yellow>{toolkit_name}</yellow> toolkit",
         err,
-    ],  # ok
+    ],
     "err_toolkit_remove": lambda toolkit_name, err: [
         f"There was an error removing the <yellow>{toolkit_name}</yellow> toolkit",
         err,
@@ -217,6 +220,7 @@ _messages = {
         "<yellow>" + fwd_expr + "</yellow>",
         err,
     ],
+    "err_deepsearch": lambda err: ["There was an error calling DeepSearch", err],
     # endregion
     ##########################################################################
     # region - MOLECULE GRID
@@ -251,6 +255,7 @@ _messages = {
     "invalid_sdf": lambda err: ["The selected SDF file is invalid", err],
     "invalid_csv": lambda err: ["The selected CSV file is invalid", err],
     "identifier_missing": lambda file_path: ["No identifier (Inchi or SMILES) found in the provided file", file_path],
+    "err_mol_not_on_pubchem": "This molecule is not available on PubChem",
     # endregion
     ##########################################################################
     # region - MOLECULE VIEWER (section to be merged with molecule functions)

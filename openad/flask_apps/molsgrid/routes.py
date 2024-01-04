@@ -24,22 +24,22 @@ def fetchRoutesMolsGrid(cmd_pointer, parser):
     if parser.getName() != "show_molecules_df":
         # Origin file doesn't exist.
         if origin_file and not os.path.exists(workspace_path + origin_file):
-            return None, output_error(msg("err_file_doesnt_exist", origin_file), cmd_pointer)
+            return None, output_error(msg("err_file_doesnt_exist", origin_file))
 
         # Invalid origin file type.
         if origin_file and len(origin_file.strip()) > 0:
             if origin_file.split(".")[-1].lower() not in ["sdf", "csv"]:
-                return None, output_error(msg("err_invalid_file_format", "sdf", "csv"), cmd_pointer)
+                return None, output_error(msg("err_invalid_file_format", "sdf", "csv"))
         else:
-            return None, output_error(msg("err_invalid_file_format", "sdf", "csv"), cmd_pointer)
+            return None, output_error(msg("err_invalid_file_format", "sdf", "csv"))
 
         # Invalid destination file type.
         if results_file is not None:
             if results_file and len(results_file.strip()) > 0:
                 if results_file and results_file.split(".")[-1].lower() not in ["sdf", "csv"]:
-                    return None, output_error(msg("err_invalid_file_format_target", "sdf", "csv"), cmd_pointer)
+                    return None, output_error(msg("err_invalid_file_format_target", "sdf", "csv"))
             else:
-                return None, output_error(msg("err_invalid_file_format_target", "sdf", "csv"), cmd_pointer)
+                return None, output_error(msg("err_invalid_file_format_target", "sdf", "csv"))
 
     # Parameters used to initialize our instance.
     # Used with mols2grid.MolGrid()
@@ -62,7 +62,7 @@ def fetchRoutesMolsGrid(cmd_pointer, parser):
                     mol_frame = _normalize_mol_df(mol_frame, cmd_pointer)
                     the_mols2grid = mols2grid.MolGrid(mol_frame, name=name, smiles_col="SMILES", **m2g_params_init)
                 except BaseException as err:
-                    output_error(msg("err_load_dataframe", err), cmd_pointer, return_val=False)
+                    output_error(msg("err_load_dataframe", err), return_val=False)
                     return False
             elif origin_file.split(".")[-1].lower() == "sdf":
                 # From sdf file
@@ -73,7 +73,7 @@ def fetchRoutesMolsGrid(cmd_pointer, parser):
                     mol_frame = PandasTools.LoadSDF(SDFFile)
                     the_mols2grid = mols2grid.MolGrid(mol_frame, name=name, **m2g_params_init)
                 except BaseException as err:
-                    output_error(msg("err_load_sdf", err), cmd_pointer, return_val=False)
+                    output_error(msg("err_load_sdf", err), return_val=False)
                     return False
             elif origin_file.split(".")[-1].lower() == "csv":
                 # From csv file.
@@ -84,23 +84,23 @@ def fetchRoutesMolsGrid(cmd_pointer, parser):
                     mol_frame = _normalize_mol_df(mol_frame, cmd_pointer)
                     the_mols2grid = mols2grid.MolGrid(mol_frame, name=name, **m2g_params_init)
                 except BaseException as err:
-                    output_error(msg("err_load_csv", err), cmd_pointer, return_val=False)
+                    output_error(msg("err_load_csv", err), return_val=False)
                     return False
             else:
                 # This shouldn't happen because invalid file types are caught above.
-                output_error(msg("err_invalid_file_format", "sdf", "csv"), cmd_pointer, return_val=False)
+                output_error(msg("err_invalid_file_format", "sdf", "csv"), return_val=False)
                 return False
 
             return the_mols2grid, mol_frame
 
         except BaseException as err:
-            output_error(msg("err_m2g_open", err), cmd_pointer)
+            output_error(msg("err_m2g_open", err))
 
     if results_file:
         # In Jupyter "save as" is not allowed, because we don't
         # have a submit button here.
         if cmd_pointer.notebook_mode:
-            return None, output_error(msg("fail_m2g_save_jupyter"), cmd_pointer)
+            return None, output_error(msg("fail_m2g_save_jupyter"))
 
         # If the user has specified a non-existing directory path
         # for the result file, we first need to get permission
@@ -116,25 +116,25 @@ def fetchRoutesMolsGrid(cmd_pointer, parser):
                     if confirm_prompt("Directory does not exist. Create it?"):
                         create_missing_dirs = True
                     else:
-                        return None, output_error(msg("abort"), cmd_pointer)
+                        return None, output_error(msg("abort"))
 
             # If the user has specified a file that already
             # exists, we need to get permission to overwrite it.
             if os.path.exists(workspace_path + results_file):
                 if not confirm_prompt("Destination file already exists. Overwrite?"):
-                    return None, output_error(msg("abort"), cmd_pointer)
+                    return None, output_error(msg("abort"))
 
     # Create the mols2grid object.
     m2g = render_mols2grid()
     if not m2g or not isinstance(m2g, tuple):
-        return None, output_error(msg("fail_render_mols2grid"), cmd_pointer)
+        return None, output_error(msg("fail_render_mols2grid"))
     the_mols2grid, mol_frame = m2g
 
     # Render grid in Jupyter.
     if cmd_pointer.notebook_mode:
         if "object" in parser:
             # Return the mols2grid object.
-            output_text(msg("m2g_tip"), cmd_pointer, return_val=False)  # force_print=True
+            output_text(msg("m2g_tip"), return_val=False)  # force_print=True
             return None, the_mols2grid
         else:
             # Display the grid.
@@ -154,7 +154,7 @@ def fetchRoutesMolsGrid(cmd_pointer, parser):
 
         # If SMILES column is missing from the input file, we abort.
         if "SMILES" not in available_params:
-            return None, output_error(msg("fail_m2g_smiles_col_missing"), cmd_pointer)
+            return None, output_error(msg("fail_m2g_smiles_col_missing"))
 
         #
         # ROUTES
@@ -186,7 +186,7 @@ def fetchRoutesMolsGrid(cmd_pointer, parser):
 
         # @app.route('/exit', methods=['POST'])
         def exit():
-            output_error(msg("abort"), cmd_pointer)
+            output_error(msg("abort"))
             _kill_server()
             return "ok"
 
@@ -236,13 +236,13 @@ def fetchRoutesMolsGrid(cmd_pointer, parser):
 
                 # Success message
                 spinner.stop()
-                output_success(msg("success_m2g_save", len(indexes), parser["results_file"]), cmd_pointer)
+                output_success(msg("success_m2g_save", len(indexes), parser["results_file"]))
             else:
                 # Display results
                 note = None  # 'To see what you can do next, run <cmd>next ?</cmd>'
                 spinner.stop()
-                output_success(msg("success_m2g_select", len(indexes)), cmd_pointer, pad_top=1)
-                output_table(filtered_df, cmd_pointer, note=note)
+                output_success(msg("success_m2g_select", len(indexes)), pad_top=1)
+                output_table(filtered_df, note=note)
 
             # Shut down server
             _kill_server()
@@ -261,8 +261,8 @@ def fetchRoutesMolsGrid(cmd_pointer, parser):
         # - -
         # Display loading animation.
         # from helpers.general import loader
-        # text = output_text('<link>http://127.0.0.1:5000</link>', cmd_pointer, return_val=True)
-        # exit_msg = return output_error(msg('abort'), cmd_pointer, return_val=True)
+        # text = output_text('<link>http://127.0.0.1:5000</link>', return_val=True)
+        # exit_msg = return output_error(msg('abort'), return_val=True)
         # loader(text, ',.-*°*-.', exit_msg=exit_msg, no_format=True, on_abort=_kill_server)
 
         routes = {
@@ -300,7 +300,7 @@ def _normalize_mol_df(mol_df: pandas.DataFrame, cmd_pointer):
     # Add names when missing.
     try:
         if "NAME" not in mol_df.columns:
-            output_warning(msg("no_m2g_name_column"), cmd_pointer)
+            output_warning(msg("no_m2g_name_column"))
             spinner.start("Downloading names")
             mol_df["NAME"] = "unknown"
             for i in mol_df.itertuples():

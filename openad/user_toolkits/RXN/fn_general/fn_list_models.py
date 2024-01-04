@@ -1,7 +1,7 @@
 """Lists available RXN Models"""
 
 _tableformat = "simple"
-from openad.helpers.LEGACY_output import output_table
+from openad.helpers.output import output_table
 
 
 def list_models(inputs: dict, cmd_pointer):

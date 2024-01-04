@@ -57,7 +57,7 @@ def list_files(cmd_pointer, parser):
     # len(files_data) == 1
     if not non_hidden_files:
         workspace_name = cmd_pointer.settings["workspace"].upper()
-        return output_text(msg("no_workspace_files", workspace_name), cmd_pointer, pad=1)
+        return output_text(msg("no_workspace_files", workspace_name), pad=1)
 
     # Assemble table data.
     for name, size, timestamp in sorted(files_data, key=lambda x: x[1], reverse=True):
@@ -77,7 +77,7 @@ def list_files(cmd_pointer, parser):
         files.append(result)
 
     # Display/return table.
-    return output_table(files, cmd_pointer, headers=table_headers)
+    return output_table(files, is_data=False, headers=table_headers)
 
 
 # External path to workspace path
@@ -98,11 +98,11 @@ def import_file(cmd_pointer, parser):
 
     if not os.path.exists(source_file):
         # Source does not exist
-        return output_error(msg("err_file_doesnt_exist", source_file), cmd_pointer)
+        return output_error(msg("err_file_doesnt_exist", source_file))
     elif os.path.exists(workspace_path + "/" + dest_file):
         # Destination already exists
         if not confirm_prompt("Destination file already exists. Overwrite?"):
-            return output_error(msg("abort"), cmd_pointer)
+            return output_error(msg("abort"))
 
     try:
         # Success
@@ -112,10 +112,10 @@ def import_file(cmd_pointer, parser):
         else:
             # @later: Change language to reflect dir instead of file
             shutil.copytree(source_file, workspace_path + "/" + dest_file)
-        return output_success(msg("success_import", source_file, workspace_name), cmd_pointer)
+        return output_success(msg("success_import", source_file, workspace_name))
     except Exception as err:
         # Failure
-        return output_error(msg("err_import", err), cmd_pointer)
+        return output_error(msg("err_import", err))
 
 
 # Workspace path to external path
@@ -133,19 +133,19 @@ def export_file(cmd_pointer, parser):
 
     if not os.path.exists(workspace + "/" + source_file):
         # Source does not exist
-        return output_error(msg("err_file_doesnt_exist", workspace + "/" + source_file), cmd_pointer)
+        return output_error(msg("err_file_doesnt_exist", workspace + "/" + source_file))
 
     elif os.path.exists(dest_file) is True:
         # Destination already exists
         if not confirm_prompt("Destination file already exists. Overwrite?"):
-            return output_error(msg("abort"), cmd_pointer)
+            return output_error(msg("abort"))
     try:
         # Success
         shutil.copyfile(workspace + "/" + source_file, dest_file)
-        return output_success(msg("success_export", source_file, workspace_name, dest_file), cmd_pointer)
+        return output_success(msg("success_export", source_file, workspace_name, dest_file))
     except Exception as err:
         # Failure
-        return output_error(msg("err_export", err), cmd_pointer)
+        return output_error(msg("err_export", err))
 
 
 # Workspace path to workspace name
@@ -162,24 +162,24 @@ def copy_file(cmd_pointer, parser):
 
     if not os.path.exists(source_file_path):
         # Source does not exist
-        return output_error(msg("err_file_doesnt_exist", source_file_path), cmd_pointer)
+        return output_error(msg("err_file_doesnt_exist", source_file_path))
     elif (
         parser["destination"].upper() != source_workspace_name
         and dest_workspace_name not in cmd_pointer.settings["workspaces"]
     ):
         # Invalid destination
-        return output_error(msg("invalid_workpace_destination", parser["destination"].upper()), cmd_pointer)
+        return output_error(msg("invalid_workpace_destination", parser["destination"].upper()))
     elif os.path.exists(dest_file_path) is True:
         # Destination already exists
         if not confirm_prompt("Destination file already exists. Overwrite?"):
-            return output_error(msg("abort"), cmd_pointer)
+            return output_error(msg("abort"))
     try:
         # Success
         shutil.copyfile(source_file_path, dest_file_path)
-        return output_success(msg("success_copy", source_file, source_workspace_name, dest_workspace_name), cmd_pointer)
+        return output_success(msg("success_copy", source_file, source_workspace_name, dest_workspace_name))
     except Exception as err:
         # Failure
-        return output_error(msg("err_copy", err), cmd_pointer)
+        return output_error(msg("err_copy", err))
 
 
 # Workspace path
@@ -192,14 +192,14 @@ def remove_file(cmd_pointer, parser):
 
     if not os.path.exists(file_path):
         # Source does not exist
-        return output_error(msg("err_file_doesnt_exist", file_path), cmd_pointer)
+        return output_error(msg("err_file_doesnt_exist", file_path))
     if not confirm_prompt("Are you sure? This cannot be undone."):
         # Confirm prompt
-        return output_error(msg("abort"), cmd_pointer)
+        return output_error(msg("abort"))
     try:
         # Success
         os.remove(file_path)
-        return output_success(msg("success_delete", file_name, workspace_name), cmd_pointer)
+        return output_success(msg("success_delete", file_name, workspace_name))
     except Exception as err:
         # Failure
-        return output_error(msg("err_delete", err), cmd_pointer)
+        return output_error(msg("err_delete", err))

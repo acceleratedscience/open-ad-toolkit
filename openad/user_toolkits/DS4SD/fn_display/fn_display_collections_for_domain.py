@@ -1,6 +1,6 @@
 """ Displays a Domains Collections"""
 import pandas as pd
-from openad.helpers.LEGACY_output import output_table
+from openad.helpers.output import output_table
 
 _tableformat = "simple"
 
@@ -24,4 +24,4 @@ def display_collections_for_domain(inputs: dict, cmd_pointer):
         return pd.DataFrame(results)
     else:
         collectives = pd.DataFrame(results)
-        output_table(collectives, cmd_pointer, tablefmt=_tableformat)
+        output_table(collectives, tablefmt=_tableformat)

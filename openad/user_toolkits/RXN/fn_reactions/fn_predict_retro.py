@@ -2,8 +2,7 @@
 
 from typing import Dict, List
 import importlib.util as ilu
-from openad.helpers.LEGACY_output import output_text
-from openad.helpers.LEGACY_output import output_error
+from openad.helpers.output import output_text, output_error
 from rdkit import Chem
 from rdkit.Chem import AllChem
 from time import sleep
@@ -94,7 +93,7 @@ def predict_retro(inputs: dict, cmd_pointer):
     #######################
 
     if not valid_smiles(str(product_smiles)):
-        output_error(" Invalid Smiles Supplied.", cmd_pointer=cmd_pointer, return_val=False)
+        output_error(" Invalid Smiles Supplied.", return_val=False)
         return False
     else:
         product_smiles = canonical_smiles(product_smiles)
@@ -102,7 +101,6 @@ def predict_retro(inputs: dict, cmd_pointer):
     if len(product_smiles.split(".")) > 1:
         output_error(
             " SMILES provides describes a reaction. Use `predict reaction` to see probable result",
-            cmd_pointer=cmd_pointer,
             return_val=False,
         )
         return False
@@ -122,7 +120,7 @@ def predict_retro(inputs: dict, cmd_pointer):
         view.setStyle({style: {}})
         view.zoomTo()
         view.show()
-        output_text("<success>Target Molecule:</success> " + product_smiles, cmd_pointer=cmd_pointer, return_val=False)
+        output_text("<green>Target Molecule:</green> " + product_smiles, return_val=False)
     #######################
     result_parameters = {}
     if "availability_pricing_threshold" in inputs:
@@ -214,7 +212,6 @@ def predict_retro(inputs: dict, cmd_pointer):
                 if predict_retro_response["response"]["payload"] is None:
                     output_text(
                         "<h2>No Result:</h2>  Unable to find path for  " + product_smiles,
-                        cmd_pointer=cmd_pointer,
                         return_val=False,
                     )
                     if cmd_pointer.notebook_mode is True:
@@ -268,32 +265,28 @@ def predict_retro(inputs: dict, cmd_pointer):
             num_results = num_results + 1
             output_text(
                 "",
-                cmd_pointer=cmd_pointer,
                 return_val=False,
             )
             if num_results < 4:
                 results[str(index)] = {"confidence": tree["confidence"], "reactions": []}
 
             output_text(
-                "<h2> <success>Showing path </success> {} <success> with confidence </success>{}:".format(
+                "<h2> <green>Showing path </green> {} <green> with confidence </green>{}:".format(
                     index, tree["confidence"]
                 )
                 + "</h2>",
-                cmd_pointer=cmd_pointer,
                 return_val=False,
             )
 
             for reaction in collect_reactions_from_retrosynthesis(tree):
                 if num_results < 4:
                     results[str(index)]["reactions"].append(reactions_text[i])
-                output_text(
-                    "<success> Reaction: </success>" + reactions_text[i], cmd_pointer=cmd_pointer, return_val=False
-                )
+                output_text("<green> Reaction: </green>" + reactions_text[i], return_val=False)
                 i = i + 1
                 if cmd_pointer.notebook_mode is True:
                     display(Chem.Draw.ReactionToImage(reaction))
                 else:
-                    output_text("", cmd_pointer=cmd_pointer, return_val=False)
+                    output_text("", return_val=False)
 
         save_result(
             create_analysis_record(product_smiles, "RXN", "Predict_Retrosynthesis", result_parameters, results),
@@ -302,7 +295,6 @@ def predict_retro(inputs: dict, cmd_pointer):
     except Exception as e:  # pylint: disable=broad-exception
         output_error(
             "The following error message was received while trying to display results: " + str(e),
-            cmd_pointer=cmd_pointer,
             return_val=False,
         )
         return False

@@ -4,10 +4,8 @@ import pandas as pd
 from deepsearch.chemistry.queries.molecules import PatentsWithMoleculesQuery
 from deepsearch.chemistry.queries.molecules import MolId, MolIdType
 from rdkit import Chem
-from openad.helpers.LEGACY_output import output_table
-from openad.helpers.LEGACY_output import output_error
-from openad.helpers.LEGACY_output import output_text
-from openad.helpers.LEGACY_output import output_warning
+from openad.helpers.output import output_text, output_success, output_warning, output_error, output_table
+from openad.helpers.output_msgs import msg
 from openad.molecules.molecule_cache import create_analysis_record, save_result
 from openad.molecules.mol_functions import canonical_smiles, valid_smiles
 from openad.molecules.mol_commands import property_retrieve
@@ -62,16 +60,12 @@ def search_patents_cont_molecule(inputs: dict, cmd_pointer):
                 num_items=20,
             )
             result_type = "Inchi Key"
-            output_warning(
-                "String is Not a Smiles or Inchi attemnting Inchikey search: ",
-                cmd_pointer=cmd_pointer,
-                return_val=False,
-            )
+            output_warning("String is Not a Smiles or Inchi attemnting Inchikey search: ", return_val=False)
 
         resp = api.queries.run(query)
 
     except Exception as e:  # pylint: disable=broad-exception-caught
-        output_error("Error in calling deepsearch:" + str(e), cmd_pointer=cmd_pointer, return_val=False)
+        output_error("Error in calling deepsearch:" + str(e), return_val=False)
         return False
     results_table = []
 
@@ -93,16 +87,12 @@ def search_patents_cont_molecule(inputs: dict, cmd_pointer):
             cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/" + results_file, index=False
         )
         df = df.replace(np.nan, "", regex=True)
-        output_text(
-            "\n <success>File successfully saved to workspace.</success>", cmd_pointer=cmd_pointer, return_val=False
-        )
-    output_text("", cmd_pointer=cmd_pointer, return_val=False)
+        output_success(msg("success_file_saved"), return_val=False)
     output_text(
-        " <h2>  Patent Search Results for " + result_type + " molecule:</h2> ",
-        cmd_pointer=cmd_pointer,
+        "\n<h2>Patent Search Results for " + result_type + " molecule:</h2> ",
         return_val=False,
     )
-    output_text(inputs["smiles"], cmd_pointer=cmd_pointer, return_val=False)
+    output_text(inputs["smiles"], return_val=False)
     save_result(
         create_analysis_record(
             property_retrieve(inputs["smiles"], "canonical_smiles", cmd_pointer),
@@ -115,4 +105,4 @@ def search_patents_cont_molecule(inputs: dict, cmd_pointer):
     )
 
     table = pd.DataFrame(results_table)
-    return output_table(table, cmd_pointer, tablefmt=_tableformat)
+    return output_table(table, tablefmt=_tableformat)

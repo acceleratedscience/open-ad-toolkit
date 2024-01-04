@@ -13,7 +13,8 @@ from rdkit.Chem import AllChem
 
 
 from openad.helpers.general import confirm_prompt
-from openad.helpers.LEGACY_output import output_text, output_table, output_warning
+from openad.helpers.output import output_text, output_table, output_warning, output_error
+from openad.helpers.output_msgs import msg
 from openad.molecules.mol_functions import canonical_smiles
 
 from openad.molecules.mol_functions import (
@@ -59,7 +60,7 @@ def display_molecule(cmd_pointer, inp):
             print_string = format_identifers(mol) + "\n" + format_properties(mol) + "\n" + format_analysis(mol)
             # return print_s(print_string)
         else:
-            print_s("molecule not available on pubchem")
+            output_error(msg("err_mol_not_on_pubchem"))
             return None
     if cmd_pointer.notebook_mode is True:
         import py3Dmol
@@ -125,7 +126,7 @@ def add_molecule(cmd_pointer, inp, force=False):
     else:
         mol = retrieve_mol(molecule_identifier)
     if mol is None:
-        output_text("Unable to identify molecule", cmd_pointer=cmd_pointer, return_val=False)
+        output_text("Unable to identify molecule", return_val=False)
         return True
 
     identifier = mol["name"] + "   " + mol["properties"]["canonical_smiles"]
@@ -207,7 +208,7 @@ def list_molecules(cmd_pointer, inp):
             display_list = pd.concat([display_list, pd.DataFrame([identifiers])])
         return display_list
     else:
-        return output_text("No Molecules in List", cmd_pointer=cmd_pointer)
+        return output_text("No Molecules in List")
 
 
 def retrieve_mol_from_list(cmd_pointer, molecule):
@@ -261,7 +262,7 @@ def export_molecule_set(cmd_pointer, inp):
         return moleculelist_to_data_frame(cmd_pointer.molecule_list.copy())
     else:
         if "csv_file_name" not in inp.as_dict():
-            output_warning("WARNING no File Name Provided, reverting to Default.")
+            output_warning(msg("war_no_filename_provided", "mols_export.csv"))
             csv_file_name = "mols_export"
         else:
             csv_file_name = inp.as_dict()["csv_file_name"]
@@ -510,7 +511,7 @@ def list_molsets(cmd_pointer):
             in_list.append(molset)
             molsets.append([molset])
     if len(in_list) > 0:
-        return output_table(molsets, cmd_pointer=cmd_pointer, headers=["Stored Molecule Sets"])
+        return output_table(molsets, is_data=False, headers=["Stored Molecule Sets"])
     return True
 
 

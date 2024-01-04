@@ -1,7 +1,7 @@
 """ Interprets a free text paragraph into a set of Recipe instructions """
 import os
 import importlib.util as ilu
-from openad.helpers.LEGACY_output import output_text
+from openad.helpers.output import output_text
 
 list_of_reactions = []
 
@@ -28,7 +28,6 @@ def interpret_recipe(inputs: dict, cmd_pointer):
     ):
         output_text(
             f"Attempting to Open and Process Recipe in Workspace File: <green> {recipe} </green>",
-            cmd_pointer=cmd_pointer,
             return_val=False,
         )
         with open(
@@ -56,7 +55,7 @@ def interpret_recipe(inputs: dict, cmd_pointer):
         if cmd_pointer.notebook_mode is True:
             return Markdown("".join(return_result))
         else:
-            return output_text("\n" + "".join(return_result) + "\n", cmd_pointer=cmd_pointer)
+            return output_text("\n" + "".join(return_result) + "\n")
     except Exception as e:
         raise Exception(
             "unable to to turn paragraph to actions:" + str(e)

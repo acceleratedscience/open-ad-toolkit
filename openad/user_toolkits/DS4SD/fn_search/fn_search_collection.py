@@ -5,9 +5,8 @@ import readline
 import numpy as np
 from deepsearch.cps.client.components.elastic import ElasticDataCollectionSource
 from deepsearch.cps.queries import DataQuery
-from openad.helpers.LEGACY_output import output_table
-from openad.helpers.LEGACY_output import output_text
-from openad.helpers.LEGACY_output import output_error
+from openad.helpers.output import output_text, output_table, output_error
+from openad.helpers.output_msgs import msg
 
 # Importing our own plugins.
 # This is temporary until every plugin is available as a public pypi package.
@@ -62,7 +61,7 @@ def search_collection(inputs: dict, cmd_pointer):
     if "collection" in inputs:
         val_index_key = inputs["collection"]
     else:
-        output_error("No collection_key suppled. ", cmd_pointer=cmd_pointer, return_val=False)
+        output_error("No collection_key suppled. ", return_val=False)
         return False
     if "elastic_id" in inputs:
         val_elastic_id = inputs["elastic_id"][val]
@@ -96,25 +95,21 @@ def search_collection(inputs: dict, cmd_pointer):
         for c in collections
     ]
     if val_elastic_id not in elastic_list:
-        output_error("Invalid system_id, please choose from the following: ", cmd_pointer=cmd_pointer, return_val=False)
+        output_error("Invalid system_id, please choose from the following: ", return_val=False)
         collectives = pd.DataFrame(result)
         if cmd_pointer.notebook_mode is True:
-            display.display(output_table(collectives, cmd_pointer=cmd_pointer))
+            display.display(output_table(collectives))
         else:
-            output_table(collectives, cmd_pointer=cmd_pointer)
+            output_table(collectives)
         return False
     if val_index_key not in index_list and val_index_key not in index_name_list:
-        output_error(
-            "Invalid collection key or name, please choose from the following: ",
-            cmd_pointer=cmd_pointer,
-            return_val=False,
-        )
+        output_error("Invalid collection key or name, please choose from the following: ", return_val=False)
         collectives = pd.DataFrame(result)
 
         if cmd_pointer.notebook_mode is True:
-            display.display(output_table(collectives, cmd_pointer=cmd_pointer))
+            display.display(output_table(collectives))
         else:
-            output_table(collectives, cmd_pointer=cmd_pointer)
+            output_table(collectives)
         return False
 
     if val_index_key in index_name_list:
@@ -169,10 +164,10 @@ def search_collection(inputs: dict, cmd_pointer):
     expected_pages = (expected_total + page_size - 1) // page_size  # this is simply a ceiling formula
 
     if "estimate_only" in inputs:
-        output_text("Expected Results Estimate: " + str(expected_total), cmd_pointer=cmd_pointer, return_val=False)
+        output_text("Expected Results Estimate: " + str(expected_total), return_val=False)
         return None
     else:
-        output_text("\n Expected Results Estimate: " + str(expected_total), cmd_pointer=cmd_pointer, return_val=False)
+        output_text("\n Expected Results Estimate: " + str(expected_total), return_val=False)
         if expected_total > 100:
             if confirm_prompt("Your results may take some time to return, do you wish to proceed") is False:
                 return None
@@ -183,7 +178,7 @@ def search_collection(inputs: dict, cmd_pointer):
     try:
         cursor = api.queries.run_paginated_query(query)
     except Exception as e:  # pylint: disable=broad-exception-caught
-        output_error("Error in calling deepsearch:" + str(e), cmd_pointer=cmd_pointer, return_val=False)
+        output_error("Error in calling deepsearch:" + str(e), return_val=False)
         return False
 
     for result_page in tqdm(cursor, total=expected_pages):
@@ -201,11 +196,11 @@ def search_collection(inputs: dict, cmd_pointer):
         if cmd_pointer.notebook_mode is True:
             if len(df.columns) > 1:
                 display.display(output_text("<h2>Distribution of Returned Documents by Year</h2>"))
-                display.display(output_table(df, cmd_pointer=cmd_pointer))
+                display.display(output_table(df))
         elif all_aggs != {}:
             if len(df.columns) > 1:
                 output_text("\n<h1>Distribution of Returned Documents by Year</h1>")
-                output_table(df, cmd_pointer=cmd_pointer)
+                output_table(df)
 
     pd.set_option("display.max_colwidth", None)
     x = 0
@@ -274,7 +269,7 @@ def search_collection(inputs: dict, cmd_pointer):
         results_table.append(result)
 
     if result is None:
-        output_text("Search returned no result", cmd_pointer=cmd_pointer, return_val=False)
+        output_text("Search returned no result", return_val=False)
         return None
     if "save_as" in inputs:
         results_file = str(inputs["results_file"])
@@ -319,7 +314,7 @@ def search_collection(inputs: dict, cmd_pointer):
                 cmd_line_result2 = cmd_line_result.truncate(after=display_first)
             else:
                 cmd_line_result2 = cmd_line_result
-            output_table(cmd_line_result2.replace(np.nan, "", regex=True), cmd_pointer, tablefmt=_tableformat)
+            output_table(cmd_line_result2.replace(np.nan, "", regex=True), tablefmt=_tableformat)
 
 
 def confirm_prompt(question: str) -> bool:

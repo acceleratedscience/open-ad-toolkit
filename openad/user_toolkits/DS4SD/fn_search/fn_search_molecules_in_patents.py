@@ -5,9 +5,8 @@ from rdkit.Chem import PandasTools
 from rdkit import Chem
 import pandas as pd
 from deepsearch.chemistry.queries.molecules import MoleculesInPatentsQuery
-from openad.helpers.LEGACY_output import output_table
-from openad.helpers.LEGACY_output import output_error
-from openad.helpers.LEGACY_output import output_text
+from openad.helpers.output import output_text, output_error, output_table, output_success
+from openad.helpers.output_msgs import msg
 
 
 _tableformat = "simple"
@@ -43,10 +42,9 @@ def search_molecules_in_patents(inputs: dict, cmd_pointer):
         except Exception:  # pylint: disable=broad-except
             output_error(
                 "Unexpected pyparsing error. Please screenshot and report circumstance to OpenAD team",
-                cmd_pointer=cmd_pointer,
                 return_val=False,
             )
-            output_error("Restart Notebook Kernel or application to proceed", cmd_pointer=cmd_pointer, return_val=False)
+            output_error("Restart Notebook Kernel or application to proceed", return_val=False)
             return False
 
     elif "from_list" in inputs["from_source"][0]:
@@ -55,10 +53,9 @@ def search_molecules_in_patents(inputs: dict, cmd_pointer):
         except Exception:  # pylint: disable=broad-except
             output_error(
                 "Unexpected pyparsing error. Please screenshot and report circumstance to OpenAD team",
-                cmd_pointer=cmd_pointer,
                 return_val=False,
             )
-            output_error("Restart Notebook Kernel or application to proceed", cmd_pointer=cmd_pointer, return_val=False)
+            output_error("Restart Notebook Kernel or application to proceed", return_val=False)
             return False
     elif "from_dataframe" in inputs:
         try:
@@ -71,7 +68,6 @@ def search_molecules_in_patents(inputs: dict, cmd_pointer):
         except Exception as err:  # pylint: disable=broad-except
             output_error(
                 "Could not load valid list from dataframe column column 'PATENT ID' or 'patent id' " + str(err),
-                cmd_pointer=cmd_pointer,
                 return_val=False,
             )
             return True
@@ -87,7 +83,6 @@ def search_molecules_in_patents(inputs: dict, cmd_pointer):
         except Exception:  # pylint: disable=broad-except
             output_error(
                 "Could not load valid list from file column 'PATENT ID' or 'patent id' ",
-                cmd_pointer=cmd_pointer,
                 return_val=False,
             )
             return True
@@ -116,7 +111,7 @@ def search_molecules_in_patents(inputs: dict, cmd_pointer):
             results_table.append(result)
 
     except Exception as e:  # pylint: disable=broad-except
-        output_error("Error in calling deepsearch:" + str(e), cmd_pointer=cmd_pointer, return_val=False)
+        output_error("Error in calling deepsearch:" + str(e), return_val=False)
         return False
     if "save_as" in inputs:
         results_file = str(inputs["results_file"])
@@ -127,12 +122,9 @@ def search_molecules_in_patents(inputs: dict, cmd_pointer):
             cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/" + results_file, index=False
         )
         df = df.replace(np.nan, "", regex=True)
-        output_text(
-            "\n <success>File successfully saved to workspace.</success>", cmd_pointer=cmd_pointer, return_val=False
-        )
-    output_text(" ", cmd_pointer=cmd_pointer, return_val=False)
-    output_text("<h2>Molecules Mentioned in listed Patents:</h2>", cmd_pointer=cmd_pointer, return_val=False)
-    output_text(" / ".join(from_list) + "", cmd_pointer=cmd_pointer, return_val=False)
+        output_success(msg("success_file_saved"), return_val=False)
+    output_text("\n<h2>Molecules Mentioned in listed Patents:</h2>", return_val=False)
+    output_text(" / ".join(from_list), return_val=False)
 
     if cmd_pointer.notebook_mode is True:
         df = pd.DataFrame(results_table)
@@ -145,4 +137,4 @@ def search_molecules_in_patents(inputs: dict, cmd_pointer):
         return df
     else:
         table = pd.DataFrame(results_table)
-        output_table(table, cmd_pointer, tablefmt=_tableformat)
+        output_table(table, tablefmt=_tableformat)

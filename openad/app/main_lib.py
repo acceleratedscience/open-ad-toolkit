@@ -76,7 +76,7 @@ from openad.app.global_var_lib import _all_toolkits
 from openad.app.global_var_lib import MEMORY
 
 # Helpers
-from openad.helpers.output import output_text, output_error, output_warning, output_success, output_table
+from openad.helpers.output import output_text, output_error, output_success, output_table
 from openad.helpers.output_msgs import msg
 from openad.helpers.general import refresh_prompt, user_input, validate_file_path, ensure_file_path
 from openad.helpers.splash import splash
@@ -154,7 +154,7 @@ def lang_parse(cmd_pointer, parser):
     # Run commands
     elif parser.getName() == "create_run":
         # This simply works off the history file entry no procedure needed.
-        return output_text(msg("create_run_started"), cmd_pointer, pad=1, nowrap=True)
+        return output_text(msg("create_run_started"), pad=1, nowrap=True)
     elif parser.getName() == "save_run":
         try:
             return save_run(cmd_pointer, parser)
@@ -270,7 +270,7 @@ def lang_parse(cmd_pointer, parser):
             Exception  # pylint: disable=broad-exception-caught
         ) as err:  # do not care what exception is, just returning failure
             err = err + "\n" + str(parser.asList())
-            return output_error(msg("fail_toolkit_exec_cmd"), cmd_pointer)
+            return output_error(msg("fail_toolkit_exec_cmd"))
 
     # Development commands (unpublished in help)
     elif parser.getName() == "flask_example":
@@ -326,7 +326,7 @@ def get_status(cmd_pointer, parser):  # pylint: disable=unused-argument # generi
             "<soft>To see more details, run <cmd>get workspace</cmd> or <cmd>get context</cmd>.</soft>",
         )
     )
-    return output_text(status, cmd_pointer, nowrap=True, pad=1)
+    return output_text(status, nowrap=True, pad=1)
 
 
 # List the installed toolkits.
@@ -342,10 +342,10 @@ def list_toolkits(cmd_pointer, parser):  # pylint: disable=unused-argument # gen
 
     # No toolkits installed yet.
     if len(toolkits) == 0:
-        return output_text(msg("no_toolkits_installed"), cmd_pointer, pad=1)
+        return output_text(msg("no_toolkits_installed"), pad=1)
 
     # Display/return table.
-    return output_table(toolkits, cmd_pointer, headers=table_headers, note=msg("all_toolkits_currently_installed"))
+    return output_table(toolkits, is_data=False, headers=table_headers, note=msg("all_toolkits_currently_installed"))
 
 
 # List all available toolkits
@@ -369,7 +369,7 @@ def list_all_toolkits(cmd_pointer, parser):  # pylint: disable=unused-argument #
                 toolkits[i][j] = f"<soft>{col_text}</soft>"
 
     # Display/return table.
-    return output_table(toolkits, cmd_pointer, headers=table_headers)
+    return output_table(toolkits, is_data=False, headers=table_headers)
 
 
 # Set the context of the application to and existing toolkit.
@@ -387,7 +387,7 @@ def set_context(cmd_pointer, parser):
 
     # Handle login error.
     def _handle_login_error(err):
-        output_error(msg("err_login", toolkit_name, err), cmd_pointer=cmd_pointer, return_val=False)
+        output_error(msg("err_login", toolkit_name, err), return_val=False)
         cmd_pointer.settings["context"] = old_cmd_pointer_context
         cmd_pointer.toolkit_current = old_toolkit_current
         unset_context(cmd_pointer, None)
@@ -397,7 +397,7 @@ def set_context(cmd_pointer, parser):
         #     return get_context(cmd_pointer, parser)
 
         # Toolkit doesn't exist.
-        return output_error(msg("fail_toolkit_not_installed", toolkit_name), cmd_pointer, nowrap=True)
+        return output_error(msg("fail_toolkit_not_installed", toolkit_name), nowrap=True)
 
     else:
         old_cmd_pointer_context = cmd_pointer.settings["context"]
@@ -432,11 +432,7 @@ def set_context(cmd_pointer, parser):
             # Success switching context & loggin in.
             if old_cmd_pointer_context != cmd_pointer.settings["context"]:
                 if cmd_pointer.notebook_mode or cmd_pointer.api_mode:
-                    return output_success(
-                        msg("success_login", toolkit_name, expiry_datetime),
-                        cmd_pointer=cmd_pointer,
-                        return_val=False,
-                    )
+                    return output_success(msg("success_login", toolkit_name, expiry_datetime), return_val=False)
                 else:
                     return output_text(splash(toolkit_name, cmd_pointer), nowrap=True)
 
@@ -444,7 +440,7 @@ def set_context(cmd_pointer, parser):
             # Failed to load the toolkit
             cmd_pointer.settings["context"] = old_cmd_pointer_context
             cmd_pointer.toolkit_current = old_toolkit_current
-            return output_error(msg("err_load_toolkit", toolkit_name), cmd_pointer)
+            return output_error(msg("err_load_toolkit", toolkit_name))
 
 
 # Display your current context.
@@ -458,7 +454,7 @@ def get_context(cmd_pointer, parser):  # pylint: disable=unused-argument # gener
 def unset_context(cmd_pointer, parser):  # pylint: disable=unused-argument # generic pass through used or unused
     """Unsets current toolkit Context"""
     if cmd_pointer.settings["context"] is None:
-        return output_text(msg("no_context_set"), cmd_pointer, pad=1)
+        return output_text(msg("no_context_set"), pad=1)
     cmd_pointer.settings["context"] = None
     cmd_pointer.toolkit_current = None
     cmd_pointer.current_help.reset_help()
@@ -506,7 +502,7 @@ def display_history(cmd_pointer, parser):  # pylint: disable=unused-argument # g
             Exception  # pylint: disable=broad-exception-caught
             # do not care what exception is, just returning failure
         ) as err:
-            output_error(msg("err_fetch_history", err), cmd_pointer)
+            output_error(msg("err_fetch_history", err))
             i = 31
 
     # Add ellipsis if history is longer than 30 items.
@@ -515,7 +511,7 @@ def display_history(cmd_pointer, parser):  # pylint: disable=unused-argument # g
     history.reverse()
 
     # Display/return table.
-    return output_table(history, cmd_pointer, headers=["", "Command History"])
+    return output_table(history, is_data=False, headers=["", "Command History"])
 
 
 # Display a csv file in a table.
@@ -536,18 +532,18 @@ def display_data(cmd_pointer, parser):
             # From csv file.
             try:
                 df = pd.read_csv(workspace_path + file_path)
-                return output_table(df, cmd_pointer, is_data=True)
+                return output_table(df)
             except FileNotFoundError:
-                return output_error(msg("err_file_doesnt_exist", file_path), cmd_pointer)
+                return output_error(msg("err_file_doesnt_exist", file_path))
             except Exception as err:  # pylint: disable=broad-exception-caught
                 # do not care what exception is, just returning failure
-                return output_error(msg("err_load_csv", err), cmd_pointer)
+                return output_error(msg("err_load_csv", err))
         else:
             # Other file formats --> error.
-            return output_error(msg("err_invalid_file_format", "csv"), cmd_pointer)
+            return output_error(msg("err_invalid_file_format", "csv"))
 
     except Exception as err:  # pylint: disable=broad-exception-caught
-        output_error(msg("err_unknown", err), cmd_pointer)
+        output_error(msg("err_unknown", err))
 
 
 # --> Save data to a csv file.
@@ -578,9 +574,9 @@ def display_data__save(cmd_pointer, parser):
     # Save data to file.
     if file_path_ok:
         data.to_csv(workspace_path + file_path, index=False)
-        return output_success(msg("success_save_data", file_path), cmd_pointer)
+        return output_success(msg("success_save_data", file_path))
     else:
-        return output_error(msg("err_save_data"), cmd_pointer)
+        return output_error(msg("err_save_data"))
 
 
 # --> Open data in browser UI.
@@ -628,7 +624,7 @@ def display_data__display(cmd_pointer, parser):  # pylint: disable=unused-argume
 
     is_df = isinstance(data, pd.DataFrame)
     if is_df:
-        return output_table(data, cmd_pointer, is_data=True)
+        return output_table(data)
     else:
         return output_text(data, pad=1)
 
@@ -663,6 +659,6 @@ def edit_config(cmd_pointer, parser):
         # JSON file not found, create new from schema.
         edit_json(file_to_edit, schema, new=True)  # pylint: disable=not-callable # it is callable
     else:
-        return output_error(msg("err_file_doesnt_exist", parser.as_dict()["json_file"]), cmd_pointer)
+        return output_error(msg("err_file_doesnt_exist", parser.as_dict()["json_file"]))
 
     return True

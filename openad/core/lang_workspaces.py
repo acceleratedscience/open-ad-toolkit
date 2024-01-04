@@ -10,7 +10,8 @@ from openad.core.lang_sessions_and_registry import write_registry, update_main_r
 # Global variables
 
 # Helpers
-from openad.helpers.LEGACY_output import msg, output_text, output_error, output_warning, output_success, output_table
+from openad.helpers.output import output_text, output_error, output_warning, output_success, output_table
+from openad.helpers.output_msgs import msg
 from openad.helpers.general import other_sessions_exist, user_input
 from openad.helpers.spinner import spinner
 
@@ -22,10 +23,10 @@ def set_workspace(cmd_pointer, parser):
     current_workspace_name = cmd_pointer.settings["workspace"].upper()
     new_workspace_name = parser["Workspace_Name"].upper()
     if new_workspace_name not in cmd_pointer.settings["workspaces"]:
-        return output_error(msg("invalid_workpace", new_workspace_name), cmd_pointer)
+        return output_error(msg("invalid_workpace", new_workspace_name))
 
     elif new_workspace_name == current_workspace_name:
-        return output_warning(msg("warn_workspace_already_active", new_workspace_name), cmd_pointer)
+        return output_warning(msg("warn_workspace_already_active", new_workspace_name))
     else:
         cmd_pointer.settings["workspace"] = new_workspace_name
         write_registry(cmd_pointer.settings, cmd_pointer)
@@ -39,7 +40,7 @@ def set_workspace(cmd_pointer, parser):
             readline.write_history_file(cmd_pointer.histfile)
 
         readline.write_history_file(cmd_pointer.histfile)
-        return output_success(msg("success_workspace_set", new_workspace_name), cmd_pointer)
+        return output_success(msg("success_workspace_set", new_workspace_name))
 
 
 # list the available workspaces....
@@ -56,20 +57,18 @@ def list_workspaces(cmd_pointer, parser):
             if cmd_pointer.notebook_mode:
                 name_formatted = f"* {name}"
             else:
-                name_formatted = output_text(f"* <green>{name}</green>", cmd_pointer, return_val=True)
+                name_formatted = output_text(f"* <green>{name}</green>", return_val=True)
         else:
             name_formatted = name
 
         # Add 'No description' if no description is available.
         if not cmd_pointer.settings["descriptions"][name]:
-            cmd_pointer.settings["descriptions"][name] = output_text(
-                msg("no_workspace_description"), cmd_pointer, return_val=True
-            )
+            cmd_pointer.settings["descriptions"][name] = output_text(msg("no_workspace_description"), return_val=True)
 
         workspaces.append(list([name_formatted, cmd_pointer.settings["descriptions"][name]]))
 
     # Display/return table.
-    return output_table(workspaces, cmd_pointer, headers=table_headers, note=note)
+    return output_table(workspaces, is_data=False, headers=table_headers, note=note)
 
 
 # get the details of a workspace
@@ -89,11 +88,9 @@ def get_workspace(cmd_pointer, parser):
     description = description if description else msg("no_workspace_description")
 
     if workspace_name not in cmd_pointer.settings["workspaces"]:
-        return output_error(msg("invalid_workpace", workspace_name), cmd_pointer)
+        return output_error(msg("invalid_workpace", workspace_name))
     else:
-        return output_text(
-            msg("workspace_description", workspace_name, description, active), cmd_pointer, pad=1, edge=True
-        )
+        return output_text(msg("workspace_description", workspace_name, description, active), pad=1, edge=True)
 
 
 # Remove workspace and all its metadata files.
@@ -109,7 +106,7 @@ def remove_workspace(cmd_pointer, parser):
 
     workspace_name = parser.as_dict()["Workspace_Name"].upper()
     if workspace_name == "DEFAULT":
-        return output_error(msg("fail_workspace_delete_default"), cmd_pointer)
+        return output_error(msg("fail_workspace_delete_default"))
     if workspace_name in cmd_pointer.settings["workspaces"]:
         cmd_pointer.settings["workspaces"].remove(workspace_name)
         if (
@@ -123,9 +120,9 @@ def remove_workspace(cmd_pointer, parser):
         cmd_pointer.settings["descriptions"].pop(workspace_name)
         write_registry(cmd_pointer.settings, cmd_pointer, True)
         write_registry(cmd_pointer.settings, cmd_pointer)
-        return output_success(msg("success_workspace_remove", workspace_name), cmd_pointer)
+        return output_success(msg("success_workspace_remove", workspace_name))
     else:
-        return output_error(msg("invalid_workpace", workspace_name), cmd_pointer)
+        return output_error(msg("invalid_workpace", workspace_name))
 
 
 def create_workspace(cmd_pointer, parser):
@@ -149,7 +146,7 @@ def create_workspace(cmd_pointer, parser):
     # Abort if workspace already exists.
     if workspace_name in cmd_pointer.settings["workspaces"]:
         if cmd_pointer.api_mode is False:
-            return output_error(msg("fail_workspace_already_exists", workspace_name), cmd_pointer)
+            return output_error(msg("fail_workspace_already_exists", workspace_name))
 
     # Store workspace description.
     try:
@@ -158,7 +155,7 @@ def create_workspace(cmd_pointer, parser):
             description = parser.as_dict()["proj_desc"]
         else:
             # From input.
-            output_text(msg("enter_to_skip"), cmd_pointer, pad_top=1)  # force_print=True
+            output_text(msg("enter_to_skip"), pad_top=1)  # force_print=True
             description = user_input(cmd_pointer, "Workspace description")
             if description is None or len(description.strip()) == 0:
                 description = "No workspace description available"
@@ -167,7 +164,7 @@ def create_workspace(cmd_pointer, parser):
         write_registry(cmd_pointer.settings, cmd_pointer, True)  # Create registry
         write_registry(cmd_pointer.settings, cmd_pointer)  # Create session registry
     except Exception as err:
-        return output_error(msg("err_workspace_description", err, split=True), cmd_pointer)
+        return output_error(msg("err_workspace_description", err))
 
     # Create workspace.
     if "w_path" in parser.as_dict():
@@ -179,7 +176,7 @@ def create_workspace(cmd_pointer, parser):
         path = os.path.expanduser(path)
 
         if not os.path.exists(path):
-            return output_error(msg("err_path_doesnt_exist", path), cmd_pointer)
+            return output_error(msg("err_path_doesnt_exist", path))
         cmd_pointer.settings["paths"][workspace_name] = path
     spinner.start("Creating workspace")
     sleep(0.5)  # Ensure the spinner is displayed for at least a moment.
@@ -209,12 +206,12 @@ def create_workspace(cmd_pointer, parser):
         readline.write_history_file(cmd_pointer.histfile)
         # raise ValueError('This is a test error.\n') @Phil this causes the app to break permamenently.
     except Exception as err:
-        error_other = msg("err_workspace_create", err, split=True)
+        error_other = msg("err_workspace_create", err)
 
     # Show success/errror message.
     if cmd_pointer.api_mode is False:
         if error_other:
-            spinner.fail(output_error(error_other, cmd_pointer, return_val=True, jup_return_format="plain"))
+            spinner.fail(output_error(error_other, return_val=True, jup_return_format="plain"))
             spinner.start()
             spinner.stop()
             return
@@ -224,7 +221,6 @@ def create_workspace(cmd_pointer, parser):
             spinner.succeed(
                 output_text(
                     msg("success_workspace_create", workspace_name, error_creating_dir),
-                    cmd_pointer,
                     return_val=True,
                     jup_return_format="plain",
                 )
