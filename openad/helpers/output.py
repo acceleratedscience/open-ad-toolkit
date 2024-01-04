@@ -204,12 +204,13 @@ def output_table(table, is_data=True, headers=None, note=None, tablefmt="simple"
     Parameters
     ----------
     table (dataframe/list, required)
-        A dataframe or a list of tuples, where each tuple is a row in the table.
+        A dataframe or a list of lists/tuples, where each list/tuple is a row in the table.
     is_data (bool):
         Enables the follow-up commands (open/edit/save/copy). Some tables are
         just displaying information and don't need them (eg workspace list.)
     headers (list):
         A list of strings, where each string is a column header.
+        Ignored when table is a dataframe.
     note (str):
         A footnote to display at the bottom of the table.
     tablefmt (str):
@@ -222,7 +223,6 @@ def output_table(table, is_data=True, headers=None, note=None, tablefmt="simple"
 
     GLOBAL_SETTINGS["display"] = GLOBAL_SETTINGS["display"]
 
-    headers = [] if headers is None else headers
     is_df = isinstance(table, pandas.DataFrame)
     cli_width = shutil.get_terminal_size().columns
 
@@ -258,8 +258,6 @@ def output_table(table, is_data=True, headers=None, note=None, tablefmt="simple"
             # Remove styling tags from headers.
             if headers:
                 headers = list(map(lambda text: strip_tags(text), headers))
-            else:
-                headers = None
 
             # Remove styling tags from content.
             for i, row in enumerate(table):
@@ -279,6 +277,7 @@ def output_table(table, is_data=True, headers=None, note=None, tablefmt="simple"
                 for j, cell in enumerate(row):
                     table[i][j] = style(cell, nowrap=True)
 
+            headers = [] if headers is None else headers
             table = tabulate(table, headers=headers, tablefmt=tablefmt, showindex=False, numalign="left")
 
         # Crop table if it's wider than the terminal.
@@ -291,9 +290,16 @@ def output_table(table, is_data=True, headers=None, note=None, tablefmt="simple"
                     # updated with reset \u001b[0m for color tags which may be found later
                     table = table.replace(line, line[: cli_width - 3] + "...\u001b[0m")
 
-        # Make header line yellow.
+        # Color horizontal line yellow.
         table = table.splitlines()
-        table[1] = style(f"<yellow>{table[1]}</yellow>", nowrap=True)
+        if is_df:
+            table[1] = style(f"<yellow>{table[1]}</yellow>", nowrap=True)
+        else:
+            if headers:
+                table[1] = style(f"<yellow>{table[1]}</yellow>", nowrap=True)
+            else:
+                table[0] = style(f"<yellow>{table[0]}</yellow>", nowrap=True)
+                table[len(table) - 1] = style(f"<yellow>{table[len(table) - 1]}</yellow>", nowrap=True)
         table = "\n".join(table)
 
     # Display footnote.
