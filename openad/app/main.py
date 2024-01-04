@@ -45,6 +45,7 @@ from openad.app.global_var_lib import _meta_dir
 from openad.app.global_var_lib import _meta_workspaces
 from openad.app.global_var_lib import _all_toolkits
 from openad.app.global_var_lib import _meta_dir_toolkits
+from openad.app.global_var_lib import GLOBAL_SETTINGS
 
 
 sys.ps1 = "\x01\033[31m\x02>>> \x01\033[0m\x02"
@@ -796,6 +797,7 @@ def api_remote(
       exit point for magic commands, unlike a command line.
     """
 
+    GLOBAL_SETTINGS["display"] = "notebook"
     initialise()
 
     arguments = inp.split()
@@ -874,7 +876,10 @@ def api_remote(
 
 def cmd_line():
     """Entry point for command line interface"""
+
+    GLOBAL_SETTINGS["display"] = "terminal"
     initialise()
+
     inp = ""
     a_space = ""
 

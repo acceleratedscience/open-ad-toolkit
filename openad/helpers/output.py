@@ -45,8 +45,6 @@ output_text(msg('workspace_description', workspace_name, description), cmd_point
 from IPython.display import Markdown, display
 from openad.helpers.output_msgs import msg
 
-# from openad.helpers.output_msgs import _messages # trash
-
 # Importing our own plugins.
 # This is temporary until every plugin is available as a public pypi package.
 from openad.plugins.style_parser import style, print_s, strip_tags, tags_to_markdown
@@ -90,11 +88,15 @@ def output_text(message, cmd_pointer=None, return_val=None, jup_return_format=No
         Additional parameters for style_parser.
     """
 
+    # Imported here to avoid circular imports.
     from openad.helpers.general import is_notebook_mode
+    from openad.app.global_var_lib import GLOBAL_SETTINGS
 
     notebook_mode = cmd_pointer.notebook_mode if cmd_pointer else is_notebook_mode()
     api_mode = cmd_pointer.api_mode if cmd_pointer else False
     return_val = notebook_mode if return_val is None else return_val
+
+    print(style("<red>*** Display:</red>"), GLOBAL_SETTINGS["display"])
 
     # When the message is a list of strings, the first string
     # will be printed regularly and subsequent strings will be
