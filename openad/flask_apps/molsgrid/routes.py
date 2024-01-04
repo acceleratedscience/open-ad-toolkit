@@ -8,6 +8,7 @@ from openad.helpers.output import output_text, output_error, output_warning, out
 from openad.helpers.output_msgs import msg
 from openad.helpers.general import parse_path_tree, confirm_prompt
 from openad.helpers.spinner import spinner
+from openad.app.global_var_lib import GLOBAL_SETTINGS
 
 mol_name_cache = {}
 # Flask
@@ -99,7 +100,7 @@ def fetchRoutesMolsGrid(cmd_pointer, parser):
     if results_file:
         # In Jupyter "save as" is not allowed, because we don't
         # have a submit button here.
-        if cmd_pointer.notebook_mode:
+        if GLOBAL_SETTINGS["display"] == "notebook":
             return None, output_error(msg("fail_m2g_save_jupyter"))
 
         # If the user has specified a non-existing directory path
@@ -131,7 +132,7 @@ def fetchRoutesMolsGrid(cmd_pointer, parser):
     the_mols2grid, mol_frame = m2g
 
     # Render grid in Jupyter.
-    if cmd_pointer.notebook_mode:
+    if GLOBAL_SETTINGS["display"] == "notebook":
         if "object" in parser:
             # Return the mols2grid object.
             output_text(msg("m2g_tip"), return_val=False)  # force_print=True
@@ -143,7 +144,7 @@ def fetchRoutesMolsGrid(cmd_pointer, parser):
             return None, the_mols2grid.display(**m2g_params)
 
     # Render grid in Flask.
-    else:
+    elif GLOBAL_SETTINGS["display"] == "notebook" or GLOBAL_SETTINGS["display"] == None:
         # Create list of available parameters which we
         # then display in the molecule selector UI.
         available_params = mol_frame.columns.tolist()

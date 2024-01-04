@@ -37,7 +37,6 @@ from openad.molecules.molecule_cache import attach_all_results, clear_results
 import openad.app.login_manager as login_manager
 
 # Core
-
 from openad.core.lang_file_system import import_file, export_file, copy_file, remove_file, list_files
 from openad.core.lang_sessions_and_registry import (
     clear_other_sessions,
@@ -74,6 +73,7 @@ from openad.app.global_var_lib import _meta_login_registry
 from openad.app.global_var_lib import _meta_workspaces
 from openad.app.global_var_lib import _all_toolkits
 from openad.app.global_var_lib import MEMORY
+from openad.app.global_var_lib import GLOBAL_SETTINGS
 
 # Helpers
 from openad.helpers.output import output_text, output_error, output_success, output_table
@@ -431,10 +431,10 @@ def set_context(cmd_pointer, parser):
 
             # Success switching context & loggin in.
             if old_cmd_pointer_context != cmd_pointer.settings["context"]:
-                if cmd_pointer.notebook_mode or cmd_pointer.api_mode:
-                    return output_success(msg("success_login", toolkit_name, expiry_datetime), return_val=False)
-                else:
+                if GLOBAL_SETTINGS["display"] == "terminal" or GLOBAL_SETTINGS["display"] == None:
                     return output_text(splash(toolkit_name, cmd_pointer), nowrap=True)
+                else:
+                    return output_success(msg("success_login", toolkit_name, expiry_datetime), return_val=False)
 
         else:
             # Failed to load the toolkit
@@ -593,7 +593,7 @@ def display_data__open(
 
     # Load routes and launch browser UI.
     data = data.to_json(orient="records")
-    routes = fetchRoutesDataViewer(data, cmd_pointer)
+    routes = fetchRoutesDataViewer(data)
     a_hash = "#edit" if edit_mode else ""
     launcher.launch(cmd_pointer, routes, "dataviewer", hash=a_hash)
 
@@ -635,7 +635,7 @@ def edit_config(cmd_pointer, parser):
     workspace_path = cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/"
 
     # Abort in Jupyter.
-    if cmd_pointer.notebook_mode is True:
+    if GLOBAL_SETTINGS["display"] == "notebook":
         print("Editing JSON files is only available from command line.")
         return True
 

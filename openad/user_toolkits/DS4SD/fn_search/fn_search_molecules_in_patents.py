@@ -7,6 +7,7 @@ import pandas as pd
 from deepsearch.chemistry.queries.molecules import MoleculesInPatentsQuery
 from openad.helpers.output import output_text, output_error, output_table, output_success
 from openad.helpers.output_msgs import msg
+from openad.app.global_var_lib import GLOBAL_SETTINGS
 
 
 _tableformat = "simple"
@@ -126,7 +127,7 @@ def search_molecules_in_patents(inputs: dict, cmd_pointer):
     output_text("\n<h2>Molecules Mentioned in listed Patents:</h2>", return_val=False)
     output_text(" / ".join(from_list), return_val=False)
 
-    if cmd_pointer.notebook_mode is True:
+    if GLOBAL_SETTINGS["display"] == "notebook":
         df = pd.DataFrame(results_table)
         if len(df) > 0:
             col = df.pop("SMILES")

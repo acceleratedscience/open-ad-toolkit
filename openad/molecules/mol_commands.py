@@ -16,6 +16,7 @@ from openad.helpers.general import confirm_prompt
 from openad.helpers.output import output_text, output_table, output_warning, output_error
 from openad.helpers.output_msgs import msg
 from openad.molecules.mol_functions import canonical_smiles
+from openad.app.global_var_lib import GLOBAL_SETTINGS
 
 from openad.molecules.mol_functions import (
     get_mol_from_formula,
@@ -62,7 +63,7 @@ def display_molecule(cmd_pointer, inp):
         else:
             output_error(msg("err_mol_not_on_pubchem"))
             return None
-    if cmd_pointer.notebook_mode is True:
+    if GLOBAL_SETTINGS["display"] == "notebook":
         import py3Dmol
         from IPython.display import Markdown, display, HTML
 
@@ -99,7 +100,7 @@ def export_molecule(cmd_pointer, inp):
         mol = retrieve_mol(molecule_identifier)
         if mol is not None:
             cmd_pointer.last_external_molecule = mol
-    if mol is not None and ("as_file" in inp.as_dict() or cmd_pointer.notebook_mode is False):
+    if mol is not None and ("as_file" in inp.as_dict() or GLOBAL_SETTINGS["display"] != "notebook"):
         json_file = open(
             cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/" + mol["name"] + ".json",
             "w",
@@ -107,7 +108,7 @@ def export_molecule(cmd_pointer, inp):
         )
         json.dump(mol, json_file)
         print_s("file " + mol["name"] + ".json Saved to the current workspace")
-    elif mol is not None and cmd_pointer.notebook_mode is True:
+    elif mol is not None and GLOBAL_SETTINGS["display"] == "notebook":
         return mol.copy()
     return True
 
@@ -258,7 +259,7 @@ def export_molecule_set(cmd_pointer, inp):
         return True
     csv_file_name = None
 
-    if cmd_pointer.notebook_mode and "csv_file_name" not in inp.as_dict():
+    if GLOBAL_SETTINGS["display"] == "notebook" and "csv_file_name" not in inp.as_dict():
         return moleculelist_to_data_frame(cmd_pointer.molecule_list.copy())
     else:
         if "csv_file_name" not in inp.as_dict():
@@ -550,7 +551,7 @@ def get_property(cmd_pointer, inp):
     if mol is None:
         mol = retrieve_mol(molecule_identifier)
         if mol is not None:
-            # if not cmd_pointer.notebook_mode:
+            # if GLOBAL_SETTINGS["display"] != "notebook":
             #    print(mol["properties"][molecule_property.lower()])
 
             return mol["properties"][molecule_property.lower()]

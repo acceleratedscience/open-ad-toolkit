@@ -6,6 +6,7 @@ from openad.app.global_var_lib import _repo_dir
 from openad.helpers.output import output_text, output_error
 from openad.helpers.output_msgs import msg
 from openad.helpers.general import next_avail_port
+from openad.app.global_var_lib import GLOBAL_SETTINGS
 
 
 def launch(cmd_pointer=None, routes=None, app_name="", query="", hash=""):
@@ -49,7 +50,7 @@ def launch(cmd_pointer=None, routes=None, app_name="", query="", hash=""):
     port, host = next_avail_port()
 
     # Launch the UI
-    if cmd_pointer.notebook_mode:
+    if GLOBAL_SETTINGS["display"] == "notebook":
         # Jupyter --> Render iframe.
 
         # Rendering the iframe in the traditional way doesn't let us
@@ -92,7 +93,7 @@ def launch(cmd_pointer=None, routes=None, app_name="", query="", hash=""):
     output_text(msg("flask_launch", port), pad_top=1)
 
     # Launch server.
-    if cmd_pointer.notebook_mode:
+    if GLOBAL_SETTINGS["display"] == "notebook":
         # Jupyter --> Start the Flask app in a separate thread.
         from threading import Thread
 

@@ -1,4 +1,5 @@
 from openad.helpers.output import output_text, output_error
+from openad.app.global_var_lib import GLOBAL_SETTINGS
 
 _tableformat = "simple"
 
@@ -40,7 +41,7 @@ def display_collection_details(inputs: dict, cmd_pointer):
     output.append("<success>URL: </success>" + collection.metadata.source)
     output.append("<success>Description:</success> " + collection.metadata.description)
 
-    if cmd_pointer.notebook_mode == True:  # Have to do individual rows because of Markdown Behaviour
+    if GLOBAL_SETTINGS["display"] == "notebook":  # Have to do individual rows because of Markdown Behaviour
         for x in output:
             output_text(x, return_val=False)
         return True

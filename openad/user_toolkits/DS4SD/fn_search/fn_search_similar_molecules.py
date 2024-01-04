@@ -10,6 +10,7 @@ from openad.helpers.output_msgs import msg
 from openad.molecules.molecule_cache import create_analysis_record, save_result
 from openad.molecules.mol_functions import canonical_smiles, valid_smiles
 from openad.molecules.mol_commands import property_retrieve
+from openad.app.global_var_lib import GLOBAL_SETTINGS
 
 _tableformat = "simple"
 
@@ -72,7 +73,7 @@ def search_similar_molecules(inputs: dict, cmd_pointer):
         ),
         cmd_pointer=cmd_pointer,
     )
-    if cmd_pointer.notebook_mode is True:
+    if GLOBAL_SETTINGS["display"] == "notebook":
         from IPython.display import display
 
         if valid_smiles(inputs["smiles"]):

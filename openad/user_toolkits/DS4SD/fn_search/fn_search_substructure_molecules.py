@@ -6,6 +6,7 @@ from deepsearch.chemistry.queries.molecules import MoleculeQuery
 from deepsearch.chemistry.queries.molecules import MolQueryType
 from openad.helpers.output import output_text, output_success, output_error, output_table
 from openad.helpers.output_msgs import msg
+from openad.app.global_var_lib import GLOBAL_SETTINGS
 
 _tableformat = "simple"
 
@@ -75,7 +76,7 @@ def search_substructure_molecules(inputs: dict, cmd_pointer):
     )
     output_text(inputs["smiles"], return_val=False)
 
-    if cmd_pointer.notebook_mode is True:
+    if GLOBAL_SETTINGS["display"] == "notebook":
         from IPython.display import display
 
         if valid_smiles(inputs["smiles"]):

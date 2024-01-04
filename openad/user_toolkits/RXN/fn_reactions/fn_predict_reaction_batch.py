@@ -1,11 +1,11 @@
-""" Performs Reaction Prediction on a list of Reactions
-"""
+"""Performs Reaction Prediction on a list of Reactions"""
 
 from openad.helpers.output import output_text, output_error, output_warning, output_table
 import pandas as pd
 from rdkit import Chem
 from rdkit.Chem import AllChem
 from time import sleep
+from openad.app.global_var_lib import GLOBAL_SETTINGS
 
 
 def get_reaction_from_smiles(reaction_smiles: str) -> Chem.rdChemReactions.ChemicalReaction:
@@ -28,7 +28,7 @@ def get_include_lib(cmd_pointer):
 
 def predict_reaction_batch(inputs: dict, cmd_pointer):
     """Predicts Reactions in Batch from a list of Reaction Smiles Strings"""
-    if cmd_pointer.notebook_mode is True:
+    if GLOBAL_SETTINGS["display"] == "notebook":
         from halo import HaloNotebook as Halo  # pylint: disable=import-outside-toplevel
     else:
         from halo import Halo  # pylint: disable=import-outside-toplevel
@@ -36,7 +36,7 @@ def predict_reaction_batch(inputs: dict, cmd_pointer):
     rxn_helper = get_include_lib(cmd_pointer)
     rxn_helper.sync_up_workspace_name(cmd_pointer)
     rxn_helper.get_current_project(cmd_pointer)
-    if cmd_pointer.notebook_mode is True:
+    if GLOBAL_SETTINGS["display"] == "notebook":
         from IPython.display import display
 
     class Spinner(Halo):
@@ -156,7 +156,7 @@ def predict_reaction_batch(inputs: dict, cmd_pointer):
             return_val=False,
         )
 
-        if cmd_pointer.notebook_mode is True:
+        if GLOBAL_SETTINGS["display"] == "notebook":
             from IPython.display import display
 
             display(get_reaction_from_smiles(reaction_prediction["smiles"]))
@@ -203,7 +203,7 @@ def predict_reaction_batch(inputs: dict, cmd_pointer):
                     raise BaseException("Server unresponsive" + str(e)) from e  # pylint: disable=broad-exception-raised
         newspin.succeed("Finished Processing")
         newspin.stop()
-        if cmd_pointer.notebook_mode is True:
+        if GLOBAL_SETTINGS["display"] == "notebook":
             from IPython.display import display  # pylint: disable=import-outside-toplevel
         for reaction_prediction in reaction_predictions["predictions"]:
             rxn_helper.save_to_results_cache(
@@ -234,7 +234,7 @@ def predict_reaction_batch(inputs: dict, cmd_pointer):
                 return_val=False,
             )
 
-            if cmd_pointer.notebook_mode is True:
+            if GLOBAL_SETTINGS["display"] == "notebook":
                 display(get_reaction_from_smiles(reaction_prediction["smiles"]))
 
     output_text(" ", return_val=False)

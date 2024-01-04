@@ -4,6 +4,7 @@ import shutil
 from openad.helpers.general import singular, is_toolkit_installed
 from openad.helpers.output import output_error
 from openad.helpers.output_msgs import msg
+from openad.app.global_var_lib import GLOBAL_SETTINGS
 
 # Importing our own plugins.
 # This is temporary until every plugin is available as a public pypi package.
@@ -186,7 +187,7 @@ def command_details(command: list, cmd_pointer):
     paragraph_width = min(columns - 5, 150)
 
     # Style command.
-    if cmd_pointer.notebook_mode:
+    if GLOBAL_SETTINGS["display"] == "notebook":
         command_str = f"<cmd>{command_str}</cmd>"
         description = command["description"]
         note = f'<soft>{command["note"]}</soft>' if "note" in command and command["note"] is not None else None

@@ -1,11 +1,11 @@
 """ Performs TOPN anaysis on a set of Reactions defined in a provided list"""
-from time import sleep
-import importlib.util as ilu
-from openad.helpers.output import output_text, output_warning, output_error, output_table
-
 import pandas as pd
 from rdkit import Chem
 from rdkit.Chem import AllChem
+from time import sleep
+import importlib.util as ilu
+from openad.helpers.output import output_text, output_warning, output_error, output_table
+from openad.app.global_var_lib import GLOBAL_SETTINGS
 
 
 def get_reaction_from_smiles(
@@ -33,7 +33,7 @@ def predict_reaction_batch_topn(inputs: dict, cmd_pointer):
     rxn_helper.sync_up_workspace_name(cmd_pointer)
     rxn_helper.get_current_project(cmd_pointer)
 
-    if cmd_pointer.notebook_mode is True:
+    if GLOBAL_SETTINGS["display"] == "notebook":
         from halo import HaloNotebook as Halo  # pylint: disable=import-outside-toplevel
     else:
         from halo import Halo  # pylint: disable=import-outside-toplevel

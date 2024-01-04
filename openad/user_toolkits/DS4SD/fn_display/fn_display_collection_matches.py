@@ -5,6 +5,7 @@ from deepsearch.cps.queries import DataQuery
 from deepsearch.cps.client.components.queries import RunQueryError
 from openad.helpers.output import output_text, output_error, output_table, output_success
 from openad.helpers.output_msgs import msg
+from openad.app.global_var_lib import GLOBAL_SETTINGS
 
 _tableformat = "simple"
 
@@ -16,7 +17,7 @@ def display_collection_matches(inputs: dict, cmd_pointer):
     """
 
     api = cmd_pointer.login_settings["toolkits_api"][cmd_pointer.login_settings["toolkits"].index("DS4SD")]
-    if cmd_pointer.notebook_mode is True:
+    if GLOBAL_SETTINGS["display"] == "notebook":
         from tqdm.notebook import tqdm
     else:
         from tqdm import tqdm

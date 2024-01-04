@@ -9,6 +9,7 @@ from openad.app.global_var_lib import _repo_dir
 from openad.app.global_var_lib import _meta_dir
 from openad.helpers.credentials import load_credentials
 from openad.helpers.credentials import write_credentials, get_credentials
+from openad.app.global_var_lib import GLOBAL_SETTINGS
 
 # Constants
 TRAINING_LLM_DIR = "/prompt_train/"
@@ -114,7 +115,7 @@ def how_do_i(cmd_pointer, parser):
                 edge=True,
             )
             return False
-    if cmd_pointer.notebook_mode is True:
+    if GLOBAL_SETTINGS["display"] == "notebook":
         from halo import HaloNotebook as Halo  # pylint: disable=import-outside-toplevel
     else:
         from halo import Halo  # pylint: disable=import-outside-toplevel
@@ -146,7 +147,7 @@ def how_do_i(cmd_pointer, parser):
     newspin.succeed("See Answer Below.")
     text = clean_up_llm_text(cmd_pointer, text)
 
-    if cmd_pointer.notebook_mode is True:
+    if GLOBAL_SETTINGS["display"] == "notebook":
         return output_text(text, return_val=True, pad=1, edge=True)
     else:
         return output_text("\n" + text + "\n\n", return_val=True)
@@ -174,7 +175,7 @@ def clean_up_llm_text(cmd_pointer, old_text):
     text = re.sub(r"\`plaintext", r"`", text)
     text = re.sub(r"\`\`\`\n", r"```", text)
     text = re.sub(r"\n\`\`\`", r"```", text)
-    if cmd_pointer.notebook_mode is not True:
+    if GLOBAL_SETTINGS["display"] != "notebook":
         # Needs optimising
         text = re.sub(r"\`\`\`\n[\s]+%openad ", r"```\n ", text)
         text = re.sub(r"\`\`\`\n\%openad ", r"```\n", text)
@@ -194,7 +195,7 @@ def clean_up_llm_text(cmd_pointer, old_text):
 
     # nuance of llm instructued to use markdown
 
-    if cmd_pointer.notebook_mode is not True:
+    if GLOBAL_SETTINGS["display"] != "notebook":
         # LLMS Sometimes send back some interesting Markdown this is to translate it
         # It assumes that the LLM is not putting any formatting inside a code block
         text = re.sub(r"### (.*?) ###", r"<h2> \1 </h2>\n", text)

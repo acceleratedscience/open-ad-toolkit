@@ -1,6 +1,7 @@
 """ Displays a Domains Collections"""
 import pandas as pd
 from openad.helpers.output import output_table
+from openad.app.global_var_lib import GLOBAL_SETTINGS
 
 _tableformat = "simple"
 
@@ -20,7 +21,7 @@ def display_collections_for_domain(inputs: dict, cmd_pointer):
         }
         for c in collections
     ]
-    if cmd_pointer.notebook_mode is True:
+    if GLOBAL_SETTINGS["display"] == "notebook":
         return pd.DataFrame(results)
     else:
         collectives = pd.DataFrame(results)

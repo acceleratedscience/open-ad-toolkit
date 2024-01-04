@@ -8,6 +8,7 @@ import readline
 from openad.core.lang_sessions_and_registry import write_registry, update_main_registry_env_var
 
 # Global variables
+from openad.app.global_var_lib import GLOBAL_SETTINGS
 
 # Helpers
 from openad.helpers.output import output_text, output_error, output_warning, output_success, output_table
@@ -54,7 +55,7 @@ def list_workspaces(cmd_pointer, parser):
     for name in cmd_pointer.settings["workspaces"]:
         # Format current workspace name.
         if name == current_workspace_name:
-            if cmd_pointer.notebook_mode:
+            if GLOBAL_SETTINGS["display"] == "notebook":
                 name_formatted = f"* {name}"
             else:
                 name_formatted = output_text(f"* <green>{name}</green>", return_val=True)
@@ -145,7 +146,7 @@ def create_workspace(cmd_pointer, parser):
 
     # Abort if workspace already exists.
     if workspace_name in cmd_pointer.settings["workspaces"]:
-        if cmd_pointer.api_mode is False:
+        if GLOBAL_SETTINGS["display"] != "api":
             return output_error(msg("fail_workspace_already_exists", workspace_name))
 
     # Store workspace description.
@@ -209,7 +210,7 @@ def create_workspace(cmd_pointer, parser):
         error_other = msg("err_workspace_create", err)
 
     # Show success/errror message.
-    if cmd_pointer.api_mode is False:
+    if GLOBAL_SETTINGS["display"] != "api":
         if error_other:
             spinner.fail(output_error(error_other, return_val=True, jup_return_format="plain"))
             spinner.start()

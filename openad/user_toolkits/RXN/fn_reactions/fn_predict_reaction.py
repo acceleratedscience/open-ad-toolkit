@@ -6,6 +6,7 @@ from openad.molecules.molecule_cache import create_analysis_record, save_result
 import pandas as pd
 from rdkit import Chem
 from rdkit.Chem import AllChem
+from openad.app.global_var_lib import GLOBAL_SETTINGS
 
 
 def get_include_lib(cmd_pointer):
@@ -88,7 +89,7 @@ def predict_reaction(inputs: dict, cmd_pointer):
                 return_val=False,
             )
             output_text("<green>Confidence:</green> " + str(confidence), return_val=False)
-        if cmd_pointer.notebook_mode is True:
+        if GLOBAL_SETTINGS["display"] == "notebook":
             return get_reaction_from_smiles(smiles)
         else:
             output_text("", return_val=False)
@@ -167,7 +168,7 @@ def predict_reaction(inputs: dict, cmd_pointer):
 
     output_text("<green>Reaction:</green> " + sources + "    ---->    " + x_y, return_val=False)
     output_text("<green>Confidence:</green> " + str(confidence), return_val=False)
-    if cmd_pointer.notebook_mode is True:
+    if GLOBAL_SETTINGS["display"] == "notebook":
         return get_reaction_from_smiles(predict_reaction_results["response"]["payload"]["attempts"][0]["smiles"])
     else:
         output_text("", return_val=False)

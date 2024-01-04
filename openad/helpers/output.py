@@ -45,7 +45,7 @@ output_text(msg('workspace_description', workspace_name, description), pad=1, ed
 import shutil
 import pandas
 from tabulate import tabulate
-from IPython.display import Markdown
+from IPython.display import Markdown, display
 from openad.helpers.output_msgs import msg
 
 # Importing our own plugins.
@@ -89,8 +89,7 @@ def output_text(message, return_val=None, jup_return_format=None, **kwargs):
     # Imported here to avoid circular imports.
     from openad.app.global_var_lib import GLOBAL_SETTINGS
 
-    DISPLAY = GLOBAL_SETTINGS["display"]
-    return_val = DISPLAY == "notebook" if return_val is None else return_val
+    return_val = GLOBAL_SETTINGS["display"] == "notebook" if return_val is None else return_val
 
     # When the message is a list of strings, the first string
     # will be printed regularly and subsequent strings will be
@@ -102,11 +101,11 @@ def output_text(message, return_val=None, jup_return_format=None, **kwargs):
         message = "\n".join([f"<soft>{string}</soft>" if i > 0 else string for i, string in enumerate(message)])
 
     # API
-    if DISPLAY == "api":
+    if GLOBAL_SETTINGS["display"] == "api":
         return strip_tags(message)
 
     # Jupyter
-    elif DISPLAY == "notebook":
+    elif GLOBAL_SETTINGS["display"] == "notebook":
         if return_val:
             if jup_return_format == "plain":
                 return strip_tags(message)
@@ -115,10 +114,10 @@ def output_text(message, return_val=None, jup_return_format=None, **kwargs):
             else:
                 return Markdown(tags_to_markdown(message))
         else:
-            DISPLAY(Markdown(tags_to_markdown(message)))
+            display(Markdown(tags_to_markdown(message)))
 
     # CLI
-    elif DISPLAY == "terminal" or DISPLAY == None:
+    elif GLOBAL_SETTINGS["display"] == "terminal" or GLOBAL_SETTINGS["display"] == None:
         if return_val:
             return style(message, **kwargs)
         else:
@@ -221,7 +220,7 @@ def output_table(table, is_data=True, headers=None, note=None, tablefmt="simple"
     from openad.app.global_var_lib import MEMORY
     from openad.app.global_var_lib import GLOBAL_SETTINGS
 
-    DISPLAY = GLOBAL_SETTINGS["display"]
+    GLOBAL_SETTINGS["display"] = GLOBAL_SETTINGS["display"]
 
     headers = [] if headers is None else headers
     is_df = isinstance(table, pandas.DataFrame)
@@ -248,7 +247,7 @@ def output_table(table, is_data=True, headers=None, note=None, tablefmt="simple"
 
     # - -
     # Format data for Jupyter.
-    if DISPLAY == "notebook":
+    if GLOBAL_SETTINGS["display"] == "notebook":
         pandas.set_option("display.max_colwidth", None)
         # pandas.options.display.max_colwidth = 5
         # pandas.set_option('display.max_colwidth', 5)
@@ -271,7 +270,7 @@ def output_table(table, is_data=True, headers=None, note=None, tablefmt="simple"
 
     # - -
     # Format data for terminal.
-    elif DISPLAY == "terminal" or DISPLAY == None:
+    elif GLOBAL_SETTINGS["display"] == "terminal" or GLOBAL_SETTINGS["display"] == None:
         if is_df:
             table = tabulate(table, headers="keys", tablefmt=tablefmt, showindex=False, numalign="left")
         else:
@@ -316,11 +315,11 @@ def output_table(table, is_data=True, headers=None, note=None, tablefmt="simple"
         footnote += f"<soft>{note}</soft>"
 
     # Output
-    if DISPLAY == "notebook":
+    if GLOBAL_SETTINGS["display"] == "notebook":
         if footnote:
             output_text(footnote, return_val=False)
         return table
-    elif DISPLAY == "terminal" or DISPLAY == None:
+    elif GLOBAL_SETTINGS["display"] == "terminal" or GLOBAL_SETTINGS["display"] == None:
         if footnote:
             output = table + "\n\n" + footnote
         else:

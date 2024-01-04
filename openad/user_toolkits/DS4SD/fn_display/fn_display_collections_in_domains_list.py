@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 from openad.helpers.output import output_error, output_table, output_success
 from openad.helpers.output_msgs import msg
+from openad.app.global_var_lib import GLOBAL_SETTINGS
 
 _tableformat = "simple"
 
@@ -78,7 +79,7 @@ def display_collections_in_domains_list(inputs: dict, cmd_pointer):
         df = df.replace(np.nan, "", regex=True)
         output_success(msg("success_file_saved"), return_val=False)
 
-    if cmd_pointer.notebook_mode is True:
+    if GLOBAL_SETTINGS["display"] == "notebook":
         return pd.DataFrame(results)
     else:
         collectives = pd.DataFrame(results)

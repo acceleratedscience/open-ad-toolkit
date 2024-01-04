@@ -7,6 +7,7 @@ from deepsearch.cps.client.components.elastic import ElasticDataCollectionSource
 from deepsearch.cps.queries import DataQuery
 from openad.helpers.output import output_text, output_table, output_error
 from openad.helpers.output_msgs import msg
+from openad.app.global_var_lib import GLOBAL_SETTINGS
 
 # Importing our own plugins.
 # This is temporary until every plugin is available as a public pypi package.
@@ -27,7 +28,7 @@ aggs = {
 
 
 def search_collection(inputs: dict, cmd_pointer):
-    if cmd_pointer.notebook_mode is True:
+    if GLOBAL_SETTINGS["display"] == "notebook":
         from tqdm.notebook import tqdm
         import IPython.display as display
     else:
@@ -48,7 +49,7 @@ def search_collection(inputs: dict, cmd_pointer):
     elif "return_as_data" in inputs:
         highlight["pre_tags"] = [""]
         highlight["post_tags"] = [""]
-    elif cmd_pointer.notebook_mode is False:
+    elif GLOBAL_SETTINGS["display"] != "notebook":
         highlight["pre_tags"] = ["<green>"]
         highlight["post_tags"] = ["</green>"]
     else:
@@ -97,7 +98,7 @@ def search_collection(inputs: dict, cmd_pointer):
     if val_elastic_id not in elastic_list:
         output_error("Invalid system_id, please choose from the following: ", return_val=False)
         collectives = pd.DataFrame(result)
-        if cmd_pointer.notebook_mode is True:
+        if GLOBAL_SETTINGS["display"] == "notebook":
             display.display(output_table(collectives))
         else:
             output_table(collectives)
@@ -106,7 +107,7 @@ def search_collection(inputs: dict, cmd_pointer):
         output_error("Invalid collection key or name, please choose from the following: ", return_val=False)
         collectives = pd.DataFrame(result)
 
-        if cmd_pointer.notebook_mode is True:
+        if GLOBAL_SETTINGS["display"] == "notebook":
             display.display(output_table(collectives))
         else:
             output_table(collectives)
@@ -193,7 +194,7 @@ def search_collection(inputs: dict, cmd_pointer):
 
     if is_docs:
         df = pd.json_normalize(all_aggs)
-        if cmd_pointer.notebook_mode is True:
+        if GLOBAL_SETTINGS["display"] == "notebook":
             if len(df.columns) > 1:
                 display.display(output_text("<h2>Distribution of Returned Documents by Year</h2>"))
                 display.display(output_table(df))
@@ -275,7 +276,7 @@ def search_collection(inputs: dict, cmd_pointer):
         results_file = str(inputs["results_file"])
         if not results_file.endswith(".csv"):
             results_file = results_file + ".csv"
-    if cmd_pointer.notebook_mode is True:
+    if GLOBAL_SETTINGS["display"] == "notebook":
         df = pd.DataFrame(results_table)
 
         if "save_as" in inputs:

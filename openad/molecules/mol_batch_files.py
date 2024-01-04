@@ -12,6 +12,7 @@ from openad.molecules.mol_commands import retrieve_mol_from_list, add_molecule
 from openad.helpers.output import output_error, output_warning
 from openad.helpers.output_msgs import msg
 from openad.plugins.style_parser import print_s
+from openad.app.global_var_lib import GLOBAL_SETTINGS
 
 naming_cache = {}
 
@@ -35,7 +36,7 @@ def load_batch_molecules(cmd_pointer, inp):
 
 def batch_pubchem(cmd_pointer, dataframe):
     """does the prompting of pubchem for data to merge in a bach operation"""
-    if cmd_pointer.notebook_mode is True:
+    if GLOBAL_SETTINGS["display"] == "notebook":
         from halo import HaloNotebook as Halo  # pylint: disable=import-outside-toplevel
     else:
         from halo import Halo  # pylint: disable=import-outside-toplevel

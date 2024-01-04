@@ -5,6 +5,7 @@ from openad.helpers.general import open_file
 from openad.helpers.output import output_text, output_error
 from openad.helpers.output_msgs import msg
 from openad.helpers.ascii_type import ascii_type
+from openad.app.global_var_lib import GLOBAL_SETTINGS
 
 # Importing our own plugins.
 # This is temporary until every plugin is available as a public pypi package.
@@ -97,7 +98,7 @@ def splash(toolkit_name=None, cmd_pointer=None, startup=False, raw=False):
                 pad=0,
             )
 
-    if raw or cmd_pointer.notebook_mode:
+    if raw or GLOBAL_SETTINGS["display"] == "notebook":
         return output
     else:
         return style(output, pad=3, edge=True, nowrap=True)

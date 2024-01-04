@@ -8,6 +8,7 @@ from openad.flask_apps.molviewer.routes import fetchRoutesMolViewer
 from openad.helpers.general import open_file
 from openad.helpers.output import output_error
 from openad.helpers.output_msgs import msg
+from openad.app.global_var_lib import GLOBAL_SETTINGS
 
 # Disable RDKit warnings
 logger = RDLogger.logger()
@@ -18,7 +19,7 @@ logger.setLevel(RDLogger.CRITICAL)
 def show_molsgrid(cmd_pointer, parser):
     # Load routes and launch browser UI.
     routes, the_mols2grid = fetchRoutesMolsGrid(cmd_pointer, parser)
-    if cmd_pointer.notebook_mode:
+    if GLOBAL_SETTINGS["display"] == "notebook":
         return the_mols2grid
     else:
         launcher.launch(cmd_pointer, routes, "molsgrid")
@@ -48,7 +49,7 @@ def show_mol(cmd_pointer, parser):
     # Load routes and launch browser UI.
     routes = fetchRoutesMolViewer(mol_dict, mol_sdf, svg)
 
-    if cmd_pointer.notebook_mode:
+    if GLOBAL_SETTINGS["display"] == "notebook":
         # Jupyter
         launcher.launch(cmd_pointer, routes, "molviewer")
     else:
@@ -189,7 +190,7 @@ def __file2dict(file_path):
     #             "SMILES": Chem.MolToSmiles(mol_pdb),
     #         }
     #     except Exception as err:
-    #         output_error(msg("invalid_sdf", err, split=True), pad=1)
+    #         output_error(msg("invalid_sdf", err), pad=1)
 
     return mol_dict
 

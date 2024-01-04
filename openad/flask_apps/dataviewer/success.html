@@ -10,7 +10,7 @@
 	<body>
 		<h1>Success</h1>
 		<br />
-		{% if notebook_mode %}
+		{% if display == "notebook" %}
 		<p>Your data was sent back to Jupyter</p>
 		{% else %}
 		<p>Your data was sent back to the terminal.<br />You can close this window.</p>

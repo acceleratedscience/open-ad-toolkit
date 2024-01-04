@@ -5,7 +5,7 @@ import readline
 from IPython.display import display
 
 # Global variables
-
+from openad.app.global_var_lib import GLOBAL_SETTINGS
 
 # Helpers
 from openad.helpers.output import output_text, output_error, output_success, output_table
@@ -79,11 +79,10 @@ def exec_run(cmd_pointer, parser):
                 else:
                     output = cmd_pointer.default(run_line)
 
-                if cmd_pointer.notebook_mode:
-                    # When you run a run inside another run, there is no result returned.
-                    # This prevents "None" from being displayed in Jupyter.
-                    if output is not None:
-                        display(output)
+                # When you run a run inside another run, there is no result returned.
+                # This prevents "None" from being displayed in Jupyter.
+                if GLOBAL_SETTINGS["display"] == "notebook" and output is not None:
+                    display(output)
             except Exception as err:
                 return output_error(msg("fail_run_execute", run_line, err))
 
@@ -95,7 +94,6 @@ def exec_run(cmd_pointer, parser):
 def display_run(cmd_pointer, parser):
     """displays the commands in a run"""
     table_headers = (f'<soft>Run:</soft> {parser.as_dict()["run_name"]}',)  # NOT Sure why we mess things up with
-    notebook_mode = cmd_pointer.notebook_mode
     run_name = parser.as_dict()["run_name"]
 
     # Create _runs directory if it does not exist yet.
@@ -115,14 +113,14 @@ def display_run(cmd_pointer, parser):
         return output_error(msg("fail_run_display", run_name))
     line = run_file.readline()
     while line:
-        if notebook_mode is True:
+        if GLOBAL_SETTINGS["display"] == "notebook":
             commands.append(list([line.replace("\n", "")]))
         else:
             commands.append(line.replace("\n", ""))
 
         line = run_file.readline()
     run_file.close()
-    if not notebook_mode and not cmd_pointer.api_mode:
+    if GLOBAL_SETTINGS["display"] == "terminal":
         commands = list(
             map(
                 lambda t: [output_text(f'<soft>{t[0]}</soft>  { "<cmd>"+str(t[1])+"</cmd>" }', return_val=True)],

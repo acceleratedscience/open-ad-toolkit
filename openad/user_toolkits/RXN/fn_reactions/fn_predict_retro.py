@@ -8,6 +8,7 @@ from rdkit.Chem import AllChem
 from time import sleep
 from openad.molecules.molecule_cache import create_analysis_record, save_result
 from openad.molecules.mol_functions import canonical_smiles, valid_smiles
+from openad.app.global_var_lib import GLOBAL_SETTINGS
 
 _tableformat = "simple"
 
@@ -62,7 +63,7 @@ def predict_retro(inputs: dict, cmd_pointer):
     rxn_helper = get_include_lib(cmd_pointer)
     rxn_helper.sync_up_workspace_name(cmd_pointer)
     rxn_helper.get_current_project(cmd_pointer)
-    if cmd_pointer.notebook_mode is True:
+    if GLOBAL_SETTINGS["display"] == "notebook":
         from IPython.display import display  # pylint: disable=import-outside-toplevel
         from halo import HaloNotebook as Halo  # pylint: disable=import-outside-toplevel
     else:
@@ -105,7 +106,7 @@ def predict_retro(inputs: dict, cmd_pointer):
         )
         return False
 
-    if cmd_pointer.notebook_mode is True:
+    if GLOBAL_SETTINGS["display"] == "notebook":
         import py3Dmol
 
         style = "stick"
@@ -214,7 +215,7 @@ def predict_retro(inputs: dict, cmd_pointer):
                         "<h2>No Result:</h2>  Unable to find path for  " + product_smiles,
                         return_val=False,
                     )
-                    if cmd_pointer.notebook_mode is True:
+                    if GLOBAL_SETTINGS["display"] == "notebook":
                         return
                     else:
                         return False
@@ -283,7 +284,7 @@ def predict_retro(inputs: dict, cmd_pointer):
                     results[str(index)]["reactions"].append(reactions_text[i])
                 output_text("<green> Reaction: </green>" + reactions_text[i], return_val=False)
                 i = i + 1
-                if cmd_pointer.notebook_mode is True:
+                if GLOBAL_SETTINGS["display"] == "notebook":
                     display(Chem.Draw.ReactionToImage(reaction))
                 else:
                     output_text("", return_val=False)

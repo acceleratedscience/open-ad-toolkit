@@ -23,8 +23,7 @@ def refresh_prompt(settings):
     return prompt
 
 
-# Todo: also check for API
-#
+# Allows us to detect Jupyter before GLOBAL_SETTINGS["display"] is set.
 def is_notebook_mode():
     """Return True if we are running inside a Jupyter Notebook or Jupyter Lab."""
     try:
