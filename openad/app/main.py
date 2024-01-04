@@ -26,7 +26,8 @@ from openad.core.grammar import (
 )
 from openad.core.lang_sessions_and_registry import write_registry, load_registry, delete_session_registry
 from openad.core.lang_workspaces import set_workspace
-from openad.app.memory import Memory
+
+# from openad.app.memory import Memory # TRASH
 
 
 from openad.llm_assist.model_reference import SUPPORTED_TELL_ME_MODELS, SUPPORTED_TELL_ME_MODELS_SETTINGS
@@ -46,6 +47,7 @@ from openad.app.global_var_lib import _meta_workspaces
 from openad.app.global_var_lib import _all_toolkits
 from openad.app.global_var_lib import _meta_dir_toolkits
 from openad.app.global_var_lib import GLOBAL_SETTINGS
+from openad.app.global_var_lib import MEMORY
 
 
 sys.ps1 = "\x01\033[31m\x02>>> \x01\033[0m\x02"
@@ -96,8 +98,9 @@ class RUNCMD(Cmd):
     llm_service = "OPENAI"  # set with OPENAI as default type until WatsonX or alternative available
     llm_model = "gpt-3.5-turbo"
     llm_models = SUPPORTED_TELL_ME_MODELS_SETTINGS
-    # Instantiate memory class
-    memory = Memory()
+
+    # # Instantiate memory class # Trash
+    # memory = Memory()
 
     # Instantiate list of Molecuels for reference
     molecule_list = []
@@ -605,7 +608,7 @@ class RUNCMD(Cmd):
             y = self.current_statement_defs.parseString(convert(inp), parseAll=True)
             x = lang_parse(self, y)
             self.prompt = refresh_prompt(self.settings)
-            self.memory.before_command()
+            MEMORY.before_command()
         except Exception as err1:  # pylint: disable=broad-exception-caught # error could be unknown
             error_descriptor = None
             error_col = -1

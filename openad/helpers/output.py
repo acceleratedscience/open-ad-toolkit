@@ -20,7 +20,7 @@ Usage
 -----
 output_text()
     This is the main output function and replaces print().
-    Simple usage: output_text('Hello world', cmd_pointer, pad=2)
+    Simple usage: output_text('Hello world', pad=2)
     Note: you can pass additional parameters which will be passed
     onto the style_parser, eg. pad=2. See documentation for style().
 output_error()
@@ -37,11 +37,14 @@ output_table()
 
 Examples:
 ---------
-output_error(msg('err_login', toolkit_name, err, split=True), cmd_pointer)
+output_error(msg('err_login', toolkit_name, err))
 input(output_text('<yellow>Hello</yellow>', jup_return_format='plain')
-output_text(msg('workspace_description', workspace_name, description), cmd_pointer, pad=1, edge=True)
+output_text(msg('workspace_description', workspace_name, description), pad=1, edge=True)
 """
 
+import shutil
+import pandas
+from tabulate import tabulate
 from IPython.display import Markdown, display
 from openad.helpers.output_msgs import msg
 
@@ -60,7 +63,7 @@ from openad.plugins.style_parser import style, print_s, strip_tags, tags_to_mark
 
 
 # Print or return styled text.
-def output_text(message, cmd_pointer=None, return_val=None, jup_return_format=None, **kwargs):
+def output_text(message, return_val=None, jup_return_format=None, **kwargs):
     """
     Print or return styled text according to the relevant display context (API/Jupyter/CLI).
 
@@ -69,11 +72,6 @@ def output_text(message, cmd_pointer=None, return_val=None, jup_return_format=No
     text (str, required):
         The text to display. This can be plain text, but in most cases we want to
         store the message in output_msgs.py and request it using msg('<msg_name>').
-    cmd_pointer (object):
-        The run_cmd class instance which is used to determine the display context.
-        While it is technically optional, it is recommended to always pass it.
-        We can still figure out the CLI/Jupyter display context without it, but
-        we won't be able to do that for the API.
     return_val (None/bool):
         Returns the text instead of displaying it.
         The default (None) results in True for Jupyter, False for CLI.
@@ -89,12 +87,10 @@ def output_text(message, cmd_pointer=None, return_val=None, jup_return_format=No
     """
 
     # Imported here to avoid circular imports.
-    from openad.helpers.general import is_notebook_mode
     from openad.app.global_var_lib import GLOBAL_SETTINGS
 
-    notebook_mode = cmd_pointer.notebook_mode if cmd_pointer else is_notebook_mode()
-    api_mode = cmd_pointer.api_mode if cmd_pointer else False
-    return_val = notebook_mode if return_val is None else return_val
+    display = GLOBAL_SETTINGS["display"]
+    return_val = display == "notebook" if return_val is None else return_val
 
     print(style("<red>*** Display:</red>"), GLOBAL_SETTINGS["display"])
 
@@ -108,10 +104,11 @@ def output_text(message, cmd_pointer=None, return_val=None, jup_return_format=No
         message = "\n".join([f"<soft>{string}</soft>" if i > 0 else string for i, string in enumerate(message)])
 
     # API
-    if api_mode:
+    if display == "api":
         return strip_tags(message)
+
     # Jupyter
-    elif notebook_mode:
+    elif display == "notebook":
         if return_val:
             if jup_return_format == "plain":
                 return strip_tags(message)
@@ -123,14 +120,14 @@ def output_text(message, cmd_pointer=None, return_val=None, jup_return_format=No
             display(Markdown(tags_to_markdown(message)))
 
     # CLI
-    else:
+    elif display == "terminal":
         if return_val:
             return style(message, **kwargs)
         else:
             print_s(message, **kwargs)
 
 
-def _output_status(message, status, cmd_pointer=None, pad=1, pad_top=None, pad_btm=None, *args, **kwargs):
+def _output_status(message, status, pad=1, pad_top=None, pad_btm=None, *args, **kwargs):
     """
     Assure consistent styling for error/warning/success messages.
 
@@ -200,7 +197,7 @@ def output_success(message, *args, **kwargs):
 
 
 # Print or return a table.
-def output_table(table, cmd_pointer=None, is_data=False, headers=None, note=None, tablefmt="simple"):
+def output_table(table, is_data=False, headers=None, note=None, tablefmt="simple"):
     """
     Display a table:
     - CLI:      Print using tabulate with some custom home-made styling
@@ -211,8 +208,6 @@ def output_table(table, cmd_pointer=None, is_data=False, headers=None, note=None
     ----------
     table (dataframe/list, required)
         A dataframe or a list of tuples, where each tuple is a row in the table.
-    cmd_pointer (object):
-        The run_cmd class instance which is used to determine the display context.
     is_data (bool):
         This enables the follow-up commands to open/edit/save the table data.
         Some tables are just displaying information and don't need this (eg workspace list.)
@@ -223,19 +218,16 @@ def output_table(table, cmd_pointer=None, is_data=False, headers=None, note=None
     tablefmt (str):
         The table format used for tabulate (CLI only) - See https://github.com/astanin/python-tabulate#table-format
     """
-    import shutil
-    import pandas
-    from tabulate import tabulate
-    from openad.helpers.general import is_notebook_mode
 
-    notebook_mode = cmd_pointer.notebook_mode if cmd_pointer else is_notebook_mode()
+    from openad.app.global_var_lib import MEMORY
+
     headers = [] if headers is None else headers
     is_df = isinstance(table, pandas.DataFrame)
     cli_width = shutil.get_terminal_size().columns
 
     # Abort when table is empty.
     if _is_empty_table(table, is_df):
-        output_warning(msg("table_is_empty"), cmd_pointer, return_val=False)
+        output_warning(msg("table_is_empty"), return_val=False)
         return
 
     # Turn potential tuples into lists.
@@ -245,23 +237,16 @@ def output_table(table, cmd_pointer=None, is_data=False, headers=None, note=None
     col_count = table.shape[1] if is_df else len(table[0])
 
     if headers and len(headers) != col_count:
-        output_warning(
-            msg("table_headers_dont_match_columns", headers, col_count, split=True), cmd_pointer, return_val=False
-        )
+        output_warning(msg("table_headers_dont_match_columns", headers, col_count, split=True), return_val=False)
         headers = headers[:col_count] + ["(?)"] * max(0, col_count - len(headers))
 
     # Enable follow-up commands.
     if is_data:
-        if cmd_pointer:
-            # Store data in memory so we can access it with follow-up commands.
-            cmd_pointer.memory.store(table)
-        else:
-            pass
-            # return output_error(msg("err_cmd_pointer_required"))
+        MEMORY.store(table)
 
     # - -
     # Format data for Jupyter.
-    if notebook_mode is True:
+    if display == "notebook":
         pandas.set_option("display.max_colwidth", None)
         # pandas.options.display.max_colwidth = 5
         # pandas.set_option('display.max_colwidth', 5)
@@ -284,7 +269,7 @@ def output_table(table, cmd_pointer=None, is_data=False, headers=None, note=None
 
     # - -
     # Format data for terminal.
-    else:
+    elif display == "terminal" or display == None:
         if is_df:
             table = tabulate(table, headers="keys", tablefmt=tablefmt, showindex=False, numalign="left")
         else:
@@ -329,11 +314,11 @@ def output_table(table, cmd_pointer=None, is_data=False, headers=None, note=None
         footnote += f"<soft>{note}</soft>"
 
     # Output
-    if notebook_mode is True:
+    if display == "notebook":
         if footnote:
-            output_text(footnote, cmd_pointer, return_val=False)
+            output_text(footnote, return_val=False)
         return table
-    else:
+    elif display == "terminal" or display == None:
         if footnote:
             output = table + "\n\n" + footnote
         else:

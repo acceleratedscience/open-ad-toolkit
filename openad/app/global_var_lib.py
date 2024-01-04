@@ -2,6 +2,7 @@
 
 import os
 from openad.helpers.general import get_toolkits
+from openad.app.memory import Memory
 
 # client metadata directory
 _meta_dir = os.path.expanduser("~/.openad")
@@ -42,3 +43,4 @@ GLOBAL_SETTINGS = {
     # - web: not yet used
     "display": None,
 }
+MEMORY = Memory()

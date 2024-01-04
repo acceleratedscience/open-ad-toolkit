@@ -73,6 +73,7 @@ from openad.app.global_var_lib import _meta_registry_session
 from openad.app.global_var_lib import _meta_login_registry
 from openad.app.global_var_lib import _meta_workspaces
 from openad.app.global_var_lib import _all_toolkits
+from openad.app.global_var_lib import MEMORY
 
 # Helpers
 from openad.helpers.output import output_text, output_error, output_warning, output_success, output_table
@@ -553,9 +554,9 @@ def display_data(cmd_pointer, parser):
 def display_data__save(cmd_pointer, parser):
     """saves data from viewer"""
     # Preserve memory for further follow-up commands.
-    cmd_pointer.memory.preserve()
+    MEMORY.preserve()
 
-    data = cmd_pointer.memory.get()
+    data = MEMORY.get()
     if data is None:
         return output_error(msg("memory_empty", "display"), pad=1)
 
@@ -588,9 +589,9 @@ def display_data__open(
 ):  # pylint: disable=unused-argument # generic pass through used or unused
     # Preserve memory for further follow-up commands.
     """open display data"""
-    cmd_pointer.memory.preserve()
+    MEMORY.preserve()
 
-    data = cmd_pointer.memory.get()
+    data = MEMORY.get()
     if data is None:
         return output_error(msg("memory_empty", "display"), pad=1)
 
@@ -605,9 +606,9 @@ def display_data__open(
 def display_data__copy(cmd_pointer, parser):  # pylint: disable=unused-argument # generic pass through used or unused
     """displays copy of data in data viewer"""
     # Preserve memory for further follow-up commands.
-    cmd_pointer.memory.preserve()
+    MEMORY.preserve()
 
-    data = cmd_pointer.memory.get()
+    data = MEMORY.get()
     if data is None:
         return output_error(msg("memory_empty", "display"), pad=1)
 
@@ -619,9 +620,9 @@ def display_data__copy(cmd_pointer, parser):  # pylint: disable=unused-argument 
 def display_data__display(cmd_pointer, parser):  # pylint: disable=unused-argument # generic pass through used or unused
     """displays last result set in viewer"""
     # Preserve memory for further follow-up commands.
-    cmd_pointer.memory.preserve()
+    MEMORY.preserve()
 
-    data = cmd_pointer.memory.get()
+    data = MEMORY.get()
     if data is None:
         return output_error(msg("memory_empty", "display"), pad=1)
 
