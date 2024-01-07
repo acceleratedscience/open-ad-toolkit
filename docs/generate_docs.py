@@ -45,13 +45,14 @@ FLAG_ERROR = f"<on_red> Failed </on_red>"
 ############################################################
 # region - commands.csv
 
+
 # Loop through all commands and export them to a CSV file.
 # This is not used for anything in particular, other than
 # to have a list of all commands in a file which can be annotated.
 def render_commands_csv(filename, delimiter=";"):
     output_text("<h1>Generating <yellow>commands.csv</yellow> from help</h1>", cmd_pointer, pad_top=1)
-    output = [['Command', 'Category']]
-    
+    output = [["Command", "Category"]]
+
     # Parse main commands
     cmds_main = cmd_pointer.current_help.help_current
     cmds_organized = _organize(cmds_main)
@@ -71,7 +72,7 @@ def render_commands_csv(filename, delimiter=";"):
 
     # Convert to CSV string
     output_str = "\n".join([f"{delimiter}".join(row) for row in output])
-    
+
     # Convert to clipboard CSV string
     output_clipboard = "\n".join([f"\t".join(row) for row in output])
     pyperclip.copy(output_clipboard)
@@ -85,7 +86,8 @@ def render_commands_csv(filename, delimiter=";"):
     else:
         output_text(FLAG_ERROR, cmd_pointer, pad_top=1)
         output_error(err_msg, cmd_pointer)
-    
+
+
 # endregion
 
 ############################################################
