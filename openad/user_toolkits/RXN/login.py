@@ -72,14 +72,6 @@ def login(cmd_pointer):
                 )
             name, prj_id = rxn_helper.get_current_project(cmd_pointer)
         except Exception as e:  # pylint: disable=broad-exception-caught
-            output_error(
-                msg("err_login", "RXN", "Unable to connect to RXN Server", split=True),
-                cmd_pointer=cmd_pointer,
-                return_val=False,
-            )
-            output_error(
-                msg("err_login", "RXN", f"system error {e}", split=True), cmd_pointer=cmd_pointer, return_val=False
-            )
             return False, None
 
         if name != cmd_pointer.settings["workspace"]:
@@ -88,8 +80,10 @@ def login(cmd_pointer):
         return True, None  # No expiry on RXN Handles
 
     # if no Authentication file ask for authentication details and create
-    config_file = get_creds(cred_file, cmd_pointer)
-
+    try:
+        config_file = get_creds(cred_file, cmd_pointer)
+    except BaseException:
+        return False, None
     x = cmd_pointer.login_settings["toolkits"].index("RXN")
     try:
         client = RXN4ChemistryWrapper(api_key=config_file["auth"]["api_key"], base_url=config_file["host"])
@@ -105,15 +99,7 @@ def login(cmd_pointer):
         cmd_pointer.login_settings["client"][x] = client
         rxn_helper.sync_up_workspace_name(cmd_pointer, reset=True)
         return True, None
-    except Exception as e:  # pylint: disable=broad-exception-caught
-        output_error(
-            msg("err_login", "RXN", f"Unable to connect to  {config_file['host']}", split=True),
-            cmd_pointer=cmd_pointer,
-            return_val=False,
-        )
-        output_error(
-            msg("err_login", "RXN", f"system error {e}", split=True), cmd_pointer=cmd_pointer, return_val=False
-        )
+    except BaseException as e:  # pylint: disable=broad-exception-caught
         return False, None
 
 
