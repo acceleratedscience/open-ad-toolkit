@@ -325,6 +325,7 @@ To enable our AI assistant, you'll need an account with OpenAI. There is a one m
 
 4. Run `tell me` to be prompted for your OpenAI API credentials
 
+
 <!-- ![Landing](readme/openai-api-key.png) -->
 
 <a href="assets/openai-api-key.png" target="_blank"><img src="assets/openai-api-key.png" /></a>
