@@ -97,7 +97,7 @@ def how_do_i(cmd_pointer, parser):
             )
             if cmd_pointer.llm_handle is False:
                 return False
-        except Exception as e:  # pylint: disable=broad-exception-caught
+        except BaseException as e:  # pylint: disable=broad-exception-caught
             output_error("Problem Connecting to LLM: " + str(e), return_val=False)
             return False  # if there any other error in calling LLM handle e.g. network , loss of connection etc.
 
@@ -239,19 +239,11 @@ def get_api_key(llm_name, cmd_pointer):
     """get the nominated API key for the LLM"""
     api_config = load_credentials(f"{cmd_pointer.home_dir}/{llm_name.lower()}_api.cred")
     if api_config is None:
-        if llm_name.upper() == "OPENAI":
-            output_warning(
-                "No Stored LLM Credentials:\n Note: for OPENAI users place your OpenAI 'organisation' reference in the host field. This is found under your account settings \n https://platform.openai.com/account/organization.",
-                return_val=False,
-            )
-        else:
-            output_warning(
-                "No Stored LLM Credentials:\n please enter your host/URL for your service and API key details",
-                return_val=False,
-            )
-        api_config = {"host": "None", "auth": {"username": "None", "api_key": "None"}, "verify_ssl": "false"}
-        api_config = get_credentials(
-            cmd_pointer=cmd_pointer, credentials=api_config, creds_to_set=["host", "auth:api_key"]
+        output_warning(
+            f"No Stored LLM Credentials for LLM Service {llm_name.upper()}:\n please enter your API key",
+            return_val=False,
         )
+        api_config = {"host": "None", "auth": {"username": "None", "api_key": "None"}, "verify_ssl": "false"}
+        api_config = get_credentials(cmd_pointer=cmd_pointer, credentials=api_config, creds_to_set=["auth:api_key"])
         write_credentials(api_config, os.path.expanduser(cmd_pointer.home_dir + "/" + llm_name.lower() + "_api.cred"))
     return api_config

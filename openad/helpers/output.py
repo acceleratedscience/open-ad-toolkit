@@ -330,7 +330,43 @@ def output_table(table, is_data=True, headers=None, note=None, tablefmt="simple"
             output = table + "\n\n" + footnote
         else:
             output = table
-        print_s(output, pad=2, nowrap=True)
+        print("")
+        _paginated_output(output, headers=2)
+        # print_s(output, pre_styled_bulk=True, pad=2, nowrap=True)
+
+
+def _paginated_output(output, headers=0):
+    import shutil
+
+    header = []
+    output_array = output.split("\n")
+    if headers > 0:
+        row = 0
+        while row < headers:
+            header.append(output_array[row])
+            row = row + 1
+    row = headers
+    while row < len(output_array):
+        i = 0
+        print()
+        while i < len(header):
+            print(header[i])
+            i = i + 1
+        iterations = shutil.get_terminal_size().lines - headers - 4
+
+        i = 0
+        print("")
+        while i < iterations and row < len(output_array):
+            print(output_array[row])
+            i = i + 1
+            row = row + 1
+        if row < len(output_array):
+            print()
+            quit_display = input(
+                style("<yellow>More results to be displayed , press 'q' to quit or return to continue...</yellow>")
+            )
+            if quit_display == "q":
+                return
 
 
 # Check whether table data is empty.

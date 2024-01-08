@@ -82,8 +82,10 @@ def login(cmd_pointer):
         return True, None  # No expiry on RXN Handles
 
     # if no Authentication file ask for authentication details and create
-    config_file = get_creds(cred_file, cmd_pointer)
-
+    try:
+        config_file = get_creds(cred_file, cmd_pointer)
+    except BaseException:
+        return False, None
     x = cmd_pointer.login_settings["toolkits"].index("RXN")
     try:
         client = RXN4ChemistryWrapper(api_key=config_file["auth"]["api_key"], base_url=config_file["host"])
