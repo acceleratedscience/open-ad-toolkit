@@ -23,7 +23,7 @@ def fetchRoutesDataViewer(data):
         html = render_template("/dataviewer/success.html", display=GLOBAL_SETTINGS["display"])
 
         # Kill server after 1 second so it has time to deliver the CSS etc.
-        threading.Timer(1, lambda: os.kill(os.getpid(), signal.SIGINT)).start()
+        # threading.Timer(1, lambda: os.kill(os.getpid(), signal.SIGINT)).start()
 
         return html
 

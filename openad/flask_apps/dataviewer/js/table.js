@@ -889,6 +889,7 @@ class Table extends Tabulator {
 	getDataFinal(selectedOnly) {
 		// let data = selectedOnly ? this.getSelectedData() : this.getData()
 		let data = this.getData()
+
 		// let data = this.options.data // To be tested better
 		const fields = this.getColumns().map(col => col.getField())
 
@@ -900,17 +901,6 @@ class Table extends Tabulator {
 				}
 			})
 		})
-
-		// Remove index column per the opt-export-index-col options.
-		// Note: The default value will be false if the index column
-		// was added by us, and true if it was already present.
-		const includeIndex = Boolean(+document.getElementById('opt-export-index-col').value)
-		if (!includeIndex) {
-			const indexName = this.options.index
-			data.forEach(row => {
-				delete row[indexName]
-			})
-		}
 
 		// Reorder data columns to match the order of the UI columns.
 		data = data.map(row => {
@@ -934,6 +924,34 @@ class Table extends Tabulator {
 				}
 			}
 		})
+
+		// Remove index column per the opt-export-index-col options.
+		// Note: The default value will be false if the index column
+		// was added by us, and true if it was already present.
+		const includeIndex = Boolean(+document.getElementById('opt-export-index-col').value)
+		if (!includeIndex) {
+			const indexName = this.options.index
+			data.forEach(row => {
+				if (indexName in row) {
+					delete row[indexName]
+				}
+			})
+		}
+
+		// // --- May want to reuse this after removing the onCellMouseDown hack.
+		// // Remove index column per the opt-export-index-col options.
+		// // Note: The default value will be false if the index column
+		// // was added by us, and true if it was already present.
+		// const includeIndex = Boolean(+document.getElementById('opt-export-index-col').value)
+		// if (!includeIndex) {
+		// 	const indexName = this.options.index
+		// 	table.getColumns().forEach(col => {
+		// 		console.log(11, col.getField())
+		// 		if (col.getField() == indexName) {
+		// 			col.delete()
+		// 		}
+		// 	})
+		// }
 
 		return data
 	}

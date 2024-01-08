@@ -79,6 +79,11 @@ contextMenus.init(table, {
 	},
 })
 
+// // Leave for debugging.
+// table.on('tableBuilt', () => {
+// 	console.log('***', table.getData())
+// })
+
 // Display action dropdown.
 table.on('rowSelected', () => {
 	toggleSelectionActions(true)
@@ -625,7 +630,7 @@ function submitData() {
 	xhr.onload = function () {
 		if (xhr.status === 200) {
 			// Success
-			window.location.href = `/success` // ?data=${data}
+			// window.location.href = `/success` // ?data=${data}
 		} else {
 			// Error
 			alert('Submit request failed with status code ' + xhr.status)
