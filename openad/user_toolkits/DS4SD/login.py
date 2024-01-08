@@ -62,20 +62,22 @@ def login(cmd_pointer):
         if expiry_time is not None and expiry_time > now:
             expiry_datetime = time.strftime("%a %b %e, %G  at %R", time.localtime(expiry_time))
             return True, expiry_datetime
-
-    cred_config = get_creds(cred_file, cmd_pointer)
+    try:
+        cred_config = get_creds(cred_file, cmd_pointer)
+    except BaseException:
+        return False, None
 
     if cred_config["host"].strip() == "":
         cred_config["host"] = DEFAULT_URL
     if uri_valid(cred_config["host"]) is False:
         output_error("Invalid url, try again", cmd_pointer=cmd_pointer, return_val=False)
-        return False
+        return False, None
     if cred_config["auth"]["username"].strip() == "":
         output_error("Invalid username, try again", cmd_pointer=cmd_pointer, return_val=False)
-        return False
+        return False, None
     if cred_config["auth"]["api_key"].strip() == "":
         output_error("Invalid api key, try again", cmd_pointer=cmd_pointer, return_val=False)
-        return False
+        return False, None
 
     try:
         x = cmd_pointer.login_settings["toolkits"].index("DS4SD")
@@ -109,11 +111,6 @@ def login(cmd_pointer):
 
         return True, expiry_datetime
     except Exception as e:  # pylint: disable=broad-exception-caught
-        output_error(
-            msg("err_login", "DS4SD", f"Unable to connect to {config.host}", split=True),
-            cmd_pointer=cmd_pointer,
-            return_val=False,
-        )
         return False, None
 
 

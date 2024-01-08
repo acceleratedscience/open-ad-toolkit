@@ -97,7 +97,7 @@ def how_do_i(cmd_pointer, parser):
             )
             if cmd_pointer.llm_handle is False:
                 return False
-        except Exception as e:  # pylint: disable=broad-exception-caught
+        except BaseException as e:  # pylint: disable=broad-exception-caught
             output_error("Problem Connecting to LLM: " + str(e), return_val=False, cmd_pointer=cmd_pointer)
             return False  # if there any other error in calling LLM handle e.g. network , loss of connection etc.
 
