@@ -111,10 +111,6 @@ def login(cmd_pointer):
 
         return True, expiry_datetime
     except Exception as e:  # pylint: disable=broad-exception-caught
-        output_error(
-            msg("err_login", "DS4SD", f"Unable to connect to {config.host}"),
-            return_val=False,
-        )
         return False, None
 
 

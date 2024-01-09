@@ -299,7 +299,7 @@ _messages = {
     ],
     # Error
     "error_login_init": lambda err: ["Something went wrong while initializing the registry", err],
-    "err_login": lambda toolkit_name, err="": [
+    "err_login": lambda toolkit_name, err=None: [
         f"Something went wrong logging you in to {toolkit_name}.\n<reset>Please check your credentials and run <cmd>set context {toolkit_name} reset </cmd></reset>",
         err,
     ],

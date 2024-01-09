@@ -111,8 +111,8 @@ def search_molecules_in_patents(inputs: dict, cmd_pointer):
                     result["InChI"] = ref["value"]
             results_table.append(result)
 
-    except Exception as e:  # pylint: disable=broad-except
-        output_error("Error in calling deepsearch:" + str(e), return_val=False)
+    except Exception as err:  # pylint: disable=broad-except
+        output_error(["There was an error calling DeepSearch", err], return_val=False)
         return False
     if "save_as" in inputs:
         results_file = str(inputs["results_file"])
@@ -124,16 +124,20 @@ def search_molecules_in_patents(inputs: dict, cmd_pointer):
         )
         df = df.replace(np.nan, "", regex=True)
         output_success(msg("success_file_saved"), return_val=False)
-    output_text("\n<h2>Molecules Mentioned in listed Patents:</h2>", return_val=False)
-    output_text(" / ".join(from_list), return_val=False)
+    output_text(
+        f"<h2>We found {len(results_table)} molecules that are mentioned in the following patents:</h2>",
+        return_val=False,
+        pad_top=1,
+    )
+    output_text("\n".join(from_list), return_val=False)
 
     if GLOBAL_SETTINGS["display"] == "notebook":
         df = pd.DataFrame(results_table)
         if len(df) > 0:
-            col = df.pop("SMILES")
-            df.insert(0, col.name, col)
             PandasTools.AddMoleculeColumnToFrame(df, smilesCol="SMILES")
             col = df.pop("ROMol")
+            df.insert(0, col.name, col)
+            col = df.pop("SMILES")
             df.insert(1, col.name, col)
         return df
     else:

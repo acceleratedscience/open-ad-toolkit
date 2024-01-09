@@ -40,8 +40,8 @@ def search_substructure_molecules(inputs: dict, cmd_pointer):
             query_type=MolQueryType.SUBSTRUCTURE,
         )
         resp = api.queries.run(query)
-    except Exception as e:  # pylint: disable=broad-exception-caught
-        output_error("Error in calling deepsearch:" + str(e), return_val=False)
+    except Exception as err:  # pylint: disable=broad-exception-caught
+        output_error(["There was an error calling DeepSearch", err], return_val=False)
         return False
     results_table = []
     for row in resp.outputs["molecules"]:

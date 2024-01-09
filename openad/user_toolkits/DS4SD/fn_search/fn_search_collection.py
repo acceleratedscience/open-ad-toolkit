@@ -178,8 +178,8 @@ def search_collection(inputs: dict, cmd_pointer):
     all_aggs = {}
     try:
         cursor = api.queries.run_paginated_query(query)
-    except Exception as e:  # pylint: disable=broad-exception-caught
-        output_error("Error in calling deepsearch:" + str(e), return_val=False)
+    except Exception as err:  # pylint: disable=broad-exception-caught
+        output_error(["There was an error calling DeepSearch", err], return_val=False)
         return False
 
     for result_page in tqdm(cursor, total=expected_pages):

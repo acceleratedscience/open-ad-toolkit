@@ -53,19 +53,19 @@ def search_patents_cont_molecule(inputs: dict, cmd_pointer):
                 molecules=[MolId(type=MolIdType.INCHI, value=inputs["smiles"])],
                 num_items=20,
             )
-            result_type = "Inchi"
+            result_type = "InChI"
         else:
             query = PatentsWithMoleculesQuery(
                 molecules=[MolId(type=MolIdType.INCHIKEY, value=inputs["smiles"])],
                 num_items=20,
             )
-            result_type = "Inchi Key"
+            result_type = "InChIKey"
             output_warning("String is Not a Smiles or Inchi attemnting Inchikey search: ", return_val=False)
 
         resp = api.queries.run(query)
 
-    except Exception as e:  # pylint: disable=broad-exception-caught
-        output_error("Error in calling deepsearch:" + str(e), return_val=False)
+    except Exception as err:  # pylint: disable=broad-exception-caught
+        output_error(["There was an error calling DeepSearch", err], return_val=False)
         return False
     results_table = []
 
@@ -89,8 +89,7 @@ def search_patents_cont_molecule(inputs: dict, cmd_pointer):
         df = df.replace(np.nan, "", regex=True)
         output_success(msg("success_file_saved"), return_val=False)
     output_text(
-        "\n<h2>Patent Search Results for " + result_type + " molecule:</h2> ",
-        return_val=False,
+        f"<h2>We found {len(results_table)} patents containing the requested {result_type}</h2>", return_val=False
     )
     output_text(inputs["smiles"], return_val=False)
     save_result(

@@ -101,11 +101,6 @@ def login(cmd_pointer):
         rxn_helper.sync_up_workspace_name(cmd_pointer, reset=True)
         return True, None
     except Exception as e:  # pylint: disable=broad-exception-caught
-        output_error(
-            msg("err_login", "RXN", f"Unable to connect to  {config_file['host']}"),
-            return_val=False,
-        )
-        output_error(msg("err_login", "RXN", f"system error {e}"), return_val=False)
         return False, None
 
 

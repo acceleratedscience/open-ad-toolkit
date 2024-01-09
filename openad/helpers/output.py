@@ -42,6 +42,7 @@ input(output_text('<yellow>Hello</yellow>', jup_return_format='plain')
 output_text(msg('workspace_description', workspace_name, description), pad=1, edge=True)
 """
 
+import math
 import shutil
 import pandas
 from tabulate import tabulate
@@ -194,7 +195,9 @@ def output_success(message, *args, **kwargs):
 
 
 # Print or return a table.
-def output_table(table, is_data=True, headers=None, note=None, tablefmt="simple"):
+def output_table(
+    table, is_data=True, headers=None, note=None, tablefmt="simple", return_val=None, pad=1, pad_btm=None, pad_top=None
+):
     """
     Display a table:
     - CLI:      Print using tabulate with some custom home-made styling
@@ -215,13 +218,15 @@ def output_table(table, is_data=True, headers=None, note=None, tablefmt="simple"
         A footnote to display at the bottom of the table.
     tablefmt (str):
         The table format used for tabulate (CLI only) - See https://github.com/astanin/python-tabulate#table-format
+    return_val (None/bool):
+        Returns the table instead of displaying it.
+        The default (None) results in True for Jupyter and API, False for CLI.
+        NOTE: This is confusing and will be refactored so return is always consistent regardless of environment.
     """
 
     # Imported here to avoid circular imports.
     from openad.app.global_var_lib import MEMORY
     from openad.app.global_var_lib import GLOBAL_SETTINGS
-
-    GLOBAL_SETTINGS["display"] = GLOBAL_SETTINGS["display"]
 
     is_df = isinstance(table, pandas.DataFrame)
     cli_width = shutil.get_terminal_size().columns
@@ -249,10 +254,7 @@ def output_table(table, is_data=True, headers=None, note=None, tablefmt="simple"
     # Format data for Jupyter.
     if GLOBAL_SETTINGS["display"] == "notebook":
         pandas.set_option("display.max_colwidth", None)
-        # pandas.options.display.max_colwidth = 5
-        # pandas.set_option('display.max_colwidth', 5)
         if is_df:
-            # return data %%
             pass
         else:
             # Remove styling tags from headers.
@@ -270,7 +272,21 @@ def output_table(table, is_data=True, headers=None, note=None, tablefmt="simple"
     # Format data for terminal.
     elif GLOBAL_SETTINGS["display"] == "terminal" or GLOBAL_SETTINGS["display"] == None:
         if is_df:
-            table = tabulate(table, headers="keys", tablefmt=tablefmt, showindex=False, numalign="left")
+            # By default, display the columns from the dataframe.
+            tabulate_headers = "keys"
+
+            # Prioritize output_table headers over dataframe columns.
+            if headers:
+                table.columns = headers
+
+            # Remove the default numeric header if no columns are set.
+            else:
+                if table.columns.values.tolist()[0] == 0 and table.columns.values.tolist()[1] == 1:
+                    tabulate_headers = []
+                else:
+                    headers = table.columns.values.tolist()
+
+            table = tabulate(table, headers=tabulate_headers, tablefmt=tablefmt, showindex=False, numalign="left")
         else:
             # Parse styling tags.
             for i, row in enumerate(table):
@@ -290,18 +306,6 @@ def output_table(table, is_data=True, headers=None, note=None, tablefmt="simple"
                     # updated with reset \u001b[0m for color tags which may be found later
                     table = table.replace(line, line[: cli_width - 3] + "...\u001b[0m")
 
-        # Color horizontal line yellow.
-        table = table.splitlines()
-        if is_df:
-            table[1] = style(f"<yellow>{table[1]}</yellow>", nowrap=True)
-        else:
-            if headers:
-                table[1] = style(f"<yellow>{table[1]}</yellow>", nowrap=True)
-            else:
-                table[0] = style(f"<yellow>{table[0]}</yellow>", nowrap=True)
-                table[len(table) - 1] = style(f"<yellow>{table[len(table) - 1]}</yellow>", nowrap=True)
-        table = "\n".join(table)
-
     # Display footnote.
     footnote = ""
 
@@ -320,53 +324,123 @@ def output_table(table, is_data=True, headers=None, note=None, tablefmt="simple"
     if note:
         footnote += f"<soft>{note}</soft>"
 
-    # Output
+    # Output for Jupyter
     if GLOBAL_SETTINGS["display"] == "notebook":
         if footnote:
             output_text(footnote, return_val=False)
-        return table
-    elif GLOBAL_SETTINGS["display"] == "terminal" or GLOBAL_SETTINGS["display"] == None:
-        if footnote:
-            output = table + "\n\n" + footnote
+
+        if return_val is True or return_val is None:
+            return table
         else:
-            output = table
-        print("")
-        _paginated_output(output, headers=2)
-        # print_s(output, pre_styled_bulk=True, pad=2, nowrap=True)
+            display(table)
+
+    # Output for terminal
+    elif GLOBAL_SETTINGS["display"] == "terminal" or GLOBAL_SETTINGS["display"] == None:
+        # Return table.
+        if return_val is True:
+            return table
+
+        # Print table.
+        else:
+            if pad_top:
+                print("\n".join([""] * pad_top))
+            elif pad and not pad_btm:
+                print("\n".join([""] * pad))
+
+            _paginated_output(table, headers=headers, exit_msg=footnote)
+
+            if pad_btm:
+                print("\n".join([""] * pad_btm))
+            elif pad and not pad_top:
+                print("\n".join([""] * pad))
 
 
-def _paginated_output(output, headers=0):
+def _paginated_output(table, headers=None, exit_msg=None):
+    from openad.helpers.general import remove_lines, print_separator
     import shutil
 
-    header = []
-    output_array = output.split("\n")
-    if headers > 0:
-        row = 0
-        while row < headers:
-            header.append(output_array[row])
-            row = row + 1
-    row = headers
-    while row < len(output_array):
-        i = 0
-        print()
-        while i < len(header):
-            print(header[i])
-            i = i + 1
-        iterations = shutil.get_terminal_size().lines - headers - 4
+    output_lines = table.split("\n")
 
+    # Calculate table width.
+    table_width = 0
+    for line in output_lines:
+        if len(line) > table_width:
+            table_width = len(line)
+
+    # Divide output lines in 3 sections.
+    lines_header = []
+    lines_body = []
+
+    # Isolate header lines.
+    header_height = 0
+    if headers:
+        for column in headers:
+            height = len(column.splitlines())
+            if height > header_height:
+                header_height = height
+    lines_header = output_lines[: header_height + 1]
+
+    # Isolate body lines.
+    lines_body = output_lines[header_height + 1 :]
+
+    # Color separator(s) yellow.
+    sep = lines_header[len(lines_header) - 1]
+    sep = style(f"<yellow>{sep}</yellow>", nowrap=True)
+    lines_header = lines_header[:-1] + [sep]
+    if not headers:
+        sep2 = lines_body[len(lines_body) - 1]
+        sep2 = style(f"<yellow>{sep2}</yellow>", nowrap=True)
+        lines_body = lines_body[:-1] + [sep2]
+
+    row_cursor = 0
+    skip = 0
+    while row_cursor < len(output_lines):
+        # Minus 3 lines for bottom ellipsis, separator and pagination.
+        max_rows = shutil.get_terminal_size().lines - len(lines_header) - 3
+
+        # Print header + separator.
+        if row_cursor == 0:
+            row_cursor += len(lines_header)
+        else:
+            print("")
+        print("\n".join(lines_header))
+
+        # Print body.
         i = 0
-        print("")
-        while i < iterations and row < len(output_array):
-            print(output_array[row])
+        while i < max_rows and row_cursor < len(output_lines):
+            print(lines_body[skip + i])
             i = i + 1
-            row = row + 1
-        if row < len(output_array):
-            print()
-            quit_display = input(
-                style("<yellow>More results to be displayed , press 'q' to quit or return to continue...</yellow>")
-            )
-            if quit_display == "q":
+            row_cursor = row_cursor + 1
+        skip = skip + i
+
+        # Print pagination.
+        if row_cursor < len(output_lines):
+            total_pages = math.ceil(len(output_lines) / max_rows)
+            page = math.floor(row_cursor / max_rows)
+
+            try:
+                print("...")
+                print_separator("yellow", table_width)
+                input(
+                    style(
+                        f"<yellow>Page {page}/{total_pages}</yellow> - Press <reverse> ENTER </reverse> to load the next page, or <reverse> ctrl+C </reverse> to exit."
+                    )
+                )
+
+                # [ WAIT FOR INPUT ]
+
+                remove_lines(3)
+            except KeyboardInterrupt:
+                print()  # Start a new line.
+                remove_lines(2)
+                if exit_msg:
+                    print_s("\n" + exit_msg)
                 return
+
+        # Print exit message.
+        else:
+            if exit_msg:
+                print_s("\n" + exit_msg)
 
 
 # Check whether table data is empty.

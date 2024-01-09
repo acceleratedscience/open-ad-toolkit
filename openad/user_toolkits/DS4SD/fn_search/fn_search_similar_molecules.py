@@ -61,8 +61,12 @@ def search_similar_molecules(inputs: dict, cmd_pointer):
         )
         df = df.replace(np.nan, "", regex=True)
         output_success(msg("success_file_saved"), return_val=False)
-    output_text("\n<h2>Similarity Search Results for smiles molecule: </h2>  ", return_val=False)
-    output_text(inputs["smiles"], return_val=False)
+
+    output_text(
+        f"<h2>We found {len(results_table)} molecules similar to '<reset>{inputs['smiles']}</reset>'</h2>",
+        return_val=False,
+        pad_top=1,
+    )
     save_result(
         create_analysis_record(
             inputs["smiles"],
@@ -83,13 +87,14 @@ def search_similar_molecules(inputs: dict, cmd_pointer):
                 output_error("Error with rdkit verification of smiles:" + str(err), return_val=False)
                 return False
 
-            display(smiles_mol)
+            mol_img = Chem.Draw.MolToImage(smiles_mol, size=(200, 200))
+            display(mol_img)
 
         df = pd.DataFrame(results_table)
-        col = df.pop("SMILES")
-        df.insert(0, col.name, col)
         PandasTools.AddMoleculeColumnToFrame(df, smilesCol="SMILES")
         col = df.pop("ROMol")
+        df.insert(0, col.name, col)
+        col = df.pop("SMILES")
         df.insert(1, col.name, col)
         return df
     else:
