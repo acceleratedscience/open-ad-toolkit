@@ -1,21 +1,28 @@
-""" display all collections from a given Deep Sesrch Domain """
+# Example command:
+# display collections in domains from list ['Scientific Literature']
+
 import numpy as np
 import pandas as pd
-from openad.helpers.output import output_error, output_table, output_success
+from openad.helpers.output import output_error, output_success, output_table
 from openad.helpers.output_msgs import msg
-from openad.app.global_var_lib import GLOBAL_SETTINGS
-
-_tableformat = "simple"
 
 
 def display_collections_in_domains_list(inputs: dict, cmd_pointer):
-    """display all collections from a given Deep Sesrch Domain
-    inputs: parser inputs from pyparsing
-    cmd_pointer: pointer to runtime"""
+    """
+    Display all collections from a given DeepSearch domain.
+
+    Parameters
+    ----------
+    inputs:
+        Parser inputs from pyparsing.
+    cmd_pointer:
+        Pointer to runtime.
+    """
 
     api = cmd_pointer.login_settings["toolkits_api"][cmd_pointer.login_settings["toolkits"].index("DS4SD")]
     try:
         collections = api.elastic.list()
+        # raise Exception('This is a test error')
     except Exception as err:  # pylint: disable=broad-exception-caught
         output_error(msg("err_deepsearch", err), return_val=False)
         return False
@@ -23,34 +30,41 @@ def display_collections_in_domains_list(inputs: dict, cmd_pointer):
     collections.sort(key=lambda c: c.name.lower())
     from_list = []
     if isinstance(inputs["from_source"], dict) and inputs["from_source"]["from_list"] != None:
+        print(111)
         try:
             from_list = inputs["from_source"]["from_list"]
-        except Exception:  # pylint: disable=broad-exception-caught
+            # raise Exception('This is a test error')
+        except Exception as err:  # pylint: disable=broad-exception-caught
             output_error(
-                "unexpected pyparsing error. Please screenshot and report circumstance to OpenAD team",
+                [
+                    "Unexpected pyparsing error\nRestart Notebook kernel or application to proceed\n<warning>Please screenshot and report circumstance to OpenAD team</warning>",
+                    err,
+                ],
                 return_val=False,
             )
-            output_error("Restart Notebook Kernel or application to proceed", return_val=False)
             return False
 
-    elif "from_list" in inputs["from_source"][0]:
+    elif "from_list" in inputs["from_source"][0] or 1:
         try:
             from_list = inputs["from_source"][0]["from_list"]
-        except Exception:  # pylint: disable=broad-exception-caught
+            # raise Exception('This is a test error')
+        except Exception as err:  # pylint: disable=broad-exception-caught
             output_error(
-                "unexpected pyparsing error. Please screenshot and report circumstance to OpenAD team",
+                [
+                    "Unexpected pyparsing error\nRestart Notebook kernel or application to proceed\n<warning>Please screenshot and report circumstance to OpenAD team</warning>",
+                    err,
+                ],
                 return_val=False,
             )
-            output_error("Restart Notebook Kernel or application to proceed", return_val=False)
             return False
 
     results = [
         {
-            "Domains": "/ ".join(c.metadata.domain),
+            "Domains": " / ".join(c.metadata.domain),
             "Collection Name": c.name,
-            "Collection key": c.source.index_key,
+            "Collection Key": c.source.index_key,
             "Type": c.metadata.type,
-            "Num entries": c.documents,
+            "Num Entries": c.documents,
             "Date": c.metadata.created.strftime("%Y-%m-%d"),
             "System": c.source.elastic_id,
         }
@@ -77,10 +91,6 @@ def display_collections_in_domains_list(inputs: dict, cmd_pointer):
             cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/" + results_file, index=False
         )
         df = df.replace(np.nan, "", regex=True)
-        output_success(msg("success_file_saved"), return_val=False)
+        output_success(msg("success_file_saved"), return_val=False, pad_top=1, pad_btm=0)
 
-    if GLOBAL_SETTINGS["display"] == "notebook":
-        return pd.DataFrame(results)
-    else:
-        collectives = pd.DataFrame(results)
-        output_table(collectives, tablefmt=_tableformat)
+    return output_table(pd.DataFrame(results))

@@ -63,20 +63,25 @@ def predict_reaction_batch_topn(inputs: dict, cmd_pointer):
     if isinstance(inputs["from_source"], dict) and inputs["from_source"]["from_list"] is not None:
         try:
             from_list = inputs["from_source"]["from_list"]
-        except:  # pylint: disable=bare-except
+        except Exception as err:  # pylint: disable=broad-except
             output_error(
-                "unexpected pyparsing error. Please screenshot and report circumstance to OpenAD team",
+                [
+                    "Unexpected pyparsing error\nRestart Notebook kernel or application to proceed\n<warning>Please screenshot and report circumstance to OpenAD team</warning>",
+                    err,
+                ],
                 return_val=False,
             )
-            output_error("Restart Notebook Kernel or application to proceed", return_val=False)
             return False
 
     elif "from_list" in inputs["from_source"][0]:
         try:
             from_list = inputs["from_source"][0]["from_list"]
-        except:  # pylint: disable=bare-except
+        except Exception as err:  # pylint: disable=broad-except
             output_error(
-                "unexpected pyparsing error. Please screenshot and report circumstance to OpenAD team",
+                [
+                    "Unexpected pyparsing error\nRestart Notebook kernel or application to proceed\n<warning>Please screenshot and report circumstance to OpenAD team</warning>",
+                    err,
+                ],
                 return_val=False,
             )
             return False

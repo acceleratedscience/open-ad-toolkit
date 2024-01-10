@@ -10,8 +10,6 @@ from openad.molecules.molecule_cache import create_analysis_record, save_result
 from openad.molecules.mol_functions import canonical_smiles, valid_smiles
 from openad.app.global_var_lib import GLOBAL_SETTINGS
 
-_tableformat = "simple"
-
 
 def get_include_lib(cmd_pointer):
     """load the rxn include library functions"""

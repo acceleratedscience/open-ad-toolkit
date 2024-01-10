@@ -1,3 +1,6 @@
+# Example command:
+# search for substructure instances of 'C1(C(=C)C([O-])C1C)=O'
+
 import numpy as np
 import pandas as pd
 from rdkit.Chem import PandasTools
@@ -8,13 +11,17 @@ from openad.helpers.output import output_text, output_success, output_error, out
 from openad.helpers.output_msgs import msg
 from openad.app.global_var_lib import GLOBAL_SETTINGS
 
-_tableformat = "simple"
-
 
 # needs to be migrated into Helper
 def valid_smiles(input_molecule) -> bool:
-    """tests to see if a input molecule is valid smiles definition
-    input_molecule: smiles string"""
+    """
+    Check if an string is valid SMILES definition.
+
+    Parameters
+    ----------
+    input_molecule:
+        smiles string
+    """
     from rdkit import rdBase
 
     blocker = rdBase.BlockLogs()  # pylint: disable=c-extension-no-member
@@ -40,8 +47,9 @@ def search_substructure_molecules(inputs: dict, cmd_pointer):
             query_type=MolQueryType.SUBSTRUCTURE,
         )
         resp = api.queries.run(query)
+        # raise Exception('This is a test error')
     except Exception as err:  # pylint: disable=broad-exception-caught
-        output_error(["There was an error calling DeepSearch", err], return_val=False)
+        output_error(msg("err_deepsearch", err), return_val=False)
         return False
     results_table = []
     for row in resp.outputs["molecules"]:
@@ -69,12 +77,15 @@ def search_substructure_molecules(inputs: dict, cmd_pointer):
             cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/" + results_file, index=False
         )
         df = df.replace(np.nan, "", regex=True)
-        output_success(msg("success_file_saved"), return_val=False)
+        output_success(msg("success_file_saved"), return_val=False, pad_top=1, pad_btm=0)
     output_text(
-        "\n<h2>Search Results for smiles containing substructures of : </h2> ",
+        f"<bold>We found {len(results_table)} molecules that contain the provided substructure</bold>",
         return_val=False,
+        pad_top=1,
     )
     output_text(inputs["smiles"], return_val=False)
+
+    df = pd.DataFrame(results_table)
 
     if GLOBAL_SETTINGS["display"] == "notebook":
         from IPython.display import display
@@ -82,18 +93,17 @@ def search_substructure_molecules(inputs: dict, cmd_pointer):
         if valid_smiles(inputs["smiles"]):
             try:
                 smiles_mol = Chem.MolFromSmiles(inputs["smiles"])
-            except Exception as e:  # pylint: disable=broad-exception-caught
-                output_error("Error with rdkit verification of smiles:" + str(e), return_val=False)
+                # raise Exception('This is a test error')
+            except Exception as err:  # pylint: disable=broad-exception-caught
+                output_error(["Error verifying SMILES (RDKit)", err], return_val=False)
                 return False
 
             display(smiles_mol)
-        df = pd.DataFrame(results_table)
-        col = df.pop("SMILES")
-        df.insert(0, col.name, col)
+
         PandasTools.AddMoleculeColumnToFrame(df, smilesCol="SMILES")
         col = df.pop("ROMol")
+        df.insert(0, col.name, col)
+        col = df.pop("SMILES")
         df.insert(1, col.name, col)
-        return df
-    else:
-        table = pd.DataFrame(results_table)
-        output_table(table, tablefmt=_tableformat)
+
+    return output_table(df)

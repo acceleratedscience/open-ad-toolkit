@@ -633,7 +633,7 @@ function submitData() {
 	xhr.onload = function () {
 		if (xhr.status === 200) {
 			// Success
-			// window.location.href = `/success` // ?data=${data}
+			window.location.href = `/success` // ?data=${data}
 		} else {
 			// Error
 			alert('Submit request failed with status code ' + xhr.status)

@@ -3,7 +3,7 @@ import signal
 import json
 import pandas
 import threading
-from flask import render_template, request, redirect, url_for
+from flask import render_template, request
 from openad.helpers.output import output_table
 from openad.app.global_var_lib import GLOBAL_SETTINGS
 
@@ -23,7 +23,7 @@ def fetchRoutesDataViewer(data):
         html = render_template("/dataviewer/success.html", display=GLOBAL_SETTINGS["display"])
 
         # Kill server after 1 second so it has time to deliver the CSS etc.
-        # threading.Timer(1, lambda: os.kill(os.getpid(), signal.SIGINT)).start()
+        threading.Timer(1, lambda: os.kill(os.getpid(), signal.SIGINT)).start()
 
         return html
 

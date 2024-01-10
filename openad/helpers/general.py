@@ -312,7 +312,8 @@ def print_separator(style=None, width=None):
     if GLOBAL_SETTINGS["display"] == "terminal" or GLOBAL_SETTINGS["display"] == None:
         import shutil
 
-        width = shutil.get_terminal_size().columns if not width else width
+        terminal_width = shutil.get_terminal_size().columns
+        width = terminal_width if not width or terminal_width < width else width
         if style:
             output_text(f"<{style}>{'-' * width}</{style}>", nowrap=True)
         else:

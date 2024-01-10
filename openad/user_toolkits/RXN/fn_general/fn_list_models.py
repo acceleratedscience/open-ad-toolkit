@@ -3,8 +3,6 @@
 from openad.helpers.output import output_table
 from openad.app.global_var_lib import GLOBAL_SETTINGS
 
-_tableformat = "simple"
-
 
 def list_models(inputs: dict, cmd_pointer):
     """list avilable rxn models"""
@@ -33,4 +31,4 @@ def list_models(inputs: dict, cmd_pointer):
 
         return HTML(df.to_html(index=False))
 
-    output_table(df, tablefmt=_tableformat, headers=["Models", "Versions"])
+    output_table(df, headers=["Models", "Versions"])

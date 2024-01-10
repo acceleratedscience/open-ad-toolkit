@@ -196,7 +196,16 @@ def output_success(message, *args, **kwargs):
 
 # Print or return a table.
 def output_table(
-    table, is_data=True, headers=None, note=None, tablefmt="simple", return_val=None, pad=1, pad_btm=None, pad_top=None
+    table,
+    is_data=True,
+    headers=None,
+    note=None,
+    tablefmt="simple",
+    return_val=None,
+    pad=1,
+    pad_btm=None,
+    pad_top=None,
+    _display=None,
 ):
     """
     Display a table:
@@ -207,8 +216,9 @@ def output_table(
     Parameters
     ----------
     table (dataframe/list, required)
-        A dataframe or a list of lists/tuples, where each list/tuple is a row in the table.
-    is_data (bool):
+        A dataframe or a list of lists/tuples, where each list/tuple is a row
+        in the table.
+    is_data (bool, default=True):
         Enables the follow-up commands (open/edit/save/copy). Some tables are
         just displaying information and don't need them (eg workspace list.)
     headers (list):
@@ -217,16 +227,37 @@ def output_table(
     note (str):
         A footnote to display at the bottom of the table.
     tablefmt (str):
-        The table format used for tabulate (CLI only) - See https://github.com/astanin/python-tabulate#table-format
+        The table format used for tabulate (CLI only)
+        See https://github.com/astanin/python-tabulate#table-format
     return_val (None/bool):
         Returns the table instead of displaying it.
         The default (None) results in True for Jupyter and API, False for CLI.
-        NOTE: This is confusing and will be refactored so return is always consistent regardless of environment.
+        NOTE: This is confusing and will be refactored so return is always
+        consistent regardless of environment.
+    pad (int, default=1):
+    pad_top (int):
+    pad_btm (int):
+        Mimics the behavior of the style parser consistent with output_text etc.
+        These parameters control how many empty lines are displayed before and
+        after the table. If pad_btm or pad_top is set, pad will be ignored.
+    _display (bool):
+        Used for testing only. When running output_table outside of the OpenAD
+        context, directly from a Python file or a Notebook, GLOBAL_SETTINGS["display"]
+        will always be none, so this way we can set it manually.
     """
 
     # Imported here to avoid circular imports.
     from openad.app.global_var_lib import MEMORY
     from openad.app.global_var_lib import GLOBAL_SETTINGS
+
+    # A dataframe can be styled, eg. df.style.set_properties(**{"text-align": "left"})
+    # but a styled dataframe comes in as a styler object, which breaks functionality.
+    # So we extract the dataframe from the styler object, and then override the styler
+    # object's original data with the manipulated data before printing.
+    is_df_styler_obj = hasattr(pandas.io.formats, "style") and isinstance(table, pandas.io.formats.style.Styler)
+    if is_df_styler_obj:
+        table_styler = table
+        table = table.data
 
     is_df = isinstance(table, pandas.DataFrame)
     cli_width = shutil.get_terminal_size().columns
@@ -250,9 +281,13 @@ def output_table(
     if is_data:
         MEMORY.store(table)
 
+    # Prioritize output_table headers over dataframe columns.
+    if is_df and headers:
+        table.columns = headers
+
     # - -
     # Format data for Jupyter.
-    if GLOBAL_SETTINGS["display"] == "notebook":
+    if GLOBAL_SETTINGS["display"] == "notebook" or _display == "notebook":
         pandas.set_option("display.max_colwidth", None)
         if is_df:
             pass
@@ -270,17 +305,13 @@ def output_table(
 
     # - -
     # Format data for terminal.
-    elif GLOBAL_SETTINGS["display"] == "terminal" or GLOBAL_SETTINGS["display"] == None:
+    elif GLOBAL_SETTINGS["display"] == "terminal" or _display == "terminal":
         if is_df:
             # By default, display the columns from the dataframe.
             tabulate_headers = "keys"
 
-            # Prioritize output_table headers over dataframe columns.
-            if headers:
-                table.columns = headers
-
             # Remove the default numeric header if no columns are set.
-            else:
+            if not headers:
                 if table.columns.values.tolist()[0] == 0 and table.columns.values.tolist()[1] == 1:
                     tabulate_headers = []
                 else:
@@ -325,7 +356,14 @@ def output_table(
         footnote += f"<soft>{note}</soft>"
 
     # Output for Jupyter
-    if GLOBAL_SETTINGS["display"] == "notebook":
+    if GLOBAL_SETTINGS["display"] == "notebook" or _display == "notebook":
+        # If the passed dataframe is a styler object, we extracted the
+        # dataframe earlier, and now re-assign the manipulated dataframe
+        # back to the styler object.
+        if is_df_styler_obj:
+            table_styler.data = table
+            table = table_styler
+
         if footnote:
             output_text(footnote, return_val=False)
 
@@ -335,7 +373,7 @@ def output_table(
             display(table)
 
     # Output for terminal
-    elif GLOBAL_SETTINGS["display"] == "terminal" or GLOBAL_SETTINGS["display"] == None:
+    elif GLOBAL_SETTINGS["display"] == "terminal" or _display == "terminal":
         # Return table.
         if return_val is True:
             return table

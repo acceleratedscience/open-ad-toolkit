@@ -52,60 +52,64 @@ print("++++++++++")
 # SHORT LIST TABLE
 
 # Short list-table
-# output_table(table_list_short, headers=headers_1)
+# output_table(table_list_short, headers=headers_1, _display="terminal")
 
 # Short list-table, multi-line headers
-# output_table(table_list_short, headers=headers_2)
+# output_table(table_list_short, headers=headers_2, _display="terminal")
 
 # Short list-table, no follow-up commands
-# output_table(table_list_short, headers=headers_1, is_data=False)
+# output_table(table_list_short, headers=headers_1, is_data=False, _display="terminal")
 
 # Short list-table, custom padding
-# output_table(table_list_short, headers=headers_1, pad=3)
+# output_table(table_list_short, headers=headers_1, pad=3, _display="terminal")
 
 # Short list-table, custom top padding
-# output_table(table_list_short, headers=headers_1, pad_top=3)
+# output_table(table_list_short, headers=headers_1, pad_top=3, _display="terminal")
 
 # Short list-table, custom bottom padding
-# output_table(table_list_short, headers=headers_1, pad_btm=3)
+# output_table(table_list_short, headers=headers_1, pad_btm=3, _display="terminal")
 
 #
 #
 # PAGINATED LIST TABLE
 
 # Paginated list-table
-# output_table(table_list_long, headers=headers_1)
+# output_table(table_list_long, headers=headers_1, _display="terminal")
 
 # Paginated list-table, multi-line header
-# output_table(table_list_long, headers=headers_2)
+# output_table(table_list_long, headers=headers_2, _display="terminal")
 
 # Paginated list-table w/o follow-up commands
-# output_table(table_list_long, headers=headers_1, is_data=False)
+# output_table(table_list_long, headers=headers_1, is_data=False, _display="terminal")
 
 #
 #
 # SHORT DATAFRAME TABLE
 
 # Short dataframe-table
-# output_table(table_df_short, headers=headers_1)
+# output_table(table_df_short, headers=headers_1, _display="terminal")
 
 # Short dataframe-table, no headers
-# output_table(table_df_short)
+# output_table(table_df_short, _display="terminal")
 
 # Short dataframe-table, headers from dataframe
-# output_table(table_df_short_columns)
+# output_table(table_df_short_columns, _display="terminal")
+
+# Short dataframe-table, styled
+# (Has no effect in the terminal, but is supported for Jupyter)
+output_table(table_df_short.style.set_properties(**{"text-align": "left"}), headers=headers_1, _display="terminal")
 
 #
 #
 # PAGINATED DATAFRAME TABLE
 
 # Paginated dataframe-table
-output_table(table_df_long, headers=headers_1)
+# output_table(table_df_long, headers=headers_2, _display="terminal")
 
 # Paginated dataframe-table, no headers
-# output_table(table_df_long)
+# output_table(table_df_long, _display="terminal")
 
 # Paginated dataframe-table, headers from dataframe
-# output_table(table_df_long_columns)
+# output_table(table_df_long_columns, _display="terminal")
 
 print("++++++++++")
