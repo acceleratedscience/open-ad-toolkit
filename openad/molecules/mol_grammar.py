@@ -71,11 +71,12 @@ from pyparsing import (
     rename,
     merge,
     pubchem,
+    sources,
 ) = map(
     CaselessKeyword,
     "get list description using create set unset workspace workspaces context jobs exec\
           as optimize with toolkits toolkit gpu experiment add run save runs show \
-              file display history data remove result from inchi inchikey smiles formula name last load results export create rename merge pubchem".split(),
+              file display history data remove result from inchi inchikey smiles formula name last load results export create rename merge pubchem sources".split(),
 )
 mol = ["molecule", "mol"]
 mols = ["molecules", "mols"]
@@ -85,7 +86,9 @@ clear = CaselessKeyword("clear")
 cache = CaselessKeyword("cache")
 analysis = CaselessKeyword("analysis")
 enrich = CaselessKeyword("enrich")
-mol_properties = MatchFirst(map(CaselessKeyword, m_props))
+mol_properties = ["synonyms"]
+mol_properties.extend(m_props)
+mol_properties = MatchFirst(map(CaselessKeyword, mol_properties))
 molecules = MatchFirst(map(CaselessKeyword, mols))
 molecule = MatchFirst(map(CaselessKeyword, mol))
 molecule_set = MatchFirst(map(CaselessKeyword, molset))
@@ -158,7 +161,27 @@ Examples:
 """,
         )
     )
+    statements.append(
+        Forward(d_isplay + sources + (molecule_identifier)("molecule_identifier"))("display_property_sources")
+    )
+    grammar_help.append(
+        help_dict_create(
+            name="display  sources",
+            category="Molecules",
+            command="display sources sources |mol <name> | <smiles> | <inchi> | <inchkey> |  <cid>",
+            description=f"""
+Display a molecule's properties sources, attributing back to how they were calcualted or sourced.
 
+{WORKING_SET_PRIORITY}
+
+{SPECIFY_MOL}
+
+{USING_NAME}
+            
+
+""",
+        )
+    )
     # ---
     # Rename molecule
     statements.append(

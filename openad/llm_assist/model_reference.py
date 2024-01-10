@@ -51,12 +51,13 @@ SUPPORTED_TELL_ME_MODELS_SETTINGS = {
                 - smiles or inchi strings are definitions of compounds or smiles
                 - Always explain using the full name not short form of a name
                 - do not repeat instructions unless necessary in answers
+                - do not return data in a table format
 
 
        
 
 Answer the question based only on the following context: {context}  Question: {question} """,
-        "settings": {"temperature": None, "decoding_method": "greedy", "max_new_tokens": 1536, "min_new_tokens": 1},
+        "settings": {"temperature": 0.5, "decoding_method": "greedy", "max_new_tokens": 1536, "min_new_tokens": 1},
         "embeddings": None,
         "embeddings_api": None,
     },
@@ -73,6 +74,7 @@ Answer the question based only on the following context: {context}  Question: {q
             - No "\n" characters in codeblocks
             - Use this correct version of an example command in codeblock format ``` search collection 'PubChem' for 'Ibuprofen' show (data)  ``` 
             - Always format the answer 
+            - do not return data in a table format
         
             Answer the question based only on the following context: {context} 
              

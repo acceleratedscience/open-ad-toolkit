@@ -160,7 +160,6 @@ def clean_up_llm_text(cmd_pointer, old_text):
     """This function cleans up text based on common LLM formatting and translates to our standard formatting"""
 
     text = old_text
-
     # LLM sometimes places the code type used inside the markdown section this simply removes it
     # Needs tidyup
     text = re.sub(r"\`\`\`python\n", r"```\n", text)

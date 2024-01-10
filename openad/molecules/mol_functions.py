@@ -14,6 +14,28 @@ MOL_INCHIKEY_INDEX = "inchikey"
 MOL_CID_INDEX = "cid"
 MOL_SDF_INDEX = "sdf"
 MOL_FORMULA = "formula"
+PROPERTY_SOURCES = {
+    "Log P-XLogP3-AA": "xlogp",
+    "Log P-XLogP3": "xlogp",
+    "SMILES-Isomeric": "isomeric_smiles",
+    "SMILES-Canonical": "canonical_smiles",
+    "Molecular Weight": "molecular_weight",
+    "Compound Complexity": "complexity",
+    "Count-Rotatable Bond": "rotatable_bond_count",
+    "Compound-Canonicalized": "complexity",
+    "Count-Hydrogen Bond Acceptor": "h_bond_acceptor_count",
+    "Count-Hydrogen Bond Donor": "h_bond_donor_count",
+    "IUPAC Name-Preferred": "iupac_name",
+    "Fingerprint-SubStructure Keys": "",
+    "InChI-Standard": "inchi",
+    "InChIKey-Standard": "inchikey",
+    "Mass-Exact": "exact_mass",
+    "Mass-Exact": "molecular_weight",
+    "Weight-MonoIsotopic": "monoisotopic_mass",
+    "Molecular Formula": "molecular_formula",
+    "Topological-Polar Surface Area": "tpsa",
+}
+
 MOL_PROPERTIES = [
     "cid",
     "molecular_formula",
@@ -62,6 +84,8 @@ MOL_PROPERTIES = [
     "coordinate_type",
     "mmff94_energy_3d",
     "mmff94_partial_charges_3d",
+    "multipoles_3d",
+    "pharmacophore_features_3d",
 ]
 
 
@@ -91,20 +115,25 @@ def new_molecule(Name: str, smiles: str):
     mol = {
         "name": Name,
         "synonyms": {},
+        "property_sources": {},
         "properties": {},
         "commments": {},
         "analysis": [],
+        "sources": [],
     }
     for i in MOL_PROPERTIES:
         mol["properties"][i] = None
 
     mol["properties"]["molecular_weight"] = mol_weight
+    mol["property_sources"]["molecular_weight"] = "rdkit"
     mol["properties"]["inchi"] = inchi
-
+    mol["property_sources"]["inchi"] = "rdkit"
     mol["properties"]["inchikey"] = inchikey
+    mol["property_sources"]["inchikey"] = "rdkit"
     mol["properties"]["canonical_smiles"] = new_smiles
-
+    mol["property_sources"]["canonical_smiles"] = "rdkit"
     mol["properties"]["molecular_formula"] = formula
+    mol["property_sources"]["molecular_formula"] = "rdkit"
     return mol
 
 
@@ -118,6 +147,9 @@ def merge_molecule_properties(molecule_dict, mol):
 
     for key in molecule_dict:
         mol["properties"][key] = molecule_dict[key]
+        mol["property_sources"][key] = "custom"
+        if key not in MOL_PROPERTIES:
+            MOL_PROPERTIES.append(key)
 
     return mol
 
@@ -185,8 +217,9 @@ def get_mol(mol_id, mol_id_type):
     OPENAD_MOL_DICT = {
         "name": None,
         "synonyms": {},
-        "sources": {},
         "properties": {},
+        "property_sources": {},
+        "sources": {},
         "commments": {},
         "analysis": [],
     }
@@ -206,6 +239,7 @@ def get_mol(mol_id, mol_id_type):
                 return False, None, None
         molecule = pcy.Compound.from_cid(cid).to_dict()
         openad_mol = OPENAD_MOL_DICT.copy()
+
         if molecule:
             if mol_id_type == MOL_NAME_INDEX:
                 openad_mol["name"] = mol_id
@@ -213,9 +247,24 @@ def get_mol(mol_id, mol_id_type):
                 openad_mol["name"] = molecule["iupac_name"]
             openad_mol["properties"] = molecule
             openad_mol["sources"]["pubchem"] = molecule
+
+            for x in MOL_PROPERTIES:
+                openad_mol["property_sources"][x] = {"source": "pubchem"}
+
+                for key, value in PROPERTY_SOURCES.items():
+                    if value == x:
+                        if len(key.split("-")) > 0:
+                            for y in openad_mol["sources"]["pubchem"]["record"]["props"]:
+                                if "label" not in y["urn"]:
+                                    pass
+                                elif y["urn"]["label"] == key.split("-")[0] and "name" not in y["urn"]:
+                                    openad_mol["property_sources"][x] = y["urn"]
+                                elif y["urn"]["label"] == key.split("-")[0] and y["urn"]["name"] == key.split("-")[1]:
+                                    openad_mol["property_sources"][x] = y["urn"]
             names = pcy.get_synonyms(openad_mol["name"], "name")
             if len(names) > 0:
                 openad_mol["synonyms"] = names[0]
+
             return True, openad_mol, molecule
     except Exception as e:
         print(e)
@@ -242,8 +291,6 @@ def get_identifiers(mol):
     identifier_dict["isomeric_smiles"] = mol["properties"]["isomeric_smiles"]
     identifier_dict["canonical_smiles"] = mol["properties"]["canonical_smiles"]
     identifier_dict["formula"] = mol["properties"]["molecular_formula"]
-    identifier_dict["multipoles_3d"] = mol["properties"]["multipoles_3d"]
-    identifier_dict["pharmacophore_features_3d"] = mol["properties"]["pharmacophore_features_3d"]
     return identifier_dict
 
 
