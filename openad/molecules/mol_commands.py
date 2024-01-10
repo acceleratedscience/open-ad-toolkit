@@ -47,7 +47,7 @@ class bold_style:
 def display_molecule(cmd_pointer, inp):
     """displays a molecule and its properties"""
     molecule_identifier = inp.as_dict()["molecule_identifier"]
-    if cmd_pointer.notebook_mode is True:
+    if GLOBAL_SETTINGS["display"] == "notebook":
         global cli_width
         cli_width = 100
 
@@ -113,7 +113,7 @@ def display_molecule(cmd_pointer, inp):
 
 def display_property_sources(cmd_pointer, inp):
     """displays a molecule properties sources"""
-    if cmd_pointer.notebook_mode is True:
+    if GLOBAL_SETTINGS["display"] == "notebook":
         global cli_width
         cli_width = 100
     molecule_identifier = inp.as_dict()["molecule_identifier"]
@@ -133,7 +133,7 @@ def display_property_sources(cmd_pointer, inp):
         else:
             print_s("molecule not available on pubchem")
             return None
-    if cmd_pointer.notebook_mode is True:
+    if GLOBAL_SETTINGS["display"] == "notebook":
         from IPython.display import Markdown, display, HTML
 
         print_string = print_string.replace("<success>", "<text style=color:green;white-space=pre>")
