@@ -17,6 +17,7 @@ from openad.molecules.mol_batch_files import load_batch_molecules
 
 from openad.molecules.mol_commands import (
     display_molecule,
+    display_property_sources,
     add_molecule,
     remove_molecule,
     list_molecules,
@@ -169,6 +170,8 @@ def lang_parse(cmd_pointer, parser):
     # molecules
     elif parser.getName() == "display_molecule":
         return display_molecule(cmd_pointer, parser)
+    elif parser.getName() == "display_property_sources":
+        return display_property_sources(cmd_pointer, parser)
 
     elif parser.getName() == "add_molecule":
         return add_molecule(cmd_pointer, parser)
