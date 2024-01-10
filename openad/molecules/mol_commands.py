@@ -31,7 +31,7 @@ from openad.molecules.mol_functions import get_properties, get_identifiers
 
 from openad.plugins.style_parser import print_s, style
 
-cli_width = shutil.get_terminal_size().columns
+cli_width = min(shutil.get_terminal_size().columns, 150)
 
 
 class bold_style:
@@ -47,18 +47,37 @@ class bold_style:
 def display_molecule(cmd_pointer, inp):
     """displays a molecule and its properties"""
     molecule_identifier = inp.as_dict()["molecule_identifier"]
+    if cmd_pointer.notebook_mode is True:
+        global cli_width
+        cli_width = 100
 
     mol = retrieve_mol_from_list(cmd_pointer, molecule_identifier)
 
     if mol is not None:
-        print_string = format_identifers(mol) + "\n" + format_properties(mol) + "\n" + format_analysis(mol)
+        print_string = (
+            format_identifers(mol)
+            + "\n"
+            + format_synonyms(mol)
+            + "\n"
+            + format_properties(mol)
+            + "\n"
+            + format_analysis(mol)
+        )
 
         # return print_s(print_string)
     else:
         mol = retrieve_mol(molecule_identifier)
         if mol is not None:
             cmd_pointer.last_external_molecule = mol.copy()
-            print_string = format_identifers(mol) + "\n" + format_properties(mol) + "\n" + format_analysis(mol)
+            print_string = (
+                format_identifers(mol)
+                + "\n"
+                + format_synonyms(mol)
+                + "\n"
+                + format_properties(mol)
+                + "\n"
+                + format_analysis(mol)
+            )
             # return print_s(print_string)
         else:
             output_error(msg("err_mol_not_on_pubchem"))
@@ -80,6 +99,43 @@ def display_molecule(cmd_pointer, inp):
         view.zoomTo()
         view.animate({"loop": "forward"})
         view.show()
+        print_string = print_string.replace("<success>", "<text style=color:green;white-space=pre>")
+        print_string = print_string.replace("</success>", "</text>")
+        print_string = print_string.replace("<yellow>", "<b>")
+        print_string = print_string.replace("</yellow>", "</b>")
+        print_string = print_string.replace("\n", "<br>")
+        display(HTML("<pre>" + print_string + "</pre>"))
+    else:
+        print_s(print_string)
+
+    return True
+
+
+def display_property_sources(cmd_pointer, inp):
+    """displays a molecule properties sources"""
+    if cmd_pointer.notebook_mode is True:
+        global cli_width
+        cli_width = 100
+    molecule_identifier = inp.as_dict()["molecule_identifier"]
+
+    mol = retrieve_mol_from_list(cmd_pointer, molecule_identifier)
+
+    if mol is not None:
+        print_string = format_sources(mol)
+
+        # return print_s(print_string)
+    else:
+        mol = retrieve_mol(molecule_identifier)
+        if mol is not None:
+            cmd_pointer.last_external_molecule = mol.copy()
+            print_string = format_sources(mol)
+            # return print_s(print_string)
+        else:
+            print_s("molecule not available on pubchem")
+            return None
+    if cmd_pointer.notebook_mode is True:
+        from IPython.display import Markdown, display, HTML
+
         print_string = print_string.replace("<success>", "<text style=color:green;white-space=pre>")
         print_string = print_string.replace("</success>", "</text>")
         print_string = print_string.replace("<yellow>", "<b>")
@@ -400,8 +456,73 @@ def format_identifers(mol):
                 id_string = id_string + "{:<40}".format("<{}:> {}".format(key, value)) + "\n"
                 i = 0
     id_string = re.sub(r"<(.*?:)> ", r"<success>\1</success>", id_string)
-    if mol["synonyms"] != None and "Synonym" in mol["synonyms"]:
-        id_string = id_string + "\n\n<yellow>Synonyms:</yellow> {} \n\n".format(mol["synonyms"]["Synonym"])
+    # if mol["synonyms"] != None and "Synonym" in mol["synonyms"]:
+    #   id_string = id_string + "\n\n<yellow>Synonyms:</yellow> {} \n\n".format(mol["synonyms"]["Synonym"])
+    return id_string
+
+
+def format_sources(mol):
+    """formats the identifiers for display"""
+    id_string = "\n<yellow>Name:</yellow> {} \n".format(mol["name"])
+
+    for mol_property, source in mol["property_sources"].items():
+        i = 0
+        id_string = id_string + "\n\n<yellow>Property:</yellow> {} \n".format(mol_property)
+        for key, value in source.items():
+            if value is None:
+                value = ""
+            if len("{}: {} ".format(key, value)) < cli_width / 2 and i < 2:
+                id_string = id_string + "{:<40}".format("<{}:> {} ".format(key, value))
+                i = i + 1
+            elif len(" {}: {} ".format(key, value)) < cli_width / 2 and i == 2:
+                id_string = id_string + "{:<40}".format(" <{}:> {}".format(key, value)) + "\n"
+                i = 0
+            elif len("{}: {} ".format(key, value)) > cli_width / 2 and i == 2:
+                id_string = id_string + "\n<{}:> {}".format(key, value) + "\n"
+                i = 0
+            elif len("{}: {} ".format(key, value)) > cli_width / 2 and i < 2:
+                id_string = id_string + "{:<40}".format("<{}:> {}".format(key, value)) + "\n"
+                i = 0
+    id_string = re.sub(r"<(.*?:)> ", r"<success>\1</success>", id_string)
+    # if mol["synonyms"] != None and "Synonym" in mol["synonyms"]:
+    #   id_string = id_string + "\n\n<yellow>Synonyms:</yellow> {} \n\n".format(mol["synonyms"]["Synonym"])
+    return id_string
+
+
+def format_synonyms(mol):
+    """formats synonyms for display"""
+    id_string = "\n<yellow>Synonyms:</yellow>\n"
+    synonyms = mol["synonyms"]["Synonym"]
+    # synonyms = sorted(mol["synonyms"]["Synonym"], key=len)
+    all_synonyms = True
+    new_synonyms = []
+    for synonym in synonyms:
+        if len(synonym) > 30:
+            all_synonyms = False
+            continue
+        if len(str(synonym).strip()) == 0:
+            continue
+        new_synonyms.append(synonym)
+        display_width = int(len(max(new_synonyms, key=len)) + 2)
+        display_width = 30
+    i = 0
+    for synonym in synonyms:
+        if len(str(synonym).strip()) == 0:
+            continue
+        if len(synonym) > 30:
+            all_synonyms = False
+            continue
+
+        if len(f"{synonym:<{display_width}}") + i < cli_width:
+            id_string = id_string + f"{synonym:<{display_width}}"
+            i = i + len(f"{synonym:<{display_width}}")
+        else:
+            id_string = id_string + f"\n{synonym:<{display_width}}"
+            i = len(f"{synonym:<{display_width}}")
+    name = mol["name"]
+    if all_synonyms is False:
+        id_string = id_string + f"\n\n<yellow>To view all Synonyms try @{name}>>synonyms:</yellow>\n"
+    id_string = re.sub(r"<(.*?:)> ", r"<success>\1</success>", id_string)
     return id_string
 
 
@@ -412,9 +533,9 @@ def format_properties(mol):
 
     i = 0
     for key, value in identifiers.items():
-        if key != "name":
-            if value is None:
-                value = ""
+        if key not in ["name", "canonical_smiles", "inchi", "inchikey", "cid", "isomeric_smiles"]:
+            if value is None or str(value).upper() == "NONE":
+                continue
             if len("{}: {} ".format(key, value)) < cli_width / 2 and i == 0:
                 id_string = id_string + "{:<40}".format("<{}:> {} ".format(key, value))
                 i = 1
@@ -553,13 +674,18 @@ def get_property(cmd_pointer, inp):
         if mol is not None:
             # if GLOBAL_SETTINGS["display"] != "notebook":
             #    print(mol["properties"][molecule_property.lower()])
-
+            if molecule_property.lower() == "synonyms":
+                if mol["synonyms"] is not None and "Synonym" in mol["synonyms"]:
+                    return mol["synonyms"]["Synonym"]
             return mol["properties"][molecule_property.lower()]
             # return print_s(print_string)
         else:
             print_s("molecule not available on pubchem")
             return None
     else:
+        if molecule_property.lower() == "synonyms":
+            if mol["synonyms"] is not None and "Synonym" in mol["synonyms"]:
+                return mol["synonyms"]["Synonym"]
         return mol["properties"][molecule_property.lower()]
 
 
