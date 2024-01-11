@@ -203,7 +203,6 @@ def search_collection(inputs: dict, cmd_pointer):
 
     if is_docs:
         df = pd.json_normalize(all_aggs)
-        df.index = [""]
         if all_aggs != {} and len(df.columns) > 1:
             output_text("<bold>Result distribution by year</bold>", pad_top=1, return_val=False)
             output_table(df.style.set_properties(**{"text-align": "left"}), is_data=False, return_val=False)
