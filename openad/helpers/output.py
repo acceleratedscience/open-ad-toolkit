@@ -200,7 +200,6 @@ def output_table(
     is_data=True,
     headers=None,
     note=None,
-    tablefmt="simple",
     return_val=None,
     pad=1,
     pad_btm=None,
@@ -226,9 +225,6 @@ def output_table(
         Ignored when table is a dataframe.
     note (str):
         A footnote to display at the bottom of the table.
-    tablefmt (str):
-        The table format used for tabulate (CLI only)
-        See https://github.com/astanin/python-tabulate#table-format
     return_val (None/bool):
         Returns the table instead of displaying it.
         The default (None) results in True for Jupyter and API, False for CLI.
@@ -317,7 +313,7 @@ def output_table(
                 else:
                     headers = table.columns.values.tolist()
 
-            table = tabulate(table, headers=tabulate_headers, tablefmt=tablefmt, showindex=False, numalign="left")
+            table = tabulate(table, headers=tabulate_headers, tablefmt="simple", showindex=False, numalign="left")
         else:
             # Parse styling tags.
             for i, row in enumerate(table):
@@ -325,7 +321,7 @@ def output_table(
                     table[i][j] = style(cell, nowrap=True)
 
             headers = [] if headers is None else headers
-            table = tabulate(table, headers=headers, tablefmt=tablefmt, showindex=False, numalign="left")
+            table = tabulate(table, headers=headers, tablefmt="simple", showindex=False, numalign="left")
 
         # Crop table if it's wider than the terminal.
         max_row_length = max(list(map(lambda row: len(row), table.splitlines())))
