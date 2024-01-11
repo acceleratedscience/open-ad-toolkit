@@ -1,7 +1,7 @@
 """Lists available RXN Models"""
 
-_tableformat = "simple"
 from openad.helpers.output import output_table
+from openad.app.global_var_lib import GLOBAL_SETTINGS
 
 
 def list_models(inputs: dict, cmd_pointer):
@@ -26,9 +26,9 @@ def list_models(inputs: dict, cmd_pointer):
 
     df = pd.DataFrame.from_dict(res_dict)
     df.style.hide(axis="index")
-    if cmd_pointer.notebook_mode == True:
+    if GLOBAL_SETTINGS["display"] == "notebook":
         from IPython.display import HTML
 
         return HTML(df.to_html(index=False))
 
-    output_table(df, tablefmt=_tableformat, headers=["Models", "Versions"])
+    output_table(df, headers=["Models", "Versions"])

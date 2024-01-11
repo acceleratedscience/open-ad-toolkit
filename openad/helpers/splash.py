@@ -2,7 +2,8 @@ import os
 import json
 
 from openad.helpers.general import open_file
-from openad.helpers.output import msg, output_text, output_error
+from openad.helpers.output import output_text, output_error
+from openad.helpers.output_msgs import msg
 from openad.helpers.ascii_type import ascii_type
 
 # Importing our own plugins.
@@ -12,6 +13,8 @@ from openad.plugins.style_parser import style, wrap_text, strip_tags
 
 def splash(toolkit_name=None, cmd_pointer=None, startup=False, raw=False):
     """Display the splash page for OpenAD or any of the toolkits."""
+
+    from openad.app.global_var_lib import GLOBAL_SETTINGS
 
     toolkit_name = toolkit_name.upper() if toolkit_name else None
 
@@ -89,15 +92,14 @@ def splash(toolkit_name=None, cmd_pointer=None, startup=False, raw=False):
         # Not installed
         else:
             output += output_error(
-                msg("fail_this_toolkit_not_installed", toolkit_name, split=True),
-                cmd_pointer,
+                msg("fail_this_toolkit_not_installed", toolkit_name),
                 return_val=True,
                 jup_return_format="markdown_data",
                 nowrap=True,
                 pad=0,
             )
 
-    if raw or cmd_pointer.notebook_mode:
+    if raw or GLOBAL_SETTINGS["display"] == "notebook":
         return output
     else:
         return style(output, pad=3, edge=True, nowrap=True)

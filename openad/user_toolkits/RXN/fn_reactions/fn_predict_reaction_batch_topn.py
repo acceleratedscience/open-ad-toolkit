@@ -1,14 +1,11 @@
 """ Performs TOPN anaysis on a set of Reactions defined in a provided list"""
-from time import sleep
-import importlib.util as ilu
-from openad.helpers.output import output_table
-from openad.helpers.output import output_text
-from openad.helpers.output import output_error
-from openad.helpers.output import output_warning
-
 import pandas as pd
 from rdkit import Chem
 from rdkit.Chem import AllChem
+from time import sleep
+import importlib.util as ilu
+from openad.helpers.output import output_text, output_warning, output_error, output_table
+from openad.app.global_var_lib import GLOBAL_SETTINGS
 
 
 def get_reaction_from_smiles(
@@ -36,7 +33,7 @@ def predict_reaction_batch_topn(inputs: dict, cmd_pointer):
     rxn_helper.sync_up_workspace_name(cmd_pointer)
     rxn_helper.get_current_project(cmd_pointer)
 
-    if cmd_pointer.notebook_mode is True:
+    if GLOBAL_SETTINGS["display"] == "notebook":
         from halo import HaloNotebook as Halo  # pylint: disable=import-outside-toplevel
     else:
         from halo import Halo  # pylint: disable=import-outside-toplevel
@@ -66,22 +63,25 @@ def predict_reaction_batch_topn(inputs: dict, cmd_pointer):
     if isinstance(inputs["from_source"], dict) and inputs["from_source"]["from_list"] is not None:
         try:
             from_list = inputs["from_source"]["from_list"]
-        except:  # pylint: disable=bare-except
+        except Exception as err:  # pylint: disable=broad-except
             output_error(
-                "unexpected pyparsing error. Please screenshot and report circumstance to OpenAD team",
-                cmd_pointer=cmd_pointer,
+                [
+                    "Unexpected pyparsing error\nRestart Notebook kernel or application to proceed\n<warning>Please screenshot and report circumstance to OpenAD team</warning>",
+                    err,
+                ],
                 return_val=False,
             )
-            output_error("Restart Notebook Kernel or application to proceed", cmd_pointer=cmd_pointer, return_val=False)
             return False
 
     elif "from_list" in inputs["from_source"][0]:
         try:
             from_list = inputs["from_source"][0]["from_list"]
-        except:  # pylint: disable=bare-except
+        except Exception as err:  # pylint: disable=broad-except
             output_error(
-                "unexpected pyparsing error. Please screenshot and report circumstance to OpenAD team",
-                cmd_pointer=cmd_pointer,
+                [
+                    "Unexpected pyparsing error\nRestart Notebook kernel or application to proceed\n<warning>Please screenshot and report circumstance to OpenAD team</warning>",
+                    err,
+                ],
                 return_val=False,
             )
             return False
@@ -96,7 +96,6 @@ def predict_reaction_batch_topn(inputs: dict, cmd_pointer):
         except Exception:  # pylint: disable=broad-exception-caught
             output_error(
                 "Could not load valid list from dataframe column 'reactions' ",
-                cmd_pointer=cmd_pointer,
                 return_val=False,
             )
             return False
@@ -108,9 +107,7 @@ def predict_reaction_batch_topn(inputs: dict, cmd_pointer):
             if from_list == []:
                 raise Exception  # pylint: disable=broad-exception-raised
         except Exception:  # pylint: disable=broad-exception-caught
-            output_error(
-                "Could not load valid list from file column 'reactions' ", cmd_pointer=cmd_pointer, return_val=False
-            )
+            output_error("Could not load valid list from file column 'reactions' ", return_val=False)
             return False
 
     if "use_saved" in inputs:
@@ -131,11 +128,9 @@ def predict_reaction_batch_topn(inputs: dict, cmd_pointer):
 
         if len(error_list) > 0:
             df = pd.DataFrame(error_list, columns=["smiles"])
-            output_error(":The following invalid were Smiles Supplied:", cmd_pointer=cmd_pointer, return_val=False)
-            output_table(df, cmd_pointer=cmd_pointer)
-            output_warning(
-                "info: This rection will be skipped: " + entry + " ", cmd_pointer=cmd_pointer, return_val=False
-            )
+            output_error(":The following invalid were Smiles Supplied:", return_val=False)
+            output_table(df)
+            output_warning("info: This rection will be skipped: " + entry + " ", return_val=False)
             continue
 
         entry_2 = []
@@ -152,12 +147,11 @@ def predict_reaction_batch_topn(inputs: dict, cmd_pointer):
             new_from_list.append(entry.split("."))
             new_cannonical_list.append(entry_2)
     reaction_no = 0
-    output_text("\n", cmd_pointer=cmd_pointer, return_val=False)
+    output_text("\n", return_val=False)
     # address already saved results
     for reaction_predictions in cached_results:
         output_text(
-            f"<success> Saved Reaction results for:</success> {cached_cannonical_list[reaction_no]}",
-            cmd_pointer=cmd_pointer,
+            f"<green>Saved Reaction results for:</green> {cached_cannonical_list[reaction_no]}",
             return_val=False,
         )
 
@@ -166,11 +160,10 @@ def predict_reaction_batch_topn(inputs: dict, cmd_pointer):
             product_smiles = ".".join(prediction["smiles"])
             confidence = prediction["confidence"]
             output_text(
-                f"<success>         Product(s) </success>{j} {product_smiles}, With confidence {confidence}",
-                cmd_pointer=cmd_pointer,
+                f"<green>         Product(s) </green>{j} {product_smiles}, With confidence {confidence}",
                 return_val=False,
             )
-        output_text("\n", cmd_pointer=cmd_pointer, return_val=False)
+        output_text("\n", return_val=False)
     # if requirement for ask RXN to generate Results
     if len(new_from_list) > 0:
         val = "val"
@@ -223,10 +216,9 @@ def predict_reaction_batch_topn(inputs: dict, cmd_pointer):
         newspin.start()
         newspin.stop()
         for i, reaction_predictions in enumerate(x["predictions"], 1):
-            output_text("\n", cmd_pointer=cmd_pointer, return_val=False)
+            output_text("\n", return_val=False)
             output_text(
-                f" <success> Outcomes for Reaction: </success>   {new_cannonical_list[reaction_no]}:",
-                cmd_pointer=cmd_pointer,
+                f" <green> Outcomes for Reaction: </green>   {new_cannonical_list[reaction_no]}:",
                 return_val=False,
             )
             rxn_helper.save_to_results_cache(
@@ -240,9 +232,8 @@ def predict_reaction_batch_topn(inputs: dict, cmd_pointer):
                 product_smiles = ".".join(prediction["smiles"])
                 confidence = prediction["confidence"]
                 output_text(
-                    f"<success>         Product(s) </success>{j} {product_smiles}, With confidence {confidence}",
-                    cmd_pointer=cmd_pointer,
+                    f"<green>         Product(s) </green>{j} {product_smiles}, With confidence {confidence}",
                     return_val=False,
                 )
-        output_text(" ", cmd_pointer=cmd_pointer, return_val=False)
+        output_text(" ", return_val=False)
     return True

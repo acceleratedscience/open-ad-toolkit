@@ -5,7 +5,8 @@ import os
 import imp  # TODO: future improvement to upgrade from imp
 from openad.app.global_var_lib import _meta_login_registry
 from openad.app.global_var_lib import _meta_login_registry_settings
-from openad.helpers.output import msg, output_success, output_error
+from openad.helpers.output import output_success, output_error
+from openad.helpers.output_msgs import msg
 from openad.app.global_var_lib import _meta_dir_toolkits
 
 # Initialise  Login Pickle
@@ -21,7 +22,7 @@ def initialise_toolkit_login():
         output_success(msg("success_login_init"), return_val=False)
         return True
     except Exception as err:
-        output_error(msg("error_login_init", err, split=True), return_val=False)
+        output_error(msg("error_login_init", err), return_val=False)
         return False
 
 
@@ -68,15 +69,15 @@ def load_login_api(cmd_pointer, toolkit_name, reset=False):
                 expiry_datetime = "No Expiry"
             if login_success is True:
                 if not suppress:
-                    output_success(msg("success_login", toolkit_name, expiry_datetime, split=True), return_val=False)
+                    output_success(msg("success_login", toolkit_name, expiry_datetime), return_val=False)
                 return login_success, expiry_datetime
             else:
                 if not suppress:
-                    output_error(msg("err_login", toolkit_name, split=True), return_val=False)
+                    output_error(msg("err_login", toolkit_name), return_val=False)
                 return False, None
 
         except Exception as err:
-            output_error(msg("err_login", toolkit_name, split=True), return_val=False)
+            output_error(msg("err_login", toolkit_name, err), return_val=False)
             return False, None
     else:
         # If no login file is present, assume no login is required.

@@ -1,27 +1,29 @@
-"""searches for similar molecules"""
+# Example command:
+# search for similar molecules to 'C1(C(=C)C([O-])C1C)=O'
+
 import numpy as np
 from rdkit.Chem import PandasTools
 from rdkit import Chem
 import pandas as pd
 from deepsearch.chemistry.queries.molecules import MoleculeQuery
 from deepsearch.chemistry.queries.molecules import MolQueryType
-from openad.helpers.output import output_table
-from openad.helpers.output import output_error
-from openad.helpers.output import output_text
+from openad.helpers.output import output_text, output_success, output_error, output_table
+from openad.helpers.output_msgs import msg
 from openad.molecules.molecule_cache import create_analysis_record, save_result
-from openad.molecules.mol_functions import canonical_smiles, valid_smiles
-from openad.molecules.mol_commands import property_retrieve
-
-_tableformat = "simple"
-
-
-# needs to be migrated into Helper
+from openad.molecules.mol_functions import valid_smiles
+from openad.app.global_var_lib import GLOBAL_SETTINGS
 
 
 def search_similar_molecules(inputs: dict, cmd_pointer):
-    """search for molecules similar to a specified Molecule
-    inputs: parser inputs from pyparsing
-    cmd_pointer: pointer to runtime
+    """
+    Search for molecules similar to a given molecule.
+
+    Parameters
+    ----------
+    inputs:
+        Parser inputs from pyparsing.
+    cmd_pointer:
+        Pointer to runtime.
     """
     api = cmd_pointer.login_settings["toolkits_api"][cmd_pointer.login_settings["toolkits"].index("DS4SD")]
     try:
@@ -31,8 +33,9 @@ def search_similar_molecules(inputs: dict, cmd_pointer):
         )
 
         resp = api.queries.run(query)
-    except Exception as e:  # pylint: disable=broad-exception-caught
-        output_error("Error in calling deepsearch:" + str(e), cmd_pointer=cmd_pointer, return_val=False)
+        # raise Exception('This is a test error')
+    except Exception as err:  # pylint: disable=broad-exception-caught
+        output_error(msg("err_deepsearch", err), return_val=False)
         return False
     results_table = []
     for row in resp.outputs["molecules"]:
@@ -60,14 +63,14 @@ def search_similar_molecules(inputs: dict, cmd_pointer):
             cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/" + results_file, index=False
         )
         df = df.replace(np.nan, "", regex=True)
-        output_text(
-            " <green> File successfully saved to workspace. </green>", cmd_pointer=cmd_pointer, return_val=False
-        )
-    output_text(" ", cmd_pointer=cmd_pointer, return_val=False)
+        output_success(msg("success_file_saved"), return_val=False, pad_top=1)
+
     output_text(
-        "<h2>  Similarity Search Results for smiles molecule: </h2>  ", cmd_pointer=cmd_pointer, return_val=False
+        f"<bold>We found {len(results_table)} molecules similar to the provided SMILES</bold>",
+        return_val=False,
+        pad_top=1,
     )
-    output_text(inputs["smiles"], cmd_pointer=cmd_pointer, return_val=False)
+    output_text(inputs["smiles"], return_val=False)
     save_result(
         create_analysis_record(
             inputs["smiles"],
@@ -78,27 +81,27 @@ def search_similar_molecules(inputs: dict, cmd_pointer):
         ),
         cmd_pointer=cmd_pointer,
     )
-    if cmd_pointer.notebook_mode is True:
+
+    df = pd.DataFrame(results_table)
+
+    if GLOBAL_SETTINGS["display"] == "notebook":
         from IPython.display import display
 
         if valid_smiles(inputs["smiles"]):
             try:
                 smiles_mol = Chem.MolFromSmiles(inputs["smiles"])
-            except Exception as e:  # pylint: disable= broad-exception-caught
-                output_error(
-                    "Error with rdkit verification of smiles:" + str(e), cmd_pointer=cmd_pointer, return_val=False
-                )
+                # raise Exception('This is a test error')
+            except Exception as err:  # pylint: disable= broad-exception-caught
+                output_error(["Error verifying SMILES (RDKit)", err], return_val=False)
                 return False
 
-            display(smiles_mol)
+            mol_img = Chem.Draw.MolToImage(smiles_mol, size=(200, 200))
+            display(mol_img)
 
-        df = pd.DataFrame(results_table)
-        col = df.pop("SMILES")
-        df.insert(0, col.name, col)
         PandasTools.AddMoleculeColumnToFrame(df, smilesCol="SMILES")
         col = df.pop("ROMol")
+        df.insert(0, col.name, col)
+        col = df.pop("SMILES")
         df.insert(1, col.name, col)
-        return df
-    else:
-        table = pd.DataFrame(results_table)
-        output_table(table, cmd_pointer, tablefmt=_tableformat)
+
+    return output_table(df)

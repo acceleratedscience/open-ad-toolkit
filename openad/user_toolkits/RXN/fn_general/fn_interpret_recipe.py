@@ -2,6 +2,7 @@
 import os
 import importlib.util as ilu
 from openad.helpers.output import output_text
+from openad.app.global_var_lib import GLOBAL_SETTINGS
 
 list_of_reactions = []
 
@@ -28,7 +29,6 @@ def interpret_recipe(inputs: dict, cmd_pointer):
     ):
         output_text(
             f"Attempting to Open and Process Recipe in Workspace File: <green> {recipe} </green>",
-            cmd_pointer=cmd_pointer,
             return_val=False,
         )
         with open(
@@ -38,25 +38,25 @@ def interpret_recipe(inputs: dict, cmd_pointer):
         ) as handle:
             recipe = handle.read()
 
-    if cmd_pointer.notebook_mode is True:
+    if GLOBAL_SETTINGS["display"] == "notebook":
         from IPython.display import Markdown  # pylint: disable=import-outside-toplevel
     try:
         return_result = []
         actios_from_procedure_results = rxn4chemistry_wrapper.paragraph_to_actions(recipe)
-        if cmd_pointer.notebook_mode is True:
+        if GLOBAL_SETTINGS["display"] == "notebook":
             return_result.append("***See the following actions from the Recipe:***\n")
         else:
             return_result.append("See the following actions from the Recipe:\n")
 
         for index, action in enumerate(actios_from_procedure_results["actions"], 1):
-            if cmd_pointer.notebook_mode is True:
+            if GLOBAL_SETTINGS["display"] == "notebook":
                 return_result.append(f"{index}. {action}\n")
             else:
                 return_result.append(f"{index}. {action}\n")
-        if cmd_pointer.notebook_mode is True:
+        if GLOBAL_SETTINGS["display"] == "notebook":
             return Markdown("".join(return_result))
         else:
-            return output_text("\n" + "".join(return_result) + "\n", cmd_pointer=cmd_pointer)
+            return output_text("\n" + "".join(return_result) + "\n")
     except Exception as e:
         raise Exception(
             "unable to to turn paragraph to actions:" + str(e)

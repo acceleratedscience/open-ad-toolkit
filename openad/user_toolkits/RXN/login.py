@@ -5,7 +5,8 @@ import datetime
 import importlib.util as ilu
 from datetime import datetime, timezone
 from rxn4chemistry import RXN4ChemistryWrapper
-from openad.helpers.output import msg, output_text, output_error, output_warning
+from openad.helpers.output import output_text, output_error, output_warning
+from openad.helpers.output_msgs import msg
 from openad.helpers.credentials import load_credentials, get_credentials, write_credentials
 
 API_CONFIG_BLANK = {"host": "None", "auth": {"username": "None", "api_key": "None"}, "verify_ssl": "false"}
@@ -67,11 +68,12 @@ def login(cmd_pointer):
                 workspace = cmd_pointer.settings["workspace"]
                 output_text(
                     f"<success>logging into RXN as: </success> {email}\n <success>Workspace: </success> {workspace}",
-                    cmd_pointer=cmd_pointer,
                     return_val=False,
                 )
             name, prj_id = rxn_helper.get_current_project(cmd_pointer)
         except Exception as e:  # pylint: disable=broad-exception-caught
+            output_error(msg("err_login", "RXN", "Unable to connect to RXN Server"), return_val=False)
+            output_error(msg("err_login", "RXN", f"system error {e}"), return_val=False)
             return False, None
 
         if name != cmd_pointer.settings["workspace"]:
@@ -92,14 +94,13 @@ def login(cmd_pointer):
             workspace = cmd_pointer.settings["workspace"]
             output_text(
                 f"<success>logging into RXN as: </success> {email}\n <success>Workspace: </success> {workspace}",
-                cmd_pointer=cmd_pointer,
                 return_val=False,
             )
         cmd_pointer.login_settings["toolkits_api"][x] = config_file["auth"]["api_key"]
         cmd_pointer.login_settings["client"][x] = client
         rxn_helper.sync_up_workspace_name(cmd_pointer, reset=True)
         return True, None
-    except BaseException as e:  # pylint: disable=broad-exception-caught
+    except Exception as e:  # pylint: disable=broad-exception-caught
         return False, None
 
 
@@ -107,10 +108,9 @@ def get_creds(cred_file, cmd_pointer):
     """get the nominated API key for the LLM"""
     api_config = load_credentials(cred_file)
     if api_config is None:
-        output_warning("Please provide your RXN credentials:", cmd_pointer=cmd_pointer, return_val=False)
+        output_warning("Please provide your RXN credentials:", return_val=False)
         output_text(
             f"<soft>Leave this blank to use the default: {DEFAULT_URL}</soft>",
-            cmd_pointer=cmd_pointer,
             return_val=False,
         )
         api_config = API_CONFIG_BLANK.copy()

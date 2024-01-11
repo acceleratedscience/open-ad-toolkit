@@ -20,7 +20,7 @@ Usage
 -----
 output_text()
     This is the main output function and replaces print().
-    Simple usage: output_text('Hello world', cmd_pointer, pad=2)
+    Simple usage: output_text('Hello world', pad=2)
     Note: you can pass additional parameters which will be passed
     onto the style_parser, eg. pad=2. See documentation for style().
 output_error()
@@ -37,13 +37,21 @@ output_table()
 
 Examples:
 ---------
-output_error(msg('err_login', toolkit_name, err, split=True), cmd_pointer)
+output_error(msg('err_login', toolkit_name, err))
 input(output_text('<yellow>Hello</yellow>', jup_return_format='plain')
-output_text(msg('workspace_description', workspace_name, description), cmd_pointer, pad=1, edge=True)
+output_text(msg('workspace_description', workspace_name, description), pad=1, edge=True)
 """
 
+import math
+import shutil
+import pandas
+from tabulate import tabulate
 from IPython.display import Markdown, display
-from openad.helpers.output_msgs import messages
+from openad.helpers.output_msgs import msg
+
+# Importing our own plugins.
+# This is temporary until every plugin is available as a public pypi package.
+from openad.plugins.style_parser import style, print_s, strip_tags, tags_to_markdown
 
 
 # NOTE (moe) - I'm not able to do import memory from the core director
@@ -55,13 +63,8 @@ from openad.helpers.output_msgs import messages
 # from openad.core.test import foo # This also crashes the app, when test.py has `foo = 123`
 
 
-# Importing our own plugins.
-# This is temporary until every plugin is available as a public pypi package.
-from openad.plugins.style_parser import style, print_s, strip_tags, tags_to_markdown
-
-
 # Print or return styled text.
-def output_text(text, cmd_pointer=None, return_val=None, jup_return_format=None, **kwargs):
+def output_text(message, return_val=None, jup_return_format=None, **kwargs):
     """
     Print or return styled text according to the relevant display context (API/Jupyter/CLI).
 
@@ -70,107 +73,101 @@ def output_text(text, cmd_pointer=None, return_val=None, jup_return_format=None,
     text (str, required):
         The text to display. This can be plain text, but in most cases we want to
         store the message in output_msgs.py and request it using msg('<msg_name>').
-    cmd_pointer (object):
-        The run_cmd class instance which is used to determine the display context.
-        While it is technically optional, it is recommended to always pass it.
-        We can still figure out the CLI/Jupyter display context without it, but
-        we won't be able to do that for the API.
     return_val (None/bool):
-        Return the text instead of displaying it.
+        Returns the text instead of displaying it.
         The default (None) results in True for Jupyter, False for CLI.
+        NOTE: This is confusing and will be refactored so return is always consistent regardless of environment.
     jup_return_format (None/'plain'/'markdown_data'):
         By default, we return a markdown object in Jupyter, but sometimes
         we just need plain text (eg. for input() or the Halo spinner).
         When we need to append the markdown content to another string
         pre-formatting, we want to return the markdown data instead.
         The latter is the case with the plash.py installation notice.
+    kwargs:
+        Additional parameters for style_parser.
     """
-    from openad.helpers.general import is_notebook_mode
 
-    notebook_mode = cmd_pointer.notebook_mode if cmd_pointer else is_notebook_mode()
-    api_mode = cmd_pointer.api_mode if cmd_pointer else False
-    return_val = notebook_mode if return_val is None else return_val
+    # Imported here to avoid circular imports.
+    from openad.app.global_var_lib import GLOBAL_SETTINGS
+
+    return_val = GLOBAL_SETTINGS["display"] == "notebook" if return_val is None else return_val
+
+    # When the message is a list of strings, the first string
+    # will be printed regularly and subsequent strings will be
+    # printed soft gray.
+    # - - -
+    # This is not really used but it's to ensure output
+    # is consistent between output_text and output_error etc.
+    if isinstance(message, list):
+        message = "\n".join([f"<soft>{string}</soft>" if i > 0 else string for i, string in enumerate(message)])
 
     # API
-    if api_mode:
-        return strip_tags(text)
+    if GLOBAL_SETTINGS["display"] == "api":
+        return strip_tags(message)
 
     # Jupyter
-    elif notebook_mode:
+    elif GLOBAL_SETTINGS["display"] == "notebook":
         if return_val:
             if jup_return_format == "plain":
-                return strip_tags(text)
+                return strip_tags(message)
             if jup_return_format == "markdown_data":
-                return Markdown(tags_to_markdown(text)).data
+                return Markdown(tags_to_markdown(message)).data
             else:
-                return Markdown(tags_to_markdown(text))
+                return Markdown(tags_to_markdown(message))
         else:
-            display(Markdown(tags_to_markdown(text)))
+            display(Markdown(tags_to_markdown(message)))
 
     # CLI
-    else:
+    elif GLOBAL_SETTINGS["display"] == "terminal" or GLOBAL_SETTINGS["display"] == None:
         if return_val:
-            return style(text, **kwargs)
+            return style(message, **kwargs)
         else:
-            print_s(text, **kwargs)
+            print_s(message, **kwargs)
 
 
-def _output_status(message, status, cmd_pointer=None, return_val=None, pad=1, pad_top=False, pad_btm=False, **kwargs):
+def _output_status(message, status, pad=1, pad_top=None, pad_btm=None, *args, **kwargs):
     """
-    Print or return styled error/warning/success message according
-    to the relevant display context (API/Jupyter/CLI).
+    Assure consistent styling for error/warning/success messages.
 
-    This is simply a style wrapper around output_text().
-    By default text is displayed with pad=1, unless either
-    pad_btm/pad_top is set.
+    This is simply a style wrapper around output_text() which takes care of:
+    - Displaying message in correct color
+    - Add 1 line of spacing before and after, unless specified otherwise
 
     Parameters
     ----------
-    msg (str/tuple, required):
-        The message to display. If a tuple is passed, the first item
-        is the main message in red/orange/green, and the second is a
-        secondary message in soft grey.
-    status (str, required):
-        The status type. One of 'error', 'warning' or 'success'.
-    cmd_pointer (object):
-        The run_cmd class instance which is used to determine the display context.
-    return_val (None/bool):
-        Return the styled text instead of printing it. This will override
-        the default which is True for Jupyter, False for CLI.
-    pad_top (bool):
-        Add padding to the top of the message only, instead of the default
-        of 1 line of padding both top and bottom (see style() documentation).
-    pad_btm (bool):
-        Add padding to the bottom of the message only, instead of the default
-        of 1 line of padding both top and bottom (see style() documentation).
-    kwargs:
-        Additional parameters to pass onto the style_parser.
+    status (None/'error'/'warning'/'success'):
+        Controls what color (red/yellow/green) the status message is assigned.
+    pad (int, default=1):
+        Used by style_parser: Adds padding to the top and bottom of the message.
+        Gets ignored when either pad_top or pad_btm is set.
+    pad_top (bool, default=0):
+        Used by style_parser: Ignores the pad value and adds padding to the top of the message only.
+    pad_btm (bool, default=0):
+        Used by style_parser: Ignores the pad value and adds padding to the bottom of the message only.
     """
 
-    # Check if there's a secondary message.
-    if isinstance(message, tuple):
-        msg1 = message[0]
-        msg2 = message[1] if len(message) == 2 else None
+    # When the message is a list of strings, the first string
+    # will be printed in the status color (red/yellow/green)
+    # and subsequent strings will be printed soft gray.
+    if isinstance(message, list):
+        message = "\n".join(
+            [
+                f"<soft>{string}</soft>" if i > 0 else f"<{status}>{string}</{status}>"
+                for i, string in enumerate(message)
+            ]
+        )
     else:
-        msg1 = message
-        msg2 = None
+        message = f"<{status}>{message}</{status}>"
 
-    # Format secondary message.
-    msg2 = f"\n<soft>{msg2}</soft>" if msg2 else ""
+    # Set default padding of 1, unless pad_top or pad_btm is set.
+    # These parameters are consumed by style_parser, hence they are
+    # wrapped into kwargs to keep output_text simple.
+    pad = 0 if type(pad_top) == int or type(pad_btm) == int else pad
+    kwargs["pad"] = pad
+    kwargs["pad_btm"] = pad_btm
+    kwargs["pad_top"] = pad_top
 
-    # Set padding.
-    pad = 0 if pad_top or pad_btm else pad
-
-    # Print.
-    return output_text(
-        f"<{status}>{msg1}</{status}>{msg2}",
-        cmd_pointer=cmd_pointer,
-        return_val=return_val,
-        pad=pad,
-        pad_btm=pad_btm,
-        pad_top=pad_top,
-        **kwargs,
-    )
+    return output_text(message, *args, **kwargs)
 
 
 # Print or return error messages.
@@ -198,7 +195,18 @@ def output_success(message, *args, **kwargs):
 
 
 # Print or return a table.
-def output_table(table, cmd_pointer=None, is_data=False, headers=None, note=None, tablefmt="simple"):
+def output_table(
+    table,
+    is_data=True,
+    headers=None,
+    note=None,
+    tablefmt="simple",
+    return_val=None,
+    pad=1,
+    pad_btm=None,
+    pad_top=None,
+    _display=None,
+):
     """
     Display a table:
     - CLI:      Print using tabulate with some custom home-made styling
@@ -207,33 +215,56 @@ def output_table(table, cmd_pointer=None, is_data=False, headers=None, note=None
 
     Parameters
     ----------
-    data (list, required)
-        A dataframe or an array of tuples, where each tuple is a row in the table.
-    cmd_pointer (object):
-        The run_cmd class instance which is used to determine the display context.
-    is_data (bool):
-        This enables the follow-up commands to open/edit/save the table data.
-        Some tables are just displaying information and don't need this (eg workspace list.)
+    table (dataframe/list, required)
+        A dataframe or a list of lists/tuples, where each list/tuple is a row
+        in the table.
+    is_data (bool, default=True):
+        Enables the follow-up commands (open/edit/save/copy). Some tables are
+        just displaying information and don't need them (eg workspace list.)
     headers (list):
         A list of strings, where each string is a column header.
+        Ignored when table is a dataframe.
     note (str):
         A footnote to display at the bottom of the table.
     tablefmt (str):
-        The table format used for tabulate (CLI only) - See https://github.com/astanin/python-tabulate#table-format
+        The table format used for tabulate (CLI only)
+        See https://github.com/astanin/python-tabulate#table-format
+    return_val (None/bool):
+        Returns the table instead of displaying it.
+        The default (None) results in True for Jupyter and API, False for CLI.
+        NOTE: This is confusing and will be refactored so return is always
+        consistent regardless of environment.
+    pad (int, default=1):
+    pad_top (int):
+    pad_btm (int):
+        Mimics the behavior of the style parser consistent with output_text etc.
+        These parameters control how many empty lines are displayed before and
+        after the table. If pad_btm or pad_top is set, pad will be ignored.
+    _display (bool):
+        Used for testing only. When running output_table outside of the OpenAD
+        context, directly from a Python file or a Notebook, GLOBAL_SETTINGS["display"]
+        will always be none, so this way we can set it manually.
     """
-    import shutil
-    import pandas
-    from tabulate import tabulate
-    from openad.helpers.general import is_notebook_mode
 
-    notebook_mode = cmd_pointer.notebook_mode if cmd_pointer else is_notebook_mode()
-    headers = [] if headers is None else headers
+    # Imported here to avoid circular imports.
+    from openad.app.global_var_lib import MEMORY
+    from openad.app.global_var_lib import GLOBAL_SETTINGS
+
+    # A dataframe can be styled, eg. df.style.set_properties(**{"text-align": "left"})
+    # but a styled dataframe comes in as a styler object, which breaks functionality.
+    # So we extract the dataframe from the styler object, and then override the styler
+    # object's original data with the manipulated data before printing.
+    is_df_styler_obj = hasattr(pandas.io.formats, "style") and isinstance(table, pandas.io.formats.style.Styler)
+    if is_df_styler_obj:
+        table_styler = table
+        table = table.data
+
     is_df = isinstance(table, pandas.DataFrame)
     cli_width = shutil.get_terminal_size().columns
 
     # Abort when table is empty.
     if _is_empty_table(table, is_df):
-        output_warning(msg("table_is_empty"), cmd_pointer, return_val=False)
+        output_warning(msg("table_is_empty"), return_val=False)
         return
 
     # Turn potential tuples into lists.
@@ -243,27 +274,22 @@ def output_table(table, cmd_pointer=None, is_data=False, headers=None, note=None
     col_count = table.shape[1] if is_df else len(table[0])
 
     if headers and len(headers) != col_count:
-        output_warning(
-            msg("table_headers_dont_match_columns", headers, col_count, split=True), cmd_pointer, return_val=False
-        )
+        output_warning(msg("table_headers_dont_match_columns", headers, col_count), return_val=False)
         headers = headers[:col_count] + ["(?)"] * max(0, col_count - len(headers))
 
     # Enable follow-up commands.
     if is_data:
-        if not cmd_pointer:
-            raise Exception("cmd_pointer is required in display_data() to enable follow-up commands.")
+        MEMORY.store(table)
 
-        # Store data in memory so we can access it with follow-up commands.
-        cmd_pointer.memory.store(table)
+    # Prioritize output_table headers over dataframe columns.
+    if is_df and headers:
+        table.columns = headers
 
     # - -
     # Format data for Jupyter.
-    if notebook_mode is True:
+    if GLOBAL_SETTINGS["display"] == "notebook" or _display == "notebook":
         pandas.set_option("display.max_colwidth", None)
-        # pandas.options.display.max_colwidth = 5
-        # pandas.set_option('display.max_colwidth', 5)
         if is_df:
-            # return data %%
             pass
         else:
             # Remove styling tags from headers.
@@ -275,20 +301,30 @@ def output_table(table, cmd_pointer=None, is_data=False, headers=None, note=None
                 for j, cell in enumerate(row):
                     table[i][j] = strip_tags(cell)
 
-            # return pandas.DataFrame(data, columns=headers) %%
             table = pandas.DataFrame(table, columns=headers)
 
     # - -
     # Format data for terminal.
-    else:
+    elif GLOBAL_SETTINGS["display"] == "terminal" or _display == "terminal":
         if is_df:
-            table = tabulate(table, headers="keys", tablefmt=tablefmt, showindex=False, numalign="left")
+            # By default, display the columns from the dataframe.
+            tabulate_headers = "keys"
+
+            # Remove the default numeric header if no columns are set.
+            if not headers:
+                if table.columns.values.tolist()[0] == 0 and table.columns.values.tolist()[1] == 1:
+                    tabulate_headers = []
+                else:
+                    headers = table.columns.values.tolist()
+
+            table = tabulate(table, headers=tabulate_headers, tablefmt=tablefmt, showindex=False, numalign="left")
         else:
             # Parse styling tags.
             for i, row in enumerate(table):
                 for j, cell in enumerate(row):
                     table[i][j] = style(cell, nowrap=True)
 
+            headers = [] if headers is None else headers
             table = tabulate(table, headers=headers, tablefmt=tablefmt, showindex=False, numalign="left")
 
         # Crop table if it's wider than the terminal.
@@ -300,11 +336,6 @@ def output_table(table, cmd_pointer=None, is_data=False, headers=None, note=None
                 elif len(line) > cli_width:
                     # updated with reset \u001b[0m for color tags which may be found later
                     table = table.replace(line, line[: cli_width - 3] + "...\u001b[0m")
-
-        # Make line yellow.
-        table = table.splitlines()
-        table[1] = style(f"<yellow>{table[1]}</yellow>", nowrap=True)
-        table = "\n".join(table)
 
     # Display footnote.
     footnote = ""
@@ -322,55 +353,132 @@ def output_table(table, cmd_pointer=None, is_data=False, headers=None, note=None
 
     # --> Optional custom note.
     if note:
-        footnote += f"\n<soft>{note}</soft>"
+        footnote += f"<soft>{note}</soft>"
 
-    # Output
-    if notebook_mode is True:
+    # Output for Jupyter
+    if GLOBAL_SETTINGS["display"] == "notebook" or _display == "notebook":
+        # If the passed dataframe is a styler object, we extracted the
+        # dataframe earlier, and now re-assign the manipulated dataframe
+        # back to the styler object.
+        if is_df_styler_obj:
+            table_styler.data = table
+            table = table_styler
+
         if footnote:
-            output_text(footnote, cmd_pointer, return_val=False)
-        return table
-    else:
-        if footnote:
-            output = table + "\n\n" + footnote
+            output_text(footnote, return_val=False)
+
+        if return_val is True or return_val is None:
+            return table
         else:
-            output = table
-        print("")
-        _paginated_output(output, headers=2)
-        # print_s(output, pre_styled_bulk=True, pad=2, nowrap=True)
+            display(table)
+
+    # Output for terminal
+    elif GLOBAL_SETTINGS["display"] == "terminal" or _display == "terminal":
+        # Return table.
+        if return_val is True:
+            return table
+
+        # Print table.
+        else:
+            if pad_top:
+                print("\n".join([""] * pad_top))
+            elif pad and not pad_btm:
+                print("\n".join([""] * pad))
+
+            _paginated_output(table, headers=headers, exit_msg=footnote)
+
+            if pad_btm:
+                print("\n".join([""] * pad_btm))
+            elif pad and not pad_top:
+                print("\n".join([""] * pad))
 
 
-def _paginated_output(output, headers=0):
+def _paginated_output(table, headers=None, exit_msg=None):
+    from openad.helpers.general import remove_lines, print_separator
     import shutil
 
-    header = []
-    output_array = output.split("\n")
-    if headers > 0:
-        row = 0
-        while row < headers:
-            header.append(output_array[row])
-            row = row + 1
-    row = headers
-    while row < len(output_array):
-        i = 0
-        print()
-        while i < len(header):
-            print(header[i])
-            i = i + 1
-        iterations = shutil.get_terminal_size().lines - headers - 4
+    output_lines = table.split("\n")
 
+    # Calculate table width.
+    table_width = 0
+    for line in output_lines:
+        if len(line) > table_width:
+            table_width = len(line)
+
+    # Divide output lines in 3 sections.
+    lines_header = []
+    lines_body = []
+
+    # Isolate header lines.
+    header_height = 0
+    if headers:
+        for column in headers:
+            height = len(column.splitlines())
+            if height > header_height:
+                header_height = height
+    lines_header = output_lines[: header_height + 1]
+
+    # Isolate body lines.
+    lines_body = output_lines[header_height + 1 :]
+
+    # Color separator(s) yellow.
+    sep = lines_header[len(lines_header) - 1]
+    sep = style(f"<yellow>{sep}</yellow>", nowrap=True)
+    lines_header = lines_header[:-1] + [sep]
+    if not headers:
+        sep2 = lines_body[len(lines_body) - 1]
+        sep2 = style(f"<yellow>{sep2}</yellow>", nowrap=True)
+        lines_body = lines_body[:-1] + [sep2]
+
+    row_cursor = 0
+    skip = 0
+    while row_cursor < len(output_lines):
+        # Minus 3 lines for bottom ellipsis, separator and pagination.
+        max_rows = shutil.get_terminal_size().lines - len(lines_header) - 3
+
+        # Print header + separator.
+        if row_cursor == 0:
+            row_cursor += len(lines_header)
+        else:
+            print("")
+        print("\n".join(lines_header))
+
+        # Print body.
         i = 0
-        print("")
-        while i < iterations and row < len(output_array):
-            print(output_array[row])
+        while i < max_rows and row_cursor < len(output_lines):
+            print(lines_body[skip + i])
             i = i + 1
-            row = row + 1
-        if row < len(output_array):
-            print()
-            quit_display = input(
-                style("<yellow>More results to be displayed , press 'q' to quit or return to continue...</yellow>")
-            )
-            if quit_display == "q":
+            row_cursor = row_cursor + 1
+        skip = skip + i
+
+        # Print pagination.
+        if row_cursor < len(output_lines):
+            total_pages = math.ceil(len(output_lines) / max_rows)
+            page = math.floor(row_cursor / max_rows)
+
+            try:
+                print("...")
+                print_separator("yellow", table_width)
+                input(
+                    style(
+                        f"<yellow>Page {page}/{total_pages}</yellow> - Press <reverse> ENTER </reverse> to load the next page, or <reverse> ctrl+C </reverse> to exit."
+                    )
+                )
+
+                # [ WAIT FOR INPUT ]
+
+                remove_lines(3)
+            except KeyboardInterrupt:
+                print()  # Start a new line.
+                remove_lines(2)
+                if exit_msg:
+                    print_s("\n" + exit_msg)
                 return
+
+        # Print exit message.
+        else:
+            if exit_msg:
+                print_s("\n" + exit_msg)
 
 
 # Check whether table data is empty.
@@ -386,38 +494,3 @@ def _is_empty_table(data, is_df):
                 is_empty = False
                 break
         return is_empty
-
-
-# Procure a display message from output_msgs.py.
-def msg(msg_name, *args, split=False):
-    """
-    Fetches the correct output message from the messages dictionary.
-
-    Output messages are stored in output_msgs.py in three different
-    formats, or a combination of them:
-    - String: for simple static messages
-    - Lambda function: for messages with variables
-    - Tuple: for messages with multiple lines
-
-    Parameters
-    ----------
-    msg_name (str):
-        The name of the message to fetch.
-    args:
-        Any number of variables that are required for the lambda function.
-    split (bool):
-        Instead of parsing a tuple as different lines of the same string,
-        you can return it as a list of separate messages. This is used for
-        the error/warning/success messages, where the first message is the
-        main message, and the second message is a secondary message.
-    """
-    msg_name = messages[msg_name]
-    if callable(msg_name):
-        msg_name = msg_name(*args)
-    if isinstance(msg_name, tuple):
-        if not split:
-            # For output_error/warning/success we sometimes need to send
-            # None as second message, eg. load_toolkit_description().
-            msg_name = [x for x in msg_name if x is not None]
-            msg_name = "\n".join(msg_name)
-    return msg_name

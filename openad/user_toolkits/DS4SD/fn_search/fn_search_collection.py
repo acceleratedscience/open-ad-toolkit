@@ -1,19 +1,18 @@
-"""performs search on a collection"""
+# Example commands:
+# search collection 'arxiv-abstract' for 'ide(\"power conversion efficiency\" OR PCE) AND organ*' using ( edit_distance=20 system_id=default) show (docs)
+# search collection 'pubchem' for 'Ibuprofen' show (data)
+# search collection 'patent-uspto' for '\"smiles#ccc(coc(=o)cs)(c(=o)c(=o)cs)c(=o)c(=o)cs\"' show (data)
+
 import re
 from copy import deepcopy
 import readline
 import numpy as np
 from deepsearch.cps.client.components.elastic import ElasticDataCollectionSource
 from deepsearch.cps.queries import DataQuery
-from openad.helpers.output import output_table
-from openad.helpers.output import output_text
-from openad.helpers.output import output_error
-
-# Importing our own plugins.
-# This is temporary until every plugin is available as a public pypi package.
+from openad.helpers.output import output_text, output_table, output_error
+from openad.helpers.output_msgs import msg
+from openad.app.global_var_lib import GLOBAL_SETTINGS
 from openad.plugins.style_parser import style
-
-_tableformat = "simple"
 
 aggs = {
     "by_year": {
@@ -28,9 +27,19 @@ aggs = {
 
 
 def search_collection(inputs: dict, cmd_pointer):
-    if cmd_pointer.notebook_mode is True:
+    """
+    Perform search on a collection.
+
+    Parameters
+    ----------
+    inputs:
+        Parser inputs from pyparsing.
+    cmd_pointer:
+        Pointer to runtime.
+    """
+
+    if GLOBAL_SETTINGS["display"] == "notebook":
         from tqdm.notebook import tqdm
-        import IPython.display as display
     else:
         from tqdm import tqdm
     import pandas as pd
@@ -49,7 +58,7 @@ def search_collection(inputs: dict, cmd_pointer):
     elif "return_as_data" in inputs:
         highlight["pre_tags"] = [""]
         highlight["post_tags"] = [""]
-    elif cmd_pointer.notebook_mode is False:
+    elif GLOBAL_SETTINGS["display"] != "notebook":
         highlight["pre_tags"] = ["<green>"]
         highlight["post_tags"] = ["</green>"]
     else:
@@ -62,7 +71,7 @@ def search_collection(inputs: dict, cmd_pointer):
     if "collection" in inputs:
         val_index_key = inputs["collection"]
     else:
-        output_error("No collection_key suppled. ", cmd_pointer=cmd_pointer, return_val=False)
+        output_error("No collection_key provided", return_val=False)
         return False
     if "elastic_id" in inputs:
         val_elastic_id = inputs["elastic_id"][val]
@@ -88,33 +97,22 @@ def search_collection(inputs: dict, cmd_pointer):
 
     result = [
         {
-            "Domains": "/ ".join(c.metadata.domain),
+            "Domains": " / ".join(c.metadata.domain),
             "Collection Name": c.name,
-            "Collection key": c.source.index_key,
+            "Collection Key": c.source.index_key,
             "system_id": c.source.elastic_id,
         }
         for c in collections
     ]
     if val_elastic_id not in elastic_list:
-        output_error("Invalid system_id, please choose from the following: ", cmd_pointer=cmd_pointer, return_val=False)
+        output_error("Invalid system_id, please choose from the following:", return_val=False)
         collectives = pd.DataFrame(result)
-        if cmd_pointer.notebook_mode is True:
-            display.display(output_table(collectives, cmd_pointer=cmd_pointer))
-        else:
-            output_table(collectives, cmd_pointer=cmd_pointer)
+        output_table(collectives, is_data=False, return_val=False)
         return False
     if val_index_key not in index_list and val_index_key not in index_name_list:
-        output_error(
-            "Invalid collection key or name, please choose from the following: ",
-            cmd_pointer=cmd_pointer,
-            return_val=False,
-        )
+        output_error("Invalid collection key or name, please choose from the following:", return_val=False)
         collectives = pd.DataFrame(result)
-
-        if cmd_pointer.notebook_mode is True:
-            display.display(output_table(collectives, cmd_pointer=cmd_pointer))
-        else:
-            output_table(collectives, cmd_pointer=cmd_pointer)
+        output_table(collectives, is_data=False, return_val=False)
         return False
 
     if val_index_key in index_name_list:
@@ -148,7 +146,7 @@ def search_collection(inputs: dict, cmd_pointer):
             source=source_list,
             limit=page_size,  # The size of each request page
             highlight=highlight,
-            coordinates=data_collection,  # The data collection to be queries
+            coordinates=data_collection,  # The data collection to be queried
             aggregations=aggs,
         )
     else:
@@ -156,25 +154,25 @@ def search_collection(inputs: dict, cmd_pointer):
             search_query,  # The search query to be executed
             source=source_list,
             limit=page_size,  # The size of each request page
-            coordinates=data_collection,  # The data collection to be queries
+            coordinates=data_collection,  # The data collection to be queried
             aggregations=aggs,
         )
 
-    # [Optional] Compute the number of total results matched. This can be used to monitor the pagination progress.
+    # [Optional] Compute the number of total results matched.
+    # This can be used to monitor the pagination progress.
     count_query = deepcopy(query)
     count_query.paginated_task.parameters["limit"] = 0
     count_results = api.queries.run(count_query)
 
     expected_total = count_results.outputs["data_count"]
-    expected_pages = (expected_total + page_size - 1) // page_size  # this is simply a ceiling formula
+    expected_pages = (expected_total + page_size - 1) // page_size  # This is simply a ceiling formula
 
+    output_text("Estimated results: " + str(expected_total), return_val=False)
     if "estimate_only" in inputs:
-        output_text("Expected Results Estimate: " + str(expected_total), cmd_pointer=cmd_pointer, return_val=False)
         return None
     else:
-        output_text("\n Expected Results Estimate: " + str(expected_total), cmd_pointer=cmd_pointer, return_val=False)
         if expected_total > 100:
-            if confirm_prompt("Your results may take some time to return, do you wish to proceed") is False:
+            if confirm_prompt("Your query may take some time, do you wish to proceed?") is False:
                 return None
 
     # Iterate through all results by fetching `page_size` results at the same time
@@ -182,8 +180,9 @@ def search_collection(inputs: dict, cmd_pointer):
     all_aggs = {}
     try:
         cursor = api.queries.run_paginated_query(query)
-    except Exception as e:  # pylint: disable=broad-exception-caught
-        output_error("Error in calling deepsearch:" + str(e), cmd_pointer=cmd_pointer, return_val=False)
+        # raise Exception('This is a test error')
+    except Exception as err:  # pylint: disable=broad-exception-caught
+        output_error(msg("err_deepsearch", err), return_val=False)
         return False
 
     for result_page in tqdm(cursor, total=expected_pages):
@@ -198,14 +197,11 @@ def search_collection(inputs: dict, cmd_pointer):
 
     if is_docs:
         df = pd.json_normalize(all_aggs)
-        if cmd_pointer.notebook_mode is True:
-            if len(df.columns) > 1:
-                display.display(output_text("<h2>Distribution of Returned Documents by Year</h2>"))
-                display.display(output_table(df, cmd_pointer=cmd_pointer))
-        elif all_aggs != {}:
-            if len(df.columns) > 1:
-                output_text("\n<h1>Distribution of Returned Documents by Year</h1>")
-                output_table(df, cmd_pointer=cmd_pointer)
+        df.index = [""]
+        if all_aggs != {} and len(df.columns) > 1:
+            output_text("<bold>Result distribution by year</bold>", pad_top=1, return_val=False)
+            output_table(df.style.set_properties(**{"text-align": "left"}), is_data=False, return_val=False)
+            print("")
 
     pd.set_option("display.max_colwidth", None)
     x = 0
@@ -274,52 +270,39 @@ def search_collection(inputs: dict, cmd_pointer):
         results_table.append(result)
 
     if result is None:
-        output_text("Search returned no result", cmd_pointer=cmd_pointer, return_val=False)
+        output_text("Search returned no result", return_val=False)
         return None
     if "save_as" in inputs:
         results_file = str(inputs["results_file"])
         if not results_file.endswith(".csv"):
             results_file = results_file + ".csv"
-    if cmd_pointer.notebook_mode is True:
-        df = pd.DataFrame(results_table)
 
-        if "save_as" in inputs:
-            df.to_csv(
-                cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/" + results_file, index=False
-            )
-        df = df.replace(np.nan, "", regex=True)
+    df = pd.DataFrame(results_table)
+    df = df.replace(np.nan, "", regex=True)
+    if "save_as" in inputs:
+        df.to_csv(
+            cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/" + results_file, index=False
+        )
 
-        if "return_as_data" in inputs:
-            return df
-        else:
+    if GLOBAL_SETTINGS["display"] == "notebook":
+        if "return_as_data" not in inputs:
             df = df.style.format(hyperlinks="html")
             df = df.set_properties(**{"text-align": "left"})
-            return df
 
-    else:
-        cmd_line_result = pd.DataFrame(results_table)
-
-        if "save_as" in inputs:
-            cmd_line_result.to_csv(
-                cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/" + results_file, index=False
-            )
-        else:
-            cmd_line_result.style.format(hyperlinks="html")
-            if "Title" in cmd_line_result:
-                cmd_line_result["Title"] = cmd_line_result["Title"].str.wrap(50, break_long_words=True)
-            if "Authors" in cmd_line_result:
-                cmd_line_result["Authors"] = cmd_line_result["Authors"].str.wrap(25, break_long_words=True)
-            if "Snippet" in cmd_line_result:
-                cmd_line_result["Snippet"] = cmd_line_result["Snippet"].apply(
-                    lambda x: style(x)
-                )  # pylint diable:unnecessary-lambda
-
-                cmd_line_result["Snippet"] = cmd_line_result["Snippet"].str.wrap(70, break_long_words=True)
+    elif GLOBAL_SETTINGS["display"] == "terminal":
+        if "save_as" not in inputs:
+            df.style.format(hyperlinks="html")
+            if "Title" in df:
+                df["Title"] = df["Title"].str.wrap(50, break_long_words=True)
+            if "Authors" in df:
+                df["Authors"] = df["Authors"].str.wrap(25, break_long_words=True)
+            if "Snippet" in df:
+                df["Snippet"] = df["Snippet"].apply(lambda x: style(x))  # pylint diable:unnecessary-lambda=
+                df["Snippet"] = df["Snippet"].str.wrap(70, break_long_words=True)
             if display_first > 0:
-                cmd_line_result2 = cmd_line_result.truncate(after=display_first)
-            else:
-                cmd_line_result2 = cmd_line_result
-            output_table(cmd_line_result2.replace(np.nan, "", regex=True), cmd_pointer, tablefmt=_tableformat)
+                df = df.truncate(after=display_first)
+
+    return output_table(df)
 
 
 def confirm_prompt(question: str) -> bool:
