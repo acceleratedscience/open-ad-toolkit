@@ -5,6 +5,13 @@ import numpy as np
 from openad.helpers.output import output_error, output_table, output_success
 from openad.helpers.output_msgs import msg
 
+import os
+import sys
+
+parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, parent_dir)
+from msgs import ds4sd_msg
+
 
 def display_all_collections(inputs: dict, cmd_pointer):
     """
@@ -25,7 +32,7 @@ def display_all_collections(inputs: dict, cmd_pointer):
         collections = api.elastic.list()
         # raise Exception('This is a test error')
     except Exception as err:  # pylint: disable=broad-exception-caught
-        output_error(msg("err_deepsearch", err), return_val=False)
+        output_error(ds4sd_msg("err_deepsearch", err), return_val=False)
         return False
 
     collections.sort(key=lambda c: c.name.lower())

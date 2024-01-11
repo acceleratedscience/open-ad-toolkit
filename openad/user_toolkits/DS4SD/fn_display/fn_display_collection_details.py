@@ -2,7 +2,13 @@
 # display collection details 'Patents from USPTO'
 
 from openad.helpers.output import output_text, output_error
-from openad.helpers.output_msgs import msg
+
+import os
+import sys
+
+parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, parent_dir)
+from msgs import ds4sd_msg
 
 
 def display_collection_details(inputs: dict, cmd_pointer):
@@ -22,7 +28,7 @@ def display_collection_details(inputs: dict, cmd_pointer):
         collections = api.elastic.list()
         # raise Exception('This is a test error')
     except Exception as err:  # pylint: disable=broad-exception-caught
-        output_error(msg("err_deepsearch", err), return_val=False)
+        output_error(ds4sd_msg("err_deepsearch", err), return_val=False)
         return False
 
     collection = None

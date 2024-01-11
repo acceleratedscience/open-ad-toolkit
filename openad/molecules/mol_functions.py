@@ -155,17 +155,35 @@ def merge_molecule_properties(molecule_dict, mol):
 
 
 def valid_smiles(input_molecule) -> bool:
-    """determines if a molecule is valid"""
-    blocker = rdBase.BlockLogs()
-    input_molecule = Chem.MolFromSmiles(input_molecule, sanitize=False)
-    if input_molecule is None:
+    """Check if an string is valid SMILES definition."""
+
+    blocker = rdBase.BlockLogs()  # pylint: disable=c-extension-no-member
+    try:
+        m = Chem.MolFromSmiles(input_molecule, sanitize=False)  # pylint: disable=no-member
+    except:
+        return False
+    if m is None:
         return False
     else:
         try:
-            Chem.SanitizeMol(input_molecule)
-        except:
+            Chem.SanitizeMol(m)  # pylint: disable=no-member
+        except Exception:  # pylint: disable=broad-exception-caught
             return False
     return True
+
+
+def valid_inchi(input_molecule) -> bool:
+    """Check if a string is valid InChI molecule."""
+
+    blocker = rdBase.BlockLogs()  # pylint: disable=c-extension-no-member
+    try:
+        m = Chem.inchi.InchiToInchiKey(input_molecule)
+    except:
+        return False
+    if m is None:
+        return False
+    else:
+        return True
 
 
 def canonical_smiles(input_molecule):

@@ -8,29 +8,15 @@ import pandas as pd
 from deepsearch.chemistry.queries.molecules import MoleculesInPatentsQuery
 from openad.helpers.output import output_text, output_error, output_table, output_success
 from openad.helpers.output_msgs import msg
+from openad.helpers.h_data import col_from_df, csv_to_df
 from openad.app.global_var_lib import GLOBAL_SETTINGS
 
-# """ needs to be migrated into Helper""" ?
+import os
+import sys
 
-
-def get_column_as_list_from_dataframe(a_dataframe, column_name) -> list:
-    """
-    Returns a given column as a list object.
-    """
-    if column_name in a_dataframe:
-        return a_dataframe[column_name].tolist()
-    return []
-
-
-def get_dataframe_from_file(cmd_pointer, filename):
-    """
-    Returns a dataframe from a csv file.
-    """
-    if not os.path.isfile(cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/" + filename):
-        raise Exception("File does not exist")  # pylint: disable=broad-exception-raised
-    else:
-        df = pd.read_csv(cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/" + filename)
-    return df
+parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, parent_dir)
+from msgs import ds4sd_msg
 
 
 def search_molecules_in_patents(inputs: dict, cmd_pointer):
@@ -49,59 +35,41 @@ def search_molecules_in_patents(inputs: dict, cmd_pointer):
         try:
             from_list = inputs["from_source"]["from_list"]
             # raise Exception('This is a test error')
-        except Exception as err:  # pylint: disable=broad-except
-            output_error(
-                [
-                    "Unexpected pyparsing error\nRestart Notebook kernel or application to proceed\n<warning>Please screenshot and report circumstance to OpenAD team</warning>",
-                    err,
-                ],
-                return_val=False,
-            )
+        except Exception:  # pylint: disable=broad-except
+            output_error(msg("err_pyparsing"), return_val=False)
             return False
 
     elif "from_list" in inputs["from_source"][0]:
         try:
             from_list = inputs["from_source"][0]["from_list"]
             # raise Exception('This is a test error')
-        except Exception as err:  # pylint: disable=broad-except
-            output_error(
-                [
-                    "Unexpected pyparsing error\nRestart Notebook kernel or application to proceed\n<warning>Please screenshot and report circumstance to OpenAD team</warning>",
-                    err,
-                ],
-                return_val=False,
-            )
+        except Exception:  # pylint: disable=broad-except
+            output_error(msg("err_pyparsing"), return_val=False)
             return False
     elif "from_dataframe" in inputs:
         try:
             react_frame = cmd_pointer.api_variables[inputs["from_dataframe"]]
-            from_list = get_column_as_list_from_dataframe(react_frame, "PATENT ID")
+            from_list = col_from_df(react_frame, "PATENT ID")
             if from_list == []:
-                from_list = get_column_as_list_from_dataframe(react_frame, "patent id")
+                from_list = col_from_df(react_frame, "patent id")
             if from_list == []:
                 raise Exception("No patent ID found")  # pylint: disable=broad-exception-raised
             # raise Exception('This is a test error')
         except Exception as err:  # pylint: disable=broad-except
-            output_error(
-                ["Failed to load valid list from file column 'PATENT ID' or 'patent id'", err],
-                return_val=False,
-            )
+            output_error(ds4sd_msg("err_patent_id", err), return_val=False)
             return True
     elif "from_file" in inputs:
         from_file = inputs["from_file"]
         try:
-            react_frame = get_dataframe_from_file(cmd_pointer, from_file)
-            from_list = get_column_as_list_from_dataframe(react_frame, "PATENT ID")
+            react_frame = csv_to_df(cmd_pointer, from_file)
+            from_list = col_from_df(react_frame, "PATENT ID")
             if from_list == []:
-                from_list = get_column_as_list_from_dataframe(react_frame, "patent id")
+                from_list = col_from_df(react_frame, "patent id")
             if from_list == []:
                 raise Exception("No patent ID found")  # pylint: disable=broad-exception-raised
             # raise Exception('This is a test error')
-        except Exception:  # pylint: disable=broad-except
-            output_error(
-                "Failed to load valid list from file column 'PATENT ID' or 'patent id'",
-                return_val=False,
-            )
+        except Exception as err:  # pylint: disable=broad-except
+            output_error(ds4sd_msg("err_patent_id", err), return_val=False)
             return True
     try:
         query = MoleculesInPatentsQuery(
@@ -128,7 +96,7 @@ def search_molecules_in_patents(inputs: dict, cmd_pointer):
             results_table.append(result)
         # raise Exception('This is a test error')
     except Exception as err:  # pylint: disable=broad-except
-        output_error(msg("err_deepsearch", err), return_val=False)
+        output_error(ds4sd_msg("err_deepsearch", err), return_val=False)
         return False
     if "save_as" in inputs:
         results_file = str(inputs["results_file"])
