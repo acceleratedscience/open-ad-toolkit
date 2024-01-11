@@ -139,7 +139,7 @@ def search_molecules_in_patents(inputs: dict, cmd_pointer):
             cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/" + results_file, index=False
         )
         df = df.replace(np.nan, "", regex=True)
-        output_success(msg("success_file_saved"), return_val=False, pad_top=1, pad_btm=0)
+        output_success(msg("success_file_saved", results_file), return_val=False, pad_top=1, pad_btm=0)
     output_text(
         f"<bold>We found {len(results_table)} molecules that are mentioned in the following patents:</bold>",
         return_val=False,

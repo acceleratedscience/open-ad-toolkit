@@ -30,7 +30,6 @@ def display_collections_in_domains_list(inputs: dict, cmd_pointer):
     collections.sort(key=lambda c: c.name.lower())
     from_list = []
     if isinstance(inputs["from_source"], dict) and inputs["from_source"]["from_list"] != None:
-        print(111)
         try:
             from_list = inputs["from_source"]["from_list"]
             # raise Exception('This is a test error')
@@ -91,6 +90,6 @@ def display_collections_in_domains_list(inputs: dict, cmd_pointer):
             cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/" + results_file, index=False
         )
         df = df.replace(np.nan, "", regex=True)
-        output_success(msg("success_file_saved"), return_val=False, pad_top=1, pad_btm=0)
+        output_success(msg("success_file_saved", results_file), return_val=False, pad_top=1, pad_btm=0)
 
     return output_table(pd.DataFrame(results))

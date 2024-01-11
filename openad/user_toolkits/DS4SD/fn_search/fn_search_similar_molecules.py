@@ -63,7 +63,7 @@ def search_similar_molecules(inputs: dict, cmd_pointer):
             cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/" + results_file, index=False
         )
         df = df.replace(np.nan, "", regex=True)
-        output_success(msg("success_file_saved"), return_val=False, pad_top=1)
+        output_success(msg("success_file_saved", results_file), return_val=False, pad_top=1)
 
     output_text(
         f"<bold>We found {len(results_table)} molecules similar to the provided SMILES</bold>",
