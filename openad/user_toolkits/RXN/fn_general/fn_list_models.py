@@ -1,11 +1,15 @@
-"""Lists available RXN Models"""
+# Example command:
+# list rxn models
 
 from openad.helpers.output import output_table
 from openad.app.global_var_lib import GLOBAL_SETTINGS
 
 
 def list_models(inputs: dict, cmd_pointer):
-    """list avilable rxn models"""
+    """
+    List available RXN models
+    """
+
     rxn4chemistry_wrapper = cmd_pointer.login_settings["client"][cmd_pointer.login_settings["toolkits"].index("RXN")]
     # Prepare the data query
     try:

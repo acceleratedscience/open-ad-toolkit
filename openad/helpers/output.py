@@ -199,6 +199,7 @@ def output_table(
     table,
     is_data=True,
     headers=None,
+    show_index=False,
     note=None,
     return_val=None,
     pad=1,
@@ -223,6 +224,8 @@ def output_table(
     headers (list):
         A list of strings, where each string is a column header.
         Ignored when table is a dataframe.
+    show_index (bool, default=False):
+        Display the index column in Jupyter.
     note (str):
         A footnote to display at the bottom of the table.
     return_val (None/bool):
@@ -359,6 +362,13 @@ def output_table(
         if is_df_styler_obj:
             table_styler.data = table
             table = table_styler
+
+            # Hide index column in Jupyter, unless we want it.
+            if not show_index:
+                table.hide(axis="index")
+        else:
+            if not show_index:
+                table = table.style.hide(axis="index")
 
         if footnote:
             output_text(footnote, return_val=False)

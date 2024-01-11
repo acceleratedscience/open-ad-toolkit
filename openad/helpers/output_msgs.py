@@ -64,7 +64,7 @@ _messages = {
     "success_copy": lambda source_file, source_workspace_name, dest_workspace_name: f"Copied the file {source_file} from your {source_workspace_name} to your {dest_workspace_name} workspace",
     "success_delete": lambda file_name, workspace_name: f"Deleted the file {file_name} from your {workspace_name} workspace",
     "success_save_data": lambda file_path: f"Your data was successfully stored as <yellow>{file_path}</yellow>",
-    "success_file_saved": lambda filename=None: f"We successully saved '<yellow>{filename}</yellow>' to your workspace"
+    "success_file_saved": lambda filename=None: f"Successully saved <yellow>{filename}</yellow> to your workspace"
     if filename
     else "File successully saved to your workspace",
     # Warning
