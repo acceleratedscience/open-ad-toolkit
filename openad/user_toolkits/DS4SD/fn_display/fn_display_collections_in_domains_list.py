@@ -1,23 +1,37 @@
-""" display all collections from a given Deep Sesrch Domain """
+# Example command:
+# display collections in domains from list ['Scientific Literature']
+
 import numpy as np
 import pandas as pd
-from openad.helpers.output import output_table
-from openad.helpers.output import output_error
-from openad.helpers.output import output_text
+from openad.helpers.output import output_error, output_success, output_table
+from openad.helpers.output_msgs import msg
 
-_tableformat = "simple"
+import os
+import sys
+
+parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, parent_dir)
+from msgs import ds4sd_msg
 
 
 def display_collections_in_domains_list(inputs: dict, cmd_pointer):
-    """display all collections from a given Deep Sesrch Domain
-    inputs: parser inputs from pyparsing
-    cmd_pointer: pointer to runtime"""
+    """
+    Display all collections from a given DeepSearch domain.
+
+    Parameters
+    ----------
+    inputs:
+        Parser inputs from pyparsing.
+    cmd_pointer:
+        Pointer to runtime.
+    """
 
     api = cmd_pointer.login_settings["toolkits_api"][cmd_pointer.login_settings["toolkits"].index("DS4SD")]
     try:
         collections = api.elastic.list()
-    except Exception as e:  # pylint: disable=broad-exception-caught
-        output_error("Error in calling deepsearch:" + str(e), cmd_pointer=cmd_pointer, return_val=False)
+        # raise Exception('This is a test error')
+    except Exception as err:  # pylint: disable=broad-exception-caught
+        output_error(ds4sd_msg("err_deepsearch", err), return_val=False)
         return False
 
     collections.sort(key=lambda c: c.name.lower())
@@ -25,34 +39,26 @@ def display_collections_in_domains_list(inputs: dict, cmd_pointer):
     if isinstance(inputs["from_source"], dict) and inputs["from_source"]["from_list"] != None:
         try:
             from_list = inputs["from_source"]["from_list"]
+            # raise Exception('This is a test error')
         except Exception:  # pylint: disable=broad-exception-caught
-            output_error(
-                "unexpected pyparsing error. Please screenshot and report circumstance to OpenAD team",
-                cmd_pointer=cmd_pointer,
-                return_val=False,
-            )
-            output_error("Restart Notebook Kernel or application to proceed", cmd_pointer=cmd_pointer, return_val=False)
+            output_error(msg("err_pyparsing"), return_val=False)
             return False
 
     elif "from_list" in inputs["from_source"][0]:
         try:
             from_list = inputs["from_source"][0]["from_list"]
+            # raise Exception('This is a test error')
         except Exception:  # pylint: disable=broad-exception-caught
-            output_error(
-                "unexpected pyparsing error. Please screenshot and report circumstance to OpenAD team",
-                cmd_pointer=cmd_pointer,
-                return_val=False,
-            )
-            output_error("Restart Notebook Kernel or application to proceed", cmd_pointer=cmd_pointer, return_val=False)
+            output_error(msg("err_pyparsing"), return_val=False)
             return False
 
     results = [
         {
-            "Domains": "/ ".join(c.metadata.domain),
+            "Domains": " / ".join(c.metadata.domain),
             "Collection Name": c.name,
-            "Collection key": c.source.index_key,
+            "Collection Key": c.source.index_key,
             "Type": c.metadata.type,
-            "Num entries": c.documents,
+            "Num Entries": c.documents,
             "Date": c.metadata.created.strftime("%Y-%m-%d"),
             "System": c.source.elastic_id,
         }
@@ -79,12 +85,6 @@ def display_collections_in_domains_list(inputs: dict, cmd_pointer):
             cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/" + results_file, index=False
         )
         df = df.replace(np.nan, "", regex=True)
-        output_text(
-            "\n <success>File successfully saved to workspace.</success>", cmd_pointer=cmd_pointer, return_val=False
-        )
+        output_success(msg("success_file_saved", results_file), return_val=False, pad_top=1, pad_btm=0)
 
-    if cmd_pointer.notebook_mode is True:
-        return pd.DataFrame(results)
-    else:
-        collectives = pd.DataFrame(results)
-        output_table(collectives, cmd_pointer, tablefmt=_tableformat)
+    return output_table(pd.DataFrame(results))

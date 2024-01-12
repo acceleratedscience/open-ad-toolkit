@@ -6,7 +6,8 @@ import time
 import requests
 import jwt
 import deepsearch as ds
-from openad.helpers.output import msg, output_text, output_error, output_warning
+from openad.helpers.output import output_text, output_error, output_warning
+from openad.helpers.output_msgs import msg
 from openad.helpers.credentials import load_credentials, get_credentials, write_credentials
 
 DEFAULT_URL = "https://sds.app.accelerate.science/"
@@ -70,13 +71,13 @@ def login(cmd_pointer):
     if cred_config["host"].strip() == "":
         cred_config["host"] = DEFAULT_URL
     if uri_valid(cred_config["host"]) is False:
-        output_error("Invalid url, try again", cmd_pointer=cmd_pointer, return_val=False)
+        output_error("Invalid url, try again", return_val=False)
         return False, None
     if cred_config["auth"]["username"].strip() == "":
-        output_error("Invalid username, try again", cmd_pointer=cmd_pointer, return_val=False)
+        output_error("Invalid username, try again", return_val=False)
         return False, None
     if cred_config["auth"]["api_key"].strip() == "":
-        output_error("Invalid api key, try again", cmd_pointer=cmd_pointer, return_val=False)
+        output_error("Invalid api key, try again", return_val=False)
         return False, None
 
     try:
@@ -104,7 +105,6 @@ def login(cmd_pointer):
             email = cred_config["auth"]["username"]
             output_text(
                 f"<success>Logged into DS4SD as </success>{email}<success>\nWorkspace:</success> {workspace}",
-                cmd_pointer=cmd_pointer,
                 return_val=False,
             )
         cmd_pointer.login_settings["expiry"][x] = expiry_time
@@ -118,12 +118,8 @@ def get_creds(cred_file, cmd_pointer):
     """get the nominated API key for the LLM"""
     api_config = load_credentials(cred_file)
     if api_config is None:
-        output_warning("Please provide your DS4SD credentials", cmd_pointer=cmd_pointer, return_val=False)
-        output_text(
-            f"<soft>Leave this blank to use the default: {DEFAULT_URL}</soft>",
-            cmd_pointer=cmd_pointer,
-            return_val=False,
-        )
+        output_warning("Please provide your DS4SD credentials", return_val=False)
+        output_text(f"<soft>Leave this blank to use the default: {DEFAULT_URL}</soft>", return_val=False)
         api_config = API_CONFIG_BLANK.copy()
         api_config = get_credentials(
             cmd_pointer=cmd_pointer, credentials=api_config, creds_to_set=["host", "auth:username", "auth:api_key"]

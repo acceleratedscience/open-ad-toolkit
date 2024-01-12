@@ -40,7 +40,8 @@ from openad.molecules.mol_grammar import mol_grammar_add
 
 # Helpers
 from openad.helpers.general import is_notebook_mode
-from openad.helpers.output import output_error, msg
+from openad.helpers.output import output_error
+from openad.helpers.output_msgs import msg
 
 # Global variables
 from openad.app.global_var_lib import _all_toolkits
@@ -1039,7 +1040,7 @@ def statement_builder(toolkit_pointer, inp_statement):
 
     except Exception as err:
         fwd_expr = "Forward( " + expression + ' ("toolkit_exec_' + inp_statement["command"] + '")'
-        output_error(msg("err_add_command", inp_statement["command"], fwd_expr, err, split=True))
+        output_error(msg("err_add_command", inp_statement["command"], fwd_expr, err))
 
     return True
 

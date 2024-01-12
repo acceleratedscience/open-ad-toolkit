@@ -1,11 +1,16 @@
-""" Performs TOPN anaysis on a set of Reactions defined in a provided list"""
+# Example command:
+# predict reaction topn in batch from list ['BrBr.c1ccc2cc3ccccc3cc2c1CCO' , 'BrBr.c1ccc2cc3ccccc3cc2c1']
+
 import pandas as pd
 from rdkit import Chem
 from rdkit.Chem import AllChem
 from time import sleep
-import importlib.util as ilu
+import importlib.util as include
+from openad.plugins.style_parser import strip_tags
+from openad.helpers.spinner import spinner
 from openad.helpers.output import output_text, output_warning, output_error, output_table
 from openad.helpers.output_msgs import msg
+from openad.helpers.general import print_separator
 from openad.app.global_var_lib import GLOBAL_SETTINGS
 
 # import os
@@ -24,6 +29,8 @@ def get_reaction_from_smiles(
 
 def get_include_lib(cmd_pointer):
     """load the rxn include libraries"""
+    import importlib.util as ilu
+
     folder = cmd_pointer.toolkit_dir + "/RXN" + "/rxn_include.py"
     file = "rxn_include"
     spec = ilu.spec_from_file_location(file, folder)
@@ -34,7 +41,9 @@ def get_include_lib(cmd_pointer):
 
 
 def predict_reaction_batch_topn(inputs: dict, cmd_pointer):
-    """predicts TOPN reactions in Batch from a given list of reactions"""
+    """
+    Predict top (n) reactions in Batch from a given list of reactions.
+    """
     top_n = 5
     rxn_helper = get_include_lib(cmd_pointer)
     rxn_helper.sync_up_workspace_name(cmd_pointer)
@@ -44,14 +53,6 @@ def predict_reaction_batch_topn(inputs: dict, cmd_pointer):
         from halo import HaloNotebook as Halo  # pylint: disable=import-outside-toplevel
     else:
         from halo import Halo  # pylint: disable=import-outside-toplevel
-
-    class Spinner(Halo):
-        """alternate spinner"""
-
-        def __init__(self):
-            # Alternative spinners:
-            # simpleDotsScrolling, interval=100
-            super().__init__(spinner="dots", color="white")
 
     val = "val"
     if "topn" in inputs:
@@ -163,18 +164,17 @@ def predict_reaction_batch_topn(inputs: dict, cmd_pointer):
     if len(new_from_list) > 0:
         val = "val"
         from_list = new_from_list
-        newspin = Spinner()
         retries = 0
         status = False
         rxn4chemistry_wrapper = cmd_pointer.login_settings["client"][
             cmd_pointer.login_settings["toolkits"].index("RXN")
         ]
 
-        newspin.start("Starting Prediction")
+        spinner.start("Processing")
 
         while status is False:
             try:
-                newspin.text = "Processing Prediction"
+                # spinner.text = "Processing Prediction"
                 sleep(2)
                 predict_rection_batch_response = rxn4chemistry_wrapper.predict_reaction_batch_topn(
                     precursors_lists=new_from_list,
@@ -182,18 +182,19 @@ def predict_reaction_batch_topn(inputs: dict, cmd_pointer):
                     ai_model=ai_model,
                 )
                 status = True
-            except Exception as e:  # pylint: disable=broad-exception-caught
+            except Exception as err:  # pylint: disable=broad-exception-caught
                 retries = retries + 1
                 if retries > 4:
-                    newspin.fail("Unable to Process")
-                    newspin.stop()
-                    raise Exception("Server unresponsive" + str(e)) from e  # pylint: disable=broad-exception-raised
+                    spinner.fail("Unable to process input")
+                    spinner.stop()
+                    output_error(["Server unresponsive", err], return_val=False)
+                    return
 
         x = {}
         retries = 0
         while "predictions" not in x:
             try:
-                newspin.text = "Processing Prediction"
+                # spinner.text = "Processing Prediction"
                 x = rxn4chemistry_wrapper.get_predict_reaction_batch_topn_results(
                     predict_rection_batch_response["task_id"]
                 )
@@ -202,33 +203,153 @@ def predict_reaction_batch_topn(inputs: dict, cmd_pointer):
             except Exception as e:  # pylint: disable=broad-exception-caught
                 retries = retries + 1
                 if retries > 10:
-                    newspin.fail("Unable to Process")
-                    newspin.stop()
+                    spinner.fail("Unable to Process")
+                    spinner.stop()
                     raise Exception("Server unresponsive " + str(e)) from e  # pylint: disable=broad-exception-raised
 
         reaction_no = 0
-        newspin.succeed("Finished Processing")
-        newspin.start()
-        newspin.stop()
+        spinner.stop()
+        output_final = []
+        alphabet = [
+            "A",
+            "B",
+            "C",
+            "D",
+            "E",
+            "F",
+            "G",
+            "H",
+            "I",
+            "J",
+            "K",
+            "L",
+            "M",
+            "N",
+            "O",
+            "P",
+            "Q",
+            "R",
+            "S",
+            "T",
+            "U",
+            "V",
+            "W",
+            "X",
+            "Y",
+            "Z",
+            "AA",
+            "BB",
+            "CC",
+            "DD",
+            "EE",
+            "FF",
+            "GG",
+            "HH",
+            "II",
+            "JJ",
+            "KK",
+            "LL",
+            "MM",
+            "NN",
+            "OO",
+            "PP",
+            "QQ",
+            "RR",
+            "SS",
+            "TT",
+            "UU",
+            "VV",
+            "WW",
+            "XX",
+            "YY",
+            "ZZ",
+        ]
+
+        # NOT USED BUT MAYBE LATER - see below
+        # table = []
+        # table_headers=['R', '#', 'Input A', 'Input B', 'Prediction', 'Confidence']
+
         for i, reaction_predictions in enumerate(x["predictions"], 1):
-            output_text("\n", return_val=False)
-            output_text(
-                f" <green> Outcomes for Reaction: </green>   {new_cannonical_list[reaction_no]}:",
-                return_val=False,
-            )
+            input = new_cannonical_list[reaction_no]
+            output = []
+
+            # NOT USED BUT MAYBE LATER - see below
+            # row_shared = [alphabet[i - 1], None, input, input[1]] # Would have to be updated to support > 2
+
+            output.append(f"Reaction predictions for:")
+            for i, mol in enumerate(input):
+                output.append(f"{alphabet[i]}: {mol}")
+            output.append("---")
             rxn_helper.save_to_results_cache(
                 cmd_pointer,
-                new_cannonical_list[reaction_no],
+                input,
                 reaction_predictions,
                 "predict_batch_topn" + str(top_n) + "_model" + ai_model,
             )
             reaction_no = reaction_no + 1
+
             for j, prediction in enumerate(reaction_predictions["results"], 1):
                 product_smiles = ".".join(prediction["smiles"])
                 confidence = prediction["confidence"]
-                output_text(
-                    f"<green>         Product(s) </green>{j} {product_smiles}, With confidence {confidence}",
-                    return_val=False,
-                )
-        output_text(" ", return_val=False)
+                confidence = round(confidence * 100)
+
+                if confidence < 1:
+                    confidence_str = f"<1"
+                else:
+                    confidence_str = f"{confidence:2d}"
+
+                output_line = f"{j} - confidence {confidence_str}% - {product_smiles}"
+
+                # Colorize list results according to confidence.
+                if confidence > 66:
+                    output_line = f"<green>{output_line}</green>"
+                elif confidence > 33:
+                    output_line = f"<yellow>{output_line}</yellow>"
+                elif confidence < 10 > 1:
+                    output_line = f"<soft>{output_line}</soft>"
+                elif confidence < 1:
+                    output_line = f"<soft>{output_line}</soft>"
+
+                output.append(output_line)
+
+                # NOT USED BUT MAYBE LATER - see below
+                # # Create table row
+                # row = row_shared.copy()
+                # row[1] = j
+                # row.append(product_smiles)
+                # row.append(confidence)
+                #
+                # # Colorize table results according to confidence.
+                # if confidence > 66:
+                #     for idx in range(len(row)):
+                #         row[idx] = f'<green>{str(row[idx])}</green>'
+                # elif confidence > 33:
+                #     for idx in range(len(row)):
+                #         row[idx] = f'<yellow>{str(row[idx])}</yellow>'
+                # elif confidence < 10 > 1:
+                #     for idx in range(len(row)):
+                #         row[idx] = f'<soft>{str(row[idx])}</soft>'
+                # elif confidence < 1:
+                #     for idx in range(len(row)):
+                #         row[idx] = f'<soft>< 1</soft>'
+                # table.append(row)
+
+            # Add separator line.
+            list_width = 0
+            for line in output:
+                ll = len(strip_tags(line))
+                if ll > list_width:
+                    list_width = ll
+            sep = print_separator("yellow", list_width, return_val=True)
+            output[len(input) + 1] = sep
+
+            # Add reaction to main output.
+            br = ["", ""] if i > 1 else []
+            output_final = output_final + br + output
+
+        output_text("\n".join(output_final), return_val=False, pad_btm=1)
+
+        # Same information as a table. Decided it's not useful, but could possibly
+        # be re-enabled via a follow-up command. Something like `result as table`
+        # output_table(table, headers=table_headers, return_val=False)
     return True

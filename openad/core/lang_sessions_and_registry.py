@@ -15,7 +15,8 @@ from openad.app.global_var_lib import _meta_registry_session
 from openad.app.global_var_lib import _meta_registry_settings
 
 # Helpers
-from openad.helpers.output import msg, output_text, output_error, output_success
+from openad.helpers.output import output_text, output_error, output_success, output_warning
+from openad.helpers.output_msgs import msg
 from openad.helpers.general import confirm_prompt, refresh_prompt, other_sessions_exist
 
 
@@ -77,7 +78,7 @@ def write_registry(registry: dict, cmd_pointer, orig_reg=False):
         with open(registry_file, "wb") as handle:
             settings = pickle.dump(registry, handle)
     except Exception as err:
-        output_error("error writing registry" + err, cmd_pointer=cmd_pointer, return_val=False)
+        output_error("error writing registry" + err, return_val=False)
         return False
     return True
 
@@ -97,7 +98,7 @@ def delete_session_registry(session_id: str):
 def clear_other_sessions(cmd_pointer, parser):
     """burned earth strategy for cleaning up Sessions directory"""
     if not confirm_prompt(msg("confirm_clear_sessions")):
-        output_error(msg("no_sessions_cleared"), cmd_pointer, pad_btm=1, return_val=False)
+        output_error(msg("no_sessions_cleared"), pad_btm=1, return_val=False)
         return
 
     file_list = os.listdir(os.path.dirname(_meta_registry_session))
@@ -105,10 +106,10 @@ def clear_other_sessions(cmd_pointer, parser):
         file_list.remove("registry.pkl" + cmd_pointer.session_id)
         for i in file_list:
             os.remove(os.path.dirname(_meta_registry_session) + "/" + i)
-        # raise Exception('This is a test exception')
-        return output_success(msg("success_clear_sessions"), cmd_pointer, pad_btm=1, return_val=False)
+        # raise Exception("This is a test exception")
+        return output_success(msg("success_clear_sessions"), pad_btm=1, return_val=False)
     except Exception as err:
-        output_error(msg("err_clear_sessions", err, split=True), cmd_pointer, pad_btm=1, return_val=False)
+        output_error(msg("err_clear_sessions", err), pad_btm=1, return_val=False)
         return False
 
 
@@ -135,7 +136,7 @@ def registry_add_toolkit(cmd_pointer, parser):
                 shutil.rmtree(target_directory + "/", ignore_errors=True)
 
             except Exception as err:
-                output_error("Unable to write registry file::" + str(err), retun_val=False, cmd_pointer=False)
+                output_error("Unable to write registry file::" + str(err), retun_val=False)
 
             shutil.copytree(full_original_directory_name, target_directory, dirs_exist_ok=True)
             settings["toolkits"].append(toolkit_name.upper())
@@ -157,16 +158,16 @@ def registry_add_toolkit(cmd_pointer, parser):
                     archive.add(_meta_dir_toolkits + "/" + toolkit_name.upper(), recursive=True)
                     archive.close()
 
-            # raise Exception('This is a test exception')
-            return output_success(msg("success_toolkit_install", toolkit_name.upper()), cmd_pointer)
+            # raise Exception("This is a test exception")
+            return output_success(msg("success_toolkit_install", toolkit_name.upper()))
         else:
-            return output_text(msg("toolkit_already_installed", toolkit_name.upper()), cmd_pointer, pad=1)
+            return output_warning(msg("toolkit_already_installed", toolkit_name.upper()))
 
     except FileNotFoundError:
-        return output_error(msg("invalid_toolkit", toolkit_name.upper(), split=True), cmd_pointer)
+        return output_error(msg("invalid_toolkit", toolkit_name.upper()))
 
     except Exception as err:
-        return output_error(msg("err_toolkit_install", toolkit_name.upper(), err, split=True), cmd_pointer)
+        return output_error(msg("err_toolkit_install", toolkit_name.upper(), err))
 
 
 def registry_deregister_toolkit(cmd_pointer, parser):
@@ -189,7 +190,7 @@ def registry_deregister_toolkit(cmd_pointer, parser):
                 write_registry(cmd_pointer.settings, cmd_pointer)
 
             else:
-                return output_error(msg("fail_toolkit_not_registered", toolkit_name), cmd_pointer)
+                return output_error(msg("fail_toolkit_not_registered", toolkit_name))
 
             if cmd_pointer.settings["context"] == toolkit_name:
                 settings["context"] = None
@@ -199,9 +200,10 @@ def registry_deregister_toolkit(cmd_pointer, parser):
                 write_registry(cmd_pointer.settings, cmd_pointer)
                 refresh_prompt(cmd_pointer.settings)
                 create_statements(cmd_pointer)
+        # raise Exception("This is a test exception")
 
     except Exception as err:
-        return output_error(msg("err_toolkit_remove", toolkit_name, err, split=True), cmd_pointer)
+        return output_error(msg("err_toolkit_remove", toolkit_name, err))
     write_registry(settings, cmd_pointer)
     write_registry(settings, cmd_pointer, True)
-    return output_success(msg("success_toolkit_remove", toolkit_name.upper()), cmd_pointer)
+    return output_success(msg("success_toolkit_remove", toolkit_name.upper()))

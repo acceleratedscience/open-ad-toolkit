@@ -4,6 +4,7 @@ import pickle
 import base64
 import string
 import hashlib
+from openad.app.global_var_lib import GLOBAL_SETTINGS
 
 
 def generate_smiles_hash(smiles_string):
@@ -276,7 +277,7 @@ class rxn_helper:
             # sys.stdout = sys.__stdout__
             # sys.stderr = sys.__stderr__
             if result == False:
-                if cmd_pointer.notebook_mode == True:
+                if GLOBAL_SETTINGS["display"] == "notebook":
                     from IPython.display import display, Markdown
 
                     display(Markdown("Failed to setup RXN project for this Workspace "))
@@ -284,14 +285,14 @@ class rxn_helper:
                     print("Failed to setup RXN project for this Workspace ")
 
             else:
-                if cmd_pointer.notebook_mode == True:
+                if GLOBAL_SETTINGS["display"] == "notebook":
                     from IPython.display import display, Markdown
 
                     display(Markdown("A new RXN Project has been setup for this Workspace"))
                 else:
                     print("A new RXN Project has been setup for this Workspace ")
         else:
-            if cmd_pointer.notebook_mode == True:
+            if GLOBAL_SETTINGS["display"] == "notebook":
                 from IPython.display import display, Markdown
 
                 display(
@@ -355,7 +356,7 @@ class rxn_helper:
         return df
 
     def output(self, text, cmd_pointer=None):
-        if cmd_pointer.notebook_mode == True:
+        if GLOBAL_SETTINGS["display"] == "notebook":
             from IPython.display import Markdown, display
         import re
 
@@ -511,13 +512,10 @@ class rxn_helper:
 
             return text
 
-        notebook_mode = cmd_pointer.notebook_mode
-        api_mode = cmd_pointer.api_mode
-
-        if api_mode:
+        if GLOBAL_SETTINGS["display"] == "api":
             # API
             return strip_tags(text)
-        elif notebook_mode:
+        elif GLOBAL_SETTINGS["display"] == "notebook":
             # Jupyter
             return Markdown(tags_to_markdown(text))
         else:

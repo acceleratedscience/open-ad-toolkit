@@ -13,8 +13,10 @@ from rdkit.Chem import AllChem
 
 
 from openad.helpers.general import confirm_prompt
-from openad.helpers.output import output_text, output_table, output_warning
+from openad.helpers.output import output_text, output_table, output_warning, output_error
+from openad.helpers.output_msgs import msg
 from openad.molecules.mol_functions import canonical_smiles
+from openad.app.global_var_lib import GLOBAL_SETTINGS
 
 from openad.molecules.mol_functions import (
     get_mol_from_formula,
@@ -45,7 +47,7 @@ class bold_style:
 def display_molecule(cmd_pointer, inp):
     """displays a molecule and its properties"""
     molecule_identifier = inp.as_dict()["molecule_identifier"]
-    if cmd_pointer.notebook_mode is True:
+    if GLOBAL_SETTINGS["display"] == "notebook":
         global cli_width
         cli_width = 100
 
@@ -78,9 +80,9 @@ def display_molecule(cmd_pointer, inp):
             )
             # return print_s(print_string)
         else:
-            print_s("molecule not available on pubchem")
+            output_error(msg("err_mol_not_on_pubchem"))
             return None
-    if cmd_pointer.notebook_mode is True:
+    if GLOBAL_SETTINGS["display"] == "notebook":
         import py3Dmol
         from IPython.display import Markdown, display, HTML
 
@@ -111,7 +113,7 @@ def display_molecule(cmd_pointer, inp):
 
 def display_property_sources(cmd_pointer, inp):
     """displays a molecule properties sources"""
-    if cmd_pointer.notebook_mode is True:
+    if GLOBAL_SETTINGS["display"] == "notebook":
         global cli_width
         cli_width = 100
     molecule_identifier = inp.as_dict()["molecule_identifier"]
@@ -131,7 +133,7 @@ def display_property_sources(cmd_pointer, inp):
         else:
             print_s("molecule not available on pubchem")
             return None
-    if cmd_pointer.notebook_mode is True:
+    if GLOBAL_SETTINGS["display"] == "notebook":
         from IPython.display import Markdown, display, HTML
 
         print_string = print_string.replace("<success>", "<text style=color:green;white-space=pre>")
@@ -154,7 +156,7 @@ def export_molecule(cmd_pointer, inp):
         mol = retrieve_mol(molecule_identifier)
         if mol is not None:
             cmd_pointer.last_external_molecule = mol
-    if mol is not None and ("as_file" in inp.as_dict() or cmd_pointer.notebook_mode is False):
+    if mol is not None and ("as_file" in inp.as_dict() or GLOBAL_SETTINGS["display"] != "notebook"):
         json_file = open(
             cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/" + mol["name"] + ".json",
             "w",
@@ -162,7 +164,7 @@ def export_molecule(cmd_pointer, inp):
         )
         json.dump(mol, json_file)
         print_s("file " + mol["name"] + ".json Saved to the current workspace")
-    elif mol is not None and cmd_pointer.notebook_mode is True:
+    elif mol is not None and GLOBAL_SETTINGS["display"] == "notebook":
         return mol.copy()
     return True
 
@@ -181,7 +183,7 @@ def add_molecule(cmd_pointer, inp, force=False):
     else:
         mol = retrieve_mol(molecule_identifier)
     if mol is None:
-        output_text("Unable to identify molecule", cmd_pointer=cmd_pointer, return_val=False)
+        output_text("Unable to identify molecule", return_val=False)
         return True
 
     identifier = mol["name"] + "   " + mol["properties"]["canonical_smiles"]
@@ -263,7 +265,7 @@ def list_molecules(cmd_pointer, inp):
             display_list = pd.concat([display_list, pd.DataFrame([identifiers])])
         return display_list
     else:
-        return output_text("No Molecules in List", cmd_pointer=cmd_pointer)
+        return output_text("No Molecules in List")
 
 
 def retrieve_mol_from_list(cmd_pointer, molecule):
@@ -313,11 +315,11 @@ def export_molecule_set(cmd_pointer, inp):
         return True
     csv_file_name = None
 
-    if cmd_pointer.notebook_mode and "csv_file_name" not in inp.as_dict():
+    if GLOBAL_SETTINGS["display"] == "notebook" and "csv_file_name" not in inp.as_dict():
         return moleculelist_to_data_frame(cmd_pointer.molecule_list.copy())
     else:
         if "csv_file_name" not in inp.as_dict():
-            output_warning("WARNING no File Name Provided, reverting to Default.")
+            output_warning(msg("war_no_filename_provided", "mols_export.csv"))
             csv_file_name = "mols_export"
         else:
             csv_file_name = inp.as_dict()["csv_file_name"]
@@ -631,7 +633,7 @@ def list_molsets(cmd_pointer):
             in_list.append(molset)
             molsets.append([molset])
     if len(in_list) > 0:
-        return output_table(molsets, cmd_pointer=cmd_pointer, headers=["Stored Molecule Sets"])
+        return output_table(molsets, is_data=False, headers=["Stored Molecule Sets"])
     return True
 
 
@@ -670,7 +672,7 @@ def get_property(cmd_pointer, inp):
     if mol is None:
         mol = retrieve_mol(molecule_identifier)
         if mol is not None:
-            # if not cmd_pointer.notebook_mode:
+            # if GLOBAL_SETTINGS["display"] != "notebook":
             #    print(mol["properties"][molecule_property.lower()])
             if molecule_property.lower() == "synonyms":
                 if mol["synonyms"] is not None and "Synonym" in mol["synonyms"]:
