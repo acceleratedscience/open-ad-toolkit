@@ -1,41 +1,23 @@
 # Example command:
 # search for patents containing molecule 'CC(C)(c1ccccn1)C(CC(=O)O)Nc1nc(-c2c[nH]c3ncc(Cl)cc23)c(C#N)cc1F'
+# search for patents containing molecule 'InChI=1S/C11H16N2OS/c1-4-8(14)7-9(12)11(2,3)10-13-5-6-15-10/h5-7H,4,12H2,1-3H3'
 
 import numpy as np
 import pandas as pd
 from deepsearch.chemistry.queries.molecules import PatentsWithMoleculesQuery
 from deepsearch.chemistry.queries.molecules import MolId, MolIdType
-from rdkit import Chem
 from openad.helpers.output import output_text, output_success, output_warning, output_error, output_table
 from openad.helpers.output_msgs import msg
 from openad.molecules.molecule_cache import create_analysis_record, save_result
-from openad.molecules.mol_functions import canonical_smiles, valid_smiles
+from openad.molecules.mol_functions import canonical_smiles, valid_smiles, valid_inchi
 from openad.molecules.mol_commands import property_retrieve
 
+import os
+import sys
 
-# needs to be migrated into Helper
-
-
-def valid_inchi(input_molecule) -> bool:
-    """
-    Check if an input molecule is valid InChI definition.
-
-    Parameters
-    ----------
-    input_molecule:
-        InChI string
-    """
-    from rdkit import rdBase
-
-    blocker = rdBase.BlockLogs()  # pylint: disable=c-extension-no-member
-    try:
-        m = Chem.inchi.InchiToInchiKey(input_molecule)
-    except:
-        return False
-    if m is None:
-        return False
-    else:
-        return True
+parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, parent_dir)
+from msgs import ds4sd_msg
 
 
 def search_patents_cont_molecule(inputs: dict, cmd_pointer):
@@ -77,7 +59,7 @@ def search_patents_cont_molecule(inputs: dict, cmd_pointer):
         resp = api.queries.run(query)
         # raise Exception('This is a test error')
     except Exception as err:  # pylint: disable=broad-exception-caught
-        output_error(msg("err_deepsearch", err), return_val=False)
+        output_error(ds4sd_msg("err_deepsearch", err), return_val=False)
         return False
     results_table = []
 
@@ -99,7 +81,7 @@ def search_patents_cont_molecule(inputs: dict, cmd_pointer):
             cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/" + results_file, index=False
         )
         df = df.replace(np.nan, "", regex=True)
-        output_success(msg("success_file_saved"), return_val=False, pad_top=1, pad_btm=0)
+        output_success(msg("success_file_saved", results_file), return_val=False, pad_top=1, pad_btm=0)
     output_text(
         f"<bold>We found {len(results_table)} patents containing the requested {result_type}</bold>",
         return_val=False,

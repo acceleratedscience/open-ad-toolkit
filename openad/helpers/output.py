@@ -199,8 +199,8 @@ def output_table(
     table,
     is_data=True,
     headers=None,
+    show_index=False,
     note=None,
-    tablefmt="simple",
     return_val=None,
     pad=1,
     pad_btm=None,
@@ -224,11 +224,10 @@ def output_table(
     headers (list):
         A list of strings, where each string is a column header.
         Ignored when table is a dataframe.
+    show_index (bool, default=False):
+        Display the index column in Jupyter.
     note (str):
         A footnote to display at the bottom of the table.
-    tablefmt (str):
-        The table format used for tabulate (CLI only)
-        See https://github.com/astanin/python-tabulate#table-format
     return_val (None/bool):
         Returns the table instead of displaying it.
         The default (None) results in True for Jupyter and API, False for CLI.
@@ -317,7 +316,7 @@ def output_table(
                 else:
                     headers = table.columns.values.tolist()
 
-            table = tabulate(table, headers=tabulate_headers, tablefmt=tablefmt, showindex=False, numalign="left")
+            table = tabulate(table, headers=tabulate_headers, tablefmt="simple", showindex=False, numalign="left")
         else:
             # Parse styling tags.
             for i, row in enumerate(table):
@@ -325,7 +324,7 @@ def output_table(
                     table[i][j] = style(cell, nowrap=True)
 
             headers = [] if headers is None else headers
-            table = tabulate(table, headers=headers, tablefmt=tablefmt, showindex=False, numalign="left")
+            table = tabulate(table, headers=headers, tablefmt="simple", showindex=False, numalign="left")
 
         # Crop table if it's wider than the terminal.
         max_row_length = max(list(map(lambda row: len(row), table.splitlines())))
@@ -363,6 +362,13 @@ def output_table(
         if is_df_styler_obj:
             table_styler.data = table
             table = table_styler
+
+            # Hide index column in Jupyter, unless we want it.
+            if not show_index:
+                table.hide(axis="index")
+        else:
+            if not show_index:
+                table = table.style.hide(axis="index")
 
         if footnote:
             output_text(footnote, return_val=False)

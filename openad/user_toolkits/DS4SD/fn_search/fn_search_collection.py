@@ -10,9 +10,15 @@ import numpy as np
 from deepsearch.cps.client.components.elastic import ElasticDataCollectionSource
 from deepsearch.cps.queries import DataQuery
 from openad.helpers.output import output_text, output_table, output_error
-from openad.helpers.output_msgs import msg
 from openad.app.global_var_lib import GLOBAL_SETTINGS
 from openad.plugins.style_parser import style
+
+import os
+import sys
+
+parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, parent_dir)
+from msgs import ds4sd_msg
 
 aggs = {
     "by_year": {
@@ -182,7 +188,7 @@ def search_collection(inputs: dict, cmd_pointer):
         cursor = api.queries.run_paginated_query(query)
         # raise Exception('This is a test error')
     except Exception as err:  # pylint: disable=broad-exception-caught
-        output_error(msg("err_deepsearch", err), return_val=False)
+        output_error(ds4sd_msg("err_deepsearch", err), return_val=False)
         return False
 
     for result_page in tqdm(cursor, total=expected_pages):
@@ -197,7 +203,6 @@ def search_collection(inputs: dict, cmd_pointer):
 
     if is_docs:
         df = pd.json_normalize(all_aggs)
-        df.index = [""]
         if all_aggs != {} and len(df.columns) > 1:
             output_text("<bold>Result distribution by year</bold>", pad_top=1, return_val=False)
             output_table(df.style.set_properties(**{"text-align": "left"}), is_data=False, return_val=False)

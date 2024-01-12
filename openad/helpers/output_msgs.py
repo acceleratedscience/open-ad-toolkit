@@ -64,7 +64,9 @@ _messages = {
     "success_copy": lambda source_file, source_workspace_name, dest_workspace_name: f"Copied the file {source_file} from your {source_workspace_name} to your {dest_workspace_name} workspace",
     "success_delete": lambda file_name, workspace_name: f"Deleted the file {file_name} from your {workspace_name} workspace",
     "success_save_data": lambda file_path: f"Your data was successfully stored as <yellow>{file_path}</yellow>",
-    "success_file_saved": "File successully saved to your workspace",
+    "success_file_saved": lambda filename=None: f"Successully saved <yellow>{filename}</yellow> to your workspace"
+    if filename
+    else "File successully saved to your workspace",
     # Warning
     "war_no_filename_provided": lambda default: f"No filename provided, reverting to the default '{default}'",
     # Error
@@ -220,7 +222,6 @@ _messages = {
         "<yellow>" + fwd_expr + "</yellow>",
         err,
     ],
-    "err_deepsearch": lambda err: ["There was an error calling DeepSearch", err],
     # endregion
     ##########################################################################
     # region - MOLECULE GRID
@@ -342,12 +343,16 @@ _messages = {
     "err_key_exit_before_init": "Keyboard-initiated exit before OpenAD was initialised",
     "err_routes_required": "Routes are required to launch a Flask server",
     "err_cmd_pointer_required": "output_table(): cmd_pointer is required to enable follow-up commands",
+    "err_pyparsing": [
+        "Unexpected pyparsing error\n<warning>Please screenshot and report circumstance to OpenAD team</warning>",
+        "Restart Notebook kernel or application to proceed",
+    ],
     # endregion
 }
 
 
 # Procure a display message from output_msgs.py.
-def msg(msg_name, *args, split=False):
+def msg(msg_name, *args, custom_messages=None):
     """
     Fetches and formats an output message from the messages dictionary.
 
@@ -359,13 +364,13 @@ def msg(msg_name, *args, split=False):
         Any number of variables that are required for the lambda function.
     """
 
-    # TEMP
-    if split:
-        print("\nxxxxxxxxxxxxxxxxxxxxxxx")
-        print("Remove split for", msg_name)
-        print("xxxxxxxxxxxxxxxxxxxxxxx\n")
-
-    output = _messages[msg_name]
+    # This function can be imported by individual
+    # toolkits with custom _messages parameter set.
+    # See DS4SD for an example.
+    if custom_messages:
+        output = custom_messages[msg_name]
+    else:
+        output = _messages[msg_name]
 
     # Lambda function -> execute to get output.
     if callable(output):

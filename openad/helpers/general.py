@@ -306,7 +306,7 @@ def load_module_from_path(module_name, file_path):
 
 
 # Print a terminal-wide separator
-def print_separator(style=None, width=None):
+def print_separator(style=None, width=None, return_val=False):
     from openad.app.global_var_lib import GLOBAL_SETTINGS
 
     if GLOBAL_SETTINGS["display"] == "terminal" or GLOBAL_SETTINGS["display"] == None:
@@ -315,9 +315,9 @@ def print_separator(style=None, width=None):
         terminal_width = shutil.get_terminal_size().columns
         width = terminal_width if not width or terminal_width < width else width
         if style:
-            output_text(f"<{style}>{'-' * width}</{style}>", nowrap=True)
+            return output_text(f"<{style}>{'-' * width}</{style}>", nowrap=True, return_val=return_val)
         else:
-            output_text(f"{'-' * width}", nowrap=True)
+            return output_text(f"{'-' * width}", nowrap=True, return_val=return_val)
 
 
 #

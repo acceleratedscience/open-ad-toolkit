@@ -1,11 +1,18 @@
 """Performs Reaction Prediction on a list of Reactions"""
 
 from openad.helpers.output import output_text, output_error, output_warning, output_table
+from openad.helpers.output_msgs import msg
 import pandas as pd
 from rdkit import Chem
 from rdkit.Chem import AllChem
 from time import sleep
 from openad.app.global_var_lib import GLOBAL_SETTINGS
+
+# import os
+# import sys
+# parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# sys.path.insert(0, parent_dir)
+# from msgs import ds4sd_msg
 
 
 def get_reaction_from_smiles(reaction_smiles: str) -> Chem.rdChemReactions.ChemicalReaction:
@@ -53,27 +60,15 @@ def predict_reaction_batch(inputs: dict, cmd_pointer):
     if isinstance(inputs["from_source"], dict) and inputs["from_source"]["from_list"] != None:
         try:
             from_list = inputs["from_source"]["from_list"]
-        except Exception as err:  # pylint: disable=broad-except
-            output_error(
-                [
-                    "Unexpected pyparsing error\nRestart Notebook kernel or application to proceed\n<warning>Please screenshot and report circumstance to OpenAD team</warning>",
-                    err,
-                ],
-                return_val=False,
-            )
+        except Exception:  # pylint: disable=broad-except
+            output_error(msg("err_pyparsing"), return_val=False)
             return False
 
     elif "from_list" in inputs["from_source"][0]:
         try:
             from_list = inputs["from_source"][0]["from_list"]
-        except Exception as err:  # pylint: disable=broad-except
-            output_error(
-                [
-                    "Unexpected pyparsing error\nRestart Notebook kernel or application to proceed\n<warning>Please screenshot and report circumstance to OpenAD team</warning>",
-                    err,
-                ],
-                return_val=False,
-            )
+        except Exception:  # pylint: disable=broad-except
+            output_error(msg("err_pyparsing"), return_val=False)
             return False
     elif "from_dataframe" in inputs:
         try:

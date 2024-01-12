@@ -13,6 +13,13 @@ from openad.molecules.molecule_cache import create_analysis_record, save_result
 from openad.molecules.mol_functions import valid_smiles
 from openad.app.global_var_lib import GLOBAL_SETTINGS
 
+import os
+import sys
+
+parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, parent_dir)
+from msgs import ds4sd_msg
+
 
 def search_similar_molecules(inputs: dict, cmd_pointer):
     """
@@ -35,7 +42,7 @@ def search_similar_molecules(inputs: dict, cmd_pointer):
         resp = api.queries.run(query)
         # raise Exception('This is a test error')
     except Exception as err:  # pylint: disable=broad-exception-caught
-        output_error(msg("err_deepsearch", err), return_val=False)
+        output_error(ds4sd_msg("err_deepsearch", err), return_val=False)
         return False
     results_table = []
     for row in resp.outputs["molecules"]:
@@ -63,7 +70,7 @@ def search_similar_molecules(inputs: dict, cmd_pointer):
             cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/" + results_file, index=False
         )
         df = df.replace(np.nan, "", regex=True)
-        output_success(msg("success_file_saved"), return_val=False, pad_top=1)
+        output_success(msg("success_file_saved", results_file), return_val=False, pad_top=1)
 
     output_text(
         f"<bold>We found {len(results_table)} molecules similar to the provided SMILES</bold>",
@@ -92,7 +99,7 @@ def search_similar_molecules(inputs: dict, cmd_pointer):
                 smiles_mol = Chem.MolFromSmiles(inputs["smiles"])
                 # raise Exception('This is a test error')
             except Exception as err:  # pylint: disable= broad-exception-caught
-                output_error(["Error verifying SMILES (RDKit)", err], return_val=False)
+                output_error(ds4sd_msg("err_rdkit_smiles", err), return_val=False)
                 return False
 
             mol_img = Chem.Draw.MolToImage(smiles_mol, size=(200, 200))
