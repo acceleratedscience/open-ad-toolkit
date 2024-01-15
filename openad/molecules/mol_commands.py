@@ -15,8 +15,10 @@ from rdkit.Chem import AllChem
 from openad.helpers.general import confirm_prompt
 from openad.helpers.output import output_text, output_table, output_warning, output_error
 from openad.helpers.output_msgs import msg
+from openad.helpers.format_columns import single_value_columns, name_and_value_columns
 from openad.molecules.mol_functions import canonical_smiles
 from openad.app.global_var_lib import GLOBAL_SETTINGS
+
 
 from openad.molecules.mol_functions import (
     get_mol_from_formula,
@@ -270,15 +272,13 @@ def list_molecules(cmd_pointer, inp):
 
 def retrieve_mol_from_list(cmd_pointer, molecule):
     """retrieves a molecule from the working list"""
+
     for mol in cmd_pointer.molecule_list:
         m = is_molecule(mol, molecule)
+
         if m is not None:
             return m.copy()
 
-    for mol in cmd_pointer.molecule_list:
-        m = is_molecule_synonym(mol, molecule)
-        if m is not None:
-            return m.copy()
     return None
 
 
@@ -437,63 +437,38 @@ def format_identifers(mol):
     id_string = "\n<yellow>Name:</yellow> {} \n".format(mol["name"])
 
     identifiers = get_identifiers(mol)
-    i = 0
-    for key, value in identifiers.items():
-        if key != "name":
-            if value is None:
-                value = ""
+    id_string = id_string + name_and_value_columns(
+        identifiers,
+        cli_width=cli_width,
+        display_width=40,
+        exclusions=["toolkit", "function"],
+    )
 
-            if len("{}: {} ".format(key, value)) < cli_width / 2 and i == 0:
-                id_string = id_string + "{:<40}".format("<{}:> {} ".format(key, value))
-                i = 1
-            elif len(" {}: {} ".format(key, value)) < cli_width / 2 and i == 1:
-                id_string = id_string + "{:<40}".format(" <{}:> {}".format(key, value)) + "\n"
-                i = 0
-            elif len("{}: {} ".format(key, value)) > cli_width / 2 and i == 1:
-                id_string = id_string + "\n<{}:> {}".format(key, value) + "\n"
-                i = 0
-            elif len("{}: {} ".format(key, value)) > cli_width / 2 and i == 0:
-                id_string = id_string + "{:<40}".format("<{}:> {}".format(key, value)) + "\n"
-                i = 0
     id_string = re.sub(r"<(.*?:)> ", r"<success>\1</success>", id_string)
-    # if mol["synonyms"] != None and "Synonym" in mol["synonyms"]:
-    #   id_string = id_string + "\n\n<yellow>Synonyms:</yellow> {} \n\n".format(mol["synonyms"]["Synonym"])
     return id_string
 
 
 def format_sources(mol):
     """formats the identifiers for display"""
-    id_string = "\n<yellow>Name:</yellow> {} \n".format(mol["name"])
+    sources_string = "\n<yellow>Name:</yellow> {} \n".format(mol["name"])
 
     for mol_property, source in mol["property_sources"].items():
-        i = 0
-        id_string = id_string + "\n\n<yellow>Property:</yellow> {} \n".format(mol_property)
-        for key, value in source.items():
-            if value is None:
-                value = ""
-            if len("{}: {} ".format(key, value)) < cli_width / 2 and i < 2:
-                id_string = id_string + "{:<40}".format("<{}:> {} ".format(key, value))
-                i = i + 1
-            elif len(" {}: {} ".format(key, value)) < cli_width / 2 and i == 2:
-                id_string = id_string + "{:<40}".format(" <{}:> {}".format(key, value)) + "\n"
-                i = 0
-            elif len("{}: {} ".format(key, value)) > cli_width / 2 and i == 2:
-                id_string = id_string + "\n<{}:> {}".format(key, value) + "\n"
-                i = 0
-            elif len("{}: {} ".format(key, value)) > cli_width / 2 and i < 2:
-                id_string = id_string + "{:<40}".format("<{}:> {}".format(key, value)) + "\n"
-                i = 0
-    id_string = re.sub(r"<(.*?:)> ", r"<success>\1</success>", id_string)
-    # if mol["synonyms"] != None and "Synonym" in mol["synonyms"]:
-    #   id_string = id_string + "\n\n<yellow>Synonyms:</yellow> {} \n\n".format(mol["synonyms"]["Synonym"])
-    return id_string
+        if mol_property not in mol["properties"] or mol["properties"][mol_property] == None:
+            continue
+        sources_string = sources_string + "\n\n<yellow>Property:</yellow> {} \n".format(mol_property)
+        sources_string = sources_string + name_and_value_columns(source, cli_width=cli_width, display_width=30)
+
+    sources = re.sub(r"<(.*?:)> ", r"<success>\1</success>", sources_string)
+    return sources
 
 
 def format_synonyms(mol):
     """formats synonyms for display"""
-    id_string = "\n<yellow>Synonyms:</yellow>\n"
-    synonyms = mol["synonyms"]["Synonym"]
-    # synonyms = sorted(mol["synonyms"]["Synonym"], key=len)
+    synonyms_string = "\n<yellow>Synonyms:</yellow>\n"
+    if "Synonym" in mol["synonyms"]:
+        synonyms = mol["synonyms"]["Synonym"]
+    else:
+        synonyms = []
     all_synonyms = True
     new_synonyms = []
     for synonym in synonyms:
@@ -503,53 +478,28 @@ def format_synonyms(mol):
         if len(str(synonym).strip()) == 0:
             continue
         new_synonyms.append(synonym)
-        display_width = int(len(max(new_synonyms, key=len)) + 2)
-        display_width = 30
-    i = 0
-    for synonym in synonyms:
-        if len(str(synonym).strip()) == 0:
-            continue
-        if len(synonym) > 30:
-            all_synonyms = False
-            continue
 
-        if len(f"{synonym:<{display_width}}") + i < cli_width:
-            id_string = id_string + f"{synonym:<{display_width}}"
-            i = i + len(f"{synonym:<{display_width}}")
-        else:
-            id_string = id_string + f"\n{synonym:<{display_width}}"
-            i = len(f"{synonym:<{display_width}}")
+    synonyms_string = synonyms_string + single_value_columns(new_synonyms, cli_width, 30)
     name = mol["name"]
     if all_synonyms is False:
-        id_string = id_string + f"\n\n<yellow>To view all Synonyms try @{name}>>synonyms:</yellow>\n"
-    id_string = re.sub(r"<(.*?:)> ", r"<success>\1</success>", id_string)
-    return id_string
+        synonyms_string = synonyms_string + f"\n\n<yellow>To view all Synonyms try @{name}>>synonyms</yellow>\n"
+    synonyms_string = re.sub(r"<(.*?:)> ", r"<success>\1</success>", synonyms_string)
+    return synonyms_string
 
 
 def format_properties(mol):
     """formats properties for display"""
-    id_string = "\n<yellow>Properties:</yellow>\n"
-    identifiers = get_properties(mol)
+    properties_string = "\n<yellow>Properties:</yellow>\n"
+    properties = get_properties(mol)
 
-    i = 0
-    for key, value in identifiers.items():
-        if key not in ["name", "canonical_smiles", "inchi", "inchikey", "cid", "isomeric_smiles"]:
-            if value is None or str(value).upper() == "NONE":
-                continue
-            if len("{}: {} ".format(key, value)) < cli_width / 2 and i == 0:
-                id_string = id_string + "{:<40}".format("<{}:> {} ".format(key, value))
-                i = 1
-            elif len(" {}: {} ".format(key, value)) < cli_width / 2 and i == 1:
-                id_string = id_string + "{:<40}".format(" <{}:> {}".format(key, value)) + "\n"
-                i = 0
-            elif len("{}: {} ".format(key, value)) > cli_width / 2 and i == 1:
-                id_string = id_string + "\n<{}:> {}".format(key, value) + "\n"
-                i = 0
-            elif len("{}: {} ".format(key, value)) > cli_width / 2 and i == 0:
-                id_string = id_string + "{:<40}".format("<{}:> {}".format(key, value)) + "\n"
-                i = 0
-    id_string = re.sub(r"<(.*?:)> ", r"<success>\1</success>", id_string)
-    return id_string
+    properites_string = properties_string + name_and_value_columns(
+        properties,
+        cli_width=cli_width,
+        display_width=40,
+        exclusions=["name", "canonical_smiles", "inchi", "inchikey", "cid", "isomeric_smiles"],
+    )
+    properties_string = re.sub(r"<(.*?:)> ", r"<success>\1</success>", properites_string)
+    return properties_string
 
 
 def format_analysis(mol):
@@ -564,28 +514,15 @@ def format_analysis(mol):
     for item in mol["analysis"]:
         id_string = (
             id_string
-            + "\n<yellow>Toolkit: </yellow>"
+            + "\n\n<yellow>Toolkit: </yellow>"
             + item["toolkit"]
             + " <yellow>Function: </yellow>"
             + item["function"]
             + "\n"
         )
-        for key, value in item.items():
-            if key not in ["toolkit", "function"]:
-                if value == None:
-                    value = ""
-                if len("{}: {} ".format(key, value)) < cli_width / 2 and i == 0:
-                    id_string = id_string + "{:<40}".format("<{}:> {} ".format(key, value))
-                    i = 1
-                elif len(" {}: {} ".format(key, value)) < cli_width / 2 and i == 1:
-                    id_string = id_string + "{:<40}".format(" <{}:> {}".format(key, value)) + "\n"
-                    i = 0
-                elif len("{}: {} ".format(key, value)) > cli_width / 2 and i == 1:
-                    id_string = id_string + "\n<{}:> {}".format(key, value) + "\n"
-                    i = 0
-                elif len("{}: {} ".format(key, value)) > cli_width / 2 and i == 0:
-                    id_string = id_string + "{:<40}".format("<{}:> {}".format(key, value)) + "\n"
-                    i = 0
+        id_string = id_string + name_and_value_columns(
+            item, cli_width=cli_width, display_width=50, exclusions=["toolkit", "function"], indent="    "
+        )
     id_string = re.sub(r"<(.*?:)> ", r"<success>\1</success> ", id_string) + "\n"
     return id_string
 
@@ -672,13 +609,10 @@ def get_property(cmd_pointer, inp):
     if mol is None:
         mol = retrieve_mol(molecule_identifier)
         if mol is not None:
-            # if GLOBAL_SETTINGS["display"] != "notebook":
-            #    print(mol["properties"][molecule_property.lower()])
             if molecule_property.lower() == "synonyms":
                 if mol["synonyms"] is not None and "Synonym" in mol["synonyms"]:
                     return mol["synonyms"]["Synonym"]
             return mol["properties"][molecule_property.lower()]
-            # return print_s(print_string)
         else:
             print_s("molecule not available on pubchem")
             return None

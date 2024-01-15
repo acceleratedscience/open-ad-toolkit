@@ -166,9 +166,9 @@ Examples:
     )
     grammar_help.append(
         help_dict_create(
-            name="display  sources",
+            name="display sources",
             category="Molecules",
-            command="display sources sources |mol <name> | <smiles> | <inchi> | <inchkey> |  <cid>",
+            command="display sources  |mol <name> | <smiles> | <inchi> | <inchkey> |  <cid>",
             description=f"""
 Display a molecule's properties sources, attributing back to how they were calcualted or sourced.
 
@@ -434,8 +434,8 @@ The properties that can be requested are <cmd>{'</cmd>, <cmd>'.join(m_props[:-1]
         help_dict_create(
             name="load molecules",
             category="Molecules",
-            command="load molecules using file '<csv_or_sdf_filename>'",
-            description="Load molecules from a CSV or SDF file into the molecule working set.",
+            command="load molecules using file '<csv_or_sdf_filename>' |merge with pubchem|",
+            description="Load molecules from a CSV or SDF file into the molecule working set. optionally uo can add <cmd> merge with pubchem</cmd> to the ocmmand to fill in the other properties of the molecule",
         )
     )
 

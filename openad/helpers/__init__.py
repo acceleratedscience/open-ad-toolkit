@@ -6,3 +6,4 @@ from . import output
 from . import spinner
 from . import splash
 from . import credentials
+from . import format_columns
