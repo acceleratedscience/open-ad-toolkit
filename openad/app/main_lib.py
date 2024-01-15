@@ -40,10 +40,12 @@ import openad.app.login_manager as login_manager
 # Core
 from openad.core.lang_file_system import import_file, export_file, copy_file, remove_file, list_files
 from openad.core.lang_sessions_and_registry import (
-    clear_other_sessions,
+    clear_sessions,
     write_registry,
-    registry_add_toolkit,
-    registry_deregister_toolkit,
+    add_toolkit,
+    remove_toolkit,
+    update_toolkit,
+    update_all_toolkits,
     initialise_registry,
     update_main_registry_env_var,
 )
@@ -107,9 +109,13 @@ def lang_parse(cmd_pointer, parser):
 
     # Toolkit commands
     elif parser.getName() == "add_toolkit":
-        return registry_add_toolkit(cmd_pointer, parser)
+        return add_toolkit(cmd_pointer, parser)
     elif parser.getName() == "remove_toolkit":
-        return registry_deregister_toolkit(cmd_pointer, parser)
+        return remove_toolkit(cmd_pointer, parser)
+    elif parser.getName() == "update_toolkit":
+        return update_toolkit(cmd_pointer, parser)
+    elif parser.getName() == "update_all_toolkits":
+        return update_all_toolkits(cmd_pointer, parser)
     elif parser.getName() == "list_toolkits":
         return list_toolkits(cmd_pointer, parser)
     elif parser.getName() == "list_all_toolkits":
@@ -247,7 +253,7 @@ def lang_parse(cmd_pointer, parser):
     elif parser.getName() == "display_data__display":
         return display_data__display(cmd_pointer, parser)
     elif parser.getName() == "clear_sessions":
-        return clear_other_sessions(cmd_pointer, parser)
+        return clear_sessions(cmd_pointer, parser)
     elif parser.getName() == "edit_config":
         return edit_config(cmd_pointer, parser)
 
@@ -386,20 +392,17 @@ def set_context(cmd_pointer, parser):
         reset = True
 
     toolkit_name = parser["toolkit_name"].upper()
+    set_context_by_name(cmd_pointer, toolkit_name, reset)
+
+
+# Programatically set the context.
+# This is used by the main `set context xyz` command, but also
+# by a few other commands like `update context xyz` and `add toolkit xyz`.
+def set_context_by_name(cmd_pointer, toolkit_name, reset=False, suppress_splash=False):
     toolkit_current = None
 
-    # Handle login error.
-    def _handle_login_error(err):
-        output_error(msg("err_login", toolkit_name, err), return_val=False)
-        cmd_pointer.settings["context"] = old_cmd_pointer_context
-        cmd_pointer.toolkit_current = old_toolkit_current
-        unset_context(cmd_pointer, None)
-
+    # Toolkit doesn't exist.
     if toolkit_name.upper() not in cmd_pointer.settings["toolkits"]:
-        # if toolkit_name is None: # Trash, without toolkit_name the command is invalidated
-        #     return get_context(cmd_pointer, parser)
-
-        # Toolkit doesn't exist.
         return output_error(msg("fail_toolkit_not_installed", toolkit_name), nowrap=True)
 
     else:
@@ -423,17 +426,17 @@ def set_context(cmd_pointer, parser):
 
             except Exception as err:  # pylint: disable=broad-exception-caught
                 # Error loading login API.
-                _handle_login_error(err)
+                _handle_login_error(cmd_pointer, toolkit_name, old_toolkit_current, old_cmd_pointer_context, err)
                 return False
 
             if not login_success:
                 # Failed to log in.
                 err = expiry_datetime  # On fail, error is passed as second parameter instead of expiry.
-                _handle_login_error(err)
+                _handle_login_error(cmd_pointer, toolkit_name, old_toolkit_current, old_cmd_pointer_context, err)
                 return False
 
             # Success switching context & loggin in.
-            if old_cmd_pointer_context != cmd_pointer.settings["context"]:
+            if old_cmd_pointer_context != cmd_pointer.settings["context"] and not suppress_splash:
                 if GLOBAL_SETTINGS["display"] == "terminal" or GLOBAL_SETTINGS["display"] == None:
                     return output_text(splash(toolkit_name, cmd_pointer), nowrap=True)
                 else:
@@ -444,6 +447,14 @@ def set_context(cmd_pointer, parser):
             cmd_pointer.settings["context"] = old_cmd_pointer_context
             cmd_pointer.toolkit_current = old_toolkit_current
             return output_error(msg("err_load_toolkit", toolkit_name))
+
+
+# Handle toolkit login error.
+def _handle_login_error(cmd_pointer, toolkit_name, old_toolkit_current, old_cmd_pointer_context, err):
+    output_error(msg("err_login", toolkit_name, err), return_val=False)
+    cmd_pointer.settings["context"] = old_cmd_pointer_context
+    cmd_pointer.toolkit_current = old_toolkit_current
+    unset_context(cmd_pointer, None)
 
 
 # Display your current context.

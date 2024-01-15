@@ -104,9 +104,10 @@ def other_sessions_exist(cmd_pointer):
         pass
 
     if len(file_list) > 0:
-        return True, output_error(msg("abort_clear_sessions"), return_val=False)
+        output_error(msg("abort_clear_sessions"), return_val=False)
+        return True
     else:
-        return False, None
+        return False
 
 
 # Return user input.

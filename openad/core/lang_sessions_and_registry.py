@@ -4,6 +4,7 @@ import os
 import datetime
 import tarfile
 import shutil
+from IPython.display import display
 
 # Core
 from openad.core.grammar import create_statements
@@ -13,6 +14,7 @@ from openad.app.global_var_lib import _meta_dir_toolkits
 from openad.app.global_var_lib import _meta_registry
 from openad.app.global_var_lib import _meta_registry_session
 from openad.app.global_var_lib import _meta_registry_settings
+from openad.app.global_var_lib import _all_toolkits
 
 # Helpers
 from openad.helpers.output import output_text, output_error, output_success, output_warning
@@ -21,7 +23,10 @@ from openad.helpers.general import confirm_prompt, refresh_prompt, other_session
 
 
 def initialise_registry():
-    """initialise the registry/Settings File"""
+    """
+    Initialise the registry file.
+    The registry file is a pickle file that contains the user's settings.
+    """
     try:
         with open(_meta_registry, "wb") as handle:
             settings = pickle.dump(_meta_registry_settings, handle)
@@ -32,7 +37,9 @@ def initialise_registry():
 
 
 def update_main_registry_env_var(cmd_pointer, var_name, value):
-    """update the registry file  wiht current version in memory"""
+    """
+    Update the registry file with the current version in memory.
+    """
     registry = load_registry(cmd_pointer, orig_reg=True)
     registry["env_vars"][var_name] = value
     write_registry(registry, cmd_pointer, orig_reg=True)
@@ -42,9 +49,11 @@ def update_main_registry_env_var(cmd_pointer, var_name, value):
 
 
 def load_registry(cmd_pointer, orig_reg=False):
-    """load the registry file from disk
-    if Orig_reg is false it loads the session settings file if not it saves
-    back to the master registiry file"""
+    """
+    Load the registry file from disk.
+    If orig_reg=False, it loads the session registry file,
+    otherwise it loads the master registry file.
+    """
     if orig_reg is True:
         registry_file = _meta_registry
     else:
@@ -65,11 +74,12 @@ def load_registry(cmd_pointer, orig_reg=False):
     return registry
 
 
-# Write the user's registry data.
 def write_registry(registry: dict, cmd_pointer, orig_reg=False):
-    """Write the registry file from disk
-    if Orig_reg is false it writes the session settings file if not it saves
-    back to the master registiry file"""
+    """
+    Write the registry file to disk.
+    If orig_reg=False it writes to the session registry file,
+    otherwise it writes to the master registry file.
+    """
     if orig_reg is True:
         registry_file = _meta_registry
     else:
@@ -83,23 +93,23 @@ def write_registry(registry: dict, cmd_pointer, orig_reg=False):
     return True
 
 
-# Delete a individual session registry when the session ends.
 def delete_session_registry(session_id: str):
-    "deletes the session registry file based on session id"
+    """
+    Deletes the session registry file when the session ends.
+    """
     os.remove(_meta_registry_session + session_id)
     # os.remove('*' + session_id)
     return
 
 
-# Determine when Other Sessions Exist
-
-
-# Sledge Hammer remove other sessions, this enables new workspaces and toolkits to be created.
-def clear_other_sessions(cmd_pointer, parser):
-    """burned earth strategy for cleaning up Sessions directory"""
+def clear_sessions(cmd_pointer, parser):
+    """
+    Burned-earth approach for cleaning up the session directory.
+    Required to enable new workspaces and toolkits to be created.
+    """
     if not confirm_prompt(msg("confirm_clear_sessions")):
         output_error(msg("no_sessions_cleared"), pad_btm=1, return_val=False)
-        return
+        return False
 
     file_list = os.listdir(os.path.dirname(_meta_registry_session))
     try:
@@ -113,18 +123,25 @@ def clear_other_sessions(cmd_pointer, parser):
         return False
 
 
-def registry_add_toolkit(cmd_pointer, parser):
-    """copies a toolkit from the installed source to the toolkits directory"""
+def add_toolkit(cmd_pointer, parser, switch_context=True, suppress_output=False):
+    """
+    Installs a toolkit by copying it from the installation
+    source (openad/user_toolkits) to the toolkits directory.
+    """
+    from openad.app.main_lib import set_context_by_name
+
+    other_sesh = other_sessions_exist(cmd_pointer)
+    if other_sesh is True:
+        return False
+
     cmd_pointer.refresh_vector = True
     cmd_pointer.refresh_train = True
     cmd_pointer.settings["env_vars"]["refresh_help_ai"] = True
     update_main_registry_env_var(cmd_pointer, "refresh_help_ai", True)
-    other, error_msg = other_sessions_exist(cmd_pointer)
-    if other is True:
-        return error_msg
 
     toolkit_name = parser["toolkit_name"]
     try:
+        # raise Exception("This is a test exception")
         with open(_meta_registry, "rb") as handle:
             settings = pickle.loads(handle.read())
         if toolkit_name.upper() not in settings["toolkits"]:
@@ -136,7 +153,9 @@ def registry_add_toolkit(cmd_pointer, parser):
                 shutil.rmtree(target_directory + "/", ignore_errors=True)
 
             except Exception as err:
-                output_error("Unable to write registry file::" + str(err), retun_val=False)
+                if not suppress_output:
+                    output_error("Unable to write registry file::" + str(err), retun_val=False)
+                return False
 
             shutil.copytree(full_original_directory_name, target_directory, dirs_exist_ok=True)
             settings["toolkits"].append(toolkit_name.upper())
@@ -158,27 +177,41 @@ def registry_add_toolkit(cmd_pointer, parser):
                     archive.add(_meta_dir_toolkits + "/" + toolkit_name.upper(), recursive=True)
                     archive.close()
 
-            # raise Exception("This is a test exception")
-            return output_success(msg("success_toolkit_install", toolkit_name.upper()))
+            # Set context to new toolkit
+            if switch_context:
+                set_context_by_name(cmd_pointer, toolkit_name.upper())
+
+            if not suppress_output:
+                output_success(msg("success_toolkit_install", toolkit_name.upper()), return_val=False)
+            return True
         else:
-            return output_warning(msg("toolkit_already_installed", toolkit_name.upper()))
+            if not suppress_output:
+                output_warning(msg("toolkit_already_installed", toolkit_name.upper()), return_val=False)
+            return False
 
     except FileNotFoundError:
-        return output_error(msg("invalid_toolkit", toolkit_name.upper()))
+        if not suppress_output:
+            output_error(msg("invalid_toolkit", toolkit_name.upper()), return_val=False)
+        return False
 
     except Exception as err:
-        return output_error(msg("err_toolkit_install", toolkit_name.upper(), err))
+        if not suppress_output:
+            output_error(msg("err_toolkit_install", toolkit_name.upper(), err), return_val=False)
+        return False
 
 
-def registry_deregister_toolkit(cmd_pointer, parser):
-    """removes a toolkit from the registry"""
-    other, error_msg = other_sessions_exist(cmd_pointer)
+def remove_toolkit(cmd_pointer, parser, suppress_output=False):
+    """
+    Removes a toolkit from the registry.
+    """
+    other_sesh = other_sessions_exist(cmd_pointer)
+    if other_sesh is True:
+        return False
+
     cmd_pointer.refresh_vector = True
     cmd_pointer.refresh_train = True
     cmd_pointer.settings["env_vars"]["refresh_help_ai"] = True
     update_main_registry_env_var(cmd_pointer, "refresh_help_ai", True)
-    if other is True:
-        return error_msg
 
     toolkit_name = parser["toolkit_name"].upper()
     try:
@@ -190,7 +223,9 @@ def registry_deregister_toolkit(cmd_pointer, parser):
                 write_registry(cmd_pointer.settings, cmd_pointer)
 
             else:
-                return output_error(msg("fail_toolkit_not_registered", toolkit_name))
+                if not suppress_output:
+                    output_error(msg("fail_toolkit_not_registered", toolkit_name), return_val=False)
+                return False
 
             if cmd_pointer.settings["context"] == toolkit_name:
                 settings["context"] = None
@@ -203,7 +238,85 @@ def registry_deregister_toolkit(cmd_pointer, parser):
         # raise Exception("This is a test exception")
 
     except Exception as err:
-        return output_error(msg("err_toolkit_remove", toolkit_name, err))
+        if not suppress_output:
+            output_error(msg("err_toolkit_remove", toolkit_name, err), return_val=False)
+        return False
+
     write_registry(settings, cmd_pointer)
     write_registry(settings, cmd_pointer, True)
-    return output_success(msg("success_toolkit_remove", toolkit_name.upper()))
+    if not suppress_output:
+        output_success(msg("success_toolkit_remove", toolkit_name.upper()), return_val=False)
+    return True
+
+
+def update_toolkit(cmd_pointer, parser, suppress_output=False):
+    """
+    Updates a toolkit by removing and re-installing it.
+    """
+    from openad.app.main_lib import set_context_by_name
+
+    # Get current context, so we can reset it in case
+    # the current toolkit is updated.
+    prev_toolkit = cmd_pointer.settings["context"]
+
+    # Check if toolkit is installed
+    toolkit_name = parser["toolkit_name"].upper()
+    is_installed = bool(toolkit_name in cmd_pointer.settings["toolkits"])
+
+    # Remove
+    if is_installed:
+        remove_success = remove_toolkit(cmd_pointer, parser, suppress_output=True)
+    else:
+        remove_success = True
+
+    # Re-install if removal was successful
+    if remove_success:
+        install_success = add_toolkit(cmd_pointer, parser, switch_context=False, suppress_output=True)
+
+        if install_success:
+            # If the current toolkit was updated, we need
+            # to reset the context to the current toolkit.
+            if cmd_pointer.settings["context"] is not prev_toolkit:
+                set_context_by_name(cmd_pointer, prev_toolkit, suppress_splash=True)
+
+            # Display success message
+            if not suppress_output:
+                output_success(msg("success_update_toolkit", parser["toolkit_name"].upper()), return_val=False)
+            return True
+
+
+def update_all_toolkits(cmd_pointer, parser):
+    """
+    Updates all installed toolkits at once.
+    """
+    update_successes = []
+    update_fails = []
+
+    # Assemble list of installed toolkits.
+    installed_toolkits = []
+    for toolkit_name in _all_toolkits:
+        if toolkit_name in cmd_pointer.settings["toolkits"]:
+            installed_toolkits.append(toolkit_name)
+
+    # Update each toolkit.
+    for toolkit_name in installed_toolkits:
+        parser["toolkit_name"] = toolkit_name
+        success = update_toolkit(cmd_pointer, parser, suppress_output=True)
+        if success:
+            update_successes.append(toolkit_name)
+        else:
+            update_fails.append(toolkit_name)
+
+    # Display successes.
+    if len(update_successes):
+        list_success = []
+        for toolkit_name in update_successes:
+            list_success.append(f"<reset>- </reset><yellow>{toolkit_name}</yellow>")
+        output_success(msg("success_update_all_toolkits", "\n".join(list_success)), return_val=False)
+
+    # Display failures.
+    if len(update_fails):
+        list_fail = []
+        for toolkit_name in update_fails:
+            list_fail.append(f"<reset>- </reset><yellow>{toolkit_name}</yellow>")
+        output_error(msg("err_update_all_toolkits", "\n".join(list_fail)), return_val=False)

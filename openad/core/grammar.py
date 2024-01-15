@@ -79,12 +79,13 @@ from openad.app.global_var_lib import _all_toolkits
     history,
     data,
     remove,
+    update,
     result,
 ) = map(
     CaselessKeyword,
     "get list description using create set unset workspace workspaces context jobs exec\
     as optimize with toolkits toolkit gpu experiment add run save runs show mol molecules\
-    file display history data remove result".split(),
+    file display history data remove update result".split(),
 )
 STRING_VALUE = alphanums
 
@@ -350,6 +351,32 @@ grammar_help.append(
         note=NOTE_TOOLKITS,
         # Correct description but we have to update the functionality first.
         # description="Remove a toolkit from the registry. This affects all workspaces. A backup of the toolkit directory is stored in <yellow>~/.openad/toolkits_archive</yellow>."
+    )
+)
+
+# Update toolkit
+statements.append(Forward(update + toolkit + Word(alphas, alphanums + "_")("toolkit_name"))("update_toolkit"))
+grammar_help.append(
+    help_dict_create(
+        name="update toolkit",
+        category="Toolkits",
+        command="update toolkit <toolkit_name>",
+        description=("Update a toolkit with the latest version. It is recommended to do this on a regular basis."),
+        note=NOTE_TOOLKITS,
+    )
+)
+
+# Update all toolkits
+statements.append(Forward(update + CaselessKeyword("all") + toolkits("toolkits"))("update_all_toolkits"))
+grammar_help.append(
+    help_dict_create(
+        name="update all toolkits",
+        category="Toolkits",
+        command="update all toolkits",
+        description=(
+            "Update all installed toolkits with the latest version. Happens automatically whenever OpenAD is updated to a new version."
+        ),
+        note=NOTE_TOOLKITS,
     )
 )
 
