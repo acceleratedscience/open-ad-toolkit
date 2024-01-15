@@ -465,7 +465,10 @@ def format_sources(mol):
 def format_synonyms(mol):
     """formats synonyms for display"""
     synonyms_string = "\n<yellow>Synonyms:</yellow>\n"
-    synonyms = mol["synonyms"]["Synonym"]
+    if "Synonym" in mol["synonyms"]:
+        synonyms = mol["synonyms"]["Synonym"]
+    else:
+        synonyms = []
     all_synonyms = True
     new_synonyms = []
     for synonym in synonyms:

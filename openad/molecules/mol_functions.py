@@ -1,6 +1,7 @@
 """Implements molecule management functions"""
 
-
+from datetime import datetime
+import time
 import pubchempy as pcy
 from rdkit import Chem, rdBase
 
@@ -124,22 +125,25 @@ def new_molecule(Name: str, smiles: str):
     for i in MOL_PROPERTIES:
         mol["properties"][i] = None
 
+    date_time = datetime.fromtimestamp(time.time())
+    str_date_time = date_time.strftime("%d-%m-%Y, %H:%M:%S")
     mol["properties"]["molecular_weight"] = mol_weight
-    mol["property_sources"]["molecular_weight"] = "rdkit"
+    mol["property_sources"]["molecular_weight"] = {"software": "rdkit", "date": str_date_time}
     mol["properties"]["inchi"] = inchi
-    mol["property_sources"]["inchi"] = "rdkit"
+    mol["property_sources"]["inchi"] = {"software": "rdkit", "date": str_date_time}
     mol["properties"]["inchikey"] = inchikey
-    mol["property_sources"]["inchikey"] = "rdkit"
+    mol["property_sources"]["inchikey"] = {"software": "rdkit", "date": str_date_time}
     mol["properties"]["canonical_smiles"] = new_smiles
-    mol["property_sources"]["canonical_smiles"] = "rdkit"
+    mol["property_sources"]["canonical_smiles"] = {"software": "rdkit", "date": str_date_time}
     mol["properties"]["molecular_formula"] = formula
-    mol["property_sources"]["molecular_formula"] = "rdkit"
+    mol["property_sources"]["molecular_formula"] = {"software": "rdkit", "date": str_date_time}
     return mol
 
 
 def merge_molecule_properties(molecule_dict, mol):
     """merges a molecules property with those from a dictionary"""
-
+    date_time = datetime.fromtimestamp(time.time())
+    str_date_time = date_time.strftime("%d-%m-%Y, %H:%M:%S")
     if mol is None:
         return None
     if "ROMol" in molecule_dict:
@@ -147,7 +151,7 @@ def merge_molecule_properties(molecule_dict, mol):
 
     for key in molecule_dict:
         mol["properties"][key] = molecule_dict[key]
-        mol["property_sources"][key] = "custom"
+        mol["property_sources"][key] = {"software": "custom", "date": str_date_time}
         if key not in MOL_PROPERTIES:
             MOL_PROPERTIES.append(key)
 
