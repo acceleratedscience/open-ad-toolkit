@@ -130,7 +130,7 @@ def clear_sessions(cmd_pointer, parser):
         return False
 
 
-def add_toolkit(cmd_pointer, parser, switch_context=True, suppress_output=False):
+def registry_add_toolkit(cmd_pointer, parser, switch_context=True, suppress_output=False):
     """
     Installs a toolkit by copying it from the installation
     source (openad/user_toolkits) to the toolkits directory.
@@ -207,7 +207,7 @@ def add_toolkit(cmd_pointer, parser, switch_context=True, suppress_output=False)
         return False
 
 
-def remove_toolkit(cmd_pointer, parser, suppress_output=False):
+def registry_remove_toolkit(cmd_pointer, parser, suppress_output=False):
     """
     Removes a toolkit from the registry.
     """
@@ -272,13 +272,13 @@ def update_toolkit(cmd_pointer, parser, suppress_output=False):
 
     # Remove
     if is_installed:
-        remove_success = remove_toolkit(cmd_pointer, parser, suppress_output=True)
+        remove_success = registry_remove_toolkit(cmd_pointer, parser, suppress_output=True)
     else:
         remove_success = True
 
     # Re-install if removal was successful
     if remove_success:
-        install_success = add_toolkit(cmd_pointer, parser, switch_context=False, suppress_output=True)
+        install_success = registry_add_toolkit(cmd_pointer, parser, switch_context=False, suppress_output=True)
 
         if install_success:
             # If the current toolkit was updated, we need

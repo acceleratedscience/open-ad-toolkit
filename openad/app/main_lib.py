@@ -42,8 +42,8 @@ from openad.core.lang_file_system import import_file, export_file, copy_file, re
 from openad.core.lang_sessions_and_registry import (
     clear_sessions,
     write_registry,
-    add_toolkit,
-    remove_toolkit,
+    registry_add_toolkit,
+    registry_remove_toolkit,
     update_toolkit,
     update_all_toolkits,
     initialise_registry,
@@ -109,9 +109,9 @@ def lang_parse(cmd_pointer, parser):
 
     # Toolkit commands
     elif parser.getName() == "add_toolkit":
-        return add_toolkit(cmd_pointer, parser)
+        return registry_add_toolkit(cmd_pointer, parser)
     elif parser.getName() == "remove_toolkit":
-        return remove_toolkit(cmd_pointer, parser)
+        return registry_remove_toolkit(cmd_pointer, parser)
     elif parser.getName() == "update_toolkit":
         return update_toolkit(cmd_pointer, parser)
     elif parser.getName() == "update_all_toolkits":
