@@ -97,7 +97,14 @@ def delete_session_registry(session_id: str):
     """
     Deletes the session registry file when the session ends.
     """
-    os.remove(_meta_registry_session + session_id)
+    try:
+        os.remove(_meta_registry_session + session_id)
+    except Exception as err:
+        # When clear sessions was called from another session,
+        # the session registry file won't exist and we don't
+        # want to throw an error.
+        pass
+
     # os.remove('*' + session_id)
     return
 
@@ -153,8 +160,8 @@ def add_toolkit(cmd_pointer, parser, switch_context=True, suppress_output=False)
                 shutil.rmtree(target_directory + "/", ignore_errors=True)
 
             except Exception as err:
-                if not suppress_output:
-                    output_error("Unable to write registry file::" + str(err), retun_val=False)
+                # if not suppress_output:
+                output_error("Unable to write registry file::" + str(err), retun_val=False)
                 return False
 
             shutil.copytree(full_original_directory_name, target_directory, dirs_exist_ok=True)
@@ -190,13 +197,13 @@ def add_toolkit(cmd_pointer, parser, switch_context=True, suppress_output=False)
             return False
 
     except FileNotFoundError:
-        if not suppress_output:
-            output_error(msg("invalid_toolkit", toolkit_name.upper()), return_val=False)
+        # if not suppress_output:
+        output_error(msg("invalid_toolkit", toolkit_name.upper()), return_val=False)
         return False
 
     except Exception as err:
-        if not suppress_output:
-            output_error(msg("err_toolkit_install", toolkit_name.upper(), err), return_val=False)
+        # if not suppress_output:
+        output_error(msg("err_toolkit_install", toolkit_name.upper(), err), return_val=False)
         return False
 
 
@@ -215,6 +222,7 @@ def remove_toolkit(cmd_pointer, parser, suppress_output=False):
 
     toolkit_name = parser["toolkit_name"].upper()
     try:
+        # raise Exception("This is a test exception")
         with open(_meta_registry, "rb") as handle:
             settings = pickle.loads(handle.read())
             if toolkit_name in settings["toolkits"]:
@@ -223,8 +231,8 @@ def remove_toolkit(cmd_pointer, parser, suppress_output=False):
                 write_registry(cmd_pointer.settings, cmd_pointer)
 
             else:
-                if not suppress_output:
-                    output_error(msg("fail_toolkit_not_registered", toolkit_name), return_val=False)
+                # if not suppress_output:
+                output_error(msg("fail_toolkit_not_registered", toolkit_name), return_val=False)
                 return False
 
             if cmd_pointer.settings["context"] == toolkit_name:
@@ -235,11 +243,10 @@ def remove_toolkit(cmd_pointer, parser, suppress_output=False):
                 write_registry(cmd_pointer.settings, cmd_pointer)
                 refresh_prompt(cmd_pointer.settings)
                 create_statements(cmd_pointer)
-        # raise Exception("This is a test exception")
 
     except Exception as err:
-        if not suppress_output:
-            output_error(msg("err_toolkit_remove", toolkit_name, err), return_val=False)
+        # if not suppress_output:
+        output_error(msg("err_toolkit_remove", toolkit_name, err), return_val=False)
         return False
 
     write_registry(settings, cmd_pointer)
@@ -289,6 +296,11 @@ def update_all_toolkits(cmd_pointer, parser):
     """
     Updates all installed toolkits at once.
     """
+
+    other_sesh = other_sessions_exist(cmd_pointer)
+    if other_sesh is True:
+        return
+
     update_successes = []
     update_fails = []
 
