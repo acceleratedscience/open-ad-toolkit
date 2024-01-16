@@ -29,6 +29,8 @@ from openad.molecules.mol_functions import (
     get_identifiers,
     canonical_smiles,
     get_mol_basic,
+    mol2svg,
+    mol2sdf,
 )
 
 # Globals
@@ -654,8 +656,8 @@ def show_mol(cmd_pointer, inp):
     # Render SVG and SDF
     mol_rdkit = Chem.MolFromInchi(mol["properties"]["inchi"])
     if mol_rdkit:
-        mol_svg = _mol2svg(mol_rdkit)
-        mol_sdf = _mol2sdf(mol_rdkit)
+        mol_svg = mol2svg(mol_rdkit)
+        mol_sdf = mol2sdf(mol_rdkit)
     else:
         mol_svg, mol_sdf = None, None
 
@@ -685,21 +687,3 @@ def _write_molecules(molecule: dict, location):
     with open(os.path.expanduser(location), "wb") as handle:
         pickle.dump(molecule, handle)
     return True
-
-
-# Create svg code.
-def _mol2svg(mol):
-    mol_drawer = Chem.Draw.MolDraw2DSVG(300, 300)
-    mol_drawer.DrawMolecule(mol)
-    mol_drawer.FinishDrawing()
-    return mol_drawer.GetDrawingText()
-
-
-# Create sdf code.
-def _mol2sdf(mol):
-    # Generate 3D coordinates for the molecule (optional but usually desirable for SDF)
-    # Chem.AllChem.EmbedMolecule(mol_obj, Chem.AllChem.ETKDG())
-
-    # Convert molecule object to SDF format
-    mol_sdf = Chem.MolToMolBlock(mol)
-    return mol_sdf

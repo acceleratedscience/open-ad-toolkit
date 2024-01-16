@@ -345,6 +345,24 @@ def get_mol_basic(molecule_identifier):
         return False
 
 
+# Create svg code from .
+def mol2svg(mol_rdkit):
+    mol_drawer = Chem.Draw.MolDraw2DSVG(300, 300)
+    mol_drawer.DrawMolecule(mol_rdkit)
+    mol_drawer.FinishDrawing()
+    return mol_drawer.GetDrawingText()
+
+
+# Create sdf code.
+def mol2sdf(mol_rdkit):
+    # Generate 3D coordinates for the molecule (optional but usually desirable for SDF)
+    # Chem.AllChem.EmbedMolecule(mol_obj, Chem.AllChem.ETKDG())
+
+    # Convert molecule object to SDF format
+    mol_sdf = Chem.MolToMolBlock(mol_rdkit)
+    return mol_sdf
+
+
 if __name__ == "__main__":
     # get_mol_basic("InChI=1S/C13H18O2/c1-9(2)8-11-4-6-12(7-5-11)10(3)13(14)15/h4-7,9-10H,8H2,1-3H3,(H,14,15)")
     # get_mol_basic("ibuprofen")
