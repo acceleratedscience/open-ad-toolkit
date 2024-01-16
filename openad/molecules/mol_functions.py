@@ -1,11 +1,23 @@
 """Implements molecule management functions"""
 
-
+from datetime import datetime
+import time
 import pubchempy as pcy
 from rdkit import Chem, rdBase
+from openad.helpers.output import output_text, output_table, output_warning, output_error
 
 blocker = rdBase.BlockLogs()
 
+# The base for our molecule dictionary.
+OPENAD_MOL_DICT = {
+    "name": None,
+    "synonyms": {},
+    "properties": {},
+    "property_sources": {},
+    "sources": {},
+    "commments": {},
+    "analysis": [],
+}
 
 MOL_NAME_INDEX = "name"
 MOL_SMILES_INDEX = "smiles"
@@ -102,10 +114,8 @@ def new_molecule(Name: str, smiles: str):
         new_smiles = Chem.MolToSmiles(Chem.MolFromSmiles(smiles), False)
         rdkit_mol = Chem.MolFromSmiles(new_smiles)
         formula = Chem.rdMolDescriptors.CalcMolFormula(rdkit_mol)
-
         inchi = Chem.rdinchi.MolToInchi(rdkit_mol)[0]
-
-        # inchikey = Chem.rdinchi.MolToInchikey(rdkit_mol)
+        inchikey = Chem.inchi.InchiToInchiKey(inchi)
 
         # mol_weight = Chem.Descriptors.ExactMolWt(rdkit_mol)
 
@@ -124,22 +134,25 @@ def new_molecule(Name: str, smiles: str):
     for i in MOL_PROPERTIES:
         mol["properties"][i] = None
 
+    date_time = datetime.fromtimestamp(time.time())
+    str_date_time = date_time.strftime("%d-%m-%Y, %H:%M:%S")
     mol["properties"]["molecular_weight"] = mol_weight
-    mol["property_sources"]["molecular_weight"] = "rdkit"
+    mol["property_sources"]["molecular_weight"] = {"software": "rdkit", "date": str_date_time}
     mol["properties"]["inchi"] = inchi
-    mol["property_sources"]["inchi"] = "rdkit"
+    mol["property_sources"]["inchi"] = {"software": "rdkit", "date": str_date_time}
     mol["properties"]["inchikey"] = inchikey
-    mol["property_sources"]["inchikey"] = "rdkit"
+    mol["property_sources"]["inchikey"] = {"software": "rdkit", "date": str_date_time}
     mol["properties"]["canonical_smiles"] = new_smiles
-    mol["property_sources"]["canonical_smiles"] = "rdkit"
+    mol["property_sources"]["canonical_smiles"] = {"software": "rdkit", "date": str_date_time}
     mol["properties"]["molecular_formula"] = formula
-    mol["property_sources"]["molecular_formula"] = "rdkit"
+    mol["property_sources"]["molecular_formula"] = {"software": "rdkit", "date": str_date_time}
     return mol
 
 
 def merge_molecule_properties(molecule_dict, mol):
     """merges a molecules property with those from a dictionary"""
-
+    date_time = datetime.fromtimestamp(time.time())
+    str_date_time = date_time.strftime("%d-%m-%Y, %H:%M:%S")
     if mol is None:
         return None
     if "ROMol" in molecule_dict:
@@ -147,7 +160,7 @@ def merge_molecule_properties(molecule_dict, mol):
 
     for key in molecule_dict:
         mol["properties"][key] = molecule_dict[key]
-        mol["property_sources"][key] = "custom"
+        mol["property_sources"][key] = {"software": "custom", "date": str_date_time}
         if key not in MOL_PROPERTIES:
             MOL_PROPERTIES.append(key)
 
@@ -232,15 +245,6 @@ def get_mol_from_cid(mol_cid: str):
 def get_mol(mol_id, mol_id_type):
     """gets molecule based on provided identifier"""
     cid = None
-    OPENAD_MOL_DICT = {
-        "name": None,
-        "synonyms": {},
-        "properties": {},
-        "property_sources": {},
-        "sources": {},
-        "commments": {},
-        "analysis": [],
-    }
     try:
         if mol_id_type == MOL_CID_INDEX:
             if not mol_id.isdigit():
@@ -312,7 +316,38 @@ def get_identifiers(mol):
     return identifier_dict
 
 
+# Takes any identifier and creates a minimal molecule object,
+# ideally without connecting to PubChem.
+def get_mol_basic(molecule_identifier):
+    mol = OPENAD_MOL_DICT.copy()
+
+    # Fill in the basic identifiers
+    mol_rdkit = Chem.MolFromInchi(molecule_identifier)
+    if mol_rdkit:
+        # Prepend 'InChI=' when missing.
+        if not molecule_identifier.startswith("InChI="):
+            molecule_identifier = "InChI=" + molecule_identifier
+
+        mol["properties"]["inchi"] = molecule_identifier
+        mol["properties"]["inchikey"] = Chem.inchi.InchiToInchiKey(molecule_identifier)
+        mol["properties"]["canonical_smiles"] = Chem.MolToSmiles(mol_rdkit)
+        mol["properties"]["isomeric_smiles"] = Chem.MolToSmiles(mol_rdkit, isomericSmiles=True)
+        return mol
+    else:
+        mol_rdkit = Chem.MolFromSmiles(molecule_identifier)
+    if mol_rdkit:
+        mol["properties"]["inchi"] = Chem.MolToInchi(mol_rdkit)
+        mol["properties"]["inchikey"] = Chem.inchi.InchiToInchiKey(mol["properties"]["inchi"])
+        mol["properties"]["canonical_smiles"] = Chem.MolToSmiles(mol_rdkit)
+        mol["properties"]["isomeric_smiles"] = Chem.MolToSmiles(mol_rdkit, isomericSmiles=True)
+        return mol
+    else:
+        return False
+
+
 if __name__ == "__main__":
+    # get_mol_basic("InChI=1S/C13H18O2/c1-9(2)8-11-4-6-12(7-5-11)10(3)13(14)15/h4-7,9-10H,8H2,1-3H3,(H,14,15)")
+    # get_mol_basic("ibuprofen")
     success, molec, cmp = get_mol_from_name("ibuprofen")
     print(success)
     if success:

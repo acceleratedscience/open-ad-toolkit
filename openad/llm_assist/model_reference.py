@@ -6,12 +6,19 @@ from langchain.chat_models import ChatOpenAI
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.embeddings import HuggingFaceEmbeddings
 
+from genai import Credentials, Client
 
-from genai import Model
-from genai.schemas import GenerateParams
-from genai.credentials import Credentials
-
-from genai.extensions.langchain import LangChainInterface
+# from genai import Model
+# from genai.schemas import GenerateParams
+from genai import Client, Credentials
+from genai.extensions.langchain.chat_llm import LangChainChatInterface
+from genai.text.generation import (
+    DecodingMethod,
+    ModerationHAP,
+    ModerationParameters,
+    TextGenerationParameters,
+    TextGenerationReturnOptions,
+)
 
 # Determine in the sentence transformer embbedings model is installed
 # this is currently required for BAM and WATSON
@@ -37,7 +44,7 @@ SUPPORTED_TELL_ME_MODELS = ["BAM", "OPENAI"]
 SUPPORTED_TELL_ME_MODELS_SETTINGS = {
     "BAM": {
         "model": "ibm/granite-20b-code-instruct-v1",
-        "url": "https://bam-api.res.ibm.com/v1/",
+        "url": "https://bam-api.res.ibm.com",
         "template": """  When responding follow the following rules:
                 - Answer and format like a Technical Documentation writer concisely and to the point
                 - Format All Command Syntax, Clauses, Examples or Option Syntax in codeblock Markdown
@@ -108,20 +115,26 @@ def get_tell_me_model(service: str, api_key: str):
                 "Error: Loading BAM Model you need to install `sentence-transformers` : \n" + e, return_val=False
             )
             return False
+
         creds = Credentials(api_key=api_key, api_endpoint=SUPPORTED_TELL_ME_MODELS_SETTINGS[service]["url"])
+        client = Client(credentials=creds)
+
         try:
-            params = GenerateParams(decoding_method="greedy", max_new_tokens=1536, min_new_tokens=1, temperature=0.3)
-            model = Model(
-                model=SUPPORTED_TELL_ME_MODELS_SETTINGS[service]["template"], credentials=creds, params=params
+            params = TextGenerationParameters(
+                decoding_method=DecodingMethod.GREEDY, max_new_tokens=1536, min_new_tokens=1, temperature=0.3
             )
-            model = LangChainInterface(
-                model=SUPPORTED_TELL_ME_MODELS_SETTINGS[service]["model"],
-                params=params,
-                credentials=creds,
+            # model = Model(
+            # model=SUPPORTED_TELL_ME_MODELS_SETTINGS[service]["template"], credentials=creds, params=params
+            # )
+            model = LangChainChatInterface(
+                client=client,
+                model_id=SUPPORTED_TELL_ME_MODELS_SETTINGS[service]["model"],
+                parameters=params,
                 verbose=True,
             )
             return model, SUPPORTED_TELL_ME_MODELS_SETTINGS[service]["template"]
         except Exception as e:  # pylint: disable=broad-exception-caught
+            print(e)
             output_error("Error Loading BAM Model see error Messsage : \n" + e, return_val=False)
             return None, None
 
@@ -141,6 +154,13 @@ def get_embeddings_model(service: str, api_key: str):
         if MINI_EMBEDDINGS_MODEL_PRESENT is False:
             return False
         try:
+            # creds = Credentials(
+            #    api_key=api_key,
+            #    api_endpoint=SUPPORTED_TELL_ME_MODELS_SETTINGS[service]["url"],
+            #    model_id=LOCAL_MODEL_PATH,
+            # )
+            # embeddings = Client(credentials=creds)
+
             embeddings = HuggingFaceEmbeddings(
                 model_name=LOCAL_MODEL_PATH,
                 model_kwargs=LOCAL_MODEL_KWARGS,

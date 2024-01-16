@@ -31,6 +31,7 @@ from openad.molecules.mol_commands import (
     rename_mol_in_list,
     clear_workset,
     export_molecule_set,
+    show_mol,
 )
 
 from openad.molecules.molecule_cache import attach_all_results, clear_results
@@ -56,7 +57,7 @@ from openad.core.lang_workspaces import (
     set_workspace,
     get_workspace,
 )
-from openad.core.lang_mols import show_molsgrid, show_mol
+from openad.core.lang_mols import show_molsgrid, show_mol__TRASH
 from openad.core.lang_runs import display_run, exec_run, save_run, list_runs
 from openad.core.lang_dev import flask_example
 from openad.core.grammar import create_statements
@@ -175,36 +176,28 @@ def lang_parse(cmd_pointer, parser):
         return display_run(cmd_pointer, parser)
     elif parser.getName() == "exec_run":
         exec_run(cmd_pointer, parser)
-    # molecules
+
+    # Molecules
     elif parser.getName() == "display_molecule":
         return display_molecule(cmd_pointer, parser)
     elif parser.getName() == "display_property_sources":
         return display_property_sources(cmd_pointer, parser)
-
     elif parser.getName() == "add_molecule":
         return add_molecule(cmd_pointer, parser)
-
     elif parser.getName() == "remove_molecule":
         return remove_molecule(cmd_pointer, parser)
-
     elif parser.getName() == "list_molecules":
         return list_molecules(cmd_pointer, parser)
-
     elif parser.getName() == "save_molecule-set":
         return save_molecules(cmd_pointer, parser)
-
     elif parser.getName() == "load_molecule-set":
         return load_molecules(cmd_pointer, parser)
-
     elif parser.getName() == "list_molecule-sets":
         return display_molsets(cmd_pointer, parser)
-
     elif parser.getName() == "load_analysis":
         return attach_all_results(cmd_pointer, parser)
-
     elif parser.getName() == "export_molecule":
         return export_molecule(cmd_pointer, parser)
-
     elif parser.getName() == "clear_analysis":
         return clear_results(cmd_pointer, parser)
     elif parser.getName() == "create_molecule":
@@ -217,9 +210,14 @@ def lang_parse(cmd_pointer, parser):
         return clear_workset(cmd_pointer, parser)
     elif parser.getName() in ["load_molecules_file", "load_molecules_dataframe"]:
         return load_batch_molecules(cmd_pointer, parser)
-
     elif parser.getName() == "export_molecules":
         return export_molecule_set(cmd_pointer, parser)
+    # elif parser.getName() == "show_molecules":
+    #     return show_molsgrid(cmd_pointer, parser)
+    # elif parser.getName() == "show_molecules_df":
+    #     return show_molsgrid(cmd_pointer, parser)
+    elif parser.getName() == "show_molecule":
+        return show_mol(cmd_pointer, parser)
 
     # File system commands
     elif parser.getName() == "list_files":
@@ -263,13 +261,13 @@ def lang_parse(cmd_pointer, parser):
     elif parser.getName() == "docs":
         return docs(cmd_pointer, parser)
 
-    # Show molecules commands
-    elif parser.getName() == "show_molecules":
-        return show_molsgrid(cmd_pointer, parser)
-    elif parser.getName() == "show_molecules_df":
-        return show_molsgrid(cmd_pointer, parser)
-    elif parser.getName() == "show_molecule":
-        return show_mol(cmd_pointer, parser)
+    # # Show molecules commands
+    # elif parser.getName() == "show_molecules":
+    #     return show_molsgrid(cmd_pointer, parser)
+    # elif parser.getName() == "show_molecules_df":
+    #     return show_molsgrid(cmd_pointer, parser)
+    # elif parser.getName() == "show_molecule":
+    #     return show_mol__TRASH(cmd_pointer, parser)
 
     # Toolkit execution
     elif str(parser.getName()).startswith("toolkit_exec_"):

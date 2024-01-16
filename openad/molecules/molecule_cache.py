@@ -5,6 +5,7 @@ import time
 import pickle
 
 from openad.molecules.mol_functions import canonical_smiles
+from rdkit import Chem
 
 analysis_record = {"smiles": None, "toolkit": None, "function": None, "parameters": {}, "results": {}}
 CACHE_DIR = "/_result_cache/"
@@ -30,18 +31,22 @@ def _create_workspace_dir_if_nonexistent(cmd_pointer, dir_name):
 def save_result(result: dict, cmd_pointer) -> bool:
     """saves a result of an analysis tool"""
     timestr = time.strftime("%Y%m%d-%H%M%S")
-
-    filename = f'{str(canonical_smiles(result["smiles"]))}-{str(result["toolkit"]).upper()}-{str(result["function"]).upper()}-{timestr}.res'
+    rdkit_mol = Chem.MolFromSmiles(result["smiles"])
+    inchi = Chem.rdinchi.MolToInchi(rdkit_mol)[0]
+    inchikey = Chem.inchi.InchiToInchiKey(inchi)
+    filename = f'{inchikey}-{str(result["toolkit"]).upper()}-{str(result["function"]).upper()}-{timestr}.res'
     _write_analysis(result, _create_workspace_dir_if_nonexistent(cmd_pointer, CACHE_DIR) + filename)
     return False
 
 
 def _retrieve_results(smiles: str, cmd_pointer) -> list | bool:
     """retrieves results from workspace cache"""
-
+    rdkit_mol = Chem.MolFromSmiles(smiles)
+    inchi = Chem.rdinchi.MolToInchi(rdkit_mol)[0]
+    inchikey = Chem.inchi.InchiToInchiKey(inchi)
     results = []
     for i in glob.glob(
-        _create_workspace_dir_if_nonexistent(cmd_pointer, CACHE_DIR) + canonical_smiles(smiles) + "-*.res",
+        _create_workspace_dir_if_nonexistent(cmd_pointer, CACHE_DIR) + inchikey + "-*.res",
         recursive=True,
     ):
         func_file = open(i, "rb")
@@ -57,7 +62,6 @@ def clear_results(cmd_pointer, inp) -> list | bool:
         recursive=True,
     ):
         os.remove(i)
-
     return True
 
 

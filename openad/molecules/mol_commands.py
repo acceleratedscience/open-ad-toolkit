@@ -6,18 +6,17 @@ import shutil
 import re
 import json
 import pandas as pd
-
-
 from rdkit import Chem
 from rdkit.Chem import AllChem
 
-
+# Helpers
 from openad.helpers.general import confirm_prompt
 from openad.helpers.output import output_text, output_table, output_warning, output_error
 from openad.helpers.output_msgs import msg
-from openad.molecules.mol_functions import canonical_smiles
-from openad.app.global_var_lib import GLOBAL_SETTINGS
+from openad.helpers.format_columns import single_value_columns, name_and_value_columns
 
+
+# Molecule functions
 from openad.molecules.mol_functions import (
     get_mol_from_formula,
     get_mol_from_inchi,
@@ -26,12 +25,23 @@ from openad.molecules.mol_functions import (
     get_mol_from_smiles,
     get_mol_from_cid,
     new_molecule,
+    get_properties,
+    get_identifiers,
+    canonical_smiles,
+    get_mol_basic,
 )
-from openad.molecules.mol_functions import get_properties, get_identifiers
 
+# Globals
+from openad.app.global_var_lib import GLOBAL_SETTINGS
+
+# Flask
+from openad.flask_apps import launcher
+from openad.flask_apps.molviewer.routes import fetchRoutesMolViewer
+
+# TEMP
 from openad.plugins.style_parser import print_s, style
 
-cli_width = min(shutil.get_terminal_size().columns, 150)
+CLI_WIDTH = min(shutil.get_terminal_size().columns, 150)
 
 
 class bold_style:
@@ -48,8 +58,8 @@ def display_molecule(cmd_pointer, inp):
     """displays a molecule and its properties"""
     molecule_identifier = inp.as_dict()["molecule_identifier"]
     if GLOBAL_SETTINGS["display"] == "notebook":
-        global cli_width
-        cli_width = 100
+        global CLI_WIDTH
+        CLI_WIDTH = 100
 
     mol = retrieve_mol_from_list(cmd_pointer, molecule_identifier)
 
@@ -106,7 +116,7 @@ def display_molecule(cmd_pointer, inp):
         print_string = print_string.replace("\n", "<br>")
         display(HTML("<pre>" + print_string + "</pre>"))
     else:
-        print_s(print_string)
+        output_text(print_string, edge=True)
 
     return True
 
@@ -114,8 +124,8 @@ def display_molecule(cmd_pointer, inp):
 def display_property_sources(cmd_pointer, inp):
     """displays a molecule properties sources"""
     if GLOBAL_SETTINGS["display"] == "notebook":
-        global cli_width
-        cli_width = 100
+        global CLI_WIDTH
+        CLI_WIDTH = 100
     molecule_identifier = inp.as_dict()["molecule_identifier"]
 
     mol = retrieve_mol_from_list(cmd_pointer, molecule_identifier)
@@ -263,22 +273,20 @@ def list_molecules(cmd_pointer, inp):
         for mol in cmd_pointer.molecule_list:
             identifiers = get_identifiers(mol)
             display_list = pd.concat([display_list, pd.DataFrame([identifiers])])
-        return display_list
+        return output_table(display_list)
     else:
         return output_text("No Molecules in List")
 
 
 def retrieve_mol_from_list(cmd_pointer, molecule):
     """retrieves a molecule from the working list"""
+
     for mol in cmd_pointer.molecule_list:
         m = is_molecule(mol, molecule)
+
         if m is not None:
             return m.copy()
 
-    for mol in cmd_pointer.molecule_list:
-        m = is_molecule_synonym(mol, molecule)
-        if m is not None:
-            return m.copy()
     return None
 
 
@@ -437,63 +445,38 @@ def format_identifers(mol):
     id_string = "\n<yellow>Name:</yellow> {} \n".format(mol["name"])
 
     identifiers = get_identifiers(mol)
-    i = 0
-    for key, value in identifiers.items():
-        if key != "name":
-            if value is None:
-                value = ""
+    id_string = id_string + name_and_value_columns(
+        identifiers,
+        cli_width=CLI_WIDTH,
+        display_width=40,
+        exclusions=["toolkit", "function"],
+    )
 
-            if len("{}: {} ".format(key, value)) < cli_width / 2 and i == 0:
-                id_string = id_string + "{:<40}".format("<{}:> {} ".format(key, value))
-                i = 1
-            elif len(" {}: {} ".format(key, value)) < cli_width / 2 and i == 1:
-                id_string = id_string + "{:<40}".format(" <{}:> {}".format(key, value)) + "\n"
-                i = 0
-            elif len("{}: {} ".format(key, value)) > cli_width / 2 and i == 1:
-                id_string = id_string + "\n<{}:> {}".format(key, value) + "\n"
-                i = 0
-            elif len("{}: {} ".format(key, value)) > cli_width / 2 and i == 0:
-                id_string = id_string + "{:<40}".format("<{}:> {}".format(key, value)) + "\n"
-                i = 0
     id_string = re.sub(r"<(.*?:)> ", r"<success>\1</success>", id_string)
-    # if mol["synonyms"] != None and "Synonym" in mol["synonyms"]:
-    #   id_string = id_string + "\n\n<yellow>Synonyms:</yellow> {} \n\n".format(mol["synonyms"]["Synonym"])
     return id_string
 
 
 def format_sources(mol):
     """formats the identifiers for display"""
-    id_string = "\n<yellow>Name:</yellow> {} \n".format(mol["name"])
+    sources_string = "\n<yellow>Name:</yellow> {} \n".format(mol["name"])
 
     for mol_property, source in mol["property_sources"].items():
-        i = 0
-        id_string = id_string + "\n\n<yellow>Property:</yellow> {} \n".format(mol_property)
-        for key, value in source.items():
-            if value is None:
-                value = ""
-            if len("{}: {} ".format(key, value)) < cli_width / 2 and i < 2:
-                id_string = id_string + "{:<40}".format("<{}:> {} ".format(key, value))
-                i = i + 1
-            elif len(" {}: {} ".format(key, value)) < cli_width / 2 and i == 2:
-                id_string = id_string + "{:<40}".format(" <{}:> {}".format(key, value)) + "\n"
-                i = 0
-            elif len("{}: {} ".format(key, value)) > cli_width / 2 and i == 2:
-                id_string = id_string + "\n<{}:> {}".format(key, value) + "\n"
-                i = 0
-            elif len("{}: {} ".format(key, value)) > cli_width / 2 and i < 2:
-                id_string = id_string + "{:<40}".format("<{}:> {}".format(key, value)) + "\n"
-                i = 0
-    id_string = re.sub(r"<(.*?:)> ", r"<success>\1</success>", id_string)
-    # if mol["synonyms"] != None and "Synonym" in mol["synonyms"]:
-    #   id_string = id_string + "\n\n<yellow>Synonyms:</yellow> {} \n\n".format(mol["synonyms"]["Synonym"])
-    return id_string
+        if mol_property not in mol["properties"] or mol["properties"][mol_property] == None:
+            continue
+        sources_string = sources_string + "\n\n<yellow>Property:</yellow> {} \n".format(mol_property)
+        sources_string = sources_string + name_and_value_columns(source, cli_width=CLI_WIDTH, display_width=30)
+
+    sources = re.sub(r"<(.*?:)> ", r"<success>\1</success>", sources_string)
+    return sources
 
 
 def format_synonyms(mol):
     """formats synonyms for display"""
-    id_string = "\n<yellow>Synonyms:</yellow>\n"
-    synonyms = mol["synonyms"]["Synonym"]
-    # synonyms = sorted(mol["synonyms"]["Synonym"], key=len)
+    synonyms_string = "\n<yellow>Synonyms:</yellow>\n"
+    if "Synonym" in mol["synonyms"]:
+        synonyms = mol["synonyms"]["Synonym"]
+    else:
+        synonyms = []
     all_synonyms = True
     new_synonyms = []
     for synonym in synonyms:
@@ -503,53 +486,31 @@ def format_synonyms(mol):
         if len(str(synonym).strip()) == 0:
             continue
         new_synonyms.append(synonym)
-        display_width = int(len(max(new_synonyms, key=len)) + 2)
-        display_width = 30
-    i = 0
-    for synonym in synonyms:
-        if len(str(synonym).strip()) == 0:
-            continue
-        if len(synonym) > 30:
-            all_synonyms = False
-            continue
 
-        if len(f"{synonym:<{display_width}}") + i < cli_width:
-            id_string = id_string + f"{synonym:<{display_width}}"
-            i = i + len(f"{synonym:<{display_width}}")
-        else:
-            id_string = id_string + f"\n{synonym:<{display_width}}"
-            i = len(f"{synonym:<{display_width}}")
+    synonyms_string = synonyms_string + single_value_columns(new_synonyms, CLI_WIDTH, 30)
     name = mol["name"]
     if all_synonyms is False:
-        id_string = id_string + f"\n\n<yellow>To view all Synonyms try @{name}>>synonyms:</yellow>\n"
-    id_string = re.sub(r"<(.*?:)> ", r"<success>\1</success>", id_string)
-    return id_string
+        synonyms_string = (
+            synonyms_string
+            + f"\n\n<soft>This list is truncated. To view all synonyms, run <cmd>@{name}>>synonyms</cmd></soft>\n"
+        )
+    synonyms_string = re.sub(r"<(.*?:)> ", r"<success>\1</success>", synonyms_string)
+    return synonyms_string
 
 
 def format_properties(mol):
     """formats properties for display"""
-    id_string = "\n<yellow>Properties:</yellow>\n"
-    identifiers = get_properties(mol)
+    properties_string = "\n<yellow>Properties:</yellow>\n"
+    properties = get_properties(mol)
 
-    i = 0
-    for key, value in identifiers.items():
-        if key not in ["name", "canonical_smiles", "inchi", "inchikey", "cid", "isomeric_smiles"]:
-            if value is None or str(value).upper() == "NONE":
-                continue
-            if len("{}: {} ".format(key, value)) < cli_width / 2 and i == 0:
-                id_string = id_string + "{:<40}".format("<{}:> {} ".format(key, value))
-                i = 1
-            elif len(" {}: {} ".format(key, value)) < cli_width / 2 and i == 1:
-                id_string = id_string + "{:<40}".format(" <{}:> {}".format(key, value)) + "\n"
-                i = 0
-            elif len("{}: {} ".format(key, value)) > cli_width / 2 and i == 1:
-                id_string = id_string + "\n<{}:> {}".format(key, value) + "\n"
-                i = 0
-            elif len("{}: {} ".format(key, value)) > cli_width / 2 and i == 0:
-                id_string = id_string + "{:<40}".format("<{}:> {}".format(key, value)) + "\n"
-                i = 0
-    id_string = re.sub(r"<(.*?:)> ", r"<success>\1</success>", id_string)
-    return id_string
+    properites_string = properties_string + name_and_value_columns(
+        properties,
+        cli_width=CLI_WIDTH,
+        display_width=40,
+        exclusions=["name", "canonical_smiles", "inchi", "inchikey", "cid", "isomeric_smiles"],
+    )
+    properties_string = re.sub(r"<(.*?:)> ", r"<success>\1</success>", properites_string)
+    return properties_string
 
 
 def format_analysis(mol):
@@ -564,28 +525,15 @@ def format_analysis(mol):
     for item in mol["analysis"]:
         id_string = (
             id_string
-            + "\n<yellow>Toolkit: </yellow>"
+            + "\n\n<yellow>Toolkit: </yellow>"
             + item["toolkit"]
             + " <yellow>Function: </yellow>"
             + item["function"]
             + "\n"
         )
-        for key, value in item.items():
-            if key not in ["toolkit", "function"]:
-                if value == None:
-                    value = ""
-                if len("{}: {} ".format(key, value)) < cli_width / 2 and i == 0:
-                    id_string = id_string + "{:<40}".format("<{}:> {} ".format(key, value))
-                    i = 1
-                elif len(" {}: {} ".format(key, value)) < cli_width / 2 and i == 1:
-                    id_string = id_string + "{:<40}".format(" <{}:> {}".format(key, value)) + "\n"
-                    i = 0
-                elif len("{}: {} ".format(key, value)) > cli_width / 2 and i == 1:
-                    id_string = id_string + "\n<{}:> {}".format(key, value) + "\n"
-                    i = 0
-                elif len("{}: {} ".format(key, value)) > cli_width / 2 and i == 0:
-                    id_string = id_string + "{:<40}".format("<{}:> {}".format(key, value)) + "\n"
-                    i = 0
+        id_string = id_string + name_and_value_columns(
+            item, cli_width=CLI_WIDTH, display_width=50, exclusions=["toolkit", "function"], indent="    "
+        )
     id_string = re.sub(r"<(.*?:)> ", r"<success>\1</success> ", id_string) + "\n"
     return id_string
 
@@ -605,7 +553,7 @@ def load_molecules(cmd_pointer, inp):
     mol_file_path = _create_workspace_dir_if_nonexistent(cmd_pointer, "_mols")
     cmd_pointer.molecule_list.clear()
 
-    for i in glob.glob(mol_file_path + "/" + inp["molecule-set_name"].upper() + "_*.molecule", recursive=True):
+    for i in glob.glob(mol_file_path + "/" + inp["molecule-set_name"].upper() + "--*.molecule", recursive=True):
         func_file = open(i, "rb")
         mol = dict(pickle.load(func_file))
         cmd_pointer.molecule_list.append(mol.copy())
@@ -623,11 +571,11 @@ def list_molsets(cmd_pointer):
     molsets = []
     in_list = []
     mol_file_path = _create_workspace_dir_if_nonexistent(cmd_pointer, "_mols")
-    for i in glob.glob(mol_file_path + "/*.molecule", recursive=True):
+    for i in glob.glob(mol_file_path + "/*--*.molecule", recursive=True):
         x = i.split("/")
         molset = str(x[-1])
 
-        molset = str(molset.split("_")[0])
+        molset = str(molset.split("--")[0])
 
         if molset not in in_list:
             in_list.append(molset)
@@ -644,7 +592,7 @@ def save_molecules(cmd_pointer, inp):
     mol_file_path = _create_workspace_dir_if_nonexistent(cmd_pointer, "_mols")
     if cmd_pointer.molecule_list is not None and len(cmd_pointer.molecule_list) > 0:
         for mol in cmd_pointer.molecule_list:
-            name = inp["molecule-set_name"].upper() + "_" + mol["properties"]["inchikey"] + ".molecule"
+            name = inp["molecule-set_name"].upper() + "--" + mol["properties"]["inchikey"] + ".molecule"
             _write_molecules(mol, mol_file_path + "/" + name.strip())
     return True
 
@@ -672,13 +620,10 @@ def get_property(cmd_pointer, inp):
     if mol is None:
         mol = retrieve_mol(molecule_identifier)
         if mol is not None:
-            # if GLOBAL_SETTINGS["display"] != "notebook":
-            #    print(mol["properties"][molecule_property.lower()])
             if molecule_property.lower() == "synonyms":
                 if mol["synonyms"] is not None and "Synonym" in mol["synonyms"]:
                     return mol["synonyms"]["Synonym"]
             return mol["properties"][molecule_property.lower()]
-            # return print_s(print_string)
         else:
             print_s("molecule not available on pubchem")
             return None
@@ -687,6 +632,42 @@ def get_property(cmd_pointer, inp):
             if mol["synonyms"] is not None and "Synonym" in mol["synonyms"]:
                 return mol["synonyms"]["Synonym"]
         return mol["properties"][molecule_property.lower()]
+
+
+# Launch molecule viewer.
+def show_mol(cmd_pointer, inp):
+    molecule_identifier = inp.as_dict()["molecule_identifier"]
+
+    # Try loading the molecule from your working set.
+    mol = retrieve_mol_from_list(cmd_pointer, molecule_identifier)
+
+    # Try generating a basic molecule from RDKit.
+    # Only works with InChI or SMILES as molecule_identifier.
+    if mol is None:
+        mol = get_mol_basic(molecule_identifier)
+
+    # Fetch the molecule from PubChem,
+    # The molecule_identifier is probably its name, CID or InChIKey.
+    if mol is None:
+        mol = retrieve_mol(molecule_identifier)
+
+    # Render SVG and SDF
+    mol_rdkit = Chem.MolFromInchi(mol["properties"]["inchi"])
+    if mol_rdkit:
+        mol_svg = _mol2svg(mol_rdkit)
+        mol_sdf = _mol2sdf(mol_rdkit)
+    else:
+        mol_svg, mol_sdf = None, None
+
+    # Load routes and launch browser UI.
+    routes = fetchRoutesMolViewer(mol, mol_sdf, mol_svg)
+
+    if GLOBAL_SETTINGS["display"] == "notebook":
+        # Jupyter
+        launcher.launch(cmd_pointer, routes, "molviewer")
+    else:
+        # CLI
+        launcher.launch(cmd_pointer, routes, "molviewer")
 
 
 def _load_molecules(location):
@@ -704,3 +685,21 @@ def _write_molecules(molecule: dict, location):
     with open(os.path.expanduser(location), "wb") as handle:
         pickle.dump(molecule, handle)
     return True
+
+
+# Create svg code.
+def _mol2svg(mol):
+    mol_drawer = Chem.Draw.MolDraw2DSVG(300, 300)
+    mol_drawer.DrawMolecule(mol)
+    mol_drawer.FinishDrawing()
+    return mol_drawer.GetDrawingText()
+
+
+# Create sdf code.
+def _mol2sdf(mol):
+    # Generate 3D coordinates for the molecule (optional but usually desirable for SDF)
+    # Chem.AllChem.EmbedMolecule(mol_obj, Chem.AllChem.ETKDG())
+
+    # Convert molecule object to SDF format
+    mol_sdf = Chem.MolToMolBlock(mol)
+    return mol_sdf

@@ -1,5 +1,5 @@
 render3dMol()
-populateMolData(document.getElementById('data-inchi').innerText)
+// populateMolData(document.getElementById('data-inchi').innerText)
 
 //
 //

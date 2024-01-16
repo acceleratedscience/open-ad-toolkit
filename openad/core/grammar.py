@@ -599,41 +599,42 @@ statements.append(
         + Optional(save + a_s + desc("results_file"))  # Save as csv/sdf
     )("show_molecules_df")
 )
-statements.append(
-    Forward(
-        show("show")
-        + molecules
-        + using
-        + file
-        + desc("moles_file")  # From mols file
-        + Optional(a_s + CaselessKeyword("molsobject")("object"))  # Return as molsobject
-        + Optional(save + a_s + desc("results_file"))  # Save as csv/sdf
-    )("show_molecules")
-)
-grammar_help.append(
-    help_dict_create(
-        name="show molecules",
-        category="Molecules",
-        command="show molecules using ( file '<mols_file>' | dataframe <dataframe> ) [ save as '<sdf_or_csv_file>' | as molsobject ]",
-        description=f"""Launch the molecule viewer { 'in your browser ' if is_notebook_mode() else '' }to examine and select molecules from a SMILES sdf/csv dataset.
+# statements.append(
+#     Forward(
+#         show("show")
+#         + molecules
+#         + using
+#         + file
+#         + desc("moles_file")  # From mols file
+#         + Optional(a_s + CaselessKeyword("molsobject")("object"))  # Return as molsobject
+#         + Optional(save + a_s + desc("results_file"))  # Save as csv/sdf
+#     )("show_molecules")
+# )
+# grammar_help.append(
+#     help_dict_create(
+#         name="show molecules",
+#         category="Molecules",
+#         command="show molecules using ( file '<mols_file>' | dataframe <dataframe> ) [ save as '<sdf_or_csv_file>' | as molsobject ]",
+#         description=f"""Launch the molecule viewer { 'in your browser ' if is_notebook_mode() else '' }to examine and select molecules from a SMILES sdf/csv dataset.
 
-Examples:
-- <cmd>show molecules using file 'base_molecules.sdf' as molsobject</cmd>
-- <cmd>show molecules using dataframe my_dataframe save as 'selection.sdf'</cmd>
-""",
-    )
-)
+# Examples:
+# - <cmd>show molecules using file 'base_molecules.sdf' as molsobject</cmd>
+# - <cmd>show molecules using dataframe my_dataframe save as 'selection.sdf'</cmd>
+# """,
+#     )
+# )
 
-# Show individual molecule detail page.
-statements.append(Forward(show("show") + mol + desc("input_str"))("show_molecule"))  # From mol json file
-grammar_help.append(
-    help_dict_create(
-        name="show mol",
-        category="Molecules",
-        command="show mol '<json_mol_file> | <sdf_file> | <smiles_string> | <inchi_string>'",
-        description="Inspect a molecule in the browser.",
-    )
-)
+# MOVED TO MOL_GRAMMAR.PY - TRASH
+# # Show individual molecule detail page.
+# statements.append(Forward(show("show") + mol + desc("input_str"))("show_molecule"))  # From mol json file
+# grammar_help.append(
+#     help_dict_create(
+#         name="show mol",
+#         category="Molecules",
+#         command="show mol '<json_mol_file> | <sdf_file> | <smiles_string> | <inchi_string>'",
+#         description="Inspect a molecule in the browser.",
+#     )
+# )
 
 # endregion
 
@@ -1257,16 +1258,16 @@ def output_train_statements(cmd_pointer):
                 - clear molecules
                 - create molecule <smiles_string> name <molecule_name>
                 - show molecules using file '<mols_file>' | dataframe <dataframe> [ save as '<sdf_or_csv_filename>' | as molsobject ]
-                - add molecule|mol  <name> | <smiles> | <inchi> | <inchkey> | <cid>
-                - display molecule|mol <name> | <smiles> | <inchi> | <inchkey> |  <cid>
-                - export molecule|mol <name> | <smiles> | <inchi> | <inchkey> |  <cid> [as file]
-                - remove molecule|mol <name> | <smiles> | <inchi> | <inchkey> | <formula> | <cid> 
+                - add molecule|mol  <name> | <smiles> | <inchi> | <inchikey> | <cid>
+                - display molecule|mol <name> | <smiles> | <inchi> | <inchikey> |  <cid>
+                - export molecule|mol <name> | <smiles> | <inchi> | <inchikey> |  <cid> [as file]
+                - remove molecule|mol <name> | <smiles> | <inchi> | <inchikey> | <formula> | <cid> 
                 - list molecules|mols
                 - save molecule-set|molset as <molecule-set_name>
                 - load molecule-set|molset <molecule-set_name>
                 - list molecule-sets|molsets
                 - enrich molecule-set with analysis
-                - @(<name> | <smiles> | <inchi> | <inchkey> | <cid>)>><molecule_property_name>
+                - @(<name> | <smiles> | <inchi> | <inchikey> | <cid>)>><molecule_property_name>
 
             ?: will display help and if positioned prior to a command will display help options for that command \\@ \n\n"""
     )

@@ -4,17 +4,24 @@
 # search collection 'patent-uspto' for '\"smiles#ccc(coc(=o)cs)(c(=o)c(=o)cs)c(=o)c(=o)cs\"' show (data)
 
 import re
+import base64
+import json
+import urllib.parse
+import os
+import sys
 from copy import deepcopy
 import readline
 import numpy as np
-from deepsearch.cps.client.components.elastic import ElasticDataCollectionSource
+from deepsearch.cps.client.components.elastic import ElasticDataCollectionSource, ElasticProjectDataCollectionSource
+from typing import TYPE_CHECKING, Any, Dict, Literal, Optional, Union
 from deepsearch.cps.queries import DataQuery
 from openad.helpers.output import output_text, output_table, output_error
 from openad.app.global_var_lib import GLOBAL_SETTINGS
 from openad.plugins.style_parser import style
+from openad.helpers.credentials import load_credentials
 
-import os
-import sys
+DEFAULT_URL = "https://sds.app.accelerate.science/"
+
 
 parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, parent_dir)
@@ -50,6 +57,12 @@ def search_collection(inputs: dict, cmd_pointer):
         from tqdm import tqdm
     import pandas as pd
 
+    cred_file = load_credentials(os.path.expanduser(f"{cmd_pointer.home_dir}/deepsearch_api.cred"))
+
+    if cred_file["host"].strip() == "":
+        host = DEFAULT_URL
+    else:
+        host = cred_file["host"]
     search_query = ""
     val_index_key = "pubchem"
     page_size = 50
@@ -214,6 +227,10 @@ def search_collection(inputs: dict, cmd_pointer):
         while x < 20:
             x = x + 1
         result = {}
+        if "_id" in row and GLOBAL_SETTINGS["display"] == "notebook":
+            # result["ds_url"] = generate_url(host, data_collection, row["_id"])
+            result["DS_URL"] = make_clickable(generate_url(host, data_collection, row["_id"]), "Deep Search Web Link")
+
         if "description" in row["_source"]:
             if "title" in row["_source"]["description"]:
                 result["Title"] = row["_source"]["description"]["title"]
@@ -252,15 +269,15 @@ def search_collection(inputs: dict, cmd_pointer):
         if "identifiers" in row["_source"]:
             for ref in row["_source"]["identifiers"]:
                 if ref["type"] == "arxivid":
-                    result["arxivid"] = f'https://arxiv.org/abs/{ref["value"]}'
+                    result["arxivid"] = make_clickable(f'https://arxiv.org/abs/{ref["value"]}', "ARXIVID Link")
                 if ref["type"] == "doi":
-                    result["doi"] = f'https://doi.org/{ref["value"]}'
+                    result["doi"] = make_clickable(f'https://doi.org/{ref["value"]}', "DOI Link")
 
         if edit_distance > 0:
             for field in row.get("highlight", {}).keys():
                 for snippet in row["highlight"][field]:
                     result["Report"] = str(row["_source"]["file-info"]["filename"])
-                    result["Field"] = field
+                    result["Field"] = field.split(".")[0]
 
         if "attributes" in row["_source"]:
             for attribute in row["_source"]["attributes"]:
@@ -291,7 +308,7 @@ def search_collection(inputs: dict, cmd_pointer):
 
     if GLOBAL_SETTINGS["display"] == "notebook":
         if "return_as_data" not in inputs:
-            df = df.style.format(hyperlinks="html")
+            df = df.style
             df = df.set_properties(**{"text-align": "left"})
 
     elif GLOBAL_SETTINGS["display"] == "terminal":
@@ -316,3 +333,65 @@ def confirm_prompt(question: str) -> bool:
         reply = input(f"{question} (y/n): ").casefold()
         readline.remove_history_item(readline.get_current_history_length() - 1)
     return reply == "y"
+
+
+def make_clickable(url, name):
+    if GLOBAL_SETTINGS["display"] == "notebook":
+        return f'<a href="{url}"  target="_blank"> {name} </a>'
+    else:
+        return url
+
+
+def generate_url(host, data_source, document_hash, item_index=None):
+    if isinstance(data_source, ElasticProjectDataCollectionSource):
+        proj_key = data_source.proj_key
+        index_key = data_source.index_key
+        select_coords = {
+            "privateCollection": index_key,
+        }
+        url = f"{host}/projects/{proj_key}/library/private/{index_key}"
+    elif isinstance(data_source, ElasticDataCollectionSource):
+        # TODO: remove hardcoding of community project
+        proj_key = "1234567890abcdefghijklmnopqrstvwyz123456"
+        index_key = data_source.index_key
+        select_coords = {
+            "collections": [index_key],
+        }
+        url = f"{host}/projects/{proj_key}/library/public"
+
+    hash_expr = f'file-info.document-hash: "{document_hash}"'
+    search_query = {
+        **select_coords,
+        "type": "Document",
+        "expression": hash_expr,
+        "filters": [],
+        "select": [
+            "_name",
+            "description.collection",
+            "prov",
+            "description.title",
+            "description.publication_date",
+            "description.url_refs",
+        ],
+        "itemIndex": 0,
+        "pageSize": 10,
+        "searchAfterHistory": [],
+        "viewType": "snippets",
+        "recordSelection": {
+            "record": {
+                "id": document_hash,
+            },
+        },
+    }
+    if item_index is not None:
+        search_query["recordSelection"]["itemIndex"] = item_index
+
+    encoded_query = urllib.parse.quote(
+        base64.b64encode(urllib.parse.quote(json.dumps(search_query, separators=(",", ":"))).encode("utf8")).decode(
+            "utf8"
+        )
+    )
+
+    url = f"{url}?search={encoded_query}"
+
+    return url
