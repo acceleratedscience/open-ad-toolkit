@@ -19,7 +19,6 @@ from openad.helpers.format_columns import single_value_columns, name_and_value_c
 from openad.molecules.mol_functions import canonical_smiles
 from openad.app.global_var_lib import GLOBAL_SETTINGS
 
-
 from openad.molecules.mol_functions import (
     get_mol_from_formula,
     get_mol_from_inchi,

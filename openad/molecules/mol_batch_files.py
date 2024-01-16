@@ -207,7 +207,6 @@ def _normalize_mol_df(mol_df: pandas.DataFrame, cmd_pointer):
 
             mol_df["NAME"] = "unknown"
             for i in mol_df.itertuples():
-                # print(_smiles_to_iupac('CCC(COC(=O)CS)(C(=O)C(=O)CS)C(=O)C(=O)CS'))
                 mol_df.loc[i.Index, "NAME"] = _smiles_to_iupac(mol_df.loc[i.Index, "SMILES"])
 
     except BaseException as err:
