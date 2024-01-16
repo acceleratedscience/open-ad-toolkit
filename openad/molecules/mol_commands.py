@@ -264,7 +264,7 @@ def list_molecules(cmd_pointer, inp):
         for mol in cmd_pointer.molecule_list:
             identifiers = get_identifiers(mol)
             display_list = pd.concat([display_list, pd.DataFrame([identifiers])])
-        return display_list
+        return output_table(display_list)
     else:
         return output_text("No Molecules in List")
 
@@ -541,7 +541,7 @@ def load_molecules(cmd_pointer, inp):
     mol_file_path = _create_workspace_dir_if_nonexistent(cmd_pointer, "_mols")
     cmd_pointer.molecule_list.clear()
 
-    for i in glob.glob(mol_file_path + "/" + inp["molecule-set_name"].upper() + "_*.molecule", recursive=True):
+    for i in glob.glob(mol_file_path + "/" + inp["molecule-set_name"].upper() + "--*.molecule", recursive=True):
         func_file = open(i, "rb")
         mol = dict(pickle.load(func_file))
         cmd_pointer.molecule_list.append(mol.copy())
@@ -559,11 +559,11 @@ def list_molsets(cmd_pointer):
     molsets = []
     in_list = []
     mol_file_path = _create_workspace_dir_if_nonexistent(cmd_pointer, "_mols")
-    for i in glob.glob(mol_file_path + "/*.molecule", recursive=True):
+    for i in glob.glob(mol_file_path + "/*--*.molecule", recursive=True):
         x = i.split("/")
         molset = str(x[-1])
 
-        molset = str(molset.split("_")[0])
+        molset = str(molset.split("--")[0])
 
         if molset not in in_list:
             in_list.append(molset)
@@ -580,7 +580,7 @@ def save_molecules(cmd_pointer, inp):
     mol_file_path = _create_workspace_dir_if_nonexistent(cmd_pointer, "_mols")
     if cmd_pointer.molecule_list is not None and len(cmd_pointer.molecule_list) > 0:
         for mol in cmd_pointer.molecule_list:
-            name = inp["molecule-set_name"].upper() + "_" + mol["properties"]["inchikey"] + ".molecule"
+            name = inp["molecule-set_name"].upper() + "--" + mol["properties"]["inchikey"] + ".molecule"
             _write_molecules(mol, mol_file_path + "/" + name.strip())
     return True
 
