@@ -12,7 +12,7 @@
 	</head>
 	<body>
 		<div id="mol-render">
-			<div class="mol-2d">{{ svg | safe }}</div>
+			<div class="mol-2d">{{ mol_svg | safe }}</div>
 			<div class="mol-3d"></div>
 		</div>
 
@@ -39,10 +39,11 @@
 					<!-- <div id="btn-bookmark" class="icn-star"></div> -->
 				</div>
 				<div id="identification">
-					<div><b>InChI: </b><span id="data-inchi">{{mol.InChI}}</span></div>
-					<div><b>InChIKey: </b>{{mol.InChIKey}}</div>
-					<div><b>SMILES: </b><span id="data-smiles">{{mol.SMILES}}</span></div>
-					<div><b>PubChem CID: </b><a id="data-cid" href="https://pubchem.ncbi.nlm.nih.gov/compound/{{mol.cid}}" target="_blank">{{mol.cid}}</a></div>
+					<div><b>InChI: </b><span id="data-inchi">{{mol['properties']['inchi']}}</span></div>
+					<div><b>InChIKey: </b><span id="data-inchikey">{{mol['properties']['inchikey']}}</span></div>
+					<div><b>Canonical SMILES: </b><span id="data-canonical-smiles">{{mol['properties']['canonical_smiles']}}</span></div>
+					<div><b>Isomeric SMILES: </b><span id="data-isomeric-smiles">{{mol['properties']['isomeric_smiles']}}</span></div>
+					<div><b>PubChem CID: </b><a id="data-cid" href="https://pubchem.ncbi.nlm.nih.gov/compound/{{mol['properties']['cid']}}" target="_blank">{{mol['properties']['cid']}}</a></div>
 				</div>
 
 				<br />

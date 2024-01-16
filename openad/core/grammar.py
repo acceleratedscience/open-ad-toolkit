@@ -79,12 +79,13 @@ from openad.app.global_var_lib import _all_toolkits
     history,
     data,
     remove,
+    update,
     result,
 ) = map(
     CaselessKeyword,
     "get list description using create set unset workspace workspaces context jobs exec\
     as optimize with toolkits toolkit gpu experiment add run save runs show mol molecules\
-    file display history data remove result".split(),
+    file display history data remove update result".split(),
 )
 STRING_VALUE = alphanums
 
@@ -353,6 +354,32 @@ grammar_help.append(
     )
 )
 
+# Update toolkit
+statements.append(Forward(update + toolkit + Word(alphas, alphanums + "_")("toolkit_name"))("update_toolkit"))
+grammar_help.append(
+    help_dict_create(
+        name="update toolkit",
+        category="Toolkits",
+        command="update toolkit <toolkit_name>",
+        description=("Update a toolkit with the latest version. It is recommended to do this on a regular basis."),
+        note=NOTE_TOOLKITS,
+    )
+)
+
+# Update all toolkits
+statements.append(Forward(update + CaselessKeyword("all") + toolkits("toolkits"))("update_all_toolkits"))
+grammar_help.append(
+    help_dict_create(
+        name="update all toolkits",
+        category="Toolkits",
+        command="update all toolkits",
+        description=(
+            "Update all installed toolkits with the latest version. Happens automatically whenever OpenAD is updated to a new version."
+        ),
+        note=NOTE_TOOLKITS,
+    )
+)
+
 # Set a toolkit as the current context
 statements.append(
     Forward(
@@ -572,41 +599,42 @@ statements.append(
         + Optional(save + a_s + desc("results_file"))  # Save as csv/sdf
     )("show_molecules_df")
 )
-statements.append(
-    Forward(
-        show("show")
-        + molecules
-        + using
-        + file
-        + desc("moles_file")  # From mols file
-        + Optional(a_s + CaselessKeyword("molsobject")("object"))  # Return as molsobject
-        + Optional(save + a_s + desc("results_file"))  # Save as csv/sdf
-    )("show_molecules")
-)
-grammar_help.append(
-    help_dict_create(
-        name="show molecules",
-        category="Molecules",
-        command="show molecules using ( file '<mols_file>' | dataframe <dataframe> ) [ save as '<sdf_or_csv_file>' | as molsobject ]",
-        description=f"""Launch the molecule viewer { 'in your browser ' if is_notebook_mode() else '' }to examine and select molecules from a SMILES sdf/csv dataset.
+# statements.append(
+#     Forward(
+#         show("show")
+#         + molecules
+#         + using
+#         + file
+#         + desc("moles_file")  # From mols file
+#         + Optional(a_s + CaselessKeyword("molsobject")("object"))  # Return as molsobject
+#         + Optional(save + a_s + desc("results_file"))  # Save as csv/sdf
+#     )("show_molecules")
+# )
+# grammar_help.append(
+#     help_dict_create(
+#         name="show molecules",
+#         category="Molecules",
+#         command="show molecules using ( file '<mols_file>' | dataframe <dataframe> ) [ save as '<sdf_or_csv_file>' | as molsobject ]",
+#         description=f"""Launch the molecule viewer { 'in your browser ' if is_notebook_mode() else '' }to examine and select molecules from a SMILES sdf/csv dataset.
 
-Examples:
-- <cmd>show molecules using file 'base_molecules.sdf' as molsobject</cmd>
-- <cmd>show molecules using dataframe my_dataframe save as 'selection.sdf'</cmd>
-""",
-    )
-)
+# Examples:
+# - <cmd>show molecules using file 'base_molecules.sdf' as molsobject</cmd>
+# - <cmd>show molecules using dataframe my_dataframe save as 'selection.sdf'</cmd>
+# """,
+#     )
+# )
 
-# Show individual molecule detail page.
-statements.append(Forward(show("show") + mol + desc("input_str"))("show_molecule"))  # From mol json file
-grammar_help.append(
-    help_dict_create(
-        name="show mol",
-        category="Molecules",
-        command="show mol '<json_mol_file> | <sdf_file> | <smiles_string> | <inchi_string>'",
-        description="Inspect a molecule in the browser.",
-    )
-)
+# MOVED TO MOL_GRAMMAR.PY - TRASH
+# # Show individual molecule detail page.
+# statements.append(Forward(show("show") + mol + desc("input_str"))("show_molecule"))  # From mol json file
+# grammar_help.append(
+#     help_dict_create(
+#         name="show mol",
+#         category="Molecules",
+#         command="show mol '<json_mol_file> | <sdf_file> | <smiles_string> | <inchi_string>'",
+#         description="Inspect a molecule in the browser.",
+#     )
+# )
 
 # endregion
 
@@ -1230,16 +1258,16 @@ def output_train_statements(cmd_pointer):
                 - clear molecules
                 - create molecule <smiles_string> name <molecule_name>
                 - show molecules using file '<mols_file>' | dataframe <dataframe> [ save as '<sdf_or_csv_filename>' | as molsobject ]
-                - add molecule|mol  <name> | <smiles> | <inchi> | <inchkey> | <cid>
-                - display molecule|mol <name> | <smiles> | <inchi> | <inchkey> |  <cid>
-                - export molecule|mol <name> | <smiles> | <inchi> | <inchkey> |  <cid> [as file]
-                - remove molecule|mol <name> | <smiles> | <inchi> | <inchkey> | <formula> | <cid> 
+                - add molecule|mol  <name> | <smiles> | <inchi> | <inchikey> | <cid>
+                - display molecule|mol <name> | <smiles> | <inchi> | <inchikey> |  <cid>
+                - export molecule|mol <name> | <smiles> | <inchi> | <inchikey> |  <cid> [as file]
+                - remove molecule|mol <name> | <smiles> | <inchi> | <inchikey> | <formula> | <cid> 
                 - list molecules|mols
                 - save molecule-set|molset as <molecule-set_name>
                 - load molecule-set|molset <molecule-set_name>
                 - list molecule-sets|molsets
                 - enrich molecule-set with analysis
-                - @(<name> | <smiles> | <inchi> | <inchkey> | <cid>)>><molecule_property_name>
+                - @(<name> | <smiles> | <inchi> | <inchikey> | <cid>)>><molecule_property_name>
 
             ?: will display help and if positioned prior to a command will display help options for that command \\@ \n\n"""
     )

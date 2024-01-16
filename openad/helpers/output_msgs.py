@@ -171,6 +171,7 @@ _messages = {
         f"<soft>To activate this toolkit, run <cmd>set context {toolkit_name.lower()}</cmd></soft>",  # Repeat B1
         f"<soft>To see what you can do, run <cmd>{toolkit_name.lower()} ?</cmd></soft>",  # Repeat C1
     ),
+    "success_update_toolkit": lambda toolkit_name: f"The <yellow>{toolkit_name}</yellow> toolkit was successfully updated",
     # Negative
     "no_toolkits_installed": [
         "<yellow>No toolkits installed yet</yellow>",
@@ -186,11 +187,11 @@ _messages = {
     "success_set_context": lambda toolkit_name: f"You successfully changed the toolkit context to <yellow>{toolkit_name}</yellow>",
     "success_toolkit_install": lambda toolkit_name: [
         f"The <yellow>{toolkit_name}</yellow> toolkit was successfully installed",
-        f"To activate this toolkit, run <cmd>set context {toolkit_name.lower()}</cmd>",  # Repeat B2
         f"To see what you can do, run <cmd>{toolkit_name.lower()} ?</cmd>",  # Repeat C2
     ],
     "success_instructions_txt": lambda toolkit_name: f"The <yellow>{toolkit_name}</yellow> toolkit's instructions.txt file was successfully updated",
     "success_toolkit_remove": lambda toolkit_name: f"The <yellow>{toolkit_name}</yellow> toolkit was removed",
+    "success_update_all_toolkits": lambda list: ("The following toolkits were successfully updated:", list),
     # Error
     "fail_toolkit_exec_cmd": "Failed to execute toolkit command",
     "fail_toolkit_not_installed": lambda toolkit_name: [
@@ -222,6 +223,7 @@ _messages = {
         "<yellow>" + fwd_expr + "</yellow>",
         err,
     ],
+    "err_update_all_toolkits": lambda list: ("The following toolkits failed to update:", list),
     # endregion
     ##########################################################################
     # region - MOLECULE GRID

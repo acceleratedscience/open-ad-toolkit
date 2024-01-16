@@ -4,9 +4,20 @@ from datetime import datetime
 import time
 import pubchempy as pcy
 from rdkit import Chem, rdBase
+from openad.helpers.output import output_text, output_table, output_warning, output_error
 
 blocker = rdBase.BlockLogs()
 
+# The base for our molecule dictionary.
+OPENAD_MOL_DICT = {
+    "name": None,
+    "synonyms": {},
+    "properties": {},
+    "property_sources": {},
+    "sources": {},
+    "commments": {},
+    "analysis": [],
+}
 
 MOL_NAME_INDEX = "name"
 MOL_SMILES_INDEX = "smiles"
@@ -234,15 +245,6 @@ def get_mol_from_cid(mol_cid: str):
 def get_mol(mol_id, mol_id_type):
     """gets molecule based on provided identifier"""
     cid = None
-    OPENAD_MOL_DICT = {
-        "name": None,
-        "synonyms": {},
-        "properties": {},
-        "property_sources": {},
-        "sources": {},
-        "commments": {},
-        "analysis": [],
-    }
     try:
         if mol_id_type == MOL_CID_INDEX:
             if not mol_id.isdigit():
@@ -314,7 +316,56 @@ def get_identifiers(mol):
     return identifier_dict
 
 
+# Takes any identifier and creates a minimal molecule object,
+# ideally without connecting to PubChem.
+def get_mol_basic(molecule_identifier):
+    mol = OPENAD_MOL_DICT.copy()
+
+    # Fill in the basic identifiers
+    mol_rdkit = Chem.MolFromInchi(molecule_identifier)
+    if mol_rdkit:
+        # Prepend 'InChI=' when missing.
+        if not molecule_identifier.startswith("InChI="):
+            molecule_identifier = "InChI=" + molecule_identifier
+
+        mol["properties"]["inchi"] = molecule_identifier
+        mol["properties"]["inchikey"] = Chem.inchi.InchiToInchiKey(molecule_identifier)
+        mol["properties"]["canonical_smiles"] = Chem.MolToSmiles(mol_rdkit)
+        mol["properties"]["isomeric_smiles"] = Chem.MolToSmiles(mol_rdkit, isomericSmiles=True)
+        return mol
+    else:
+        mol_rdkit = Chem.MolFromSmiles(molecule_identifier)
+    if mol_rdkit:
+        mol["properties"]["inchi"] = Chem.MolToInchi(mol_rdkit)
+        mol["properties"]["inchikey"] = Chem.inchi.InchiToInchiKey(mol["properties"]["inchi"])
+        mol["properties"]["canonical_smiles"] = Chem.MolToSmiles(mol_rdkit)
+        mol["properties"]["isomeric_smiles"] = Chem.MolToSmiles(mol_rdkit, isomericSmiles=True)
+        return mol
+    else:
+        return None
+
+
+# Create svg code from .
+def mol2svg(mol_rdkit):
+    mol_drawer = Chem.Draw.MolDraw2DSVG(300, 300)
+    mol_drawer.DrawMolecule(mol_rdkit)
+    mol_drawer.FinishDrawing()
+    return mol_drawer.GetDrawingText()
+
+
+# Create sdf code.
+def mol2sdf(mol_rdkit):
+    # Generate 3D coordinates for the molecule (optional but usually desirable for SDF)
+    # Chem.AllChem.EmbedMolecule(mol_obj, Chem.AllChem.ETKDG())
+
+    # Convert molecule object to SDF format
+    mol_sdf = Chem.MolToMolBlock(mol_rdkit)
+    return mol_sdf
+
+
 if __name__ == "__main__":
+    # get_mol_basic("InChI=1S/C13H18O2/c1-9(2)8-11-4-6-12(7-5-11)10(3)13(14)15/h4-7,9-10H,8H2,1-3H3,(H,14,15)")
+    # get_mol_basic("ibuprofen")
     success, molec, cmp = get_mol_from_name("ibuprofen")
     print(success)
     if success:

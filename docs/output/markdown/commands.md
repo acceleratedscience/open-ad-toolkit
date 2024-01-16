@@ -29,7 +29,7 @@ To update it, see openad/docs/generate_docs.py
   - [Search Collections](#search-collections)
   - [Collections](#collections)
 - [RXN](#rxn)
-  - [General](#general)
+  - [General](#general-1)
   - [Retrosynthesis](#retrosynthesis)
   - [Prediction](#prediction)
 - [ST4SD](#st4sd)
@@ -77,7 +77,7 @@ Lists all your workspaces.<br><br>
 
 ### Molecules
 
-`add molecule|mol <name> | <smiles> | <inchi> | <inchkey> | <cid>`{: .cmd }
+`add molecule|mol <name> | <smiles> | <inchi> | <inchikey> | <cid>`{: .cmd }
 Add a molecule to the current working set of molecules.<br>
 
 You can specify any molecule by SMILES or InChI, and PubChem classified molecules also by name, InChIKey or their PubChem CID.<br>
@@ -98,7 +98,7 @@ Examples:<br>
 - Add a molecule by InChIKey:<br>
 `add mol BSYNRYMUTXBXSQ-UHFFFAOYSA-N`<br><br>
 
-`display molecule|mol <name> | <smiles> | <inchi> | <inchkey> |  <cid>`{: .cmd }
+`display molecule|mol <name> | <smiles> | <inchi> | <inchikey> |  <cid>`{: .cmd }
 Display a molecule's properties.<br>
 
 If the requested molecule exists in your current working set, that version will be used.<br>
@@ -126,7 +126,7 @@ Example:<br>
 Let's say you've added a molecule "CC(=O)OC1=CC=CC=C1C(=O)O" to your current working set, you can then rename it as such:<br>
 `rename molecule CC(=O)OC1=CC=CC=C1C(=O)O as Aspirin`<br><br>
 
-`export molecule|mol <name> | <smiles> | <inchi> | <inchkey> |  <cid> [as file]`{: .cmd }
+`export molecule|mol <name> | <smiles> | <inchi> | <inchikey> |  <cid> [as file]`{: .cmd }
 When run inside a Notebook, this will return a dictionary of the molecule's properties. When run from the command line, or when `as file` is set, the molecule will be saved to your workspace as a JSON file, named after the molecule's identifying string.<br>
 
 If the requested molecule exists in your current working set, that version will be used.<br>
@@ -137,7 +137,7 @@ Examples<br>
 - `export molecule aspirin`<br>
 - `export molecule aspirin as file`<br><br>
 
-`remove molecule|mol <name> | <smiles> | <inchi> | <inchkey> | <formula> | <cid>`{: .cmd }
+`remove molecule|mol <name> | <smiles> | <inchi> | <inchikey> | <formula> | <cid>`{: .cmd }
 Remove a molecule from the current working set.<br>
 
 Examples:<br>
@@ -193,7 +193,7 @@ Note that other identifiers (InChI and formula) will be calculated, but no other
 Example:<br>
 `create molecule CC(=O)OC1=CC=CC=C1C(=O)O name my_aspirin`<br><br>
 
-`@(<name> | <smiles> | <inchi> | <inchkey> | <cid>)>><molecule_property_name>`{: .cmd }
+`@(<name> | <smiles> | <inchi> | <inchikey> | <cid>)>><molecule_property_name>`{: .cmd }
 Request a molecule's certain property.<br>
 the `@` symbols should be followed by a molecules name, smiles, inchi or cid then after the `>>` include one of the below mentioned properties.<br>
 
@@ -396,7 +396,7 @@ Use the `save as` clause to save the results as a csv file in your current works
 Example:<br>
 `search for molecules in patents from list ['CN108473493B','US20190023713A1']`<br><br>
 
-`search for patents containing molecule '<smiles>' | '<inchi>' | '<inchi_key>' [ save as '<filename.csv>' ]`{: .cmd }
+`search for patents containing molecule '<smiles>' | '<inchi>' | '<inchikey>' [ save as '<filename.csv>' ]`{: .cmd }
 Search for mentions of a specified molecules in registered patents. The queried molecule can be described as a SMILES string, InChI or InChiKey.<br>
 
 Use the `save as` clause to save the results as a csv file in your current workspace.<br>
