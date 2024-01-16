@@ -144,7 +144,7 @@ def fetchRoutesMolsGrid(cmd_pointer, parser):
             return None, the_mols2grid.display(**m2g_params)
 
     # Render grid in Flask.
-    elif GLOBAL_SETTINGS["display"] == "notebook" or GLOBAL_SETTINGS["display"] == None:
+    elif GLOBAL_SETTINGS["display"] == "terminal" or GLOBAL_SETTINGS["display"] == None:
         # Create list of available parameters which we
         # then display in the molecule selector UI.
         available_params = mol_frame.columns.tolist()

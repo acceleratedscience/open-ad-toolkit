@@ -527,7 +527,7 @@ When run inside a Notebook, this will return a dataframe. When run from the comm
     # ---
     # Show individual molecule in browser.
     statements.append(
-        Forward(show("show") + molecule + molecule_identifier("molecule_identifier"))("show_molecule")
+        Forward(show("show") + molecule + molecule_identifier("molecule_identifier"))("show_mol")
     )  # From mol json file
     grammar_help.append(
         help_dict_create(
@@ -546,11 +546,11 @@ When run inside a Notebook, this will return a dataframe. When run from the comm
             + molecules
             + using
             + file
-            # + desc("moles_file")  # From mols file
-            + Word(alphas, alphanums + "_")("molecule-set_name")
+            + desc("moles_file")  # From mols file
+            # + Word(alphas, alphanums + "_")("molecule-set_name")
             + Optional(a_s + CaselessKeyword("molsobject")("object"))  # Return as molsobject
             + Optional(save + a_s + desc("results_file"))  # Save as csv/sdf
-        )("show_molecules")
+        )("show_molsgrid")
     )
     grammar_help.append(
         help_dict_create(

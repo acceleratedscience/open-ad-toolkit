@@ -39,6 +39,7 @@ from openad.app.global_var_lib import GLOBAL_SETTINGS
 # Flask
 from openad.flask_apps import launcher
 from openad.flask_apps.molviewer.routes import fetchRoutesMolViewer
+from openad.flask_apps.molsgrid.routes import fetchRoutesMolsGrid
 
 # TEMP
 from openad.plugins.style_parser import print_s, style
@@ -653,6 +654,10 @@ def show_mol(cmd_pointer, inp):
     if mol is None:
         mol = retrieve_mol(molecule_identifier)
 
+    if mol is None:
+        output_error("Molecule identifier not recognized")
+        return
+
     # Render SVG and SDF
     mol_rdkit = Chem.MolFromInchi(mol["properties"]["inchi"])
     if mol_rdkit:
@@ -670,6 +675,16 @@ def show_mol(cmd_pointer, inp):
     else:
         # CLI
         launcher.launch(cmd_pointer, routes, "molviewer")
+
+
+# Launch molecule grid.
+def show_molsgrid(cmd_pointer, inp):
+    # Load routes and launch browser UI.
+    routes, the_mols2grid = fetchRoutesMolsGrid(cmd_pointer, inp)
+    if GLOBAL_SETTINGS["display"] == "notebook":
+        return the_mols2grid
+    else:
+        launcher.launch(cmd_pointer, routes, "molsgrid")
 
 
 def _load_molecules(location):

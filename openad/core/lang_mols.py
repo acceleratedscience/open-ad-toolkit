@@ -16,7 +16,7 @@ logger.setLevel(RDLogger.CRITICAL)
 
 
 # Launch molecule grid.
-def show_molsgrid(cmd_pointer, parser):
+def show_molsgrid__TRASH(cmd_pointer, parser):
     # Load routes and launch browser UI.
     routes, the_mols2grid = fetchRoutesMolsGrid(cmd_pointer, parser)
     if GLOBAL_SETTINGS["display"] == "notebook":

@@ -32,6 +32,7 @@ from openad.molecules.mol_commands import (
     clear_workset,
     export_molecule_set,
     show_mol,
+    show_molsgrid,
 )
 
 from openad.molecules.molecule_cache import attach_all_results, clear_results
@@ -57,7 +58,6 @@ from openad.core.lang_workspaces import (
     set_workspace,
     get_workspace,
 )
-from openad.core.lang_mols import show_molsgrid, show_mol__TRASH
 from openad.core.lang_runs import display_run, exec_run, save_run, list_runs
 from openad.core.lang_dev import flask_example
 from openad.core.grammar import create_statements
@@ -212,11 +212,11 @@ def lang_parse(cmd_pointer, parser):
         return load_batch_molecules(cmd_pointer, parser)
     elif parser.getName() == "export_molecules":
         return export_molecule_set(cmd_pointer, parser)
-    # elif parser.getName() == "show_molecules":
-    #     return show_molsgrid(cmd_pointer, parser)
-    # elif parser.getName() == "show_molecules_df":
-    #     return show_molsgrid(cmd_pointer, parser)
-    elif parser.getName() == "show_molecule":
+    elif parser.getName() == "show_molsgrid":
+        return show_molsgrid(cmd_pointer, parser)
+    elif parser.getName() == "show_molsgrid_df":
+        return show_molsgrid(cmd_pointer, parser)
+    elif parser.getName() == "show_mol":
         return show_mol(cmd_pointer, parser)
 
     # File system commands

@@ -342,7 +342,7 @@ def get_mol_basic(molecule_identifier):
         mol["properties"]["isomeric_smiles"] = Chem.MolToSmiles(mol_rdkit, isomericSmiles=True)
         return mol
     else:
-        return False
+        return None
 
 
 # Create svg code from .
