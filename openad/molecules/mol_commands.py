@@ -6,19 +6,17 @@ import shutil
 import re
 import json
 import pandas as pd
-
-
 from rdkit import Chem
 from rdkit.Chem import AllChem
 
-
+# Helpers
 from openad.helpers.general import confirm_prompt
 from openad.helpers.output import output_text, output_table, output_warning, output_error
 from openad.helpers.output_msgs import msg
 from openad.helpers.format_columns import single_value_columns, name_and_value_columns
-from openad.molecules.mol_functions import canonical_smiles
-from openad.app.global_var_lib import GLOBAL_SETTINGS
 
+
+# Molecule functions
 from openad.molecules.mol_functions import (
     get_mol_from_formula,
     get_mol_from_inchi,
@@ -27,12 +25,26 @@ from openad.molecules.mol_functions import (
     get_mol_from_smiles,
     get_mol_from_cid,
     new_molecule,
+    get_properties,
+    get_identifiers,
+    canonical_smiles,
+    get_mol_basic,
+    mol2svg,
+    mol2sdf,
 )
-from openad.molecules.mol_functions import get_properties, get_identifiers
 
+# Globals
+from openad.app.global_var_lib import GLOBAL_SETTINGS
+
+# Flask
+from openad.flask_apps import launcher
+from openad.flask_apps.molviewer.routes import fetchRoutesMolViewer
+from openad.flask_apps.molsgrid.routes import fetchRoutesMolsGrid
+
+# TEMP
 from openad.plugins.style_parser import print_s, style
 
-cli_width = min(shutil.get_terminal_size().columns, 150)
+CLI_WIDTH = min(shutil.get_terminal_size().columns, 150)
 
 
 class bold_style:
@@ -49,8 +61,8 @@ def display_molecule(cmd_pointer, inp):
     """displays a molecule and its properties"""
     molecule_identifier = inp.as_dict()["molecule_identifier"]
     if GLOBAL_SETTINGS["display"] == "notebook":
-        global cli_width
-        cli_width = 100
+        global CLI_WIDTH
+        CLI_WIDTH = 100
 
     mol = retrieve_mol_from_list(cmd_pointer, molecule_identifier)
 
@@ -107,7 +119,7 @@ def display_molecule(cmd_pointer, inp):
         print_string = print_string.replace("\n", "<br>")
         display(HTML("<pre>" + print_string + "</pre>"))
     else:
-        print_s(print_string)
+        output_text(print_string, edge=True)
 
     return True
 
@@ -115,8 +127,8 @@ def display_molecule(cmd_pointer, inp):
 def display_property_sources(cmd_pointer, inp):
     """displays a molecule properties sources"""
     if GLOBAL_SETTINGS["display"] == "notebook":
-        global cli_width
-        cli_width = 100
+        global CLI_WIDTH
+        CLI_WIDTH = 100
     molecule_identifier = inp.as_dict()["molecule_identifier"]
 
     mol = retrieve_mol_from_list(cmd_pointer, molecule_identifier)
@@ -438,7 +450,7 @@ def format_identifers(mol):
     identifiers = get_identifiers(mol)
     id_string = id_string + name_and_value_columns(
         identifiers,
-        cli_width=cli_width,
+        cli_width=CLI_WIDTH,
         display_width=40,
         exclusions=["toolkit", "function"],
     )
@@ -455,7 +467,7 @@ def format_sources(mol):
         if mol_property not in mol["properties"] or mol["properties"][mol_property] == None:
             continue
         sources_string = sources_string + "\n\n<yellow>Property:</yellow> {} \n".format(mol_property)
-        sources_string = sources_string + name_and_value_columns(source, cli_width=cli_width, display_width=30)
+        sources_string = sources_string + name_and_value_columns(source, cli_width=CLI_WIDTH, display_width=30)
 
     sources = re.sub(r"<(.*?:)> ", r"<success>\1</success>", sources_string)
     return sources
@@ -478,10 +490,13 @@ def format_synonyms(mol):
             continue
         new_synonyms.append(synonym)
 
-    synonyms_string = synonyms_string + single_value_columns(new_synonyms, cli_width, 30)
+    synonyms_string = synonyms_string + single_value_columns(new_synonyms, CLI_WIDTH, 30)
     name = mol["name"]
     if all_synonyms is False:
-        synonyms_string = synonyms_string + f"\n\n<yellow>To view all Synonyms try @{name}>>synonyms</yellow>\n"
+        synonyms_string = (
+            synonyms_string
+            + f"\n\n<soft>This list is truncated. To view all synonyms, run <cmd>@{name}>>synonyms</cmd></soft>\n"
+        )
     synonyms_string = re.sub(r"<(.*?:)> ", r"<success>\1</success>", synonyms_string)
     return synonyms_string
 
@@ -493,7 +508,7 @@ def format_properties(mol):
 
     properites_string = properties_string + name_and_value_columns(
         properties,
-        cli_width=cli_width,
+        cli_width=CLI_WIDTH,
         display_width=40,
         exclusions=["name", "canonical_smiles", "inchi", "inchikey", "cid", "isomeric_smiles"],
     )
@@ -520,7 +535,7 @@ def format_analysis(mol):
             + "\n"
         )
         id_string = id_string + name_and_value_columns(
-            item, cli_width=cli_width, display_width=50, exclusions=["toolkit", "function"], indent="    "
+            item, cli_width=CLI_WIDTH, display_width=50, exclusions=["toolkit", "function"], indent="    "
         )
     id_string = re.sub(r"<(.*?:)> ", r"<success>\1</success> ", id_string) + "\n"
     return id_string
@@ -620,6 +635,56 @@ def get_property(cmd_pointer, inp):
             if mol["synonyms"] is not None and "Synonym" in mol["synonyms"]:
                 return mol["synonyms"]["Synonym"]
         return mol["properties"][molecule_property.lower()]
+
+
+# Launch molecule viewer.
+def show_mol(cmd_pointer, inp):
+    molecule_identifier = inp.as_dict()["molecule_identifier"]
+
+    # Try loading the molecule from your working set.
+    mol = retrieve_mol_from_list(cmd_pointer, molecule_identifier)
+
+    # Try generating a basic molecule from RDKit.
+    # Only works with InChI or SMILES as molecule_identifier.
+    if mol is None:
+        mol = get_mol_basic(molecule_identifier)
+
+    # Fetch the molecule from PubChem,
+    # The molecule_identifier is probably its name, CID or InChIKey.
+    if mol is None:
+        mol = retrieve_mol(molecule_identifier)
+
+    if mol is None:
+        output_error("Molecule identifier not recognized")
+        return
+
+    # Render SVG and SDF
+    mol_rdkit = Chem.MolFromInchi(mol["properties"]["inchi"])
+    if mol_rdkit:
+        mol_svg = mol2svg(mol_rdkit)
+        mol_sdf = mol2sdf(mol_rdkit)
+    else:
+        mol_svg, mol_sdf = None, None
+
+    # Load routes and launch browser UI.
+    routes = fetchRoutesMolViewer(mol, mol_sdf, mol_svg)
+
+    if GLOBAL_SETTINGS["display"] == "notebook":
+        # Jupyter
+        launcher.launch(cmd_pointer, routes, "molviewer")
+    else:
+        # CLI
+        launcher.launch(cmd_pointer, routes, "molviewer")
+
+
+# Launch molecule grid.
+def show_molsgrid(cmd_pointer, inp):
+    # Load routes and launch browser UI.
+    routes, the_mols2grid = fetchRoutesMolsGrid(cmd_pointer, inp)
+    if GLOBAL_SETTINGS["display"] == "notebook":
+        return the_mols2grid
+    else:
+        launcher.launch(cmd_pointer, routes, "molsgrid")
 
 
 def _load_molecules(location):

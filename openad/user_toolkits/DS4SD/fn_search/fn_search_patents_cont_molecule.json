@@ -7,7 +7,7 @@
 	"help": {
 		"name": "search for patents containing molecule",
 		"category": "Search Molecules",
-		"command": "search for patents containing molecule '<smiles>' | '<inchi>' | '<inchi_key>' [ save as '<filename.csv>' ]",
+		"command": "search for patents containing molecule '<smiles>' | '<inchi>' | '<inchikey>' [ save as '<filename.csv>' ]",
 		"description": "",
 		"url": ""
 	},

@@ -16,7 +16,7 @@ logger.setLevel(RDLogger.CRITICAL)
 
 
 # Launch molecule grid.
-def show_molsgrid(cmd_pointer, parser):
+def show_molsgrid__TRASH(cmd_pointer, parser):
     # Load routes and launch browser UI.
     routes, the_mols2grid = fetchRoutesMolsGrid(cmd_pointer, parser)
     if GLOBAL_SETTINGS["display"] == "notebook":
@@ -26,7 +26,7 @@ def show_molsgrid(cmd_pointer, parser):
 
 
 # Launch molecule viewer.
-def show_mol(cmd_pointer, parser):
+def show_mol__TRASH(cmd_pointer, parser):
     if not "input_str" in parser.as_dict():
         output_error(msg("input_str_missing"), pad=1)
         return

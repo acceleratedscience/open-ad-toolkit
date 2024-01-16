@@ -31,6 +31,8 @@ from openad.molecules.mol_commands import (
     rename_mol_in_list,
     clear_workset,
     export_molecule_set,
+    show_mol,
+    show_molsgrid,
 )
 
 from openad.molecules.molecule_cache import attach_all_results, clear_results
@@ -40,10 +42,12 @@ import openad.app.login_manager as login_manager
 # Core
 from openad.core.lang_file_system import import_file, export_file, copy_file, remove_file, list_files
 from openad.core.lang_sessions_and_registry import (
-    clear_other_sessions,
+    clear_sessions,
     write_registry,
     registry_add_toolkit,
-    registry_deregister_toolkit,
+    registry_remove_toolkit,
+    update_toolkit,
+    update_all_toolkits,
     initialise_registry,
     update_main_registry_env_var,
 )
@@ -54,7 +58,6 @@ from openad.core.lang_workspaces import (
     set_workspace,
     get_workspace,
 )
-from openad.core.lang_mols import show_molsgrid, show_mol
 from openad.core.lang_runs import display_run, exec_run, save_run, list_runs
 from openad.core.lang_dev import flask_example
 from openad.core.grammar import create_statements
@@ -109,7 +112,11 @@ def lang_parse(cmd_pointer, parser):
     elif parser.getName() == "add_toolkit":
         return registry_add_toolkit(cmd_pointer, parser)
     elif parser.getName() == "remove_toolkit":
-        return registry_deregister_toolkit(cmd_pointer, parser)
+        return registry_remove_toolkit(cmd_pointer, parser)
+    elif parser.getName() == "update_toolkit":
+        return update_toolkit(cmd_pointer, parser)
+    elif parser.getName() == "update_all_toolkits":
+        return update_all_toolkits(cmd_pointer, parser)
     elif parser.getName() == "list_toolkits":
         return list_toolkits(cmd_pointer, parser)
     elif parser.getName() == "list_all_toolkits":
@@ -169,36 +176,28 @@ def lang_parse(cmd_pointer, parser):
         return display_run(cmd_pointer, parser)
     elif parser.getName() == "exec_run":
         exec_run(cmd_pointer, parser)
-    # molecules
+
+    # Molecules
     elif parser.getName() == "display_molecule":
         return display_molecule(cmd_pointer, parser)
     elif parser.getName() == "display_property_sources":
         return display_property_sources(cmd_pointer, parser)
-
     elif parser.getName() == "add_molecule":
         return add_molecule(cmd_pointer, parser)
-
     elif parser.getName() == "remove_molecule":
         return remove_molecule(cmd_pointer, parser)
-
     elif parser.getName() == "list_molecules":
         return list_molecules(cmd_pointer, parser)
-
     elif parser.getName() == "save_molecule-set":
         return save_molecules(cmd_pointer, parser)
-
     elif parser.getName() == "load_molecule-set":
         return load_molecules(cmd_pointer, parser)
-
     elif parser.getName() == "list_molecule-sets":
         return display_molsets(cmd_pointer, parser)
-
     elif parser.getName() == "load_analysis":
         return attach_all_results(cmd_pointer, parser)
-
     elif parser.getName() == "export_molecule":
         return export_molecule(cmd_pointer, parser)
-
     elif parser.getName() == "clear_analysis":
         return clear_results(cmd_pointer, parser)
     elif parser.getName() == "create_molecule":
@@ -211,9 +210,14 @@ def lang_parse(cmd_pointer, parser):
         return clear_workset(cmd_pointer, parser)
     elif parser.getName() in ["load_molecules_file", "load_molecules_dataframe"]:
         return load_batch_molecules(cmd_pointer, parser)
-
     elif parser.getName() == "export_molecules":
         return export_molecule_set(cmd_pointer, parser)
+    elif parser.getName() == "show_molsgrid":
+        return show_molsgrid(cmd_pointer, parser)
+    elif parser.getName() == "show_molsgrid_df":
+        return show_molsgrid(cmd_pointer, parser)
+    elif parser.getName() == "show_mol":
+        return show_mol(cmd_pointer, parser)
 
     # File system commands
     elif parser.getName() == "list_files":
@@ -247,7 +251,7 @@ def lang_parse(cmd_pointer, parser):
     elif parser.getName() == "display_data__display":
         return display_data__display(cmd_pointer, parser)
     elif parser.getName() == "clear_sessions":
-        return clear_other_sessions(cmd_pointer, parser)
+        return clear_sessions(cmd_pointer, parser)
     elif parser.getName() == "edit_config":
         return edit_config(cmd_pointer, parser)
 
@@ -257,13 +261,13 @@ def lang_parse(cmd_pointer, parser):
     elif parser.getName() == "docs":
         return docs(cmd_pointer, parser)
 
-    # Show molecules commands
-    elif parser.getName() == "show_molecules":
-        return show_molsgrid(cmd_pointer, parser)
-    elif parser.getName() == "show_molecules_df":
-        return show_molsgrid(cmd_pointer, parser)
-    elif parser.getName() == "show_molecule":
-        return show_mol(cmd_pointer, parser)
+    # # Show molecules commands
+    # elif parser.getName() == "show_molecules":
+    #     return show_molsgrid(cmd_pointer, parser)
+    # elif parser.getName() == "show_molecules_df":
+    #     return show_molsgrid(cmd_pointer, parser)
+    # elif parser.getName() == "show_molecule":
+    #     return show_mol__TRASH(cmd_pointer, parser)
 
     # Toolkit execution
     elif str(parser.getName()).startswith("toolkit_exec_"):
@@ -386,20 +390,17 @@ def set_context(cmd_pointer, parser):
         reset = True
 
     toolkit_name = parser["toolkit_name"].upper()
+    set_context_by_name(cmd_pointer, toolkit_name, reset)
+
+
+# Programatically set the context.
+# This is used by the main `set context xyz` command, but also
+# by a few other commands like `update context xyz` and `add toolkit xyz`.
+def set_context_by_name(cmd_pointer, toolkit_name, reset=False, suppress_splash=False):
     toolkit_current = None
 
-    # Handle login error.
-    def _handle_login_error(err):
-        output_error(msg("err_login", toolkit_name, err), return_val=False)
-        cmd_pointer.settings["context"] = old_cmd_pointer_context
-        cmd_pointer.toolkit_current = old_toolkit_current
-        unset_context(cmd_pointer, None)
-
+    # Toolkit doesn't exist.
     if toolkit_name.upper() not in cmd_pointer.settings["toolkits"]:
-        # if toolkit_name is None: # Trash, without toolkit_name the command is invalidated
-        #     return get_context(cmd_pointer, parser)
-
-        # Toolkit doesn't exist.
         return output_error(msg("fail_toolkit_not_installed", toolkit_name), nowrap=True)
 
     else:
@@ -423,17 +424,17 @@ def set_context(cmd_pointer, parser):
 
             except Exception as err:  # pylint: disable=broad-exception-caught
                 # Error loading login API.
-                _handle_login_error(err)
+                _handle_login_error(cmd_pointer, toolkit_name, old_toolkit_current, old_cmd_pointer_context, err)
                 return False
 
             if not login_success:
                 # Failed to log in.
                 err = expiry_datetime  # On fail, error is passed as second parameter instead of expiry.
-                _handle_login_error(err)
+                _handle_login_error(cmd_pointer, toolkit_name, old_toolkit_current, old_cmd_pointer_context, err)
                 return False
 
             # Success switching context & loggin in.
-            if old_cmd_pointer_context != cmd_pointer.settings["context"]:
+            if old_cmd_pointer_context != cmd_pointer.settings["context"] and not suppress_splash:
                 if GLOBAL_SETTINGS["display"] == "terminal" or GLOBAL_SETTINGS["display"] == None:
                     return output_text(splash(toolkit_name, cmd_pointer), nowrap=True)
                 else:
@@ -444,6 +445,14 @@ def set_context(cmd_pointer, parser):
             cmd_pointer.settings["context"] = old_cmd_pointer_context
             cmd_pointer.toolkit_current = old_toolkit_current
             return output_error(msg("err_load_toolkit", toolkit_name))
+
+
+# Handle toolkit login error.
+def _handle_login_error(cmd_pointer, toolkit_name, old_toolkit_current, old_cmd_pointer_context, err):
+    output_error(msg("err_login", toolkit_name, err), return_val=False)
+    cmd_pointer.settings["context"] = old_cmd_pointer_context
+    cmd_pointer.toolkit_current = old_toolkit_current
+    unset_context(cmd_pointer, None)
 
 
 # Display your current context.

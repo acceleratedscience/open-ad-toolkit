@@ -104,9 +104,10 @@ def other_sessions_exist(cmd_pointer):
         pass
 
     if len(file_list) > 0:
-        return True, output_error(msg("abort_clear_sessions"), return_val=False)
+        output_error(msg("abort_clear_sessions"), return_val=False)
+        return True
     else:
-        return False, None
+        return False
 
 
 # Return user input.
@@ -312,8 +313,8 @@ def print_separator(style=None, width=None, return_val=False):
     if GLOBAL_SETTINGS["display"] == "terminal" or GLOBAL_SETTINGS["display"] == None:
         import shutil
 
-        terminal_width = shutil.get_terminal_size().columns
-        width = terminal_width if not width or terminal_width < width else width
+        cli_width = shutil.get_terminal_size().columns
+        width = cli_width if not width or cli_width < width else width
         if style:
             return output_text(f"<{style}>{'-' * width}</{style}>", nowrap=True, return_val=return_val)
         else:

@@ -97,13 +97,15 @@ def get_workspace(cmd_pointer, parser):
 # Remove workspace and all its metadata files.
 def remove_workspace(cmd_pointer, parser):
     """Removes a registered Workspace from Registry"""
-    other, error_msg = other_sessions_exist(cmd_pointer)
+
+    other_sesh = other_sessions_exist(cmd_pointer)
+    if other_sesh is True:
+        return
+
     cmd_pointer.refresh_vector = True
     cmd_pointer.refresh_train = True
     cmd_pointer.settings["env_vars"]["refresh_help_ai"] = True
     update_main_registry_env_var(cmd_pointer, "refresh_help_ai", True)
-    if other is True:
-        return error_msg
 
     workspace_name = parser.as_dict()["Workspace_Name"].upper()
     if workspace_name == "DEFAULT":
@@ -137,9 +139,9 @@ def create_workspace(cmd_pointer, parser):
     update_main_registry_env_var(cmd_pointer, "refresh_help_ai", True)
 
     # Abort if other sessions are running.
-    other, error_msg = other_sessions_exist(cmd_pointer)
-    if other is True:
-        return error_msg
+    other_sesh = other_sessions_exist(cmd_pointer)
+    if other_sesh is True:
+        return
 
     # Fetch workspace name.
     workspace_name = parser.as_dict()["Workspace_Name"].upper()

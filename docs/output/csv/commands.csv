@@ -6,11 +6,11 @@ get workspace [ <workspace_name> ];Workspaces
 create workspace <workspace_name> [ description('<description>') on path '<path>' ];Workspaces
 remove workspace <workspace_name> ;Workspaces
 list workspaces;Workspaces
-add molecule|mol <name> | <smiles> | <inchi> | <inchkey> | <cid>;Molecules
-display molecule|mol <name> | <smiles> | <inchi> | <inchkey> |  <cid>;Molecules
+add molecule|mol <name> | <smiles> | <inchi> | <inchikey> | <cid>;Molecules
+display molecule|mol <name> | <smiles> | <inchi> | <inchikey> |  <cid>;Molecules
 rename molecule <molecule_identifer_string> as <molecule_name>;Molecules
-export molecule|mol <name> | <smiles> | <inchi> | <inchkey> |  <cid> [as file];Molecules
-remove molecule|mol <name> | <smiles> | <inchi> | <inchkey> | <formula> | <cid> ;Molecules
+export molecule|mol <name> | <smiles> | <inchi> | <inchikey> |  <cid> [as file];Molecules
+remove molecule|mol <name> | <smiles> | <inchi> | <inchikey> | <formula> | <cid> ;Molecules
 list molecules|mols;Molecules
 save molecule-set|molset as <molecule-set_name>;Molecules
 load molecule-set|molset <molecule-set_name>;Molecules
@@ -19,7 +19,7 @@ enrich molecule-set with analysis;Molecules
 clear analysis cache;Molecules
 clear molecules;Molecules
 create molecule <smiles_string> name <molecule_name>;Molecules
-@(<name> | <smiles> | <inchi> | <inchkey> | <cid>)>><molecule_property_name>;Molecules
+@(<name> | <smiles> | <inchi> | <inchikey> | <cid>)>><molecule_property_name>;Molecules
 load molecules using file '<csv_or_sdf_filename>';Molecules
 export molecules [ as <csv_filename> ];Molecules
 show molecules using ( file '<mols_file>' | dataframe <dataframe> ) [ save as '<sdf_or_csv_file>' | as molsobject ];Molecules
@@ -63,7 +63,7 @@ docs;Help
 ... ?<soft>   --> List all commands starting with "..."</soft>;Help
 search for similar molecules to '<smiles>' [ save as '<filename.csv>' ];Search Molecules
 search for molecules in patents from list ['<patent1>', '<patent2>', ...] | dataframe <dataframe_name> | file '<filename.csv>' [ save as '<filename.csv>' ];Search Molecules
-search for patents containing molecule '<smiles>' | '<inchi>' | '<inchi_key>' [ save as '<filename.csv>' ];Search Molecules
+search for patents containing molecule '<smiles>' | '<inchi>' | '<inchikey>' [ save as '<filename.csv>' ];Search Molecules
 search for substructure instances of '<smiles>' [ save as '<filename.csv>' ];Search Molecules
 search collection '<collection_name_or_key>' for '<search_string>' [ using (page_size=<int> system_id=<system_id> edit_distance=<integer> display_first=<integer>) ] show (data | docs) [ estimate only | return as data | save as '<filename.csv>' ];Search Collections
 display collection matches for '<search_string>' [ save as '<filename.csv>' ];Search Collections
