@@ -103,10 +103,8 @@ def new_molecule(Name: str, smiles: str):
         new_smiles = Chem.MolToSmiles(Chem.MolFromSmiles(smiles), False)
         rdkit_mol = Chem.MolFromSmiles(new_smiles)
         formula = Chem.rdMolDescriptors.CalcMolFormula(rdkit_mol)
-
         inchi = Chem.rdinchi.MolToInchi(rdkit_mol)[0]
-
-        # inchikey = Chem.rdinchi.MolToInchikey(rdkit_mol)
+        inchikey = Chem.inchi.InchiToInchiKey(inchi)
 
         # mol_weight = Chem.Descriptors.ExactMolWt(rdkit_mol)
 
