@@ -407,7 +407,7 @@ Example:
         help_dict_create(
             name="merge molecule-set",
             category="Molecules",
-            command="load molecule-set|molset <molecule-set_name>",
+            command="merge molecule-set|molset <molecule-set_name> [merge only] [append only]",
             description="""
 merges a molecule set from your workspace, and updates properties/Analysis in existing molecules or appends new molecules to the working set.
 
