@@ -111,6 +111,13 @@ body {
 	display: flex;
 	margin-bottom: 16px;
 }
+#title-wrap h1.loading {
+	opacity: 0.3;
+}
+#title-wrap h1.loading::after {
+	content: '';
+	animation: ellipsis 500ms infinite;
+}
 #title-wrap .icn-mol,
 #title-wrap .icn-star {
 	width: 40px;
@@ -124,10 +131,41 @@ body {
 	margin-bottom: 4px;
 }
 
+/* PubChem loader */
+#fetching-pubchem {
+	color: #999;
+	font-style: italic;
+}
+#fetching-pubchem.error {
+	color: #d00;
+}
+#fetching-pubchem:not(.error)::after {
+	content: '';
+	animation: ellipsis 500ms infinite;
+}
+@keyframes ellipsis {
+	0% {
+		content: '';
+	}
+	25% {
+		content: '.';
+	}
+	50% {
+		content: '..';
+	}
+	75% {
+		content: '...';
+	}
+}
+
 /**
  * Parameters
  */
 
+.non-val::after {
+	content: '-';
+	color: #999;
+}
 .array:not(.expand) span:nth-child(10):not(.show) ~ span {
 	display: none;
 }

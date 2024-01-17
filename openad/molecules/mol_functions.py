@@ -4,6 +4,7 @@ from datetime import datetime
 import time
 import pubchempy as pcy
 from rdkit import Chem, rdBase
+from rdkit.Chem.Descriptors import MolWt, ExactMolWt
 from openad.helpers.output import output_text, output_table, output_warning, output_error
 
 blocker = rdBase.BlockLogs()
@@ -48,61 +49,66 @@ PROPERTY_SOURCES = {
     "Topological-Polar Surface Area": "tpsa",
 }
 
-MOL_PROPERTIES = [
-    "cid",
-    "molecular_formula",
-    "molecular_weight",
-    "canonical_smiles",
-    "isomeric_smiles",
-    "inchi",
-    "inchikey",
-    "iupac_name",
-    "xlogp",
-    "exact_mass",
-    "monoisotopic_mass",
-    "multipoles_3d",
-    "tpsa",
-    "complexity",
-    "charge",
-    "h_bond_donor_count",
-    "h_bond_acceptor_count",
-    "rotatable_bond_count",
-    "heavy_atom_count",
-    "isotope_atom_count",
-    "atom_stereo_count",
-    "defined_atom_stereo_count",
-    "undefined_atom_stereo_count",
-    "bond_stereo_count",
-    "defined_bond_stereo_count",
-    "undefined_bond_stereo_count",
-    "covalent_unit_count",
-    "volume_3d",
-    "conformer_rmsd_3d",
-    "conformer_model_rmsd_3d",
-    "x_steric_quadrupole_3d",
-    "y_steric_quadrupole_3d",
-    "z_steric_quadrupole_3d",
-    "feature_count_3d",
-    "feature_acceptor_count_3d",
-    "feature_donor_count_3d",
-    "feature_anion_count_3d",
-    "feature_cation_count_3d",
-    "feature_ring_count_3d",
-    "feature_hydrophobe_count_3d",
-    "effective_rotor_count_3d",
-    "conformer_count_3d",
-    "pharmacophore_features_3d",
-    "conformer_id_3d",
-    "coordinate_type",
-    "mmff94_energy_3d",
-    "mmff94_partial_charges_3d",
-    "multipoles_3d",
-    "pharmacophore_features_3d",
-]
+MOL_PROPERTIES = sorted(
+    [
+        "cid",
+        "molecular_formula",
+        "molecular_weight",
+        "molecular_weight_exact",
+        "canonical_smiles",
+        "isomeric_smiles",
+        "inchi",
+        "inchikey",
+        "iupac_name",
+        "xlogp",
+        "exact_mass",
+        "monoisotopic_mass",
+        "multipoles_3d",
+        "tpsa",
+        "complexity",
+        "charge",
+        "h_bond_donor_count",
+        "h_bond_acceptor_count",
+        "rotatable_bond_count",
+        "heavy_atom_count",
+        "isotope_atom_count",
+        "atom_stereo_count",
+        "defined_atom_stereo_count",
+        "undefined_atom_stereo_count",
+        "bond_stereo_count",
+        "defined_bond_stereo_count",
+        "undefined_bond_stereo_count",
+        "covalent_unit_count",
+        "volume_3d",
+        "conformer_rmsd_3d",
+        "conformer_model_rmsd_3d",
+        "x_steric_quadrupole_3d",
+        "y_steric_quadrupole_3d",
+        "z_steric_quadrupole_3d",
+        "feature_count_3d",
+        "feature_acceptor_count_3d",
+        "feature_donor_count_3d",
+        "feature_anion_count_3d",
+        "feature_cation_count_3d",
+        "feature_ring_count_3d",
+        "feature_hydrophobe_count_3d",
+        "effective_rotor_count_3d",
+        "conformer_count_3d",
+        "pharmacophore_features_3d",
+        "conformer_id_3d",
+        "coordinate_type",
+        "mmff94_energy_3d",
+        "mmff94_partial_charges_3d",
+        "multipoles_3d",
+        "pharmacophore_features_3d",
+    ]
+)
 
 
-def new_molecule(Name: str, smiles: str):
-    """creates a new molecule object"""
+def new_molecule_TRASH(Name: str, smiles: str):
+    """
+    Creates a basic molecule object without relying on API calls
+    """
     try:
         new_smiles = None
         rdkit_mol = None
@@ -324,32 +330,53 @@ def get_identifiers(mol):
 
 
 # Takes any identifier and creates a minimal molecule object,
-# ideally without connecting to PubChem.
-def get_mol_basic(molecule_identifier):
+# without relying on PubChem or API calls.
+def new_molecule(inchi_or_smiles: str, name: str = None):
+    """
+    Create a basic molecule object without relying on API calls
+    """
     mol = OPENAD_MOL_DICT.copy()
+    date_time = datetime.fromtimestamp(time.time())
+    str_date_time = date_time.strftime("%d-%m-%Y, %H:%M:%S")
 
-    # Fill in the basic identifiers
-    mol_rdkit = Chem.MolFromInchi(molecule_identifier)
-    if mol_rdkit:
-        # Prepend 'InChI=' when missing.
-        if not molecule_identifier.startswith("InChI="):
-            molecule_identifier = "InChI=" + molecule_identifier
-
-        mol["properties"]["inchi"] = molecule_identifier
-        mol["properties"]["inchikey"] = Chem.inchi.InchiToInchiKey(molecule_identifier)
-        mol["properties"]["canonical_smiles"] = Chem.MolToSmiles(mol_rdkit)
-        mol["properties"]["isomeric_smiles"] = Chem.MolToSmiles(mol_rdkit, isomericSmiles=True)
-        return mol
-    else:
-        mol_rdkit = Chem.MolFromSmiles(molecule_identifier)
-    if mol_rdkit:
-        mol["properties"]["inchi"] = Chem.MolToInchi(mol_rdkit)
-        mol["properties"]["inchikey"] = Chem.inchi.InchiToInchiKey(mol["properties"]["inchi"])
-        mol["properties"]["canonical_smiles"] = Chem.MolToSmiles(mol_rdkit)
-        mol["properties"]["isomeric_smiles"] = Chem.MolToSmiles(mol_rdkit, isomericSmiles=True)
-        return mol
-    else:
+    # Create RDKit molecule object
+    mol_rdkit = Chem.MolFromInchi(inchi_or_smiles)
+    if not mol_rdkit:
+        mol_rdkit = Chem.MolFromSmiles(inchi_or_smiles)
+    if not mol_rdkit:
+        mol_rdkit = Chem.MolFromInchi("InChI=" + inchi_or_smiles)
+    if not mol_rdkit:
         return None
+
+    # Create empty property fields
+    for prop in MOL_PROPERTIES:
+        mol["properties"][prop] = None
+
+    # Store identifiers
+    mol["name"] = name
+
+    mol["properties"]["inchi"] = Chem.MolToInchi(mol_rdkit)  # Alt: Chem.rdinchi.MolToInchi(mol_rdkit)[0]
+    mol["property_sources"]["inchi"] = {"software": "rdkit", "date": str_date_time}
+
+    mol["properties"]["inchikey"] = Chem.inchi.InchiToInchiKey(mol["properties"]["inchi"])
+    mol["property_sources"]["inchikey"] = {"software": "rdkit", "date": str_date_time}
+
+    mol["properties"]["canonical_smiles"] = Chem.MolToSmiles(mol_rdkit)
+    mol["property_sources"]["canonical_smiles"] = {"software": "rdkit", "date": str_date_time}
+
+    mol["properties"]["isomeric_smiles"] = Chem.MolToSmiles(mol_rdkit, isomericSmiles=True)
+    mol["property_sources"]["isomeric_smiles"] = {"software": "rdkit", "date": str_date_time}
+
+    mol["properties"]["molecular_formula"] = Chem.rdMolDescriptors.CalcMolFormula(mol_rdkit)
+    mol["property_sources"]["molecular_formula"] = {"software": "rdkit", "date": str_date_time}
+
+    mol["properties"]["molecular_weight"] = MolWt(mol_rdkit)
+    mol["property_sources"]["molecular_weight"] = {"software": "rdkit", "date": str_date_time}
+
+    mol["properties"]["molecular_weight_exact"] = ExactMolWt(mol_rdkit)
+    mol["property_sources"]["molecular_weight_exact"] = {"software": "rdkit", "date": str_date_time}
+
+    return mol
 
 
 # Create svg code from .
