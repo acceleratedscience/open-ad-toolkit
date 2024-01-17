@@ -1,7 +1,7 @@
 """Functions that are called for molecule commands"""
 import glob
 import pickle
-import sys, os
+import os
 import shutil
 import re
 import json
@@ -77,7 +77,6 @@ def display_molecule(cmd_pointer, inp):
             + format_analysis(mol)
         )
 
-        # return print_s(print_string)
     else:
         mol = retrieve_mol(molecule_identifier)
         if mol is not None:
@@ -91,7 +90,7 @@ def display_molecule(cmd_pointer, inp):
                 + "\n"
                 + format_analysis(mol)
             )
-            # return print_s(print_string)
+
         else:
             output_error(msg("err_mol_not_on_pubchem"))
             return None
@@ -136,15 +135,14 @@ def display_property_sources(cmd_pointer, inp):
     if mol is not None:
         print_string = format_sources(mol)
 
-        # return print_s(print_string)
     else:
         mol = retrieve_mol(molecule_identifier)
         if mol is not None:
             cmd_pointer.last_external_molecule = mol.copy()
             print_string = format_sources(mol)
-            # return print_s(print_string)
+
         else:
-            print_s("molecule not available on pubchem")
+            output_error("Molecule not available on pubchem")
             return None
     if GLOBAL_SETTINGS["display"] == "notebook":
         from IPython.display import Markdown, display, HTML
@@ -156,13 +154,14 @@ def display_property_sources(cmd_pointer, inp):
         print_string = print_string.replace("\n", "<br>")
         display(HTML("<pre>" + print_string + "</pre>"))
     else:
-        print_s(print_string)
+        output_text(print_string, edge=True)
 
     return True
 
 
 def export_molecule(cmd_pointer, inp):
     """exports a molecule as a dictionary"""
+
     molecule_identifier = inp.as_dict()["molecule_identifier"]
     mol = retrieve_mol_from_list(cmd_pointer, molecule_identifier)
     if mol is None:
@@ -176,7 +175,7 @@ def export_molecule(cmd_pointer, inp):
             encoding="utf-8",
         )
         json.dump(mol, json_file)
-        print_s("file " + mol["name"] + ".json Saved to the current workspace")
+        output_text("<success>File " + mol["name"] + ".json Saved to the current workspace</success>")
     elif mol is not None and GLOBAL_SETTINGS["display"] == "notebook":
         return mol.copy()
     return True
@@ -184,36 +183,60 @@ def export_molecule(cmd_pointer, inp):
 
 def add_molecule(cmd_pointer, inp, force=False):
     """adds a molecule to the working set"""
+
+    basic = False
+
     if isinstance(inp, dict):
         molecule_identifier = inp["molecule_identifier"]
+        if "name" in inp:
+            molecule_name = inp["name"]
+        else:
+            molecule_name = molecule_identifier
+
     else:
+        if "basic" in inp.as_dict():
+            basic = True
         molecule_identifier = inp.as_dict()["molecule_identifier"]
-    if (
-        cmd_pointer.last_external_molecule is not None
-        and is_molecule(cmd_pointer.last_external_molecule, molecule_identifier) is not None
-    ):
-        mol = cmd_pointer.last_external_molecule
+        if "name" in inp.as_dict():
+            molecule_name = inp.as_dict()["name"]
+        else:
+            molecule_name = molecule_identifier
+        if "force" in inp.as_dict():
+            force = True
+
+    if basic is True:
+        mol = new_molecule(molecule_name, molecule_identifier)
+
     else:
-        mol = retrieve_mol(molecule_identifier)
+        if (
+            cmd_pointer.last_external_molecule is not None
+            and is_molecule(cmd_pointer.last_external_molecule, molecule_identifier) is not None
+        ):
+            mol = cmd_pointer.last_external_molecule
+        else:
+            mol = retrieve_mol(molecule_identifier)
     if mol is None:
-        output_text("Unable to identify molecule", return_val=False)
+        output_error("Unable to identify molecule", return_val=False)
+        if basic is True:
+            output_error("You may only use a valid smiles string", return_val=False)
         return True
 
     identifier = mol["name"] + "   " + mol["properties"]["canonical_smiles"]
 
     if retrieve_mol_from_list(cmd_pointer, mol["properties"]["canonical_smiles"]) is not None:
-        print_s("Molecule already in list")
+        output_error("Molecule already in list")
         return True
 
     if force is False:
         if confirm_prompt("Are you wish to add " + identifier + " to your working list ?"):
             cmd_pointer.molecule_list.append(mol.copy())
-            print_s("Molecule was Added.")
+            output_text("<sucess> Molecule was Added.</sucess>")
             return True
 
-        print_s("Molecule was not added")
+        output_text("Molecule was not added")
         return False
     cmd_pointer.molecule_list.append(mol.copy())
+    output_text("<sucess> Molecule was Added.</sucess>")
     return True
 
 
@@ -228,15 +251,15 @@ def create_molecule(cmd_pointer, inp):
     identifier = mol["name"] + "   " + mol["properties"]["canonical_smiles"]
 
     if retrieve_mol_from_list(cmd_pointer, mol["properties"]["canonical_smiles"]) != None:
-        print_s("Molecule already in list")
+        output_error("Molecule already in list")
         return True
 
     if confirm_prompt("Are you wish to add " + identifier + " to your working list ?"):
         cmd_pointer.molecule_list.append(mol.copy())
-        print_s("Molecule was Added.")
+        output_text("<sucess> Molecule was Added.</sucess>")
         return True
 
-    print_s("Molecule was not added")
+    output_error("Molecule was not added")
     return False
 
 
@@ -261,10 +284,10 @@ def remove_molecule(cmd_pointer, inp):
                 i = i + 1
 
             cmd_pointer.molecule_list.pop(i)
-            print_s("Molecule was removed.")
+            output_text("<success>Molecule was removed.</success>")
         return True
 
-    print_s("No Molecule Found")
+    output_error("No Molecule Found")
     return True
 
 
@@ -296,24 +319,24 @@ def retrieve_mol_from_list(cmd_pointer, molecule):
 def rename_mol_in_list(cmd_pointer, inp):
     """renames a molecule in the working list"""
     if retrieve_mol_from_list(cmd_pointer, inp.as_dict()["new_name"]) is not None:
-        print_s("A molecule in Working Set already contains the new name.")
+        output_error("A molecule in Working Set already contains the new name.")
         return False
 
     for mol in cmd_pointer.molecule_list:
         m = is_molecule(mol, inp.as_dict()["molecule_identifier"])
         if m is not None:
             m["name"] = inp.as_dict()["new_name"]
-            print_s("<success> molecule successfully re-named</success>")
+            output_text("<success> molecule successfully re-named</success>")
             return True
 
     for mol in cmd_pointer.molecule_list:
         m = is_molecule_synonym(mol, inp.as_dict()["molecule_identifier"])
         if m is not None:
             m["name"] = inp.as_dict()["new_name"]
-            print_s("<success> molecule successfully re-named</success>")
+            output_text("<success> molecule successfully re-named</success>")
             return True
 
-    print_s(" molecule was not renamed, no molecule found")
+    output_error(" molecule was not renamed, no molecule found")
 
     return False
 
@@ -322,7 +345,7 @@ def export_molecule_set(cmd_pointer, inp):
     """exports molecule Set to Data frame on Notebook or file in workspace"""
 
     if len(cmd_pointer.molecule_list) == 0:
-        print_s("\nNo Molecules in Molecule-Set")
+        output_error("No Molecules in Molecule-set")
         return True
     csv_file_name = None
 
@@ -358,7 +381,7 @@ def export_molecule_set(cmd_pointer, inp):
             )
         result = moleculelist_to_data_frame(cmd_pointer.molecule_list.copy())
         result.to_csv(file_name)
-        print_s(f"Result set saved in Workspace as {file_name.split('/')[-1]}")
+        output_text(f"Result set saved in Workspace as {file_name.split('/')[-1]}")
 
 
 def moleculelist_to_data_frame(molecule_set):
@@ -560,7 +583,7 @@ def load_molecules(cmd_pointer, inp):
         func_file = open(i, "rb")
         mol = dict(pickle.load(func_file))
         cmd_pointer.molecule_list.append(mol.copy())
-    print_s("\nNumber of Molecules Loaded = " + str(len(cmd_pointer.molecule_list)))
+    output_text("<success> Number of Molecules Loaded </success>= " + str(len(cmd_pointer.molecule_list)))
     return True
 
 
@@ -609,7 +632,7 @@ def property_retrieve(molecule_identifier, molecule_property, cmd_pointer):
             return mol["properties"][molecule_property.lower()]
 
         else:
-            print_s("molecule not available on pubchem")
+            output_error("molecule not available on pubchem")
             return None
     else:
         return mol["properties"][molecule_property.lower()]
@@ -628,7 +651,7 @@ def get_property(cmd_pointer, inp):
                     return mol["synonyms"]["Synonym"]
             return mol["properties"][molecule_property.lower()]
         else:
-            print_s("molecule not available on pubchem")
+            output_error("molecule not available on pubchem")
             return None
     else:
         if molecule_property.lower() == "synonyms":
@@ -681,6 +704,7 @@ def show_mol(cmd_pointer, inp):
 def show_molsgrid(cmd_pointer, inp):
     # Load routes and launch browser UI.
     routes, the_mols2grid = fetchRoutesMolsGrid(cmd_pointer, inp)
+
     if GLOBAL_SETTINGS["display"] == "notebook":
         return the_mols2grid
     else:

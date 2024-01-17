@@ -75,11 +75,13 @@ from pyparsing import (
     merge,
     pubchem,
     sources,
+    basic,
+    force,
 ) = map(
     CaselessKeyword,
     "get list description using create set unset workspace workspaces context jobs exec\
           as optimize with toolkits toolkit gpu experiment add run save runs show \
-              file display history data remove result from inchi inchikey smiles formula name last load results export create rename merge pubchem sources".split(),
+              file display history data remove result from inchi inchikey smiles formula name last load results export create rename merge pubchem sources basic force".split(),
 )
 mol = ["molecule", "mol"]
 mols = ["molecules", "mols"]
@@ -115,14 +117,39 @@ def mol_grammar_add(statements, grammar_help):
 
     # ---
     # Add molecule
-    statements.append(Forward(add + molecule + molecule_identifier("molecule_identifier"))("add_molecule"))
+    statements.append(
+        Forward(
+            add
+            + molecule
+            + (molecule_identifier | desc)("molecule_identifier")
+            + Optional(a_s + desc("name"))
+            + Optional(basic)("basic")
+            + Optional(force)("force")
+        )("add_molecule")
+    )
+
     grammar_help.append(
         help_dict_create(
             name="add molecule",
             category="Molecules",
-            command="add molecule <name> | <smiles> | <inchi> | <inchikey> | <cid>",
+            command="add molecule <name> | <smiles> | <inchi> | <inchikey> | <cid>   [as '<name>' ] [ basic ] [force ]",
             description=f"""
-Add a molecule to the current working set of molecules.
+This Command adds a Molecule to a crrent working set of molecules in memory. When adding a molecule by name, this name will become the molecule's identifying string. 
+
+It will take any molecules identifier from the following categories:
+    -<cmd>smiles </cmd>
+    -<cmd>name / synonym</cmd>
+    -<cmd>smiles</cmd>
+    -<cmd>inchi</cmd>
+    -<cmd>inchikey </cmd>
+    -<cmd>cid </cmd>
+
+Options :
+    - <cmd>as <name> </cmd>: if the <cmd> as '<name>' </cmd> not used the molecule the  molecule identfier will be used for the molecules name. if the <cmd> as '<name>' </cmd> not used the molecule the  molecule identfier will be used for the molecules name.
+        You can set or override an name later for  any molecule with the <cmd>rename molecule</cmd> command.
+    - <cmd> basic </cmd> Creates an un
+    - <cmd>force</cmd>: The <cmd>force</cmd> option allows you to ovveride the confirmation that you wish to add a molecule.
+
 
 {MOL_SHORTHAND}
 
@@ -130,11 +157,13 @@ Add a molecule to the current working set of molecules.
 
 {USING_NAME}
 
-When adding a molecule by name, this name will become the molecule's identifying string. You can set or override an identifying string for any molecule with the <cmd>rename molecule</cmd> command.
-            
+
 Examples:
 - Add a molecule by name:
 <cmd>add molecule aspirin</cmd>
+
+- Add a molecule by name and force through the acknowledgement to add it:
+<cmd>add molecule aspirin force</cmd>
 
 - Add a molecule by SMILES:
 <cmd>add molecule CC(=O)OC1=CC=CC=C1C(=O)O</cmd>
@@ -147,20 +176,28 @@ Examples:
 
 - Add a molecule by InChIKey:
 <cmd>add mol BSYNRYMUTXBXSQ-UHFFFAOYSA-N</cmd>
+
+- Add a molecule by InChIKey nd set its name to "mymol":
+<cmd>add mol BSYNRYMUTXBXSQ-UHFFFAOYSA-N as 'mymol' </cmd>
+
+- Add a molecule by SMILES nd set its name to "mymol" and not prepopulate values from pubchem:
+<cmd>add mol CC(=O)OC1=CC=CC=C1C(=O)O as 'mymol' basic </cmd>
 """,
         )
     )
 
     # ---
     # Display molecule
-    statements.append(Forward(d_isplay + molecule + (molecule_identifier)("molecule_identifier"))("display_molecule"))
+    statements.append(
+        Forward(d_isplay + molecule + (molecule_identifier | desc)("molecule_identifier"))("display_molecule")
+    )
     grammar_help.append(
         help_dict_create(
             name="display molecule",
             category="Molecules",
             command="display molecule <name> | <smiles> | <inchi> | <inchikey> | <cid>",
             description=f"""
-Display a molecule's properties.
+Display a molecule's identifiers, propoerties, synonyms and any Analysis results it has been enriched with.
 
 {MOL_SHORTHAND}
 
@@ -189,7 +226,7 @@ Examples:
         )
     )
     statements.append(
-        Forward(d_isplay + sources + (molecule_identifier)("molecule_identifier"))("display_property_sources")
+        Forward(d_isplay + sources + (molecule_identifier | desc)("molecule_identifier"))("display_property_sources")
     )
     grammar_help.append(
         help_dict_create(
@@ -215,7 +252,7 @@ Display the sources of a molecule's properties, attributing back to how they wer
         Forward(
             rename
             + molecule
-            + molecule_identifier("molecule_identifier")
+            + molecule_identifier("molecule_identifier| desc")
             + a_s
             + (Word(alphas, alphanums + "_")("new_name"))
         )("rename_molecule")
@@ -243,7 +280,7 @@ Let's say you've added a molecule "CC(=O)OC1=CC=CC=C1C(=O)O" to your current wor
         Forward(
             export
             + molecule
-            + (molecule_identifier)("molecule_identifier")
+            + (molecule_identifier | desc)("molecule_identifier")
             + Optional(CaselessKeyword("as") + CaselessKeyword("file"))("as_file")
         )("export_molecule")
     )
@@ -271,7 +308,9 @@ Examples
 
     # ---
     # Remove molecule
-    statements.append(Forward(remove + molecule + molecule_identifier("molecule_identifier"))("remove_molecule"))
+    statements.append(
+        Forward(remove + molecule + (molecule_identifier | desc)("molecule_identifier"))("remove_molecule")
+    )
     grammar_help.append(
         help_dict_create(
             name="remove molecule",
@@ -344,8 +383,7 @@ Example:
             category="Molecules",
             command="load molecule-set|molset <molecule-set_name>",
             description="""
-Load a molecule set from your workspace, and set it as your current working set.
-
+Loads a molecule set from your workspace, and replaces your current set of molecules with the molecules from the given molset.
 Example:
 <cmd>load molset my_working_set</cmd>
 """,
@@ -394,11 +432,6 @@ Example:
             description="Clear the cache of analysis results for your current workspace.",
         )
     )
-    statements.append(
-        Forward(create + molecule + molecule_identifier("smiles") + name + (Word(alphas, alphanums + "_")("name")))(
-            "create_molecule"
-        )
-    )
 
     # ---
     # Clear molecules
@@ -411,34 +444,13 @@ Example:
             description="Clear the working set of molecules.",
         )
     )
-    statements.append(
-        Forward(create + molecule + molecule_identifier("smiles") + name + (Word(alphas, alphanums + "_")("name")))(
-            "create_molecule"
-        )
-    )
-
-    # ---
-    # Create molecule
-    grammar_help.append(
-        help_dict_create(
-            name="create molecule",
-            category="Molecules",
-            command="create molecule <smiles_string> name <molecule_name>",
-            description="""
-Create a base molecule and add it to your working list.
-
-Note that other identifiers (InChI and formula) will be calculated, but no other properties (like InChIKey, CID, etc.) will be fetched from PubChem.
-
-Example:
-<cmd>create molecule CC(=O)OC1=CC=CC=C1C(=O)O name my_aspirin</cmd>
-""",
-        )
-    )
 
     # ---
     # Get molecule property
     statements.append(
-        Forward("@" + molecule_identifier("molecule_identifier") + ">>" + mol_properties("property"))("mol_property")
+        Forward("@" + (molecule_identifier | desc)("molecule_identifier") + ">>" + mol_properties("property"))(
+            "mol_property"
+        )
     )
     grammar_help.append(
         help_dict_create(
@@ -503,8 +515,11 @@ Available properties: <cmd>{'</cmd>, <cmd>'.join(m_props)}</cmd>
         help_dict_create(
             name="load molecules",
             category="Utility",
-            command="load molecules using dataframe <dataframe>",
-            description="Load molecules into the molecule working set from a dataframe.",
+            command="load molecules using dataframe <dataframe>  [merge with pubchem]",
+            description=""""            
+Load molecules into the molecule working set from a dataframe. 
+
+If the <cmd> merge with pubchem</cmd>  clause is used then loaded molecules will have properties that are not in the source file filled in using pubchem requests, this will slow the process down""",
         )
     )
 
@@ -527,7 +542,7 @@ When run inside a Notebook, this will return a dataframe. When run from the comm
     # ---
     # Show individual molecule in browser.
     statements.append(
-        Forward(show("show") + molecule + molecule_identifier("molecule_identifier"))("show_mol")
+        Forward(show("show") + molecule + (molecule_identifier | desc)("molecule_identifier"))("show_mol")
     )  # From mol json file
     grammar_help.append(
         help_dict_create(
@@ -536,6 +551,19 @@ When run inside a Notebook, this will return a dataframe. When run from the comm
             command="show molecule <name> | <smiles> | <inchi> | <inchikey> | <cid>",
             description="Inspect a molecule in the browser.",
         )
+    )
+    # Show molecules grid.
+    # Note: we don't allow dashes in dataframe names because it's a substraction operator and causes issues in Jupyter.
+    statements.append(
+        Forward(
+            show("show")
+            + molecules
+            + using
+            + CaselessKeyword("dataframe")
+            + Word(alphas, alphanums + "_")("in_dataframe")  # From dataframe
+            + Optional(a_s + CaselessKeyword("molsobject")("object"))  # Return as molsobject
+            + Optional(save + a_s + desc("results_file"))  # Save as csv/sdf
+        )("show_molsgrid_df")
     )
 
     # ---

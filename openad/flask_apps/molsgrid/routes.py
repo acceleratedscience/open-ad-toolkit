@@ -17,12 +17,13 @@ from flask import render_template, send_from_directory, request
 
 def fetchRoutesMolsGrid(cmd_pointer, parser):
     # File and directory references.
+
     workspace_path = cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/"
     origin_file = parser.as_dict()["moles_file"] if "moles_file" in parser.as_dict() else None
     results_file = parser["results_file"] if "results_file" in parser else None  # Parser as_dict?
 
     # Validate input.
-    if parser.getName() != "show_molecules_df":
+    if parser.getName() != "show_molsgrid_df":
         # Origin file doesn't exist.
         if origin_file and not os.path.exists(workspace_path + origin_file):
             return None, output_error(msg("err_file_doesnt_exist", origin_file))
@@ -55,7 +56,7 @@ def fetchRoutesMolsGrid(cmd_pointer, parser):
     # - mol_frame: The dataframe used to render the grid
     def render_mols2grid():
         try:
-            if parser.getName() == "show_molecules_df":
+            if parser.getName() == "show_molsgrid_df":
                 # From dataframe.
                 try:
                     name = parser.getName() + "_" + parser.as_dict()["in_dataframe"]
@@ -127,6 +128,7 @@ def fetchRoutesMolsGrid(cmd_pointer, parser):
 
     # Create the mols2grid object.
     m2g = render_mols2grid()
+
     if not m2g or not isinstance(m2g, tuple):
         return None, output_error(msg("fail_render_mols2grid"))
     the_mols2grid, mol_frame = m2g
