@@ -5,7 +5,7 @@ from rdkit.Chem import PandasTools
 from openad.molecules.mol_functions import (
     merge_molecule_properties,
     valid_smiles,
-    new_molecule,
+    new_molecule_TRASH,
     canonical_smiles,
 )
 from openad.molecules.mol_commands import retrieve_mol_from_list, add_molecule
@@ -121,7 +121,7 @@ def shred_merge_add_Dataframe_mols(dataframe, cmd_pointer):
         if merge_mol is None:
             if name is None:
                 name = a_mol["SMILES"]
-            merge_mol = new_molecule(name, a_mol["SMILES"])
+            merge_mol = new_molecule_TRASH(name, a_mol["SMILES"])
         if merge_mol is not None:
             merge_mol = merge_molecule_properties(a_mol, merge_mol)
         else:
