@@ -11,7 +11,6 @@ from openad.molecules.mol_functions import (
 from openad.molecules.mol_commands import retrieve_mol_from_list, add_molecule
 from openad.helpers.output import output_error, output_warning
 from openad.helpers.output_msgs import msg
-from openad.plugins.style_parser import print_s
 from openad.app.global_var_lib import GLOBAL_SETTINGS
 
 naming_cache = {}
@@ -25,7 +24,7 @@ def load_batch_molecules(cmd_pointer, inp):
     else:
         mol_dataframe = load_mol(inp.as_dict()["moles_file"], cmd_pointer)
     if mol_dataframe is None:
-        output_error("Source not Found ")
+        output_error("Source not Found ", return_val=False)
         return True
     if "pubchem_merge" in inp.as_dict():
         batch_pubchem(cmd_pointer, mol_dataframe)
@@ -113,10 +112,10 @@ def shred_merge_add_Dataframe_mols(dataframe, cmd_pointer):
             continue
         merge_mol = retrieve_mol_from_list(cmd_pointer, a_mol["SMILES"])
         if Name_Flag is True and merge_mol is None:
-            output_error("There is already a molecule by the name " + name)
+            output_error("There is already a molecule by the name " + name, return_val=False)
             continue
         if Name_Flag is True and merge_mol["properties"]["canonical_smiles"] != canonical_smiles(a_mol["SMILES"]):
-            output_error("There is already a molecule by the name " + name)
+            output_error("There is already a molecule by the name " + name, return_val=False)
             continue
 
         if merge_mol is None:
@@ -203,7 +202,7 @@ def _normalize_mol_df(mol_df: pandas.DataFrame, cmd_pointer):
     # Add names when missing.
     try:
         if "NAME" not in mol_df.columns:
-            output_warning(msg("no_m2g_name_column"))
+            output_warning(msg("no_m2g_name_column"), return_val=False)
 
             mol_df["NAME"] = "unknown"
             for i in mol_df.itertuples():

@@ -77,11 +77,14 @@ from pyparsing import (
     sources,
     basic,
     force,
+    append,
+    only,
+    upsert,
 ) = map(
     CaselessKeyword,
     "get list description using create set unset workspace workspaces context jobs exec\
           as optimize with toolkits toolkit gpu experiment add run save runs show \
-              file display history data remove result from inchi inchikey smiles formula name last load results export create rename merge pubchem sources basic force".split(),
+              file display history data remove result from inchi inchikey smiles formula name last load results export create rename merge pubchem sources basic force append only upsert".split(),
 )
 mol = ["molecule", "mol"]
 mols = ["molecules", "mols"]
@@ -386,6 +389,33 @@ Example:
 Loads a molecule set from your workspace, and replaces your current set of molecules with the molecules from the given molset.
 Example:
 <cmd>load molset my_working_set</cmd>
+""",
+        )
+    )
+
+    # Load molecule set
+    statements.append(
+        Forward(
+            merge
+            + molecule_set
+            + Word(alphas, alphanums + "_")("molecule-set_name")
+            + Optional(merge + only)("merge_only")
+            + Optional(append + only)("append_only")
+        )("merge_molecule-set")
+    )
+    grammar_help.append(
+        help_dict_create(
+            name="merge molecule-set",
+            category="Molecules",
+            command="load molecule-set|molset <molecule-set_name>",
+            description="""
+merges a molecule set from your workspace, and updates properties/Analysis in existing molecules or appends new molecules to the working set.
+
+Options:
+    - <cmd> merge only</cmd> Only merges with existing molecules in list
+    - <cmd> append only</cmd> Onlyappend molecules not in list
+<cmd>merge molset my_working_set</cmd>
+
 """,
         )
     )

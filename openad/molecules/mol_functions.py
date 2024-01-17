@@ -110,7 +110,9 @@ def new_molecule(Name: str, smiles: str):
         inchi = None
         inchikey = None
         formula = None
+
         if valid_smiles(smiles):
+            smiles = canonical_smiles(smiles)
             new_smiles = Chem.MolToSmiles(Chem.MolFromSmiles(smiles), False)
             rdkit_mol = Chem.MolFromSmiles(new_smiles)
             inchi = Chem.rdinchi.MolToInchi(rdkit_mol)[0]
@@ -126,7 +128,15 @@ def new_molecule(Name: str, smiles: str):
     except:
         if new_smiles is None:
             return None
-    mol = OPENAD_MOL_DICT.copy()
+    mol = {
+        "name": None,
+        "synonyms": {},
+        "properties": {},
+        "property_sources": {},
+        "sources": {},
+        "commments": {},
+        "analysis": [],
+    }
     mol["name"] = Name
     for i in MOL_PROPERTIES:
         mol["properties"][i] = None

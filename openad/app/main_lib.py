@@ -33,6 +33,7 @@ from openad.molecules.mol_commands import (
     export_molecule_set,
     show_mol,
     show_molsgrid,
+    merge_molecules,
 )
 
 from openad.molecules.molecule_cache import attach_all_results, clear_results
@@ -193,6 +194,8 @@ def lang_parse(cmd_pointer, parser):
         return save_molecules(cmd_pointer, parser)
     elif parser.getName() == "load_molecule-set":
         return load_molecules(cmd_pointer, parser)
+    elif parser.getName() == "merge_molecule-set":
+        return merge_molecules(cmd_pointer, parser)
     elif parser.getName() == "list_molecule-sets":
         return display_molsets(cmd_pointer, parser)
     elif parser.getName() == "load_analysis":
