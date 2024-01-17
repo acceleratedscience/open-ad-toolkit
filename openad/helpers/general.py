@@ -321,6 +321,20 @@ def print_separator(style=None, width=None, return_val=False):
             return output_text(f"{'-' * width}", nowrap=True, return_val=return_val)
 
 
+# Load a module or a module's function from a toolkit folder.
+def load_tk_module(cmd_pointer, toolkit_name, lib_name, func_name=None):
+    import importlib.util as ilu
+
+    folder = cmd_pointer.toolkit_dir + f"/{toolkit_name}/{lib_name}.py"
+    spec = ilu.spec_from_file_location(lib_name, folder)
+    module = ilu.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    if func_name:
+        return getattr(module, func_name)
+    else:
+        return module
+
+
 #
 #
 #

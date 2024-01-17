@@ -1,18 +1,18 @@
+# Example commands:
+# predict reaction topn in batch from list ['BrBr.c1ccc2cc3ccccc3cc2c1CCO' , 'BrBr.c1ccc2cc3ccccc3cc2c1']
+# predict reaction topn in batch from list ['BrBr.c1ccc2cc3ccccc3cc2c1CCO' , 'BrBr.c1ccc2cc3ccccc3cc2c1'] using (topn=6)
+# predict reaction topn in batch from list ['BrBr.c1ccc2cc3ccccc3cc2c1CCO' , 'BrBr.c1ccc2cc3ccccc3cc2c1'] use_saved
+
 """ Performs TOPN anaysis on a set of Reactions defined in a provided list"""
 import pandas as pd
 from rdkit import Chem
 from rdkit.Chem import AllChem
 from time import sleep
 import importlib.util as ilu
+from openad.app.global_var_lib import GLOBAL_SETTINGS
 from openad.helpers.output import output_text, output_warning, output_error, output_table
 from openad.helpers.output_msgs import msg
-from openad.app.global_var_lib import GLOBAL_SETTINGS
-
-# import os
-# import sys
-# parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-# sys.path.insert(0, parent_dir)
-# from msgs import ds4sd_msg
+from openad.helpers.general import load_tk_module
 
 
 def get_reaction_from_smiles(
@@ -22,23 +22,15 @@ def get_reaction_from_smiles(
     return AllChem.ReactionFromSmarts(reaction_smiles, useSmiles=True)  # pylint: disable=no-member
 
 
-def get_include_lib(cmd_pointer):
-    """load the rxn include libraries"""
-    folder = cmd_pointer.toolkit_dir + "/RXN" + "/rxn_include.py"
-    file = "rxn_include"
-    spec = ilu.spec_from_file_location(file, folder)
-    rxn = ilu.module_from_spec(spec)
-    spec.loader.exec_module(rxn)
-    rxn_helper = rxn.rxn_helper()
-    return rxn_helper
-
-
 def predict_reaction_batch_topn(inputs: dict, cmd_pointer):
     """predicts TOPN reactions in Batch from a given list of reactions"""
-    top_n = 5
-    rxn_helper = get_include_lib(cmd_pointer)
+
+    # Load module from toolkit folder
+    rxn_helper = load_tk_module(cmd_pointer, "RXN", "rxn_include", "rxn_helper")()
+
     rxn_helper.sync_up_workspace_name(cmd_pointer)
     rxn_helper.get_current_project(cmd_pointer)
+    top_n = 5
 
     if GLOBAL_SETTINGS["display"] == "notebook":
         from halo import HaloNotebook as Halo  # pylint: disable=import-outside-toplevel
@@ -63,7 +55,6 @@ def predict_reaction_batch_topn(inputs: dict, cmd_pointer):
     else:
         ai_model = "2020-08-10"
 
-    rxn_helper = get_include_lib(cmd_pointer)
     ###################################################################################################
     # getting our input source for the reactions
 
