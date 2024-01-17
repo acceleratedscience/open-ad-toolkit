@@ -12,6 +12,7 @@ from genai import Credentials, Client
 # from genai.schemas import GenerateParams
 from genai import Client, Credentials
 from genai.extensions.langchain.chat_llm import LangChainChatInterface
+from genai.extensions.langchain import LangChainInterface
 from genai.text.generation import (
     DecodingMethod,
     ModerationHAP,
@@ -43,7 +44,7 @@ SUPPORTED_TELL_ME_MODELS = ["BAM", "OPENAI"]
 
 SUPPORTED_TELL_ME_MODELS_SETTINGS = {
     "BAM": {
-        "model": "ibm/granite-20b-code-instruct-v1",
+        "model": "ibm/granite-20b-code-instruct-v1-gptq",
         "url": "https://bam-api.res.ibm.com",
         "template": """  When responding follow the following rules:
                 - Answer and format like a Technical Documentation writer concisely and to the point
@@ -117,6 +118,7 @@ def get_tell_me_model(service: str, api_key: str):
             return False
 
         creds = Credentials(api_key=api_key, api_endpoint=SUPPORTED_TELL_ME_MODELS_SETTINGS[service]["url"])
+
         client = Client(credentials=creds)
 
         try:
@@ -126,12 +128,13 @@ def get_tell_me_model(service: str, api_key: str):
             # model = Model(
             # model=SUPPORTED_TELL_ME_MODELS_SETTINGS[service]["template"], credentials=creds, params=params
             # )
-            model = LangChainChatInterface(
+            model = LangChainInterface(
                 client=client,
                 model_id=SUPPORTED_TELL_ME_MODELS_SETTINGS[service]["model"],
                 parameters=params,
                 verbose=True,
             )
+
             return model, SUPPORTED_TELL_ME_MODELS_SETTINGS[service]["template"]
         except Exception as e:  # pylint: disable=broad-exception-caught
             print(e)

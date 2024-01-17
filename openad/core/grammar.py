@@ -588,17 +588,17 @@ if not is_notebook_mode():
 
 # Show molecules grid.
 # Note: we don't allow dashes in dataframe names because it's a substraction operator and causes issues in Jupyter.
-statements.append(
-    Forward(
-        show("show")
-        + molecules
-        + using
-        + CaselessKeyword("dataframe")
-        + Word(alphas, alphanums + "_")("in_dataframe")  # From dataframe
-        + Optional(a_s + CaselessKeyword("molsobject")("object"))  # Return as molsobject
-        + Optional(save + a_s + desc("results_file"))  # Save as csv/sdf
-    )("show_molecules_df")
-)
+# statements.append(
+#    Forward(
+#        show("show")
+#        + molecules
+#        + using
+#        + CaselessKeyword("dataframe")
+#        + Word(alphas, alphanums + "_")("in_dataframe")  # From dataframe
+#        + Optional(a_s + CaselessKeyword("molsobject")("object"))  # Return as molsobject
+#        + Optional(save + a_s + desc("results_file"))  # Save as csv/sdf
+#    )("show_molecules_df")
+# )
 # statements.append(
 #     Forward(
 #         show("show")

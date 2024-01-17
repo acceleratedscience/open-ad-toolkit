@@ -25,7 +25,7 @@ def load_batch_molecules(cmd_pointer, inp):
     else:
         mol_dataframe = load_mol(inp.as_dict()["moles_file"], cmd_pointer)
     if mol_dataframe is None:
-        print_s("\n Source not Found \n")
+        output_error("Source not Found ")
         return True
     if "pubchem_merge" in inp.as_dict():
         batch_pubchem(cmd_pointer, mol_dataframe)
@@ -80,7 +80,7 @@ def batch_pubchem(cmd_pointer, dataframe):
         except Exception as e:
             print(e)
             output_warning(
-                "error merging SMILES: " + a_mol["SMILES"] + " Smiles has been excluded by loadissues with input file",
+                "error merging SMILES: " + a_mol["SMILES"] + " Smiles has been excluded by load issues with input file",
                 return_val=False,
             )
 
@@ -113,10 +113,10 @@ def shred_merge_add_Dataframe_mols(dataframe, cmd_pointer):
             continue
         merge_mol = retrieve_mol_from_list(cmd_pointer, a_mol["SMILES"])
         if Name_Flag is True and merge_mol is None:
-            print_s("There is already a molecule by the name " + name)
+            output_error("There is already a molecule by the name " + name)
             continue
         if Name_Flag is True and merge_mol["properties"]["canonical_smiles"] != canonical_smiles(a_mol["SMILES"]):
-            print_s("There is already a molecule by the name " + name)
+            output_error("There is already a molecule by the name " + name)
             continue
 
         if merge_mol is None:
@@ -210,7 +210,6 @@ def _normalize_mol_df(mol_df: pandas.DataFrame, cmd_pointer):
                 mol_df.loc[i.Index, "NAME"] = _smiles_to_iupac(mol_df.loc[i.Index, "SMILES"])
 
     except BaseException as err:
-        print_s(err)
         return None
 
 
