@@ -254,7 +254,7 @@ Display the sources of a molecule's properties, attributing back to how they wer
         Forward(
             rename
             + molecule
-            + molecule_identifier("molecule_identifier| desc")
+            + (molecule_identifier | desc)("molecule_identifier")
             + a_s
             + (Word(alphas, alphanums + "_")("new_name"))
         )("rename_molecule")
