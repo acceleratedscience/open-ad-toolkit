@@ -24,11 +24,11 @@ from openad.molecules.mol_functions import (
     get_mol_from_name,
     get_mol_from_smiles,
     get_mol_from_cid,
-    new_molecule,
+    new_molecule_TRASH,
     get_properties,
     get_identifiers,
     canonical_smiles,
-    get_mol_basic,
+    new_molecule,
     mol2svg,
     mol2sdf,
     PROPERTY_SOURCES,
@@ -207,7 +207,7 @@ def add_molecule(cmd_pointer, inp, force=False):
             force = True
 
     if basic is True:
-        mol = new_molecule(molecule_name, molecule_identifier)
+        mol = new_molecule_TRASH(molecule_name, molecule_identifier)
 
     else:
         if (
@@ -244,27 +244,27 @@ def add_molecule(cmd_pointer, inp, force=False):
     return True
 
 
-def create_molecule(cmd_pointer, inp):
-    """creates a blank molecule"""
+# def create_molecule(cmd_pointer, inp):
+#     """creates a blank molecule"""
 
-    molecule_identifier = inp.as_dict()["smiles"]
-    molecule_name = inp.as_dict()["name"]
+#     molecule_identifier = inp.as_dict()["smiles"]
+#     molecule_name = inp.as_dict()["name"]
 
-    mol = new_molecule(molecule_name, molecule_identifier)
+#     mol = new_molecule(molecule_name, molecule_identifier)
 
-    identifier = mol["name"] + "   " + mol["properties"]["canonical_smiles"]
+#     identifier = mol["name"] + "   " + mol["properties"]["canonical_smiles"]
 
-    if retrieve_mol_from_list(cmd_pointer, mol["properties"]["canonical_smiles"]) != None:
-        output_error("Molecule already in list", return_val=False)
-        return True
+#     if retrieve_mol_from_list(cmd_pointer, mol["properties"]["canonical_smiles"]) != None:
+#         output_error("Molecule already in list", return_val=False)
+#         return True
 
-    if confirm_prompt("Are you wish to add " + identifier + " to your working list ?"):
-        cmd_pointer.molecule_list.append(mol.copy())
-        output_text("<sucess> Molecule was Added.</sucess>", return_val=False)
-        return True
+#     if confirm_prompt("Are you wish to add " + identifier + " to your working list ?"):
+#         cmd_pointer.molecule_list.append(mol.copy())
+#         output_text("<sucess> Molecule was Added.</sucess>", return_val=False)
+#         return True
 
-    output_error("Molecule was not added", return_val=False)
-    return False
+#     output_error("Molecule was not added", return_val=False)
+#     return False
 
 
 def clear_workset(cmd_pointer, inp):
@@ -676,7 +676,7 @@ def show_mol(cmd_pointer, inp):
     # Try generating a basic molecule from RDKit.
     # Only works with InChI or SMILES as molecule_identifier.
     if mol is None:
-        mol = get_mol_basic(molecule_identifier)
+        mol = new_molecule(molecule_identifier)
 
     # Fetch the molecule from PubChem,
     # The molecule_identifier is probably its name, CID or InChIKey.
@@ -696,7 +696,12 @@ def show_mol(cmd_pointer, inp):
         mol_svg, mol_sdf = None, None
 
     # Load routes and launch browser UI.
-    routes = fetchRoutesMolViewer(mol, mol_sdf, mol_svg)
+    routes = fetchRoutesMolViewer(cmd_pointer, mol, mol_sdf, mol_svg)
+
+    # # Enrich molecule with RDKit.
+    # # This will then be loaded with an AJAX request from the browser.
+    # print(mol)
+    # mol.name = "ABC"
 
     if GLOBAL_SETTINGS["display"] == "notebook":
         # Jupyter

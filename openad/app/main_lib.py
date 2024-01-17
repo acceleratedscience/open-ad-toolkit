@@ -26,7 +26,6 @@ from openad.molecules.mol_commands import (
     list_molsets,
     display_molsets,
     export_molecule,
-    create_molecule,
     get_property,
     rename_mol_in_list,
     clear_workset,
@@ -204,8 +203,6 @@ def lang_parse(cmd_pointer, parser):
         return export_molecule(cmd_pointer, parser)
     elif parser.getName() == "clear_analysis":
         return clear_results(cmd_pointer, parser)
-    elif parser.getName() == "create_molecule":
-        return create_molecule(cmd_pointer, parser)
     elif parser.getName() == "mol_property":
         return get_property(cmd_pointer, parser)
     elif parser.getName() == "rename_molecule":

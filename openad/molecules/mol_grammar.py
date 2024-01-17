@@ -2,7 +2,6 @@ from openad.core.help import help_dict_create
 from openad.molecules.mol_functions import MOL_PROPERTIES as m_props
 from openad.helpers.general import is_notebook_mode
 
-m_props.sort()
 from pyparsing import (
     Word,
     delimitedList,
@@ -135,7 +134,7 @@ def mol_grammar_add(statements, grammar_help):
         help_dict_create(
             name="add molecule",
             category="Molecules",
-            command="add molecule <name> | <smiles> | <inchi> | <inchikey> | <cid>   [as '<name>' ] [ basic ] [force ]",
+            command="add molecule <name> | <smiles> | <inchi> | <inchikey> | <cid> [ as '<name>' ] [ basic ] [force ]",
             description=f"""
 This Command adds a Molecule to a crrent working set of molecules in memory. When adding a molecule by name, this name will become the molecule's identifying string. 
 
@@ -545,7 +544,7 @@ Available properties: <cmd>{'</cmd>, <cmd>'.join(m_props)}</cmd>
         help_dict_create(
             name="load molecules",
             category="Utility",
-            command="load molecules using dataframe <dataframe>  [merge with pubchem]",
+            command="load molecules using dataframe <dataframe> [ merge with pubchem ]",
             description=""""            
 Load molecules into the molecule working set from a dataframe. 
 
