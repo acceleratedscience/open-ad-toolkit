@@ -580,7 +580,19 @@ When run inside a Notebook, this will return a dataframe. When run from the comm
             name="show molecule",
             category="Molecules",
             command="show molecule <name> | <smiles> | <inchi> | <inchikey> | <cid>",
-            description="Inspect a molecule in the browser.",
+            description="""
+Inspect a molecule in the browser.
+
+{MOL_SHORTHAND}
+
+When you show a molecule by SMILES or InChI, we can display it immediately. When you show a molecule by name, InChIKey or PubChem CID, we need to first retrieve it from PubChem, which can take a few seconds.
+
+Examples:
+- <cmd>show mol aspirin</cmd>
+- <cmd>show mol CC(=O)OC1=CC=CC=C1C(=O)O</cmd>
+- <cmd>show mol InChI=1S/C9H8O4/c1-6(10)13-8-5-3-2-4-7(8)9(11)12/h2-5H,1H3,(H,11,12)</cmd>
+- <cmd>show mol 2244</cmd>
+""",
         )
     )
     # Show molecules grid.

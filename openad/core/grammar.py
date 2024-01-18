@@ -567,6 +567,18 @@ grammar_help.append(
     )
 )
 
+# --> result as dataframe --> Return the result as a dataframe
+statements.append(Forward(result + a_s + CaselessKeyword("dataframe"))("display_data__as_dataframe"))
+grammar_help.append(
+    help_dict_create(
+        name="as dataframe",
+        category="Utility",
+        command="result as dataframe",
+        description="Return the result as dataframe (only for Jupyter Notebook)",
+        parent="display data",
+    )
+)
+
 # Edit config file (CLI-only)
 if not is_notebook_mode():
     statements.append(

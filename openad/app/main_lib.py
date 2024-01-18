@@ -251,6 +251,8 @@ def lang_parse(cmd_pointer, parser):
         return display_data__copy(cmd_pointer, parser)
     elif parser.getName() == "display_data__display":
         return display_data__display(cmd_pointer, parser)
+    elif parser.getName() == "display_data__as_dataframe":
+        return display_data__as_dataframe(cmd_pointer, parser)
     elif parser.getName() == "clear_sessions":
         return clear_sessions(cmd_pointer, parser)
     elif parser.getName() == "edit_config":
@@ -640,6 +642,25 @@ def display_data__display(cmd_pointer, parser):  # pylint: disable=unused-argume
         return output_table(data)
     else:
         return output_text(data, pad=1)
+
+
+# --> Return result as dataframe
+def display_data__as_dataframe(
+    cmd_pointer, parser
+):  # pylint: disable=unused-argument # generic pass through used or unused
+    """displays last result set in viewer"""
+    # Preserve memory for further follow-up commands.
+    MEMORY.preserve()
+
+    data = MEMORY.get()
+    if data is None:
+        return None
+
+    is_df = isinstance(data, pd.DataFrame)
+    if is_df:
+        return data
+    else:
+        return None
 
 
 # Edit a JSON config file.
