@@ -11,7 +11,7 @@ from rdkit.Chem import AllChem
 
 # Helpers
 from openad.helpers.general import confirm_prompt
-from openad.helpers.output import output_text, output_table, output_warning, output_error
+from openad.helpers.output import output_text, output_table, output_warning, output_error, output_success
 from openad.helpers.output_msgs import msg
 from openad.helpers.format_columns import single_value_columns, name_and_value_columns
 
@@ -24,14 +24,12 @@ from openad.molecules.mol_functions import (
     get_mol_from_name,
     get_mol_from_smiles,
     get_mol_from_cid,
-    new_molecule_TRASH,
     get_properties,
     get_identifiers,
     canonical_smiles,
     new_molecule,
     mol2svg,
     mol2sdf,
-    PROPERTY_SOURCES,
 )
 
 # Globals
@@ -68,7 +66,6 @@ def display_molecule(cmd_pointer, inp):
     mol = retrieve_mol_from_list(cmd_pointer, molecule_identifier)
 
     if mol is not None:
-        print("mol not none")
         print_string = (
             format_identifers(mol)
             + "\n"
@@ -177,7 +174,7 @@ def export_molecule(cmd_pointer, inp):
             encoding="utf-8",
         )
         json.dump(mol, json_file)
-        output_text("<success>File " + mol["name"] + ".json Saved to the current workspace</success>", return_val=False)
+        output_success("File " + mol["name"] + ".json saved to the current workspace", return_val=False)
     elif mol is not None and GLOBAL_SETTINGS["display"] == "notebook":
         return mol.copy()
     return True
@@ -185,6 +182,7 @@ def export_molecule(cmd_pointer, inp):
 
 def add_molecule(cmd_pointer, inp, force=False):
     """adds a molecule to the working set"""
+    print(123)
 
     basic = False
 
@@ -207,7 +205,7 @@ def add_molecule(cmd_pointer, inp, force=False):
             force = True
 
     if basic is True:
-        mol = new_molecule_TRASH(molecule_name, molecule_identifier)
+        mol = new_molecule(molecule_identifier, molecule_name)
 
     else:
         if (
@@ -232,15 +230,15 @@ def add_molecule(cmd_pointer, inp, force=False):
     if force is False:
         if confirm_prompt("Are you wish to add " + identifier + " to your working list ?"):
             cmd_pointer.molecule_list.append(mol.copy())
-            output_text("<sucess> Molecule was Added.</sucess>", return_val=False)
+            output_success("Molecule was added", return_val=False)
             return True
 
-        output_text("Molecule was not added", return_val=False)
+        output_error("Molecule was not added", return_val=False)
         return False
 
     cmd_pointer.molecule_list.append(mol.copy())
 
-    output_text("<sucess> Molecule was Added.</sucess>", return_val=False)
+    output_success("Molecule was added", return_val=False)
     return True
 
 
@@ -260,7 +258,7 @@ def add_molecule(cmd_pointer, inp, force=False):
 
 #     if confirm_prompt("Are you wish to add " + identifier + " to your working list ?"):
 #         cmd_pointer.molecule_list.append(mol.copy())
-#         output_text("<sucess> Molecule was Added.</sucess>", return_val=False)
+#         output_success("Molecule was added.", return_val=False)
 #         return True
 
 #     output_error("Molecule was not added", return_val=False)
@@ -288,10 +286,10 @@ def remove_molecule(cmd_pointer, inp):
                 i = i + 1
 
             cmd_pointer.molecule_list.pop(i)
-            output_text("<success>Molecule was removed.</success>", return_val=False)
+            output_success("Molecule was removed", return_val=False)
         return True
 
-    output_error("No Molecule Found", return_val=False)
+    output_error("No molecule found", return_val=False)
     return True
 
 
@@ -305,7 +303,7 @@ def list_molecules(cmd_pointer, inp):
             display_list = pd.concat([display_list, pd.DataFrame([identifiers])])
         return output_table(display_list)
     else:
-        return output_text("No Molecules in List")
+        return output_text("No molecules in list")
 
 
 def retrieve_mol_from_list(cmd_pointer, molecule):
@@ -323,24 +321,24 @@ def retrieve_mol_from_list(cmd_pointer, molecule):
 def rename_mol_in_list(cmd_pointer, inp):
     """renames a molecule in the working list"""
     if retrieve_mol_from_list(cmd_pointer, inp.as_dict()["new_name"]) is not None:
-        output_error("A molecule in Working Set already contains the new name.", return_val=False)
+        output_error("A molecule in your working set already contains the new name", return_val=False)
         return False
 
     for mol in cmd_pointer.molecule_list:
         m = is_molecule(mol, inp.as_dict()["molecule_identifier"])
         if m is not None:
             m["name"] = inp.as_dict()["new_name"]
-            output_text("<success> molecule successfully re-named</success>", return_val=False)
+            output_success("Molecule successfully renamed", return_val=False)
             return True
 
     for mol in cmd_pointer.molecule_list:
         m = is_molecule_synonym(mol, inp.as_dict()["molecule_identifier"])
         if m is not None:
             m["name"] = inp.as_dict()["new_name"]
-            output_text("<success> molecule successfully re-named</success>", return_val=False)
+            output_success("molecule successfully renamed", return_val=False)
             return True
 
-    output_error(" molecule was not renamed, no molecule found", return_val=False)
+    output_error("Molecule was not renamed, no molecule found", return_val=False)
 
     return False
 
@@ -349,7 +347,7 @@ def export_molecule_set(cmd_pointer, inp):
     """exports molecule Set to Data frame on Notebook or file in workspace"""
 
     if len(cmd_pointer.molecule_list) == 0:
-        output_error("No Molecules in Molecule-set", return_val=False)
+        output_error("No molecules in molecule-set", return_val=False)
         return True
     csv_file_name = None
 
@@ -385,7 +383,7 @@ def export_molecule_set(cmd_pointer, inp):
             )
         result = moleculelist_to_data_frame(cmd_pointer.molecule_list.copy())
         result.to_csv(file_name)
-        output_text(f"Result set saved in Workspace as {file_name.split('/')[-1]}", return_val=False)
+        output_success(f"Result set saved to workspace as {file_name.split('/')[-1]}", return_val=False)
 
 
 def moleculelist_to_data_frame(molecule_set):
@@ -587,9 +585,7 @@ def load_molecules(cmd_pointer, inp):
         func_file = open(i, "rb")
         mol = dict(pickle.load(func_file))
         cmd_pointer.molecule_list.append(mol.copy())
-    output_text(
-        "<success> Number of Molecules Loaded </success>= " + str(len(cmd_pointer.molecule_list)), return_val=False
-    )
+    output_text("<green>Number of molecules loaded</green> = " + str(len(cmd_pointer.molecule_list)), return_val=False)
     return True
 
 
@@ -759,8 +755,8 @@ def merge_molecules(cmd_pointer, inp):
             if "merge_only" not in inp.as_dict():
                 cmd_pointer.molecule_list.append(merge_mol)
                 appended += 1
-    output_text("<success> Number of Molecules added </success>= " + str(appended), return_val=False)
-    output_text("<success> Number of Molecules updated </success>= " + str(merged), return_val=False)
+    output_text("<green>Number of molecules added</green> = " + str(appended), return_val=False)
+    output_text("<green>Number of molecules updated</green> = " + str(merged), return_val=False)
     return True
 
 

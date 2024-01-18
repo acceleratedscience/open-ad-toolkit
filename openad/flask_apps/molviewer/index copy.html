@@ -39,30 +39,16 @@
 					<!-- <div id="btn-bookmark" class="icn-star"></div> -->
 				</div>
 				<div id="identification">
-					<div><b>InChI:</b> <span id="data-inchi">{{mol['identifiers']['inchi']}}</span></div>
-					<div><b>InChIKey:</b> <span id="data-inchikey">{{mol['identifiers']['inchikey']}}</span></div>
-					<div><b>Canonical SMILES:</b> <span id="data-canonical-smiles">{{mol['identifiers']['canonical_smiles']}}</span></div>
-					<div><b>Isomeric SMILES:</b> <span id="data-isomeric-smiles">{{mol['identifiers']['isomeric_smiles']}}</span></div>
-					<div><b>Formula:</b> <span id="data-isomeric-smiles">{{mol['identifiers']['formula']}}</span></div>
+					<div><b>InChI:</b> <span id="data-inchi">{{mol['properties']['inchi']}}</span></div>
+					<div><b>InChIKey:</b> <span id="data-inchikey">{{mol['properties']['inchikey']}}</span></div>
+					<div><b>Canonical SMILES:</b> <span id="data-canonical-smiles">{{mol['properties']['canonical_smiles']}}</span></div>
+					<div><b>Isomeric SMILES:</b> <span id="data-isomeric-smiles">{{mol['properties']['isomeric_smiles']}}</span></div>
 					<div>
-						<b>PubChem CID:</b> {% if mol['identifiers']['cid'] %}<a id="data-cid" href="https://pubchem.ncbi.nlm.nih.gov/compound/{{mol['identifiers']['cid']}}" target="_blank">{{mol['identifiers']['cid']}}</a>{% else %}<span
+						<b>PubChem CID:</b> {% if mol['properties']['cid'] %}<a id="data-cid" href="https://pubchem.ncbi.nlm.nih.gov/compound/{{mol['properties']['cid']}}" target="_blank">{{mol['properties']['cid']}}</a>{% else %}<span
 							id="fetching-pubchem"
 							data-text="Fetching"
 							>Fetching</span
 						>{% endif %}
-					</div>
-				</div>
-				
-				<br />
-				<hr />
-				<br />
-
-				<div id="synonyms">
-					<h2>Synonyms</h2>
-					<div class="synonyms-wrap">
-					{% for synonym in mol['synonyms'] %}
-					{{synonym}}<br/>
-					{% endfor %}
 					</div>
 				</div>
 
@@ -74,23 +60,20 @@
 					<h2>Parameters</h2>
 					<div class="param-wrap">
 					{% for prop in mol['properties'] %}
+					{% if prop != 'record' %}
 					<div{% if mol['property_sources'][prop] %} title="{{mol['property_sources'][prop]}}"{% endif %}><b>{{prop}}:</b> {% if mol['properties'][prop] %}{{mol['properties'][prop]}}{% else %}<span class="non-val"></span>{% endif %}</div>
+					{% endif %}
 					{% endfor %}
 					</div>
 				</div>
 
 				<br />
-				<hr />
-				<br />
-
-				<div id="analysis">
-					<h2>Analysis</h2>
-					Comin soon...
-				</div>
-
-				<br />
 				<a class="toggle-expand" id="show-json" href="#">JSON</a>
 				<pre style="tab-size: 30px">{{mol_json}}</pre>
+				<br /><br />
+
+				<a class="toggle-expand" id="show-json-pubchem" href="#">PubChem Record</a>
+				<pre style="tab-size: 30px">{{pubchem_json}}</pre>
 			</div>
 
 			<!-- Right -->
