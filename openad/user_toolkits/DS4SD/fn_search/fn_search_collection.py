@@ -8,24 +8,20 @@ import base64
 import json
 import urllib.parse
 import os
-import sys
 from copy import deepcopy
 import readline
 import numpy as np
 from deepsearch.cps.client.components.elastic import ElasticDataCollectionSource, ElasticProjectDataCollectionSource
 from typing import TYPE_CHECKING, Any, Dict, Literal, Optional, Union
 from deepsearch.cps.queries import DataQuery
-from openad.helpers.output import output_text, output_table, output_error
 from openad.app.global_var_lib import GLOBAL_SETTINGS
 from openad.plugins.style_parser import style
+from openad.helpers.output import output_text, output_table, output_error
 from openad.helpers.credentials import load_credentials
+from openad.helpers.general import load_tk_module
 
 DEFAULT_URL = "https://sds.app.accelerate.science/"
 
-
-parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(0, parent_dir)
-from msgs import ds4sd_msg
 
 aggs = {
     "by_year": {
@@ -50,6 +46,9 @@ def search_collection(inputs: dict, cmd_pointer):
     cmd_pointer:
         Pointer to runtime.
     """
+
+    # Load module from the toolkit folder.
+    ds4sd_msg = load_tk_module(cmd_pointer, "DS4SD", "msgs", "ds4sd_msg")
 
     if GLOBAL_SETTINGS["display"] == "notebook":
         from tqdm.notebook import tqdm
@@ -191,7 +190,7 @@ def search_collection(inputs: dict, cmd_pointer):
         return None
     else:
         if expected_total > 100:
-            if confirm_prompt("Your query may take some time, do you wish to proceed?") is False:
+            if _confirm_prompt("Your query may take some time, do you wish to proceed?") is False:
                 return None
 
     # Iterate through all results by fetching `page_size` results at the same time
@@ -229,7 +228,7 @@ def search_collection(inputs: dict, cmd_pointer):
         result = {}
         if "_id" in row and GLOBAL_SETTINGS["display"] == "notebook":
             # result["ds_url"] = generate_url(host, data_collection, row["_id"])
-            result["DS_URL"] = make_clickable(generate_url(host, data_collection, row["_id"]), "Deep Search Web Link")
+            result["DS_URL"] = _make_clickable(_generate_url(host, data_collection, row["_id"]), "Deep Search Web Link")
 
         if "description" in row["_source"]:
             if "title" in row["_source"]["description"]:
@@ -269,9 +268,9 @@ def search_collection(inputs: dict, cmd_pointer):
         if "identifiers" in row["_source"]:
             for ref in row["_source"]["identifiers"]:
                 if ref["type"] == "arxivid":
-                    result["arxivid"] = make_clickable(f'https://arxiv.org/abs/{ref["value"]}', "ARXIVID Link")
+                    result["arxivid"] = _make_clickable(f'https://arxiv.org/abs/{ref["value"]}', "ARXIVID Link")
                 if ref["type"] == "doi":
-                    result["doi"] = make_clickable(f'https://doi.org/{ref["value"]}', "DOI Link")
+                    result["doi"] = _make_clickable(f'https://doi.org/{ref["value"]}', "DOI Link")
 
         if edit_distance > 0:
             for field in row.get("highlight", {}).keys():
@@ -327,7 +326,7 @@ def search_collection(inputs: dict, cmd_pointer):
     return output_table(df)
 
 
-def confirm_prompt(question: str) -> bool:
+def _confirm_prompt(question: str) -> bool:
     reply = None
     while reply not in ("y", "n"):
         reply = input(f"{question} (y/n): ").casefold()
@@ -335,14 +334,14 @@ def confirm_prompt(question: str) -> bool:
     return reply == "y"
 
 
-def make_clickable(url, name):
+def _make_clickable(url, name):
     if GLOBAL_SETTINGS["display"] == "notebook":
         return f'<a href="{url}"  target="_blank"> {name} </a>'
     else:
         return url
 
 
-def generate_url(host, data_source, document_hash, item_index=None):
+def _generate_url(host, data_source, document_hash, item_index=None):
     if isinstance(data_source, ElasticProjectDataCollectionSource):
         proj_key = data_source.proj_key
         index_key = data_source.index_key

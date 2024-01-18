@@ -183,8 +183,19 @@ body {
  * TEMP
  */
 
-#parameters div {
+#parameters .param-wrap {
+	display: flex;
+	flex-wrap: wrap;
+}
+
+#parameters .param-wrap div {
 	margin-bottom: 4px;
+	padding-right: 20px;
+	width: 25%;
+	box-sizing: border-box;
+}
+#synonyms .synonyms-wrap {
+	column-count: 4;
 }
 
 pre {

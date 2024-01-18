@@ -105,61 +105,62 @@ MOL_PROPERTIES = sorted(
 )
 
 
-def new_molecule_TRASH(Name: str, smiles: str):
-    """
-    Creates a basic molecule object without relying on API calls
-    """
-    try:
-        new_smiles = None
-        rdkit_mol = None
-        mol_weight = None
-        inchi = None
-        inchikey = None
-        formula = None
+# Trash
+# def new_molecule_OLD(Name: str, smiles: str):
+#     """
+#     Creates a basic molecule object without relying on API calls
+#     """
+#     try:
+#         new_smiles = None
+#         rdkit_mol = None
+#         mol_weight = None
+#         inchi = None
+#         inchikey = None
+#         formula = None
 
-        if valid_smiles(smiles):
-            smiles = canonical_smiles(smiles)
-            new_smiles = Chem.MolToSmiles(Chem.MolFromSmiles(smiles), False)
-            rdkit_mol = Chem.MolFromSmiles(new_smiles)
-            inchi = Chem.rdinchi.MolToInchi(rdkit_mol)[0]
-        else:
-            return None
+#         if valid_smiles(smiles):
+#             smiles = canonical_smiles(smiles)
+#             new_smiles = Chem.MolToSmiles(Chem.MolFromSmiles(smiles), False)
+#             rdkit_mol = Chem.MolFromSmiles(new_smiles)
+#             inchi = Chem.rdinchi.MolToInchi(rdkit_mol)[0]
+#         else:
+#             return None
 
-        formula = Chem.rdMolDescriptors.CalcMolFormula(rdkit_mol)
-        inchi = Chem.rdinchi.MolToInchi(rdkit_mol)[0]
-        inchikey = Chem.inchi.InchiToInchiKey(inchi)
+#         formula = Chem.rdMolDescriptors.CalcMolFormula(rdkit_mol)
+#         inchi = Chem.rdinchi.MolToInchi(rdkit_mol)[0]
+#         inchikey = Chem.inchi.InchiToInchiKey(inchi)
 
-        # mol_weight = Chem.Descriptors.ExactMolWt(rdkit_mol)
+#         # mol_weight = Chem.Descriptors.ExactMolWt(rdkit_mol)
 
-    except:
-        if new_smiles is None:
-            return None
-    mol = {
-        "name": None,
-        "synonyms": {},
-        "properties": {},
-        "property_sources": {},
-        "sources": {},
-        "commments": {},
-        "analysis": [],
-    }
-    mol["name"] = Name
-    for i in MOL_PROPERTIES:
-        mol["properties"][i] = None
+#     except:
+#         if new_smiles is None:
+#             return None
+#     mol = {
+#         "name": None,
+#         "synonyms": {},
+#         "properties": {},
+#         "property_sources": {},
+#         "sources": {},
+#         "commments": {},
+#         "analysis": [],
+#     }
+#     mol["name"] = Name
+#     for i in MOL_PROPERTIES:
+#         mol["properties"][i] = None
 
-    date_time = datetime.fromtimestamp(time.time())
-    str_date_time = date_time.strftime("%d-%m-%Y, %H:%M:%S")
-    mol["properties"]["molecular_weight"] = mol_weight
-    mol["property_sources"]["molecular_weight"] = {"software": "rdkit", "date": str_date_time}
-    mol["properties"]["inchi"] = inchi
-    mol["property_sources"]["inchi"] = {"software": "rdkit", "date": str_date_time}
-    mol["properties"]["inchikey"] = inchikey
-    mol["property_sources"]["inchikey"] = {"software": "rdkit", "date": str_date_time}
-    mol["properties"]["canonical_smiles"] = new_smiles
-    mol["property_sources"]["canonical_smiles"] = {"software": "rdkit", "date": str_date_time}
-    mol["properties"]["molecular_formula"] = formula
-    mol["property_sources"]["molecular_formula"] = {"software": "rdkit", "date": str_date_time}
-    return mol
+#     date_time = datetime.fromtimestamp(time.time())
+#     str_date_time = date_time.strftime("%d-%m-%Y, %H:%M:%S")
+#     mol["properties"]["molecular_weight"] = mol_weight
+#     mol["property_sources"]["molecular_weight"] = {"software": "rdkit", "date": str_date_time}
+#     mol["properties"]["inchi"] = inchi
+#     mol["property_sources"]["inchi"] = {"software": "rdkit", "date": str_date_time}
+#     mol["properties"]["inchikey"] = inchikey
+#     mol["property_sources"]["inchikey"] = {"software": "rdkit", "date": str_date_time}
+#     mol["properties"]["canonical_smiles"] = new_smiles
+#     mol["property_sources"]["canonical_smiles"] = {"software": "rdkit", "date": str_date_time}
+#     mol["properties"]["molecular_formula"] = formula
+#     mol["property_sources"]["molecular_formula"] = {"software": "rdkit", "date": str_date_time}
+#     return mol
 
 
 def merge_molecule_properties(molecule_dict, mol):
@@ -329,23 +330,39 @@ def get_identifiers(mol):
     return identifier_dict
 
 
+# Organize the properties for visual output.
+def organize_properties(mol):
+    mol_organized = {}
+    mol_organized["identifiers"] = get_identifiers(mol)
+    mol_organized["synonyms"] = mol["synonyms"]["Synonym"] if "Synonym" in mol["synonyms"] else []
+    mol_organized["properties"] = get_properties(mol)
+    mol_organized["analysis"] = mol["analysis"]
+    mol_organized["property_sources"] = mol["property_sources"]
+    return mol_organized
+
+
 # Takes any identifier and creates a minimal molecule object,
 # without relying on PubChem or API calls.
 def new_molecule(inchi_or_smiles: str, name: str = None):
     """
     Create a basic molecule object without relying on API calls
     """
-    mol = OPENAD_MOL_DICT.copy()
+    import copy
+
+    mol = copy.deepcopy(OPENAD_MOL_DICT)
     date_time = datetime.fromtimestamp(time.time())
     str_date_time = date_time.strftime("%d-%m-%Y, %H:%M:%S")
 
     # Create RDKit molecule object
-    mol_rdkit = Chem.MolFromInchi(inchi_or_smiles)
-    if not mol_rdkit:
-        mol_rdkit = Chem.MolFromSmiles(inchi_or_smiles)
-    if not mol_rdkit:
-        mol_rdkit = Chem.MolFromInchi("InChI=" + inchi_or_smiles)
-    if not mol_rdkit:
+    try:
+        mol_rdkit = Chem.MolFromInchi(inchi_or_smiles)
+        if not mol_rdkit:
+            mol_rdkit = Chem.MolFromSmiles(inchi_or_smiles)
+        if not mol_rdkit:
+            mol_rdkit = Chem.MolFromInchi("InChI=" + inchi_or_smiles)
+        if not mol_rdkit:
+            return None
+    except Exception:  # pylint: disable=broad-exception-caught
         return None
 
     # Create empty property fields

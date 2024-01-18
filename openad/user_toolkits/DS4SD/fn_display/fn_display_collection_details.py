@@ -2,13 +2,7 @@
 # display collection details 'Patents from USPTO'
 
 from openad.helpers.output import output_text, output_error
-
-import os
-import sys
-
-parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(0, parent_dir)
-from msgs import ds4sd_msg
+from openad.helpers.general import load_tk_module
 
 
 def display_collection_details(inputs: dict, cmd_pointer):
@@ -22,6 +16,9 @@ def display_collection_details(inputs: dict, cmd_pointer):
     cmd_pointer:
         Pointer to runtime.
     """
+
+    # Load module from the toolkit folder.
+    ds4sd_msg = load_tk_module(cmd_pointer, "DS4SD", "msgs", "ds4sd_msg")
 
     api = cmd_pointer.login_settings["toolkits_api"][cmd_pointer.login_settings["toolkits"].index("DS4SD")]
     try:

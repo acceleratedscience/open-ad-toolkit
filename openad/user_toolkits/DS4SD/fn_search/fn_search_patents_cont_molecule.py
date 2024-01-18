@@ -6,18 +6,12 @@ import numpy as np
 import pandas as pd
 from deepsearch.chemistry.queries.molecules import PatentsWithMoleculesQuery
 from deepsearch.chemistry.queries.molecules import MolId, MolIdType
-from openad.helpers.output import output_text, output_success, output_warning, output_error, output_table
-from openad.helpers.output_msgs import msg
 from openad.molecules.molecule_cache import create_analysis_record, save_result
 from openad.molecules.mol_functions import canonical_smiles, valid_smiles, valid_inchi
 from openad.molecules.mol_commands import property_retrieve
-
-import os
-import sys
-
-parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(0, parent_dir)
-from msgs import ds4sd_msg
+from openad.helpers.output import output_text, output_success, output_warning, output_error, output_table
+from openad.helpers.output_msgs import msg
+from openad.helpers.general import load_tk_module
 
 
 def search_patents_cont_molecule(inputs: dict, cmd_pointer):
@@ -31,6 +25,9 @@ def search_patents_cont_molecule(inputs: dict, cmd_pointer):
     cmd_pointer:
         Pointer to runtime.
     """
+
+    # Load module from the toolkit folder.
+    ds4sd_msg = load_tk_module(cmd_pointer, "DS4SD", "msgs", "ds4sd_msg")
 
     api = cmd_pointer.login_settings["toolkits_api"][cmd_pointer.login_settings["toolkits"].index("DS4SD")]
     result_type = ""

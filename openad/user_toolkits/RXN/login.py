@@ -8,23 +8,13 @@ from rxn4chemistry import RXN4ChemistryWrapper
 from openad.helpers.output import output_text, output_error, output_warning
 from openad.helpers.output_msgs import msg
 from openad.helpers.credentials import load_credentials, get_credentials, write_credentials
+from openad.helpers.general import load_tk_module
 
 API_CONFIG_BLANK = {"host": "None", "auth": {"username": "None", "api_key": "None"}, "verify_ssl": "false"}
 DEFAULT_URL = "https://rxn.app.accelerate.science"
 
 # Initialize the rxn client from the config file
 # Input parameters for the example flow
-
-
-def get_include_lib(cmd_pointer):
-    """load rxn include library"""
-    folder = cmd_pointer.toolkit_dir + "/RXN/rxn_include.py"
-    file = "rxn_include"
-    spec = ilu.spec_from_file_location(file, folder)
-    rxn = ilu.module_from_spec(spec)
-    spec.loader.exec_module(rxn)
-    rxn_helper = rxn.rxn_helper()
-    return rxn_helper
 
 
 def reset(cmd_pointer):
@@ -36,8 +26,11 @@ def reset(cmd_pointer):
 
 def login(cmd_pointer):
     """logs onto the RXN service"""
+
+    # Load module from toolkit folder
+    rxn_helper = load_tk_module(cmd_pointer, "RXN", "rxn_include", "rxn_helper")()
+
     cred_file = os.path.expanduser(f"{cmd_pointer.home_dir}/rxn_api.cred")
-    rxn_helper = get_include_lib(cmd_pointer)
 
     if not os.path.isfile(cred_file):
         login_reset = True
