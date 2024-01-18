@@ -4,6 +4,8 @@ from openad.molecules.mol_api import get_molecule_data
 
 
 def fetchRoutesMolViewer(cmd_pointer, mol, mol_sdf, mol_svg):
+    from openad.molecules.mol_functions import organize_properties
+
     mol_json = json.dumps(mol, indent="\t")
     pubchem_json = {}
 
@@ -11,7 +13,7 @@ def fetchRoutesMolViewer(cmd_pointer, mol, mol_sdf, mol_svg):
         _stringify_prop_sources(mol)
         return render_template(
             "/molviewer/index.html",
-            mol=mol,
+            mol=organize_properties(mol),
             mol_json=mol_json,
             pubchem_json=pubchem_json,
             mol_sdf=mol_sdf,
@@ -28,7 +30,7 @@ def fetchRoutesMolViewer(cmd_pointer, mol, mol_sdf, mol_svg):
             _stringify_prop_sources(mol)
             html = render_template(
                 "/molviewer/index.html",
-                mol=mol,
+                mol=organize_properties(mol),
                 mol_json=mol_json,
                 pubchem_json=pubchem_json,
                 mol_sdf=mol_sdf,

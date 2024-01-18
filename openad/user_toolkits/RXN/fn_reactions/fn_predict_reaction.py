@@ -1,23 +1,17 @@
+# Example comands
+# predict reaction 'BrBr.c1ccc2cc3ccccc3cc2c1CCO'
+# predict reaction 'BrBr.c1ccc2cc3ccccc3cc2c1CCO' use_saved
+
 """ Perform Predict Reaction on a Reaction String"""
 from time import sleep
 import importlib.util as ilu
-from openad.helpers.output import output_text, output_error, output_table
 from openad.molecules.molecule_cache import create_analysis_record, save_result
 import pandas as pd
 from rdkit import Chem
 from rdkit.Chem import AllChem
 from openad.app.global_var_lib import GLOBAL_SETTINGS
-
-
-def get_include_lib(cmd_pointer):
-    """Load RXN include Libraries"""
-    folder = cmd_pointer.toolkit_dir + "/RXN" + "/rxn_include.py"
-    file = "rxn_include"
-    spec = ilu.spec_from_file_location(file, folder)
-    rxn = ilu.module_from_spec(spec)
-    spec.loader.exec_module(rxn)
-    rxn_helper = rxn.rxn_helper()
-    return rxn_helper
+from openad.helpers.output import output_text, output_error, output_table
+from openad.helpers.general import load_tk_module
 
 
 def get_reaction_from_smiles(
@@ -31,13 +25,15 @@ def predict_reaction(inputs: dict, cmd_pointer):
     """predict a reaction from a reaction string
     inputs: pyparsing parser object
     cmd_pointer: runtime class"""
-    rxn_helper = get_include_lib(cmd_pointer)
+
+    # Load module from toolkit folder
+    rxn_helper = load_tk_module(cmd_pointer, "RXN", "rxn_include", "rxn_helper")()
+
     rxn_helper.sync_up_workspace_name(cmd_pointer)
     rxn_helper.get_current_project(cmd_pointer)
 
     rxn4chemistry_wrapper = cmd_pointer.login_settings["client"][cmd_pointer.login_settings["toolkits"].index("RXN")]
     # Prepare the data query
-    rxn_helper = get_include_lib(cmd_pointer)
     molecule = inputs["molecule"]
     val = "val"
     predict_id = None

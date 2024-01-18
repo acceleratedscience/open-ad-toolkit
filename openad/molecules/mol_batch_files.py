@@ -5,7 +5,7 @@ from rdkit.Chem import PandasTools
 from openad.molecules.mol_functions import (
     merge_molecule_properties,
     valid_smiles,
-    new_molecule_TRASH,
+    new_molecule,
     canonical_smiles,
 )
 from openad.molecules.mol_commands import retrieve_mol_from_list, add_molecule
@@ -29,7 +29,7 @@ def load_batch_molecules(cmd_pointer, inp):
     if "pubchem_merge" in inp.as_dict():
         batch_pubchem(cmd_pointer, mol_dataframe)
     if mol_dataframe is not None:
-        shred_merge_add_Dataframe_mols(mol_dataframe, cmd_pointer)
+        shred_merge_add_df_mols(mol_dataframe, cmd_pointer)
     return True
 
 
@@ -87,8 +87,8 @@ def batch_pubchem(cmd_pointer, dataframe):
     batch_spinner.stop()
 
 
-def shred_merge_add_Dataframe_mols(dataframe, cmd_pointer):
-    """shreds the molecule relevent propoerties from data frame and loads into molecules"""
+def shred_merge_add_df_mols(dataframe, cmd_pointer):
+    """shreds the molecule relevent properties from dataframe and loads into molecules"""
     dict_list = dataframe.to_dict("records")
     for a_mol in dict_list:
         Name_Flag = False
@@ -121,7 +121,7 @@ def shred_merge_add_Dataframe_mols(dataframe, cmd_pointer):
         if merge_mol is None:
             if name is None:
                 name = a_mol["SMILES"]
-            merge_mol = new_molecule_TRASH(name, a_mol["SMILES"])
+            merge_mol = new_molecule(a_mol["SMILES"], name)
         if merge_mol is not None:
             merge_mol = merge_molecule_properties(a_mol, merge_mol)
         else:

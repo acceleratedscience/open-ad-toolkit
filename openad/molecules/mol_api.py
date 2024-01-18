@@ -4,22 +4,16 @@ def get_molecule_data(cmd_pointer, molecule_identifier):
     Used to enrich the molecule data from the molecule viewer Flask app.
     """
 
-    from openad.molecules.mol_commands import retrieve_mol_from_list, retrieve_mol, get_identifiers, get_properties
-
-    return_dict = {}
+    from openad.molecules.mol_commands import retrieve_mol_from_list, retrieve_mol
 
     mol = retrieve_mol_from_list(cmd_pointer, molecule_identifier)
 
     if mol is None:
         mol = retrieve_mol(molecule_identifier)
     if mol is not None:
+        cmd_pointer.last_external_molecule = mol.copy()
         return mol
-        # # cmd_pointer.last_external_molecule = mol.copy()
-        # return_dict["smiles"] = get_identifiers(mol)["canonical_smiles"]
-        # return_dict["identifiers"] = get_identifiers(mol)
-        # return_dict["properties"] = get_properties(mol)
-        # return_dict["synonyms"] = mol["synonyms"]["Synonym"]
-        # return_dict["analysis"] = mol["analysis"]
-        # return return_dict
+        # return organize_properties(mol)
+
     else:
         return None
