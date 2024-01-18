@@ -12,6 +12,7 @@ from openad.molecules.mol_commands import property_retrieve
 from openad.helpers.output import output_text, output_success, output_warning, output_error, output_table
 from openad.helpers.output_msgs import msg
 from openad.helpers.general import load_tk_module
+from openad.app.global_var_lib import GLOBAL_SETTINGS
 
 
 def search_patents_cont_molecule(inputs: dict, cmd_pointer):
@@ -84,10 +85,18 @@ def search_patents_cont_molecule(inputs: dict, cmd_pointer):
         return_val=False,
         pad_top=1,
     )
+    if result_type == "InChIKey":
+        key = inputs["smiles"]
+    elif result_type == "SMILES":
+        # key = property_retrieve(inputs["smiles"], "canonical_smiles", cmd_pointer)
+        key = canonical_smiles(inputs["smiles"])
+        if key is None:
+            key = inputs["smiles"]
+
     output_text(inputs["smiles"], return_val=False)
     save_result(
         create_analysis_record(
-            property_retrieve(inputs["smiles"], "canonical_smiles", cmd_pointer),
+            key,
             "DS4SD",
             "Patents_For_Molecule",
             "",
@@ -95,5 +104,8 @@ def search_patents_cont_molecule(inputs: dict, cmd_pointer):
         ),
         cmd_pointer=cmd_pointer,
     )
+    if GLOBAL_SETTINGS["display"] == "notebook":
+        df = pd.DataFrame(results_table)
+        return output_table(df, is_data=True).data
 
     return output_table(pd.DataFrame(results_table))

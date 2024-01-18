@@ -1250,23 +1250,37 @@ def output_train_statements(cmd_pointer):
             toolkit: these are contextual plugins that are available one at a time for providing specific functionality to the user. Valid toolkits are DS4SD (deepSearch), GT4SD(generative AI toolkit), RXN (retro synthesis), ST4SD(simulation toolkit)
             History: History of DSL commands for a given Workspace
             run: list of sequential commands saved by the user')
-            molecule-set: set of molecules maipulated by commands suchs as 'display molecule', 'add Molecule','create molecule', 'remove molecule'
+            working list: is a set of molecules in memory that can added to using the 'add molecule' command  and also loaded from a molecule-set and maipulated by commands suchs as 'display molecule', 'add Molecule','create molecule', 'remove molecule' 'merge mol-set'
+            molecules in a working list contain the following Data
+                - Identifiers shuch as names, synonyms, inchi , inchikey ,canonical smiles, isomeric smiles and the CID or compound ID sourced from pubchem as an identfier
+                - properties : data points such as atom_stereo_count, bond_stereo_count, canonical_smiles, charge, cid, complexity, conformer_count_3d, conformer_id_3d, conformer_model_rmsd_3d, conformer_rmsd_3d, coordinate_type, covalent_unit_count, defined_atom_stereo_count, defined_bond_stereo_count, effective_rotor_count_3d, exact_mass, feature_acceptor_count_3d, feature_anion_count_3d, feature_cation_count_3d, feature_count_3d, feature_donor_count_3d, feature_hydrophobe_count_3d, feature_ring_count_3d, h_bond_acceptor_count, h_bond_donor_count, heavy_atom_count, inchi, inchikey, isomeric_smiles, isotope_atom_count, iupac_name, mmff94_energy_3d, mmff94_partial_charges_3d, molecular_formula, molecular_weight, monoisotopic_mass, multipoles_3d, multipoles_3d, pharmacophore_features_3d, pharmacophore_features_3d, rotatable_bond_count, tpsa, undefined_atom_stereo_count, undefined_bond_stereo_count, volume_3d, x_steric_quadrupole_3d, xlogp, y_steric_quadrupole_3d, z_steric_quadrupole_3d
+                - synonyms : names that it is known by both commerically and scientifically
+                - Analysis : records of selected result sets from supporting analysis functions such as predict retrosynthesis
+            molecules when displayed will show these data points.
+            molecule-set: a molecule-set is a set a copy of a working list of molecules that has been stored in disk under a molecule set name and can be loaded into the working list of molecules in a users sessions
             The short form of  'molecule-set' is 'molset' 
             The short form of  'molecule' is 'mol' 
+
             
-            The Following commands are used to work with molecule sets:
+            
+            The Following commands are used to work with working list of molecules:
+                - add molecule <name> | <smiles> | <inchi> | <inchikey> | <cid>   [as '<name>' ] [ basic ] [force ]
+                - display molecule <name> | <smiles> | <inchi> | <inchikey> | <cid>
+                - rename molecule <molecule_identifer_string> as <molecule_name>
+                - export molecule <name> | <smiles> | <inchi> | <inchikey> | <cid> [ as file ]
+                - remove molecule <name> | <smiles> | <inchi> | <inchikey> | <cid>
+                - list molecules
                 - clear molecules
-                - create molecule <smiles_string> name <molecule_name>
-                - show molecules using file '<mols_file>' | dataframe <dataframe> [ save as '<sdf_or_csv_filename>' | as molsobject ]
-                - add molecule|mol  <name> | <smiles> | <inchi> | <inchikey> | <cid>
-                - display molecule|mol <name> | <smiles> | <inchi> | <inchikey> |  <cid>
-                - export molecule|mol <name> | <smiles> | <inchi> | <inchikey> |  <cid> [as file]
-                - remove molecule|mol <name> | <smiles> | <inchi> | <inchikey> | <formula> | <cid> 
-                - list molecules|mols
-                - save molecule-set|molset as <molecule-set_name>
+                - load molecules using file '<csv_or_sdf_filename>' [ merge with pubchem ]
+                - load molecules using dataframe <dataframe>  [merge with pubchem]
+                - export molecules [ as <csv_filename> ]
+                - show molecule <name> | <smiles> | <inchi> | <inchikey> | <cid>
+                - show molecules using ( file '<mols_file>' | dataframe <dataframe> ) [ save as '<sdf_or_csv_file>' | as molsobject ]
+                - save molecule-set as <molecule_set_name>
                 - load molecule-set|molset <molecule-set_name>
-                - list molecule-sets|molsets
-                - enrich molecule-set with analysis
+                - merge molecule-set|molset <molecule-set_name> [merge only] [append only]
+                - list molecule-sets
+                - enrich molecules with analysis
                 - @(<name> | <smiles> | <inchi> | <inchikey> | <cid>)>><molecule_property_name>
 
             ?: will display help and if positioned prior to a command will display help options for that command \\@ \n\n"""

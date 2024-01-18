@@ -13,6 +13,7 @@ from openad.app.global_var_lib import GLOBAL_SETTINGS
 from openad.helpers.output import output_text, output_success, output_error, output_table
 from openad.helpers.output_msgs import msg
 from openad.helpers.general import load_tk_module
+from openad.molecules.mol_functions import canonical_smiles
 
 
 def search_similar_molecules(inputs: dict, cmd_pointer):
@@ -33,7 +34,7 @@ def search_similar_molecules(inputs: dict, cmd_pointer):
     api = cmd_pointer.login_settings["toolkits_api"][cmd_pointer.login_settings["toolkits"].index("DS4SD")]
     try:
         query = MoleculeQuery(
-            query=inputs["smiles"],
+            query=canonical_smiles(inputs["smiles"]),
             query_type=MolQueryType.SIMILARITY,
         )
 
@@ -78,7 +79,7 @@ def search_similar_molecules(inputs: dict, cmd_pointer):
     output_text(inputs["smiles"], return_val=False)
     save_result(
         create_analysis_record(
-            inputs["smiles"],
+            canonical_smiles(inputs["smiles"]),
             "DS4SD",
             "Similar_Molecules",
             "",
@@ -108,5 +109,6 @@ def search_similar_molecules(inputs: dict, cmd_pointer):
         df.insert(0, col.name, col)
         col = df.pop("SMILES")
         df.insert(1, col.name, col)
+        return output_table(df, is_data=True).data
 
     return output_table(df)

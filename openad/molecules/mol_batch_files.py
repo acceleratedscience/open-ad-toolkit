@@ -92,10 +92,13 @@ def shred_merge_add_df_mols(dataframe, cmd_pointer):
     dict_list = dataframe.to_dict("records")
     for a_mol in dict_list:
         Name_Flag = False
+
         if "name" in a_mol:
             name = a_mol["name"]
         if "Name" in a_mol:
             name = a_mol["Name"]
+        if "chemical_name" in a_mol:
+            name = a_mol["chemical_name"]
         else:
             name = None
         if name is not None:
@@ -168,7 +171,9 @@ def load_mol(source_file, cmd_pointer):
         try:
             name = source_file.split("/")[-1]
             SDFFile = cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/" + name
+
             mol_frame = pandas.read_csv(SDFFile)
+
             return _normalize_mol_df(mol_frame, cmd_pointer)
 
         except BaseException as err:
@@ -182,9 +187,11 @@ def _normalize_mol_df(mol_df: pandas.DataFrame, cmd_pointer):
 
     for i in mol_df.columns:
         # Find the name column.
-        if str(i.upper()) == "NAME":
+        if str(i.upper()) == "NAME" or str(i.lower()) == "chemical_name":
             has_name = True
         if contains_name is None and "NAME" in str(i.upper()):
+            contains_name = i
+        if contains_name is None and "CHEMICAL_NAME" in str(i.upper()):
             contains_name = i
 
         # Normalize any columns we'll be referring to later.
@@ -201,7 +208,7 @@ def _normalize_mol_df(mol_df: pandas.DataFrame, cmd_pointer):
 
     # Add names when missing.
     try:
-        if "NAME" not in mol_df.columns:
+        if has_name is False:
             output_warning(msg("no_m2g_name_column"), return_val=False)
 
             mol_df["NAME"] = "unknown"
@@ -210,6 +217,7 @@ def _normalize_mol_df(mol_df: pandas.DataFrame, cmd_pointer):
 
     except BaseException as err:
         return None
+    return mol_df
 
 
 def _smiles_to_iupac(smiles):

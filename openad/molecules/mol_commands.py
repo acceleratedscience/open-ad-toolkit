@@ -40,9 +40,6 @@ from openad.flask_apps import launcher
 from openad.flask_apps.molviewer.routes import fetchRoutesMolViewer
 from openad.flask_apps.molsgrid.routes import fetchRoutesMolsGrid
 
-# TEMP
-from openad.plugins.style_parser import print_s, style
-
 CLI_WIDTH = min(shutil.get_terminal_size().columns, 150)
 
 
@@ -182,7 +179,6 @@ def export_molecule(cmd_pointer, inp):
 
 def add_molecule(cmd_pointer, inp, force=False):
     """adds a molecule to the working set"""
-    print(123)
 
     basic = False
 
@@ -272,10 +268,11 @@ def clear_workset(cmd_pointer, inp):
 
 
 def remove_molecule(cmd_pointer, inp):
+    """Removes a Molecule from the working List"""
     molecule_identifier = inp.as_dict()["molecule_identifier"]
     mol = retrieve_mol_from_list(cmd_pointer, molecule_identifier)
 
-    if mol != None:
+    if mol is not None:
         identifier = mol["name"] + "   " + mol["properties"]["canonical_smiles"]
 
         if confirm_prompt("Are you wish to Remove " + identifier + " from your working list ?"):
@@ -301,7 +298,11 @@ def list_molecules(cmd_pointer, inp):
         for mol in cmd_pointer.molecule_list:
             identifiers = get_identifiers(mol)
             display_list = pd.concat([display_list, pd.DataFrame([identifiers])])
-        return output_table(display_list)
+        if GLOBAL_SETTINGS["display"] == "notebook":
+            return output_table(display_list, is_data=True).data
+        else:
+            return output_table(display_list)
+
     else:
         return output_text("No molecules in list")
 
@@ -419,7 +420,7 @@ def is_molecule(mol, molecule):
     if molecule == mol["properties"]["inchikey"]:
         return mol
     if (
-        mol["properties"]["isomeric_smiles"] != None
+        mol["properties"]["isomeric_smiles"] is not None
         and molecule.upper() == mol["properties"]["isomeric_smiles"].upper()
     ):
         return mol
@@ -489,7 +490,7 @@ def format_sources(mol):
     sources_string = "\n<yellow>Name:</yellow> {} \n".format(mol["name"])
 
     for mol_property, source in mol["property_sources"].items():
-        if mol_property not in mol["properties"] or mol["properties"][mol_property] == None:
+        if mol_property not in mol["properties"] or mol["properties"][mol_property] is None:
             continue
         sources_string = sources_string + "\n\n<yellow>Property:</yellow> {} \n".format(mol_property)
         sources_string = sources_string + name_and_value_columns(source, cli_width=CLI_WIDTH, display_width=30)

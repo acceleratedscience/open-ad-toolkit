@@ -47,6 +47,7 @@ def search_molecules_in_patents(inputs: dict, cmd_pointer):
     elif "from_dataframe" in inputs:
         try:
             react_frame = cmd_pointer.api_variables[inputs["from_dataframe"]]
+
             from_list = col_from_df(react_frame, "PATENT ID")
             if from_list == []:
                 from_list = col_from_df(react_frame, "patent id")
@@ -122,5 +123,6 @@ def search_molecules_in_patents(inputs: dict, cmd_pointer):
             df.insert(0, col.name, col)
             col = df.pop("SMILES")
             df.insert(1, col.name, col)
+        return output_table(df, is_data=True).data
 
     return output_table(df)
