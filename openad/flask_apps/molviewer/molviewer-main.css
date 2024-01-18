@@ -27,6 +27,9 @@ body {
 .toggle-expand.expand span {
 	display: none;
 }
+.toggle-expand.hide {
+	display: none;
+}
 
 /**
  * Icons

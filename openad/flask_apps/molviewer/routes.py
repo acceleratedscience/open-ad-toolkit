@@ -8,7 +8,6 @@ def fetchRoutesMolViewer(cmd_pointer, mol, mol_sdf, mol_svg):
 
     mol = organize_properties(mol)
     mol_json = json.dumps(mol, indent="\t")
-    pubchem_json = {}
 
     def main():
         _stringify_prop_sources(mol)
@@ -16,7 +15,6 @@ def fetchRoutesMolViewer(cmd_pointer, mol, mol_sdf, mol_svg):
             "/molviewer/index.html",
             mol=mol,
             mol_json=mol_json,
-            pubchem_json=pubchem_json,
             mol_sdf=mol_sdf,
             mol_svg=mol_svg,
         )
@@ -28,13 +26,11 @@ def fetchRoutesMolViewer(cmd_pointer, mol, mol_sdf, mol_svg):
         if mol:
             mol = organize_properties(mol)
             mol_json = json.dumps(mol, indent="\t")
-            pubchem_json = json.dumps(mol["properties"]["record"], indent="\t")
             _stringify_prop_sources(mol)
             html = render_template(
                 "/molviewer/index.html",
                 mol=mol,
                 mol_json=mol_json,
-                pubchem_json=pubchem_json,
                 mol_sdf=mol_sdf,
                 mol_svg=mol_svg,
             )

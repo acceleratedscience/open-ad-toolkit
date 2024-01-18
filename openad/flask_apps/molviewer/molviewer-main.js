@@ -54,8 +54,10 @@ async function enrichMolData() {
 		// Remove loading from molecule name.
 		document.getElementById('data-name').classList.remove('loading')
 
-		// Re-enable expandable sections
+		// Re-initialize UI elements.
 		enableToggles()
+		setHeightSynonyms()
+		setHeightParameters()
 	} catch (err) {
 		console.error('Something went wrong fetching the enriched molecule data.', err)
 	}
@@ -78,12 +80,21 @@ function _toggleExpand(e) {
 // This makes sure they are divided in 4 neat columns.
 function setHeightSynonyms() {
 	const $wrap = document.querySelector('#synonyms .synonyms-wrap')
-	const count = $wrap.children.length
+	const count = $wrap.querySelectorAll('div').length
 	const height = Math.ceil(count / 4) * 22
 	$wrap.setAttribute('style', `max-height: ${height}px`)
 
+	// Set cloak min height - TO DO FIX THIS
+	// const $cloak = document.querySelector('#synonyms .cloak')
+	// const minHeight = Math.min(110, height)
+	// $cloak.setAttribute('style', `min-height: ${minHeight}px`)
+
 	// Display number of synonyms in the toggle.
-	document.querySelector('#synonyms .toggle-expand span').innerText = ' ' + count
+	const $toggle = document.querySelector('#synonyms .toggle-expand')
+	if (count) {
+		$toggle.classList.remove('hide')
+		$toggle.querySelector('span').innerText = ' ' + count
+	}
 }
 
 // Set height for parameters wrapper.
@@ -93,9 +104,6 @@ function setHeightParameters() {
 	const count = $wrap.children.length
 	const height = Math.ceil(count / 3) * 22
 	$wrap.setAttribute('style', `max-height: ${height}px`)
-
-	// Display number of synonyms in the toggle.
-	document.querySelector('#synonyms .toggle-expand span').innerText = ' ' + count
 }
 
 /**
