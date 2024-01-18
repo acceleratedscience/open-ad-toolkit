@@ -44,7 +44,7 @@ SUPPORTED_TELL_ME_MODELS = ["BAM", "OPENAI"]
 
 SUPPORTED_TELL_ME_MODELS_SETTINGS = {
     "BAM": {
-        "model": "ibm/granite-20b-code-instruct-v1-gptq",
+        "model": "ibm/granite-20b-code-instruct-v1",
         "url": "https://bam-api.res.ibm.com",
         "template": """  When responding follow the following rules:
                 - Answer and format like a Technical Documentation writer concisely and to the point

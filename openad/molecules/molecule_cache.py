@@ -30,13 +30,22 @@ def _create_workspace_dir_if_nonexistent(cmd_pointer, dir_name):
 
 def save_result(result: dict, cmd_pointer) -> bool:
     """saves a result of an analysis tool"""
-    timestr = time.strftime("%Y%m%d-%H%M%S")
-    rdkit_mol = Chem.MolFromSmiles(result["smiles"])
-    inchi = Chem.rdinchi.MolToInchi(rdkit_mol)[0]
-    inchikey = Chem.inchi.InchiToInchiKey(inchi)
+
+    try:
+        timestr = time.strftime("%Y%m%d-%H%M%S")
+
+        rdkit_mol = Chem.MolFromSmiles(result["smiles"])
+
+        inchi = Chem.rdinchi.MolToInchi(rdkit_mol)[0]
+
+        inchikey = Chem.inchi.InchiToInchiKey(inchi)
+    except:
+        inchikey = result["smiles"]
+        return False
+
     filename = f'{inchikey}-{str(result["toolkit"]).upper()}-{str(result["function"]).upper()}-{timestr}.res'
     _write_analysis(result, _create_workspace_dir_if_nonexistent(cmd_pointer, CACHE_DIR) + filename)
-    return False
+    return True
 
 
 def _retrieve_results(smiles: str, cmd_pointer) -> list | bool:

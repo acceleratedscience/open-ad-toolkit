@@ -226,7 +226,7 @@ def search_collection(inputs: dict, cmd_pointer):
         while x < 20:
             x = x + 1
         result = {}
-        if "_id" in row and GLOBAL_SETTINGS["display"] == "notebook":
+        if "_id" in row and GLOBAL_SETTINGS["display"] == "notebook" and "return_as_data" not in inputs:
             # result["ds_url"] = generate_url(host, data_collection, row["_id"])
             result["DS_URL"] = _make_clickable(_generate_url(host, data_collection, row["_id"]), "Deep Search Web Link")
 
@@ -309,6 +309,8 @@ def search_collection(inputs: dict, cmd_pointer):
         if "return_as_data" not in inputs:
             df = df.style
             df = df.set_properties(**{"text-align": "left"})
+        else:
+            return output_table(df, is_data=True).data
 
     elif GLOBAL_SETTINGS["display"] == "terminal":
         if "save_as" not in inputs:

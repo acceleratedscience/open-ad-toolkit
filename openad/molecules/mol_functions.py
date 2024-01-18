@@ -177,7 +177,6 @@ def merge_molecule_properties(molecule_dict, mol):
         mol["property_sources"][key] = {"software": "custom", "date": str_date_time}
         if key not in MOL_PROPERTIES:
             MOL_PROPERTIES.append(key)
-
     return mol
 
 
@@ -274,7 +273,15 @@ def get_mol(mol_id, mol_id_type):
             if cid is None:
                 return False, None, None
         molecule = pcy.Compound.from_cid(cid).to_dict()
-        openad_mol = OPENAD_MOL_DICT.copy()
+        openad_mol = {
+            "name": None,
+            "synonyms": {},
+            "properties": {},
+            "property_sources": {},
+            "sources": {},
+            "commments": {},
+            "analysis": [],
+        }
 
         if molecule:
             if mol_id_type == MOL_NAME_INDEX:
