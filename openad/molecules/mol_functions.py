@@ -345,6 +345,12 @@ def organize_properties(mol):
     mol_organized["properties"] = get_properties(mol)
     mol_organized["analysis"] = mol["analysis"]
     mol_organized["property_sources"] = mol["property_sources"]
+
+    # Remove identifiers from properties.
+    for prop in mol_organized["identifiers"]:
+        if prop in mol_organized["properties"]:
+            del mol_organized["properties"][prop]
+
     return mol_organized
 
 

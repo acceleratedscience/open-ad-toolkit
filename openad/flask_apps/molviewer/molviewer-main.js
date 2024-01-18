@@ -1,5 +1,17 @@
 render3dMol()
-enrichMolData()
+document.addEventListener('DOMContentLoaded', function () {
+	// Enrich molecule data with PubChem.
+	if (!document.getElementById('data-cid')) {
+		enrichMolData()
+	}
+
+	// Set height for synonyms & parameter blocks.
+	setHeightSynonyms()
+	setHeightParameters()
+
+	// Enable expandable sections
+	enableToggles()
+})
 
 //
 //
@@ -10,6 +22,9 @@ enrichMolData()
  */
 async function enrichMolData() {
 	try {
+		// Loading title
+		document.getElementById('data-name').classList.add('loading')
+
 		// Display fetching message
 		document.getElementById('fetching-pubchem').innerHTML = document.getElementById('fetching-pubchem').getAttribute('data-text')
 		document.getElementById('fetching-pubchem').classList.remove('error')
@@ -20,41 +35,67 @@ async function enrichMolData() {
 			body: document.getElementById('data-inchi').innerText,
 		})
 
-		// Handle errors
-		if (!response.ok) {
+		if (response.ok) {
+			// Update HTML
+			const html = await response.text()
+			if (html) {
+				const dump = document.createElement('html')
+				dump.innerHTML = html
+				grid = dump.querySelector('#grid')
+				document.getElementById('grid').innerHTML = grid.innerHTML
+			}
+		} else {
+			// Handle errors
 			const err = 'Failed to connect'
 			document.getElementById('fetching-pubchem').innerHTML = err + ' - <a href="#" onclick="enrichMolData()">retry</a>'
 			document.getElementById('fetching-pubchem').classList.add('error')
-			return
-		}
-
-		// Update HTML
-		const html = await response.text()
-		if (html) {
-			const dump = document.createElement('html')
-			dump.innerHTML = html
-			grid = dump.querySelector('#grid')
-			document.getElementById('grid').innerHTML = grid.innerHTML
 		}
 
 		// Remove loading from molecule name.
 		document.getElementById('data-name').classList.remove('loading')
 
-		// Enable expandable sections
-		_enableToggles()
+		// Re-enable expandable sections
+		enableToggles()
 	} catch (err) {
 		console.error('Something went wrong fetching the enriched molecule data.', err)
 	}
 }
 
 // Enable expandable sections
-function _enableToggles() {
+function enableToggles() {
 	document.querySelectorAll('.toggle-expand').forEach($elm => {
-		$elm.addEventListener('click', e => {
-			e.preventDefault()
-			$elm.classList.toggle('expand')
-		})
+		$elm.removeEventListener('click', _toggleExpand)
+		$elm.addEventListener('click', _toggleExpand)
 	})
+}
+
+function _toggleExpand(e) {
+	e.preventDefault()
+	e.target.classList.toggle('expand')
+}
+
+// Set height for synonyms wrapper.
+// This makes sure they are divided in 4 neat columns.
+function setHeightSynonyms() {
+	const $wrap = document.querySelector('#synonyms .synonyms-wrap')
+	const count = $wrap.children.length
+	const height = Math.ceil(count / 4) * 22
+	$wrap.setAttribute('style', `max-height: ${height}px`)
+
+	// Display number of synonyms in the toggle.
+	document.querySelector('#synonyms .toggle-expand span').innerText = ' ' + count
+}
+
+// Set height for parameters wrapper.
+// This makes sure they are divided in 4 neat columns.
+function setHeightParameters() {
+	const $wrap = document.querySelector('#parameters .param-wrap')
+	const count = $wrap.children.length
+	const height = Math.ceil(count / 3) * 22
+	$wrap.setAttribute('style', `max-height: ${height}px`)
+
+	// Display number of synonyms in the toggle.
+	document.querySelector('#synonyms .toggle-expand span').innerText = ' ' + count
 }
 
 /**

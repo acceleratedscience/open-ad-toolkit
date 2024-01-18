@@ -35,7 +35,7 @@
 				<!-- <div id="breadcrumbs">Molecules &nbsp;&rsaquo;&nbsp; Ibuprofen.json</div> -->
 				<div id="title-wrap">
 					<div class="icn-mol"></div>
-					<h1 id="data-name" data-val="{{mol.name}}" class="loading">{% if mol.name %}{{mol.name}}{% else %}Unnamed Molecule{% endif %}</h1>
+					<h1 id="data-name" data-val="{{mol['identifiers'].name}}">{% if mol['identifiers'].name %}{{mol['identifiers'].name}}{% else %}Unnamed Molecule{% endif %}</h1>
 					<!-- <div id="btn-bookmark" class="icn-star"></div> -->
 				</div>
 				<div id="identification">
@@ -59,10 +59,15 @@
 
 				<div id="synonyms">
 					<h2>Synonyms</h2>
-					<div class="synonyms-wrap">
-					{% for synonym in mol['synonyms'] %}
-					{{synonym}}<br/>
-					{% endfor %}
+					<div class="flip-v">
+						<a href="#" class="toggle-expand"><span></span></a>
+						<div class="cloak">
+							<div class="synonyms-wrap">
+							{% for synonym in mol['synonyms'] %}
+								<div title="{{synonym}}">{{synonym}}</div>
+							{% endfor %}
+							</div>
+						</div>
 					</div>
 				</div>
 
@@ -74,7 +79,9 @@
 					<h2>Parameters</h2>
 					<div class="param-wrap">
 					{% for prop in mol['properties'] %}
-					<div{% if mol['property_sources'][prop] %} title="{{mol['property_sources'][prop]}}"{% endif %}><b>{{prop}}:</b> {% if mol['properties'][prop] %}{{mol['properties'][prop]}}{% else %}<span class="non-val"></span>{% endif %}</div>
+					{% if mol['properties'][prop] %} 
+					<div{% if mol['property_sources'][prop] %} title="{{mol['property_sources'][prop]}}"{% endif %}{% if not mol['properties'][prop] %} class="empty"{% endif %}><div class="key">{{prop}}:</div><div class="filler"></div><div class="val">{% if mol['properties'][prop] %}{{mol['properties'][prop]}}{% endif %}</div></div>
+					{% endif %}
 					{% endfor %}
 					</div>
 				</div>
@@ -89,7 +96,10 @@
 				</div>
 
 				<br />
-				<a class="toggle-expand" id="show-json" href="#">JSON</a>
+				<hr />
+				<br />
+
+				<a class="toggle-expand te-show" id="show-json" href="#">JSON</a>
 				<pre style="tab-size: 30px">{{mol_json}}</pre>
 			</div>
 
