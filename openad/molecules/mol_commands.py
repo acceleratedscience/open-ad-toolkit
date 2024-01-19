@@ -30,6 +30,7 @@ from openad.molecules.mol_functions import (
     new_molecule,
     mol2svg,
     mol2sdf,
+    MOL_PROPERTIES,
 )
 
 # Globals
@@ -531,6 +532,8 @@ def format_properties(mol):
     """formats properties for display"""
     properties_string = "\n<yellow>Properties:</yellow>\n"
     properties = get_properties(mol)
+    if GLOBAL_SETTINGS["display"] == "terminal":
+        del properties["DS_URL"]
 
     properites_string = properties_string + name_and_value_columns(
         properties,
@@ -585,6 +588,9 @@ def load_molecules(cmd_pointer, inp):
     for i in glob.glob(mol_file_path + "/" + inp["molecule-set_name"].upper() + "--*.molecule", recursive=True):
         func_file = open(i, "rb")
         mol = dict(pickle.load(func_file))
+        for properties in mol["properties"]:
+            if properties not in MOL_PROPERTIES:
+                MOL_PROPERTIES.append(properties)
         cmd_pointer.molecule_list.append(mol.copy())
     output_text("<green>Number of molecules loaded</green> = " + str(len(cmd_pointer.molecule_list)), return_val=False)
     return True
