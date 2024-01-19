@@ -52,7 +52,7 @@ For updating to 0.2.0 first remove toolkits `remove toolkit DS4SD` and `remove t
 - smaller install package
 - introductory molecule viewer
 
-Note: unistall all toolkits before installing the new version
+**Note: uninstall all toolkits before installing the new version**
 
 ## Quick Install <!-- omit from toc -->
 
