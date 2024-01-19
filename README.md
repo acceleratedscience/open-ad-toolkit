@@ -42,10 +42,17 @@ The goal of openAD is to provide a common language for scientists to interact wi
 For updating to 0.2.0 first remove toolkits `remove toolkit DS4SD` and `remove toolkit RXN` prior to updating
 
 > **Whats New ?**
-- New Molecules Functions for retrieving from pubchem molecules or creating your own in a working set, including visualisation
+- Increased number of Molecules Functions for retrieving from pubchem molecules or creating your own in a working set, including visualisation, tracking of source info
 - 3D displaying of molecules in your working set or direct from pubchem
 - Attaching Analysis to target Molecules with the `enrich` command
 - Enhanced Help and Tell Me command
+- Linking to source documents in DeepSearch
+- merging molecules and molsets together
+- easy access to dataframes and results sets with the new `result` command
+- smaller install package
+- introductory molecule viewer
+
+Note: unistall all toolkits before installing the new version
 
 ## Quick Install <!-- omit from toc -->
 
