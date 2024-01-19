@@ -178,7 +178,7 @@ def export_molecule(cmd_pointer, inp):
     return True
 
 
-def add_molecule(cmd_pointer, inp, force=False):
+def add_molecule(cmd_pointer, inp, force=False, suppress=False):
     """adds a molecule to the working set"""
 
     basic = False
@@ -234,8 +234,8 @@ def add_molecule(cmd_pointer, inp, force=False):
         return False
 
     cmd_pointer.molecule_list.append(mol.copy())
-
-    output_success("Molecule was added", return_val=False)
+    if suppress == False:
+        output_success("Molecule was added", return_val=False)
     return True
 
 

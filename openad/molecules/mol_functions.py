@@ -27,6 +27,27 @@ MOL_INCHIKEY_INDEX = "inchikey"
 MOL_CID_INDEX = "cid"
 MOL_SDF_INDEX = "sdf"
 MOL_FORMULA = "formula"
+INPUT_MAPPINGS = {
+    "NAME": "chemical_name",
+    "xlogp3": "xlogp",
+    "molecular weight": "molecular_weight",
+    "complexity": "complexity",
+    "rotatable bond count": "rotatable_bond_count",
+    "hydrogen bond acceptor count": "h_bond_acceptor_count",
+    "hydrogen bond donor count": "h_bond_donor_count",
+    "exact mass": "exact_mass",
+    "molecular weight": "molecular_weight",
+    "monoisotopic mass": "monoisotopic_mass",
+    "topological polar surface area": "tpsa",
+    "heavy atom count": "heavy_atom_count",
+    "formal charge": "formal_change",
+    "isotope atom count": "isotope_atom_count",
+    "defined atom stereocenter count": "defined_atom_stereo_count",
+    "undefined atom stereocenter count": "undefined_atom_stereo_count",
+    "covalently-bonded unit count": "covalent_unit_count",
+    "compound is canonicalized": "compound_canonicalized",
+    "formal charge": "charge",
+}
 PROPERTY_SOURCES = {
     "Log P-XLogP3-AA": "xlogp",
     "Log P-XLogP3": "xlogp",
@@ -101,6 +122,8 @@ MOL_PROPERTIES = sorted(
         "mmff94_partial_charges_3d",
         "multipoles_3d",
         "pharmacophore_features_3d",
+        "SOL_classification",
+        "SOL",
     ]
 )
 

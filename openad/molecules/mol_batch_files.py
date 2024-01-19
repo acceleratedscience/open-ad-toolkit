@@ -7,6 +7,7 @@ from openad.molecules.mol_functions import (
     valid_smiles,
     new_molecule,
     canonical_smiles,
+    INPUT_MAPPINGS,
 )
 from openad.molecules.mol_commands import retrieve_mol_from_list, add_molecule
 from openad.helpers.output import output_error, output_warning, output_success, output_text
@@ -21,7 +22,7 @@ def load_batch_molecules(cmd_pointer, inp):
     """loads molecules in batch"""
     mol_dataframe = None
     if "load_molecules_dataframe" in inp.as_dict():
-        mol_dataframe = cmd_pointer.api_variables[inp.as_dict()["in_dataframe"]]
+        mol_dataframe = _normalize_mol_df(cmd_pointer.api_variables[inp.as_dict()["in_dataframe"]], cmd_pointer)
     else:
         mol_dataframe = load_mol(inp.as_dict()["moles_file"], cmd_pointer)
     if mol_dataframe is None:
@@ -64,8 +65,12 @@ def batch_pubchem(cmd_pointer, dataframe):
             Name_Flag = False
             if "name" in a_mol:
                 name = a_mol["name"]
-            if "Name" in a_mol:
+            elif "Name" in a_mol:
                 name = a_mol["Name"]
+            elif "NAME" in a_mol:
+                name = a_mol["NAME"]
+            elif "chemical_name" in a_mol:
+                name = a_mol["chemical_name"]
             else:
                 name = None
             if name is not None:
@@ -82,7 +87,7 @@ def batch_pubchem(cmd_pointer, dataframe):
                 )
                 continue
 
-            add_molecule(cmd_pointer, {"molecule_identifier": a_mol["SMILES"]}, True)
+            add_molecule(cmd_pointer, {"molecule_identifier": a_mol["SMILES"]}, force=True, suppress=True)
 
         except Exception as e:
             print(e)
@@ -101,13 +106,15 @@ def shred_merge_add_df_mols(dataframe, cmd_pointer):
     merge_list = []
     for a_mol in dict_list:
         Name_Flag = False
-
         if "name" in a_mol:
             name = a_mol["name"]
-        if "Name" in a_mol:
+        elif "Name" in a_mol:
             name = a_mol["Name"]
-
-        if "chemical_name" in a_mol:
+        elif "NAME" in a_mol:
+            name = a_mol["NAME"]
+        elif "chemical name" in a_mol:
+            name = a_mol["chemical name"]
+        elif "chemical_name" in a_mol:
             name = a_mol["chemical_name"]
         else:
             name = None
@@ -223,6 +230,8 @@ def _normalize_mol_df(mol_df: pandas.DataFrame, cmd_pointer):
             mol_df.rename(columns={i: "ROMol"}, inplace=True)
         if str(i.upper()) == "IMG":
             mol_df.rename(columns={i: "IMG"}, inplace=True)
+        if i in INPUT_MAPPINGS:
+            mol_df.rename(columns={i: INPUT_MAPPINGS[i]}, inplace=True)
 
     # Normalize name column.
     if has_name is False and contains_name is not None:
