@@ -9,7 +9,8 @@ from openad.molecules.mol_functions import (
     canonical_smiles,
 )
 from openad.molecules.mol_commands import retrieve_mol_from_list, add_molecule
-from openad.helpers.output import output_error, output_warning
+from openad.helpers.output import output_error, output_warning, output_success, output_text
+
 from openad.helpers.output_msgs import msg
 from openad.app.global_var_lib import GLOBAL_SETTINGS
 
@@ -26,10 +27,16 @@ def load_batch_molecules(cmd_pointer, inp):
     if mol_dataframe is None:
         output_error("Source not Found ", return_val=False)
         return True
+    cmd_pointer.molecule_list.clear()
     if "pubchem_merge" in inp.as_dict():
         batch_pubchem(cmd_pointer, mol_dataframe)
     if mol_dataframe is not None:
         shred_merge_add_df_mols(mol_dataframe, cmd_pointer)
+        output_success("Records loaded from file : " + str(len(mol_dataframe)), return_val=False)
+        output_success(
+            "Unique Molecules loaded to Working list : " + str(len(cmd_pointer.molecule_list)), return_val=False
+        )
+
     return True
 
 
@@ -51,6 +58,7 @@ def batch_pubchem(cmd_pointer, dataframe):
     batch_spinner = Spinner()
     batch_spinner.start("loading molecules from PubChem")
     dict_list = dataframe.to_dict("records")
+
     for a_mol in dict_list:
         try:
             Name_Flag = False
@@ -90,6 +98,7 @@ def batch_pubchem(cmd_pointer, dataframe):
 def shred_merge_add_df_mols(dataframe, cmd_pointer):
     """shreds the molecule relevent properties from dataframe and loads into molecules"""
     dict_list = dataframe.to_dict("records")
+    merge_list = []
     for a_mol in dict_list:
         Name_Flag = False
 
@@ -97,9 +106,12 @@ def shred_merge_add_df_mols(dataframe, cmd_pointer):
             name = a_mol["name"]
         if "Name" in a_mol:
             name = a_mol["Name"]
+
         if "chemical_name" in a_mol:
             name = a_mol["chemical_name"]
         else:
+            name = None
+        if name == "":
             name = None
         if name is not None:
             merge_mol = retrieve_mol_from_list(cmd_pointer, name)
@@ -115,11 +127,15 @@ def shred_merge_add_df_mols(dataframe, cmd_pointer):
             continue
         merge_mol = retrieve_mol_from_list(cmd_pointer, a_mol["SMILES"])
         if Name_Flag is True and merge_mol is None:
-            output_error("There is already a molecule by the name " + name, return_val=False)
-            continue
-        if Name_Flag is True and merge_mol["properties"]["canonical_smiles"] != canonical_smiles(a_mol["SMILES"]):
-            output_error("There is already a molecule by the name " + name, return_val=False)
-            continue
+            # output_error("There is already a molecule by the name, adding  increment to the name  " + name, return_val=False)
+            i = 1
+            while retrieve_mol_from_list(cmd_pointer, name + "-" + str(i)) is not None:
+                i = i + 1
+            name = name + "-" + str(i)
+
+        # if Name_Flag is True and merge_mol["properties"]["canonical_smiles"] != canonical_smiles(a_mol["SMILES"]):
+        #    output_error("There is already a molecule by the name, adding  increment to the name " + name, return_val=False)
+        #    continue
 
         if merge_mol is None:
             if name is None:
@@ -138,18 +154,24 @@ def shred_merge_add_df_mols(dataframe, cmd_pointer):
 
         i = 0
         updated_flag = False
+
         while i < len(cmd_pointer.molecule_list):
             if (
                 merge_mol["properties"]["canonical_smiles"]
                 == cmd_pointer.molecule_list[i]["properties"]["canonical_smiles"]
             ):
                 cmd_pointer.molecule_list[i] = merge_mol
+                merge_list.append(merge_mol["name"])
                 i = len(cmd_pointer.molecule_list)
                 updated_flag = True
             i = i + 1
         if updated_flag is False:
             cmd_pointer.molecule_list.append(merge_mol)
-
+    if len(merge_list) > 0:
+        merge_list = list(set(merge_list))
+        merge_list.sort()
+        output_warning("The following molecules had 1 or more duplicate entries and were merged :", return_val=False)
+        output_text("\n   - " + "\n   - ".join(merge_list), return_val=False)
     return True
 
 

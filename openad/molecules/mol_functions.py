@@ -343,6 +343,9 @@ def organize_properties(mol):
     mol_organized["identifiers"] = get_identifiers(mol)
     mol_organized["synonyms"] = mol["synonyms"]["Synonym"] if "Synonym" in mol["synonyms"] else []
     mol_organized["properties"] = get_properties(mol)
+    if "DS_URL" in mol_organized["properties"]:
+        mol_organized["properties"]["DS_URL"] = ""
+
     mol_organized["analysis"] = mol["analysis"]
     mol_organized["property_sources"] = mol["property_sources"]
 
