@@ -532,7 +532,7 @@ def format_properties(mol):
     """formats properties for display"""
     properties_string = "\n<yellow>Properties:</yellow>\n"
     properties = get_properties(mol)
-    if GLOBAL_SETTINGS["display"] == "terminal":
+    if GLOBAL_SETTINGS["display"] == "terminal" and "DS_URL" in properties:
         del properties["DS_URL"]
 
     properites_string = properties_string + name_and_value_columns(
