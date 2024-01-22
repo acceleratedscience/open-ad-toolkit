@@ -47,6 +47,8 @@ INPUT_MAPPINGS = {
     "covalently-bonded unit count": "covalent_unit_count",
     "compound is canonicalized": "compound_canonicalized",
     "formal charge": "charge",
+    "SOL_classification": "sol_classification",
+    "SOL": "sol",
 }
 PROPERTY_SOURCES = {
     "Log P-XLogP3-AA": "xlogp",
@@ -122,8 +124,8 @@ MOL_PROPERTIES = sorted(
         "mmff94_partial_charges_3d",
         "multipoles_3d",
         "pharmacophore_features_3d",
-        "SOL_classification",
-        "SOL",
+        "sol_classification",
+        "sol",
     ]
 )
 

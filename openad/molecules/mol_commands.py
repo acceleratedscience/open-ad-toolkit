@@ -658,7 +658,11 @@ def get_property(cmd_pointer, inp):
             if molecule_property.lower() == "synonyms":
                 if mol["synonyms"] is not None and "Synonym" in mol["synonyms"]:
                     return mol["synonyms"]["Synonym"]
-            return mol["properties"][molecule_property.lower()]
+            if molecule_property.lower() in mol["properties"]:
+                return mol["properties"][molecule_property.lower()]
+            else:
+                return None
+
         else:
             output_error("molecule not available on pubchem", return_val=False)
             return None
@@ -666,7 +670,10 @@ def get_property(cmd_pointer, inp):
         if molecule_property.lower() == "synonyms":
             if mol["synonyms"] is not None and "Synonym" in mol["synonyms"]:
                 return mol["synonyms"]["Synonym"]
-        return mol["properties"][molecule_property.lower()]
+        if molecule_property.lower() in mol["properties"]:
+            return mol["properties"][molecule_property.lower()]
+        else:
+            return None
 
 
 # Launch molecule viewer.

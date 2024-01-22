@@ -31,7 +31,6 @@ def interpret_recipe(inputs: dict, cmd_pointer):
             recipe = handle.read()
     else:
         output_text(f"<soft>Processing paragraph...</soft>", return_val=False, pad_top=1)
-        return
 
     # Print result
     try:
