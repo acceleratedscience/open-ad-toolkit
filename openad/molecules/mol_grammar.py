@@ -109,7 +109,7 @@ desc = QuotedString("'", escQuote="\\")
 
 MOL_SHORTHAND = "You can use the 'mol' shorthand instead of 'molecule'."
 MOLSET_SHORTHAND = "You can use the 'molset' shorthand instead of 'molecule-set'."
-SPECIFY_MOL = "You can specify any molecule by SMILES or InChI, and PubChem classified molecules also by name, InChIKey or their PubChem CID."
+SPECIFY_MOL = "You can specify any molecule by SMILES or InChI, and PubChem classified molecules also by name, InChIKey or their PubChem CID. \n A molecule identifier can be in single quotes or defined with unquoted text. If you have spaces in your molecule identifier e.g. a name, then you must user a single quoted string"
 WORKING_SET_PRIORITY = "If the requested molecule exists in your current working list, that version will be used."
 USING_NAME = "If you use the name of a molecule, the tool will do a caseless search of the names and synonyms first in current working list, then on pubchem."
 
@@ -149,10 +149,12 @@ It will take any molecules identifier from the following categories:
 Options :
     - <cmd>as <name> </cmd>: if the <cmd> as '<name>' </cmd> not used the molecule the  molecule identfier will be used for the molecules name. if the <cmd> as '<name>' </cmd> not used the molecule the  molecule identfier will be used for the molecules name.
         You can set or override an name later for  any molecule with the <cmd>rename molecule</cmd> command.
-    - <cmd> basic </cmd> Creates an un
+    - <cmd> basic </cmd> Creates a molecule that does not have its properties and synonyms populated with pubchem data, this feature is only valid with a SMILES molecule identifier
     - <cmd>force</cmd>: The <cmd>force</cmd> option allows you to ovveride the confirmation that you wish to add a molecule.
 
 
+
+    
 {MOL_SHORTHAND}
 
 {SPECIFY_MOL}
@@ -163,6 +165,8 @@ Options :
 Examples:
 - Add a molecule by name:
 <cmd>add molecule aspirin</cmd>
+or with single quotes
+<cmd> display molecule 'Aspirin 325 mg' </cmd>
 
 - Add a molecule by name and force through the acknowledgement to add it:
 <cmd>add molecule aspirin force</cmd>
@@ -170,11 +174,17 @@ Examples:
 - Add a molecule by SMILES:
 <cmd>add molecule CC(=O)OC1=CC=CC=C1C(=O)O</cmd>
 
+- Add a molecule by SMILES without populated pubchem properties:
+<cmd>add molecule CC(=O)OC1=CC=CC=C1C(=O)O basic </cmd>
+
 - Add a molecule by CID:
 <cmd>add mol 2244</cmd>
 
 - Add a molecule by InChI:
 <cmd>add mol InChI=1S/C9H8O4/c1-6(10)13-8-5-3-2-4-7(8)9(11)12/h2-5H,1H3,(H,11,12)</cmd>
+ or with single quotes
+ <cmd>add mol 'InChI=1S/C9H8O4/c1-6(10)13-8-5-3-2-4-7(8)9(11)12/h2-5H,1H3,(H,11,12)'</cmd>
+
 
 - Add a molecule by InChIKey:
 <cmd>add mol BSYNRYMUTXBXSQ-UHFFFAOYSA-N</cmd>
@@ -336,7 +346,7 @@ Examples:
 <cmd>remove mol  BSYNRYMUTXBXSQ-UHFFFAOYSA-N</cmd>
 
 - Remove a molecule by InChI:
-<cmd>remove mol  InChI=1S/C9H8O4/c1-6(10)13-8-5-3-2-4-7(8)9(11)12/h2-5H,1H3,(H,11,12)</cmd>
+<cmd>remove mol  InChI='1S/C9H8O4/c1-6(10)13-8-5-3-2-4-7(8)9(11)12/h2-5H,1H3,(H,11,12)'</cmd>
 
 - Remove a molecule by CID:
 <cmd>remove mol 2244</cmd>

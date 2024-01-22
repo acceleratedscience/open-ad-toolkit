@@ -190,7 +190,7 @@ def load_mol(source_file, cmd_pointer):
             name = source_file.split("/")[-1]
             SDFFile = cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/" + name
 
-            return PandasTools.LoadSDF(SDFFile)
+            return _normalize_mol_df(PandasTools.LoadSDF(SDFFile), cmd_pointer)
 
         except BaseException as err:
             output_error(msg("err_load_sdf", err), return_val=False)
