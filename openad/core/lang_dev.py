@@ -1,5 +1,6 @@
 from openad.flask_apps import launcher
 from openad.flask_apps.example.routes import fetchRoutesExample
+from openad.app.global_var_lib import GLOBAL_SETTINGS
 
 
 def flask_example(cmd_pointer, parser):
@@ -8,7 +9,7 @@ def flask_example(cmd_pointer, parser):
     # Load routes and launch browser UI.
     routes, return_data = fetchRoutesExample(data)
 
-    if cmd_pointer.notebook_mode:
+    if GLOBAL_SETTINGS["display"] == "notebook":
         # Jupyter
         launcher.launch(cmd_pointer, routes, "example")
         return return_data

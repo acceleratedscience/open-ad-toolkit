@@ -3,13 +3,15 @@ import socket
 import webbrowser
 from flask import Flask, send_from_directory
 from openad.app.global_var_lib import _repo_dir
-from openad.helpers.output import msg, output_text, output_error
+from openad.helpers.output import output_text, output_error
+from openad.helpers.output_msgs import msg
 from openad.helpers.general import next_avail_port
+from openad.app.global_var_lib import GLOBAL_SETTINGS
 
 
 def launch(cmd_pointer=None, routes=None, app_name="", query="", hash=""):
     if not routes:
-        output_error("Routes are required to launch Flask server.")
+        output_error(msg("err_routes_required"))
         return
 
     # Initialize Flask app.
@@ -48,7 +50,7 @@ def launch(cmd_pointer=None, routes=None, app_name="", query="", hash=""):
     port, host = next_avail_port()
 
     # Launch the UI
-    if cmd_pointer.notebook_mode:
+    if GLOBAL_SETTINGS["display"] == "notebook":
         # Jupyter --> Render iframe.
 
         # Rendering the iframe in the traditional way doesn't let us
@@ -88,10 +90,10 @@ def launch(cmd_pointer=None, routes=None, app_name="", query="", hash=""):
     log.setLevel(logging.ERROR)
 
     # Display our own launch message.
-    output_text(msg("flask_launch", port), cmd_pointer, pad_top=1)
+    output_text(msg("flask_launch", port), pad_top=1)
 
     # Launch server.
-    if cmd_pointer.notebook_mode:
+    if GLOBAL_SETTINGS["display"] == "notebook":
         # Jupyter --> Start the Flask app in a separate thread.
         from threading import Thread
 

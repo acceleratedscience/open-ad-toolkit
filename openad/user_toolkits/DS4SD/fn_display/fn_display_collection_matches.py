@@ -1,31 +1,42 @@
-""" performs a search of collection for a specified string"""
+# Example command:
+# display collection matches for 'Ibuprofen'
+
 import numpy as np
 import pandas as pd
 from deepsearch.cps.queries import DataQuery
 from deepsearch.cps.client.components.queries import RunQueryError
-from openad.helpers.output import output_table
-from openad.helpers.output import output_error
-from openad.helpers.output import output_text
-
-_tableformat = "simple"
+from openad.helpers.output import output_error, output_table, output_success
+from openad.helpers.output_msgs import msg
+from openad.helpers.general import load_tk_module
+from openad.app.global_var_lib import GLOBAL_SETTINGS
 
 
 def display_collection_matches(inputs: dict, cmd_pointer):
-    """Searches all collections for matches for a given Search String
-    inputs: parser inputs from pyparsing
-    cmd_pointer: pointer to runtime
+    """
+    Searches all collections for matches for a given string.
+
+    Parameters
+    ----------
+    inputs:
+        Parser inputs from pyparsing.
+    cmd_pointer:
+        Pointer to runtime.
     """
 
+    # Load module from the toolkit folder.
+    ds4sd_msg = load_tk_module(cmd_pointer, "DS4SD", "msgs", "ds4sd_msg")
+
     api = cmd_pointer.login_settings["toolkits_api"][cmd_pointer.login_settings["toolkits"].index("DS4SD")]
-    if cmd_pointer.notebook_mode is True:
+    if GLOBAL_SETTINGS["display"] == "notebook":
         from tqdm.notebook import tqdm
     else:
         from tqdm import tqdm
     try:
         collections = api.elastic.list()
         collections.sort(key=lambda c: c.name.lower())
-    except Exception as e:  # pylint: disable=broad-exception-caught
-        output_error("Error in calling deepsearch:" + str(e), cmd_pointer=cmd_pointer, return_val=False)
+        # raise Exception('This is a test error')
+    except Exception as err:  # pylint: disable=broad-exception-caught
+        output_error(ds4sd_msg("err_deepsearch", err), return_val=False)
         return False
 
     results = []
@@ -42,14 +53,15 @@ def display_collection_matches(inputs: dict, cmd_pointer):
             if int(query_results.outputs["data_count"]) > 0:
                 results.append(
                     {
-                        "Domains": "/ ".join(c.metadata.domain),
+                        "Domains": " / ".join(c.metadata.domain),
                         "Collection Name": c.name,
                         "Collection Key": c.source.index_key,
-                        "matches": query_results.outputs["data_count"],
+                        "Matches": query_results.outputs["data_count"],
                     }
                 )
+            # raise RunQueryError(task_id=1, message="This is a test error", error_type="err123", detail='aaa')
         except RunQueryError as err:
-            output_error("Error in callling deepsearch:" + str(err), cmd_pointer=cmd_pointer, return_val=False)
+            output_error(ds4sd_msg("err_deepsearch", err), return_val=False)
             return False
     if "save_as" in inputs:
         results_file = str(inputs["results_file"])
@@ -60,9 +72,6 @@ def display_collection_matches(inputs: dict, cmd_pointer):
             cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/" + results_file, index=False
         )
         df = df.replace(np.nan, "", regex=True)
-        output_text(
-            "\n <success>File successfully saved to workspace.</success>", cmd_pointer=cmd_pointer, return_val=False
-        )
+        output_success(msg("success_file_saved", results_file), return_val=False, pad_top=1, pad_btm=0)
 
-    collectives = pd.DataFrame(results)
-    return output_table(collectives, cmd_pointer, tablefmt=_tableformat)
+    return output_table(pd.DataFrame(results))

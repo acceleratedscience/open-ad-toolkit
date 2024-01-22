@@ -163,7 +163,7 @@ body {
  */
 
 .tabulator .tabulator-row > .tabulator-cell:first-of-type[tabulator-field='Index'],
-.tabulator .tabulator-row > .tabulator-cell:first-of-type[tabulator-field='#'] {
+.tabulator .tabulator-row > .tabulator-cell:first-of-type[tabulator-field='Idx'] {
 	color: var(--black-30);
 	background: var(--soft-bg);
 }
@@ -207,7 +207,6 @@ body {
 	/* Override trunc-3 */
 	display: block;
 	-webkit-line-clamp: 1;
-	background: pink;
 }
 
 /* Overlay displaying full text when clicking on truncated text */

@@ -2,7 +2,9 @@
 import re
 import shutil
 from openad.helpers.general import singular, is_toolkit_installed
-from openad.helpers.output import msg, output_text, output_error
+from openad.helpers.output import output_error
+from openad.helpers.output_msgs import msg
+from openad.app.global_var_lib import GLOBAL_SETTINGS
 
 # Importing our own plugins.
 # This is temporary until every plugin is available as a public pypi package.
@@ -74,8 +76,7 @@ def all_commands(
         output = [f'<h1>Available Commands - {toolkit_name if toolkit_name else "Main"}</h1>']
         if toolkit_name and not is_toolkit_installed(toolkit_name, cmd_pointer):
             err_msg = output_error(
-                msg("fail_toolkit_not_installed", toolkit_name, split=True),
-                cmd_pointer,
+                msg("fail_toolkit_not_installed", toolkit_name),
                 return_val=True,
                 jup_return_format="markdown_data",
                 nowrap=True,
@@ -186,7 +187,7 @@ def command_details(command: list, cmd_pointer):
     paragraph_width = min(columns - 5, 150)
 
     # Style command.
-    if cmd_pointer.notebook_mode:
+    if GLOBAL_SETTINGS["display"] == "notebook":
         command_str = f"<cmd>{command_str}</cmd>"
         description = command["description"]
         note = f'<soft>{command["note"]}</soft>' if "note" in command and command["note"] is not None else None
@@ -213,7 +214,7 @@ def command_details(command: list, cmd_pointer):
 # Display advanced help
 def advanced_help():
     """Call advanced Help"""
-    return "<warning>Advanced help is yet to be implemented.</warning>"
+    return "Advanced help is yet to be implemented."
 
 
 class OpenadHelp:

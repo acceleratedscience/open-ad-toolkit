@@ -1,14 +1,17 @@
-""" Performs Reaction Prediction on a list of Reactions
-"""
+# Example commands:
+# predict reaction in batch from list ['BrBr.c1ccc2cc3ccccc3cc2c1CCO' , 'BrBr.c1ccc2cc3ccccc3cc2c1']
+# predict reaction in batch from list ['BrBr.c1ccc2cc3ccccc3cc2c1CCO' , 'BrBr.c1ccc2cc3ccccc3cc2c1'] use_saved
 
-from openad.helpers.output import output_table
-from openad.helpers.output import output_text
-from openad.helpers.output import output_error
-from openad.helpers.output import output_warning
+"""Performs Reaction Prediction on a list of Reactions"""
+
 import pandas as pd
 from rdkit import Chem
 from rdkit.Chem import AllChem
 from time import sleep
+from openad.app.global_var_lib import GLOBAL_SETTINGS
+from openad.helpers.output import output_text, output_error, output_warning, output_table
+from openad.helpers.output_msgs import msg
+from openad.helpers.general import load_tk_module
 
 
 def get_reaction_from_smiles(reaction_smiles: str) -> Chem.rdChemReactions.ChemicalReaction:
@@ -16,30 +19,20 @@ def get_reaction_from_smiles(reaction_smiles: str) -> Chem.rdChemReactions.Chemi
     return AllChem.ReactionFromSmarts(reaction_smiles, useSmiles=True)  # pylint: disable=no-member
 
 
-def get_include_lib(cmd_pointer):
-    """loads the RXN include module"""
-    import importlib.util as ilu
-
-    folder = cmd_pointer.toolkit_dir + "/RXN" + "/rxn_include.py"
-    file = "rxn_include"
-    spec = ilu.spec_from_file_location(file, folder)
-    rxn = ilu.module_from_spec(spec)
-    spec.loader.exec_module(rxn)
-    rxn_helper = rxn.rxn_helper()
-    return rxn_helper
-
-
 def predict_reaction_batch(inputs: dict, cmd_pointer):
     """Predicts Reactions in Batch from a list of Reaction Smiles Strings"""
-    if cmd_pointer.notebook_mode is True:
+
+    if GLOBAL_SETTINGS["display"] == "notebook":
         from halo import HaloNotebook as Halo  # pylint: disable=import-outside-toplevel
     else:
         from halo import Halo  # pylint: disable=import-outside-toplevel
 
-    rxn_helper = get_include_lib(cmd_pointer)
+    # Load module from toolkit folder
+    rxn_helper = load_tk_module(cmd_pointer, "RXN", "rxn_include", "rxn_helper")()
+
     rxn_helper.sync_up_workspace_name(cmd_pointer)
     rxn_helper.get_current_project(cmd_pointer)
-    if cmd_pointer.notebook_mode is True:
+    if GLOBAL_SETTINGS["display"] == "notebook":
         from IPython.display import display
 
     class Spinner(Halo):
@@ -56,25 +49,15 @@ def predict_reaction_batch(inputs: dict, cmd_pointer):
     if isinstance(inputs["from_source"], dict) and inputs["from_source"]["from_list"] != None:
         try:
             from_list = inputs["from_source"]["from_list"]
-        except:  # pylint: disable=bare-except
-            output_error(
-                "unexpected pyparsing error. Please screenshot and report circumstance to OpenAD team",
-                cmd_pointer=cmd_pointer,
-                return_val=False,
-            )
-            output_error("Restart Notebook Kernel or application to proceed", cmd_pointer=cmd_pointer, return_val=False)
+        except Exception:  # pylint: disable=broad-except
+            output_error(msg("err_pyparsing"), return_val=False)
             return False
 
     elif "from_list" in inputs["from_source"][0]:
         try:
             from_list = inputs["from_source"][0]["from_list"]
-        except:  # pylint: disable=bare-except
-            output_error(
-                "unexpected pyparsing error. Please screenshot and report circumstance to OpenAD team",
-                cmd_pointer=cmd_pointer,
-                return_val=False,
-            )
-            output_error("Restart Notebook Kernel or application to proceed", cmd_pointer=cmd_pointer, return_val=False)
+        except Exception:  # pylint: disable=broad-except
+            output_error(msg("err_pyparsing"), return_val=False)
             return False
     elif "from_dataframe" in inputs:
         try:
@@ -87,7 +70,6 @@ def predict_reaction_batch(inputs: dict, cmd_pointer):
         except Exception:  # pylint: disable=broad-exception-caught
             output_error(
                 "Could not load valid list from dataframe column 'reactions' ",
-                cmd_pointer=cmd_pointer,
                 return_val=False,
             )
             return True
@@ -102,9 +84,7 @@ def predict_reaction_batch(inputs: dict, cmd_pointer):
                     "No Provided reactions, file should have column 'reactions' "
                 )  # pylint: disable=broad-exception-raised
         except Exception:  # pylint: disable=broad-exception-caught
-            output_error(
-                "Could not load valid list from file column 'reactions' ", cmd_pointer=cmd_pointer, return_val=False
-            )
+            output_error("Could not load valid list from file column 'reactions' ", return_val=False)
             return True
     newspin = Spinner()
 
@@ -130,9 +110,9 @@ def predict_reaction_batch(inputs: dict, cmd_pointer):
 
         if len(error_list) > 0:
             df = pd.DataFrame(error_list, columns=["smiles"])
-            output_error(" The following invalid were Smiles Supplied:", cmd_pointer=cmd_pointer, return_val=False)
-            output_table(df, cmd_pointer=cmd_pointer)
-            output_warning(" This reaction will be skipped  " + entry + " ", cmd_pointer=cmd_pointer, return_val=False)
+            output_error(" The following invalid were Smiles Supplied:", return_val=False)
+            output_table(df)
+            output_warning(" This reaction will be skipped  " + entry + " ", return_val=False)
             continue
 
         entry_2 = []
@@ -150,10 +130,8 @@ def predict_reaction_batch(inputs: dict, cmd_pointer):
         for i in reaction_prediction["smiles"].split(">>")[0].split("."):
             source.append(i)
         x_y = reaction_prediction["smiles"].split(">>")[1]
-        output_text("\n<h2>Saved Result</h2> ", cmd_pointer=cmd_pointer, return_val=False)
-        output_text(
-            f'<success>Smiles:</success> {reaction_prediction["smiles"]}', cmd_pointer=cmd_pointer, return_val=False
-        )
+        output_text("\n<h2>Saved Result</h2> ", return_val=False)
+        output_text(f'<green>Smiles:</green> {reaction_prediction["smiles"]}', return_val=False)
         sources = ""
         for x in source:
             if len(sources) > 0:
@@ -162,12 +140,11 @@ def predict_reaction_batch(inputs: dict, cmd_pointer):
                 sources = x
 
         output_text(
-            f'<success>Confidence:</success> {reaction_prediction["confidence"]}',
-            cmd_pointer=cmd_pointer,
+            f'<green>Confidence:</green> {reaction_prediction["confidence"]}',
             return_val=False,
         )
 
-        if cmd_pointer.notebook_mode is True:
+        if GLOBAL_SETTINGS["display"] == "notebook":
             from IPython.display import display
 
             display(get_reaction_from_smiles(reaction_prediction["smiles"]))
@@ -214,7 +191,7 @@ def predict_reaction_batch(inputs: dict, cmd_pointer):
                     raise BaseException("Server unresponsive" + str(e)) from e  # pylint: disable=broad-exception-raised
         newspin.succeed("Finished Processing")
         newspin.stop()
-        if cmd_pointer.notebook_mode is True:
+        if GLOBAL_SETTINGS["display"] == "notebook":
             from IPython.display import display  # pylint: disable=import-outside-toplevel
         for reaction_prediction in reaction_predictions["predictions"]:
             rxn_helper.save_to_results_cache(
@@ -228,10 +205,8 @@ def predict_reaction_batch(inputs: dict, cmd_pointer):
                 source.append(i)
             x_y = reaction_prediction["smiles"].split(">>")[1]
 
-            output_text("\n<h2>Generated Result</h2> ", cmd_pointer=cmd_pointer, return_val=False)
-            output_text(
-                f'<success>Smiles:</success> {reaction_prediction["smiles"]}', cmd_pointer=cmd_pointer, return_val=False
-            )
+            output_text("\n<h2>Generated Result</h2> ", return_val=False)
+            output_text(f'<green>Smiles:</green> {reaction_prediction["smiles"]}', return_val=False)
             sources = ""
             for x in source:
                 if len(sources) > 0:
@@ -239,18 +214,16 @@ def predict_reaction_batch(inputs: dict, cmd_pointer):
                 else:
                     sources = x
             output_text(
-                "<success>Reaction:</success> " + sources + "    ---->    " + x_y,
-                cmd_pointer=cmd_pointer,
+                "<green>Reaction:</green> " + sources + "    ---->    " + x_y,
                 return_val=False,
             )
             output_text(
-                f'<success>Confidence:</success> {reaction_prediction["confidence"]}',
-                cmd_pointer=cmd_pointer,
+                f'<green>Confidence:</green> {reaction_prediction["confidence"]}',
                 return_val=False,
             )
 
-            if cmd_pointer.notebook_mode is True:
+            if GLOBAL_SETTINGS["display"] == "notebook":
                 display(get_reaction_from_smiles(reaction_prediction["smiles"]))
 
-    output_text(" ", cmd_pointer=cmd_pointer, return_val=False)
+    output_text(" ", return_val=False)
     return True

@@ -1,3 +1,6 @@
+// The content of the context menu depends on the state of the table.
+// This class takes care of the logic and provides the menu items.
+
 class ContextMenus {
 	constructor() {
 		this.header = this.contextMenuHeader.bind(this)
@@ -18,10 +21,9 @@ class ContextMenus {
 			action: this.editCell.bind(this),
 			disabled: cell => {
 				const table = cell.getTable()
-				// When the dataset includes an index column, we set
-				// editable to false after the initiation of table.
-				// Because of that isEditable below is not reliable
-				// in case of the index. See table.ensureUniqueIndex()
+				// When the dataset includes an index column, we set editable=False
+				// for this column alone, after the initiation of table. Because of
+				// that, we check for !isEditable OR isIndexColumn. See table.ensureUniqueIndex()
 				const isIndexColumn = cell.getColumn().getField() == table.options.index
 				const isEditable = cell.getColumn().getDefinition().editable
 				if (isIndexColumn || !isEditable) return true

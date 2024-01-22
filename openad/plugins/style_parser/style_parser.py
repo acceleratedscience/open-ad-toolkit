@@ -31,7 +31,7 @@ To do:
     Update wrap_text to account for ANSI escape codes - see function in JSON editor.
 
 """
-
+import sys
 import re
 import textwrap
 from collections import deque
@@ -204,7 +204,7 @@ def style(
     return text
 
 
-def print_s(text: str, ephemeral=False, **kwargs):
+def print_s(text: str, ephemeral=False, pre_styled_bulk=False, **kwargs):
     """
     Print styled text. This is a wrapper around style().
 
@@ -215,7 +215,12 @@ def print_s(text: str, ephemeral=False, **kwargs):
 
     text = str(text)
     end = "\r" if ephemeral else "\n"
-    print(style(text, **kwargs), end=end)
+    if pre_styled_bulk is True:
+        sys.stdout.write(text)
+        sys.stdout.flush()
+        print("")
+    else:
+        print(style(text, **kwargs), end=end, flush=True)
 
 
 def strip_tags(text: str):
@@ -306,13 +311,13 @@ def tags_to_markdown(text: str):
     text = re.sub(r"<bold>(.*?)<\/bold>", r"**\1**", text)
     text = re.sub(r"<cmd>(.*?)<\/cmd>", r"`\1`", text)
     text = re.sub(r"<red>(.*?)<\/red>", r'<span style="color: #d00">\1</span>', text)
-    text = re.sub(r"<green>(.*?)<\/green>", r'<span style="color: #5b0">\1</span>', text)
+    text = re.sub(r"<green>(.*?)<\/green>", r'<span style="color: #090">\1</span>', text)
     text = re.sub(r"<yellow>(.*?)<\/yellow>", r'<span style="color: #dc0">\1</span>', text)
     text = re.sub(r"<blue>(.*?)<\/blue>", r'<span style="color: #00d">\1</span>', text)
     text = re.sub(r"<magenta>(.*?)<\/magenta>", r'<span style="color: #d07">\1</span>', text)
     text = re.sub(r"<cyan>(.*?)<\/cyan>", r'<span style="color: #0cc">\1</span>', text)
     text = re.sub(r"<on_red>(.*?)<\/on_red>", r'<span style="background: #d00; color: #fff">\1</span>', text)
-    text = re.sub(r"<on_green>(.*?)<\/on_green>", r'<span style="background: #5b0; color: #fff">\1</span>', text)
+    text = re.sub(r"<on_green>(.*?)<\/on_green>", r'<span style="background: #090; color: #fff">\1</span>', text)
     text = re.sub(r"<on_yellow>(.*?)<\/on_yellow>", r'<span style="background: #dc0; color: #fff">\1</span>', text)
     text = re.sub(r"<on_blue>(.*?)<\/on_blue>", r'<span style="background: #00d; color: #fff">\1</span>', text)
     text = re.sub(r"<on_magenta>(.*?)<\/on_magenta>", r'<span style="background: #d07; color: #fff">\1</span>', text)
@@ -629,9 +634,9 @@ def _expand_error_success_tags(text, html=False):
 
     # Output for markdown: use HTML tags instead of ANSI codes.
     if html:
-        text = re.sub(r"^<error>(.*?)<\/error>", r'<span style="color: #d00">\1</span>', text, flags=re.MULTILINE)
-        text = re.sub(r"^<success>(.*?)<\/success>", r'<span style="color: #0d0">\1</span>', text, flags=re.MULTILINE)
-        text = re.sub(r"^<warning>(.*?)<\/warning>", r'<span style="color: #ffa500">\1</span>', text, flags=re.MULTILINE)
+        text = re.sub(r"<error>(.*?)<\/error>", r'<span style="color: #d00">\1</span>', text, flags=re.MULTILINE)
+        text = re.sub(r"<success>(.*?)<\/success>", r'<span style="color: #090">\1</span>', text, flags=re.MULTILINE)
+        text = re.sub(r"<warning>(.*?)<\/warning>", r'<span style="color: #ffa500">\1</span>', text, flags=re.MULTILINE)
 
     # Output for non-styled output: display status as text.
     else:

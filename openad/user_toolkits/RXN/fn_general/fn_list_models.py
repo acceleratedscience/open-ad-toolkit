@@ -1,17 +1,26 @@
-"""Lists available RXN Models"""
+# Example command:
+# list rxn models
 
-_tableformat = "simple"
-from openad.helpers.output import output_table
+import pandas as pd
+from openad.helpers.output import output_table, output_error
 
 
 def list_models(inputs: dict, cmd_pointer):
-    """list avilable rxn models"""
+    """
+    List available RXN models
+    """
+
     rxn4chemistry_wrapper = cmd_pointer.login_settings["client"][cmd_pointer.login_settings["toolkits"].index("RXN")]
-    # Prepare the data query
+
+    # Load models
     try:
         x = rxn4chemistry_wrapper.list_models()
-    except Exception as e:  # pylint: disable=broad-exception-caught
-        raise Exception("unable to load models :" + str(e)) from e  # pylint: disable=broad-exception-raised
+        # raise Exception('This is a test error')
+    except Exception as err:  # pylint: disable=broad-exception-caught
+        output_error(["Unable to load models", err], return_val=False)
+        return
+
+    # Print result
     results = []
     results2 = []
     for i in x:
@@ -22,13 +31,6 @@ def list_models(inputs: dict, cmd_pointer):
         results.append(i)
         results2.append(outstr)
     res_dict = {"Models": results, "versions": results2}
-    import pandas as pd
-
     df = pd.DataFrame.from_dict(res_dict)
-    df.style.hide(axis="index")
-    if cmd_pointer.notebook_mode == True:
-        from IPython.display import HTML
 
-        return HTML(df.to_html(index=False))
-
-    output_table(df, tablefmt=_tableformat, headers=["Models", "Versions"])
+    return output_table(df, headers=["Models", "Versions"])

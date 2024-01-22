@@ -40,7 +40,8 @@ from openad.molecules.mol_grammar import mol_grammar_add
 
 # Helpers
 from openad.helpers.general import is_notebook_mode
-from openad.helpers.output import output_error, msg
+from openad.helpers.output import output_error
+from openad.helpers.output_msgs import msg
 
 # Global variables
 from openad.app.global_var_lib import _all_toolkits
@@ -78,12 +79,13 @@ from openad.app.global_var_lib import _all_toolkits
     history,
     data,
     remove,
+    update,
     result,
 ) = map(
     CaselessKeyword,
     "get list description using create set unset workspace workspaces context jobs exec\
     as optimize with toolkits toolkit gpu experiment add run save runs show mol molecules\
-    file display history data remove result".split(),
+    file display history data remove update result".split(),
 )
 STRING_VALUE = alphanums
 
@@ -352,6 +354,32 @@ grammar_help.append(
     )
 )
 
+# Update toolkit
+statements.append(Forward(update + toolkit + Word(alphas, alphanums + "_")("toolkit_name"))("update_toolkit"))
+grammar_help.append(
+    help_dict_create(
+        name="update toolkit",
+        category="Toolkits",
+        command="update toolkit <toolkit_name>",
+        description=("Update a toolkit with the latest version. It is recommended to do this on a regular basis."),
+        note=NOTE_TOOLKITS,
+    )
+)
+
+# Update all toolkits
+statements.append(Forward(update + CaselessKeyword("all") + toolkits("toolkits"))("update_all_toolkits"))
+grammar_help.append(
+    help_dict_create(
+        name="update all toolkits",
+        category="Toolkits",
+        command="update all toolkits",
+        description=(
+            "Update all installed toolkits with the latest version. Happens automatically whenever OpenAD is updated to a new version."
+        ),
+        note=NOTE_TOOLKITS,
+    )
+)
+
 # Set a toolkit as the current context
 statements.append(
     Forward(
@@ -539,6 +567,18 @@ grammar_help.append(
     )
 )
 
+# --> result as dataframe --> Return the result as a dataframe
+statements.append(Forward(result + a_s + CaselessKeyword("dataframe"))("display_data__as_dataframe"))
+grammar_help.append(
+    help_dict_create(
+        name="as dataframe",
+        category="Utility",
+        command="result as dataframe",
+        description="Return the result as dataframe (only for Jupyter Notebook)",
+        parent="display data",
+    )
+)
+
 # Edit config file (CLI-only)
 if not is_notebook_mode():
     statements.append(
@@ -560,52 +600,53 @@ if not is_notebook_mode():
 
 # Show molecules grid.
 # Note: we don't allow dashes in dataframe names because it's a substraction operator and causes issues in Jupyter.
-statements.append(
-    Forward(
-        show("show")
-        + molecules
-        + using
-        + CaselessKeyword("dataframe")
-        + Word(alphas, alphanums + "_")("in_dataframe")  # From dataframe
-        + Optional(a_s + CaselessKeyword("molsobject")("object"))  # Return as molsobject
-        + Optional(save + a_s + desc("results_file"))  # Save as csv/sdf
-    )("show_molecules_df")
-)
-statements.append(
-    Forward(
-        show("show")
-        + molecules
-        + using
-        + file
-        + desc("moles_file")  # From mols file
-        + Optional(a_s + CaselessKeyword("molsobject")("object"))  # Return as molsobject
-        + Optional(save + a_s + desc("results_file"))  # Save as csv/sdf
-    )("show_molecules")
-)
-grammar_help.append(
-    help_dict_create(
-        name="show molecules",
-        category="Molecules",
-        command="show molecules using ( file '<mols_file>' | dataframe <dataframe> ) [ save as '<sdf_or_csv_file>' | as molsobject ]",
-        description=f"""Launch the molecule viewer { 'in your browser ' if is_notebook_mode() else '' }to examine and select molecules from a SMILES sdf/csv dataset.
+# statements.append(
+#    Forward(
+#        show("show")
+#        + molecules
+#        + using
+#        + CaselessKeyword("dataframe")
+#        + Word(alphas, alphanums + "_")("in_dataframe")  # From dataframe
+#        + Optional(a_s + CaselessKeyword("molsobject")("object"))  # Return as molsobject
+#        + Optional(save + a_s + desc("results_file"))  # Save as csv/sdf
+#    )("show_molecules_df")
+# )
+# statements.append(
+#     Forward(
+#         show("show")
+#         + molecules
+#         + using
+#         + file
+#         + desc("moles_file")  # From mols file
+#         + Optional(a_s + CaselessKeyword("molsobject")("object"))  # Return as molsobject
+#         + Optional(save + a_s + desc("results_file"))  # Save as csv/sdf
+#     )("show_molecules")
+# )
+# grammar_help.append(
+#     help_dict_create(
+#         name="show molecules",
+#         category="Molecules",
+#         command="show molecules using ( file '<mols_file>' | dataframe <dataframe> ) [ save as '<sdf_or_csv_file>' | as molsobject ]",
+#         description=f"""Launch the molecule viewer { 'in your browser ' if is_notebook_mode() else '' }to examine and select molecules from a SMILES sdf/csv dataset.
 
-Examples:
-- <cmd>show molecules using file 'base_molecules.sdf' as molsobject</cmd>
-- <cmd>show molecules using dataframe my_dataframe save as 'selection.sdf'</cmd>
-""",
-    )
-)
+# Examples:
+# - <cmd>show molecules using file 'base_molecules.sdf' as molsobject</cmd>
+# - <cmd>show molecules using dataframe my_dataframe save as 'selection.sdf'</cmd>
+# """,
+#     )
+# )
 
-# Show individual molecule detail page.
-statements.append(Forward(show("show") + mol + desc("input_str"))("show_molecule"))  # From mol json file
-grammar_help.append(
-    help_dict_create(
-        name="show mol",
-        category="Molecules",
-        command="show mol '<json_mol_file> | <sdf_file> | <smiles_string> | <inchi_string>'",
-        description="Inspect a molecule in the browser.",
-    )
-)
+# MOVED TO MOL_GRAMMAR.PY - TRASH
+# # Show individual molecule detail page.
+# statements.append(Forward(show("show") + mol + desc("input_str"))("show_molecule"))  # From mol json file
+# grammar_help.append(
+#     help_dict_create(
+#         name="show mol",
+#         category="Molecules",
+#         command="show mol '<json_mol_file> | <sdf_file> | <smiles_string> | <inchi_string>'",
+#         description="Inspect a molecule in the browser.",
+#     )
+# )
 
 # endregion
 
@@ -1039,7 +1080,7 @@ def statement_builder(toolkit_pointer, inp_statement):
 
     except Exception as err:
         fwd_expr = "Forward( " + expression + ' ("toolkit_exec_' + inp_statement["command"] + '")'
-        output_error(msg("err_add_command", inp_statement["command"], fwd_expr, err, split=True))
+        output_error(msg("err_add_command", inp_statement["command"], fwd_expr, err))
 
     return True
 
@@ -1209,7 +1250,7 @@ def output_train_statements(cmd_pointer):
             Search: a repository or object
             Exec/Execute: execute a function
             Display: display molecule, file or result set
-            Show:  Show a data set using a utility that enables you to manipulate or diagramatically view it.
+            Show:  Show a data set using a utility that enables you to manipulate or  diagrammatically view it.
             Backup: backup a plugin or workspace
             Add: add a function or plugin
 
@@ -1221,24 +1262,38 @@ def output_train_statements(cmd_pointer):
             toolkit: these are contextual plugins that are available one at a time for providing specific functionality to the user. Valid toolkits are DS4SD (deepSearch), GT4SD(generative AI toolkit), RXN (retro synthesis), ST4SD(simulation toolkit)
             History: History of DSL commands for a given Workspace
             run: list of sequential commands saved by the user')
-            molecule-set: set of molecules maipulated by commands suchs as 'display molecule', 'add Molecule','create molecule', 'remove molecule'
-            The short form of  'molecule-set' is 'molset' 
-            The short form of  'molecule' is 'mol' 
+            working list: is a set of molecules in memory that can added to using the 'add molecule' command  and also loaded from a molecule-set and maipulated by commands suchs as 'display molecule', 'add Molecule','create molecule', 'remove molecule' 'merge mol-set'
+            molecules in a working list contain the following Data
+                - Identifiers shuch as names, synonyms, inchi , inchikey ,canonical smiles, isomeric smiles and the CID or compound ID sourced from pubchem as an identfier
+                - properties : data points such as atom_stereo_count, bond_stereo_count, canonical_smiles, charge, cid, complexity, conformer_count_3d, conformer_id_3d, conformer_model_rmsd_3d, conformer_rmsd_3d, coordinate_type, covalent_unit_count, defined_atom_stereo_count, defined_bond_stereo_count, effective_rotor_count_3d, exact_mass, feature_acceptor_count_3d, feature_anion_count_3d, feature_cation_count_3d, feature_count_3d, feature_donor_count_3d, feature_hydrophobe_count_3d, feature_ring_count_3d, h_bond_acceptor_count, h_bond_donor_count, heavy_atom_count, inchi, inchikey, isomeric_smiles, isotope_atom_count, iupac_name, mmff94_energy_3d, mmff94_partial_charges_3d, molecular_formula, molecular_weight, monoisotopic_mass, multipoles_3d, multipoles_3d, pharmacophore_features_3d, pharmacophore_features_3d, rotatable_bond_count, tpsa, undefined_atom_stereo_count, undefined_bond_stereo_count, volume_3d, x_steric_quadrupole_3d, xlogp, y_steric_quadrupole_3d, z_steric_quadrupole_3d
+                - synonyms : names that it is known by both commerically and scientifically
+                - Analysis : records of selected result sets from supporting analysis functions such as predict retrosynthesis
+            molecules when displayed will show these data points.
+            molecule-set: a molecule-set is a set a copy of a working list of molecules that has been stored in disk under a molecule set name and can be loaded into the working list of molecules in a users sessions
+            The short form of 'molecule-set' is 'molset' 
+            The short form of 'molecule' is 'mol' 
+
             
-            The Following commands are used to work with molecule sets:
+            
+            The Following commands are used to work with working list of molecules:
+                - add molecule <name> | <smiles> | <inchi> | <inchikey> | <cid>   [as '<name>' ] [ basic ] [force ]
+                - display molecule <name> | <smiles> | <inchi> | <inchikey> | <cid>
+                - rename molecule <molecule_identifer_string> as <molecule_name>
+                - export molecule <name> | <smiles> | <inchi> | <inchikey> | <cid> [ as file ]
+                - remove molecule <name> | <smiles> | <inchi> | <inchikey> | <cid>
+                - list molecules
                 - clear molecules
-                - create molecule <smiles_string> name <molecule_name>
-                - show molecules using file '<mols_file>' | dataframe <dataframe> [ save as '<sdf_or_csv_filename>' | as molsobject ]
-                - add molecule|mol  <name> | <smiles> | <inchi> | <inchkey> | <cid>
-                - display molecule|mol <name> | <smiles> | <inchi> | <inchkey> |  <cid>
-                - export molecule|mol <name> | <smiles> | <inchi> | <inchkey> |  <cid> [as file]
-                - remove molecule|mol <name> | <smiles> | <inchi> | <inchkey> | <formula> | <cid> 
-                - list molecules|mols
-                - save molecule-set|molset as <molecule-set_name>
+                - load molecules using file '<csv_or_sdf_filename>' [ merge with pubchem ]
+                - load molecules using dataframe <dataframe>  [merge with pubchem]
+                - export molecules [ as <csv_filename> ]
+                - show molecule <name> | <smiles> | <inchi> | <inchikey> | <cid>
+                - show molecules using ( file '<mols_file>' | dataframe <dataframe> ) [ save as '<sdf_or_csv_file>' | as molsobject ]
+                - save molecule-set as <molecule_set_name>
                 - load molecule-set|molset <molecule-set_name>
-                - list molecule-sets|molsets
-                - enrich molecule-set with analysis
-                - @(<name> | <smiles> | <inchi> | <inchkey> | <cid>)>><molecule_property_name>
+                - merge molecule-set|molset <molecule-set_name> [merge only] [append only]
+                - list molecule-sets
+                - enrich molecules with analysis
+                - @(<name> | <smiles> | <inchi> | <inchikey> | <cid>)>><molecule_property_name>
 
             ?: will display help and if positioned prior to a command will display help options for that command \\@ \n\n"""
     )

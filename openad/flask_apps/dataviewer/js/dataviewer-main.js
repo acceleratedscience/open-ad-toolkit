@@ -79,6 +79,11 @@ contextMenus.init(table, {
 	},
 })
 
+// // Leave for debugging.
+// table.on('tableBuilt', () => {
+// 	console.log('***', table.getData())
+// })
+
 // Display action dropdown.
 table.on('rowSelected', () => {
 	toggleSelectionActions(true)
@@ -404,11 +409,14 @@ function _areColumnValuesIncrementalIndex(field, data) {
 }
 
 // Add index column if none is found.
-// This will usually be 'idx' but we gotta make sure there's no conflict.
+// This will usually be 'Index' but we gotta make sure there's no conflict.
 function _addIndexCol(data, columns) {
 	// Find a unique name for the index column that is not already taken.
 	const fields = columns.map(col => col['field'].toLowerCase())
-	const indexNameOptions = ['idx', 'index', 'nr', '-']
+	const indexNameOptions = ['Index', 'Idx', '_index', '_idx']
+	// Note: we tried using '#' as index column name but this causes
+	// problems with querySelector, breaking a number of things.
+
 	let i = 0
 	let indexName = indexNameOptions[i]
 	while (fields.includes(indexName)) {

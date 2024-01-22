@@ -1,95 +1,74 @@
-"""search for molecules in patents from list"""
+# Example command:
+# search for molecules in patents from list ['CN108473493B','US20190023713A1']
+
 import os
 import numpy as np
 from rdkit.Chem import PandasTools
-from rdkit import Chem
 import pandas as pd
 from deepsearch.chemistry.queries.molecules import MoleculesInPatentsQuery
-from openad.helpers.output import output_table
-from openad.helpers.output import output_error
-from openad.helpers.output import output_text
-
-
-_tableformat = "simple"
-
-""" needs to be migrated into Helper"""
-
-
-def get_column_as_list_from_dataframe(a_dataframe, column_name) -> list:
-    """returns a given column as a list object"""
-    if column_name in a_dataframe:
-        return a_dataframe[column_name].tolist()
-    return []
-
-
-def get_dataframe_from_file(cmd_pointer, filename):
-    """returns a data frame from a csv file"""
-    if not os.path.isfile(cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/" + filename):
-        raise Exception("file does not exist")  # pylint: disable=broad-exception-raised
-    else:
-        df = pd.read_csv(cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/" + filename)
-    return df
+from openad.app.global_var_lib import GLOBAL_SETTINGS
+from openad.helpers.output import output_text, output_error, output_table, output_success
+from openad.helpers.output_msgs import msg
+from openad.helpers.h_data import col_from_df, csv_to_df
+from openad.helpers.general import load_tk_module
 
 
 def search_molecules_in_patents(inputs: dict, cmd_pointer):
-    """search patents for all mentioned molecules
-    inputs: parser inputs from pyparsing
-    cmd_pointer: pointer to runtime
     """
+    Search for mentions of a given molecules in a list of patents.
+
+    Parameters
+    ----------
+    inputs:
+        Parser inputs from pyparsing.
+    cmd_pointer:
+        Pointer to runtime.
+    """
+
+    # Load module from the toolkit folder.
+    ds4sd_msg = load_tk_module(cmd_pointer, "DS4SD", "msgs", "ds4sd_msg")
+
     api = cmd_pointer.login_settings["toolkits_api"][cmd_pointer.login_settings["toolkits"].index("DS4SD")]
     if isinstance(inputs["from_source"], dict) and inputs["from_source"]["from_list"] is not None:
         try:
             from_list = inputs["from_source"]["from_list"]
+            # raise Exception('This is a test error')
         except Exception:  # pylint: disable=broad-except
-            output_error(
-                "Unexpected pyparsing error. Please screenshot and report circumstance to OpenAD team",
-                cmd_pointer=cmd_pointer,
-                return_val=False,
-            )
-            output_error("Restart Notebook Kernel or application to proceed", cmd_pointer=cmd_pointer, return_val=False)
+            output_error(msg("err_pyparsing"), return_val=False)
             return False
 
     elif "from_list" in inputs["from_source"][0]:
         try:
             from_list = inputs["from_source"][0]["from_list"]
+            # raise Exception('This is a test error')
         except Exception:  # pylint: disable=broad-except
-            output_error(
-                "Unexpected pyparsing error. Please screenshot and report circumstance to OpenAD team",
-                cmd_pointer=cmd_pointer,
-                return_val=False,
-            )
-            output_error("Restart Notebook Kernel or application to proceed", cmd_pointer=cmd_pointer, return_val=False)
+            output_error(msg("err_pyparsing"), return_val=False)
             return False
     elif "from_dataframe" in inputs:
         try:
             react_frame = cmd_pointer.api_variables[inputs["from_dataframe"]]
-            from_list = get_column_as_list_from_dataframe(react_frame, "PATENT ID")
+
+            from_list = col_from_df(react_frame, "PATENT ID")
             if from_list == []:
-                from_list = get_column_as_list_from_dataframe(react_frame, "patent id")
+                from_list = col_from_df(react_frame, "patent id")
             if from_list == []:
-                raise Exception("No Patent ID found")  # pylint: disable=broad-exception-raised
+                raise Exception("No patent ID found")  # pylint: disable=broad-exception-raised
+            # raise Exception('This is a test error')
         except Exception as err:  # pylint: disable=broad-except
-            output_error(
-                "Could not load valid list from dataframe column column 'PATENT ID' or 'patent id' " + str(err),
-                cmd_pointer=cmd_pointer,
-                return_val=False,
-            )
+            output_error(ds4sd_msg("err_patent_id", err), return_val=False)
             return True
     elif "from_file" in inputs:
         from_file = inputs["from_file"]
         try:
-            react_frame = get_dataframe_from_file(cmd_pointer, from_file)
-            from_list = get_column_as_list_from_dataframe(react_frame, "PATENT ID")
+            react_frame = csv_to_df(cmd_pointer, from_file)
+            from_list = col_from_df(react_frame, "PATENT ID")
             if from_list == []:
-                from_list = get_column_as_list_from_dataframe(react_frame, "patent id")
+                from_list = col_from_df(react_frame, "patent id")
             if from_list == []:
-                raise Exception("No Patent ID found")  # pylint: disable=broad-exception-raised
-        except Exception:  # pylint: disable=broad-except
-            output_error(
-                "Could not load valid list from file column 'PATENT ID' or 'patent id' ",
-                cmd_pointer=cmd_pointer,
-                return_val=False,
-            )
+                raise Exception("No patent ID found")  # pylint: disable=broad-exception-raised
+            # raise Exception('This is a test error')
+        except Exception as err:  # pylint: disable=broad-except
+            output_error(ds4sd_msg("err_patent_id", err), return_val=False)
             return True
     try:
         query = MoleculesInPatentsQuery(
@@ -101,7 +80,7 @@ def search_molecules_in_patents(inputs: dict, cmd_pointer):
         results_table = []
         for row in resp.outputs["molecules"]:
             result = {
-                "id": row["persistent_id"],
+                "Id": row["persistent_id"],
                 "SMILES": "",
                 "InChIKey": "",
                 "InChI": "",
@@ -114,9 +93,9 @@ def search_molecules_in_patents(inputs: dict, cmd_pointer):
                 if ref["type"] == "inchi":
                     result["InChI"] = ref["value"]
             results_table.append(result)
-
-    except Exception as e:  # pylint: disable=broad-except
-        output_error("Error in calling deepsearch:" + str(e), cmd_pointer=cmd_pointer, return_val=False)
+        # raise Exception('This is a test error')
+    except Exception as err:  # pylint: disable=broad-except
+        output_error(ds4sd_msg("err_deepsearch", err), return_val=False)
         return False
     if "save_as" in inputs:
         results_file = str(inputs["results_file"])
@@ -127,22 +106,23 @@ def search_molecules_in_patents(inputs: dict, cmd_pointer):
             cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/" + results_file, index=False
         )
         df = df.replace(np.nan, "", regex=True)
-        output_text(
-            "\n <success>File successfully saved to workspace.</success>", cmd_pointer=cmd_pointer, return_val=False
-        )
-    output_text(" ", cmd_pointer=cmd_pointer, return_val=False)
-    output_text("<h2>Molecules Mentioned in listed Patents:</h2>", cmd_pointer=cmd_pointer, return_val=False)
-    output_text(" / ".join(from_list) + "", cmd_pointer=cmd_pointer, return_val=False)
+        output_success(msg("success_file_saved", results_file), return_val=False, pad_top=1, pad_btm=0)
+    output_text(
+        f"<bold>We found {len(results_table)} molecules that are mentioned in the following patents:</bold>",
+        return_val=False,
+        pad_top=1,
+    )
+    output_text("\n".join(from_list), return_val=False)
 
-    if cmd_pointer.notebook_mode is True:
-        df = pd.DataFrame(results_table)
+    df = pd.DataFrame(results_table)
+
+    if GLOBAL_SETTINGS["display"] == "notebook":
         if len(df) > 0:
-            col = df.pop("SMILES")
-            df.insert(0, col.name, col)
             PandasTools.AddMoleculeColumnToFrame(df, smilesCol="SMILES")
             col = df.pop("ROMol")
+            df.insert(0, col.name, col)
+            col = df.pop("SMILES")
             df.insert(1, col.name, col)
-        return df
-    else:
-        table = pd.DataFrame(results_table)
-        output_table(table, cmd_pointer, tablefmt=_tableformat)
+        return output_table(df, is_data=True).data
+
+    return output_table(df)

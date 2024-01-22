@@ -1,27 +1,18 @@
+# Example command:
+# predict retrosynthesis 'BrCCc1cccc2c(Br)c3ccccc3cc12' using (max_steps=3)
+
 """This library is for implementing the predict retrosynthesis function from RXN"""
 
 from typing import Dict, List
 import importlib.util as ilu
-from openad.helpers.output import output_text
-from openad.helpers.output import output_error
+from openad.helpers.output import output_text, output_error
 from rdkit import Chem
 from rdkit.Chem import AllChem
 from time import sleep
+from openad.app.global_var_lib import GLOBAL_SETTINGS
 from openad.molecules.molecule_cache import create_analysis_record, save_result
 from openad.molecules.mol_functions import canonical_smiles, valid_smiles
-
-_tableformat = "simple"
-
-
-def get_include_lib(cmd_pointer):
-    """load the rxn include library functions"""
-    folder = cmd_pointer.toolkit_dir + "/RXN" + "/rxn_include.py"
-    file = "rxn_include"
-    spec = ilu.spec_from_file_location(file, folder)
-    rxn = ilu.module_from_spec(spec)
-    spec.loader.exec_module(rxn)
-    rxn_helper = rxn.rxn_helper()
-    return rxn_helper
+from openad.helpers.general import load_tk_module
 
 
 def get_reaction_from_smiles(reaction_smiles: str) -> Chem.rdChemReactions.ChemicalReaction:
@@ -60,10 +51,13 @@ def collect_reactions_from_retrosynthesis_text(tree: Dict) -> List[str]:
 
 def predict_retro(inputs: dict, cmd_pointer):
     """Perform RXN Predict Retro Synthesis"""
-    rxn_helper = get_include_lib(cmd_pointer)
+
+    # Load module from toolkit folder
+    rxn_helper = load_tk_module(cmd_pointer, "RXN", "rxn_include", "rxn_helper")()
+
     rxn_helper.sync_up_workspace_name(cmd_pointer)
     rxn_helper.get_current_project(cmd_pointer)
-    if cmd_pointer.notebook_mode is True:
+    if GLOBAL_SETTINGS["display"] == "notebook":
         from IPython.display import display  # pylint: disable=import-outside-toplevel
         from halo import HaloNotebook as Halo  # pylint: disable=import-outside-toplevel
     else:
@@ -94,7 +88,7 @@ def predict_retro(inputs: dict, cmd_pointer):
     #######################
 
     if not valid_smiles(str(product_smiles)):
-        output_error(" Invalid Smiles Supplied.", cmd_pointer=cmd_pointer, return_val=False)
+        output_error(" Invalid Smiles Supplied.", return_val=False)
         return False
     else:
         product_smiles = canonical_smiles(product_smiles)
@@ -102,12 +96,11 @@ def predict_retro(inputs: dict, cmd_pointer):
     if len(product_smiles.split(".")) > 1:
         output_error(
             " SMILES provides describes a reaction. Use `predict reaction` to see probable result",
-            cmd_pointer=cmd_pointer,
             return_val=False,
         )
         return False
 
-    if cmd_pointer.notebook_mode is True:
+    if GLOBAL_SETTINGS["display"] == "notebook":
         import py3Dmol
 
         style = "stick"
@@ -122,7 +115,7 @@ def predict_retro(inputs: dict, cmd_pointer):
         view.setStyle({style: {}})
         view.zoomTo()
         view.show()
-        output_text("<success>Target Molecule:</success> " + product_smiles, cmd_pointer=cmd_pointer, return_val=False)
+        output_text("<green>Target Molecule:</green> " + product_smiles, return_val=False)
     #######################
     result_parameters = {}
     if "availability_pricing_threshold" in inputs:
@@ -214,10 +207,9 @@ def predict_retro(inputs: dict, cmd_pointer):
                 if predict_retro_response["response"]["payload"] is None:
                     output_text(
                         "<h2>No Result:</h2>  Unable to find path for  " + product_smiles,
-                        cmd_pointer=cmd_pointer,
                         return_val=False,
                     )
-                    if cmd_pointer.notebook_mode is True:
+                    if GLOBAL_SETTINGS["display"] == "notebook":
                         return
                     else:
                         return False
@@ -268,32 +260,28 @@ def predict_retro(inputs: dict, cmd_pointer):
             num_results = num_results + 1
             output_text(
                 "",
-                cmd_pointer=cmd_pointer,
                 return_val=False,
             )
             if num_results < 4:
                 results[str(index)] = {"confidence": tree["confidence"], "reactions": []}
 
             output_text(
-                "<h2> <success>Showing path </success> {} <success> with confidence </success>{}:".format(
+                "<h2> <green>Showing path </green> {} <green> with confidence </green>{}:".format(
                     index, tree["confidence"]
                 )
                 + "</h2>",
-                cmd_pointer=cmd_pointer,
                 return_val=False,
             )
 
             for reaction in collect_reactions_from_retrosynthesis(tree):
                 if num_results < 4:
                     results[str(index)]["reactions"].append(reactions_text[i])
-                output_text(
-                    "<success> Reaction: </success>" + reactions_text[i], cmd_pointer=cmd_pointer, return_val=False
-                )
+                output_text("<green> Reaction: </green>" + reactions_text[i], return_val=False)
                 i = i + 1
-                if cmd_pointer.notebook_mode is True:
+                if GLOBAL_SETTINGS["display"] == "notebook":
                     display(Chem.Draw.ReactionToImage(reaction))
                 else:
-                    output_text("", cmd_pointer=cmd_pointer, return_val=False)
+                    output_text("", return_val=False)
 
         save_result(
             create_analysis_record(product_smiles, "RXN", "Predict_Retrosynthesis", result_parameters, results),
@@ -302,7 +290,6 @@ def predict_retro(inputs: dict, cmd_pointer):
     except Exception as e:  # pylint: disable=broad-exception
         output_error(
             "The following error message was received while trying to display results: " + str(e),
-            cmd_pointer=cmd_pointer,
             return_val=False,
         )
         return False
