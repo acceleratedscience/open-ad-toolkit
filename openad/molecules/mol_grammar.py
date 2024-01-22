@@ -208,8 +208,8 @@ or with single quotes
             category="Molecules",
             command="display molecule <name> | <smiles> | <inchi> | <inchikey> | <cid>",
             description=f"""
-Display a molecule's identifiers, propoerties, synonyms and any Analysis results it has been enriched with.
-if the molecule existins in the current molecule workling list in memory the molecule will be retrieved from there if not pubchem will be checked to see if the molecule and its information is avialable there.
+This command will display a molecule's identifiers, propoerties, synonyms and any Analysis results it has been enriched with.
+if the molecule exists in the current molecule workling list in memory the molecule will be retrieved from there if not pubchem will be checked to see if the molecule and its information is avialable there.
 
 {MOL_SHORTHAND}
 
