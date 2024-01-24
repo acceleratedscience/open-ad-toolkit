@@ -110,6 +110,20 @@ Ensure you're running Python 3.10 or 3.11. There's multiple ways of updating Pyt
     > **Note:** Due to an issue with one of our dependencies, Python 3.12 is not yet supported.
 
         git clone https://github.com/pyenv/pyenv.git ~/.pyenv
+    
+    Add pyenv to your shell by adding the lines below to your shell's configuration file. Depending on your shell, this would be `~/.zshrc.` for Z shell (zsh) or `~/.bash_profile` for Bash (bash). To check what shell you have, run `echo $0`.
+        
+        export PYENV_ROOT="$HOME/.pyenv"
+        export PATH="$PYENV_ROOT/bin:$PATH"
+        eval "$(pyenv init --path)"
+    
+    Now restart your terminal by executing your relevant startup file, for example:
+
+        # Replace .zshrc. with the correct startup file if needed.
+        source ~/.zshrc.
+    
+    Now you can install Python.
+
         pyenv install 3.10
 
 1.  **Step 1: Set up your virtual environment** (optional)<br>
@@ -364,9 +378,25 @@ If you have any questions in the meantime, please [reach out]({% link about.md %
 <div markdown="block">
 
 1.  **Step 0: Before you start**<br>
-Ensure you're running Python 3.10.10 or above. There's multiple ways of doing this, we'll use pyenv.
+Ensure you're running Python 3.10 or 3.11. There's multiple ways of updating Python, we'll use pyenv.
+
+    > **Note:** Due to an issue with one of our dependencies, Python 3.12 is not yet supported.
 
         git clone https://github.com/pyenv/pyenv.git ~/.pyenv
+    
+    Add pyenv to your shell by adding the lines below to your shell's configuration file. Depending on your shell, this would be `~/.zshrc.` for Z shell (zsh) or `~/.bash_profile` for Bash (bash). To check what shell you have, run `echo $0`.
+        
+        export PYENV_ROOT="$HOME/.pyenv"
+        export PATH="$PYENV_ROOT/bin:$PATH"
+        eval "$(pyenv init --path)"
+    
+    Now restart your terminal by executing your relevant startup file, for example:
+
+        # Replace .zshrc. with the correct startup file if needed.
+        source ~/.zshrc.
+    
+    Now you can install Python.
+
         pyenv install 3.10
 
 1.  **Step 1: Set up your virtual environment** (optional)<br>
