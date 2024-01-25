@@ -6,31 +6,33 @@ get workspace [ <workspace_name> ];Workspaces
 create workspace <workspace_name> [ description('<description>') on path '<path>' ];Workspaces
 remove workspace <workspace_name> ;Workspaces
 list workspaces;Workspaces
-add molecule|mol <name> | <smiles> | <inchi> | <inchikey> | <cid>;Molecules
-display molecule|mol <name> | <smiles> | <inchi> | <inchikey> |  <cid>;Molecules
+add molecule <name> | <smiles> | <inchi> | <inchikey> | <cid> [ as '<name>' ] [ basic ] [force ];Molecules
+display molecule <name> | <smiles> | <inchi> | <inchikey> | <cid>;Molecules
+display sources <name> | <smiles> | <inchi> | <inchikey> | <cid>;Molecules
 rename molecule <molecule_identifer_string> as <molecule_name>;Molecules
-export molecule|mol <name> | <smiles> | <inchi> | <inchikey> |  <cid> [as file];Molecules
-remove molecule|mol <name> | <smiles> | <inchi> | <inchikey> | <formula> | <cid> ;Molecules
-list molecules|mols;Molecules
-save molecule-set|molset as <molecule-set_name>;Molecules
+export molecule <name> | <smiles> | <inchi> | <inchikey> | <cid> [ as file ];Molecules
+remove molecule <name> | <smiles> | <inchi> | <inchikey> | <cid>;Molecules
+list molecules;Molecules
+save molecule-set as <molecule_set_name>;Molecules
 load molecule-set|molset <molecule-set_name>;Molecules
-list molecule-sets|molsets;Molecules
-enrich molecule-set with analysis;Molecules
+merge molecule-set|molset <molecule-set_name> [merge only] [append only];Molecules
+list molecule-sets;Molecules
+enrich molecules with analysis;Molecules
 clear analysis cache;Molecules
 clear molecules;Molecules
-create molecule <smiles_string> name <molecule_name>;Molecules
 @(<name> | <smiles> | <inchi> | <inchikey> | <cid>)>><molecule_property_name>;Molecules
-load molecules using file '<csv_or_sdf_filename>';Molecules
+load molecules using file '<csv_or_sdf_filename>' [ merge with pubchem ];Molecules
 export molecules [ as <csv_filename> ];Molecules
+show molecule <name> | <smiles> | <inchi> | <inchikey> | <cid>;Molecules
 show molecules using ( file '<mols_file>' | dataframe <dataframe> ) [ save as '<sdf_or_csv_file>' | as molsobject ];Molecules
-show mol '<json_mol_file> | <sdf_file> | <smiles_string> | <inchi_string>';Molecules
-load molecules using dataframe '<filename>' ;Utility
+load molecules using dataframe <dataframe> [ merge with pubchem ];Utility
 display data '<filename.csv>';Utility
   -> result save [as '<filename.csv>'];Utility
   -> result open;Utility
   -> result edit;Utility
   -> result copy;Utility
   -> result display;Utility
+  -> result as dataframe;Utility
 edit config '<json_config_file>' [ schema '<schema_file>'];Utility
 ds4sd;Toolkits
 rxn;Toolkits
@@ -40,6 +42,8 @@ list toolkits;Toolkits
 list all toolkits;Toolkits
 add toolkit <toolkit_name>;Toolkits
 remove toolkit <toolkit_name>;Toolkits
+update toolkit <toolkit_name>;Toolkits
+update all toolkits;Toolkits
 set context <toolkit_name> [ reset ];Toolkits
 get context;Toolkits
 unset context;Toolkits

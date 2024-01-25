@@ -170,11 +170,11 @@ The following commands only need to be run once after installation:
     Make sure to select the "ad-venv" iPython kernel. You can do this under _Kernel > Change Kernel_, or in the latest versions of Jupyter by clicking the kernel name in the top right hand corner. If you don't see your iPython kernel, make sure you followed the Jupyter Setup instructions listed above.
 
 <figure>
-    <a href="assets/jupyter-notebook-kernel.png" target="_blank"><img src="assets/jupyter-notebook-kernel.png"></a>
+    <a href="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/jupyter-notebook-kernel.png" target="_blank"><img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/jupyter-notebook-kernel.png"></a>
     <figcaption align="center" style="font-size:0.9em;opacity:.6;margin-top:-30px;margin-bottom:50px"><i>Jupyter Notebook</i></figcaption>
 </figure>
 <figure>
-    <a href="assets/jupyter-lab-kernel.png" target="_blank"><img src="assets/jupyter-lab-kernel.png"></a>
+    <a href="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/jupyter-lab-kernel.png" target="_blank"><img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/jupyter-lab-kernel.png"></a>
     <figcaption align="center" style="font-size:0.9em;opacity:.6;margin-top:-30px;margin-bottom:50px"><i>Jupyter Lab</i></figcaption>
 </figure>
 
@@ -211,7 +211,7 @@ Before you can interact with the toolkits, you'll need to register with each ind
     - Click the "Generate new API key" button<br>
       <br>
 
-      <a href="assets/ds4sd-api-key.png" target="_blank"><img src="assets/ds4sd-api-key.png" /></a>
+      <a href="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/ds4sd-api-key.png" target="_blank"><img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/ds4sd-api-key.png" /></a>
 
 1. Once inside the OpenAD client, you'll be prompted to authenticate when activating the Deep Search (DS4SD) toolkit. When running `set context ds4sd` :
 
@@ -236,7 +236,7 @@ Before you can interact with the toolkits, you'll need to register with each ind
     -   Obtain your API key by clicking the user profile icon in the top right hand corner and select "My profile".<br>
         <br>
 
-        <a href="assets/rxn-api-key.png" target="_blank"><img src="assets/rxn-api-key.png" /></a>
+        <a href="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/rxn-api-key.png" target="_blank"><img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/rxn-api-key.png" /></a>
 
 1. When setting the context to RXN using `set context rxn` you'll be prompted to create a new auth configuration file:
 
@@ -287,9 +287,7 @@ To enable our AI assistant, you'll need an account with OpenAI. There is a one m
 
 4. Run `tell me` to be prompted for your OpenAI API credentials
 
-5. Your hostname is [https://api.openai.com/v1/models](https://api.openai.com/v1/models)
-
-<a href="assets/openai-api-key.png" target="_blank"><img src="assets/openai-api-key.png" /></a>
+<a href="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/openai-api-key.png" target="_blank"><img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/openai-api-key.png" /></a>
 
 <br>
 
