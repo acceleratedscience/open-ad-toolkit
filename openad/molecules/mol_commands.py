@@ -30,6 +30,7 @@ from openad.molecules.mol_functions import (
     new_molecule,
     mol2svg,
     mol2sdf,
+    MOL_PROPERTIES,
 )
 
 # Globals
@@ -177,7 +178,7 @@ def export_molecule(cmd_pointer, inp):
     return True
 
 
-def add_molecule(cmd_pointer, inp, force=False):
+def add_molecule(cmd_pointer, inp, force=False, suppress=False):
     """adds a molecule to the working set"""
 
     basic = False
@@ -233,8 +234,8 @@ def add_molecule(cmd_pointer, inp, force=False):
         return False
 
     cmd_pointer.molecule_list.append(mol.copy())
-
-    output_success("Molecule was added", return_val=False)
+    if suppress == False:
+        output_success("Molecule was added", return_val=False)
     return True
 
 
@@ -531,6 +532,8 @@ def format_properties(mol):
     """formats properties for display"""
     properties_string = "\n<yellow>Properties:</yellow>\n"
     properties = get_properties(mol)
+    if GLOBAL_SETTINGS["display"] == "terminal" and "DS_URL" in properties:
+        del properties["DS_URL"]
 
     properites_string = properties_string + name_and_value_columns(
         properties,
@@ -585,6 +588,16 @@ def load_molecules(cmd_pointer, inp):
     for i in glob.glob(mol_file_path + "/" + inp["molecule-set_name"].upper() + "--*.molecule", recursive=True):
         func_file = open(i, "rb")
         mol = dict(pickle.load(func_file))
+        for properties in mol["properties"]:
+            if properties not in MOL_PROPERTIES and properties not in [
+                "atoms",
+                "bonds",
+                "record",
+                "elements",
+                "cactvs_fingerprint",
+                "fingerprint",
+            ]:
+                MOL_PROPERTIES.append(properties)
         cmd_pointer.molecule_list.append(mol.copy())
     output_text("<green>Number of molecules loaded</green> = " + str(len(cmd_pointer.molecule_list)), return_val=False)
     return True
@@ -652,7 +665,11 @@ def get_property(cmd_pointer, inp):
             if molecule_property.lower() == "synonyms":
                 if mol["synonyms"] is not None and "Synonym" in mol["synonyms"]:
                     return mol["synonyms"]["Synonym"]
-            return mol["properties"][molecule_property.lower()]
+            if molecule_property.lower() in mol["properties"]:
+                return mol["properties"][molecule_property.lower()]
+            else:
+                return None
+
         else:
             output_error("molecule not available on pubchem", return_val=False)
             return None
@@ -660,7 +677,10 @@ def get_property(cmd_pointer, inp):
         if molecule_property.lower() == "synonyms":
             if mol["synonyms"] is not None and "Synonym" in mol["synonyms"]:
                 return mol["synonyms"]["Synonym"]
-        return mol["properties"][molecule_property.lower()]
+        if molecule_property.lower() in mol["properties"]:
+            return mol["properties"][molecule_property.lower()]
+        else:
+            return None
 
 
 # Launch molecule viewer.

@@ -567,6 +567,18 @@ grammar_help.append(
     )
 )
 
+# --> result as dataframe --> Return the result as a dataframe
+statements.append(Forward(result + a_s + CaselessKeyword("dataframe"))("display_data__as_dataframe"))
+grammar_help.append(
+    help_dict_create(
+        name="as dataframe",
+        category="Utility",
+        command="result as dataframe",
+        description="Return the result as dataframe (only for Jupyter Notebook)",
+        parent="display data",
+    )
+)
+
 # Edit config file (CLI-only)
 if not is_notebook_mode():
     statements.append(
@@ -1238,7 +1250,7 @@ def output_train_statements(cmd_pointer):
             Search: a repository or object
             Exec/Execute: execute a function
             Display: display molecule, file or result set
-            Show:  Show a data set using a utility that enables you to manipulate or diagramatically view it.
+            Show:  Show a data set using a utility that enables you to manipulate or  diagrammatically view it.
             Backup: backup a plugin or workspace
             Add: add a function or plugin
 
@@ -1258,8 +1270,8 @@ def output_train_statements(cmd_pointer):
                 - Analysis : records of selected result sets from supporting analysis functions such as predict retrosynthesis
             molecules when displayed will show these data points.
             molecule-set: a molecule-set is a set a copy of a working list of molecules that has been stored in disk under a molecule set name and can be loaded into the working list of molecules in a users sessions
-            The short form of  'molecule-set' is 'molset' 
-            The short form of  'molecule' is 'mol' 
+            The short form of 'molecule-set' is 'molset' 
+            The short form of 'molecule' is 'mol' 
 
             
             

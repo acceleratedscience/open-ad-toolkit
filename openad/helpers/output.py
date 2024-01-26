@@ -346,6 +346,7 @@ def output_table(
             "<cmd>edit</cmd>",
             "<cmd>copy</cmd>",
             "<cmd>display</cmd>",
+            "<cmd>as dataframe</cmd>",
             "<cmd>save [as '<filename.csv>']</cmd>",
         )
         footnote += "<soft>Next up, you can run: </soft>" + "/".join(message)

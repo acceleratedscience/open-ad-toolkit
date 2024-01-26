@@ -109,7 +109,7 @@ desc = QuotedString("'", escQuote="\\")
 
 MOL_SHORTHAND = "You can use the 'mol' shorthand instead of 'molecule'."
 MOLSET_SHORTHAND = "You can use the 'molset' shorthand instead of 'molecule-set'."
-SPECIFY_MOL = "You can specify any molecule by SMILES or InChI, and PubChem classified molecules also by name, InChIKey or their PubChem CID."
+SPECIFY_MOL = "You can specify any molecule by SMILES or InChI, and PubChem classified molecules also by name, InChIKey or their PubChem CID. \n A molecule identifier can be in single quotes or defined with unquoted text. If you have spaces in your molecule identifier e.g. a name, then you must user a single quoted string"
 WORKING_SET_PRIORITY = "If the requested molecule exists in your current working list, that version will be used."
 USING_NAME = "If you use the name of a molecule, the tool will do a caseless search of the names and synonyms first in current working list, then on pubchem."
 
@@ -136,11 +136,11 @@ def mol_grammar_add(statements, grammar_help):
             category="Molecules",
             command="add molecule <name> | <smiles> | <inchi> | <inchikey> | <cid> [ as '<name>' ] [ basic ] [force ]",
             description=f"""
-This Command adds a Molecule to a crrent working list of molecules in memory. When adding a molecule by name, this name will become the molecule's identifying string. 
+This command is how you add a molecule to a current working list of molecules in memory. When adding a molecule by name, this name will become the molecule's identifying string. 
 
 It will take any molecules identifier from the following categories:
     -<cmd>smiles </cmd>
-    -<cmd>name / synonym</cmd>
+    -<cmd>name or synonym</cmd>
     -<cmd>smiles</cmd>
     -<cmd>inchi</cmd>
     -<cmd>inchikey </cmd>
@@ -149,10 +149,12 @@ It will take any molecules identifier from the following categories:
 Options :
     - <cmd>as <name> </cmd>: if the <cmd> as '<name>' </cmd> not used the molecule the  molecule identfier will be used for the molecules name. if the <cmd> as '<name>' </cmd> not used the molecule the  molecule identfier will be used for the molecules name.
         You can set or override an name later for  any molecule with the <cmd>rename molecule</cmd> command.
-    - <cmd> basic </cmd> Creates an un
+    - <cmd> basic </cmd> Creates a molecule that does not have its properties and synonyms populated with pubchem data, this feature is only valid with a SMILES molecule identifier
     - <cmd>force</cmd>: The <cmd>force</cmd> option allows you to ovveride the confirmation that you wish to add a molecule.
 
 
+
+    
 {MOL_SHORTHAND}
 
 {SPECIFY_MOL}
@@ -160,9 +162,11 @@ Options :
 {USING_NAME}
 
 
-Examples:
+Examples of how to add a molecule to your working list:
 - Add a molecule by name:
 <cmd>add molecule aspirin</cmd>
+or with single quotes
+<cmd> display molecule 'Aspirin 325 mg' </cmd>
 
 - Add a molecule by name and force through the acknowledgement to add it:
 <cmd>add molecule aspirin force</cmd>
@@ -170,11 +174,16 @@ Examples:
 - Add a molecule by SMILES:
 <cmd>add molecule CC(=O)OC1=CC=CC=C1C(=O)O</cmd>
 
+- Add a molecule by SMILES without populated pubchem properties:
+<cmd>add molecule CC(=O)OC1=CC=CC=C1C(=O)O basic </cmd>
+
 - Add a molecule by CID:
 <cmd>add mol 2244</cmd>
 
 - Add a molecule by InChI:
 <cmd>add mol InChI=1S/C9H8O4/c1-6(10)13-8-5-3-2-4-7(8)9(11)12/h2-5H,1H3,(H,11,12)</cmd>
+ or with single quotes
+ <cmd>add mol 'InChI=1S/C9H8O4/c1-6(10)13-8-5-3-2-4-7(8)9(11)12/h2-5H,1H3,(H,11,12)'</cmd>
 
 - Add a molecule by InChIKey:
 <cmd>add mol BSYNRYMUTXBXSQ-UHFFFAOYSA-N</cmd>
@@ -199,8 +208,8 @@ Examples:
             category="Molecules",
             command="display molecule <name> | <smiles> | <inchi> | <inchikey> | <cid>",
             description=f"""
-Display a molecule's identifiers, propoerties, synonyms and any Analysis results it has been enriched with.
-if the molecule existins in the current molecule workling list in memory the molecule will be retrieved from there if not pubchem will be checked to see if the molecule and its information is avialable there.
+This command will display a molecule's identifiers, propoerties, synonyms and any Analysis results it has been enriched with.
+if the molecule exists in the current molecule workling list in memory the molecule will be retrieved from there if not pubchem will be checked to see if the molecule and its information is avialable there.
 
 {MOL_SHORTHAND}
 
@@ -294,7 +303,7 @@ Let's say you've added a molecule "CC(=O)OC1=CC=CC=C1C(=O)O" to your current wor
             category="Molecules",
             command="export molecule <name> | <smiles> | <inchi> | <inchikey> | <cid> [ as file ]",
             description=f"""
-When run inside a Notebook, this will return a dictionary of the molecule's properties. When run from the command line, or when `as file` is set, the molecule will be saved to your workspace as a JSON file, named after the molecule's identifying string.
+When run inside a jupyter lab notebook, this will return a dictionary of the molecule's properties. When run from the command line, or when `as file` is set, the molecule will be saved to your workspace as a JSON file, named after the molecule's identifying string.
 If the molecule is in your current working list it will be retrieved from there, if the molecule is not there pubchem will be called to retrieve the molecule.
 
 {MOL_SHORTHAND}
@@ -336,7 +345,7 @@ Examples:
 <cmd>remove mol  BSYNRYMUTXBXSQ-UHFFFAOYSA-N</cmd>
 
 - Remove a molecule by InChI:
-<cmd>remove mol  InChI=1S/C9H8O4/c1-6(10)13-8-5-3-2-4-7(8)9(11)12/h2-5H,1H3,(H,11,12)</cmd>
+<cmd>remove mol  InChI='1S/C9H8O4/c1-6(10)13-8-5-3-2-4-7(8)9(11)12/h2-5H,1H3,(H,11,12)'</cmd>
 
 - Remove a molecule by CID:
 <cmd>remove mol 2244</cmd>
@@ -410,11 +419,11 @@ Example:
             category="Molecules",
             command="merge molecule-set|molset <molecule-set_name> [merge only] [append only]",
             description="""
-merges a molecule-set from your workspace into cour current working list of molecules in memory, and updates properties/Analysis in existing molecules or appends new molecules to the working list.
+This command merges a molecule-set from your workspace into cour current working list of molecules in memory, and updates properties/Analysis in existing molecules or appends new molecules to the working list.
 
 Options:
     - <cmd> merge only</cmd> Only merges with existing molecules in list
-    - <cmd> append only</cmd> Onlyappend molecules not in list
+    - <cmd> append only</cmd> Only append molecules not in list
 <cmd>merge molset my_working_set</cmd>
 
 """,
@@ -441,7 +450,7 @@ Options:
             name="enrich molecules",
             category="Molecules",
             command="enrich molecules with analysis",
-            description="""Enrich every molecule in your current working list of molecules with the  analysis results. This assumes that molecules in the current working list was the input or result for the analysis.
+            description="""This command Enriches every molecule in your current working list of molecules with the analysis results. This assumes that molecules in the current working list was the input or result for the analysis.
 
             This command currently covers results from the following Analysis commands:
             - RXN Toolkit <cmd>predict Reaction</cmd>
@@ -460,7 +469,7 @@ Options:
             name="clear analysis cache",
             category="Molecules",
             command="clear analysis cache",
-            description="Clear the cache of analysis results for your current workspace.",
+            description="this command clears the cache of analysis results for your current workspace.",
         )
     )
 
@@ -472,7 +481,7 @@ Options:
             name="clear Molecules",
             category="Molecules",
             command="clear molecules",
-            description="Clear the working list of molecules.",
+            description="This command clears the working list of molecules.",
         )
     )
 
@@ -489,7 +498,7 @@ Options:
             category="Molecules",
             command="@(<name> | <smiles> | <inchi> | <inchikey> | <cid>)>><molecule_property_name>",
             description=f"""
-Request a molecule's certain property, it will first try and retrieve the provided molecule from your working list of molecules, if it is not there it will will try and retrieve the molecule from pubchem
+This command request the given property of a molecule, it will first try and retrieve the provided molecule from your working list of molecules, if it is not there it will will try and retrieve the molecule from pubchem.
 
 The <cmd>@</cmd> symbol should be followed by the molecule's name, SMILES, InChI, InChIKey or CID, then after the <cmd>>></cmd> include one of the properties mentioned below.
 
@@ -499,7 +508,7 @@ E.g. <cmd>@aspirin>>xlogp</cmd>
 
 {USING_NAME}
 
-Examples:
+Examples of how to retrieve the value of a molecules property:
 - Obtain the molecular weight of the molecule known as Aspirin.
 <cmd>@aspirin>>molecular_weight</cmd>
 
@@ -526,7 +535,7 @@ Available properties: <cmd>{'</cmd>, <cmd>'.join(m_props)}</cmd>
             name="load molecules",
             category="Molecules",
             command="load molecules using file '<csv_or_sdf_filename>' [ merge with pubchem ]",
-            description="Load molecules from a CSV or SDF file into the molecule working list. Optionally you can add <cmd>merge with pubchem</cmd> to the command to fill in missing properties of the molecule.",
+            description="This command Loads molecules from a CSV or SDF file into the molecule working list. Optionally you can add <cmd>merge with pubchem</cmd> to the command to fill in missing properties of the molecule.",
         )
     )
 
@@ -548,7 +557,7 @@ Available properties: <cmd>{'</cmd>, <cmd>'.join(m_props)}</cmd>
             category="Utility",
             command="load molecules using dataframe <dataframe> [ merge with pubchem ]",
             description=""""            
-Load molecules into the molecule working list from a dataframe. 
+This command Load molecules into the molecule working list from a dataframe. 
 
 If the <cmd> merge with pubchem</cmd>  clause is used then loaded molecules will have properties that are not in the source file filled in using pubchem requests, this will slow the process down""",
         )
@@ -563,7 +572,7 @@ If the <cmd> merge with pubchem</cmd>  clause is used then loaded molecules will
             category="Molecules",
             command="export molecules [ as <csv_filename> ]",
             description="""
-Export the molecules in the current working list of molecules.
+This command exports the molecules in the current working list of molecules.
 
 When run inside a Notebook, this will return a dataframe. When run from the command line, the molecules will be saved to your workspace as a CSV file named "result_#.csv". The rows will be numbered with the highest number representing the latest molecule that was added.
 """,
@@ -580,7 +589,19 @@ When run inside a Notebook, this will return a dataframe. When run from the comm
             name="show molecule",
             category="Molecules",
             command="show molecule <name> | <smiles> | <inchi> | <inchikey> | <cid>",
-            description="Inspect a molecule in the browser.",
+            description="""
+Inspect a molecule in the browser.
+
+{MOL_SHORTHAND}
+
+When you show a molecule by SMILES or InChI, we can display it immediately. When you show a molecule by name, InChIKey or PubChem CID, we need to first retrieve it from PubChem, which can take a few seconds.
+
+Examples of how to show a molecule and its proerties in the molecule viewer:
+- <cmd>show mol aspirin</cmd>
+- <cmd>show mol CC(=O)OC1=CC=CC=C1C(=O)O</cmd>
+- <cmd>show mol InChI=1S/C9H8O4/c1-6(10)13-8-5-3-2-4-7(8)9(11)12/h2-5H,1H3,(H,11,12)</cmd>
+- <cmd>show mol 2244</cmd>
+""",
         )
     )
     # Show molecules grid.
@@ -617,8 +638,8 @@ When run inside a Notebook, this will return a dataframe. When run from the comm
             category="Molecules",
             command="show molecules using ( file '<mols_file>' | dataframe <dataframe> ) [ save as '<sdf_or_csv_file>' | as molsobject ]",
             description=f"""Launch the molecule viewer { 'in your browser ' if is_notebook_mode() else '' }to examine and select molecules from a SMILES sdf/csv dataset.
-
-    Examples:
+    { 'if you are working from a notebook, the <cmd> as mols object </cmd> clause allows you to display the mols2grid object and use the <cmd>.get_selection()</cmd>  method to retrieve selected molecules ' if is_notebook_mode() else '' }
+    Examples of how to show molecules in mols2grid:
     - <cmd>show molecules using file 'base_molecules.sdf' as molsobject</cmd>
     - <cmd>show molecules using dataframe my_dataframe save as 'selection.sdf'</cmd>
     """,

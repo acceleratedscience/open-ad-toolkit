@@ -27,6 +27,29 @@ MOL_INCHIKEY_INDEX = "inchikey"
 MOL_CID_INDEX = "cid"
 MOL_SDF_INDEX = "sdf"
 MOL_FORMULA = "formula"
+INPUT_MAPPINGS = {
+    "NAME": "chemical_name",
+    "xlogp3": "xlogp",
+    "molecular weight": "molecular_weight",
+    "complexity": "complexity",
+    "rotatable bond count": "rotatable_bond_count",
+    "hydrogen bond acceptor count": "h_bond_acceptor_count",
+    "hydrogen bond donor count": "h_bond_donor_count",
+    "exact mass": "exact_mass",
+    "molecular weight": "molecular_weight",
+    "monoisotopic mass": "monoisotopic_mass",
+    "topological polar surface area": "tpsa",
+    "heavy atom count": "heavy_atom_count",
+    "formal charge": "formal_change",
+    "isotope atom count": "isotope_atom_count",
+    "defined atom stereocenter count": "defined_atom_stereo_count",
+    "undefined atom stereocenter count": "undefined_atom_stereo_count",
+    "covalently-bonded unit count": "covalent_unit_count",
+    "compound is canonicalized": "compound_canonicalized",
+    "formal charge": "charge",
+    "SOL_classification": "sol_classification",
+    "SOL": "sol",
+}
 PROPERTY_SOURCES = {
     "Log P-XLogP3-AA": "xlogp",
     "Log P-XLogP3": "xlogp",
@@ -101,6 +124,8 @@ MOL_PROPERTIES = sorted(
         "mmff94_partial_charges_3d",
         "multipoles_3d",
         "pharmacophore_features_3d",
+        "sol_classification",
+        "sol",
     ]
 )
 
@@ -343,8 +368,17 @@ def organize_properties(mol):
     mol_organized["identifiers"] = get_identifiers(mol)
     mol_organized["synonyms"] = mol["synonyms"]["Synonym"] if "Synonym" in mol["synonyms"] else []
     mol_organized["properties"] = get_properties(mol)
+    if "DS_URL" in mol_organized["properties"]:
+        mol_organized["properties"]["DS_URL"] = ""
+
     mol_organized["analysis"] = mol["analysis"]
     mol_organized["property_sources"] = mol["property_sources"]
+
+    # Remove identifiers from properties.
+    for prop in mol_organized["identifiers"]:
+        if prop in mol_organized["properties"]:
+            del mol_organized["properties"][prop]
+
     return mol_organized
 
 
