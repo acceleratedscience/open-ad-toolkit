@@ -81,11 +81,14 @@ from openad.app.global_var_lib import _all_toolkits
     remove,
     update,
     result,
+    install,
+    launch,
+    gui,
 ) = map(
     CaselessKeyword,
     "get list description using create set unset workspace workspaces context jobs exec\
     as optimize with toolkits toolkit gpu experiment add run save runs show mol molecules\
-    file display history data remove update result".split(),
+    file display history data remove update result install launch gui".split(),
 )
 STRING_VALUE = alphanums
 
@@ -598,55 +601,33 @@ if not is_notebook_mode():
         )
     )
 
-# Show molecules grid.
-# Note: we don't allow dashes in dataframe names because it's a substraction operator and causes issues in Jupyter.
-# statements.append(
-#    Forward(
-#        show("show")
-#        + molecules
-#        + using
-#        + CaselessKeyword("dataframe")
-#        + Word(alphas, alphanums + "_")("in_dataframe")  # From dataframe
-#        + Optional(a_s + CaselessKeyword("molsobject")("object"))  # Return as molsobject
-#        + Optional(save + a_s + desc("results_file"))  # Save as csv/sdf
-#    )("show_molecules_df")
-# )
-# statements.append(
-#     Forward(
-#         show("show")
-#         + molecules
-#         + using
-#         + file
-#         + desc("moles_file")  # From mols file
-#         + Optional(a_s + CaselessKeyword("molsobject")("object"))  # Return as molsobject
-#         + Optional(save + a_s + desc("results_file"))  # Save as csv/sdf
-#     )("show_molecules")
-# )
-# grammar_help.append(
-#     help_dict_create(
-#         name="show molecules",
-#         category="Molecules",
-#         command="show molecules using ( file '<mols_file>' | dataframe <dataframe> ) [ save as '<sdf_or_csv_file>' | as molsobject ]",
-#         description=f"""Launch the molecule viewer { 'in your browser ' if is_notebook_mode() else '' }to examine and select molecules from a SMILES sdf/csv dataset.
+# endregion
 
-# Examples:
-# - <cmd>show molecules using file 'base_molecules.sdf' as molsobject</cmd>
-# - <cmd>show molecules using dataframe my_dataframe save as 'selection.sdf'</cmd>
-# """,
-#     )
-# )
+##########################################################################
+# region - GUI
+##########################################################################
 
-# MOVED TO MOL_GRAMMAR.PY - TRASH
-# # Show individual molecule detail page.
-# statements.append(Forward(show("show") + mol + desc("input_str"))("show_molecule"))  # From mol json file
-# grammar_help.append(
-#     help_dict_create(
-#         name="show mol",
-#         category="Molecules",
-#         command="show mol '<json_mol_file> | <sdf_file> | <smiles_string> | <inchi_string>'",
-#         description="Inspect a molecule in the browser.",
-#     )
-# )
+# Install gui
+statements.append(Forward(install + gui)("install_gui"))
+grammar_help.append(
+    help_dict_create(
+        name="install gui",
+        category="GUI",
+        command="install gui",
+        description="Install the OpenAD GUI (graphical user interface).\n\nThe graphical user interface allows you to browse your workspace and visualize your datasets and molecules.",  # Partly repeated. Move to msgs()",
+    )
+)
+
+# Launch gui
+statements.append(Forward(launch + gui)("launch_gui"))
+grammar_help.append(
+    help_dict_create(
+        name="launch gui",
+        category="GUI",
+        command="launch gui",
+        description="Launch the OpenAD GUI (graphical user interface).",
+    )
+)
 
 # endregion
 

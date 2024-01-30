@@ -68,6 +68,9 @@ from openad.toolkit.toolkit_main import execute_tookit
 from openad.toolkit.toolkit_main import load_toolkit_description
 from openad.llm_assist.llm_interface import how_do_i, set_llm, clear_llm_auth
 
+# GUI
+from openad.app.gui import install_gui, launch_gui
+
 # Global variables
 from openad.app.global_var_lib import _meta_dir
 from openad.app.global_var_lib import _meta_dir_toolkits
@@ -132,6 +135,7 @@ def lang_parse(cmd_pointer, parser):
         # Toolkit welcome screens
         return output_text(splash(parser.getName(), cmd_pointer), nowrap=True)
 
+    # @later -- move out all logic from here.
     # Language Model How To
     elif parser.getName() == "how_do_i":
         result = how_do_i(cmd_pointer, parser)
@@ -257,6 +261,12 @@ def lang_parse(cmd_pointer, parser):
         return clear_sessions(cmd_pointer, parser)
     elif parser.getName() == "edit_config":
         return edit_config(cmd_pointer, parser)
+
+    # GUI commands
+    elif parser.getName() == "install_gui":
+        return install_gui(cmd_pointer, parser)
+    elif parser.getName() == "launch_gui":
+        return launch_gui(cmd_pointer, parser)
 
     # Help commands
     elif parser.getName() == "intro":

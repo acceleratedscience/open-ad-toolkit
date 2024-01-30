@@ -1,5 +1,6 @@
 import os
 import sys
+import time
 import html
 import socket
 import logging
@@ -9,7 +10,7 @@ from threading import Thread
 from werkzeug.serving import make_server
 from flask import Flask, send_from_directory
 from openad.helpers.output_msgs import msg
-from openad.helpers.output import output_text, output_error, output_success
+from openad.helpers.output import output_text, output_error, output_success, output_warning
 from openad.helpers.general import next_avail_port, confirm_prompt
 from openad.app.global_var_lib import GLOBAL_SETTINGS
 
@@ -38,7 +39,7 @@ def init_gui(cmd_pointer=None):
             "The OpenAD GUI (graphical user interface) is not yet installed. Would you like to install it now?"
         )
         if install_now:
-            output_error("This is an interaction prototype, installation is not yet supported.")
+            install_gui()
         else:
             output_text("You can install the GUI at any time by running <cmd>install gui</cmd>")
             remind_me = confirm_prompt("Remind you next time?", default=True)
@@ -48,16 +49,34 @@ def init_gui(cmd_pointer=None):
                     Path(template_folder).mkdir(parents=False)
                     readme = Path(template_folder) / "README.txt"
                     readme.touch()
-                    readme_text = "You have declined to install the OpenAD GUI.\nYou can install it at any time by running `install gui`.\n- - -\nThe graphical user interface allows you to browse your workspace and visualize your datasets and molecules."
+                    readme_text = "You have declined to install the OpenAD GUI.\nYou can install it at any time by running `install gui`.\n- - -\nThe graphical user interface allows you to browse your workspace and visualize your datasets and molecules."  # Partly repeated. Move to msgs()
                     readme.write_text(readme_text)
                 except BaseException as err:
                     output_error(["Something went wrong while creating the openad-gui folder.", err])
+
+
+# Command: install gui
+def install_gui(cmd_pointer, parser):
+    output_error("This is an interaction prototype, installation is not yet supported.")
+
+
+# Command: launch gui
+def launch_gui(cmd_pointer, parser):
+    init_gui(cmd_pointer)
 
 
 def _launch(cmd_pointer=None, query="", hash=""):
     """
     Launch the GUI web server in a separate thread.
     """
+
+    global GUI_SERVER
+
+    # If the server is already running, don't launch it again.
+    if GUI_SERVER and GUI_SERVER.is_running():
+        webbrowser.open_new(f"http://{GUI_SERVER.host}:{GUI_SERVER.port}")
+        _print_launch_msg(GUI_SERVER.host, GUI_SERVER.port)
+        return
 
     # if not routes:
     #     output_error(msg("err_routes_required"))
@@ -82,10 +101,7 @@ def _launch(cmd_pointer=None, query="", hash=""):
         # because this API call needs to finish before
         # the shutdown will execute.
         def delayed_shutdown():
-            import time
-
             time.sleep(1)
-            global GUI_SERVER
             GUI_SERVER.shutdown()
 
         Thread(target=delayed_shutdown).start()
@@ -140,8 +156,7 @@ def _launch(cmd_pointer=None, query="", hash=""):
     log.setLevel(logging.ERROR)
 
     # Display our own launch message.
-    launch_msg = _render_launch_msg(host, port)
-    output_text(launch_msg, pad=1, tabs=1)
+    _print_launch_msg(host, port)
 
     # We need to spin up the persistent GUI server in a separate
     # thread, otherwise it would be blocking the application.
@@ -155,7 +170,6 @@ def _launch(cmd_pointer=None, query="", hash=""):
     # But unfortunately Flask's built-in server doesn't provide an option
     # to shut it down programatically from another thread, so instead
     # we use Werkzeug's more advanced WSGI server.
-    global GUI_SERVER
     GUI_SERVER = ServerThread(app, host, port)
     GUI_SERVER.start()
 
@@ -171,6 +185,7 @@ class ServerThread(Thread):
         self.srv = make_server(host, port, app)
         self.ctx = app.app_context()
         self.ctx.push()
+        self.active = True
         self.host = host
         self.port = port
 
@@ -178,15 +193,19 @@ class ServerThread(Thread):
         # print("Server started")
         self.srv.serve_forever()
 
+    def is_running(self):
+        return self.active
+
     def shutdown(self):
         self.srv.shutdown()  # Shutdown server
         self.join()  # Close thread
+        self.active = False
         prefix = f"<red>{html.unescape('&empty;')}</red> "
-        output_success([f"{prefix}OpenAD GUI shutdown complete", f"{prefix}{self.host}:{self.port}"], tabs=1)
+        output_warning([f"{prefix}OpenAD GUI shutdown complete", f"{prefix}{self.host}:{self.port}"], tabs=1)
 
 
 # Generated a stylized launch message for the web server.
-def _render_launch_msg(host, port):
+def _print_launch_msg(host, port):
     text = "User interface:"
     url = f"{host}:{port}"
     width = max(len(text), len(url))
@@ -198,7 +217,9 @@ def _render_launch_msg(host, port):
         f"+ {edge} +",
     ]
     launch_msg = "\n".join(launch_msg)
-    return launch_msg
+
+    # Print
+    output_text(launch_msg, pad=1, tabs=1)
 
 
 if __name__ == "__main__":
