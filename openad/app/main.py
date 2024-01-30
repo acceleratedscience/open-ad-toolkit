@@ -14,6 +14,7 @@ from cmd import Cmd
 from openad.app.main_lib import lang_parse, initialise, set_context, unset_context
 from openad.toolkit.toolkit_main import load_toolkit
 from openad.app import login_manager
+from openad.app.gui import init_gui
 
 # Core
 import openad.core.help as openad_help
@@ -97,25 +98,9 @@ class RUNCMD(Cmd):
     llm_model = "gpt-3.5-turbo"
     llm_models = SUPPORTED_TELL_ME_MODELS_SETTINGS
 
-    # # Instantiate memory class # Trash
-    # memory = Memory()
-
     # Instantiate list of Molecuels for reference
     molecule_list = []
     last_external_molecule = None
-
-    def workspace_path(self, workspace: str):
-        """Returns the default workspace directory path"""
-        try:
-            x = os.path.expanduser(self.settings["paths"][workspace.upper()] + "/" + workspace.upper())
-            return x
-        except Exception:  # pylint: disable=broad-exception-caught
-            # various exceptions can cause this... Any error results in same outcome
-            return os.path.expanduser(_meta_workspaces + "/" + workspace.upper())
-
-    def set_workspace_path(self, workspace: str, path: str):
-        """Sets the current workspace path in the settings dictionary"""
-        self.settings["paths"][workspace.upper()] = os.path.expanduser(path)
 
     # Initialises the class for Run command.
     def __init__(self, completekey="Tab", api=False):
@@ -175,6 +160,19 @@ class RUNCMD(Cmd):
             pass
 
         output_train_statements(self)
+
+    def workspace_path(self, workspace: str):
+        """Returns the default workspace directory path"""
+        try:
+            x = os.path.expanduser(self.settings["paths"][workspace.upper()] + "/" + workspace.upper())
+            return x
+        except Exception:  # pylint: disable=broad-exception-caught
+            # various exceptions can cause this... Any error results in same outcome
+            return os.path.expanduser(_meta_workspaces + "/" + workspace.upper())
+
+    def set_workspace_path(self, workspace: str, path: str):
+        """Sets the current workspace path in the settings dictionary"""
+        self.settings["paths"][workspace.upper()] = os.path.expanduser(path)
 
     def do_help(self, inp, display_info=True, starts_with_only=False, **kwargs):
         """CMD class called function:
@@ -770,7 +768,7 @@ def error_first_word_grabber(error):
     return str(word)
 
 
-# Main execution application
+# Main execution application.
 # If the application is called with parameters, it executes the parameters.
 # If called without parameters, the command line enters the shell environment.
 # History is only kept for commands executed once in the shell.
@@ -882,6 +880,8 @@ def cmd_line():
         a_space = " "
     try:
         command_line = RUNCMD()
+        # Launch the GUI if it is installed.
+        init_gui(command_line)
     except KeyboardInterrupt:
         output_error(msg("err_key_exit_before_init"))
         return
@@ -932,8 +932,13 @@ def cmd_line():
             except KeyboardInterrupt:
                 command_line.postloop()
                 if confirm_prompt("Are you sure you wish to exit?", default=True):
+                    from openad.app.gui import GUI_SERVER
+
+                    if GUI_SERVER:
+                        GUI_SERVER.shutdown()
                     lets_exit = True
                     command_line.do_exit("dummy do not remove")
+
             except Exception as err:  # pylint: disable=broad-exception-caught
                 # We do not know what the error could be, so no point in being more specific.
                 output_error(msg("err_invalid_cmd", err), command_line)

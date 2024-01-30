@@ -1,0 +1,1 @@
+import{_ as c,o as e,c as o}from"./index-Ha2WJBvJ.js";const a={};function n(t,r){return e(),o("main",null,"I'm a component")}const s=c(a,[["render",n],["__scopeId","data-v-a4a36ca1"]]);export{s as S};

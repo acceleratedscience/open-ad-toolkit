@@ -202,7 +202,7 @@ def is_port_open(host, port):
 def next_avail_port(port=5000, host="127.0.0.1"):
     while not is_port_open(host, port):
         port += 1
-    return port, host
+    return host, port
 
 
 # Standardized file opener.
