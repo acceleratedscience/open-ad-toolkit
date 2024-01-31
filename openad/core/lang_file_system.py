@@ -80,6 +80,75 @@ def list_files(cmd_pointer, parser):
     return output_table(files, is_data=False, headers=table_headers)
 
 
+# Todo: make list_files use get_workspace_files, has duplicate functionality now.
+def get_workspace_files(cmd_pointer, path=""):
+    """
+    Return your active workspace's content as a JSON object.
+    """
+
+    # Get workspace path.
+    workspace_path = cmd_pointer.workspace_path(cmd_pointer.settings["workspace"])
+    dir_path = workspace_path + "/" + path
+
+    # Define result structure.
+    result = {
+        "files": [],
+        "files_hidden": [],  # Filenames starting with .
+        "files_system": [],  # Filenames starting with __
+        "dirs": [],
+        "dirs_hidden": [],  # Dir names starting with .
+        "dirs_system": [],  # Dir names starting with __
+    }
+
+    # Organize file & directory names into dictionary.
+    for filename in os.listdir(dir_path):
+        is_hidden = filename.startswith(".")
+        is_system = filename.startswith("__")
+        is_file = os.path.isfile(os.path.join(dir_path, filename))
+
+        if is_file:
+            if is_hidden:
+                result["files_hidden"].append(filename)
+            elif is_system:
+                result["files_system"].append(filename)
+            else:
+                result["files"].append(filename)
+        else:
+            is_dir = os.path.isdir(os.path.join(dir_path, filename))
+            if is_dir:
+                if is_hidden:
+                    result["dirs_hidden"].append(filename)
+                elif is_system:
+                    result["dirs_system"].append(filename)
+                else:
+                    result["dirs"].append(filename)
+
+    # Expand every filename into a disctionary: {filename, path, size, time}
+    for category in result:
+        for index, filename in enumerate(result[category]):
+            path_full = os.path.join(dir_path, filename)
+            path_workspace = path + "/" + filename
+            size = os.stat(path_full).st_size
+            timestamp = os.stat(path_full).st_atime
+            result[category][index] = {
+                "filename": filename,
+                "path": path_workspace,
+                "size": size,
+                "timestamp": timestamp,
+            }
+
+    # Attach workspace name
+    workspace_name = cmd_pointer.settings["workspace"].upper()
+    dir_name = path.split("/")[-1]
+    result["level_name"] = workspace_name if not path else dir_name
+
+    return result
+
+
+# if __name__ == "__main__":
+#     get_workspace_files()
+
+
 # External path to workspace path
 def import_file(cmd_pointer, parser):
     """Import a file from thefiles system external to Workspaces"""

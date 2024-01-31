@@ -69,7 +69,7 @@ from openad.toolkit.toolkit_main import load_toolkit_description
 from openad.llm_assist.llm_interface import how_do_i, set_llm, clear_llm_auth
 
 # GUI
-from openad.app.gui import install_gui, launch_gui
+from openad.gui.gui_commands import install_gui, launch_gui
 
 # Global variables
 from openad.app.global_var_lib import _meta_dir

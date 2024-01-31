@@ -14,7 +14,7 @@ from cmd import Cmd
 from openad.app.main_lib import lang_parse, initialise, set_context, unset_context
 from openad.toolkit.toolkit_main import load_toolkit
 from openad.app import login_manager
-from openad.app.gui import init_gui
+from openad.gui.gui_launcher import gui_init
 
 # Core
 import openad.core.help as openad_help
@@ -881,7 +881,7 @@ def cmd_line():
     try:
         command_line = RUNCMD()
         # Launch the GUI if it is installed.
-        init_gui(command_line)
+        gui_init(command_line)
     except KeyboardInterrupt:
         output_error(msg("err_key_exit_before_init"))
         return
@@ -932,7 +932,7 @@ def cmd_line():
             except KeyboardInterrupt:
                 command_line.postloop()
                 if confirm_prompt("Are you sure you wish to exit?", default=True):
-                    from openad.app.gui import GUI_SERVER
+                    from openad.gui.gui_launcher import GUI_SERVER
 
                     if GUI_SERVER:
                         GUI_SERVER.shutdown()
