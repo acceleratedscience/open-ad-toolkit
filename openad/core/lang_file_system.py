@@ -1,4 +1,5 @@
 """Handles file System interactions"""
+
 #!/usr/local/opt/python@3.9/bin/python3.9
 #
 
@@ -90,14 +91,19 @@ def get_workspace_files(cmd_pointer, path=""):
     workspace_path = cmd_pointer.workspace_path(cmd_pointer.settings["workspace"])
     dir_path = workspace_path + "/" + path
 
-    # Define result structure.
-    result = {
+    # Dict structure for one level.
+    level = {
+        "_meta": {
+            "name": "",
+            "empty": False,
+            "empty_hidden": False,
+        },
         "files": [],
         "files_hidden": [],  # Filenames starting with .
-        "files_system": [],  # Filenames starting with __
+        # "files_system": [],  # Filenames starting with __  # Probably we can just use hidden for this.
         "dirs": [],
         "dirs_hidden": [],  # Dir names starting with .
-        "dirs_system": [],  # Dir names starting with __
+        # "dirs_system": [],  # Dir names starting with __ # Probably we can just use hidden for this.
     }
 
     # Organize file & directory names into dictionary.
@@ -107,42 +113,111 @@ def get_workspace_files(cmd_pointer, path=""):
         is_file = os.path.isfile(os.path.join(dir_path, filename))
 
         if is_file:
-            if is_hidden:
-                result["files_hidden"].append(filename)
+            if filename == ".DS_Store":
+                continue
+            elif is_hidden:
+                level["files_hidden"].append(filename)
             elif is_system:
-                result["files_system"].append(filename)
+                level["files_system"].append(filename)
             else:
-                result["files"].append(filename)
+                level["files"].append(filename)
         else:
             is_dir = os.path.isdir(os.path.join(dir_path, filename))
             if is_dir:
                 if is_hidden:
-                    result["dirs_hidden"].append(filename)
+                    level["dirs_hidden"].append(filename)
                 elif is_system:
-                    result["dirs_system"].append(filename)
+                    level["dirs_system"].append(filename)
                 else:
-                    result["dirs"].append(filename)
+                    level["dirs"].append(filename)
 
-    # Expand every filename into a disctionary: {filename, path, size, time}
-    for category in result:
-        for index, filename in enumerate(result[category]):
+    # Expand every dir & filename into a dictionary: {_meta, filename, path}
+    for category in level:
+        if category == "_meta":
+            continue
+        for index, filename in enumerate(level[category]):
             path_full = os.path.join(dir_path, filename)
-            path_workspace = path + "/" + filename
+            path_relative = path + "/" + filename
             size = os.stat(path_full).st_size
-            timestamp = os.stat(path_full).st_atime
-            result[category][index] = {
+            time_edited = os.stat(path_full).st_mtime * 1000
+            time_created = os.stat(path_full).st_ctime * 1000
+            file_ext = _get_file_ext(category, filename)
+            file_type = _get_file_type(category, file_ext)
+
+            # Dict structure for one file/dir.
+            level[category][index] = {
+                "_meta": {
+                    "name": filename,
+                    "size": size,
+                    "time_edited": time_edited,
+                    "time_created": time_created,
+                    "type": file_type,
+                    "ext": file_ext,
+                },
                 "filename": filename,
-                "path": path_workspace,
-                "size": size,
-                "timestamp": timestamp,
+                "path": path_relative,
             }
+
+    #
+    #
 
     # Attach workspace name
     workspace_name = cmd_pointer.settings["workspace"].upper()
     dir_name = path.split("/")[-1]
-    result["level_name"] = workspace_name if not path else dir_name
+    level["_meta"]["name"] = workspace_name if not path else dir_name
 
-    return result
+    # Mark empty directories.
+    if not level["files"] and not level["dirs"]:
+        level["_meta"]["empty"] = True
+    if level["_meta"]["empty"] and not level["files_hidden"] and not level["dirs_hidden"]:
+        level["_meta"]["empty_hidden"] = True
+
+    return level
+
+
+def _get_file_ext(category, filename):
+    if category in ["dirs", "dirs_hidden"]:
+        return ""
+    elif filename.find(".") == -1:
+        return ""
+    else:
+        return filename.split(".")[-1]
+
+
+def _get_file_type(category, ext):
+    if category in ["dirs", "dirs_hidden"]:
+        # Directories
+        return "dir"
+    if ext in ["sdf", "mol", "molecule", "pdb", "cif", "xyz", "mol2", "mmcif", "cml", "smiles", "inchi"]:
+        # Molecule formats
+        return "mol"
+    elif ext in ["csv"]:
+        # Data formats
+        return "data"
+    elif ext in ["json", "cjson"]:
+        # JSON files
+        return "json"
+    elif ext in ["txt", "md", "yaml", "yml"]:
+        # Text formats
+        return "text"
+    elif ext in ["xml", "pdf", "svg", "run", "rxn", "mod"]:
+        # Individually recognized file formats (have their own icon)
+        return ext
+    elif ext in ["html", "htm"]:
+        # HTML files
+        return "html"
+    elif ext in ["jpg", "jpeg", "png", "gif", "bmp", "webp"]:
+        # Image formats
+        return "img"
+    elif ext in ["mp4", "avi", "mov", "mkv", "webm"]:
+        # Video formats
+        return "vid"
+    # elif ext in ["yaml", "yml"]:
+    #     # Yaml files
+    #     return "yaml"
+    else:
+        # Unrecognized file formats
+        return "doc"
 
 
 # if __name__ == "__main__":

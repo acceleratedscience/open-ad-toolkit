@@ -84,11 +84,13 @@ from openad.app.global_var_lib import _all_toolkits
     install,
     launch,
     gui,
+    filebrowser,
+    molviewer,
 ) = map(
     CaselessKeyword,
     "get list description using create set unset workspace workspaces context jobs exec\
     as optimize with toolkits toolkit gpu experiment add run save runs show mol molecules\
-    file display history data remove update result install launch gui".split(),
+    file display history data remove update result install launch gui filebrowser molviewer".split(),
 )
 STRING_VALUE = alphanums
 
@@ -628,6 +630,27 @@ grammar_help.append(
         description="Launch the OpenAD GUI (graphical user interface).",
     )
 )
+
+# Launch individual modules
+statements.append(Forward(launch + filebrowser("module_name"))("launch_gui_module"))
+statements.append(Forward(launch + molviewer("module_name"))("launch_gui_module"))
+grammar_help.append(
+    help_dict_create(
+        name="launch filebrowser",
+        category="GUI",
+        command="launch filebrowser",
+        description="Launch the file browser GUI module.",
+    )
+)
+grammar_help.append(
+    help_dict_create(
+        name="launch molviewer",
+        category="GUI",
+        command="launch molviewer",
+        description="Launch the molecule viewer GUI module.",
+    )
+)
+
 
 # endregion
 

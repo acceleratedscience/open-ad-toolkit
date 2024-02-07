@@ -1,5 +1,6 @@
 """ This library is the main library for invoking functions from the command line
 it does contain some general functions or plugin calls otherwise invokes toolkits or core / plugin functions"""
+
 #!/usr/local/opt/python@3.9/bin/python3.9
 import os
 import re
@@ -69,7 +70,7 @@ from openad.toolkit.toolkit_main import load_toolkit_description
 from openad.llm_assist.llm_interface import how_do_i, set_llm, clear_llm_auth
 
 # GUI
-from openad.gui.gui_commands import install_gui, launch_gui
+from openad.gui.gui_commands import install_gui, launch_gui, launch_gui_module
 
 # Global variables
 from openad.app.global_var_lib import _meta_dir
@@ -267,6 +268,8 @@ def lang_parse(cmd_pointer, parser):
         return install_gui(cmd_pointer, parser)
     elif parser.getName() == "launch_gui":
         return launch_gui(cmd_pointer, parser)
+    elif parser.getName() == "launch_gui_module":
+        return launch_gui_module(cmd_pointer, parser)
 
     # Help commands
     elif parser.getName() == "intro":
