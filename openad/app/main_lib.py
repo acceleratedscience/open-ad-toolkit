@@ -70,7 +70,7 @@ from openad.toolkit.toolkit_main import load_toolkit_description
 from openad.llm_assist.llm_interface import how_do_i, set_llm, clear_llm_auth
 
 # GUI
-from openad.gui.gui_commands import install_gui, launch_gui, launch_gui_module
+from openad.gui.gui_commands import install_gui, launch_gui, launch_gui_module, restart_gui, quit_gui
 
 # Global variables
 from openad.app.global_var_lib import _meta_dir
@@ -270,6 +270,10 @@ def lang_parse(cmd_pointer, parser):
         return launch_gui(cmd_pointer, parser)
     elif parser.getName() == "launch_gui_module":
         return launch_gui_module(cmd_pointer, parser)
+    elif parser.getName() == "restart_gui":
+        return restart_gui(cmd_pointer, parser)
+    elif parser.getName() == "quit_gui":
+        return quit_gui(cmd_pointer, parser)
 
     # Help commands
     elif parser.getName() == "intro":

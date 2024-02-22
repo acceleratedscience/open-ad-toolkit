@@ -933,10 +933,9 @@ def cmd_line():
             except KeyboardInterrupt:
                 command_line.postloop()
                 if confirm_prompt("Are you sure you wish to exit?", default=True):
-                    from openad.gui.gui_launcher import GUI_SERVER
+                    from openad.gui.gui_launcher import gui_shutdown
 
-                    if GUI_SERVER:
-                        GUI_SERVER.shutdown()
+                    gui_shutdown(ignore_warning=True)
                     lets_exit = True
                     command_line.do_exit("dummy do not remove")
 

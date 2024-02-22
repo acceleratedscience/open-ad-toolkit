@@ -83,6 +83,8 @@ from openad.app.global_var_lib import _all_toolkits
     result,
     install,
     launch,
+    restart,
+    quit,
     gui,
     filebrowser,
     molviewer,
@@ -90,7 +92,7 @@ from openad.app.global_var_lib import _all_toolkits
     CaselessKeyword,
     "get list description using create set unset workspace workspaces context jobs exec\
     as optimize with toolkits toolkit gpu experiment add run save runs show mol molecules\
-    file display history data remove update result install launch gui filebrowser molviewer".split(),
+    file display history data remove update result install launch restart quit gui filebrowser molviewer".split(),
 )
 STRING_VALUE = alphanums
 
@@ -648,6 +650,28 @@ grammar_help.append(
         category="GUI",
         command="launch molviewer",
         description="Launch the molecule viewer GUI module.",
+    )
+)
+
+# Restart gui (mostly useful for development)
+statements.append(Forward(restart + gui)("restart_gui"))
+grammar_help.append(
+    help_dict_create(
+        name="restart gui",
+        category="GUI",
+        command="restart gui",
+        description="Terminate and then restart the GUI server.",
+    )
+)
+
+# Exit gui
+statements.append(Forward(quit + gui)("quit_gui"))
+grammar_help.append(
+    help_dict_create(
+        name="quit gui",
+        category="GUI",
+        command="quit gui",
+        description="Terminate the GUI server.",
     )
 )
 

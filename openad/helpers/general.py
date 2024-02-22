@@ -210,13 +210,30 @@ def next_avail_port(port=5000, host="127.0.0.1"):
 # - JSON/CJSON: dict
 # - CSV: pandas dataframe
 # - Other: string
-def open_file(file_path, mode="r", return_err=False):
+def open_file(file_path, return_err=False, raw=False):
+    """
+    Takes care of all boilerplate file opening code.
+
+    Parameters:
+    -----------
+    file_path: str
+        The path of the file to open.
+    return_err: bool | 'code'
+        Return a tuple (data, err_msg) instead of printing the error.
+    raw: bool
+        Return the raw file content instead of parsing it by file type.
+
+    """
     ext = file_path.split(".")[-1].lower()
     err_msg = None
+    err_code = None
     try:
-        with open(file_path, mode) as f:
+        with open(file_path, "r") as f:
             data = None
-            if ext == "json" or ext == "cjson":
+            if raw:
+                # Return raw file content
+                data = f.read()
+            elif ext == "json" or ext == "cjson":
                 # Return JSON object
                 data = json.load(f)
             elif ext == "csv":
@@ -233,20 +250,31 @@ def open_file(file_path, mode="r", return_err=False):
                 return data
     except FileNotFoundError:
         err_msg = msg("err_file_not_found", file_path)
+        err_code = "not_found"
     except PermissionError:
         err_msg = msg("err_file_no_permission_read", file_path)
+        err_code = "no_permission"
     except IsADirectoryError:
         err_msg = msg("err_file_is_dir", file_path)
+        err_code = "is_dir"
     except UnicodeDecodeError:
         err_msg = msg("err_decode", file_path)
+        err_code = "decode"
     except IOError as err:
         err_msg = msg("err_io", file_path, err.strerror)
+        err_code = "io"
     except BaseException as err:
         err_msg = msg("err_unknown", err)
+        err_code = "unknown"
+    # Note: if ever any new error codes are added here,
+    # they should be mirrored in the openad-gui's FileStore.
 
     # Return error
     if return_err:
-        return None, err_msg
+        if return_err == "code":
+            return None, err_code
+        else:
+            return None, err_msg
 
     # Display error
     else:

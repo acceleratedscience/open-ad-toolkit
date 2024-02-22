@@ -28,13 +28,23 @@ from openad.gui.gui_routes import fetchRoutes
 GUI_SERVER = None
 
 
-def gui_init(cmd_pointer=None, module_name=None):
+def gui_init(cmd_pointer=None, module_name=None, silent=False):
     """
     Check if the GUI is installed and start the server.
 
     If this GUI is not installed (openad-gui folder not present),
     suggest to install it, unless the user has chosen before not
     to be asked again (openad-gui folder present without index.html).
+
+    Parameters
+    ----------
+    cmd_pointer : object, required
+        The command pointer object.
+    module_name : str, optional
+        The name of the module to launch. If none is provided, the general GUI is launched.
+    silent : bool, optional
+        If True, we'll start the server without opening the browser.
+        This is used when restarting the server.
     """
     template_folder = Path(__file__).resolve().parents[2] / "openad-gui"
 
@@ -42,7 +52,7 @@ def gui_init(cmd_pointer=None, module_name=None):
     if os.path.exists(template_folder):
         is_installed = template_folder / "index.html"
         if is_installed:
-            _launch(cmd_pointer, routes=fetchRoutes(cmd_pointer), module_name=module_name)
+            _launch(cmd_pointer, routes=fetchRoutes(cmd_pointer), module_name=module_name, silent=silent)
 
     # GUI is not yet installed, suggest installation.
     else:
@@ -73,7 +83,7 @@ def gui_install():
     output_error("This is an interaction prototype, installation is not yet supported.")
 
 
-def _launch(cmd_pointer=None, routes={}, module_name=None, query="", hash=""):
+def _launch(cmd_pointer=None, routes={}, module_name=None, query="", hash="", silent=False):
     """
     Launch the GUI web server in a separate thread.
     """
@@ -82,7 +92,7 @@ def _launch(cmd_pointer=None, routes={}, module_name=None, query="", hash=""):
 
     # If the server is already running, don't launch it again.
     if GUI_SERVER and GUI_SERVER.is_running():
-        _open_browser(GUI_SERVER.host, GUI_SERVER.port, module_name, query, hash)
+        _open_browser(GUI_SERVER.host, GUI_SERVER.port, module_name, query, hash, silent)
         return
 
     # Initialize Flask app.
@@ -135,7 +145,7 @@ def _launch(cmd_pointer=None, routes={}, module_name=None, query="", hash=""):
     host, port = next_avail_port()
 
     # Launch the UI
-    _open_browser(host, port, module_name, query, hash)
+    _open_browser(host, port, module_name, query, hash, silent)
 
     # Remove Flask startup message.
     cli = sys.modules["flask.cli"]
@@ -184,6 +194,10 @@ class ServerThread(Thread):
         return self.active
 
     def shutdown(self):
+        # Note: there's three different ways the GUI server can be shut down:
+        # 1. Quitting the application (Ctrl+C) -> gui_shutdown() via main.py
+        # 2. By command `exit gui` or `relaunch gui` -> gui_shutdown() via main_lib.py
+        # 3. By browsing to the /shutdown path -> @app.route("/shutdown", methods=["GET"]) in this file
         self.srv.shutdown()  # Shutdown server
         self.join()  # Close thread
         self.active = False
@@ -191,7 +205,7 @@ class ServerThread(Thread):
         output_warning([f"{prefix}OpenAD GUI shutdown complete", f"{prefix}{self.host}:{self.port}"], tabs=1)
 
 
-def _open_browser(host, port, module_name, query, hash):
+def _open_browser(host, port, module_name, query, hash, silent=False):
     module_path = f"/headless/{module_name}" if module_name else ""
 
     # Jupyter --> Render iframe.
@@ -217,7 +231,7 @@ def _open_browser(host, port, module_name, query, hash):
             # Disable the warning about the iframe hack.
             warnings.filterwarnings("ignore", category=UserWarning)
 
-            # Styled buttons
+            # Styled buttons: reload & open in browser.
             id = "btn-wrap-" + str(round(time.time()))
             style = f"""
             <style>
@@ -238,8 +252,9 @@ def _open_browser(host, port, module_name, query, hash):
 
     # CLI --> Open browser.
     else:
-        socket.setdefaulttimeout(1)
-        webbrowser.open(f"http://{host}:{port}{module_path}{query}{hash}", new=1)
+        if not silent:
+            socket.setdefaulttimeout(1)
+            webbrowser.open(f"http://{host}:{port}{module_path}{query}{hash}", new=1)
 
         # Display our own launch message.
         _print_launch_msg(host, port)
@@ -261,6 +276,15 @@ def _print_launch_msg(host, port):
 
     # Print
     output_text(launch_msg, pad=1, tabs=1)
+
+
+# Shutdown the GUI server.
+def gui_shutdown(ignore_warning=False):
+    if GUI_SERVER and GUI_SERVER.is_running():
+        GUI_SERVER.shutdown()
+    elif not ignore_warning:
+        output_error("The GUI server is not running")
+        return
 
 
 if __name__ == "__main__":

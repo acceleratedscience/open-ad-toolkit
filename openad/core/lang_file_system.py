@@ -11,13 +11,12 @@ from datetime import datetime
 from pathlib import PosixPath
 
 # Helpers
-from openad.helpers.general import confirm_prompt
-from openad.helpers.output import output_text, output_error, output_success, output_table
+from openad.helpers.general import confirm_prompt, open_file
+from openad.helpers.output import output_text, output_error, output_success, output_table, strip_tags
 from openad.helpers.output_msgs import msg
 
 
 # Globals
-
 from openad.app.global_var_lib import _date_format
 
 
@@ -131,13 +130,19 @@ def get_workspace_files(cmd_pointer, path=""):
                 else:
                     level["dirs"].append(filename)
 
+    # Sort the lists
+    level["files"].sort()
+    level["files_hidden"].sort()
+    level["dirs"].sort()
+    level["dirs_hidden"].sort()
+
     # Expand every dir & filename into a dictionary: {_meta, filename, path}
-    for category in level:
+    for category, items in level.items():
         if category == "_meta":
             continue
-        for index, filename in enumerate(level[category]):
+        for index, filename in enumerate(items):
             path_full = os.path.join(dir_path, filename)
-            path_relative = path + "/" + filename
+            path_relative = path + ("/" if path else "") + filename
             size = os.stat(path_full).st_size
             time_edited = os.stat(path_full).st_mtime * 1000
             time_created = os.stat(path_full).st_ctime * 1000
@@ -145,7 +150,7 @@ def get_workspace_files(cmd_pointer, path=""):
             file_type = _get_file_type(category, file_ext)
 
             # Dict structure for one file/dir.
-            level[category][index] = {
+            items[index] = {
                 "_meta": {
                     "name": filename,
                     "size": size,
@@ -199,7 +204,7 @@ def _get_file_type(category, ext):
         return "json"
     elif ext in ["txt", "md", "yaml", "yml"]:
         # Text formats
-        return "text"
+        return "txt"
     elif ext in ["xml", "pdf", "svg", "run", "rxn", "mod"]:
         # Individually recognized file formats (have their own icon)
         return ext
@@ -220,8 +225,44 @@ def _get_file_type(category, ext):
         return "doc"
 
 
-# if __name__ == "__main__":
-#     get_workspace_files()
+def get_file(cmd_pointer, path):
+    """
+    Read a file or directory from the workspace.
+    """
+
+    # Compile path
+    workspace_path = cmd_pointer.workspace_path(cmd_pointer.settings["workspace"])
+    file_path = workspace_path + "/" + path
+
+    # Read file
+    data, err_code = open_file(file_path, return_err="code", raw=True)
+    if err_code is None:
+        # File content
+        return {
+            "data": data,
+            "path": path,
+            "pathFull": file_path,
+            "isDir": False,
+            "errCode": None,
+        }
+    elif err_code == "is_dir":
+        # Directory
+        return {
+            "data": None,
+            "path": path,
+            "pathFull": file_path,
+            "isDir": True,
+            "errCode": None,
+        }
+    else:
+        # File error
+        return {
+            "data": None,
+            "path": path,
+            "pathFull": file_path,
+            "isDir": False,
+            "errCode": err_code,
+        }
 
 
 # External path to workspace path

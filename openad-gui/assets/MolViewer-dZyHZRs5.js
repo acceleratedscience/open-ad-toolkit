@@ -1,1 +1,0 @@
-import{_ as e,a as o,b as c}from"./index-G6tHnExl.js";const t={},a={id:"module"};function n(s,r){return o(),c("main",a,"This is the molecule viewer component")}const i=e(t,[["render",n],["__scopeId","data-v-3eaad1c8"]]);export{i as default};
