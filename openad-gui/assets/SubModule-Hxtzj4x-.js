@@ -1,1 +1,0 @@
-import{_ as e,o as a,a as c}from"./index-p_WFAwHj.js";const o={};function n(t,r){return a(),c("main",null,"I'm a component")}const s=e(o,[["render",n],["__scopeId","data-v-a4a36ca1"]]);export{s as S};

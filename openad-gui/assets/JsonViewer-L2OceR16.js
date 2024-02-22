@@ -1,1 +1,0 @@
-import{_ as e,o,a as t}from"./index-p_WFAwHj.js";const c={},n={id:"module"};function s(a,r){return o(),t("main",n,"This is the JSON viewer component")}const d=e(c,[["render",s],["__scopeId","data-v-8d5a45ad"]]);export{d as default};

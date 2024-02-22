@@ -1,1 +1,0 @@
-import{_ as e,o,a as c}from"./index-p_WFAwHj.js";const t={},n={id:"module"};function s(a,r){return o(),c("main",n,"This is the molecule grid component")}const d=e(t,[["render",s],["__scopeId","data-v-c84fa136"]]);export{d as default};
