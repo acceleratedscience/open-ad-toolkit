@@ -448,11 +448,25 @@ def mol2svg(mol_rdkit):
 # Create sdf code.
 def mol2sdf(mol_rdkit):
     # Generate 3D coordinates for the molecule (optional but usually desirable for SDF)
-    # Chem.AllChem.EmbedMolecule(mol_obj, Chem.AllChem.ETKDG())
+    result = Chem.rdDistGeom.EmbedMolecule(mol_rdkit, enforceChirality=True)
+    if result == -1:
+        raise ValueError("mol2sdf: Failed to generate 3D coordinates.")
 
     # Convert molecule object to SDF format
-    mol_sdf = Chem.MolToMolBlock(mol_rdkit)
+    mol_sdf = Chem.rdmolfiles.MolToMolBlock(mol_rdkit, includeStereo=True)
     return mol_sdf
+
+
+# Not used, for testing
+def mol2xyz(mol_rdkit):
+    mol_xyz = Chem.rdmolfiles.MolToXYZBlock(mol_rdkit)
+    return mol_xyz
+
+
+# Not used, for testing
+def mol2pdb(mol_rdkit):
+    mol_pdb = Chem.rdmolfiles.MolToPDBBlock(mol_rdkit, flavor=32)
+    return mol_pdb
 
 
 if __name__ == "__main__":

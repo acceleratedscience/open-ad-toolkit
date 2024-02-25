@@ -7,6 +7,7 @@ def fetchRoutesMolViewer(cmd_pointer, mol, mol_sdf, mol_svg):
     from openad.molecules.mol_functions import organize_properties
 
     mol = organize_properties(mol)
+    print(111, mol)
     mol_json = json.dumps(mol, indent="\t")
 
     def main():

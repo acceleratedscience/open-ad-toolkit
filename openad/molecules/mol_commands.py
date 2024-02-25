@@ -1,4 +1,5 @@
 """Functions that are called for molecule commands"""
+
 import glob
 import pickle
 import os
@@ -30,6 +31,8 @@ from openad.molecules.mol_functions import (
     new_molecule,
     mol2svg,
     mol2sdf,
+    mol2xyz,
+    mol2pdb,
     MOL_PROPERTIES,
 )
 
@@ -709,16 +712,19 @@ def show_mol(cmd_pointer, inp):
     if mol_rdkit:
         mol_svg = mol2svg(mol_rdkit)
         mol_sdf = mol2sdf(mol_rdkit)
+        mol_xyz = mol2xyz(mol_rdkit)
+        mol_pdb = mol2pdb(mol_rdkit)
     else:
         mol_svg, mol_sdf = None, None
 
     # Load routes and launch browser UI.
     routes = fetchRoutesMolViewer(cmd_pointer, mol, mol_sdf, mol_svg)
 
-    # # Enrich molecule with RDKit.
-    # # This will then be loaded with an AJAX request from the browser.
-    # print(mol)
-    # mol.name = "ABC"
+    # print(1, mol)
+    # print(2, mol_sdf)
+    # print(3, mol_svg)
+    # print("*" + mol_xyz + "*")
+    print("*" + mol_pdb + "*")
 
     if GLOBAL_SETTINGS["display"] == "notebook":
         # Jupyter
