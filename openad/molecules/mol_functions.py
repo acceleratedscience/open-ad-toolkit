@@ -447,10 +447,10 @@ def mol2svg(mol_rdkit):
 
 # Create sdf code.
 def mol2sdf(mol_rdkit):
-    # Generate 3D coordinates for the molecule (optional but usually desirable for SDF)
-    # Chem.AllChem.EmbedMolecule(mol_obj, Chem.AllChem.ETKDG())
+    # Generate 3D coordinates.
+    Chem.rdDistGeom.EmbedMolecule(mol_rdkit)
 
-    # Convert molecule object to SDF format
+    # Generate SDF format.
     mol_sdf = Chem.MolToMolBlock(mol_rdkit)
     return mol_sdf
 
