@@ -30,6 +30,7 @@ def fetchRoutes(cmd_pointer):
         #
         # Molecules
         f"{api_v1}/get-mol-data": {"func": molecules.get_mol_data, "method": "POST"},
+        f"{api_v1}/get-mol-viz-data": {"func": molecules.get_mol_viz_data, "method": "POST"},
         #
         # "/": {"func": home, "method": "GET"},
         # "/submit": {"func": submit, "method": "POST"},

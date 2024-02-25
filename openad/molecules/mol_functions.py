@@ -455,6 +455,18 @@ def mol2sdf(mol_rdkit):
     return mol_sdf
 
 
+# Not used, for testing
+def mol2xyz(mol_rdkit):
+    mol_xyz = Chem.rdmolfiles.MolToXYZBlock(mol_rdkit)
+    return mol_xyz
+
+
+# Not used, for testing
+def mol2pdb(mol_rdkit):
+    mol_pdb = Chem.rdmolfiles.MolToPDBBlock(mol_rdkit, flavor=32)
+    return mol_pdb
+
+
 if __name__ == "__main__":
     # get_mol_basic("InChI=1S/C13H18O2/c1-9(2)8-11-4-6-12(7-5-11)10(3)13(14)15/h4-7,9-10H,8H2,1-3H3,(H,14,15)")
     # get_mol_basic("ibuprofen")
