@@ -26,6 +26,7 @@ from pyparsing import (
     Optional,
     Group,
     nums,
+    printables,
     # Literal,
     # replaceWith,
     # Combine,
@@ -634,24 +635,24 @@ grammar_help.append(
 )
 
 # Launch individual modules
-statements.append(Forward(launch + filebrowser("module_name"))("launch_gui_module"))
-statements.append(Forward(launch + molviewer("module_name"))("launch_gui_module"))
-grammar_help.append(
-    help_dict_create(
-        name="launch filebrowser",
-        category="GUI",
-        command="launch filebrowser",
-        description="Launch the file browser GUI module.",
-    )
-)
-grammar_help.append(
-    help_dict_create(
-        name="launch molviewer",
-        category="GUI",
-        command="launch molviewer",
-        description="Launch the molecule viewer GUI module.",
-    )
-)
+statements.append(Forward(launch + Word(printables)("path"))("launch_gui"))
+statements.append(Forward(launch + filebrowser("path"))("launch_gui"))
+# grammar_help.append(
+#     help_dict_create(
+#         name="launch filebrowser",
+#         category="GUI",
+#         command="launch filebrowser",
+#         description="Launch the file browser GUI module.",
+#     )
+# )
+# grammar_help.append(
+#     help_dict_create(
+#         name="launch molviewer",
+#         category="GUI",
+#         command="launch molviewer",
+#         description="Launch the molecule viewer GUI module.",
+#     )
+# )
 
 # Restart gui (mostly useful for development)
 statements.append(Forward(restart + gui)("restart_gui"))

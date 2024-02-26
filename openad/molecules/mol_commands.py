@@ -688,6 +688,11 @@ def get_property(cmd_pointer, inp):
 
 # Launch molecule viewer.
 def show_mol(cmd_pointer, inp):
+    from openad.gui.gui_launcher import gui_init
+
+    molecule_identifier = inp.as_dict()["molecule_identifier"]
+    gui_init(cmd_pointer, "molviewer/" + molecule_identifier)
+    return
     molecule_identifier = inp.as_dict()["molecule_identifier"]
 
     # Try loading the molecule from your working set.

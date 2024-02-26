@@ -28,7 +28,7 @@ from openad.gui.gui_routes import fetchRoutes
 GUI_SERVER = None
 
 
-def gui_init(cmd_pointer=None, module_name=None, silent=False):
+def gui_init(cmd_pointer=None, path=None, silent=False):
     """
     Check if the GUI is installed and start the server.
 
@@ -52,7 +52,7 @@ def gui_init(cmd_pointer=None, module_name=None, silent=False):
     if os.path.exists(template_folder):
         is_installed = template_folder / "index.html"
         if is_installed:
-            _launch(cmd_pointer, routes=fetchRoutes(cmd_pointer), module_name=module_name, silent=silent)
+            _launch(cmd_pointer, routes=fetchRoutes(cmd_pointer), path=path, silent=silent)
 
     # GUI is not yet installed, suggest installation.
     else:
@@ -83,7 +83,7 @@ def gui_install():
     output_error("This is an interaction prototype, installation is not yet supported.")
 
 
-def _launch(cmd_pointer=None, routes={}, module_name=None, query="", hash="", silent=False):
+def _launch(cmd_pointer=None, routes={}, path=None, query="", hash="", silent=False):
     """
     Launch the GUI web server in a separate thread.
     """
@@ -92,7 +92,7 @@ def _launch(cmd_pointer=None, routes={}, module_name=None, query="", hash="", si
 
     # If the server is already running, don't launch it again.
     if GUI_SERVER and GUI_SERVER.is_running():
-        _open_browser(GUI_SERVER.host, GUI_SERVER.port, module_name, query, hash, silent)
+        _open_browser(GUI_SERVER.host, GUI_SERVER.port, path, query, hash, silent)
         return
 
     # Initialize Flask app.
@@ -145,7 +145,7 @@ def _launch(cmd_pointer=None, routes={}, module_name=None, query="", hash="", si
     host, port = next_avail_port()
 
     # Launch the UI
-    _open_browser(host, port, module_name, query, hash, silent)
+    _open_browser(host, port, path, query, hash, silent)
 
     # Remove Flask startup message.
     cli = sys.modules["flask.cli"]
@@ -205,8 +205,8 @@ class ServerThread(Thread):
         output_warning([f"{prefix}OpenAD GUI shutdown complete", f"{prefix}{self.host}:{self.port}"], tabs=1)
 
 
-def _open_browser(host, port, module_name, query, hash, silent=False):
-    module_path = f"/headless/{module_name}" if module_name else ""
+def _open_browser(host, port, path, query, hash, silent=False):
+    module_path = f"/headless/{path}" if path else ""
 
     # Jupyter --> Render iframe.
     if GLOBAL_SETTINGS["display"] == "notebook":
