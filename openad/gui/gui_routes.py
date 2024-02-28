@@ -26,7 +26,9 @@ def fetchRoutes(cmd_pointer):
         f"{api_v1}/exec-command": {"func": general.exec_command, "method": "POST"},
         #
         # File system
-        f"{api_v1}/get-workspace-name": {"func": file_system.get_workspace_name, "method": "GET"},
+        f"{api_v1}/get-workspaces": {"func": file_system.get_workspaces, "method": "GET"},
+        f"{api_v1}/get-workspace": {"func": file_system.get_workspace, "method": "GET"},
+        f"{api_v1}/set-workspace": {"func": file_system.set_workspace, "method": "POST"},
         f"{api_v1}/get-workspace-files": {"func": file_system.get_workspace_files, "method": "POST"},
         f"{api_v1}/get-file": {"func": file_system.get_file, "method": "POST"},
         #
