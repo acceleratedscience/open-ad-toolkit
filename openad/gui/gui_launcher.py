@@ -8,11 +8,13 @@ browser if the server was already active.
 
 import os
 import sys
+import json
 import time
 import html
 import socket
 import logging
 import webbrowser
+import urllib.parse
 from pathlib import Path
 from threading import Thread
 from werkzeug.serving import make_server
@@ -28,7 +30,7 @@ from openad.gui.gui_routes import fetchRoutes
 GUI_SERVER = None
 
 
-def gui_init(cmd_pointer=None, path=None, silent=False):
+def gui_init(cmd_pointer=None, path=None, data=None, silent=False):
     """
     Check if the GUI is installed and start the server.
 
@@ -40,19 +42,25 @@ def gui_init(cmd_pointer=None, path=None, silent=False):
     ----------
     cmd_pointer : object, required
         The command pointer object.
-    module_name : str, optional
-        The name of the module to launch. If none is provided, the general GUI is launched.
+    path : str, optional
+        The path to load. If none is provided, the filebrowser is loaded.
+    data : dict, optional
+        A data dictionary that will be stringified, encoded and passed
+        to the GUI via the ?data= query parameter.
     silent : bool, optional
         If True, we'll start the server without opening the browser.
         This is used when restarting the server.
     """
     template_folder = Path(__file__).resolve().parents[2] / "openad-gui"
 
+    # Parse potential data into a URL string.
+    query = "?data=" + urllib.parse.quote(json.dumps(data)) if data else ""
+
     # GUI is installed, launch it.
     if os.path.exists(template_folder):
         is_installed = template_folder / "index.html"
         if is_installed:
-            _launch(cmd_pointer, routes=fetchRoutes(cmd_pointer), path=path, silent=silent)
+            _launch(cmd_pointer, routes=fetchRoutes(cmd_pointer), path=path, query=query, silent=silent)
 
     # GUI is not yet installed, suggest installation.
     else:
@@ -235,19 +243,31 @@ def _open_browser(host, port, path, query, hash, silent=False):
             id = "btn-wrap-" + str(round(time.time()))
             style = f"""
             <style>
-                #{id} a {{ color:#393939; width:24px; height:24px; padding:4px; box-sizing:border-box; position:absolute; top:0; background:white }}
+                #{id} {{ height:12px; right:20px; display:flex; flex-direction:row-reverse; position:relative }}
+                #{id} a {{ color:#393939; width:24px; height:24px; padding:4px; box-sizing:border-box; background:white }}
                 #{id} a:hover {{ color: #0f62fe }}
             </style>
             """
             url = f"http://{host}:{port}{module_path}{query}{hash}"
             reload_icn = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 14C10.1867 14 11.3467 13.6481 12.3334 12.9888C13.3201 12.3295 14.0892 11.3925 14.5433 10.2961C14.9974 9.19975 15.1162 7.99335 14.8847 6.82946C14.6532 5.66558 14.0818 4.59648 13.2426 3.75736C12.4035 2.91825 11.3344 2.3468 10.1705 2.11529C9.00666 1.88378 7.80026 2.0026 6.7039 2.45673C5.60754 2.91085 4.67047 3.67989 4.01118 4.66658C3.35189 5.65328 3 6.81331 3 8V11.1L1.2 9.3L0.5 10L3.5 13L6.5 10L5.8 9.3L4 11.1V8C4 7.0111 4.29324 6.0444 4.84265 5.22215C5.39206 4.39991 6.17295 3.75904 7.08658 3.38061C8.00021 3.00217 9.00555 2.90315 9.97545 3.09608C10.9454 3.289 11.8363 3.76521 12.5355 4.46447C13.2348 5.16373 13.711 6.05465 13.9039 7.02455C14.0969 7.99446 13.9978 8.99979 13.6194 9.91342C13.241 10.8271 12.6001 11.6079 11.7779 12.1574C10.9556 12.7068 9.98891 13 9 13V14Z" fill="currentColor"/></svg>'
             launch_icn = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M13 14H3C2.73489 13.9996 2.48075 13.8942 2.29329 13.7067C2.10583 13.5193 2.00036 13.2651 2 13V3C2.00036 2.73489 2.10583 2.48075 2.29329 2.29329C2.48075 2.10583 2.73489 2.00036 3 2H8V3H3V13H13V8H14V13C13.9996 13.2651 13.8942 13.5193 13.7067 13.7067C13.5193 13.8942 13.2651 13.9996 13 14Z" fill="currentColor"/><path d="M10 1V2H13.293L9 6.293L9.707 7L14 2.707V6H15V1H10Z" fill="currentColor"/></svg>'
-            reload_btn = f'<a target="_blank" href="#" style="right:32px;" onclick="function(e) {{ document.querySelector(\'#{id} + iframe\').src=document.querySelector(\'#{id} + iframe\').src;alert(3);e.preventDefault()}}">{reload_icn}</a>'
-            launch_btn = f'<a target="_blank" href="{url.replace("/headless", "")}" style="right:8px;">{launch_icn}</a>'  # fmt: off
-            btn_wrap = f'<div id="{id}" style="height:12px;position:relative;">{reload_btn}{launch_btn}</div>'
+            reload_btn = f"<a href=\"#\" onclick=\"event.preventDefault(); document.querySelector('#{id} + iframe').src=document.querySelector('#{id} + iframe').src;\">{reload_icn}</a>"
+            launch_btn = f'<a target="_blank" href="{url.replace("/headless", "")}">{launch_icn}</a>'  # fmt: off
+            btn_wrap = f'<div id="{id}">{launch_btn}{reload_btn}</div>'  # fmt: off
+
+            # Experimental fix for JupyterLab.
+            # - - -
+            # JupyterLab renders the iframe inside a container with 20px right
+            # padding, however this is not the case in Jupyter Notebook. As a
+            # workaround, we force 20px extra onto the iframe width in JupyterLab
+            # to counteract this padding. There's no official way to detect the
+            # difference between JupyterLab and Jupyter Notebook, so this is a
+            # bit of a hack. May break in future versions of Jupyter.
+            is_jupyterlab = "JPY_SESSION_NAME" in os.environ
+            jl_padding_correction = "width:calc(100% + 20px)" if is_jupyterlab else ""
 
             # Render iframe & buttons
-            iframe_html = f'{style}{btn_wrap}<iframe src="{url}" width="{width}" height="{height}" style="border:solid 1px #ddd;box-sizing:border-box;"></iframe>'
+            iframe_html = f'{style}{btn_wrap}<iframe src="{url}" width="{width}" height="{height}" style="border:solid 1px #ddd;box-sizing:border-box;{jl_padding_correction}"></iframe>'
             display(HTML(iframe_html))
 
     # CLI --> Open browser.

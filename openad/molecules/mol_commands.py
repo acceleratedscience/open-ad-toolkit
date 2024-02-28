@@ -6,6 +6,7 @@ import os
 import shutil
 import re
 import json
+import urllib.parse
 import pandas as pd
 from rdkit import Chem
 from rdkit.Chem import AllChem
@@ -29,6 +30,7 @@ from openad.molecules.mol_functions import (
     get_identifiers,
     canonical_smiles,
     new_molecule,
+    organize_properties,
     mol2svg,
     mol2sdf,
     mol2xyz,
@@ -686,14 +688,12 @@ def get_property(cmd_pointer, inp):
             return None
 
 
-# Launch molecule viewer.
+# Launch molecule viewer and display molecule.
 def show_mol(cmd_pointer, inp):
     from openad.gui.gui_launcher import gui_init
 
     molecule_identifier = inp.as_dict()["molecule_identifier"]
-    gui_init(cmd_pointer, "molviewer/" + molecule_identifier)
-    return
-    molecule_identifier = inp.as_dict()["molecule_identifier"]
+    mol_svg, mol_sdf = None, None
 
     # Try loading the molecule from your working set.
     mol = retrieve_mol_from_list(cmd_pointer, molecule_identifier)
@@ -703,40 +703,26 @@ def show_mol(cmd_pointer, inp):
     if mol is None:
         mol = new_molecule(molecule_identifier)
 
-    # Fetch the molecule from PubChem,
-    # The molecule_identifier is probably its name, CID or InChIKey.
-    if mol is None:
-        mol = retrieve_mol(molecule_identifier)
+    # Organize data in correct structure.
+    if mol:
+        mol = organize_properties(mol)
 
-    if mol is None:
-        output_error("Molecule identifier not recognized", return_val=False)
-        return
+        # Render SVG and SDF
+        mol_rdkit = Chem.MolFromInchi(mol["identifiers"]["inchi"])
+        if mol_rdkit:
+            mol_svg = mol2svg(mol_rdkit)
+            mol_sdf = mol2sdf(mol_rdkit)
 
-    # Render SVG and SDF
-    mol_rdkit = Chem.MolFromInchi(mol["properties"]["inchi"])
-    if mol_rdkit:
-        mol_svg = mol2svg(mol_rdkit)
-        mol_sdf = mol2sdf(mol_rdkit)
-        mol_xyz = mol2xyz(mol_rdkit)
-        mol_pdb = mol2pdb(mol_rdkit)
-    else:
-        mol_svg, mol_sdf = None, None
+    # Prepare data for GUI.
+    data = {
+        "mol": mol,
+        # # This is too much data to send via a URL, causes 431 error
+        # # Todo: do the RDKit magic in the GUI
+        # "svg": mol_svg,
+        # "sdf": mol_sdf,
+    }
 
-    # Load routes and launch browser UI.
-    routes = fetchRoutesMolViewer(cmd_pointer, mol, mol_sdf, mol_svg)
-
-    # print(1, mol)
-    # print(2, mol_sdf)
-    # print(3, mol_svg)
-    # print("*" + mol_xyz + "*")
-    print("*" + mol_pdb + "*")
-
-    if GLOBAL_SETTINGS["display"] == "notebook":
-        # Jupyter
-        launcher.launch(cmd_pointer, routes, "molviewer")
-    else:
-        # CLI
-        launcher.launch(cmd_pointer, routes, "molviewer")
+    gui_init(cmd_pointer, path="molviewer/" + urllib.parse.quote(molecule_identifier, safe=""), data=data)
 
 
 # Launch molecule grid.

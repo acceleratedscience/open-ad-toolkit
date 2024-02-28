@@ -8,6 +8,12 @@ class GeneralApi:
     def __init__(self, cmd_pointer):
         self.cmd_pointer = cmd_pointer
 
+    def landing(self):
+        return "This is the OpenAD GUI API."
+
+    def health(self):
+        return ":)"
+
     def test(self):
         return "Hello World!"
 
@@ -38,4 +44,4 @@ class GeneralApi:
         if response:
             return response, 200
         else:
-            return "No result", 500
+            return "No result", 50

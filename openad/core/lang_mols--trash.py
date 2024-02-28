@@ -1,3 +1,6 @@
+# THIS ENTIRE FILE CAN BE TRASHED
+# LEAVING IT HERE BECAUSE MAY REUSE SOME CODE INSIDE mol_functions.py
+
 """Commands to launch molecule grid and molecule viewer."""
 
 import pandas as pd

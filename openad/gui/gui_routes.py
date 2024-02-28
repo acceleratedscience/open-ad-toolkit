@@ -1,7 +1,7 @@
 """
 This file contains all the API endpoints consumed by the GUI.
 
-They can be accessed on: http://localhost:5000/api/v1/<endpoint>
+They can be accessed on: http://localhost:8024/api/v1/<endpoint>
 """
 
 from openad.gui.api.general_api import GeneralApi
@@ -20,7 +20,9 @@ def fetchRoutes(cmd_pointer):
     routes = {
         #
         # General
+        f"{api_v1}/": {"func": general.landing, "method": "GET"},
         f"{api_v1}/test": {"func": general.test, "method": "GET"},
+        f"{api_v1}/health": {"func": general.health, "method": "GET"},
         f"{api_v1}/exec-command": {"func": general.exec_command, "method": "POST"},
         #
         # File system

@@ -195,11 +195,11 @@ def is_port_open(host, port):
         return True  # Port is available
 
 
-# Return the next available port starting with 5000.
+# Return the next available port starting with 8024.
 # This is used by the flask app launcher, we want to
 # avoid a situation where multiple apps are trying to
 # run on the same port.
-def next_avail_port(port=5000, host="127.0.0.1"):
+def next_avail_port(port=8024, host="127.0.0.1"):
     while not is_port_open(host, port):
         port += 1
     return host, port
