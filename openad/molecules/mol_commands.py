@@ -449,10 +449,11 @@ def is_molecule_synonym(mol, molecule):
 
 
 def retrieve_mol(molecule):
-    """gets molecule from pubchem"""
+    """Fetch molecule from PubChem"""
     success, mol, comp = get_mol_from_name(molecule)
     if success:
         return mol
+
     success, mol, comp = get_mol_from_inchi(molecule)
     if success:
         return mol
@@ -460,7 +461,8 @@ def retrieve_mol(molecule):
     success, mol, comp = get_mol_from_smiles(molecule)
     if success:
         return mol
-    # commented out until getting no time outs from pubchem
+
+    # Commented out until getting no time outs from pubchem.
     # success, mol, comp = get_mol_from_formula(molecule)
     # if success:
     #    return mol
