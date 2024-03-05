@@ -448,6 +448,7 @@ def mol2svg(mol_rdkit):
 # Create sdf code.
 def mol2sdf(mol_rdkit):
     # Generate 3D coordinates.
+    mol_rdkit = Chem.AddHs(mol_rdkit)  # Add hydrogen atoms, which are displayed as spikes in the 3D viz.
     Chem.rdDistGeom.EmbedMolecule(mol_rdkit)
 
     # Generate SDF format.

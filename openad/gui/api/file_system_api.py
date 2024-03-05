@@ -3,6 +3,7 @@ import json
 from flask import request
 from openad.core.lang_file_system import get_workspace_files as _get_workspace_files
 from openad.core.lang_file_system import get_file as _get_file
+from openad.helpers.output import output_success
 
 
 class FileSystemApi:
@@ -32,6 +33,7 @@ class FileSystemApi:
             self.cmd_pointer.histfile = os.path.expanduser(
                 self.cmd_pointer.workspace_path(new_workspace_name) + "/.cmd_history"
             )
+            output_success(f"Workspace set to <yellow>{new_workspace_name}</yellow>")
 
         return "ok"
 
