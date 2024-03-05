@@ -16,6 +16,7 @@ from openad.app.main_lib import lang_parse, initialise, set_context, unset_conte
 from openad.toolkit.toolkit_main import load_toolkit
 from openad.app import login_manager
 from openad.gui.gui_launcher import gui_init
+from openad.gui.ws_server import ws_server  # Web socket server for gui
 
 # Core
 import openad.core.help as openad_help
@@ -50,7 +51,6 @@ from openad.app.global_var_lib import _all_toolkits
 from openad.app.global_var_lib import _meta_dir_toolkits
 from openad.app.global_var_lib import GLOBAL_SETTINGS
 from openad.app.global_var_lib import MEMORY
-
 
 sys.ps1 = "\x01\033[31m\x02>>> \x01\033[0m\x02"
 
@@ -883,6 +883,7 @@ def cmd_line():
         command_line = RUNCMD()
         # Launch the GUI if it is installed.
         gui_init(command_line)
+        # ws_server(command_line) # Experimental
     except KeyboardInterrupt:
         output_error(msg("err_key_exit_before_init"))
         return
