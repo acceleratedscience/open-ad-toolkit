@@ -68,6 +68,7 @@ sentence-transformers = "2.2.2"
 flask-cors = "^4.0.0"
 websockets = "^12.0"
 asyncio = "^3.4.3"
+ijson = "^3.2.3"
 
 [tool.poetry.scripts]
 openad = "openad.app.main:cmd_line"

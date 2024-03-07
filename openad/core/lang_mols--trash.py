@@ -8,7 +8,7 @@ from rdkit import Chem, RDLogger
 from openad.flask_apps import launcher
 from openad.flask_apps.molsgrid.routes import fetchRoutesMolsGrid
 from openad.flask_apps.molviewer.routes import fetchRoutesMolViewer
-from openad.helpers.general import open_file
+from openad.helpers.files import open_file
 from openad.helpers.output import output_error
 from openad.helpers.output_msgs import msg
 from openad.app.global_var_lib import GLOBAL_SETTINGS

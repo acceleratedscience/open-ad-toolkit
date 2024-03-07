@@ -4,10 +4,21 @@ import sys
 import json
 import getpass
 import readline
-import pandas as pd
-from IPython.display import display
+from IPython.display import clear_output
 from openad.helpers.output import output_text, output_error
 from openad.helpers.output_msgs import msg
+
+
+# Workaround for JSONDecoder which doesn't accept
+# Decimal objects: https://stackoverflow.com/a/1960649
+from decimal import Decimal
+
+
+class DecimalEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, Decimal):
+            return float(obj)
+        return super(DecimalEncoder, self).default(obj)
 
 
 # Refreshes the command prompt when in the shell.
@@ -38,8 +49,6 @@ def remove_lines(count=1):
     if is_notebook_mode():
         # Jupyter
         # In Jupyter you can't clear a single line, only the entire cell output.
-        from IPython.display import clear_output
-
         clear_output(wait=True)
     else:
         # CLI
@@ -203,118 +212,6 @@ def next_avail_port(port=8024, host="127.0.0.1"):
     while not is_port_open(host, port):
         port += 1
     return host, port
-
-
-# Standardized file opener.
-# Detects file type and returns appropriate data format:
-# - JSON/CJSON: dict
-# - CSV: pandas dataframe
-# - Other: string
-def open_file(file_path, return_err=False, raw=False):
-    """
-    Takes care of all boilerplate file opening code.
-
-    Parameters:
-    -----------
-    file_path: str
-        The path of the file to open.
-    return_err: bool | 'code'
-        Return a tuple (data, err_msg) instead of printing the error.
-    raw: bool
-        Return the raw file content instead of parsing it by file type.
-
-    """
-    ext = file_path.split(".")[-1].lower()
-    err_msg = None
-    err_code = None
-    try:
-        with open(file_path, "r") as f:
-            data = None
-            if raw:
-                # Return raw file content
-                data = f.read()
-            elif ext == "json" or ext == "cjson":
-                # Return JSON object
-                data = json.load(f)
-            elif ext == "csv":
-                # Return pandas dataframe
-                data = pd.read_csv(f)
-            else:
-                # Return string
-                data = f.read()
-
-            # Return data
-            if return_err:
-                return data, None
-            else:
-                return data
-    except FileNotFoundError:
-        err_msg = msg("err_file_not_found", file_path)
-        err_code = "not_found"
-    except PermissionError:
-        err_msg = msg("err_file_no_permission_read", file_path)
-        err_code = "no_permission"
-    except IsADirectoryError:
-        err_msg = msg("err_file_is_dir", file_path)
-        err_code = "is_dir"
-    except UnicodeDecodeError:
-        err_msg = msg("err_decode", file_path)
-        err_code = "decode"
-    except IOError as err:
-        err_msg = msg("err_io", file_path, err.strerror)
-        err_code = "io"
-    except BaseException as err:
-        err_msg = msg("err_unknown", err)
-        err_code = "unknown"
-    # Note: if ever any new error codes are added here,
-    # they should be mirrored in the openad-gui's FileStore.
-
-    # Return error
-    if return_err:
-        if return_err == "code":
-            return None, err_code
-        else:
-            return None, err_msg
-
-    # Display error
-    else:
-        output_error(err_msg)
-        return None
-
-
-# Standardized file writer.
-def write_file(file_path, data, return_err=False):
-    err_msg = None
-    try:
-        with open(file_path, "w") as f:
-            f.write(data)
-
-            # Return success
-            if return_err:
-                return True, None
-            else:
-                return True
-    except FileNotFoundError:
-        err_msg = msg("err_file_not_found", file_path)
-    except PermissionError:
-        err_msg = msg("err_file_no_permission_write", file_path)
-    except IsADirectoryError:
-        err_msg = msg("err_file_is_dir", file_path)
-    except UnicodeDecodeError:
-        err_msg = msg("err_decode", file_path)
-    except IOError as err:
-        err_msg = msg("err_io", file_path, err.strerror)
-    except BaseException as err:
-        err_msg = msg("err_unknown", err)
-
-    # Return error
-    if return_err:
-        return None, err_msg
-
-    # Display error
-    else:
-        output_error(err_msg)
-        return None
 
 
 # Load python module from a dynamic path

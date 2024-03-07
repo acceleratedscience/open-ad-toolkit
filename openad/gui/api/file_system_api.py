@@ -1,8 +1,7 @@
 import os
 import json
 from flask import request
-from openad.core.lang_file_system import get_workspace_files as _get_workspace_files
-from openad.core.lang_file_system import get_file as _get_file
+from openad.workers.file_system import fs_get_workspace_files, fs_get_file
 from openad.helpers.output import output_success
 
 
@@ -42,10 +41,10 @@ class FileSystemApi:
         # data = request.data.decode("utf-8")
         data = json.loads(request.data) if request.data else {}
         path = data["path"] if "path" in data else ""
-        return _get_workspace_files(self.cmd_pointer, path)
+        return fs_get_workspace_files(self.cmd_pointer, path)
 
     # Fetch a file's content as a JSON object.
     def get_file(self):
         data = json.loads(request.data) if request.data else {}
         path = data["path"] if "path" in data else ""
-        return _get_file(self.cmd_pointer, path)
+        return fs_get_file(self.cmd_pointer, path)

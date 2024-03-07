@@ -206,6 +206,7 @@ def output_table(
     pad_btm=None,
     pad_top=None,
     _display=None,
+    **kwargs,  # For tabulate options
 ):
     """
     Display a table:
@@ -316,7 +317,9 @@ def output_table(
                 else:
                     headers = table.columns.values.tolist()
 
-            table = tabulate(table, headers=tabulate_headers, tablefmt="simple", showindex=False, numalign="left")
+            table = tabulate(
+                table, headers=tabulate_headers, tablefmt="simple", showindex=False, numalign="right", **kwargs
+            )
         else:
             # Parse styling tags.
             for i, row in enumerate(table):
@@ -324,7 +327,7 @@ def output_table(
                     table[i][j] = style(cell, nowrap=True)
 
             headers = [] if headers is None else headers
-            table = tabulate(table, headers=headers, tablefmt="simple", showindex=False, numalign="left")
+            table = tabulate(table, headers=headers, tablefmt="simple", showindex=False, numalign="right", **kwargs)
 
         # Crop table if it's wider than the terminal.
         max_row_length = max(list(map(lambda row: len(row), table.splitlines())))

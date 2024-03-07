@@ -736,13 +736,17 @@ grammar_help.append(
 ##########################################################################
 
 # List files
-statements.append(Forward(lister + CaselessKeyword("files"))("list_files"))
+statements.append(
+    Forward(lister + CaselessKeyword("files") + Optional(Word(alphanums + "_", alphanums + "_" + "/")("path")))(
+        "list_files"
+    )
+)
 grammar_help.append(
     help_dict_create(
         name="list files",
         category="File System",
-        command="list files",
-        description="List all files in your current workspace.",
+        command="list files [ path ]",
+        description="List al directories and files in your current workspace.",
     )
 )
 
