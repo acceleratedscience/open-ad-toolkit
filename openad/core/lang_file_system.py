@@ -15,7 +15,6 @@ from openad.workers.file_system import fs_get_workspace_files
 
 # Helpers
 from openad.helpers.general import confirm_prompt
-from openad.helpers.files import open_file
 from openad.helpers.output import output_text, output_error, output_success, output_table, strip_tags
 from openad.helpers.output_msgs import msg
 

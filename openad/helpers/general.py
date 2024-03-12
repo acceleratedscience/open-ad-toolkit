@@ -9,18 +9,6 @@ from openad.helpers.output import output_text, output_error
 from openad.helpers.output_msgs import msg
 
 
-# Workaround for JSONDecoder which doesn't accept
-# Decimal objects: https://stackoverflow.com/a/1960649
-from decimal import Decimal
-
-
-class DecimalEncoder(json.JSONEncoder):
-    def default(self, obj):
-        if isinstance(obj, Decimal):
-            return float(obj)
-        return super(DecimalEncoder, self).default(obj)
-
-
 # Refreshes the command prompt when in the shell.
 def refresh_prompt(settings):
     if settings["context"] is not None:

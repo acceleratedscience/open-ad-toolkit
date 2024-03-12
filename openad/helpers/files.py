@@ -6,6 +6,7 @@ import pandas as pd
 from io import StringIO
 from openad.helpers.output import output_error
 from openad.helpers.output_msgs import msg
+from openad.helpers.json_decimal_encoder import DecimalEncoder
 
 
 # Standardized file opener.
@@ -39,15 +40,15 @@ def open_file(file_path, return_err=False, as_string=False, page=None):
 
             # Parse JSON
             if ext == "json" or ext == "cjson":
-                return get_chunk_json(file_path, start, chunk_size, as_string)
+                data = get_chunk_json(file_path, start, chunk_size, as_string)
 
             # Parse CSV
             elif ext == "csv":
-                return get_chunk_text(file_path, start, chunk_size, as_string, is_csv=True)
+                data = get_chunk_text(file_path, start, chunk_size, as_string, is_csv=True)
 
             # Parse any text file
             else:
-                return get_chunk_text(file_path, start, chunk_size, as_string)
+                data = get_chunk_text(file_path, start, chunk_size, as_string)
 
         # Regular files - load entirely
         else:
@@ -133,7 +134,7 @@ def get_chunk_json(file_path, start, chunk_size, as_string=False):
             chunk = [json.loads(f.read())]
 
     if as_string:
-        return json.dumps(chunk)
+        return json.dumps(chunk, cls=DecimalEncoder)
     else:
         return chunk
 
@@ -160,6 +161,13 @@ def get_chunk_text(file_path, start, chunk_size, as_string=False, is_csv=False):
         return pd.read_csv(StringIO("\n".join(chunk)))
     else:
         return "\n".join(chunk)
+
+
+# TO DO: implement this
+def count_items_in_json(file_path):
+    with open(file_path, "r", encoding="utf-8") as f:
+        objects = ijson.items(f, "item")
+        return sum(1 for _ in objects)
 
 
 # # Read an entire JSON file.

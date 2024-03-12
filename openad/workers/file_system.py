@@ -2,7 +2,6 @@ import os
 from openad.helpers.files import open_file
 
 
-# Todo: make list_files use get_workspace_files, has duplicate functionality now.
 def fs_get_workspace_files(cmd_pointer, path=""):
     """
     Return your active workspace's content as a JSON object.
@@ -15,16 +14,16 @@ def fs_get_workspace_files(cmd_pointer, path=""):
     # Dict structure for one level.
     level = {
         "_meta": {
-            "name": "",
             "empty": False,
             "empty_hidden": False,
         },
+        "dirname": "",
         "files": [],
-        "files_hidden": [],  # Filenames starting with .
-        # "files_system": [],  # Filenames starting with __  # Probably we can just use hidden for this.
+        "filesHidden": [],  # Filenames starting with .
+        # "filesSystem": [],  # Filenames starting with __ # Probably we can just use hidden for this.
         "dirs": [],
-        "dirs_hidden": [],  # Dir names starting with .
-        # "dirs_system": [],  # Dir names starting with __ # Probably we can just use hidden for this.
+        "dirsHidden": [],  # Dir names starting with .
+        # "dirsSystem": [],  # Dir names starting with __ # Probably we can just use hidden for this.
     }
 
     # Organize file & directory names into dictionary.
@@ -37,53 +36,36 @@ def fs_get_workspace_files(cmd_pointer, path=""):
             if filename == ".DS_Store":
                 continue
             elif is_hidden:
-                level["files_hidden"].append(filename)
+                level["filesHidden"].append(filename)
             elif is_system:
-                level["files_system"].append(filename)
+                level["filesSystem"].append(filename)
             else:
                 level["files"].append(filename)
         else:
             is_dir = os.path.isdir(os.path.join(dir_path, filename))
             if is_dir:
                 if is_hidden:
-                    level["dirs_hidden"].append(filename)
+                    level["dirsHidden"].append(filename)
                 elif is_system:
-                    level["dirs_system"].append(filename)
+                    level["dirsSystem"].append(filename)
                 else:
                     level["dirs"].append(filename)
 
     # Sort the lists
     level["files"].sort()
-    level["files_hidden"].sort()
+    level["filesHidden"].sort()
     level["dirs"].sort()
-    level["dirs_hidden"].sort()
+    level["dirsHidden"].sort()
 
     # Expand every dir & filename into a dictionary: {_meta, filename, path}
     for category, items in level.items():
         if category == "_meta":
             continue
         for index, filename in enumerate(items):
-            path_full = os.path.join(dir_path, filename)
-            path_relative = path + ("/" if path else "") + filename
-            size = os.stat(path_full).st_size
-            time_edited = os.stat(path_full).st_mtime * 1000
-            time_created = os.stat(path_full).st_ctime * 1000
-            file_ext = _get_file_ext(category, filename)
-            file_type = _get_file_type(category, file_ext)
-
-            # Dict structure for one file/dir.
-            items[index] = {
-                "_meta": {
-                    "name": filename,
-                    "size": size,
-                    "time_edited": time_edited,
-                    "time_created": time_created,
-                    "type": file_type,
-                    "ext": file_ext,
-                },
-                "filename": filename,
-                "path": path_relative,
-            }
+            is_dir = category in ["dirs", "dirsHidden"]
+            print("AAA", path, filename)
+            file_path = path + "/" + filename if path else filename
+            items[index] = _compile_file_data(cmd_pointer, file_path, filename, is_dir)
 
     #
     #
@@ -91,30 +73,117 @@ def fs_get_workspace_files(cmd_pointer, path=""):
     # Attach workspace name
     workspace_name = cmd_pointer.settings["workspace"].upper()
     dir_name = path.split("/")[-1]
-    level["_meta"]["name"] = workspace_name if not path else dir_name
+    level["dirname"] = workspace_name if not path else dir_name
 
     # Mark empty directories.
     if not level["files"] and not level["dirs"]:
         level["_meta"]["empty"] = True
-    if level["_meta"]["empty"] and not level["files_hidden"] and not level["dirs_hidden"]:
+    if level["_meta"]["empty"] and not level["filesHidden"] and not level["dirsHidden"]:
         level["_meta"]["empty_hidden"] = True
 
     return level
 
 
-def _get_file_ext(category, filename):
-    if category in ["dirs", "dirs_hidden"]:
-        return ""
-    elif filename.find(".") == -1:
+def fs_get_file(cmd_pointer, path):
+    """
+    Read a file or directory from the workspace.
+    """
+
+    # Compile full filepath
+    workspace_path = cmd_pointer.workspace_path(cmd_pointer.settings["workspace"])
+    path_absolute = workspace_path + "/" + path
+
+    # Filename
+    filename = path.split("/")[-1]
+
+    # Read file
+    data, err_code = open_file(path_absolute, return_err="code", as_string=True)
+
+    if err_code is None:
+        # File content
+        print("BBB", path, filename)
+        return _compile_file_data(cmd_pointer, path, filename, data=data)
+    elif err_code == "is_dir":
+        # Directory
+        return {
+            "_meta": {
+                "fileType": "dir",  # "dir_hidden" if filename[0] == "." else "dir",
+                "path": path,
+            }
+        }
+    else:
+        # File error
+        return {
+            "_meta": {
+                "errCode": err_code,
+            }
+        }
+
+
+def _compile_file_data(cmd_pointer, path, filename, is_dir=False, data=None):
+    """
+    Compile universal file object that will be parsed by the frontend.
+    Used by the file browser (FileBroswer.vue) and the file viewers (FileStore).
+
+    Parameters:
+    -----------
+    cmd_pointer: object
+        The command pointer object, used to fetch the workspace path.
+    path: str
+        The path of the file relative to the workspace.
+    filename: str
+        The name of the file.
+
+    """
+    workspace_path = cmd_pointer.workspace_path(cmd_pointer.settings["workspace"])
+    # path_relative = path + "/" + filename if path else filename
+    path_relative = path
+    path_absolute = workspace_path + "/" + path_relative
+    size = os.stat(path_absolute).st_size
+    time_edited = os.stat(path_absolute).st_mtime * 1000  # Convert to milliseconds for JS.
+    time_created = os.stat(path_absolute).st_ctime * 1000  # Convert to milliseconds for JS.
+    ext = "" if is_dir else _get_file_ext(filename)
+    ext2 = "" if is_dir else _get_file_ext2(filename)
+    file_type = "dir" if is_dir else _get_file_type(ext, ext2)
+
+    # Dict structure for one file/dir.
+    return {
+        "_meta": {
+            # "name": filename,
+            "fileType": file_type,
+            "ext": ext,
+            "ext2": ext2,  # Secondary file extension, eg. foobar.mol.json --> mol
+            "size": size,
+            "timeCreated": time_created,
+            "timeEdited": time_edited,
+            "errCode": None,
+        },
+        "data": data,  # Optional file content when viewing a file.
+        "filename": filename,
+        "path": path_relative,  # Relative to workspace
+        "pathAbsolute": path_absolute,  # Absolute path
+    }
+
+
+def _get_file_ext(filename):
+    if filename.find(".") == -1:
         return ""
     else:
         return filename.split(".")[-1]
 
 
-def _get_file_type(category, ext):
-    if category in ["dirs", "dirs_hidden"]:
-        # Directories
-        return "dir"
+# Secondary file extension, eg. foobar.mol.json --> mol
+def _get_file_ext2(filename):
+    has_ext2 = len(filename.split(".")) >= 3
+    if has_ext2:
+        parts = filename.split(".")
+        parts.pop()
+        return parts.pop() or None
+    else:
+        return None
+
+
+def _get_file_type(ext, ext2):
     if ext in ["sdf", "mol", "molecule", "pdb", "cif", "xyz", "mol2", "mmcif", "cml", "smiles", "inchi"]:
         # Molecule formats
         return "mol"
@@ -122,8 +191,15 @@ def _get_file_type(category, ext):
         # Data formats
         return "data"
     elif ext in ["json", "cjson"]:
-        # JSON files
-        return "json"
+        if ext2 == "mol":
+            # Molecule
+            return "mol"
+        elif ext2 == "molset":
+            # Molecule set
+            return "molset"
+        else:
+            # JSON files
+            return "json"
     elif ext in ["txt", "md", "yaml", "yml"]:
         # Text formats
         return "txt"
@@ -144,48 +220,4 @@ def _get_file_type(category, ext):
     #     return "yaml"
     else:
         # Unrecognized file formats
-        return "doc"
-
-
-def fs_get_file(cmd_pointer, path):
-    """
-    Read a file or directory from the workspace.
-    """
-
-    # Compile path
-    workspace_path = cmd_pointer.workspace_path(cmd_pointer.settings["workspace"])
-    file_path = workspace_path + "/" + path
-
-    # Read file
-    data, err_code = open_file(file_path, return_err="code", as_string=True)
-
-    # if data:
-    #     print(data)
-    #     print(len(data))
-    if err_code is None:
-        # File content
-        return {
-            "data": data,
-            "path": path,
-            "pathFull": file_path,
-            "isDir": False,
-            "errCode": None,
-        }
-    elif err_code == "is_dir":
-        # Directory
-        return {
-            "data": None,
-            "path": path,
-            "pathFull": file_path,
-            "isDir": True,
-            "errCode": None,
-        }
-    else:
-        # File error
-        return {
-            "data": None,
-            "path": path,
-            "pathFull": file_path,
-            "isDir": False,
-            "errCode": err_code,
-        }
+        return "unk"
