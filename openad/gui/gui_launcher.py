@@ -47,6 +47,7 @@ def gui_init(cmd_pointer=None, path=None, data=None, silent=False):
     data : dict, optional
         A data dictionary that will be stringified, encoded and passed
         to the GUI via the ?data= query parameter.
+        This is no longer used, but may be useful in the future.
     silent : bool, optional
         If True, we'll start the server without opening the browser.
         This is used when restarting the server.

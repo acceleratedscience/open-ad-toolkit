@@ -1,4 +1,5 @@
 import json
+import math
 from rdkit import Chem
 from flask import Response, request
 
@@ -17,7 +18,7 @@ class MoleculesApi:
 
     # Get molecule data, plus SDF and SVG.
     # Used when requesting a molecule by its identifier.
-    def get_mol_data(self):
+    def get_mol(self):
         data = json.loads(request.data) if request.data else {}
         identifier = data["identifier"]
 
@@ -43,23 +44,26 @@ class MoleculesApi:
     # Used when opening a .mol.json file.
     def get_mol_viz_data(self):
         data = json.loads(request.data) if request.data else {}
-        inchi = data["inchi"]
+        inchi_or_smiles = data["inchi_or_smiles"]
 
-        mol_rdkit = Chem.MolFromInchi(inchi)
+        mol_rdkit = Chem.MolFromInchi(inchi_or_smiles)
+        if not mol_rdkit:
+            mol_rdkit = Chem.MolFromSmiles(inchi_or_smiles)  # pylint: disable=no-member (false positive)
         if mol_rdkit:
-            mol_svg = mol2svg(mol_rdkit)
-            mol_sdf = mol2sdf(mol_rdkit)
+            svg = mol2svg(mol_rdkit)
+            sdf = mol2sdf(mol_rdkit)
         else:
-            mol_svg, mol_sdf = None, None
+            svg, sdf = None, None
 
-        return {"sdf": mol_sdf, "svg": mol_svg}
+        return {"sdf": sdf, "svg": svg}
 
     # Filter a molecule set by a string.
-    def filter_molset(self):
+    def get_molset(self):
         data = json.loads(request.data) if request.data else {}
         path = data["path"] if "path" in data else ""
         query = data["query"] if "query" in data else ""
         page = data["page"] if "page" in data else 1
+        page_size = data["pageSize"] if "pageSize" in data else 48
 
         # Compile path
         workspace_path = self.cmd_pointer.workspace_path(self.cmd_pointer.settings["workspace"])
@@ -87,6 +91,9 @@ class MoleculesApi:
                     results.append(mol)
                     break
 
+        total = len(results)
+        page_total = math.ceil(total / page_size)
+
         skip = 48 * (page - 1)
         result_page = json.dumps(results[skip : skip + 48], cls=DecimalEncoder)
 
@@ -94,6 +101,8 @@ class MoleculesApi:
             "total": len(results),
             "mols": result_page,
             "page": page,
+            "pageSize": page_size,
+            "pageTotal": page_total,
         }
 
         return data

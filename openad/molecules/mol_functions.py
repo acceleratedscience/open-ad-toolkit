@@ -239,7 +239,7 @@ def valid_inchi(input_molecule) -> bool:
 
 def canonical_smiles(input_molecule):
     """returns a cannonical smiles string based on rdkit"""
-    return Chem.MolToSmiles(Chem.MolFromSmiles(input_molecule), True)
+    return Chem.MolToSmiles(Chem.MolFromSmiles(input_molecule), True)  # pylint: disable=no-member (false positive)
 
 
 def get_mol_from_inchi(inchi_str: str):
@@ -398,9 +398,9 @@ def new_molecule(inchi_or_smiles: str, name: str = None):
     try:
         mol_rdkit = Chem.MolFromInchi(inchi_or_smiles)
         if not mol_rdkit:
-            mol_rdkit = Chem.MolFromSmiles(inchi_or_smiles)
+            mol_rdkit = Chem.MolFromSmiles(inchi_or_smiles)  # pylint: disable=no-member (false positive)
         if not mol_rdkit:
-            mol_rdkit = Chem.MolFromInchi("InChI=" + inchi_or_smiles)
+            mol_rdkit = Chem.MolFromInchi("InChI=1S/" + inchi_or_smiles)
         if not mol_rdkit:
             return None
     except Exception:  # pylint: disable=broad-exception-caught

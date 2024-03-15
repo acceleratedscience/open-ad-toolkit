@@ -1,4 +1,5 @@
 import os
+from urllib.parse import unquote
 from openad.helpers.files import open_file
 
 
@@ -63,7 +64,6 @@ def fs_get_workspace_files(cmd_pointer, path=""):
             continue
         for index, filename in enumerate(items):
             is_dir = category in ["dirs", "dirsHidden"]
-            print("AAA", path, filename)
             file_path = path + "/" + filename if path else filename
             items[index] = _compile_file_data(cmd_pointer, file_path, filename, is_dir)
 
@@ -89,6 +89,9 @@ def fs_get_file(cmd_pointer, path):
     Read a file or directory from the workspace.
     """
 
+    # Convert %20 back into spaces
+    path = unquote(path)
+
     # Compile full filepath
     workspace_path = cmd_pointer.workspace_path(cmd_pointer.settings["workspace"])
     path_absolute = workspace_path + "/" + path
@@ -97,11 +100,10 @@ def fs_get_file(cmd_pointer, path):
     filename = path.split("/")[-1]
 
     # Read file
-    data, err_code = open_file(path_absolute, return_err="code", as_string=True)
+    data, err_code = open_file(path_absolute, return_err="code", as_string=False)  # %%
 
     if err_code is None:
         # File content
-        print("BBB", path, filename)
         return _compile_file_data(cmd_pointer, path, filename, data=data)
     elif err_code == "is_dir":
         # Directory
@@ -130,15 +132,13 @@ def _compile_file_data(cmd_pointer, path, filename, is_dir=False, data=None):
     cmd_pointer: object
         The command pointer object, used to fetch the workspace path.
     path: str
-        The path of the file relative to the workspace.
+        The path of the file relative to the workspace, including the filename.
     filename: str
         The name of the file.
 
     """
     workspace_path = cmd_pointer.workspace_path(cmd_pointer.settings["workspace"])
-    # path_relative = path + "/" + filename if path else filename
-    path_relative = path
-    path_absolute = workspace_path + "/" + path_relative
+    path_absolute = workspace_path + "/" + path
     size = os.stat(path_absolute).st_size
     time_edited = os.stat(path_absolute).st_mtime * 1000  # Convert to milliseconds for JS.
     time_created = os.stat(path_absolute).st_ctime * 1000  # Convert to milliseconds for JS.
@@ -160,7 +160,7 @@ def _compile_file_data(cmd_pointer, path, filename, is_dir=False, data=None):
         },
         "data": data,  # Optional file content when viewing a file.
         "filename": filename,
-        "path": path_relative,  # Relative to workspace
+        "path": path,  # Relative to workspace
         "pathAbsolute": path_absolute,  # Absolute path
     }
 
@@ -202,7 +202,7 @@ def _get_file_type(ext, ext2):
             return "json"
     elif ext in ["txt", "md", "yaml", "yml"]:
         # Text formats
-        return "txt"
+        return "text"
     elif ext in ["xml", "pdf", "svg", "run", "rxn", "mod"]:
         # Individually recognized file formats (have their own icon)
         return ext

@@ -1,4 +1,5 @@
 """Store and retrieve results from analysis"""
+
 import os
 import glob
 import time
@@ -34,7 +35,7 @@ def save_result(result: dict, cmd_pointer) -> bool:
     try:
         timestr = time.strftime("%Y%m%d-%H%M%S")
 
-        rdkit_mol = Chem.MolFromSmiles(result["smiles"])
+        rdkit_mol = Chem.MolFromSmiles(result["smiles"])  # pylint: disable=no-member (false positive)
 
         inchi = Chem.rdinchi.MolToInchi(rdkit_mol)[0]
 
@@ -50,7 +51,7 @@ def save_result(result: dict, cmd_pointer) -> bool:
 
 def _retrieve_results(smiles: str, cmd_pointer) -> list | bool:
     """retrieves results from workspace cache"""
-    rdkit_mol = Chem.MolFromSmiles(smiles)
+    rdkit_mol = Chem.MolFromSmiles(smiles)  # pylint: disable=no-member (false positive)
     inchi = Chem.rdinchi.MolToInchi(rdkit_mol)[0]
     inchikey = Chem.inchi.InchiToInchiKey(inchi)
     results = []

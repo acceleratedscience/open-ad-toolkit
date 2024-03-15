@@ -4,6 +4,9 @@ from flask import request
 from openad.workers.file_system import fs_get_workspace_files, fs_get_file
 from openad.helpers.output import output_success
 
+# APIs
+from openad.gui.api.molecules_api import MoleculesApi
+
 
 class FileSystemApi:
     def __init__(self, cmd_pointer):

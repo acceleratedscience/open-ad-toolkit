@@ -33,9 +33,9 @@ def fetchRoutes(cmd_pointer):
         f"{api_v1}/get-file": {"func": file_system_api.get_file, "method": "POST"},
         #
         # Molecules
-        f"{api_v1}/get-mol-data": {"func": molecules_api.get_mol_data, "method": "POST"},
+        f"{api_v1}/get-mol-data": {"func": molecules_api.get_mol, "method": "POST"},
         f"{api_v1}/get-mol-viz-data": {"func": molecules_api.get_mol_viz_data, "method": "POST"},
-        f"{api_v1}/filter-molset": {"func": molecules_api.filter_molset, "method": "POST"},
+        f"{api_v1}/get-molset": {"func": molecules_api.get_molset, "method": "POST"},
         #
         # "/": {"func": home, "method": "GET"},
         # "/submit": {"func": submit, "method": "POST"},

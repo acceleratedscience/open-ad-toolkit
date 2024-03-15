@@ -695,36 +695,8 @@ def show_mol(cmd_pointer, inp):
     from openad.gui.gui_launcher import gui_init
 
     molecule_identifier = inp.as_dict()["molecule_identifier"]
-    mol_svg, mol_sdf = None, None
-
-    # Try loading the molecule from your working set.
-    mol = retrieve_mol_from_list(cmd_pointer, molecule_identifier)
-
-    # Try generating a basic molecule from RDKit.
-    # Only works with InChI or SMILES as molecule_identifier.
-    if mol is None:
-        mol = new_molecule(molecule_identifier)
-
-    # Organize data in correct structure.
-    if mol:
-        mol = organize_properties(mol)
-
-        # Render SVG and SDF
-        mol_rdkit = Chem.MolFromInchi(mol["identifiers"]["inchi"])
-        if mol_rdkit:
-            mol_svg = mol2svg(mol_rdkit)
-            mol_sdf = mol2sdf(mol_rdkit)
-
-    # Prepare data for GUI.
-    data = {
-        "mol": mol,
-        # # This is too much data to send via a URL, causes 431 error
-        # # Todo: do the RDKit magic in the GUI
-        # "svg": mol_svg,
-        # "sdf": mol_sdf,
-    }
-
-    gui_init(cmd_pointer, path="molviewer/" + urllib.parse.quote(molecule_identifier, safe=""), data=data)
+    path = "molviewer/" + urllib.parse.quote(molecule_identifier, safe="")
+    gui_init(cmd_pointer, path)
 
 
 # Launch molecule grid.
