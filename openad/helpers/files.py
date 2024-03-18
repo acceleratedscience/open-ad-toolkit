@@ -14,7 +14,7 @@ from openad.helpers.json_decimal_encoder import DecimalEncoder
 # - JSON/CJSON: dict or list of dicts
 # - CSV: pandas dataframe
 # - Other: string
-def open_file(file_path, return_err=False, as_string=False, page=None):
+def open_file(file_path, return_err=False, dumb=False, page=None):
     """
     Takes care of all boilerplate file opening code.
 
@@ -40,30 +40,30 @@ def open_file(file_path, return_err=False, as_string=False, page=None):
 
             # Parse JSON
             if ext == "json" or ext == "cjson":
-                data = get_chunk_json(file_path, start, chunk_size, as_string)
+                data = get_chunk_json(file_path, start, chunk_size, dumb)
 
             # Parse CSV
             elif ext == "csv":
-                data = get_chunk_text(file_path, start, chunk_size, as_string, is_csv=True)
+                data = get_chunk_text(file_path, start, chunk_size, dumb, is_csv=True)
 
             # Parse any text file
             else:
-                data = get_chunk_text(file_path, start, chunk_size, as_string)
+                data = get_chunk_text(file_path, start, chunk_size, dumb)
 
         # Regular files - load entirely
         else:
             with open(file_path, "r", encoding="utf-8") as f:
                 # Return string
-                if as_string:
+                if dumb:
                     data = f.read()
 
                 # Parse JSON as dict
                 elif ext == "json" or ext == "cjson":
                     data = json.load(f)
 
-                # Parse CSV as dataframe
-                elif ext == "csv":
-                    data = pd.read_csv(f)
+                # # Parse CSV as dataframe
+                # elif ext == "csv":
+                #     data = pd.read_csv(f)
 
                 # Return string
                 else:

@@ -1,6 +1,6 @@
 import os
-from urllib.parse import unquote
 from openad.helpers.files import open_file
+from openad.gui.api.molecules_api import MoleculesApi
 
 
 def fs_get_workspace_files(cmd_pointer, path=""):
@@ -89,9 +89,6 @@ def fs_get_file(cmd_pointer, path):
     Read a file or directory from the workspace.
     """
 
-    # Convert %20 back into spaces
-    path = unquote(path)
-
     # Compile full filepath
     workspace_path = cmd_pointer.workspace_path(cmd_pointer.settings["workspace"])
     path_absolute = workspace_path + "/" + path
@@ -99,30 +96,59 @@ def fs_get_file(cmd_pointer, path):
     # Filename
     filename = path.split("/")[-1]
 
-    # Read file
-    data, err_code = open_file(path_absolute, return_err="code", as_string=False)  # %%
+    # Check if path is a file or a directory
+    file_or_dir = _check_path(path_absolute)
 
-    if err_code is None:
-        # File content
-        return _compile_file_data(cmd_pointer, path, filename, data=data)
-    elif err_code == "is_dir":
-        # Directory
+    # Not found
+    if file_or_dir is None:
+        return {"_meta": {}}
+
+    # Directory
+    elif file_or_dir == "dir":
         return {
             "_meta": {
                 "fileType": "dir",  # "dir_hidden" if filename[0] == "." else "dir",
                 "path": path,
             }
         }
+
+    # File
+    elif file_or_dir == "file":
+        file = _compile_file_data(cmd_pointer, path, filename)
+
+        # Molset --> Load molset object with first page data
+        if file["_meta"]["fileType"] == "molset":
+            molecules_api = MoleculesApi(cmd_pointer)
+            data = molecules_api.get_molset()
+            file["data"] = data
+
+        # Everything else --> Load file content
+        else:
+            # Read file's content
+            data, err_code = open_file(path_absolute, return_err="code", dumb=False)  # %%
+
+            # Attach file content or error code
+            if err_code:
+                file["_meta"]["errCode"] = err_code
+            else:
+                file["data"] = data
+
+        return file
+
+
+def _check_path(path):
+    """
+    Check if a path is a file or a directory.
+    """
+    if os.path.isdir(path):
+        return "dir"
+    elif os.path.isfile(path):
+        return "file"
     else:
-        # File error
-        return {
-            "_meta": {
-                "errCode": err_code,
-            }
-        }
+        return None
 
 
-def _compile_file_data(cmd_pointer, path, filename, is_dir=False, data=None):
+def _compile_file_data(cmd_pointer, path, filename, is_dir=False):
     """
     Compile universal file object that will be parsed by the frontend.
     Used by the file browser (FileBroswer.vue) and the file viewers (FileStore).
@@ -158,9 +184,9 @@ def _compile_file_data(cmd_pointer, path, filename, is_dir=False, data=None):
             "timeEdited": time_edited,
             "errCode": None,
         },
-        "data": data,  # Optional file content when viewing a file.
+        "data": None,  # Just for reference, this is added when opening file.
         "filename": filename,
-        "path": path,  # Relative to workspace
+        "path": path,  # Relative to workspace.
         "pathAbsolute": path_absolute,  # Absolute path
     }
 
