@@ -89,11 +89,9 @@ def fs_get_file(cmd_pointer, path):
     Read a file or directory from the workspace.
     """
 
-    # Compile full filepath
+    # Filepath
     workspace_path = cmd_pointer.workspace_path(cmd_pointer.settings["workspace"])
     path_absolute = workspace_path + "/" + path
-
-    # Filename
     filename = path.split("/")[-1]
 
     # Check if path is a file or a directory
@@ -119,6 +117,7 @@ def fs_get_file(cmd_pointer, path):
         # Molset --> Load molset object with first page data
         if file["_meta"]["fileType"] == "molset":
             molecules_api = MoleculesApi(cmd_pointer)
+            print("***")
             data = molecules_api.get_molset()
             file["data"] = data
 
