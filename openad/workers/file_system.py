@@ -117,7 +117,6 @@ def fs_get_file(cmd_pointer, path):
         # Molset --> Load molset object with first page data
         if file["_meta"]["fileType"] == "molset":
             molecules_api = MoleculesApi(cmd_pointer)
-            print("***")
             data = molecules_api.get_molset()
             file["data"] = data
 

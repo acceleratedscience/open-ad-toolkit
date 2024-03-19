@@ -38,6 +38,8 @@ def fetchRoutes(cmd_pointer):
         f"{api_v1}/get-molset": {"func": molecules_api.get_molset, "method": "POST"},
         f"{api_v1}/remove-from-molset": {"func": molecules_api.remove_from_molset, "method": "POST"},
         f"{api_v1}/clear-from-cache": {"func": molecules_api.clear_from_cache, "method": "POST"},
+        f"{api_v1}/save-molset-changes": {"func": molecules_api.save_molset_changes, "method": "POST"},
+        f"{api_v1}/get-mol-data-from-molset": {"func": molecules_api.get_mol_data_from_molset, "method": "POST"},
         #
         # "/": {"func": home, "method": "GET"},
         # "/submit": {"func": submit, "method": "POST"},

@@ -936,7 +936,7 @@ def cmd_line():
                 if confirm_prompt("Are you sure you wish to exit?", default=True):
                     from openad.gui.gui_launcher import gui_shutdown
 
-                    gui_shutdown(ignore_warning=True)
+                    gui_shutdown(command_line, ignore_warning=True)
                     lets_exit = True
                     command_line.do_exit("dummy do not remove")
 

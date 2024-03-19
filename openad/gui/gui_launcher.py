@@ -300,7 +300,14 @@ def _print_launch_msg(host, port):
 
 
 # Shutdown the GUI server.
-def gui_shutdown(ignore_warning=False):
+def gui_shutdown(cmd_pointer=None, ignore_warning=False):
+    # Clear all working copy molsets in the .cache folder
+    workspace_path = cmd_pointer.workspace_path(cmd_pointer.settings["workspace"])
+    cache_dir = workspace_path + "/.cache"
+    if os.path.exists(cache_dir):
+        for file in os.listdir(cache_dir):
+            os.remove(os.path.join(cache_dir, file))
+
     if GUI_SERVER and GUI_SERVER.is_running():
         GUI_SERVER.shutdown()
     elif not ignore_warning:

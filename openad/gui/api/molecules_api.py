@@ -22,6 +22,10 @@ class MoleculesApi:
     def __init__(self, cmd_pointer):
         self.cmd_pointer = cmd_pointer
 
+    #############
+    # Molecules #
+    #############
+
     # Get molecule data, plus SDF and SVG.
     # Used when requesting a molecule by its identifier.
     def get_mol(self):
@@ -50,7 +54,10 @@ class MoleculesApi:
     # Used when opening a .mol.json file.
     def get_mol_viz_data(self):
         data = json.loads(request.data) if request.data else {}
-        inchi_or_smiles = data["inchi_or_smiles"]
+        inchi_or_smiles = data["inchi_or_smiles"] if "inchi_or_smiles" in data else None
+
+        if not inchi_or_smiles:
+            return "get_mol_viz_data() -> Invalid inchi_or_smiles", 500
 
         mol_rdkit = Chem.MolFromInchi(inchi_or_smiles)
         if not mol_rdkit:
@@ -63,16 +70,39 @@ class MoleculesApi:
 
         return {"sdf": sdf, "svg": svg}
 
+    def get_mol_data_from_molset(self):
+        data = json.loads(request.data) if request.data else {}
+        path = data["path"] if "path" in data else ""
+        index = data["index"] if "index" in data else 1
+
+        # Workspace path
+        workspace_path = self.cmd_pointer.workspace_path(self.cmd_pointer.settings["workspace"])
+        file_path = workspace_path + "/" + path
+
+        # Read file from cache.
+        molset, err_code = open_file(file_path, return_err="code", dumb=False)  # %%
+
+        # Return error
+        if err_code:
+            return err_code, 500
+
+        return molset[index - 1]
+
+    ###########
+    # Molsets #
+    ###########
+
     # Filter a molecule set by a string.
     def get_molset(self):
-        print("get_molset")
+        # print("get_molset")
         data = json.loads(request.data) if request.data else {}
         path = unquote(data["path"]) if "path" in data else ""
         cache_id = data["cacheId"] if "cacheId" in data else ""
         query = data["query"] if "query" in data else {}
+        smarts_mode = data["smartsMode"] if "smartsMode" in data else False
 
         # Parse the query
-        search_str = query["search"] if "search" in query else ""
+        search_str = unquote(query["search"]) if "search" in query else ""
         page = int(query["page"]) if "page" in query else 1
         sort = query["sort"] if "sort" in query else None
         page_size = 48  # Hardcoded for now
@@ -110,7 +140,6 @@ class MoleculesApi:
 
         # Only add index when the working copy hasn't been indexed yet.
         if fresh:
-            print("@@ ADD")
             for i, mol in enumerate(molset):
                 mol["index"] = i + 1
 
@@ -118,17 +147,28 @@ class MoleculesApi:
         if search_str:
             results = []
             for mol in molset:
+                print(111, mol)
                 found = False
-                for key in mol["identifiers"]:
-                    if search_str.lower() in str(mol["identifiers"][key]).lower():
+
+                # Substructure search
+                if smarts_mode:
+                    print("@")
+                    if search_str.lower() in mol["identifiers"]["canonical_smiles"].lower():
+                        print(">>", mol["identifiers"]["canonical_smiles"].lower())
                         results.append(mol)
-                        found = True
-                        break
-                if not found:
-                    for key in mol["properties"]:
-                        if search_str.lower() in str(mol["properties"][key]).lower():
+
+                # Regular search
+                else:
+                    for key in mol["identifiers"]:
+                        if search_str.lower() in str(mol["identifiers"][key]).lower():
                             results.append(mol)
+                            found = True
                             break
+                    if not found:
+                        for key in mol["properties"]:
+                            if search_str.lower() in str(mol["properties"][key]).lower():
+                                results.append(mol)
+                                break
 
         # No query
         else:
@@ -172,7 +212,7 @@ class MoleculesApi:
     # (This can take up to a second for very large files, say ~100MB)
     # Note: read and write happen separately to make sure the file is overwritten.
     async def _add_index(self, cache_path):
-        start_time = time.time()
+        # start_time = time.time()
         # Read
         async with aiofiles.open(cache_path, "r", encoding="utf-8") as f:
             content = await f.read()
@@ -182,7 +222,7 @@ class MoleculesApi:
         # Write
         async with aiofiles.open(cache_path, "w", encoding="utf-8") as f:
             await f.write(json.dumps(molset, ensure_ascii=False, indent=4, cls=DecimalEncoder))
-        print("_add_index took %s seconds" % (time.time() - start_time))
+        # print("_add_index took %s seconds" % (time.time() - start_time))
 
     # Sorter function.
     def _sort_mol(self, mol, sort, category):
@@ -198,8 +238,11 @@ class MoleculesApi:
         cache_id = data["cacheId"] if "cacheId" in data else ""
         indices = data["indices"] if "indices" in data else []
 
-        if not cache_id or not indices:
-            return f"Unrecognized cache_id: {cache_id}", 500
+        if not cache_id:
+            return f"remove_from_molset() -> Unrecognized cache_id: {cache_id}", 500
+
+        if len(indices) == 0:
+            return f"remove_from_molset() -> No indices provided", 500
 
         # Compile path
         cache_path = self._cache_path(cache_id)
@@ -218,17 +261,42 @@ class MoleculesApi:
         with open(cache_path, "w", encoding="utf-8") as f:
             json.dump(molset, f, ensure_ascii=False, indent=4, cls=DecimalEncoder)
 
-        print("@@@")
         return self.get_molset()
+
+    def save_molset_changes(self):
+        print("save_molset_changes")
+        data = json.loads(request.data) if request.data else {}
+        cache_id = data["cacheId"] if "cacheId" in data else ""
+        path = unquote(data["path"]) if "path" in data else ""
+
+        # Compile path
+        workspace_path = self.cmd_pointer.workspace_path(self.cmd_pointer.settings["workspace"])
+        file_path = workspace_path + "/" + path
+
+        if not cache_id:
+            return f"save_molset_changes() -> Unrecognized cache_id: {cache_id}", 500
+
+        cache_path = self._cache_path(cache_id)
+
+        if not os.path.exists(file_path):
+            return f"save_molset_changes() -> File not found: {file_path}", 500
+
+        if not os.path.exists(cache_path):
+            return f"save_molset_changes() -> Cached working copy not found: {cache_path}", 500
+
+        shutil.copy(cache_path, file_path)
+        # os.remove(cache_path)
+
+        return "ok"
 
     # Clear a molset's cached working copy.
     def clear_from_cache(self):
         data = json.loads(request.data) if request.data else {}
         cache_id = data["cacheId"] if "cacheId" in data else ""
-        print("clear_from_cache", data, cache_id)
+        # print("clear_from_cache", data, cache_id)
 
         if not cache_id:
-            return f"Unrecognized cache_id: {cache_id}", 500
+            return f"clear_from_cache() -> Unrecognized cache_id: {cache_id}", 500
 
         cache_path = self._cache_path(cache_id)
         if os.path.exists(cache_path):

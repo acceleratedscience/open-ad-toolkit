@@ -438,9 +438,18 @@ def new_molecule(inchi_or_smiles: str, name: str = None):
 
 
 # Create svg code from .
-def mol2svg(mol_rdkit):
+def mol2svg(mol_rdkit, highlight=None):
+    if highlight:
+        substructure = Chem.MolFromSmarts(highlight)
+        matches = mol_rdkit.GetSubstructMatches(substructure)
+
+        # Flatten the tuple of tuples into a list of atom indices
+        highlight_atoms = [atom_index for match in matches for atom_index in match]
+    else:
+        highlight_atoms = None
+
     mol_drawer = Chem.Draw.MolDraw2DSVG(300, 300)
-    mol_drawer.DrawMolecule(mol_rdkit)
+    mol_drawer.DrawMolecule(mol_rdkit, highlightAtoms=highlight_atoms)
     mol_drawer.FinishDrawing()
     return mol_drawer.GetDrawingText()
 
