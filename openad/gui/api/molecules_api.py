@@ -147,14 +147,11 @@ class MoleculesApi:
         if search_str:
             results = []
             for mol in molset:
-                print(111, mol)
                 found = False
 
                 # Substructure search
                 if smarts_mode:
-                    print("@")
                     if search_str.lower() in mol["identifiers"]["canonical_smiles"].lower():
-                        print(">>", mol["identifiers"]["canonical_smiles"].lower())
                         results.append(mol)
 
                 # Regular search

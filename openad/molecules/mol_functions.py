@@ -6,6 +6,7 @@ import pubchempy as pcy
 from rdkit import Chem, rdBase
 from rdkit.Chem.Descriptors import MolWt, ExactMolWt
 from openad.helpers.output import output_text, output_table, output_warning, output_error
+from openad.helpers.files import open_file
 
 blocker = rdBase.BlockLogs()
 
@@ -437,6 +438,25 @@ def new_molecule(inchi_or_smiles: str, name: str = None):
     return mol
 
 
+# Reads the content of a .smi file and returns a molset.
+# Specs for .smi files: http://opensmiles.org/opensmiles.html - 4.5
+def smiles_to_molset(path):
+    # Read file's content
+    data = open_file(path)
+    if data is None:
+        return None
+
+    # Parse SMILES
+    smiles_list = data.splitlines()
+    smiles_list = [smiles.split(" ")[0] for smiles in smiles_list if smiles]  # Ignore any properties
+    molset = []
+    for smiles in smiles_list:
+        mol = new_molecule(smiles)
+        molset.append(mol)
+
+    return molset
+
+
 # Create svg code from .
 def mol2svg(mol_rdkit, highlight=None):
     if highlight:
@@ -448,7 +468,7 @@ def mol2svg(mol_rdkit, highlight=None):
     else:
         highlight_atoms = None
 
-    mol_drawer = Chem.Draw.MolDraw2DSVG(300, 300)
+    mol_drawer = Chem.Draw.MolDraw2DSVG(400, 300)
     mol_drawer.DrawMolecule(mol_rdkit, highlightAtoms=highlight_atoms)
     mol_drawer.FinishDrawing()
     return mol_drawer.GetDrawingText()

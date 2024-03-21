@@ -108,7 +108,13 @@ def open_file(file_path, return_err=False, dumb=False, page=None):
         return None
 
 
+# Disabled until we have time to handle this properly.
+# The idea is that when you try to open a mega file, we
+# let you open it in chunks of 10k (or something) items
+# at a time, but right now we just truncate the items
+# without any warning which is bad.
 def _is_large_file(file_path):
+    return False
     file_size = os.path.getsize(file_path)
     return bool(file_size > 2 * 1024 * 1024)
 

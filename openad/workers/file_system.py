@@ -1,6 +1,7 @@
 import os
 from openad.helpers.files import open_file
 from openad.gui.api.molecules_api import MoleculesApi
+from openad.molecules.mol_functions import smiles_to_molset
 
 
 def fs_get_workspace_files(cmd_pointer, path=""):
@@ -116,8 +117,14 @@ def fs_get_file(cmd_pointer, path):
 
         # Molset --> Load molset object with first page data
         if file["_meta"]["fileType"] == "molset":
-            molecules_api = MoleculesApi(cmd_pointer)
-            data = molecules_api.get_molset()
+            ext = file["_meta"]["ext"]
+            if ext == "smi":
+                data = smiles_to_molset(path_absolute)
+                print(223, data)
+            elif ext == "json":
+                molecules_api = MoleculesApi(cmd_pointer)
+                data = molecules_api.get_molset()
+
             file["data"] = data
 
         # Everything else --> Load file content
@@ -208,40 +215,54 @@ def _get_file_ext2(filename):
 
 
 def _get_file_type(ext, ext2):
-    if ext in ["sdf", "mol", "molecule", "pdb", "cif", "xyz", "mol2", "mmcif", "cml", "smiles", "inchi"]:
-        # Molecule formats
+    # Single molecule files
+    if ext in ["sdf", "mol", "molecule", "pdb", "cif", "xyz", "mol2", "mmcif", "cml", "inchi"]:
         return "mol"
-    elif ext in ["csv"]:
-        # Data formats
-        return "data"
+
+    # Molecule set files
+    if ext in ["sdf", "smi"]:
+        return "molset"
+
+    # JSON files --> parse secondary extension
     elif ext in ["json", "cjson"]:
+        # Molecule
         if ext2 == "mol":
-            # Molecule
             return "mol"
+        # Molecule set
         elif ext2 == "molset":
-            # Molecule set
             return "molset"
+        # JSON files
         else:
-            # JSON files
             return "json"
+
+    # Data files
+    elif ext in ["csv"]:
+        return "data"
+
+    # Text files
     elif ext in ["txt", "md", "yaml", "yml"]:
-        # Text formats
         return "text"
-    elif ext in ["xml", "pdf", "svg", "run", "rxn", "mod"]:
-        # Individually recognized file formats (have their own icon)
-        return ext
+
+    # HTML files
     elif ext in ["html", "htm"]:
-        # HTML files
         return "html"
+
+    # Image formats
     elif ext in ["jpg", "jpeg", "png", "gif", "bmp", "webp"]:
-        # Image formats
         return "img"
+
+    # Video formats
     elif ext in ["mp4", "avi", "mov", "mkv", "webm"]:
-        # Video formats
         return "vid"
+
+    # Individually recognized file formats (have their own icon)
+    elif ext in ["xml", "pdf", "svg", "run", "rxn", "md"]:
+        return ext
+
+    # # Yaml files
     # elif ext in ["yaml", "yml"]:
-    #     # Yaml files
     #     return "yaml"
+
     else:
         # Unrecognized file formats
         return "unk"
