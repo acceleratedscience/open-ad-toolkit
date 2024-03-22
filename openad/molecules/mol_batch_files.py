@@ -201,7 +201,7 @@ def load_mol(source_file, cmd_pointer):
             name = source_file.split("/")[-1]
             SDFFile = cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/" + name
 
-            mol_frame = pandas.read_csv(SDFFile)
+            mol_frame = pandas.read_csv(SDFFile, dtype="string")
 
             return _normalize_mol_df(mol_frame, cmd_pointer)
 
