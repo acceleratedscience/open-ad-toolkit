@@ -48,7 +48,7 @@ def name_and_value_columns(values, cli_width, display_width: int, exclusions=[],
                 + process_list(value, cli_width, display_width, exclusions, indent="  " + indent)
             )
             continue
-        value_string = "<{}:> {} ".format(key, value)
+        value_string = "<{}:> {} ".format(key, str(value))
 
         while buffer < len(value_string) - 2:
             buffer = display_width + buffer
@@ -70,5 +70,5 @@ def process_list(values, cli_width, display_width: int, exclusions=[], indent=""
                 return_string + "\n" + name_and_value_columns(item, cli_width, display_width, exclusions, "  " + indent)
             )
         else:
-            return_string = return_string + "\n" + indent + "- " + item
+            return_string = return_string + "\n" + indent + "- " + str(item)
     return return_string
