@@ -589,7 +589,14 @@ def load_molecules(cmd_pointer, inp):
         func_file = open(i, "rb")
         mol = dict(pickle.load(func_file))
         for properties in mol["properties"]:
-            if properties not in MOL_PROPERTIES:
+            if properties not in MOL_PROPERTIES and properties not in [
+                "atoms",
+                "bonds",
+                "record",
+                "elements",
+                "cactvs_fingerprint",
+                "fingerprint",
+            ]:
                 MOL_PROPERTIES.append(properties)
         cmd_pointer.molecule_list.append(mol.copy())
     output_text("<green>Number of molecules loaded</green> = " + str(len(cmd_pointer.molecule_list)), return_val=False)
