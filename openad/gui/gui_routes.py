@@ -31,11 +31,12 @@ def fetchRoutes(cmd_pointer):
         f"{api_v1}/set-workspace": {"func": file_system_api.set_workspace, "method": "POST"},
         f"{api_v1}/get-workspace-files": {"func": file_system_api.get_workspace_files, "method": "POST"},
         f"{api_v1}/get-file": {"func": file_system_api.get_file, "method": "POST"},
+        f"{api_v1}/open-file-os": {"func": file_system_api.open_file_os, "method": "POST"},
         #
         # Molecules
         f"{api_v1}/get-mol-data": {"func": molecules_api.get_mol, "method": "POST"},
         f"{api_v1}/get-mol-viz-data": {"func": molecules_api.get_mol_viz_data, "method": "POST"},
-        f"{api_v1}/get-molset": {"func": molecules_api.get_molset, "method": "POST"},
+        f"{api_v1}/query-molset": {"func": molecules_api.query_molset, "method": "POST"},
         f"{api_v1}/remove-from-molset": {"func": molecules_api.remove_from_molset, "method": "POST"},
         f"{api_v1}/clear-molset-working-copy": {"func": molecules_api.clear_molset_working_copy, "method": "POST"},
         f"{api_v1}/save-molset-changes": {"func": molecules_api.save_molset_changes, "method": "POST"},

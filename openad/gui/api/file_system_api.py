@@ -68,3 +68,14 @@ class FileSystemApi:
             file_obj = fs_attach_file_data(self.cmd_pointer, file_obj, query)
 
         return file_obj
+
+    # Open a file in its OS application.
+    def open_file_os(self):
+        data = json.loads(request.data) if request.data else {}
+        path_absolute = unquote(data["path"]) if "path" in data else ""
+
+        try:
+            os.system(f"open {path_absolute}")
+            return "ok", 200
+        except Exception as err:
+            return err, 500

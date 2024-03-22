@@ -10,10 +10,9 @@ from openad.gui.api.molecules_api import (
     get_molset_mols,
     create_molset_response,
     smiles_file_to_molset,
-    sdf_file_to_molset,
+    sdf2molset,
     index_molset_file_async,
 )
-from openad.molecules.mol_functions import sdf2molset
 
 
 def fs_get_workspace_files(cmd_pointer, path=""):
@@ -135,7 +134,7 @@ def fs_get_workspace_files(cmd_pointer, path=""):
 #                 print(223, data)
 #             elif ext == "json":
 #                 molecules_api = MoleculesApi(cmd_pointer)
-#                 data = molecules_api.get_molset()
+#                 data = molecules_api.query_molset()
 
 #             file["data"] = data
 
@@ -238,7 +237,7 @@ def fs_attach_file_data(cmd_pointer, file_obj, query=None):
 
     This entry point is only used for opening files, once a molset (or potentially
     other editable file formats later) is opened, further querying and editing
-    is handled by its own API endpoint - i.e. get_molset()
+    is handled by its own API endpoint - i.e. query_molset()
 
     Parameters:
     -----------
@@ -271,6 +270,7 @@ def fs_attach_file_data(cmd_pointer, file_obj, query=None):
         # From SDF file
         elif ext == "sdf":
             molset, err_code = sdf2molset(path_absolute)
+            print(334, molset, err_code)
 
         # Step 2: Store a working copy of the molset in the cache.
         # - - -

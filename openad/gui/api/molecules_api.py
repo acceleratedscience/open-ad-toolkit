@@ -1,6 +1,7 @@
 import os
 import json
 import time
+import copy
 import shutil
 import asyncio
 import aiofiles
@@ -10,7 +11,7 @@ from urllib.parse import unquote
 
 # from openad.molecules.mol_api import get_molecule_data
 from openad.molecules.mol_commands import retrieve_mol
-from openad.molecules.mol_functions import new_molecule, molformat_v2, mol2svg, mol2sdf, sdf2molset
+from openad.molecules.mol_functions import new_molecule, molformat_v2, mol2svg, mol2sdf
 
 # from openad.workers.file_system import fs_assemble_cache_path
 import openad.workers.file_system as fs
@@ -209,7 +210,7 @@ class MoleculesApi:
     #     }
 
     # Filter a molecule set by a string.
-    def get_molset(self):
+    def query_molset(self):
         # print("get_molset")
         data = json.loads(request.data) if request.data else {}
         cache_id = data["cacheId"] if "cacheId" in data else ""
@@ -381,30 +382,27 @@ def smiles_file_to_molset(path_absolute):
     for i, smiles in enumerate(smiles_list):
         mol = new_molecule(smiles)
         mol = molformat_v2(mol)
-        mol["index"] = i
+        mol["index"] = i + 1
         molset.append(mol)
 
     return molset, None
 
 
-# Return molset from SDF file
-def sdf_file_to_molset(path_absolute):
-    print(22, "sdf_file_to_molset")
-    """
-    Read the content of a .sdf file and return a molset.
-    Specs for .sdf files: https://www.nonlinear.com/progenesis/sdf-studio/v0.9/faq/sdf-file-format-guidance.aspx
-    Also: https://en.wikipedia.org/wiki/Chemical_table_file#SDF
-    """
-    # Read file's content
-    sdf, err_code = open_file(path_absolute, return_err="code")
-    if err_code:
-        return None, err_code
+def sdf2molset(sdf):
+    from openad.molecules.mol_functions import OPENAD_MOL_DICT
 
-    # Parse SDF
-    molset = sdf2molset(path_absolute)
-    # print(molset)
-
-    return molset, None
+    try:
+        mols = Chem.SDMolSupplier(sdf)  # pylint: disable=no-member
+        molset = []
+        for i, mol in enumerate(mols):
+            mol_dict = copy.deepcopy(OPENAD_MOL_DICT)
+            mol_dict["properties"] = {prop: mol.GetProp(prop) for prop in mol.GetPropNames()}
+            mol_dict = molformat_v2(mol_dict)
+            mol_dict["index"] = i + 1
+            molset.append(mol_dict)
+        return molset, None
+    except Exception as err:
+        return None, err
 
 
 def create_molset_response(molset, cache_id, query={}):
@@ -416,6 +414,8 @@ def create_molset_response(molset, cache_id, query={}):
     ----------
     molset: list
         The entire list of molecules from a file.
+    cache_id: str
+        The unique identifier of the working copy of the molset.
     query: dict
         The query parameters from the frontend.
         Eg. { queryStr: "C1=CC=CC=C1", smartsMode: true, page: 1, sort: "name" }

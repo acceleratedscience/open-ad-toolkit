@@ -20,6 +20,7 @@ OPENAD_MOL_DICT = {
     "sources": {},
     "commments": {},
     "analysis": [],
+    "enriched": False,
 }
 
 MOL_NAME_INDEX = "name"
@@ -332,6 +333,7 @@ def molformat_v2(mol):
     mol_organized["properties"] = mol["properties"]
     mol_organized["analysis"] = mol["analysis"]
     mol_organized["property_sources"] = mol["property_sources"]
+    mol_organized["enriched"] = mol["enriched"]
 
     # # This removes all properties that are not in MOL_PROPERTIES
     # # I'm not sure what the benefit is. This shouldn't be limited.
@@ -416,22 +418,10 @@ def new_molecule(inchi_or_smiles: str, name: str = None):
     mol["properties"]["molecular_weight_exact"] = ExactMolWt(mol_rdkit)
     mol["property_sources"]["molecular_weight_exact"] = {"software": "rdkit", "date": str_date_time}
 
+    # So the UI can recognize when a molecule has been enriched.
+    mol["enriched"] = True
+
     return mol
-
-
-def sdf2molset(sdf):
-    try:
-        mols = Chem.SDMolSupplier(sdf)  # pylint: disable=no-member
-        molset = []
-        for i, mol in enumerate(mols):
-            mol_dict = copy.deepcopy(OPENAD_MOL_DICT)
-            mol_dict["properties"] = {prop: mol.GetProp(prop) for prop in mol.GetPropNames()}
-            mol_dict = molformat_v2(mol_dict)
-            mol_dict["index"] = i
-            molset.append(mol_dict)
-        return molset, None
-    except Exception as err:
-        return None, err
 
 
 # Create svg code from .
