@@ -30,7 +30,7 @@ from openad.molecules.mol_functions import (
     get_identifiers,
     canonical_smiles,
     new_molecule,
-    organize_properties,
+    molformat_v2,
     mol2svg,
     mol2sdf,
     mol2xyz,

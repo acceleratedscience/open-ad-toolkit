@@ -1,7 +1,19 @@
 import os
-from openad.helpers.files import open_file
-from openad.gui.api.molecules_api import MoleculesApi
-from openad.molecules.mol_functions import smiles_to_molset
+import time
+import json
+import shutil
+import asyncio
+from openad.helpers.files import open_file, file_stats
+from openad.helpers.timeit import timeit
+from openad.gui.api.molecules_api import (
+    MoleculesApi,
+    get_molset_mols,
+    create_molset_response,
+    smiles_file_to_molset,
+    sdf_file_to_molset,
+    index_molset_file_async,
+)
+from openad.molecules.mol_functions import sdf2molset
 
 
 def fs_get_workspace_files(cmd_pointer, path=""):
@@ -64,9 +76,8 @@ def fs_get_workspace_files(cmd_pointer, path=""):
         if category == "_meta":
             continue
         for index, filename in enumerate(items):
-            is_dir = category in ["dirs", "dirsHidden"]
             file_path = path + "/" + filename if path else filename
-            items[index] = _compile_file_data(cmd_pointer, file_path, filename, is_dir)
+            items[index] = fs_compile_filedir_obj(cmd_pointer, file_path)
 
     #
     #
@@ -85,78 +96,81 @@ def fs_get_workspace_files(cmd_pointer, path=""):
     return level
 
 
-def fs_get_file(cmd_pointer, path):
+# TRASH
+# def fs_get_file(cmd_pointer, path):
+#     """
+#     Read a file or directory from the workspace.
+#     """
+
+#     # Filepath
+#     workspace_path = cmd_pointer.workspace_path(cmd_pointer.settings["workspace"])
+#     path_absolute = workspace_path + "/" + path
+#     filename = path.split("/")[-1]
+
+#     # Check if path is a file or a directory
+#     file_or_dir = _check_path(path_absolute)
+
+#     # Not found
+#     if file_or_dir is None:
+#         return {"_meta": {}}
+
+#     # Directory
+#     elif file_or_dir == "dir":
+#         return {
+#             "_meta": {
+#                 "fileType": "dir",  # "dir_hidden" if filename[0] == "." else "dir",
+#                 "path": path,
+#             }
+#         }
+
+#     # File
+#     elif file_or_dir == "file":
+#         file = fs_compile_filedir_obj(cmd_pointer, path)
+
+#         # Molset --> Load molset object with first page data
+#         if file["_meta"]["fileType"] == "molset":
+#             ext = file["_meta"]["ext"]
+#             if ext == "smi":
+#                 data = smiles_file_to_molset(path_absolute)
+#                 print(223, data)
+#             elif ext == "json":
+#                 molecules_api = MoleculesApi(cmd_pointer)
+#                 data = molecules_api.get_molset()
+
+#             file["data"] = data
+
+#         # Everything else --> Load file content
+#         else:
+#             # Read file's content
+#             data, err_code = open_file(path_absolute, return_err="code", dumb=False)  # %%
+
+#             # Attach file content or error code
+#             if err_code:
+#                 file["_meta"]["errCode"] = err_code
+#             else:
+#                 file["data"] = data
+
+#         return file
+
+# TRASH
+# def _check_path(path):
+#     """
+#     Check if a path is a file or a directory.
+#     """
+#     if os.path.isdir(path):
+#         return "dir"
+#     elif os.path.isfile(path):
+#         return "file"
+#     else:
+#         return None
+
+
+def fs_compile_filedir_obj(cmd_pointer, path):
     """
-    Read a file or directory from the workspace.
-    """
+    Compile universal file object that cen be parsed by the frontend.
 
-    # Filepath
-    workspace_path = cmd_pointer.workspace_path(cmd_pointer.settings["workspace"])
-    path_absolute = workspace_path + "/" + path
-    filename = path.split("/")[-1]
-
-    # Check if path is a file or a directory
-    file_or_dir = _check_path(path_absolute)
-
-    # Not found
-    if file_or_dir is None:
-        return {"_meta": {}}
-
-    # Directory
-    elif file_or_dir == "dir":
-        return {
-            "_meta": {
-                "fileType": "dir",  # "dir_hidden" if filename[0] == "." else "dir",
-                "path": path,
-            }
-        }
-
-    # File
-    elif file_or_dir == "file":
-        file = _compile_file_data(cmd_pointer, path, filename)
-
-        # Molset --> Load molset object with first page data
-        if file["_meta"]["fileType"] == "molset":
-            ext = file["_meta"]["ext"]
-            if ext == "smi":
-                data = smiles_to_molset(path_absolute)
-                print(223, data)
-            elif ext == "json":
-                molecules_api = MoleculesApi(cmd_pointer)
-                data = molecules_api.get_molset()
-
-            file["data"] = data
-
-        # Everything else --> Load file content
-        else:
-            # Read file's content
-            data, err_code = open_file(path_absolute, return_err="code", dumb=False)  # %%
-
-            # Attach file content or error code
-            if err_code:
-                file["_meta"]["errCode"] = err_code
-            else:
-                file["data"] = data
-
-        return file
-
-
-def _check_path(path):
-    """
-    Check if a path is a file or a directory.
-    """
-    if os.path.isdir(path):
-        return "dir"
-    elif os.path.isfile(path):
-        return "file"
-    else:
-        return None
-
-
-def _compile_file_data(cmd_pointer, path, filename, is_dir=False):
-    """
-    Compile universal file object that will be parsed by the frontend.
     Used by the file browser (FileBroswer.vue) and the file viewers (FileStore).
+    The file content is added later, under the "data" key - see fs_get_file_data().
 
     Parameters:
     -----------
@@ -164,36 +178,149 @@ def _compile_file_data(cmd_pointer, path, filename, is_dir=False):
         The command pointer object, used to fetch the workspace path.
     path: str
         The path of the file relative to the workspace, including the filename.
-    filename: str
-        The name of the file.
 
     """
     workspace_path = cmd_pointer.workspace_path(cmd_pointer.settings["workspace"])
-    path_absolute = workspace_path + "/" + path
-    size = os.stat(path_absolute).st_size
-    time_edited = os.stat(path_absolute).st_mtime * 1000  # Convert to milliseconds for JS.
-    time_created = os.stat(path_absolute).st_ctime * 1000  # Convert to milliseconds for JS.
-    ext = "" if is_dir else _get_file_ext(filename)
-    ext2 = "" if is_dir else _get_file_ext2(filename)
-    file_type = "dir" if is_dir else _get_file_type(ext, ext2)
+    path_absolute = os.path.join(workspace_path, path)
+    filename = os.path.basename(path)
 
-    # Dict structure for one file/dir.
-    return {
-        "_meta": {
-            # "name": filename,
-            "fileType": file_type,
-            "ext": ext,
-            "ext2": ext2,  # Secondary file extension, eg. foobar.mol.json --> mol
-            "size": size,
-            "timeCreated": time_created,
-            "timeEdited": time_edited,
-            "errCode": None,
-        },
-        "data": None,  # Just for reference, this is added when opening file.
-        "filename": filename,
-        "path": path,  # Relative to workspace.
-        "pathAbsolute": path_absolute,  # Absolute path
-    }
+    # Get file exists or error code.
+    f_stats, err_code = file_stats(path_absolute)
+
+    # No file/dir found
+    if err_code:
+        return {"_meta": {"errCode": err_code}}
+
+    # File
+    if os.path.isfile(path_absolute):
+        size = f_stats.st_size
+        time_edited = f_stats.st_mtime * 1000  # Convert to milliseconds for JS.
+        time_created = f_stats.st_ctime * 1000  # Convert to milliseconds for JS.
+        ext = _get_file_ext(filename)
+        ext2 = _get_file_ext2(filename)
+        file_type = _get_file_type(ext, ext2)
+        return {
+            "_meta": {
+                "fileType": file_type,
+                "ext": ext,
+                "ext2": ext2,  # Secondary file extension, eg. foobar.mol.json --> mol
+                "size": size,
+                "timeCreated": time_created,
+                "timeEdited": time_edited,
+                "errCode": None,
+            },
+            "data": None,  # Just for reference, this is added when opening file.
+            "filename": filename,
+            "path": path,  # Relative to workspace.
+            "pathAbsolute": path_absolute,  # Absolute path
+        }
+
+    # Directory
+    elif os.path.isdir(path_absolute):
+        return {
+            "_meta": {
+                "fileType": "dir",
+            },
+            "filename": filename,
+            "path": path,
+            "pathAbsolute": path_absolute,
+        }
+
+
+def fs_attach_file_data(cmd_pointer, file_obj, query=None):
+    """
+    Read the content of a file and attach it to the file object.
+
+    This content will then be attached to the "data" key of the file object
+    to be consumed by the frontend. For most file types, this is just the
+    raw text content of the file, but for certain files like a molset, this
+    will be a parsed object that includes additional data like pagination etc.
+
+    This entry point is only used for opening files, once a molset (or potentially
+    other editable file formats later) is opened, further querying and editing
+    is handled by its own API endpoint - i.e. get_molset()
+
+    Parameters:
+    -----------
+    path: str
+        The path of the file relative to the workspace, including the filename.
+    query: dict
+        The query object, used to filter and sort the molset, and possible other
+        file formats in the future.
+    """
+
+    path_absolute = file_obj["pathAbsolute"]
+    file_type = file_obj["_meta"]["fileType"]
+    ext = file_obj["_meta"]["ext"]
+
+    # Molset --> Load molset object with first page data
+    print(ext, file_type)
+    if file_type == "molset":
+
+        # Step 1: Load or assemble the molset.
+        # - - -
+
+        # From molset JSON file, no formatting required.
+        if ext == "json":
+            molset, err_code = get_molset_mols(path_absolute)
+
+        # From SMILES file
+        elif ext == "smi":
+            molset, err_code = smiles_file_to_molset(path_absolute)
+
+        # From SDF file
+        elif ext == "sdf":
+            molset, err_code = sdf2molset(path_absolute)
+
+        # Step 2: Store a working copy of the molset in the cache.
+        # - - -
+
+        if molset:
+            cache_id = str(int(time.time() * 1000))
+            cache_path = fs_assemble_cache_path(cmd_pointer, "molset", cache_id)
+
+            # For JSON files, we can simply copy the original file (fast).
+            if ext == "json":
+                timeit("copy_file")
+                shutil.copy(path_absolute, cache_path)
+                timeit("copy_file", True)
+
+                # Add indices to molecules in our working copy,
+                # without blocking the thread.
+                timeit("index_wc")
+                index_molset_file_async(cache_path)
+                timeit("index_wc", True)
+
+            # For other formats, we need to write the molset object to disk (slow).
+            else:
+                timeit("write_cache")
+                with open(cache_path, "w", encoding="utf-8") as f:
+                    json.dump(molset, f)
+                timeit("write_cache", True)
+
+            # Step 3: Create the response object.
+            # - - -
+
+            # Filter, sort & paginate the molset, wrap it into
+            # a response object and add the cache_id so further
+            # operations can be performed on the working copy.
+            data = create_molset_response(molset, cache_id, query)
+
+        else:
+            data = None
+
+    # Everything else --> Load file content
+    else:
+        # Read file's content
+        data, err_code = open_file(path_absolute, return_err="code")
+
+    # Attach file content or error code
+    if err_code:
+        file_obj["_meta"]["errCode"] = err_code
+    else:
+        file_obj["data"] = data
+
+    return file_obj
 
 
 def _get_file_ext(filename):
@@ -216,7 +343,7 @@ def _get_file_ext2(filename):
 
 def _get_file_type(ext, ext2):
     # Single molecule files
-    if ext in ["sdf", "mol", "molecule", "pdb", "cif", "xyz", "mol2", "mmcif", "cml", "inchi"]:
+    if ext in ["mol", "molecule", "pdb", "cif", "xyz", "mol2", "mmcif", "cml", "inchi"]:
         return "mol"
 
     # Molecule set files
@@ -266,3 +393,19 @@ def _get_file_type(ext, ext2):
     else:
         # Unrecognized file formats
         return "unk"
+
+
+# Compile the file path to a cached working copy of a file.
+def fs_assemble_cache_path(cmd_pointer, file_type, cache_id):
+    """
+    Compile the file path to a cached working copy of a file.
+
+    Parameters:
+    -----------
+    cmd_pointer: object
+        The command pointer object, used to fetch the workspace path.
+    file_type: 'molset'
+        The type of file, used to name the cache file. For now only molset.
+    """
+    workspace_path = cmd_pointer.workspace_path()
+    return f"{workspace_path}/.cache/{file_type}-{cache_id}.json"

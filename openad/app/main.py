@@ -162,8 +162,9 @@ class RUNCMD(Cmd):
 
         output_train_statements(self)
 
-    def workspace_path(self, workspace: str):
+    def workspace_path(self, workspace: str = None):
         """Returns the default workspace directory path"""
+        workspace = workspace.upper() if workspace else self.settings["workspace"].upper()
         try:
             x = os.path.expanduser(self.settings["paths"][workspace.upper()] + "/" + workspace.upper())
             return x

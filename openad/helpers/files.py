@@ -14,7 +14,7 @@ from openad.helpers.json_decimal_encoder import DecimalEncoder
 # - JSON/CJSON: dict or list of dicts
 # - CSV: pandas dataframe
 # - Other: string
-def open_file(file_path, return_err=False, dumb=False, page=None):
+def open_file(file_path, return_err=False, dumb=False, page=None, _stats_only=False):
     """
     Takes care of all boilerplate file opening code.
 
@@ -24,50 +24,57 @@ def open_file(file_path, return_err=False, dumb=False, page=None):
         The path of the file to open.
     return_err: bool | 'code'
         Return a tuple (data, err_msg) instead of printing the error.
-    as_string: bool
-        Return the file content as a raw string instead of parsing it by file type.
-
+    dumb: bool
+        To be deleted after testing, we don't want to return dataframes ever
+    _stats_only: bool
+        Only check if the file can be opened, don't return the data.
     """
     ext = file_path.split(".")[-1].lower()
     data = None
     err_msg = None
     err_code = None
     try:
-        # Large files - load in chunks
-        if _is_large_file(file_path):
-            chunk_size = 10**3  # 1000 - The number of rows (csv) or objects (json) to load at a time.
-            start = chunk_size * (page - 1) if page else 0
+        # Check if the file can be opened. This should only be invoked via file_stats.
+        if _stats_only:
+            data = os.stat(file_path)
 
-            # Parse JSON
-            if ext == "json" or ext == "cjson":
-                data = get_chunk_json(file_path, start, chunk_size, dumb)
-
-            # Parse CSV
-            elif ext == "csv":
-                data = get_chunk_text(file_path, start, chunk_size, dumb, is_csv=True)
-
-            # Parse any text file
-            else:
-                data = get_chunk_text(file_path, start, chunk_size, dumb)
-
-        # Regular files - load entirely
+        # Return file content.
         else:
-            with open(file_path, "r", encoding="utf-8") as f:
-                # Return string
-                if dumb:
-                    data = f.read()
+            # Large files - load in chunks
+            if _is_large_file(file_path):
+                chunk_size = 10**3  # 1000 - The number of rows (csv) or objects (json) to load at a time.
+                start = chunk_size * (page - 1) if page else 0
 
-                # Parse JSON as dict
-                elif ext == "json" or ext == "cjson":
-                    data = json.load(f)
+                # Parse JSON
+                if ext == "json" or ext == "cjson":
+                    data = get_chunk_json(file_path, start, chunk_size, dumb)
 
-                # # Parse CSV as dataframe
-                # elif ext == "csv":
-                #     data = pd.read_csv(f)
+                # Parse CSV
+                elif ext == "csv":
+                    data = get_chunk_text(file_path, start, chunk_size, dumb, is_csv=True)
 
-                # Return string
+                # Parse any text file
                 else:
-                    data = f.read()
+                    data = get_chunk_text(file_path, start, chunk_size, dumb)
+
+            # Regular files - load entirely
+            else:
+                with open(file_path, "r", encoding="utf-8") as f:
+                    # Return string
+                    if dumb:
+                        data = f.read()
+
+                    # Parse JSON as dict
+                    elif ext == "json" or ext == "cjson":
+                        data = json.load(f)
+
+                    # # Parse CSV as dataframe
+                    # elif ext == "csv":
+                    #     data = pd.read_csv(f)
+
+                    # Return string
+                    else:
+                        data = f.read()
 
         # Return data
         if return_err:
@@ -117,6 +124,11 @@ def _is_large_file(file_path):
     return False
     file_size = os.path.getsize(file_path)
     return bool(file_size > 2 * 1024 * 1024)
+
+
+# Get a file's stats (os.stat) or error code if invalid.
+def file_stats(file_path, return_err="code"):
+    return open_file(file_path, return_err, _stats_only=True)
 
 
 # Read only a chunk of a large JSON file.

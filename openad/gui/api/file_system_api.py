@@ -2,7 +2,13 @@ import os
 import json
 from flask import request
 from urllib.parse import unquote
-from openad.workers.file_system import fs_get_workspace_files, fs_get_file
+from openad.helpers.files import open_file
+from openad.workers.file_system import (
+    fs_get_workspace_files,
+    fs_attach_file_data,
+    fs_assemble_cache_path,
+    fs_compile_filedir_obj,
+)
 from openad.helpers.output import output_success
 
 # APIs
@@ -50,6 +56,15 @@ class FileSystemApi:
     # Fetch a file's content as a JSON object.
     def get_file(self):
         data = json.loads(request.data) if request.data else {}
-        path = unquote(data["path"]) if "path" in data else ""  # unquote = decodeURIComponent
-        file = fs_get_file(self.cmd_pointer, path)
-        return file
+        path = unquote(data["path"]) if "path" in data else ""  # unquote = decodeURIComponent in JS
+        query = data["query"] if "query" in data else {}
+
+        # Compile filedir object
+        file_obj = fs_compile_filedir_obj(self.cmd_pointer, path)
+        file_type = file_obj.get("_meta", {}).get("fileType")
+
+        # Attach data for files
+        if file_type and file_type != "dir":
+            file_obj = fs_attach_file_data(self.cmd_pointer, file_obj, query)
+
+        return file_obj

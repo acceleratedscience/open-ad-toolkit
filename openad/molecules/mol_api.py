@@ -13,7 +13,7 @@ def get_molecule_data(cmd_pointer, molecule_identifier):
     if mol is not None:
         cmd_pointer.last_external_molecule = mol.copy()
         return mol
-        # return organize_properties(mol)
+        # return molformat_v2(mol)
 
     else:
         return None

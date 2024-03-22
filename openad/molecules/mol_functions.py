@@ -1,8 +1,9 @@
 """Implements molecule management functions"""
 
-from datetime import datetime
 import time
+import copy
 import pubchempy as pcy
+from datetime import datetime
 from rdkit import Chem, rdBase
 from rdkit.Chem.Descriptors import MolWt, ExactMolWt
 from openad.helpers.output import output_text, output_table, output_warning, output_error
@@ -129,64 +130,6 @@ MOL_PROPERTIES = sorted(
         "sol",
     ]
 )
-
-
-# Trash
-# def new_molecule_OLD(Name: str, smiles: str):
-#     """
-#     Creates a basic molecule object without relying on API calls
-#     """
-#     try:
-#         new_smiles = None
-#         rdkit_mol = None
-#         mol_weight = None
-#         inchi = None
-#         inchikey = None
-#         formula = None
-
-#         if valid_smiles(smiles):
-#             smiles = canonical_smiles(smiles)
-#             new_smiles = Chem.MolToSmiles(Chem.MolFromSmiles(smiles), False)
-#             rdkit_mol = Chem.MolFromSmiles(new_smiles)
-#             inchi = Chem.rdinchi.MolToInchi(rdkit_mol)[0]
-#         else:
-#             return None
-
-#         formula = Chem.rdMolDescriptors.CalcMolFormula(rdkit_mol)
-#         inchi = Chem.rdinchi.MolToInchi(rdkit_mol)[0]
-#         inchikey = Chem.inchi.InchiToInchiKey(inchi)
-
-#         # mol_weight = Chem.Descriptors.ExactMolWt(rdkit_mol)
-
-#     except:
-#         if new_smiles is None:
-#             return None
-#     mol = {
-#         "name": None,
-#         "synonyms": {},
-#         "properties": {},
-#         "property_sources": {},
-#         "sources": {},
-#         "commments": {},
-#         "analysis": [],
-#     }
-#     mol["name"] = Name
-#     for i in MOL_PROPERTIES:
-#         mol["properties"][i] = None
-
-#     date_time = datetime.fromtimestamp(time.time())
-#     str_date_time = date_time.strftime("%d-%m-%Y, %H:%M:%S")
-#     mol["properties"]["molecular_weight"] = mol_weight
-#     mol["property_sources"]["molecular_weight"] = {"software": "rdkit", "date": str_date_time}
-#     mol["properties"]["inchi"] = inchi
-#     mol["property_sources"]["inchi"] = {"software": "rdkit", "date": str_date_time}
-#     mol["properties"]["inchikey"] = inchikey
-#     mol["property_sources"]["inchikey"] = {"software": "rdkit", "date": str_date_time}
-#     mol["properties"]["canonical_smiles"] = new_smiles
-#     mol["property_sources"]["canonical_smiles"] = {"software": "rdkit", "date": str_date_time}
-#     mol["properties"]["molecular_formula"] = formula
-#     mol["property_sources"]["molecular_formula"] = {"software": "rdkit", "date": str_date_time}
-#     return mol
 
 
 def merge_molecule_properties(molecule_dict, mol):
@@ -353,43 +296,81 @@ def get_identifiers(mol):
     """pulls the identifiers from a molecule"""
     identifier_dict = {}
 
+    # Create a lowercase version of the properties dictionary
+    # so we can scan for properties in a case-insensitive way.
+    molProps = {k.lower(): v for k, v in mol["properties"].items()}
+
     identifier_dict["name"] = mol["name"]
-    identifier_dict["cid"] = mol["properties"]["cid"]
-    identifier_dict["inchi"] = mol["properties"]["inchi"]
-    identifier_dict["inchikey"] = mol["properties"]["inchikey"]
-    identifier_dict["isomeric_smiles"] = mol["properties"]["isomeric_smiles"]
-    identifier_dict["canonical_smiles"] = mol["properties"]["canonical_smiles"]
-    identifier_dict["formula"] = mol["properties"]["molecular_formula"]
+    identifier_dict["inchi"] = molProps.get("inchi")
+    identifier_dict["inchikey"] = molProps.get("inchikey")
+    identifier_dict["canonical_smiles"] = molProps.get("canonical_smiles")
+    identifier_dict["isomeric_smiles"] = molProps.get("isomeric_smiles")
+    identifier_dict["formula"] = molProps.get("molecular_formula")
+    identifier_dict["cid"] = molProps.get("cid")
+
+    # We don't use the unspecified "smiles" property,
+    # but when parsing an SDF file, this may be a key.
+    identifier_dict["smiles"] = molProps.get("smiles")
+
     return identifier_dict
 
 
-# Organize the properties for visual output.
-def organize_properties(mol):
+# This creates a slightly modified "v2" molecule data format, where
+# identifiers are stored separately from properties. This is
+# how the GUI consumes molecules, and should be used elsewhere
+# in the application going forward as well. Please read comment
+# above new_molecule() for more information.
+# - - -
+# What it does:
+#  1. Separate identifiers from properties.
+#  2. Flatten the mol["synonyms"]["Synonym"] to mol["synonyms"]
+def molformat_v2(mol):
     mol_organized = {}
     mol_organized["identifiers"] = get_identifiers(mol)
     mol_organized["synonyms"] = mol["synonyms"]["Synonym"] if "Synonym" in mol["synonyms"] else []
-    mol_organized["properties"] = get_properties(mol)
-    if "DS_URL" in mol_organized["properties"]:
-        mol_organized["properties"]["DS_URL"] = ""
 
+    mol_organized["properties"] = mol["properties"]
     mol_organized["analysis"] = mol["analysis"]
     mol_organized["property_sources"] = mol["property_sources"]
 
+    # # This removes all properties that are not in MOL_PROPERTIES
+    # # I'm not sure what the benefit is. This shouldn't be limited.
+    # mol_organized["properties"] = get_properties(mol)
+
+    # if "DS_URL" in mol_organized["properties"]:
+    #     mol_organized["properties"]["DS_URL"] = ""
+
     # Remove identifiers from properties.
-    for prop in mol_organized["identifiers"]:
-        if prop in mol_organized["properties"]:
+    # - - -
+    # Create a lowercase version of the properties dictionary
+    # so we can scan for properties in a case-insensitive way.
+    molIdfrs = {k.lower(): v for k, v in mol_organized["identifiers"].items()}
+    for prop in list(mol_organized["properties"]):
+        if prop.lower() in molIdfrs:
             del mol_organized["properties"][prop]
 
     return mol_organized
 
 
-# Takes any identifier and creates a minimal molecule object,
-# without relying on PubChem or API calls.
+# Takes any identifier and creates a minimal molecule object
+# on the fly using RDKit, without relying on PubChem or API calls.
+# - - -
+# Note: in our molecule data structure, identifiers are all stored
+# under properties. The GUI and possibly other parts of the
+# application consume a slightly modiefied format, where identifiers
+# are stored separately from properties. This is a cleaner / more
+# correct way of organizing the molecule object, since identifiers
+# are not properties, and they are treated differently (eg. no sort).
+# But we can't change the main molecule datastructure without creating
+# a formatter to ensure backwards compatibilty, so for now you can
+# use molformat_v2() to convert the molecule object to the new format.
+# - - -
+# It is recommended to start using the new format elsewhere in new code,
+# so we'll have less to refactor once we switch to the new format.
 def new_molecule(inchi_or_smiles: str, name: str = None):
     """
     Create a basic molecule object without relying on API calls
     """
-    import copy
 
     mol = copy.deepcopy(OPENAD_MOL_DICT)
     date_time = datetime.fromtimestamp(time.time())
@@ -438,23 +419,19 @@ def new_molecule(inchi_or_smiles: str, name: str = None):
     return mol
 
 
-# Reads the content of a .smi file and returns a molset.
-# Specs for .smi files: http://opensmiles.org/opensmiles.html - 4.5
-def smiles_to_molset(path):
-    # Read file's content
-    data = open_file(path)
-    if data is None:
-        return None
-
-    # Parse SMILES
-    smiles_list = data.splitlines()
-    smiles_list = [smiles.split(" ")[0] for smiles in smiles_list if smiles]  # Ignore any properties
-    molset = []
-    for smiles in smiles_list:
-        mol = new_molecule(smiles)
-        molset.append(mol)
-
-    return molset
+def sdf2molset(sdf):
+    try:
+        mols = Chem.SDMolSupplier(sdf)  # pylint: disable=no-member
+        molset = []
+        for i, mol in enumerate(mols):
+            mol_dict = copy.deepcopy(OPENAD_MOL_DICT)
+            mol_dict["properties"] = {prop: mol.GetProp(prop) for prop in mol.GetPropNames()}
+            mol_dict = molformat_v2(mol_dict)
+            mol_dict["index"] = i
+            molset.append(mol_dict)
+        return molset, None
+    except Exception as err:
+        return None, err
 
 
 # Create svg code from .

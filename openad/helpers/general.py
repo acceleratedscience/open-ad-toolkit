@@ -234,7 +234,8 @@ def print_separator(style=None, width=None, return_val=False):
             return output_text(f"{'-' * width}", nowrap=True, return_val=return_val)
 
 
-# Load a module or a module's function from a toolkit folder.
+# Load a module or a module's function dynamically from a toolkit folder.
+# This is a non-repo alt to `from foo import bar`
 def load_tk_module(cmd_pointer, toolkit_name, lib_name, func_name=None):
     import importlib.util as ilu
 
