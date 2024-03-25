@@ -22,9 +22,9 @@ class GeneralApi:
 
         data = json.loads(request.data) if request.data else {}
         command = data["command"] if "command" in data else ""
-        # print("Parsing command:\n", command)
+        print("Parsing command:\n", command)
         response = api_remote(command)
-        # print("Response:\n", response)
+        print("Response:\n", response)
 
         if hasattr(pandas.io.formats, "style") and isinstance(response, pandas.io.formats.style.Styler):
             # print("Response is pandas Styler object")

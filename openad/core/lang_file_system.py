@@ -42,10 +42,11 @@ def list_files(cmd_pointer, parser):
         if not file:
             table.append(("-", "-", "-"))
             continue
-        filetype = file["_meta"]["type"]
+
+        filetype = file["_meta"]["fileType"]
         filename = file["filename"] + ("/" if filetype == "dir" else "")
-        size = file["_meta"]["size"]
-        timestamp = file["_meta"]["time_edited"]
+        size = file["_meta"]["size"] if "size" in file["_meta"] else None
+        timestamp = file["_meta"]["timeEdited"] if "timeEdited" in file["_meta"] else None
 
         if filename.startswith("."):
             # For now we're jumping over hidden files, though
@@ -53,72 +54,20 @@ def list_files(cmd_pointer, parser):
             # Probably `list all files` - moenen
             continue
 
-        if size < (1024 * 1024) / 10:
-            size = f"{round(size / 1024, 2)} kB"
-        else:
-            size = f"{round(size / (1024 * 1024), 2)} MB"
-        timestamp = datetime.fromtimestamp(timestamp / 1000)
-        timestamp = timestamp.strftime(_date_format)
+        if size:
+            if size < (1024 * 1024) / 10:
+                size = f"{round(size / 1024, 2)} kB"
+            else:
+                size = f"{round(size / (1024 * 1024), 2)} MB"
+
+        if timestamp:
+            timestamp = datetime.fromtimestamp(timestamp / 1000)
+            timestamp = timestamp.strftime(_date_format)
+
         result = (filename, size, timestamp)
         table.append(result)
     # return "OK"
     return output_table(table, is_data=False, headers=table_headers, colalign=("left", "right", "left"))
-
-
-def list_files1(cmd_pointer, parser):
-    """List all Files in a Workspace"""
-    workspace_path = cmd_pointer.workspace_path(cmd_pointer.settings["workspace"])
-
-    files = []
-    table_headers = ("File Name", "Size", "Last Edited")
-
-    # Directory from which we're reading files.
-    path = workspace_path
-
-    # Get list of all files only in the given directory.
-    def fun(x):
-        return os.path.isfile(os.path.join(path, x))
-
-    files_list = filter(fun, os.listdir(path))
-
-    # Create a list of tuples with file info: (filename, size, time)
-    files_data = [
-        (os.path.basename(f), os.stat(os.path.join(path, f)).st_size, os.stat(os.path.join(path, f)).st_atime)
-        for f in files_list
-    ]
-
-    # Check if there are any non-hidden files in the workspace.
-    non_hidden_files = False
-    for file in files_data:
-        if not file[0].startswith("."):
-            non_hidden_files = True
-            break
-
-    # Display message when no files are found.
-    # len(files_data) == 1
-    if not non_hidden_files:
-        workspace_name = cmd_pointer.settings["workspace"].upper()
-        return output_text(msg("no_workspace_files", workspace_name), pad=1)
-
-    # Assemble table data.
-    for name, size, timestamp in sorted(files_data, key=lambda x: x[1], reverse=True):
-        if name.startswith("."):
-            # For now we're jumping over hidden files, though
-            # I would like to add an option to display them.
-            # Probably `list all files` - moenen
-            continue
-
-        if size < (1024 * 1024) / 10:
-            size = f"{round(size / 1024, 2)} kB"
-        else:
-            size = f"{round(size / (1024 * 1024), 2)} MB"
-        timestamp = datetime.fromtimestamp(timestamp)
-        timestamp = timestamp.strftime(_date_format)
-        result = [name, size, timestamp]
-        files.append(result)
-
-    # Display/return table.
-    return output_table(files, is_data=False, headers=table_headers)
 
 
 # External path to workspace path
