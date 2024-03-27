@@ -1,0 +1,7 @@
+list files
+import from '_for_testing/test_files/base_molecules.sdf' to 'base_molecules.sdf'
+import from '_for_testing/test_files/base_molecules.csv' to 'base_molecules.csv'
+export from 'base_molecules.sdf' to '~/Desktop/exported_molecules.sdf'
+import from '~/Desktop/exported_molecules.sdf' to 'imported_molecules.sdf'
+copy file 'imported_molecules.sdf' to 'keeper'
+remove 'imported_molecules.sdf'

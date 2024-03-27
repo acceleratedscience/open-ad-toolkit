@@ -1,0 +1,164 @@
+/* Global variables */
+body {
+	--font-fam: var(--ibm-font-fam);
+	--font-size: var(--ibm-font-size);
+	--font-size-small: 12px;
+	--line-height: var(--ibm-line-height);
+
+	--black: var(--ibm-black); /* #393939 */
+	--black-10: rgba(0, 0, 0, 0.1);
+	--black-20: rgba(0, 0, 0, 0.2);
+	--black-30: rgba(0, 0, 0, 0.3);
+
+	--highlight: #fff7cc;
+	--highlight-border: #e5deb8; /* Equivalent of 10% black overlay */
+	--blue: var(--ibm-blue);
+	--light-gray: var(--ibm-light-gray);
+	--blue-30: #b7d0ff; /* Equivalent of 30% ibm-blue */
+	--blue-20: #cfe0ff; /* Equivalent of 20% ibm-blue */
+	--blue-15: #dbe7ff; /* Equivalent of 15% ibm-blue */
+	--blue-05: #f3f7ff; /* Equivalent of 5% ibm-blue */
+}
+
+/**
+ * General
+ */
+
+/* This is needed for the success message to be centered. */
+html,
+body {
+	height: 100%;
+	box-sizing: border-box;
+}
+body {
+	margin: 0;
+	padding: 40px;
+	font-family: 'IBM Plex Sans', sans-serif;
+	font-size: var(--font-size);
+	color: var(--black);
+}
+h1 {
+	margin: 0;
+}
+h2 {
+	font-weight: 400;
+	margin: 0;
+	margin-bottom: 10px;
+}
+p {
+	margin-top: 0;
+	margin-bottom: 10px;
+}
+.soft {
+	color: #aaa;
+}
+hr {
+	height: 1px;
+	background-color: var(--black-10);
+	border: none;
+}
+
+/**
+ * Settings Panel
+ */
+
+#options {
+	background: var(--light-gray);
+	border-radius: 3px;
+	padding: 20px;
+	margin-bottom: 20px;
+	display: inline-block;
+	user-select: none;
+	flex: 0;
+}
+#options h3 {
+	height: 40px;
+	line-height: 40px;
+	font-size: 20px;
+	font-weight: 600;
+	margin-bottom: 10px;
+	margin: -10px -20px 0px -20px;
+	padding: 0 20px;
+}
+#options p {
+	margin-top: 0;
+	margin-bottom: 20px;
+	white-space: nowrap;
+}
+#options .ibm-dropdown .ibm-dd-display {
+	background: #fff;
+}
+.multiselect-wrap {
+	display: flex;
+	flex-direction: row;
+	gap: 10px;
+	margin-bottom: 20px;
+}
+
+/* Toggle State */
+#options.hide,
+#options:not(.hide) + button {
+	display: none;
+}
+
+/* Multiselect */
+.multiselect {
+	display: flex;
+	flex-direction: column;
+}
+.multiselect h4 {
+	font-size: 14px;
+	margin: 0;
+	margin-bottom: 5px;
+}
+.multiselect label {
+	display: block;
+	height: 16px;
+	line-height: 16px;
+	padding: 5px;
+	position: relative;
+	padding-left: 26px;
+	cursor: pointer;
+}
+.multiselect .cb {
+	content: '';
+	display: inline-block;
+	width: 16px;
+	height: 16px;
+	background: #fff;
+	border: 1px solid rgba(0, 0, 0, 0.2);
+	border-radius: 2px;
+	vertical-align: middle;
+	box-sizing: border-box;
+	position: absolute;
+	left: 5px;
+	top: 5px;
+}
+.multiselect input:checked + .cb::after {
+	content: '';
+	display: block;
+	width: 10px;
+	height: 10px;
+	border-radius: 2px;
+	margin: 2px;
+	background: #0f62fe;
+}
+.multiselect input[type='checkbox'] {
+	display: none;
+}
+
+/* Buttons */
+.btn-wrap {
+	display: flex;
+	gap: 5px;
+}
+
+/**
+ * Hover states
+ */
+
+@media (hover: hover) {
+	.multiselect label:hover {
+		background: rgba(0, 0, 0, 0.07);
+	}
+}

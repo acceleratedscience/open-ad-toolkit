@@ -1,0 +1,12 @@
+Predict the reaction between two molecules.
+
+{{REACTION_NOTATION}}
+
+{{USING_CLAUSE_OPTIONS}}
+- {{USING_AI_MODEL}}
+
+{{USE_SAVED_CLAUSE}}
+
+Examples:
+- <cmd>predict reaction 'BrBr.c1ccc2cc3ccccc3cc2c1CCO'</cmd>
+- <cmd>predict reaction 'BrBr.c1ccc2cc3ccccc3cc2c1CCO' use_saved</cmd>

@@ -1,0 +1,37 @@
+Below is a description of the Deep Search toolkit and how to access its capabilities using statements in the OpenAD client.
+
+The Deep Search Toolkit is called DS4SD. To add the Deepsearch Toolkit, type `add toolkit ds4sd`.
+
+Deep Search uses natural language processing to ingest and analyze massive amounts of data—structured and unstructured. Researchers can then extract, explore, and make connections faster than ever.
+Solutions that once took months to find are now being discovered in a matter of days.
+See how we used Deep Search to discover a new molecule.
+
+How it works
+Deep Search imports and analyzes data from public, private, structured, and unstructured sources. AI then breaks down the data and classifies it into fundamental parts.
+The Deep Search process starts with unstructured data such as journal articles, patents, or technical reports. No matter whether this data comes from public or proprietary sources, businesses can leverage both securely through our hybrid cloud.
+After reviewing unstructured data, the user annotates a few documents to create an AI model. The model then classifies all documents into their fundamental parts. By using this AI model and NLP (Natural Language Processing), Deep Search is able to ingest and understand large collections of documents and unstructured data at scale, automatically extracting semantic units and their relationships.
+Once the data has been consolidated and extracted, Deep Search organizes and structures it into a searchable knowledge graph, enabling users to robustly explore information extracted from tens of thousands of documents without having to read a single paper.
+
+The following commands are available with the toolkit:
+
+Group Search Collection:
+    `search collection '<collection Name or key>' for '<search string>' using ( [ page_size=<int> system_id=<system_id> edit_distance=<integer> display_first=<integer>]) show (data|docs) [ estimate only|return as data|save as '<filename.csv>' ]`
+    
+Group Collections:
+    `display all collections [ save as '<filename.csv>' ]`
+    `display collections in domains from list [<list_of_domains>] [ save as '<filename.csv>' ]`
+    `display collection details '<collection_name>' | '<collection_key>'`
+    `display collections for domain '<domain_name>' [ save as '<filename.csv>' ]`
+    
+Group Function:
+    `exec display_collection( domain='<domain_name>')`
+    
+Group Search Molecules:
+    `search for similar molecules to '<SMILES_string>' [ save as '<filename.csv>' ]`
+    `search for patents containing molecule  ['<SMILES_molecule>'| '<inchi_molecule>'] [ save as '<filename.csv>' ]`
+    `search for molecules in patents from [list ['<patent1>', '<patent2>' ...] | dataframe <dataframe_name> | file '<workspace_file name>'] [ save as '<filename.csv>' ]`
+    `search for substructure instances of '<SMILES_string>' [ save as '<filename.csv>' ]`
+    
+Group Search Collections:
+    `display collection matches for '<search_string>' [ save as '<filename.csv>' ]`
+

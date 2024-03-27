@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Document</title>
+		<link rel="stylesheet" href="css/carbon.css" />
+		<link rel="stylesheet" href="css/main.css" />
+		<link rel="stylesheet" href="app/example-main.css" />
+		<script>
+			// Create a new XMLHttpRequest object
+			var xhr = new XMLHttpRequest()
+
+			function submitAjax() {
+				// Assemble data.
+				data = {}
+				data[document.getElementById('someAjaxInput').id] = document.getElementById('someAjaxInput').value
+				console.log('Submitted data: ', data)
+
+				// Define the request method and URL.
+				xhr.open('POST', '/submit-ajax', true)
+
+				// Set up a callback function to handle the response.
+				xhr.onload = function () {
+					if (xhr.status === 200) {
+						// Success
+						alert(`You submitted: ${xhr.response}`)
+						window.location.href = `/success?someInput=${xhr.response}`
+					} else {
+						// Error
+						alert('Submit request failed with status code ' + xhr.status)
+					}
+				}
+
+				// Send the request
+				xhr.send(JSON.stringify(data))
+			}
+		</script>
+	</head>
+	<body>
+		<h1>Example Flask App</h1>
+		<br />
+		<p>This is a simple flask application to demonstrate the architecture without bloat.<br />Some basic things you can do:</p>
+		<ul>
+			<li>
+				Pass data to the template:<br />
+				<ul>
+					{% for person in data %}
+					<li>{{ person }}: {{ data[person] }}</li>
+					{% endfor %}
+				</ul>
+			</li>
+
+			<li>Have multiple pages per app, for example <a href="/foo">Foo</a> and <a href="/bar">Bar</a>.</li>
+			<li>
+				<p>Submit data back to the server:</p>
+				<ol>
+					<li>
+						Using a regular form
+						<form method="POST" action="/submit">
+							<input type="text" name="someInput" value="hello world" /><br />
+							<button>SUBMIT</button>
+						</form>
+						<br />
+					</li>
+					<li>
+						Using an ajax request
+						<form onsubmit="submitAjax(); return false">
+							<input type="text" id="someAjaxInput" value="hello ajax world" /><br />
+							<button>SUBMIT</button>
+						</form>
+						<br />
+					</li>
+				</ol>
+			</li>
+		</ul>
+	</body>
+</html>

@@ -1,0 +1,37 @@
+{
+	"fplugin": "gt4sd",
+	"command": "inference",
+	"fixed_parameters": {
+		"algorithm_type": "str",
+		"domain": "str",
+		"algorithm_name": "str",
+		"algorithm_application": "str",
+		"algorithm_version": "str",
+		"search": "str",
+		"temperature": "dec",
+		"batch_size": "int",
+		"tolerance": "dec",
+		"property_goal": "dict",
+		"fraction_to_mask": "dec",
+		"tokens_to_mask": "list",
+		"substructures_to_mask": "list",
+		"substructures_to_keep": "list",
+		"text_filtering": "bool"
+	},
+	"variable_parameters": {
+		"gpu": "bool",
+		"Experiment_name": "str",
+		"Config_file": "str"
+	},
+	"exec_type": "method",
+	"exec_cmd": "inference",
+	"help": {
+		"name": "inference",
+		"category": "Generative Toolkit",
+		"command": "exec inference() ",
+		"description": "this is a gt4sd test function",
+		"url": ""
+	},
+	"library": "gt4sd_inference",
+	"method": "inference"
+}

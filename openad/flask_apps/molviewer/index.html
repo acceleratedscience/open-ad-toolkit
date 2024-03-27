@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Document</title>
+		<link rel="stylesheet" href="css/carbon.css" />
+		<link rel="stylesheet" href="css/main.css" />
+		<link rel="stylesheet" href="app/molviewer-main.css" />
+		<script src="app/3dmol/3Dmol-min.js"></script>
+		<script src="app/jsmol/JSmol.min.js"></script>
+	</head>
+	<body>
+		<div id="mol-render">
+			<div class="mol-2d">{{mol_svg | safe}}</div>
+			<div class="mol-3d"></div>
+		</div>
+
+		<div id="grid">
+			<!-- <div class="grid grid-1"></div>
+			<div class="grid grid-2"></div>
+			<div class="grid grid-3"></div>
+			<div class="grid grid-4"></div>
+			<div class="grid grid-5"></div>
+			<div class="grid grid-6"></div>
+			<div class="grid grid-7"></div>
+			<div class="grid grid-8"></div>
+			<div class="grid grid-9"></div>
+			<div class="grid grid-10"></div>
+			<div class="grid grid-11"></div>
+			<div class="grid grid-12"></div> -->
+
+			<!-- Left -->
+			<div class="col-left">
+				<!-- <div id="breadcrumbs">Molecules &nbsp;&rsaquo;&nbsp; Ibuprofen.json</div> -->
+				<div id="title-wrap">
+					<div class="icn-mol"></div>
+					<h1 id="data-name" data-val="{{mol['identifiers'].name}}">{% if mol['identifiers'].name %}{{mol['identifiers'].name}}{% else %}Unnamed Molecule{% endif %}</h1>
+					<!-- <div id="btn-bookmark" class="icn-star"></div> -->
+				</div>
+				<div id="identification">
+					<div><b>InChI:</b> <span id="data-inchi">{{mol['identifiers']['inchi']}}</span></div>
+					<div><b>InChIKey:</b> <span id="data-inchikey">{{mol['identifiers']['inchikey']}}</span></div>
+					<div><b>Canonical SMILES:</b> <span id="data-canonical-smiles">{{mol['identifiers']['canonical_smiles']}}</span></div>
+					<div><b>Isomeric SMILES:</b> <span id="data-isomeric-smiles">{{mol['identifiers']['isomeric_smiles']}}</span></div>
+					<div><b>Formula:</b> <span id="data-isomeric-smiles">{{mol['identifiers']['formula']}}</span></div>
+					<div>
+						<b>PubChem CID:</b> {% if mol['identifiers']['cid'] %}<a id="data-cid" href="https://pubchem.ncbi.nlm.nih.gov/compound/{{mol['identifiers']['cid']}}" target="_blank">{{mol['identifiers']['cid']}}</a>{% else %}<span
+							id="fetching-pubchem"
+							data-text="Fetching"
+							>Fetching</span
+						>{% endif %}
+					</div>
+				</div>
+				
+				<br />
+				<hr />
+				<br />
+
+				<div id="synonyms">
+					<h2>Synonyms</h2>
+					<div class="flip-v">
+						<a href="#" class="toggle-expand hide"><span></span></a>
+						<div class="cloak">
+							<div class="synonyms-wrap">
+							{% for synonym in mol['synonyms'] %}
+								<div title="{{synonym}}">{{synonym}}</div>
+							{% endfor %}
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<br />
+				<hr />
+				<br />
+
+				<div id="parameters">
+					<h2>Parameters</h2>
+					<div class="param-wrap">
+					{% for prop in mol['properties'] %}
+					{% if mol['properties'][prop] %} 
+					<div{% if mol['property_sources'][prop] %} title="{{mol['property_sources'][prop]}}"{% endif %}{% if not mol['properties'][prop] %} class="empty"{% endif %}><div class="key">{{prop}}:</div><div class="filler"></div><div class="val">{% if mol['properties'][prop] %}{{mol['properties'][prop]}}{% endif %}</div></div>
+					{% endif %}
+					{% endfor %}
+					</div>
+				</div>
+
+				<br />
+				<hr />
+				<br />
+
+				<div id="analysis">
+					<h2>Analysis</h2>
+					Comin soon...
+				</div>
+
+				<br />
+				<hr />
+				<br />
+
+				<a class="toggle-expand te-show" id="show-json" href="#">JSON</a>
+				<pre style="tab-size: 30px">{{mol_json}}</pre>
+			</div>
+
+			<!-- Right -->
+			<div class="col-right"></div>
+		</div>
+		<div id="mol-data" data-sdf="{{mol_sdf}}" data-json="{{mol_json}}"></div>
+
+		<script src="app/molviewer-main.js"></script>
+	</body>
+</html>

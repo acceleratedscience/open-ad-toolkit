@@ -1,0 +1,16 @@
+Perform a retrosynthesis route prediction on a molecule.
+
+{{USING_CLAUSE_OPTIONS}}
+- <cmd>availability_pricing_threshold=<int></cmd> Maximum price in USD per g/ml of compounds. Default: no threshold.
+- <cmd>available_smiles='<smiles>.<smiles>.<smiles>'</cmd> List of molecules available as precursors, delimited with a period.
+- <cmd>exclude_smiles='<smiles>.<smiles>.<smiles>'</cmd> List of molecules to exlude from the set of precursors, delimited with a period.
+- <cmd>exclude_substructures='<smiles>.<smiles>.<smiles>'</cmd> List of substructures to excludefrom the set of precursors, delimited with a period.
+- <cmd>exclude_target_molecule=<boolean></cmd> Excluded target molecule. The default is True
+- <cmd>fap=<float></cmd> Every retrosynthetic step is evaluated with the FAP, and is only retained when forward confidence is greater than the FAP value. The default is 0.6.
+- <cmd>max_steps=<int></cmd> The maximum number steps in the results. The default is 3.
+- <cmd>nbeams=<int></cmd> The maximum number of beams exploring the hypertree. The default is 10.
+- <cmd>pruning_steps=<int></cmd> The number of steps to prune a hypertree. The default is 2.
+- {{USING_AI_MODEL}}
+
+Example:
+<cmd>predict retrosynthesis 'BrCCc1cccc2c(Br)c3ccccc3cc12' using (max_steps=3)</cmd>
