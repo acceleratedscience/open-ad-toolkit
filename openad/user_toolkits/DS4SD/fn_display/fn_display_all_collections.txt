@@ -1,3 +1,0 @@
-Display all available collections in Deep Search.
-
-{{SAVE_AS_CLAUSE}}
