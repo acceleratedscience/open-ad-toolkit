@@ -1,5 +1,6 @@
 """ This library is the main library for invoking functions from the command line
 it does contain some general functions or plugin calls otherwise invokes toolkits or core / plugin functions"""
+
 #!/usr/local/opt/python@3.9/bin/python3.9
 import os
 import re
@@ -11,6 +12,7 @@ import pandas as pd
 # Flask
 from openad.flask_apps import launcher
 from openad.flask_apps.dataviewer.routes import fetchRoutesDataViewer
+from openad.openad_model_plugin.property_toolkit import openad_model_requestor
 
 # molecules
 from openad.molecules.mol_batch_files import load_batch_molecules
@@ -263,6 +265,14 @@ def lang_parse(cmd_pointer, parser):
         return output_text(openad_intro, edge=True, pad=3)
     elif parser.getName() == "docs":
         return docs(cmd_pointer, parser)
+
+    elif "@" in parser.getName() and parser.getName().split("@")[1] in [
+        "get_molecule_property",
+        "get_crystal_property",
+        "get_protein_property",
+        "generate_data",
+    ]:
+        return openad_model_requestor(cmd_pointer, parser)
 
     # # Show molecules commands
     # elif parser.getName() == "show_molecules":

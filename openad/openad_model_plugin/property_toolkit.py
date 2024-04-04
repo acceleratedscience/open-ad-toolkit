@@ -125,6 +125,7 @@ service_command_help = {}
 service_command_start["get_molecule_property"] = 'get + CaselessKeyword("molecule") + CaselessKeyword("property")'
 service_command_start["get_crystal_property"] = 'get + CaselessKeyword("crystal") + CaselessKeyword("property")'
 service_command_start["get_protein_property"] = 'get + CaselessKeyword("protein") + CaselessKeyword("property")'
+service_command_start["generate_data"] = 'CaselessKeyword("generate") + CaselessKeyword("with")'
 service_command_subject["get_molecule_property"] = (
     '+CaselessKeyword("for")+((Word("[")+ OneOrMore(molecule_identifier)("molecules")+Word("]")|molecule_identifier("molecule")))'
 )
@@ -134,6 +135,10 @@ service_command_subject["get_protein_property"] = (
 service_command_subject["get_crystal_property"] = (
     '+CaselessKeyword("for")+((Word("[")+ OneOrMore(desc)("crystal_files")+Word("]")|desc("crystal_file")("crystal_PATH")))'
 )
+service_command_subject["generate_data"] = (
+    '+CaselessKeyword("data")+CaselessKeyword("for")+ molecule_identifier("molecule") +Optional(CaselessKeyword("Sample")+Word(nums)("sample_size"))'
+)
+
 
 service_command_help["get_molecule_property"] = (
     "get molecule property <property> for [<list of SMILES>] | <SMILES>   USING (<parameter>=<value>)"
@@ -144,6 +149,7 @@ service_command_help["get_crystal_property"] = (
 service_command_help["get_protein_property"] = (
     "get protein property <property> for [<list of Proteins>] | <Protein>   USING (<parameter>=<value>)"
 )
+service_command_help["generate_data"] = "generate with <property> data for <molecule>  USING (<parameter>=<value>) "
 
 
 import glob
@@ -193,6 +199,7 @@ def get_services(reference, type) -> list:
 def service_grammar_add(statements: list, help: list, service_list: list):
     """defines the grammar available for managing molecules"""
     for schema in service_list:
+
         command = service_command_start[schema["service_type"]]
         valid_types = None
         valid_type = None
@@ -205,10 +212,12 @@ def service_grammar_add(statements: list, help: list, service_list: list):
                     first = False
                 else:
                     valid_types = valid_types + f" | CaselessKeyword('{prop_type}')"
-            print(valid_types)
+
         else:
+
             valid_type = f'CaselessKeyword("{list(schema["valid_types"])[0]}")("type")'
             help_type = list(schema["valid_types"])[0]
+
         if valid_type is None:
             valid_type = f'Word("[")+OneOrMore({valid_types})("types")+Word("]")'
             help_type = "[ " + ", ".join(list(schema["valid_types"])) + " ] "
@@ -239,26 +248,32 @@ def service_grammar_add(statements: list, help: list, service_list: list):
         )
 
         statements.append(stmt)
-        parameter_help = "\nParameters:\n"
+        parameter_help = "<h2>Parameters:</h2>"
         for parameter, description in dict(schema["parameters"]).items():
             print_description = ""
             for key, value in description.items():
-                print_description = print_description + f"\n          {key} : {value}"
+                print_description = print_description + f"- <cmd>{key}</cmd> : {value}\n  "
 
-            parameter_help = parameter_help + f"      {parameter} : {print_description} \n"
+            parameter_help = parameter_help + f"\n<cmd>{parameter}</cmd> \r {print_description}\n  "
 
         required_parameters = ""
         for i in schema["required_parameters"]:
             if required_parameters == "":
-                required_parameters = "\n Required Parameters: \n"
-            required_parameters = required_parameters + f"\n      - {i}"
+                required_parameters = "\n<h2>Required Parameters:<\h2> \n"
+            required_parameters = required_parameters + f"\n - <cmd>{i}</cmd>"
+        algo_versions = ""
+        if "algorithm_versions" in schema:
+            algo_versions = " \n <h2> Algorithm Versions </h2> \n"
+            for i in schema["algorithm_versions"]:
+                algo_versions = algo_versions + f"\n - <cmd>{i}</cmd>"
 
         help.append(
             help_dict_create(
                 name=schema["service_type"],
-                category="Model",
+                category="Model-" + schema["sub_category"],
+                parent=None,
                 command=str(service_command_help[schema["service_type"]]).replace("<property>", help_type),
-                description=parameter_help + required_parameters,
+                description=parameter_help + algo_versions + required_parameters,
             )
         )
 
@@ -273,10 +288,13 @@ def optional_parameter_list(inp_statement: dict, clause: str):
 
         if "allOf" in inp_statement[clause][i] and "type" not in inp_statement[clause][i]:
             type_str = "allOf"
+        elif "anyOf" in inp_statement[clause][i] and "type" not in inp_statement[clause][i]:
+            type_str = "anyOf"
         elif "type" in inp_statement[clause][i]:
             type_str = "type"
         elif "allOf" in inp_statement[clause][i]:
             type_str = "type"
+
         parameter = "param_" + i
         if i in inp_statement["required_parameters"]:
             status = ""
@@ -389,7 +407,13 @@ def subject_files_repository(file_directory, suffix):
 
 def request_generate(request_input):
     name = request_input.getName()
+    Sample_Size = None
 
+    if name.split("@")[1] == "generate_data":
+        if "molecule" in request_input.as_dict():
+            subjects = [request_input.as_dict()["molecule"]]
+        if "sample_size" in request_input.as_dict():
+            Sample_Size = request_input.as_dict()["sample_size"]
     if name.split("@")[1] == "get_molecule_property":
         if "molecules" in request_input.as_dict():
             subjects = request_input.as_dict()["molecules"]
@@ -418,6 +442,8 @@ def request_generate(request_input):
         },
         "api_key": "api-dthgwrhrthrtrth",
     }
+    if Sample_Size is not None:
+        template["sample_size"] = Sample_Size
     for param in request_input.as_dict().keys():
         if str(param).startswith("param_"):
             actual_param = str(param)[6:]
@@ -438,15 +464,16 @@ def openad_model_requestor(cmd_pointer, parser):
 
     a_request = request_generate(parser)
 
-    Endpoint = "http:// <insert here>"
+    Endpoint = "http://127.0.0.1:8090"
 
     response = requests.post(Endpoint + "/service", json=a_request)
     try:
+
         result = pd.DataFrame(response.json())
     except:
         return "Error returned from service"
 
-    return output_table(result)
+    return result
 
 
 ###############################################################################
@@ -583,7 +610,7 @@ if __name__ == "__main__":
     import requests
     import pandas as pd
 
-    Endpoint = "http://1"
+    Endpoin1"
 
     response = requests.post(Endpoint + "/service", json=a_request)
     print()

@@ -1,4 +1,5 @@
 """Main application contain runtime class RUNCMD()"""
+
 #!/usr/local/opt/python@3.9/bin/python3.9
 # Copyright 2022 IBM, Inc. or its affiliates. All Rights Reserved.
 
@@ -274,14 +275,15 @@ class RUNCMD(Cmd):
 
         # Then list commands starting with the input string.
         for command in all_commands:
-            if re.match(re.escape(inp), command["command"]) and command not in matching_commands["match_word"]:
+
+            if re.match(re.escape(inp), command["command"].lower()) and command not in matching_commands["match_word"]:
                 matching_commands["match_start"].append(command)
 
         # Then list commands containing the input string.
         if not starts_with_only:
             for command in all_commands:
                 if (
-                    re.search(re.escape(inp), command["command"])
+                    re.search(re.escape(inp), command["command"].lower())
                     and command not in matching_commands["match_word"]
                     and command not in matching_commands["match_start"]
                 ):
@@ -298,6 +300,7 @@ class RUNCMD(Cmd):
         # This is for case like `run <run_name> ?` which would otherwise
         # display `run <run_name>` as well as `display run <run_name>`
         all_matching_commands_str = [item["command"] for item in all_matching_commands]
+
         exact_match = inp in all_matching_commands_str
 
         # This lets us pass a custom padding value.
@@ -849,7 +852,7 @@ def api_remote(
 
             # Triggered by magic commands, eg. `%openad ? list files`
             starts_with_qmark = len(inp) > 0 and inp.split()[0] == "?" and inp.strip() != "??"
-            return magic_prompt.do_help(inp.strip(), display_info=starts_with_qmark)
+            return magic_prompt.do_help(inp.strip(), jup_return_format=None, display_info=starts_with_qmark)
 
         # If there is a argument and it is not a help attempt to run the command.
         # Note, may be possible add code completion here #revisit
