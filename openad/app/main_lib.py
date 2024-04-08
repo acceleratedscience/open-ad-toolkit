@@ -15,6 +15,7 @@ from openad.flask_apps.dataviewer.routes import fetchRoutesDataViewer
 
 # molecules
 from openad.molecules.mol_batch_files import load_batch_molecules
+from openad.molecules.mol_functions import df_has_molecules
 
 from openad.molecules.mol_commands import (
     display_molecule,
@@ -617,13 +618,23 @@ def display_data__open(
     """open display data"""
     MEMORY.preserve()
 
-    data = MEMORY.get()
-    if data is None:
+    df = MEMORY.get()  # Dataframe
+    if df is None:
         return output_error(msg("memory_empty", "display"), pad=1)
 
+    # TO DO: check if df has molecules, convert to molset and display
+    # if df_has_molecules(df):
+    #     print(11)
+    #     # This needs to be reorganized to be in the mol_functions module
+    #     from openad.gui.api.molecules_api import df2molset
+
+    #     molset = df2molset(df)
+    #     print(1111, "\n\n", molset)
+    #     return
+
     # Load routes and launch browser UI.
-    data = data.to_json(orient="records")
-    routes = fetchRoutesDataViewer(data)
+    df = df.to_json(orient="records")
+    routes = fetchRoutesDataViewer(df)
     a_hash = "#edit" if edit_mode else ""
     launcher.launch(cmd_pointer, routes, "dataviewer", hash=a_hash)
 

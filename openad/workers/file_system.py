@@ -10,7 +10,7 @@ from openad.gui.api.molecules_api import (
     get_molset_mols,
     create_molset_response,
     smiles_file2molset,
-    sdf2molset,
+    sdf_path2molset,
     index_molset_file_async,
 )
 
@@ -204,7 +204,7 @@ def fs_attach_file_data(cmd_pointer, file_obj, query=None):
 
         # From SDF file
         elif ext == "sdf":
-            molset, err_code = sdf2molset(path_absolute)
+            molset, err_code = sdf_path2molset(path_absolute)
 
         # Step 2: Store a working copy of the molset in the cache.
         # - - -
@@ -212,6 +212,9 @@ def fs_attach_file_data(cmd_pointer, file_obj, query=None):
         if molset:
             cache_id = str(int(time.time() * 1000))
             cache_path = fs_assemble_cache_path(cmd_pointer, "molset", cache_id)
+
+            # Creaste the .cache directory if it doesn't exist.
+            os.makedirs(os.path.dirname(cache_path), exist_ok=True)
 
             # For JSON files, we can simply copy the original file (fast).
             if ext == "json":

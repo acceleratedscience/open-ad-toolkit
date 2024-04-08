@@ -466,6 +466,17 @@ def mol2pdb(mol_rdkit):
     return mol_pdb
 
 
+# Check if a dataframe has molecules
+def df_has_molecules(df):
+    colsLowercase = [col.lower() for col in df.columns]
+    if "smiles" in colsLowercase:
+        return True
+    elif "inchi" in colsLowercase:
+        return True
+    else:
+        return False
+
+
 if __name__ == "__main__":
     # get_mol_basic("InChI=1S/C13H18O2/c1-9(2)8-11-4-6-12(7-5-11)10(3)13(14)15/h4-7,9-10H,8H2,1-3H3,(H,14,15)")
     # get_mol_basic("ibuprofen")

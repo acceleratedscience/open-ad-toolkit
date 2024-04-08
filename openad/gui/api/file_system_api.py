@@ -75,7 +75,7 @@ class FileSystemApi:
         path_absolute = unquote(data["path"]) if "path" in data else ""
 
         try:
-            os.system(f"open {path_absolute}")
+            os.system(f"open '{path_absolute}'")
             return "ok", 200
         except Exception as err:
             return err, 500

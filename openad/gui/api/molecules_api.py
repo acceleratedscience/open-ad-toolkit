@@ -6,6 +6,7 @@ import shutil
 import asyncio
 import aiofiles
 from rdkit import Chem
+from rdkit.Chem import PandasTools
 from flask import Response, request
 from urllib.parse import unquote
 
@@ -161,7 +162,7 @@ class MoleculesApi:
         return create_molset_response(molset, query, cache_id), 200
 
     def save_molset_changes(self):
-        print("save_molset_changes")
+        # print("save_molset_changes")
         data = json.loads(request.data) if request.data else {}
         cache_id = data["cacheId"] if "cacheId" in data else ""
         path = unquote(data["path"]) if "path" in data else ""
@@ -188,9 +189,9 @@ class MoleculesApi:
 
     # Clear a molset's cached working copy.
     def clear_molset_working_copy(self):
+        # print("clear_molset_working_copy", data, cache_id)
         data = json.loads(request.data) if request.data else {}
         cache_id = data["cacheId"] if "cacheId" in data else ""
-        # print("clear_molset_working_copy", data, cache_id)
 
         if not cache_id:
             return f"clear_molset_working_copy() -> Unrecognized cache_id: {cache_id}", 500
@@ -260,7 +261,7 @@ def smiles_file2molset(path_absolute):
     return molset, None
 
 
-def sdf2molset(sdf):
+def sdf_path2molset(sdf):
     from openad.molecules.mol_functions import OPENAD_MOL_DICT
 
     try:
@@ -275,6 +276,68 @@ def sdf2molset(sdf):
         return molset, None
     except Exception as err:
         return None, err
+
+
+def sdf_data2molset(sdf_data):
+    from openad.molecules.mol_functions import OPENAD_MOL_DICT
+
+    try:
+        # Split the SDF data into blocks and convert each block to a Mol object
+        sdf_blocks = sdf_data.split("\n$$$$\n")
+        mols = [Chem.MolFromMolBlock(block) for block in sdf_blocks if block]  # pylint: disable=no-member
+
+        molset = []
+        for i, mol in enumerate(mols):
+            mol_dict = copy.deepcopy(OPENAD_MOL_DICT)
+            mol_dict["properties"] = {prop: mol.GetProp(prop) for prop in mol.GetPropNames()}
+            mol_dict = molformat_v2(mol_dict)
+            mol_dict["index"] = i + 1
+            molset.append(mol_dict)
+        return molset, None
+    except Exception as err:
+        return None, err
+
+
+def df2sdf(df):
+    """
+    Reads a dataframe, looks for an InChI or
+    SMILES column and returns a molset.
+    """
+    # Create an empty DataFrame with an 'ROMol' column
+    # PandasTools.AddMoleculeColumnToFrame(df, smilesCol="SMILES", molCol="ROMol")
+
+    colsLowercase = [col.lower() for col in df.columns]
+
+    if "inchi" in colsLowercase:
+        index = colsLowercase.index("inchi")
+        key = df.columns[index]
+        key_type = "inchi"
+    elif "smiles" in colsLowercase:
+        index = colsLowercase.index("smiles")
+        key = df.columns[index]
+        key_type = "smiles"
+    else:
+        return None
+
+    # Convert the molecules to SDF format
+    sdf_data = ""
+    for i, row in df.iterrows():
+        if key_type == "inchi":
+            mol_rdkit = Chem.MolFromInchi(row[key])  # pylint: disable=no-member
+        elif key_type == "smiles":
+            mol_rdkit = Chem.MolFromSmiles(row[key])  # pylint: disable=no-member
+
+        if mol_rdkit is not None:
+            sdf_data += Chem.MolToMolBlock(mol_rdkit) + "\n$$$$\n"  # pylint: disable=no-member
+
+    return sdf_data
+
+
+def df2molset(df):
+    sdf_data = df2sdf(df)
+    if sdf_data is None:
+        return None
+    return sdf_data2molset(sdf_data)
 
 
 def create_molset_response(molset, query={}, cache_id=None):
@@ -347,7 +410,8 @@ def create_molset_response(molset, query={}, cache_id=None):
     # Paginate
     total_pages = len(results) // page_size + 1
     page = min(page, total_pages)  # Make sure that page number is lowered in case of a too high value.
-    total = len(results)
+    total = len(molset)
+    result_count = len(results)
     skip = 48 * (page - 1)
     results = results[skip : skip + 48]
 
@@ -355,11 +419,12 @@ def create_molset_response(molset, query={}, cache_id=None):
         "cacheId": cache_id,  # Used to identify our working copy in next requests
         "mols": results,  # One page of molecules
         "matching": matching,  # Ids of ALL matching molecules
+        "total": total,
+        "resultCount": result_count,
         # Query parameters:
         "searchStr": search_str,
         "searchMode": "smarts" if smarts_mode else "text",
         "sort": sort,
-        "total": total,
         "page": page,
         "pageSize": page_size,
     }
@@ -402,13 +467,11 @@ def __prep_sort_value(value):
     value: str, int, float
         The value to prepare.
     """
-    print("$$", value)
 
     # Convert number strings to floats
     try:
         return float(value)
     except Exception as err:
-        print(99, err)
         pass
 
     # Convert strings to lowercase

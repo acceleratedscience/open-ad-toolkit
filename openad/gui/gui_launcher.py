@@ -61,7 +61,7 @@ def gui_init(cmd_pointer=None, path=None, data=None, silent=False):
     if os.path.exists(template_folder):
         is_installed = template_folder / "index.html"
         if is_installed:
-            _launch(cmd_pointer, routes=fetchRoutes(cmd_pointer), path=path, query=query, silent=silent)
+            _launch(routes=fetchRoutes(cmd_pointer), path=path, query=query, silent=silent)
 
     # GUI is not yet installed, suggest installation.
     else:
@@ -92,7 +92,7 @@ def gui_install():
     output_error("This is an interaction prototype, installation is not yet supported.")
 
 
-def _launch(cmd_pointer=None, routes={}, path=None, query="", hash="", silent=False):
+def _launch(routes={}, path=None, query="", hash="", silent=False):
     """
     Launch the GUI web server in a separate thread.
     """
@@ -215,7 +215,8 @@ class ServerThread(Thread):
 
 
 def _open_browser(host, port, path, query, hash, silent=False):
-    module_path = f"/headless/{path}" if path else ""
+    headless = "/headless" if GLOBAL_SETTINGS["display"] == "notebook" else ""
+    module_path = f"{headless}/{path}" if path else ""
 
     # Jupyter --> Render iframe.
     if GLOBAL_SETTINGS["display"] == "notebook":
