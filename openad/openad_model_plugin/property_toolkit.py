@@ -3,6 +3,10 @@
 # from openad.core.help import help_dict_create
 import requests
 import pandas as pd
+import glob
+import json
+from openad.helpers.output import output_error, output_text, output_success
+from openad.helpers.spinner import spinner
 
 # from openad.molecules.mol_functions import MOL_PROPERTIES as m_props
 # from openad.helpers.general import is_notebook_mode
@@ -94,7 +98,7 @@ name_expr = Word(alphanums + "_" + ".")
 key_val_expr = Word(alphanums + "_" + ".")
 key_val_expr_num = Word(nums)
 key_val_expr_alpha = Word(alphanums + "_" + ".")
-
+number_type = Combine((Word(nums) + "." + Word(nums))) | Word(nums)
 key_val_line = Group(name_expr("key") + Suppress("=") + key_val_expr("val"))
 
 mol = ["molecule", "mol"]
@@ -118,6 +122,7 @@ molecule_identifier = Word(
 
 
 desc = QuotedString("'", escQuote="\\")
+input_object = QuotedString('"', end_quote_char='"', escQuote="\\")
 
 service_command_start = {}
 service_command_subject = {}
@@ -126,6 +131,7 @@ service_command_start["get_molecule_property"] = 'get + CaselessKeyword("molecul
 service_command_start["get_crystal_property"] = 'get + CaselessKeyword("crystal") + CaselessKeyword("property")'
 service_command_start["get_protein_property"] = 'get + CaselessKeyword("protein") + CaselessKeyword("property")'
 service_command_start["generate_data"] = 'CaselessKeyword("generate") + CaselessKeyword("with")'
+
 service_command_subject["get_molecule_property"] = (
     '+CaselessKeyword("for")+((Word("[")+ OneOrMore(molecule_identifier)("molecules")+Word("]")|molecule_identifier("molecule")))'
 )
@@ -136,8 +142,30 @@ service_command_subject["get_crystal_property"] = (
     '+CaselessKeyword("for")+((Word("[")+ OneOrMore(desc)("crystal_files")+Word("]")|desc("crystal_file")("crystal_PATH")))'
 )
 service_command_subject["generate_data"] = (
-    '+CaselessKeyword("data")+CaselessKeyword("for")+ molecule_identifier("molecule") +Optional(CaselessKeyword("Sample")+Word(nums)("sample_size"))'
+    '+CaselessKeyword("data")+<TARGET>Optional(CaselessKeyword("Sample")+Word(nums)("sample_size"))'
 )
+
+###################################################################
+# targets for generate Data
+generation_targets = {
+    "conditional_generation": {
+        "object": "CaselessKeyword('for')+input_object('target@object')+",
+        "string": "CaselessKeyword('for')+(molecule_identifier|desc)('target@string')+",
+        "list": "CaselessKeyword('for')+delimitedList(desc)('target@list')+",
+    },
+    "generation": {
+        "object": "Optional(input_object('target@object'))+",
+        "string": "Optional(CaselessKeyword('for')+(molecule_identifier|desc)('target@string'))+",
+        "list": "Optional(CaselessKeyword('for')+delimitedList(desc))('target@list')+",
+    },
+    "controlled_generation": {
+        "object": "Optional(CaselessKeyword('for')+input_object('target@object'))+",
+        "string": "Optional(CaselessKeyword('for')+ (molecule_identifier|desc)('target@string'))+",
+        "list": "Optional(CaselessKeyword('for')+delimitedList(desc))('target@list')+",
+    },
+}
+""" algorithm_version="solubility", search="sample", temperature=1.5, tolerance=60,
+        sampling_wrapper={'fraction_to_mask': mask, 'property_goal': {'<esol>': 0.234}}"""
 
 
 service_command_help["get_molecule_property"] = (
@@ -149,11 +177,9 @@ service_command_help["get_crystal_property"] = (
 service_command_help["get_protein_property"] = (
     "get protein property <property> for [<list of Proteins>] | <Protein>   USING (<parameter>=<value>)"
 )
-service_command_help["generate_data"] = "generate with <property> data for <molecule>  USING (<parameter>=<value>) "
-
-
-import glob
-import json
+service_command_help["generate_data"] = (
+    "generate with <property> data <TARGET> (sample <sample_size>)  USING (<parameter>=<value>) "
+)
 
 
 def help_dict_create(
@@ -197,7 +223,8 @@ def get_services(reference, type) -> list:
 
 
 def service_grammar_add(statements: list, help: list, service_list: list):
-    """defines the grammar available for managing molecules"""
+    print("""defines the grammar available for managing molecules""")
+    print(len(service_list))
     for schema in service_list:
 
         command = service_command_start[schema["service_type"]]
@@ -236,18 +263,76 @@ def service_grammar_add(statements: list, help: list, service_list: list):
                 + '+Suppress(")") )("USING"))'
             )
 
-        stmt = eval(
+        # print(schema["target"]["type"])
+        if "generator_type" in schema.keys():
+            if schema["target"]:
+                target_type = schema["target"]["type"]
+
+                try:
+
+                    cmd_subject = str(service_command_subject[schema["service_type"]]).replace(
+                        "<TARGET>", generation_targets[schema["generator_type"]["algorithm_type"]][target_type]
+                    )
+                except Exception as e:
+                    print(e)
+
+            else:
+                cmd_subject = str(service_command_subject[schema["service_type"]]).replace("<TARGET>", "")
+        else:
+            print("else.....................")
+            cmd_subject = service_command_subject[schema["service_type"]]
+        print(cmd_subject)
+        """if "generator_type" in schema.keys():
+            if schema["generator_type"]["algorithm_type"] != "conditional_generation":
+                cmd_subject = service_command_subject["unconditional_generate_data"]
+            else:
+                cmd_subject = service_command_subject[schema["service_type"]]
+        else:
+            cmd_subject = service_command_subject[schema["service_type"]]"""
+        try:
+            stmt = eval(
+                "Forward( "
+                + command
+                + "+"
+                + valid_type
+                + cmd_subject
+                + expression
+                + ")"
+                + f'("{schema["service_name"]}@{schema["service_type"]}")'
+            )
+        except:
+            print("error for schema")
+            print(schema)
+            continue
+        stmt_text = (
             "Forward( "
             + command
             + "+"
             + valid_type
-            + service_command_subject[schema["service_type"]]
+            + cmd_subject
             + expression
             + ")"
             + f'("{schema["service_name"]}@{schema["service_type"]}")'
         )
 
+        print(stmt_text)
         statements.append(stmt)
+        try:
+            target_description = ""
+            function_description = ""
+            if "target" in schema:
+                if schema["target"] is not None:
+                    target_description = "<h2>Target:</h2>\r"
+                    for key, value in schema["target"].items():
+                        target_description = target_description + f"- <cmd>{key}</cmd> : {value}\n  "
+
+            if schema["description"] is not None:
+                function_description = "\r<h2>Function Description:</h2>\r" + schema["description"]
+                while "  " in function_description:
+                    function_description = function_description.replace("  ", " ")
+        except Exception as e:
+            print(e)
+
         parameter_help = "<h2>Parameters:</h2>"
         for parameter, description in dict(schema["parameters"]).items():
             print_description = ""
@@ -266,14 +351,48 @@ def service_grammar_add(statements: list, help: list, service_list: list):
             algo_versions = " \n <h2> Algorithm Versions </h2> \n"
             for i in schema["algorithm_versions"]:
                 algo_versions = algo_versions + f"\n - <cmd>{i}</cmd>"
-
+        try:
+            if "generator_type" in schema.keys():
+                if not schema["target"]:
+                    command_str = (
+                        str(service_command_help["generate_data"])
+                        .replace("<TARGET>", "")
+                        .replace("<property>", help_type)
+                    )
+                else:
+                    if schema["generator_type"]["algorithm_type"] == "conditional_generation":
+                        command_str = (
+                            str(service_command_help["generate_data"])
+                            .replace("<TARGET>", " for  <" + schema["target"]["type"] + ">")
+                            .replace("<property>", help_type)
+                        )
+                    else:
+                        command_str = (
+                            str(service_command_help["generate_data"])
+                            .replace("<TARGET>", " for (<" + schema["target"]["type"] + ">)")
+                            .replace("<property>", help_type)
+                        )
+            else:
+                command_str = str(service_command_help[schema["service_type"]]).replace("<property>", help_type)
+        except Exception as e:
+            print("-------")
+            print(e)
+            print("-------")
+        if "generator_type" in schema:
+            category = schema["generator_type"]["algorithm_type"]
+        else:
+            category = "Model-" + schema["sub_category"]
         help.append(
             help_dict_create(
                 name=schema["service_type"],
-                category="Model-" + schema["sub_category"],
+                category=category,
                 parent=None,
-                command=str(service_command_help[schema["service_type"]]).replace("<property>", help_type),
-                description=parameter_help + algo_versions + required_parameters,
+                command=command_str,
+                description=target_description
+                + parameter_help
+                + algo_versions
+                + required_parameters
+                + function_description,
             )
         )
 
@@ -294,8 +413,16 @@ def optional_parameter_list(inp_statement: dict, clause: str):
             type_str = "type"
         elif "allOf" in inp_statement[clause][i]:
             type_str = "type"
+        if isinstance(inp_statement[clause][i][type_str], list):
+            if isinstance(i, int):
+                parameter = "param_" + i + "@" + "integer"
+            elif isinstance(i, float):
+                parameter = "param_" + i + "@" + "float"
+            else:
+                parameter = "param_" + i + "@" + "other"
+        else:
+            parameter = "param_" + i + "@" + inp_statement[clause][i][type_str]
 
-        parameter = "param_" + i
         if i in inp_statement["required_parameters"]:
             status = ""
 
@@ -333,12 +460,22 @@ def optional_parameter_list(inp_statement: dict, clause: str):
                     + "'))"
                     + " "
                 )
+            elif inp_statement[clause][i][type_str] == "object":
+                expression = (
+                    expression
+                    + f" {status}(Group( CaselessKeyword ('"
+                    + i
+                    + "') +Suppress('=')+input_object('val'))('"
+                    + parameter
+                    + "'))"
+                    + " "
+                )
             else:
                 expression = (
                     expression
                     + f" {status}(Group( CaselessKeyword ('"
                     + i
-                    + "') +Suppress('=')+key_val_expr_num('val'))('"
+                    + "') +Suppress('=')+number_type('val'))('"
                     + parameter
                     + "'))"
                     + " "
@@ -375,12 +512,22 @@ def optional_parameter_list(inp_statement: dict, clause: str):
                     + "'))"
                     + " "
                 )
+            elif inp_statement[clause][i][type_str] == "object":
+                expression = (
+                    expression
+                    + f" & {status}(Group( CaselessKeyword ('"
+                    + i
+                    + "') +Suppress('=')+input_object('val'))('"
+                    + parameter
+                    + "'))"
+                    + " "
+                )
             else:
                 expression = (
                     expression
                     + f" & {status}(Group( CaselessKeyword ('"
                     + i
-                    + "') +Suppress('=')+key_val_expr_num('val'))('"
+                    + "') +Suppress('=')+number_type('val'))('"
                     + parameter
                     + "'))"
                     + " "
@@ -408,12 +555,18 @@ def subject_files_repository(file_directory, suffix):
 def request_generate(request_input):
     name = request_input.getName()
     Sample_Size = None
-
+    subjects = []
     if name.split("@")[1] == "generate_data":
-        if "molecule" in request_input.as_dict():
-            subjects = [request_input.as_dict()["molecule"]]
+
         if "sample_size" in request_input.as_dict():
             Sample_Size = request_input.as_dict()["sample_size"]
+        if "target@object" in request_input.as_dict():
+            subjects = [json.loads(request_input.as_dict()["target@object"].replace("'", '"'))]
+        if "target@string" in request_input.as_dict():
+            subjects = request_input.as_dict()["target@string"]
+        if "target@list" in request_input.as_dict():
+            subjects = request_input.as_dict()["target@list"]
+
     if name.split("@")[1] == "get_molecule_property":
         if "molecules" in request_input.as_dict():
             subjects = request_input.as_dict()["molecules"]
@@ -444,11 +597,29 @@ def request_generate(request_input):
     }
     if Sample_Size is not None:
         template["sample_size"] = Sample_Size
+
     for param in request_input.as_dict().keys():
         if str(param).startswith("param_"):
             actual_param = str(param)[6:]
-            template["parameters"][actual_param] = request_input.as_dict()[param]["val"]
-
+            if actual_param.split("@")[1] == "number" or actual_param.split("@")[1] == "float":
+                template["parameters"][actual_param.split("@")[0]] = float(
+                    "".join(list(request_input.as_dict()[param]["val"]))
+                )
+            elif actual_param.split("@")[1] == "integer":
+                template["parameters"][actual_param.split("@")[0]] = int(
+                    "".join(list(request_input.as_dict()[param]["val"]))
+                )
+            elif actual_param.split("@")[1] == "object":
+                x = dict(json.loads(request_input.as_dict()[param]["val"].replace("'", '"')))
+                # print(x)
+                # print(isinstance(x, dict))
+                template["parameters"][actual_param.split("@")[0]] = json.loads(
+                    request_input.as_dict()[param]["val"].replace("'", '"')
+                )
+                # print("hello")
+            else:
+                template["parameters"][actual_param.split("@")[0]] = request_input.as_dict()[param]["val"]
+    # print(template)
     return template
 
 
@@ -463,13 +634,38 @@ from openad.helpers.output import output_error, output_table, output_success
 def openad_model_requestor(cmd_pointer, parser):
 
     a_request = request_generate(parser)
-
-    Endpoint = "http://127.0.0.1:8090"
-
+    name = parser.getName()
+    if name.split("@")[1] == "generate_data":
+        Endpoint = "http://127.0.0.1:8090"
+    else:
+        Endpoint = "http://127.0.0.1:8080"
+    spinner.start("Executing Request Against Server")
     response = requests.post(Endpoint + "/service", json=a_request)
+    spinner.succeed("Request Returned")
+    spinner.stop()
     try:
+        response_result = response.json()
+        try:
+            if isinstance(response_result, dict):
+                if "error" in response_result:
+                    run_error = "<h2>Request Error:</h2>\r"
+                    for key, value in response_result["error"].items():
+                        run_error = run_error + f"- <cmd>{key}</cmd> : {value}\n  "
 
-        result = pd.DataFrame(response.json())
+                    return output_text(run_error, return_val=True)
+
+            result = pd.DataFrame(response_result)
+            return result
+        except:
+            result = response_result
+
+        if isinstance(result, dict):
+            if "error" in result:
+                run_error = "<h2>Request Error:</h2>\r"
+                for key, value in result["error"].items():
+                    run_error = run_error + f"- <cmd>{key}</cmd> : {value}\n  "
+                return output_text(run_error, return_val=True)
+
     except:
         return "Error returned from service"
 

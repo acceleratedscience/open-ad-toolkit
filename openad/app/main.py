@@ -599,12 +599,15 @@ class RUNCMD(Cmd):
                     return_value=False,
                 )
                 self.do_exit("exit emergency")
-
+            # print("------------------------------")
+            # print(convert(inp))
+            # print("------------------------------")
             y = self.current_statement_defs.parseString(convert(inp), parseAll=True)
             x = lang_parse(self, y)
             self.prompt = refresh_prompt(self.settings)
             MEMORY.before_command()
         except Exception as err1:  # pylint: disable=broad-exception-caught # error could be unknown
+            # print(err1)
             error_descriptor = None
             error_col = -1
             invalid_command = False

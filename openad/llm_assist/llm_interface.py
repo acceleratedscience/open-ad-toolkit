@@ -1,4 +1,5 @@
 """ Interface libraries for working with the LLM API"""
+
 import os
 import re
 import shutil
@@ -15,8 +16,8 @@ from openad.app.global_var_lib import GLOBAL_SETTINGS
 TRAINING_LLM_DIR = "/prompt_train/"
 SUPPORTED_LLMS = ["WATSONX", "OPENAI", "BAM"]
 PROMPT_DIR = "~/.chat_embedded"
-STANDARD_FILE_TYPES_EMBED = ["*.txt", "*.ipynb", "*.run", "*.cdoc"]
-EXTENDED_FILE_TYPES_EMBED = ["**/*.txt", "**/*.ipynb", "**/*.run", "**/*.cdoc"]
+STANDARD_FILE_TYPES_EMBED = ["*.txt", "*.ipynb", "*.run", "*.cdoc", "*.pdf"]
+EXTENDED_FILE_TYPES_EMBED = ["**/*.txt", "**/*.ipynb", "**/*.run", "**/*.cdoc", "**/*.pdf"]
 NOTEBOOKS_DIR = "/../notebooks"
 DEFAULT_SOURCES_LIST = []  #
 # CHAT_PRIMER_old = """  In formatting the answer use markdown formatting syntax to highlight \

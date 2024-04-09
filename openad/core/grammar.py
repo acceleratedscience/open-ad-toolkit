@@ -280,14 +280,13 @@ mol_grammar_add(statements=statements, grammar_help=grammar_help)
 try:
     import importlib_resources, os, inspect
 
-    import openad_model_property_service.service_defs as defs
+    # import openad_model_property_service.service_defs as defs
 
-    path = os.path.dirname(inspect.getfile(defs))
+    # path = os.path.dirname(inspect.getfile(defs))
 
-    path = "/Users/phildowney/services-build/Open-AD-Model-Service/openad-services/inference_service/openad_model_generation_service/definitions/services"
+    path = "/Users/phildowney/services-build/Open-AD-Model-Service/openad-services/generation_inference_service/openad_model_generation_service/definitions/services/"
     services = get_services(str(path), "directory")
-
-    service_grammar_add(statements=statements, help=grammar_help, service_list=services)
+    # service_grammar_add(statements=statements, help=grammar_help, service_list=services)
 except Exception as e:
     print(e)
     pass
@@ -859,7 +858,7 @@ try:
     print(1111111)
     # path = os.path.dirname(inspect.getfile(defs))
     path = "/Users/phildowney/services-build/Open-AD-Model-Service/openad-services/generation_inference_service/openad_model_generation_service/definitions/services"
-
+    path = "/Users/phildowney/.openad_model/Default/"
     services = get_services(str(path), "directory")
 
     service_grammar_add(statements=statements, help=grammar_help, service_list=services)
