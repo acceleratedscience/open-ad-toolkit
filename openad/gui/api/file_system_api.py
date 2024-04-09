@@ -6,7 +6,6 @@ from openad.helpers.files import open_file
 from openad.workers.file_system import (
     fs_get_workspace_files,
     fs_attach_file_data,
-    fs_assemble_cache_path,
     fs_compile_filedir_obj,
 )
 from openad.helpers.output import output_success

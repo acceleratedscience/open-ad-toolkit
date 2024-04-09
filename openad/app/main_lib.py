@@ -11,11 +11,12 @@ import pandas as pd
 
 # Flask
 from openad.flask_apps import launcher
+from openad.gui.gui_launcher import gui_init
 from openad.flask_apps.dataviewer.routes import fetchRoutesDataViewer
 
 # molecules
 from openad.molecules.mol_batch_files import load_batch_molecules
-from openad.molecules.mol_functions import df_has_molecules
+from openad.molecules.mol_functions import df_has_molecules, dataframe2molset, create_molset_cache_file
 
 from openad.molecules.mol_commands import (
     display_molecule,
@@ -33,7 +34,8 @@ from openad.molecules.mol_commands import (
     clear_workset,
     export_molecule_set,
     show_mol,
-    show_molsgrid,
+    show_molset,
+    show_molsgrid_DEPRECATED,  # TRASH
     merge_molecules,
 )
 
@@ -220,9 +222,11 @@ def lang_parse(cmd_pointer, parser):
     elif parser.getName() == "export_molecules":
         return export_molecule_set(cmd_pointer, parser)
     elif parser.getName() == "show_molsgrid":
-        return show_molsgrid(cmd_pointer, parser)
+        return show_molsgrid_DEPRECATED(cmd_pointer, parser)
     elif parser.getName() == "show_molsgrid_df":
-        return show_molsgrid(cmd_pointer, parser)
+        return show_molsgrid_DEPRECATED(cmd_pointer, parser)
+    elif parser.getName() == "show_molset":
+        return show_molset(cmd_pointer, parser)
     elif parser.getName() == "show_mol":
         return show_mol(cmd_pointer, parser)
 
@@ -622,15 +626,13 @@ def display_data__open(
     if df is None:
         return output_error(msg("memory_empty", "display"), pad=1)
 
-    # TO DO: check if df has molecules, convert to molset and display
-    # if df_has_molecules(df):
-    #     print(11)
-    #     # This needs to be reorganized to be in the mol_functions module
-    #     from openad.gui.api.molecules_api import df2molset
-
-    #     molset = df2molset(df)
-    #     print(1111, "\n\n", molset)
-    #     return
+    if df_has_molecules(df):
+        molset = dataframe2molset(df)
+        cache_id = create_molset_cache_file(cmd_pointer, molset)
+        path = f"molset/{cache_id}"
+        gui_init(cmd_pointer, path)
+        # print(molset)
+        return
 
     # Load routes and launch browser UI.
     df = df.to_json(orient="records")

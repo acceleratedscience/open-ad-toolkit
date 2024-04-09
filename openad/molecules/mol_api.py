@@ -1,3 +1,6 @@
+# Trash - part of old flask app
+
+
 def get_molecule_data(cmd_pointer, molecule_identifier):
     """
     Fetch full enriched molecule from RDKit.

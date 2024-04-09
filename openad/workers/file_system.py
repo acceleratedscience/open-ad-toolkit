@@ -1,17 +1,11 @@
 import os
-import time
-import json
-import shutil
-import asyncio
 from openad.helpers.files import open_file, file_stats
-from openad.helpers.timeit import timeit
+from openad.molecules.mol_functions import create_molset_cache_file
 from openad.gui.api.molecules_api import (
-    MoleculesApi,
     get_molset_mols,
     create_molset_response,
-    smiles_file2molset,
+    smiles_path2molset,
     sdf_path2molset,
-    index_molset_file_async,
 )
 
 
@@ -173,7 +167,7 @@ def fs_attach_file_data(cmd_pointer, file_obj, query=None):
 
     This entry point is only used for opening files, once a molset (or potentially
     other editable file formats later) is opened, further querying and editing
-    is handled by its own API endpoint - i.e. query_molset()
+    is handled by its own API endpoint - i.e. get_molset()
 
     Parameters:
     -----------
@@ -200,7 +194,7 @@ def fs_attach_file_data(cmd_pointer, file_obj, query=None):
 
         # From SMILES file
         elif ext == "smi":
-            molset, err_code = smiles_file2molset(path_absolute)
+            molset, err_code = smiles_path2molset(path_absolute)
 
         # From SDF file
         elif ext == "sdf":
@@ -210,30 +204,13 @@ def fs_attach_file_data(cmd_pointer, file_obj, query=None):
         # - - -
 
         if molset:
-            cache_id = str(int(time.time() * 1000))
-            cache_path = fs_assemble_cache_path(cmd_pointer, "molset", cache_id)
-
-            # Creaste the .cache directory if it doesn't exist.
-            os.makedirs(os.path.dirname(cache_path), exist_ok=True)
-
             # For JSON files, we can simply copy the original file (fast).
             if ext == "json":
-                # timeit("copy_file")
-                shutil.copy(path_absolute, cache_path)
-                # timeit("copy_file", True)
+                cache_id = create_molset_cache_file(cmd_pointer, path_absolute=path_absolute)
 
-                # Add indices to molecules in our working copy,
-                # without blocking the thread.
-                # timeit("index_wc")
-                index_molset_file_async(cache_path)
-                # timeit("index_wc", True)
-
-            # For other formats, we need to write the molset object to disk (slow).
+            # All other cases, write file from memory.
             else:
-                # timeit("write_cache")
-                with open(cache_path, "w", encoding="utf-8") as f:
-                    json.dump(molset, f)
-                # timeit("write_cache", True)
+                cache_id = create_molset_cache_file(cmd_pointer, molset=molset)
 
             # Step 3: Create the response object.
             # - - -
@@ -330,19 +307,3 @@ def _get_file_type(ext, ext2):
     else:
         # Unrecognized file formats
         return "unk"
-
-
-# Compile the file path to a cached working copy of a file.
-def fs_assemble_cache_path(cmd_pointer, file_type, cache_id):
-    """
-    Compile the file path to a cached working copy of a file.
-
-    Parameters:
-    -----------
-    cmd_pointer: object
-        The command pointer object, used to fetch the workspace path.
-    file_type: 'molset'
-        The type of file, used to name the cache file. For now only molset.
-    """
-    workspace_path = cmd_pointer.workspace_path()
-    return f"{workspace_path}/.cache/{file_type}-{cache_id}.json"

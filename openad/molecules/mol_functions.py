@@ -1,13 +1,22 @@
 """Implements molecule management functions"""
 
+import os
 import time
+import json
 import copy
+import shutil
+import asyncio
+import aiofiles
 import pubchempy as pcy
 from datetime import datetime
 from rdkit import Chem, rdBase
 from rdkit.Chem.Descriptors import MolWt, ExactMolWt
-from openad.helpers.output import output_text, output_table, output_warning, output_error
-from openad.helpers.files import open_file
+
+from openad.helpers.json_decimal_encoder import DecimalEncoder
+
+# from openad.helpers.output import output_text, output_table, output_warning, output_error
+# from openad.helpers.files import open_file
+# from openad.helpers.timeit import timeit
 
 blocker = rdBase.BlockLogs()
 
@@ -301,7 +310,7 @@ def get_identifiers(mol):
     # so we can scan for properties in a case-insensitive way.
     molProps = {k.lower(): v for k, v in mol["properties"].items()}
 
-    identifier_dict["name"] = mol.get("name")
+    identifier_dict["name"] = molProps.get("name")
     identifier_dict["inchi"] = molProps.get("inchi")
     identifier_dict["inchikey"] = molProps.get("inchikey")
     identifier_dict["canonical_smiles"] = molProps.get("canonical_smiles")
@@ -464,6 +473,189 @@ def mol2xyz(mol_rdkit):
 def mol2pdb(mol_rdkit):
     mol_pdb = Chem.rdmolfiles.MolToPDBBlock(mol_rdkit, flavor=32)
     return mol_pdb
+
+
+def dataframe2sdf(df):
+    """
+    Reads a dataframe, looks for an InChI or
+    SMILES column and returns SDF data.
+    """
+    # Create an empty DataFrame with an 'ROMol' column
+    # PandasTools.AddMoleculeColumnToFrame(df, smilesCol="SMILES", molCol="ROMol")
+
+    # This allows us to do a case-insensitive scan for the InChI or SMILES column.
+    colsLowercase = [col.lower() for col in df.columns]
+
+    if "inchi" in colsLowercase:
+        index = colsLowercase.index("inchi")
+        key = df.columns[index]
+        key_type = "inchi"
+    elif "smiles" in colsLowercase:
+        index = colsLowercase.index("smiles")
+        key = df.columns[index]
+        key_type = "smiles"
+    else:
+        return None
+
+    # Convert the molecules to SDF format
+    sdf_data = ""
+    for i, row in df.iterrows():
+        if key_type == "inchi":
+            mol_rdkit = Chem.MolFromInchi(row[key])  # pylint: disable=no-member
+        elif key_type == "smiles":
+            mol_rdkit = Chem.MolFromSmiles(row[key])  # pylint: disable=no-member
+
+        if mol_rdkit is not None:
+            # Add all other dataframe columns as properties to the SDF data,
+            # unless they're other identifiers, in which case they will be ignored.
+            for col in df.columns:
+                # if col.lower() not in ["inchi", "smiles"]:
+                mol_rdkit.SetProp(col, str(row[col]))
+
+            sdf_data += Chem.MolToMolBlock(mol_rdkit) + "\n$$$$\n"  # pylint: disable=no-member
+
+    print("\n\n\n---\n", sdf_data)
+    return sdf_data
+
+
+# def sdf_data2molset(sdf_data):
+#     """
+#     Turn SDF data into a molset.
+#     """
+
+#     try:
+#         # Split the SDF data into blocks and convert each block to a Mol object
+#         sdf_blocks = sdf_data.split("\n$$$$\n")
+#         mols = [Chem.MolFromMolBlock(block) for block in sdf_blocks if block]  # pylint: disable=no-member
+
+#         molset = []
+#         for i, mol in enumerate(mols):
+#             mol_dict = copy.deepcopy(OPENAD_MOL_DICT)
+#             mol_dict["properties"] = {prop: mol.GetProp(prop) for prop in mol.GetPropNames()}
+#             mol_dict = molformat_v2(mol_dict)
+#             mol_dict["index"] = i + 1
+#             molset.append(mol_dict)
+#         return molset, None
+#     except Exception as err:
+#         return None, err
+
+
+def dataframe2molset(df):
+    """
+    Turn any dataframe with a SMILES or InChI column into a molset.
+    The other columns will be included as properties.
+    """
+
+    # Create an empty DataFrame with an 'ROMol' column
+    # PandasTools.AddMoleculeColumnToFrame(df, smilesCol="SMILES", molCol="ROMol")
+
+    # This allows us to do a case-insensitive scan for the InChI or SMILES column.
+    colsLowercase = [col.lower() for col in df.columns]
+
+    if "inchi" in colsLowercase:
+        index = colsLowercase.index("inchi")
+        key = df.columns[index]
+    elif "smiles" in colsLowercase:
+        index = colsLowercase.index("smiles")
+        key = df.columns[index]
+    else:
+        return None
+
+    # Convert the molecules to SDF format
+    molset = []
+    for i, row in df.iterrows():
+        mol_dict = new_molecule(row[key])
+        mol_dict = molformat_v2(mol_dict)
+
+        if mol_dict is not None:
+            # Add all other dataframe columns as properties to the SDF data,
+            # unless they're other identifiers, in which case they will be ignored.
+            for col in df.columns:
+                mol_dict["properties"][col] = str(row[col])
+
+            molset.append(mol_dict)
+
+    return molset
+
+
+def create_molset_cache_file(cmd_pointer, molset=None, path_absolute=None):
+    """
+    Store molset as a cached file, so we can manipulate it in the GUI.
+
+    Returns cache_id
+    """
+
+    cache_id = str(int(time.time() * 1000))
+    cache_path = assemble_cache_path(cmd_pointer, "molset", cache_id)
+
+    # Creaste the .cache directory if it doesn't exist.
+    os.makedirs(os.path.dirname(cache_path), exist_ok=True)
+
+    # For JSON files, we can simply copy the original file (fast).
+    if path_absolute:
+        # timeit("copy_file")
+        shutil.copy(path_absolute, cache_path)
+        # timeit("copy_file", True)
+
+        # Add indices to molecules in our working copy,
+        # without blocking the thread.
+        # timeit("index_wc")
+        index_molset_file_async(cache_path)
+        # timeit("index_wc", True)
+
+    # For all other cases, i.e. other file formats or molset data from memory,
+    # we need to write the molset object to disk (slow).
+    else:
+        # timeit("write_cache")
+        with open(cache_path, "w", encoding="utf-8") as f:
+            json.dump(molset, f)
+        # timeit("write_cache", True)
+
+    return cache_id
+
+
+# Compile the file path to a cached working copy of a file.
+def assemble_cache_path(cmd_pointer, file_type, cache_id):
+    """
+    Compile the file path to a cached working copy of a file.
+
+    Parameters:
+    -----------
+    cmd_pointer: object
+        The command pointer object, used to fetch the workspace path.
+    file_type: 'molset'
+        The type of file, used to name the cache file. For now only molset.
+    """
+    workspace_path = cmd_pointer.workspace_path()
+    return f"{workspace_path}/.cache/{file_type}-{cache_id}.json"
+
+
+def index_molset_file_async(path_absolute):
+    """
+    Add an index to each molecule of a molset file,
+    without blocking the main thread.
+
+    This is used to index a cached working copy of a molset
+    right after it's created.
+
+    Parameters
+    ----------
+    cache_path: str
+        The path to the cached working copy of a molset.
+    """
+
+    async def _index_molset_file(cache_path):
+        # Read
+        async with aiofiles.open(cache_path, "r", encoding="utf-8") as f:
+            content = await f.read()
+        molset = json.loads(content)
+        for i, mol in enumerate(molset):
+            mol["index"] = i + 1
+        # Write
+        async with aiofiles.open(cache_path, "w", encoding="utf-8") as f:
+            await f.write(json.dumps(molset, ensure_ascii=False, indent=4, cls=DecimalEncoder))
+
+    asyncio.run(_index_molset_file(path_absolute))
 
 
 # Check if a dataframe has molecules

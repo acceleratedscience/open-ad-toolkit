@@ -3,8 +3,6 @@ import json
 import time
 import copy
 import shutil
-import asyncio
-import aiofiles
 from rdkit import Chem
 from rdkit.Chem import PandasTools
 from flask import Response, request
@@ -12,10 +10,9 @@ from urllib.parse import unquote
 
 # from openad.molecules.mol_api import get_molecule_data
 from openad.molecules.mol_commands import retrieve_mol
-from openad.molecules.mol_functions import new_molecule, molformat_v2, mol2svg, mol2sdf
+from openad.molecules.mol_functions import new_molecule, molformat_v2, mol2svg, mol2sdf, create_molset_cache_file
 
-# from openad.workers.file_system import fs_assemble_cache_path
-import openad.workers.file_system as fs
+from openad.molecules.mol_functions import assemble_cache_path
 
 from openad.helpers.json_decimal_encoder import DecimalEncoder
 from openad.helpers.files import open_file
@@ -80,7 +77,7 @@ class MoleculesApi:
         index = data["index"] if "index" in data else 1
 
         # Workspace path
-        cache_path = fs.fs_assemble_cache_path(self.cmd_pointer, "molset", cache_id)
+        cache_path = assemble_cache_path(self.cmd_pointer, "molset", cache_id)
 
         # Read file from cache.
         molset, err_code = open_file(cache_path, return_err="code")
@@ -95,15 +92,16 @@ class MoleculesApi:
     # Molsets
     # -----------------------------
 
-    # Filter a molecule set by a string.
-    def query_molset(self):
+    # Get molset filtered by the query.
+    # Note: opening molset files is handled by fs_attach_file_data() in workers/file_system.py
+    def get_molset(self, cache_id=None):
         # print("get_molset")
         data = json.loads(request.data) if request.data else {}
-        cache_id = data["cacheId"] if "cacheId" in data else ""
+        cache_id = cache_id if cache_id else data["cacheId"] if "cacheId" in data else ""
         query = data["query"] if "query" in data else {}
 
         # Read file from cache.
-        cache_path = fs.fs_assemble_cache_path(self.cmd_pointer, "molset", cache_id)
+        cache_path = assemble_cache_path(self.cmd_pointer, "molset", cache_id)
         molset, err_code = get_molset_mols(cache_path)
 
         # Return error
@@ -114,16 +112,21 @@ class MoleculesApi:
 
     # Get your working list of molecules.
     def get_my_mols(self):
-        data = json.loads(request.data) if request.data else {}
-        query = data["query"] if "query" in data else {}
-
         if len(self.cmd_pointer.molecule_list) > 0:
+
+            # Compile molset.
             molset = []
             for i, mol in enumerate(self.cmd_pointer.molecule_list):
-                mol_v2 = molformat_v2(mol)
-                mol_v2["index"] = i + 1
-                molset.append(mol_v2)
-            return create_molset_response(molset, query), 200
+                mol_dict = molformat_v2(mol)
+                mol_dict["index"] = i + 1
+                molset.append(mol_dict)
+
+            # Create cache working copy.
+            cache_id = create_molset_cache_file(self.cmd_pointer, molset)
+
+            # Forward to get_molset route with the custom cache_id.
+            return self.get_molset(cache_id)
+
         else:
             return "No molecules in list", 204
 
@@ -142,7 +145,7 @@ class MoleculesApi:
             return f"remove_from_molset() -> No indices provided", 500
 
         # Compile path
-        cache_path = fs.fs_assemble_cache_path(self.cmd_pointer, "molset", cache_id)
+        cache_path = assemble_cache_path(self.cmd_pointer, "molset", cache_id)
 
         # Read file from cache
         molset, err_code = open_file(cache_path, return_err="code", dumb=False)  # %%
@@ -174,7 +177,7 @@ class MoleculesApi:
         if not cache_id:
             return f"save_molset_changes() -> Unrecognized cache_id: {cache_id}", 500
 
-        cache_path = fs.fs_assemble_cache_path(self.cmd_pointer, "molset", cache_id)
+        cache_path = assemble_cache_path(self.cmd_pointer, "molset", cache_id)
 
         if not os.path.exists(file_path):
             return f"save_molset_changes() -> File not found: {file_path}", 500
@@ -196,7 +199,7 @@ class MoleculesApi:
         if not cache_id:
             return f"clear_molset_working_copy() -> Unrecognized cache_id: {cache_id}", 500
 
-        cache_path = fs.fs_assemble_cache_path(self.cmd_pointer, "molset", cache_id)
+        cache_path = assemble_cache_path(self.cmd_pointer, "molset", cache_id)
         if os.path.exists(cache_path):
             os.remove(cache_path)
 
@@ -228,7 +231,7 @@ def get_molset_mols(path_absolute):
 
 
 # Return molset from SMILES file
-def smiles_file2molset(path_absolute):
+def smiles_path2molset(path_absolute):
     """
     Read the content of a .smi file and return a molset.
     Specs for .smi files: http://opensmiles.org/opensmiles.html - 4.5
@@ -272,72 +275,11 @@ def sdf_path2molset(sdf):
             mol_dict["properties"] = {prop: mol.GetProp(prop) for prop in mol.GetPropNames()}
             mol_dict = molformat_v2(mol_dict)
             mol_dict["index"] = i + 1
+            # print("\n", i, mol_dict)
             molset.append(mol_dict)
         return molset, None
     except Exception as err:
         return None, err
-
-
-def sdf_data2molset(sdf_data):
-    from openad.molecules.mol_functions import OPENAD_MOL_DICT
-
-    try:
-        # Split the SDF data into blocks and convert each block to a Mol object
-        sdf_blocks = sdf_data.split("\n$$$$\n")
-        mols = [Chem.MolFromMolBlock(block) for block in sdf_blocks if block]  # pylint: disable=no-member
-
-        molset = []
-        for i, mol in enumerate(mols):
-            mol_dict = copy.deepcopy(OPENAD_MOL_DICT)
-            mol_dict["properties"] = {prop: mol.GetProp(prop) for prop in mol.GetPropNames()}
-            mol_dict = molformat_v2(mol_dict)
-            mol_dict["index"] = i + 1
-            molset.append(mol_dict)
-        return molset, None
-    except Exception as err:
-        return None, err
-
-
-def df2sdf(df):
-    """
-    Reads a dataframe, looks for an InChI or
-    SMILES column and returns a molset.
-    """
-    # Create an empty DataFrame with an 'ROMol' column
-    # PandasTools.AddMoleculeColumnToFrame(df, smilesCol="SMILES", molCol="ROMol")
-
-    colsLowercase = [col.lower() for col in df.columns]
-
-    if "inchi" in colsLowercase:
-        index = colsLowercase.index("inchi")
-        key = df.columns[index]
-        key_type = "inchi"
-    elif "smiles" in colsLowercase:
-        index = colsLowercase.index("smiles")
-        key = df.columns[index]
-        key_type = "smiles"
-    else:
-        return None
-
-    # Convert the molecules to SDF format
-    sdf_data = ""
-    for i, row in df.iterrows():
-        if key_type == "inchi":
-            mol_rdkit = Chem.MolFromInchi(row[key])  # pylint: disable=no-member
-        elif key_type == "smiles":
-            mol_rdkit = Chem.MolFromSmiles(row[key])  # pylint: disable=no-member
-
-        if mol_rdkit is not None:
-            sdf_data += Chem.MolToMolBlock(mol_rdkit) + "\n$$$$\n"  # pylint: disable=no-member
-
-    return sdf_data
-
-
-def df2molset(df):
-    sdf_data = df2sdf(df)
-    if sdf_data is None:
-        return None
-    return sdf_data2molset(sdf_data)
 
 
 def create_molset_response(molset, query={}, cache_id=None):
@@ -479,31 +421,3 @@ def __prep_sort_value(value):
         return value.lower()
 
     return value
-
-
-def index_molset_file_async(path_absolute):
-    """
-    Add an index to each molecule of a molset file,
-    without blocking the main thread.
-
-    This is used to index a cached working copy of a molset
-    right after it's created.
-
-    Parameters
-    ----------
-    cache_path: str
-        The path to the cached working copy of a molset.
-    """
-
-    async def _index_molset_file(cache_path):
-        # Read
-        async with aiofiles.open(cache_path, "r", encoding="utf-8") as f:
-            content = await f.read()
-        molset = json.loads(content)
-        for i, mol in enumerate(molset):
-            mol["index"] = i + 1
-        # Write
-        async with aiofiles.open(cache_path, "w", encoding="utf-8") as f:
-            await f.write(json.dumps(molset, ensure_ascii=False, indent=4, cls=DecimalEncoder))
-
-    asyncio.run(_index_molset_file(path_absolute))
