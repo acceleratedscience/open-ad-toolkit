@@ -310,7 +310,8 @@ def get_identifiers(mol):
     # so we can scan for properties in a case-insensitive way.
     molProps = {k.lower(): v for k, v in mol["properties"].items()}
 
-    identifier_dict["name"] = molProps.get("name")
+    # SDF files will have 'name' as a property, while our old mol format has it as a main key.
+    identifier_dict["name"] = mol.get("name") or molProps.get("name")
     identifier_dict["inchi"] = molProps.get("inchi")
     identifier_dict["inchikey"] = molProps.get("inchikey")
     identifier_dict["canonical_smiles"] = molProps.get("canonical_smiles")

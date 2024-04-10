@@ -604,7 +604,7 @@ Examples of how to show a molecule and its proerties in the molecule viewer:
 """,
         )
     )
-    # Show molecules grid.
+    # Show molset in browser -- TRASH
     # Note: we don't allow dashes in dataframe names because it's a substraction operator and causes issues in Jupyter.
     statements.append(
         Forward(
@@ -633,19 +633,19 @@ Examples of how to show a molecule and its proerties in the molecule viewer:
             + Optional(save + a_s + desc("results_file"))  # Save as csv/sdf
         )("show_molsgrid")
     )
-    # grammar_help.append(
-    #     help_dict_create(
-    #         name="show molecules",
-    #         category="Molecules",
-    #         command="show molecules using ( file '<mols_file>' | dataframe <dataframe> ) [ save as '<sdf_or_csv_file>' | as molsobject ]",
-    #         description=f"""Launch the molecule viewer { 'in your browser ' if is_notebook_mode() else '' }to examine and select molecules from a SMILES sdf/csv dataset.
-    # { 'if you are working from a notebook, the <cmd> as mols object </cmd> clause allows you to display the mols2grid object and use the <cmd>.get_selection()</cmd>  method to retrieve selected molecules ' if is_notebook_mode() else '' }
-    # Examples of how to show molecules in mols2grid:
-    # - <cmd>show molecules using file 'base_molecules.sdf' as molsobject</cmd>
-    # - <cmd>show molecules using dataframe my_dataframe save as 'selection.sdf'</cmd>
-    # """,
-    #     )
-    # )
+    grammar_help.append(
+        help_dict_create(
+            name="show molecules",
+            category="Molecules",
+            command="show molecules using ( file '<mols_file>' | dataframe <dataframe> ) [ save as '<sdf_or_csv_file>' | as molsobject ]",
+            description=f"""Launch the molecule viewer { 'in your browser ' if is_notebook_mode() else '' }to examine and select molecules from a SMILES sdf/csv dataset.
+    { 'if you are working from a notebook, the <cmd> as mols object </cmd> clause allows you to display the mols2grid object and use the <cmd>.get_selection()</cmd>  method to retrieve selected molecules ' if is_notebook_mode() else '' }
+    Examples of how to show molecules in mols2grid:
+    - <cmd>show molecules using file 'base_molecules.sdf' as molsobject</cmd>
+    - <cmd>show molecules using dataframe my_dataframe save as 'selection.sdf'</cmd>
+    """,
+        )
+    )
 
     # ---
     # Show molset in browser.

@@ -29,7 +29,7 @@ class MoleculesApi:
 
     # Get molecule data, plus SDF and SVG.
     # Used when requesting a molecule by its identifier.
-    def get_mol(self):
+    def get_mol_data(self):
         data = json.loads(request.data) if request.data else {}
         identifier = data["identifier"]
 
@@ -39,6 +39,7 @@ class MoleculesApi:
             return response
 
         mol = retrieve_mol(identifier)
+        print(88, mol, "\n-\n")
 
         # Fail
         if not mol:
@@ -49,6 +50,7 @@ class MoleculesApi:
         # Success
         else:
             mol = molformat_v2(mol)
+            print(99, mol, "\n-\n")
             return mol, 200
 
     # Get a molecule's SDF and SVG.
