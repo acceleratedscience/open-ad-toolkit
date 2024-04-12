@@ -224,152 +224,155 @@ def get_services(reference, type) -> list:
     return service_list
 
 
-def service_grammar_add(statements: list, help: list, service_list: list):
+def service_grammar_add(statements: list, help: list, service_catalog: dict):
     """defines the grammar available for managing molecules"""
+    for service in service_catalog.keys():
+        service_list = service_catalog[service]
+        for schema in service_list:
 
-    for schema in service_list:
-
-        command = service_command_start[schema["service_type"]]
-        valid_types = None
-        valid_type = None
-        first = True
-        if len(list(schema["valid_types"])) > 1:
-            valid_types = list(schema["valid_types"])  # Useed in eval statement
-        else:
-
-            valid_type = f'CaselessKeyword("{list(schema["valid_types"])[0]}")("type")'
-            help_type = list(schema["valid_types"])[0]
-
-        if valid_type is None:
-            # valid_type = f'Word("[")+OneOrMore({valid_types})("types")+Word("]")'
-            valid_type = f'Word("[")+delimitedList(oneOf(valid_types),delim=",")("types")+Word("]")'
-            help_type = "[ " + ", ".join(list(schema["valid_types"])) + " ] "
-        expression = ""
-
-        if len(list(schema["parameters"])) > 0:
-            if len(list(schema["required_parameters"])) > 0:
-                expression = "+"
+            command = f"CaselessKeyword(service)+" + service_command_start[schema["service_type"]]
+            valid_types = None
+            valid_type = None
+            first = True
+            if len(list(schema["valid_types"])) > 1:
+                valid_types = list(schema["valid_types"])  # Useed in eval statement
             else:
-                expression = "+ Optional"
 
-            expression = (
-                expression
-                + '( (CaselessKeyword ("USING")+ Suppress("(") +'
-                + optional_parameter_list(schema, "parameters")
-                + '+Suppress(")") )("USING"))'
-            )
+                valid_type = f'CaselessKeyword("{list(schema["valid_types"])[0]}")("type")'
+                help_type = list(schema["valid_types"])[0]
 
-        if "generator_type" in schema.keys():
-            if schema["target"]:
-                target_type = schema["target"]["type"]
-                try:
-                    cmd_subject = str(service_command_subject[schema["service_type"]]).replace(
-                        "<TARGET>", generation_targets[schema["generator_type"]["algorithm_type"]][target_type]
-                    )
-                except Exception as e:
-                    print(e)
-            else:
-                cmd_subject = str(service_command_subject[schema["service_type"]]).replace("<TARGET>", "")
-        else:
-            print("else.....................")
-            cmd_subject = service_command_subject[schema["service_type"]]
-        print(cmd_subject)
+            if valid_type is None:
+                # valid_type = f'Word("[")+OneOrMore({valid_types})("types")+Word("]")'
+                valid_type = f'Word("[")+delimitedList(oneOf(valid_types),delim=",")("types")+Word("]")'
+                help_type = "[ " + ", ".join(list(schema["valid_types"])) + " ] "
+            expression = ""
 
-        try:
-            stmt = eval(
-                "Forward( "
-                + command
-                + "+"
-                + valid_type
-                + cmd_subject
-                + expression
-                + ")"
-                + f'("{schema["service_name"]}@{schema["service_type"]}")'
-            )
-        except:
-            print("error for schema")
-            print(schema)
-            continue
-
-        statements.append(stmt)
-        try:
-            target_description = ""
-            function_description = ""
-            if "target" in schema:
-                if schema["target"] is not None:
-                    target_description = "<h2>Target:</h2>\r"
-                    for key, value in schema["target"].items():
-                        target_description = target_description + f"- <cmd>{key}</cmd> : {value}\n  "
-
-            if schema["description"] is not None:
-                function_description = "\r<h2>Function Description:</h2>\r" + schema["description"]
-                while "  " in function_description:
-                    function_description = function_description.replace("  ", " ")
-        except Exception as e:
-            print(e)
-
-        parameter_help = "<h2>Parameters:</h2>"
-        for parameter, description in dict(schema["parameters"]).items():
-            print_description = ""
-            for key, value in description.items():
-                print_description = print_description + f"- <cmd>{key}</cmd> : {value}\n  "
-
-            parameter_help = parameter_help + f"\n<cmd>{parameter}</cmd> \r {print_description}\n  "
-
-        required_parameters = ""
-        for i in schema["required_parameters"]:
-            if required_parameters == "":
-                required_parameters = "\n<h2>Required Parameters:<\h2> \n"
-            required_parameters = required_parameters + f"\n - <cmd>{i}</cmd>"
-        algo_versions = ""
-        if "algorithm_versions" in schema:
-            algo_versions = " \n <h2> Algorithm Versions </h2> \n"
-            for i in schema["algorithm_versions"]:
-                algo_versions = algo_versions + f"\n - <cmd>{i}</cmd>"
-        try:
-            if "generator_type" in schema.keys():
-                if not schema["target"]:
-                    command_str = (
-                        str(service_command_help["generate_data"])
-                        .replace("<TARGET>", "")
-                        .replace("<property>", help_type)
-                    )
+            if len(list(schema["parameters"])) > 0:
+                if len(list(schema["required_parameters"])) > 0:
+                    expression = "+"
                 else:
-                    if schema["generator_type"]["algorithm_type"] == "conditional_generation":
+                    expression = "+ Optional"
+
+                expression = (
+                    expression
+                    + '( (CaselessKeyword ("USING")+ Suppress("(") +'
+                    + optional_parameter_list(schema, "parameters")
+                    + '+Suppress(")") )("USING"))'
+                )
+
+            if "generator_type" in schema.keys():
+                if schema["target"]:
+                    target_type = schema["target"]["type"]
+                    try:
+                        cmd_subject = str(service_command_subject[schema["service_type"]]).replace(
+                            "<TARGET>", generation_targets[schema["generator_type"]["algorithm_type"]][target_type]
+                        )
+                    except Exception as e:
+                        print(e)
+                else:
+                    cmd_subject = str(service_command_subject[schema["service_type"]]).replace("<TARGET>", "")
+            else:
+                print("else.....................")
+                cmd_subject = service_command_subject[schema["service_type"]]
+            print(cmd_subject)
+
+            try:
+                stmt = eval(
+                    "Forward( "
+                    + command
+                    + "+"
+                    + valid_type
+                    + cmd_subject
+                    + expression
+                    + ")"
+                    + f'("{schema["service_name"]}@{schema["service_type"]}")'
+                )
+            except:
+                print("error for schema")
+                print(schema)
+                continue
+
+            statements.append(stmt)
+            try:
+                target_description = ""
+                function_description = ""
+                if "target" in schema:
+                    if schema["target"] is not None:
+                        target_description = "<h2>Target:</h2>\r"
+                        for key, value in schema["target"].items():
+                            target_description = target_description + f"- <cmd>{key}</cmd> : {value}\n  "
+
+                if schema["description"] is not None:
+                    function_description = "\r<h2>Function Description:</h2>\r" + schema["description"]
+                    while "  " in function_description:
+                        function_description = function_description.replace("  ", " ")
+            except Exception as e:
+                print(e)
+
+            parameter_help = "<h2>Parameters:</h2>"
+            for parameter, description in dict(schema["parameters"]).items():
+                print_description = ""
+                for key, value in description.items():
+                    print_description = print_description + f"- <cmd>{key}</cmd> : {value}\n  "
+
+                parameter_help = parameter_help + f"\n<cmd>{parameter}</cmd> \r {print_description}\n  "
+
+            required_parameters = ""
+            for i in schema["required_parameters"]:
+                if required_parameters == "":
+                    required_parameters = "\n<h2>Required Parameters:<\h2> \n"
+                required_parameters = required_parameters + f"\n - <cmd>{i}</cmd>"
+            algo_versions = ""
+            if "algorithm_versions" in schema:
+                algo_versions = " \n <h2> Algorithm Versions </h2> \n"
+                for i in schema["algorithm_versions"]:
+                    algo_versions = algo_versions + f"\n - <cmd>{i}</cmd>"
+            try:
+                if "generator_type" in schema.keys():
+                    if not schema["target"]:
                         command_str = (
                             str(service_command_help["generate_data"])
-                            .replace("<TARGET>", " for  <" + schema["target"]["type"] + ">")
+                            .replace("<TARGET>", "")
                             .replace("<property>", help_type)
                         )
                     else:
-                        command_str = (
-                            str(service_command_help["generate_data"])
-                            .replace("<TARGET>", " for (<" + schema["target"]["type"] + ">)")
-                            .replace("<property>", help_type)
-                        )
+                        if schema["generator_type"]["algorithm_type"] == "conditional_generation":
+                            command_str = (
+                                str(service_command_help["generate_data"])
+                                .replace("<TARGET>", " for  <" + schema["target"]["type"] + ">")
+                                .replace("<property>", help_type)
+                            )
+                        else:
+                            command_str = (
+                                str(service_command_help["generate_data"])
+                                .replace("<TARGET>", " for (<" + schema["target"]["type"] + ">)")
+                                .replace("<property>", help_type)
+                            )
+                else:
+                    command_str = str(service + " " + service_command_help[schema["service_type"]]).replace(
+                        "<property>", help_type
+                    )
+            except Exception as e:
+                print("-------")
+                print(e)
+                print("-------")
+            if "generator_type" in schema:
+                category = schema["generator_type"]["algorithm_type"]
             else:
-                command_str = str(service_command_help[schema["service_type"]]).replace("<property>", help_type)
-        except Exception as e:
-            print("-------")
-            print(e)
-            print("-------")
-        if "generator_type" in schema:
-            category = schema["generator_type"]["algorithm_type"]
-        else:
-            category = "Model-" + schema["sub_category"]
-        help.append(
-            help_dict_create(
-                name=schema["service_type"],
-                category=category,
-                parent=None,
-                command=command_str,
-                description=target_description
-                + parameter_help
-                + algo_versions
-                + required_parameters
-                + function_description,
+                category = "Model-" + schema["sub_category"]
+            help.append(
+                help_dict_create(
+                    name=schema["service_type"],
+                    category=service + "->" + category,
+                    parent=None,
+                    command=service + " " + command_str,
+                    description=target_description
+                    + parameter_help
+                    + algo_versions
+                    + required_parameters
+                    + function_description,
+                )
             )
-        )
 
     return statements
 
@@ -606,7 +609,14 @@ def openad_model_requestor(cmd_pointer, parser):
     else:
         Endpoint = "http://127.0.0.1:8080"
     spinner.start("Executing Request Against Server")
-    response = requests.post(Endpoint + "/service", json=a_request)
+    print(a_request)
+    try:
+        response = requests.post(Endpoint + "/service", json=a_request)
+    except:
+        spinner.succeed("Request Failed")
+        spinner.stop()
+        print("error Server not reachable")
+        return None
     spinner.succeed("Request Returned")
     spinner.stop()
     try:
@@ -633,6 +643,8 @@ def openad_model_requestor(cmd_pointer, parser):
                 return output_text(run_error, return_val=True)
 
     except:
+        spinner.succeed("Request Failed")
+        spinner.stop()
         return "Error returned from service"
 
     return result

@@ -43,7 +43,8 @@ from openad.molecules.mol_grammar import mol_grammar_add
 from openad.helpers.general import is_notebook_mode
 from openad.helpers.output import output_error
 from openad.helpers.output_msgs import msg
-from openad.openad_model_plugin.property_toolkit import service_grammar_add, get_services
+from openad.openad_model_plugin.property_toolkit import service_grammar_add
+from openad.openad_model_plugin.catalog_model_services import get_cataloged_services
 
 
 # Global variables
@@ -854,15 +855,13 @@ try:
     import importlib_resources, os, inspect
 
     # import openad_model_property_service.service_defs as defs
-
-    print(1111111)
     # path = os.path.dirname(inspect.getfile(defs))
     path = "/Users/phildowney/services-build/Open-AD-Model-Service/openad-services/generation_inference_service/openad_model_generation_service/definitions/services"
     path = "/Users/phildowney/.openad_model/Default/"
-    services = get_services(str(path), "directory")
+    service_catalog = get_cataloged_services()
 
-    service_grammar_add(statements=statements, help=grammar_help, service_list=services)
-    print(222222)
+    service_grammar_add(statements=statements, help=grammar_help, service_catalog=service_catalog)
+
 except Exception as e:
     print(e)
     pass

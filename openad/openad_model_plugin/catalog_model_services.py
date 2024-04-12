@@ -1,8 +1,11 @@
 import pyparsing as py
 import os
+import json
 import glob
 from openad.helpers.output import output_text, output_table, output_warning, output_error, output_success
-SERVICE_DEFINTION_PATH = '/definition/services/'
+
+SERVICE_DEFINTION_PATH = os.path.expanduser("~/.openad_model_services/")
+SERVICES_PATH = os.path.expanduser("/definitions/services/")
 
 
 def help_dict_create(
@@ -26,21 +29,52 @@ def help_dict_create(
     }
 
 
+def get_services(reference) -> list:
+    """pulls the list of available services for"""
+
+    service_list = []
+    service_files = glob.glob(reference + "/*.json")
+
+    for file in service_files:
+
+        with open(file, "r") as file_handle:
+            try:
+                jdoc = json.load(file_handle)
+
+                service_list.append(jdoc)
+            except Exception as e:
+                print(e)
+                print("invalid service json definition  " + file)
+    return service_list
+
+
+def get_cataloged_services():
+    """Returns a list of cataloged Services and their Namespaces"""
+    if not os.path.exists(SERVICE_DEFINTION_PATH):
+        os.makedirs(SERVICE_DEFINTION_PATH)
+
+    list_of_namespaces = [
+        os.path.basename(f.path) for f in os.scandir(SERVICE_DEFINTION_PATH) if f.is_dir()
+    ]  # os.walk(SERVICE_DEFINTION_PATH)
+
+    service_list_by_catalog = {}
+
+    for namespace in list_of_namespaces:
+        service_list = []
+        services_path = SERVICE_DEFINTION_PATH + namespace + SERVICES_PATH
+        if os.path.exists(services_path):
+            service_list = get_services(SERVICE_DEFINTION_PATH + namespace + SERVICES_PATH)
+
+        service_list_by_catalog[namespace] = service_list
+
+    return service_list_by_catalog
+
+
 def list_cataloged_services(cmd_pointer, parser):
     pass
 
 
 def catalog_service(cmd_pointer, parser):
-    instruction = parser.to_dict()
-    if "service_name"
-    if "path" in instruction:
-        if os.path.exists(instruction["path"]+SERVICE_DEFINTION_PATH):
-
-        else:
-            return False
-    else:
-        return False
-
 
     pass
 
@@ -67,7 +101,11 @@ def service_catalog_grammar(statements: list, help: list, service_list: list):
     quoted_string = py.QuotedString("'", escQuote="\\")
     a_s = py.CaselessKeyword("as")
 
-    statements.append(py.Forward(add + model + service + fr_om + path+quoted_string("path")+a_s+quoted_string('service_name'))("add_model_path"))
+    statements.append(
+        py.Forward(add + model + service + fr_om + path + quoted_string("path") + a_s + quoted_string("service_name"))(
+            "add_model_path"
+        )
+    )
     help.append(
         help_dict_create(
             name="Add Model from Path",
@@ -76,3 +114,7 @@ def service_catalog_grammar(statements: list, help: list, service_list: list):
             description="add a model definition to the catalog.",
         )
     )
+
+
+print(SERVICE_DEFINTION_PATH)
+print(get_cataloged_services())
