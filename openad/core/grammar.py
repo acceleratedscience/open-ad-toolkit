@@ -43,7 +43,7 @@ from openad.molecules.mol_grammar import mol_grammar_add
 from openad.helpers.general import is_notebook_mode
 from openad.helpers.output import output_error
 from openad.helpers.output_msgs import msg
-from openad.openad_model_plugin.property_toolkit import service_grammar_add
+from openad.openad_model_plugin.openad_model_toolkit import service_grammar_add
 from openad.openad_model_plugin.catalog_model_services import get_cataloged_services
 
 
@@ -278,19 +278,7 @@ grammar_help.append(
 
 # Add molecule Grammar
 mol_grammar_add(statements=statements, grammar_help=grammar_help)
-try:
-    import importlib_resources, os, inspect
 
-    # import openad_model_property_service.service_defs as defs
-
-    # path = os.path.dirname(inspect.getfile(defs))
-
-    path = "/Users/phildowney/services-build/Open-AD-Model-Service/openad-services/generation_inference_service/openad_model_generation_service/definitions/services/"
-    services = get_services(str(path), "directory")
-    # service_grammar_add(statements=statements, help=grammar_help, service_list=services)
-except Exception as e:
-    print(e)
-    pass
 # endregion
 
 ##########################################################################
@@ -850,18 +838,10 @@ grammar_help.append(
         description="",
     )
 )
-print(0000000000000)
+
 try:
-    import importlib_resources, os, inspect
-
-    # import openad_model_property_service.service_defs as defs
-    # path = os.path.dirname(inspect.getfile(defs))
-    path = "/Users/phildowney/services-build/Open-AD-Model-Service/openad-services/generation_inference_service/openad_model_generation_service/definitions/services"
-    path = "/Users/phildowney/.openad_model/Default/"
     service_catalog = get_cataloged_services()
-
     service_grammar_add(statements=statements, help=grammar_help, service_catalog=service_catalog)
-
 except Exception as e:
     print(e)
     pass
@@ -914,20 +894,6 @@ def create_statements(cmd_pointer):
             cmd_pointer.current_statement_defs |= i
             cmd_pointer.current_statements.append(i)
     # statements_zom = ZeroOrMore(statements_def)
-
-
-def load_model_plugin_statements(cmd_pointer):
-    try:
-
-        path = "/Users/phildowney/services-build/Open-AD-Model-Service/openad-services/generation_inference_service/openad_model_generation_service/definitions/services"
-
-        services = get_services(str(path), "directory")
-
-        service_grammar_add(statements=statements, help=grammar_help, service_list=services)
-        print(222222)
-    except Exception as e:
-        print(e)
-        pass
 
 
 def or_builder(options: list) -> str:

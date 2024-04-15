@@ -12,7 +12,7 @@ import pandas as pd
 # Flask
 from openad.flask_apps import launcher
 from openad.flask_apps.dataviewer.routes import fetchRoutesDataViewer
-from openad.openad_model_plugin.property_toolkit import openad_model_requestor
+from openad.openad_model_plugin.openad_model_toolkit import openad_model_requestor
 
 # molecules
 from openad.molecules.mol_batch_files import load_batch_molecules

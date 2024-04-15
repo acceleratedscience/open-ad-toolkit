@@ -36,11 +36,9 @@ def get_services(reference) -> list:
     service_files = glob.glob(reference + "/*.json")
 
     for file in service_files:
-
         with open(file, "r") as file_handle:
             try:
                 jdoc = json.load(file_handle)
-
                 service_list.append(jdoc)
             except Exception as e:
                 print(e)
@@ -71,6 +69,7 @@ def get_cataloged_services():
 
 
 def list_cataloged_services(cmd_pointer, parser):
+    """This function catalogs a service"""
     pass
 
 
@@ -80,19 +79,37 @@ def catalog_service(cmd_pointer, parser):
 
 
 def service_up(cmd_pointer, parser):
+    """This function synchronously starts a service"""
     pass
 
 
 def service_down(cmd_pointer, parser):
+    """This function synchronously shuts down a service"""
     pass
 
 
 def remove_cataloged_service(cmd_pointer, parser):
+    """This function removes a catalog from the ~/.openad_model_service directory"""
     pass
 
 
-def service_catalog_grammar(statements: list, help: list, service_list: list):
+def get_service_endpoint(service_name):
+    """gets the service endpoint for a given service, if endpoint is not available it returns None"""
+    Endpoint = None
+    if service_name is None:
+        "may in future return a default local service"
+        return Endpoint
+    # this is a mock-up while service API is integrated
+    if service_name == "gt4sd_gen":
+        Endpoint = "http://127.0.0.1:8090"
+    elif service_name == "gt4sd_prop":
+        Endpoint = "http://127.0.0.1:8080"
 
+    return Endpoint
+
+
+def service_catalog_grammar(statements: list, help: list, service_list: list):
+    """This function creates the required grammar for managing cataloging services and model up or down"""
     add = py.CaselessKeyword("add")
     model = py.CaselessKeyword("model")
     service = py.CaselessKeyword("service")
@@ -114,7 +131,3 @@ def service_catalog_grammar(statements: list, help: list, service_list: list):
             description="add a model definition to the catalog.",
         )
     )
-
-
-print(SERVICE_DEFINTION_PATH)
-print(get_cataloged_services())

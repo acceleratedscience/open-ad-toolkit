@@ -10,11 +10,13 @@ import re
 import string
 import uuid
 from cmd import Cmd
+from pandas import DataFrame
 
 # Main
 from openad.app.main_lib import lang_parse, initialise, set_context, unset_context
 from openad.toolkit.toolkit_main import load_toolkit
 from openad.app import login_manager
+from openad.helpers.output import output_table
 
 # Core
 import openad.core.help as openad_help
@@ -694,7 +696,7 @@ class RUNCMD(Cmd):
                     # Fetch commands matching recognized words, or the first word.
                     # Example input -> `search for molecules in`
                     do_help_output_C = self.do_help(
-                        help_ref + " ?", return_val=True, jup_return_format="plain", starts_with_only=True
+                        help_ref.lower() + " ?", return_val=True, jup_return_format="plain", starts_with_only=True
                     )
 
                     # Check for scenario A, B, C in that order.
@@ -755,10 +757,15 @@ class RUNCMD(Cmd):
         if GLOBAL_SETTINGS["display"] == "notebook":
             return x
         elif GLOBAL_SETTINGS["display"] != "api":
-            if x is not None and not isinstance(x, bool):
+            if isinstance(x, DataFrame):
+                x = output_table(x)
+                return
+            elif x is not None and not isinstance(x, bool):
                 print(x)
             else:
                 return
+        else:
+            return x
 
 
 # Returns the error positioning in the statement that has been parsed.
