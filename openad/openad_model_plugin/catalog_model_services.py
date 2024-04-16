@@ -68,24 +68,49 @@ def get_cataloged_service_defs():
     return service_list_by_catalog
 
 
-def service_status(service_name) -> Dict:
+def service_status(cmd_pointer, parser) -> Dict:
     """Get a model service status"""
+    service_name = parser.as_dict()["service_name"]
+    return json.loads(model_service.status(service_name))
+
+ 
+def list_cataloged_model_services(cmd_pointer, parser):
+    """This function catalogs a service"""
+    print("listing services")
+    pass
+
+
+def catalog_model_service(cmd_pointer, parser):
+    service_name = parser.as_dict()["service_name"]
+
+    path = parser.as_dict()["path"]
+    print("service_up " + service_name + " at " + path)
+    print("catalog service")
     return json.loads(model_service.status(service_name))
 
 
-def service_up(service_name) -> None:
+def service_up(cmd_pointer, parser) -> None:
     """This function synchronously starts a service"""
+    service_name = parser.as_dict()["service_name"]
+    print("service_up " + service_name)
     model_service.up(service_name)
 
 
-def service_down(service_name) -> None:
+def service_down(cmd_pointer, parser) -> None:
     """This function synchronously shuts down a service"""
+    service_name = parser.as_dict()["service_name"]
     model_service.down(service_name)
 
 
-def remove_cataloged_service(service_name) -> None:
+def uncatalog_model_service(cmd_pointer, parser):
     """This function removes a catalog from the ~/.openad_model_service directory"""
-    model_service.remove_service(service_name)
+    service_name = parser.as_dict()["service_name"]
+    print("uncatalog service " + service_name)
+    try:
+       model_service.down(service_name)
+       model_service.remove_service(service_name)
+    except Exception as e:
+      print(f"Error: {e}")
 
 
 def get_service_endpoint(service_name) -> List:
@@ -97,26 +122,73 @@ def get_service_endpoint(service_name) -> List:
     return endpoint
 
 
-def service_catalog_grammar(statements: list, help: list, service_list: list):
+
+def service_catalog_grammar(statements: list, help: list):
     """This function creates the required grammar for managing cataloging services and model up or down"""
-    add = py.CaselessKeyword("add")
+    catalog = py.CaselessKeyword("catalog")
+    uncatalog = py.CaselessKeyword("uncatalog")
     model = py.CaselessKeyword("model")
+    up = py.CaselessKeyword("up")
+    down = py.CaselessKeyword("down")
     service = py.CaselessKeyword("service")
+    status = py.CaselessKeyword("status")
     fr_om = py.CaselessKeyword("from")
     path = py.CaselessKeyword("path")
     quoted_string = py.QuotedString("'", escQuote="\\")
     a_s = py.CaselessKeyword("as")
 
+    statements.append(py.Forward(model + service + status)("model_service_status"))
+    help.append(
+        help_dict_create(
+            name="model service status",
+            category="Model",
+            command="model service status",
+            description="get the status of currently cataloged services",
+        )
+    )
+
     statements.append(
-        py.Forward(add + model + service + fr_om + path + quoted_string("path") + a_s + quoted_string("service_name"))(
-            "add_model_path"
+        py.Forward(uncatalog + model + service + quoted_string("service_name"))("uncatalog_model_service")
+    )
+    help.append(
+        help_dict_create(
+            name="uncatalog Model service",
+            category="Model",
+            command="uncatalog model '<service_name>'",
+            description="uncatlog a model service",
+        )
+    )
+
+    statements.append(
+        py.Forward(catalog + model + service + fr_om + quoted_string("path") + a_s + quoted_string("service_name"))(
+            "catalog_model_service"
         )
     )
     help.append(
         help_dict_create(
-            name="Add Model from Path",
-            category="General",
-            command="add model from path '<path to model directory>' as '<service_name>'",
-            description="add a model definition to the catalog.",
+            name="catalog Model servie",
+            category="Model",
+            command="catalog model service from '<path or github' as  '<service_name>'",
+            description="catalog a model service from a path or github",
+        )
+    )
+
+    statements.append(py.Forward(model + service + up + quoted_string("service_name"))("model_up"))
+    help.append(
+        help_dict_create(
+            name="Model up",
+            category="Model",
+            command="model service up '<service_name>'",
+            description="launch a model service",
+        )
+    )
+
+    statements.append(py.Forward(model + service + down + quoted_string("service_name"))("model_down"))
+    help.append(
+        help_dict_create(
+            name="Model down",
+            category="Model",
+            command="model service down '<service_name>'",
+            description="bring down a model service",
         )
     )

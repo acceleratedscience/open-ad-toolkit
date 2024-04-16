@@ -44,7 +44,8 @@ from openad.helpers.general import is_notebook_mode
 from openad.helpers.output import output_error
 from openad.helpers.output_msgs import msg
 from openad.openad_model_plugin.openad_model_toolkit import service_grammar_add
-from openad.openad_model_plugin.catalog_model_services import get_cataloged_service_defs
+
+from openad.openad_model_plugin.catalog_model_services import get_cataloged_service_defs, service_catalog_grammar
 
 
 # Global variables
@@ -838,7 +839,7 @@ grammar_help.append(
         description="",
     )
 )
-
+service_catalog_grammar(statements=statements, help=grammar_help)
 try:
     service_catalog = get_cataloged_service_defs()
     service_grammar_add(statements=statements, help=grammar_help, service_catalog=service_catalog)
