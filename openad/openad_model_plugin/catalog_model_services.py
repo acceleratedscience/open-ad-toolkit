@@ -9,9 +9,18 @@ from typing import List, Dict
 
 SERVICE_DEFINTION_PATH = os.path.expanduser("~/.openad_model_services/")
 SERVICES_PATH = os.path.expanduser("/definitions/services/")
+if not os.path.exists(SERVICE_DEFINTION_PATH):
+    os.makedirs(SERVICE_DEFINTION_PATH)
 
+# initialize model services
 model_service = ModelService()
 
+model_service.download_model(name="gtsd4_gen", url="", model_dir=SERVICE_DEFINTION_PATH)
+model_service.download_model(name="gtsd4_prop", url="", model_dir=SERVICE_DEFINTION_PATH)
+
+### example of how to load services by namespace ###
+# with ModelService(SERVICE_DEFINTION_PATH) as service:
+#     print(service.list())
 
 def help_dict_create(
     name: str,  # Name of the comand - used for ...?
@@ -51,9 +60,6 @@ def get_service_defs(reference) -> list:
 
 def get_cataloged_service_defs():
     """Returns a list of cataloged Services definitions and their Namespaces"""
-    if not os.path.exists(SERVICE_DEFINTION_PATH):
-        os.makedirs(SERVICE_DEFINTION_PATH)
-
     list_of_namespaces = [
         os.path.basename(f.path) for f in os.scandir(SERVICE_DEFINTION_PATH) if f.is_dir()
     ]  # os.walk(SERVICE_DEFINTION_PATH)
