@@ -3,9 +3,14 @@ import os
 import json
 import glob
 from openad.helpers.output import output_text, output_table, output_warning, output_error, output_success
+from openad.openad_model_plugin.services import ModelService
+from typing import List, Dict
+
 
 SERVICE_DEFINTION_PATH = os.path.expanduser("~/.openad_model_services/")
 SERVICES_PATH = os.path.expanduser("/definitions/services/")
+
+model_service = ModelService()
 
 
 def help_dict_create(
@@ -29,12 +34,10 @@ def help_dict_create(
     }
 
 
-def get_services(reference) -> list:
-    """pulls the list of available services for"""
-
+def get_service_defs(reference) -> list:
+    """pulls the list of available service definitions"""
     service_list = []
     service_files = glob.glob(reference + "/*.json")
-
     for file in service_files:
         with open(file, "r") as file_handle:
             try:
@@ -46,8 +49,8 @@ def get_services(reference) -> list:
     return service_list
 
 
-def get_cataloged_services():
-    """Returns a list of cataloged Services and their Namespaces"""
+def get_cataloged_service_defs():
+    """Returns a list of cataloged Services definitions and their Namespaces"""
     if not os.path.exists(SERVICE_DEFINTION_PATH):
         os.makedirs(SERVICE_DEFINTION_PATH)
 
@@ -56,18 +59,21 @@ def get_cataloged_services():
     ]  # os.walk(SERVICE_DEFINTION_PATH)
 
     service_list_by_catalog = {}
-
     for namespace in list_of_namespaces:
         service_list = []
         services_path = SERVICE_DEFINTION_PATH + namespace + SERVICES_PATH
         if os.path.exists(services_path):
-            service_list = get_services(SERVICE_DEFINTION_PATH + namespace + SERVICES_PATH)
-
+            service_list = get_service_defs(services_path)
         service_list_by_catalog[namespace] = service_list
-
     return service_list_by_catalog
 
 
+def service_status(cmd_pointer, parser) -> Dict:
+    """Get a model service status"""
+    service_name = parser.as_dict()["service_name"]
+    return json.loads(model_service.status(service_name))
+
+ 
 def list_cataloged_model_services(cmd_pointer, parser):
     """This function catalogs a service"""
     print("listing services")
@@ -80,44 +86,41 @@ def catalog_model_service(cmd_pointer, parser):
     path = parser.as_dict()["path"]
     print("service_up " + service_name + " at " + path)
     print("catalog service")
-    pass
+    return json.loads(model_service.status(service_name))
 
 
-def service_up(cmd_pointer, parser):
+def service_up(cmd_pointer, parser) -> None:
     """This function synchronously starts a service"""
     service_name = parser.as_dict()["service_name"]
     print("service_up " + service_name)
-    pass
+    model_service.up(service_name)
 
 
-def service_down(cmd_pointer, parser):
+def service_down(cmd_pointer, parser) -> None:
     """This function synchronously shuts down a service"""
     service_name = parser.as_dict()["service_name"]
-    print("service_down " + service_name)
-    pass
+    model_service.down(service_name)
 
 
 def uncatalog_model_service(cmd_pointer, parser):
     """This function removes a catalog from the ~/.openad_model_service directory"""
     service_name = parser.as_dict()["service_name"]
     print("uncatalog service " + service_name)
-    pass
+    try:
+       model_service.down(service_name)
+       model_service.remove_service(service_name)
+    except Exception as e:
+      print(f"Error: {e}")
 
 
-def get_service_endpoint(service_name):
+def get_service_endpoint(service_name) -> List:
     """gets the service endpoint for a given service, if endpoint is not available it returns None"""
-    Endpoint = None
     if service_name is None:
         "may in future return a default local service"
-        return Endpoint
-    # this is a mock-up while service API is integrated
-    if service_name == "gt4sd_gen":
-        # Endpoint = "http://52.91.26.13:30001"
-        Endpoint = "http://127.0.0.1:8090"
-    elif service_name == "gt4sd_prop":
-        Endpoint = "http://127.0.0.1:8080"
+        return []
+    endpoint = json.loads(model_service.status(service_name)).get("url")
+    return endpoint
 
-    return Endpoint
 
 
 def service_catalog_grammar(statements: list, help: list):

@@ -187,22 +187,6 @@ service_command_help["generate_data"] = (
     "generate with <property> data <TARGET> (sample <sample_size>)  USING (<parameter>=<value> <parameter>=<value>) "
 )
 
-
-def get_services_old(reference, type) -> list:
-    """pulls the list of available services from a given Directory"""
-    service_list = []
-    service_files = glob.glob(reference + "/*.json")
-    for file in service_files:
-        with open(file, "r") as file_handle:
-            try:
-                jdoc = json.load(file_handle)
-                service_list.append(jdoc)
-            except Exception as e:
-                print(e)
-                print("invalid service json definition  " + file)
-    return service_list
-
-
 def service_grammar_add(statements: list, help: list, service_catalog: dict):
     """defines the grammar available for managing molecules"""
     for service in service_catalog.keys():
