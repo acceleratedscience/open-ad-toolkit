@@ -19,7 +19,7 @@ model_service.download_model(name="gtsd4_gen", url="", model_dir=SERVICE_DEFINTI
 model_service.download_model(name="gtsd4_prop", url="", model_dir=SERVICE_DEFINTION_PATH)
 
 ### example of how to load services by namespace ###
-# with ModelService(SERVICE_DEFINTION_PATH) as service:
+# with model_service(SERVICE_DEFINTION_PATH) as service:
 #     print(service.list())
 
 def help_dict_create(

@@ -9,9 +9,14 @@ class ModelService:
     ModelService is a class that represents the servicing library
     """
 
-    def __init__(self, cache: Optional[str]="") -> None:
+    def __init__(self) -> None:
         self.dispatcher = Dispatcher()
-        self.cache = cache
+        self.cache = ""
+    
+    def __call__(self, cache: Optional[str]="") -> Any:
+        if cache:
+            self.cache = cache
+        return self
     
     def __enter__(self):
         if self.cache:
@@ -26,6 +31,7 @@ class ModelService:
         if self.cache:
             print(f"saving from cache: {self.cache}")
             self.save(self.cache)
+            self.cache = ""  # reset cache dir
         else:
             print(f"saving from default")
             self.save()
