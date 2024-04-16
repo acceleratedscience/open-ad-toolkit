@@ -1,24 +1,23 @@
 from typing import Any, List, Optional, Callable, Tuple, Dict
+from typing_extensions import Self
 from servicing import Dispatcher, UserProvidedConfig
-
 import json
 
 
-class ModelService:
+class ModelService(Dispatcher):
     """
     ModelService is a class that represents the servicing library
     """
 
     def __init__(self) -> None:
-        self.dispatcher = Dispatcher()
         self.cache = ""
     
-    def __call__(self, cache: Optional[str]="") -> Any:
+    def __call__(self, cache: Optional[str]="") -> Self:
         if cache:
             self.cache = cache
         return self
     
-    def __enter__(self):
+    def __enter__(self) -> Self:
         if self.cache:
             print(f"loading from cache: {self.cache}")
             self.load(self.cache)
@@ -41,28 +40,28 @@ class ModelService:
     
     def download_model(self, name:str, url: str, model_dir: str):
         pass
-
-    def save(self, location: Optional[str] = None):
+    
+    def save(self, location: str | None = None) -> None:
         if location:
             # save to specified cache
-            self.dispatcher.save(location)
+            return super().save(location)
         elif self.cache:
             # save to saved cache
-            self.dispatcher.save(self.cache)
+            return super().save(self.cache)
         else:
             # save to default cache
-            self.dispatcher.save()
+            return super().save()
 
-    def load(self, location: Optional[str] = None):
+    def load(self, location: str | None = None) -> None:
         if location:
             # load specified cache
-            self.dispatcher.load(location)
+            return super().load(location)
         elif self.cache:
             # load saved cache
-            self.dispatcher.load(self.cache)
+            return super().load(self.cache)
         else:
             # load default cache
-            self.dispatcher.load()
+            return super().load()
 
     def save_on_exit(func: Callable[[], Any]) -> Any:
         """
@@ -75,27 +74,23 @@ class ModelService:
         return wrapper
 
     @save_on_exit
-    def add_service(self, name: str,
-                    config: Optional[UserProvidedConfig] = None) -> None:
-        self.dispatcher.add_service(name, config)
+    def add_service(self, name: str, config: UserProvidedConfig | None = None) -> None:
+        return super().add_service(name, config)
 
     @save_on_exit
     def remove_service(self, name: str) -> None:
-        self.dispatcher.remove_service(name)
+        return super().remove_service(name)
 
     @save_on_exit
     def up(self, name: str) -> None:
-        self.dispatcher.up(name)
+        return super().up(name)
 
     @save_on_exit
     def down(self, name: str) -> None:
-        self.dispatcher.down(name)
-    
-    def list(self) -> List[str]:
-        return self.dispatcher.list()
-    
-    def status(self, name: str, pretty: Optional[bool] = None) -> Dict[str,str]:
-        return json.loads(self.dispatcher.status(name, pretty))
+        return super().down(name)
+
+    def status(self, name: str, pretty: bool | None = None) -> Dict[str, Any]:
+        return json.loads(super().status(name, pretty))
 
     def get_services(self) -> List[Tuple[str, bool]]:
         """
@@ -113,7 +108,7 @@ class ModelService:
         Returns:
             List[str]: services
         """
-        return list(filter(lambda x: not x.startswith("__"), dir(self.dispatcher)))
+        return list(filter(lambda x: not x.startswith("__"), dir(self)))
 
 
 if __name__ == "__main__":
