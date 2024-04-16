@@ -160,7 +160,7 @@ generation_targets = {
         "list": "CaselessKeyword('for')+delimitedList(desc)('target@list')+",
     },
     "generation": {
-        "object": "Optional(input_object('target@object'))+",
+        "object": "Optional(CaselessKeyword('for')+input_object('target@object'))+",
         "string": "Optional(CaselessKeyword('for')+(molecule_identifier|desc)('target@string'))+",
         "list": "Optional(CaselessKeyword('for')+delimitedList(desc))('target@list')+",
     },
@@ -251,7 +251,16 @@ def service_grammar_add(statements: list, help: list, service_catalog: dict):
                     cmd_subject = str(service_command_subject[schema["service_type"]]).replace("<TARGET>", "")
             else:
                 cmd_subject = service_command_subject[schema["service_type"]]
-
+            print(
+                "Forward( "
+                + command
+                + "+"
+                + valid_type
+                + cmd_subject
+                + expression
+                + ")"
+                + f'("{schema["service_name"]}@{schema["service_type"]}")'
+            )
             try:
                 stmt = eval(
                     "Forward( "
@@ -296,7 +305,7 @@ def service_grammar_add(statements: list, help: list, service_catalog: dict):
             required_parameters = ""
             for i in schema["required_parameters"]:
                 if required_parameters == "":
-                    required_parameters = "\n<h2>Required Parameters:<\h2> \n"
+                    required_parameters = "\n<h2>Required Parameters:</h2> \n"
                 required_parameters = required_parameters + f"\n - <cmd>{i}</cmd>"
             algo_versions = ""
             if "algorithm_versions" in schema:
@@ -517,7 +526,10 @@ def request_generate(request_input):
         if "sample_size" in request_input.as_dict():
             Sample_Size = request_input.as_dict()["sample_size"]
         if "target@object" in request_input.as_dict():
-            subjects = [json.loads(request_input.as_dict()["target@object"].replace("'", '"'))]
+            print(1111111)
+            print(request_input.as_dict()["target@object"])
+            subjects = [json.loads(str(request_input.as_dict()["target@object"]).replace("'", '"'))]
+            print(subjects)
         if "target@string" in request_input.as_dict():
             subjects = request_input.as_dict()["target@string"]
         if "target@list" in request_input.as_dict():
@@ -603,7 +615,7 @@ def openad_model_requestor(cmd_pointer, parser):
     except:
         spinner.fail("Request Failed")
         spinner.stop()
-        return output_error("Error Server not reachable")
+        return output_error("Error: \n Server not reachable at " + str(Endpoint))
 
     spinner.succeed("Request Returned")
     spinner.stop()

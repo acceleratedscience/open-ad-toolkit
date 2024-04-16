@@ -3,6 +3,7 @@ import sys
 import pandas
 
 # required for Magic Template
+from IPython.display import Markdown
 from IPython.core.magic import (
     Magics,
     magics_class,
@@ -59,9 +60,12 @@ class AD(Magics):
                         pass
                 i += 1
         result = openad.app.main.api_remote(line, context_cache, api_variable)
-
+        print(type(result))
         if isinstance(result, DataFrame):
             result = output_table(result, return_val=True)
+        elif isinstance(result, str):
+            result = strip_leading_blanks(result)
+            result = result.replace("<br>", "\n")
         return result
 
     @needs_local_scope
@@ -89,6 +93,16 @@ class AD(Magics):
         if isinstance(result, Styler):
             result = result.data
         return result
+
+
+def strip_leading_blanks(input):
+    temp = input.split("\n")
+    output = ""
+    for x in temp:
+        while str(x).starts_with("   "):
+            X = str(x).replace("   ", "  ")
+        output = output + x + "\n"
+    return output
 
 
 ip = get_ipython()  # pylint: disable=undefined-variable

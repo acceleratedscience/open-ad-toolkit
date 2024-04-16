@@ -192,6 +192,7 @@ def clean_up_llm_text(cmd_pointer, old_text):
     text = re.sub(r"\\'([a-z]*[\s\S]*?)\\'", r" '\1' ", text)
     text = re.sub(r"\`([a-z]*[\s\S]*?)\`", r" <cmd>\1</cmd> ", text)
     text = re.sub(r"\`(\n*?)(\s*?)(\%*?)([a-z]\n*[\s\S]*?)(\n*?)(\s*?)\`", r" <cmd>\3\4</cmd> ", text)
+    text = text.replace("<br>", "\n")
 
     # nuance of llm instructued to use markdown
 
