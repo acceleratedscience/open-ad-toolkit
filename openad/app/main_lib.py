@@ -14,7 +14,7 @@ from openad.flask_apps import launcher
 from openad.flask_apps.dataviewer.routes import fetchRoutesDataViewer
 from openad.openad_model_plugin.openad_model_toolkit import openad_model_requestor
 from openad.openad_model_plugin.catalog_model_services import (
-    catalog_model_service,
+    catalog_add_model_service,
     uncatalog_model_service,
     list_cataloged_model_services,
     service_down,
@@ -141,8 +141,8 @@ def lang_parse(cmd_pointer, parser):
         # Toolkit welcome screens
         return output_text(splash(parser.getName(), cmd_pointer), nowrap=True)
     # Model Service grammar
-    elif parser.getName() == "catalog_model_service":
-        return catalog_model_service(cmd_pointer, parser)
+    elif parser.getName() == "catalog_add_model_service":
+        return catalog_add_model_service(cmd_pointer, parser)
     elif parser.getName() == "uncatalog_model_service":
         return uncatalog_model_service(cmd_pointer, parser)
     elif parser.getName() == "model_service_status":

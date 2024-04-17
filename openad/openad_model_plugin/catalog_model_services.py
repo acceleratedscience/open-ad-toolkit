@@ -3,7 +3,7 @@ import os
 import json
 import glob
 from openad.helpers.output import output_text, output_table, output_warning, output_error, output_success
-from openad.openad_model_plugin.services import ModelService
+from openad.openad_model_plugin.services import ModelService, UserProvidedConfig
 from typing import List, Dict
 
 
@@ -19,7 +19,7 @@ model_service.download_model(name="gtsd4_gen", url="", model_dir=SERVICE_DEFINTI
 model_service.download_model(name="gtsd4_prop", url="", model_dir=SERVICE_DEFINTION_PATH)
 
 ### example of how to load services by namespace ###
-# with model_service(SERVICE_DEFINTION_PATH) as service:
+# with model_service(TEST_PATH) as service:
 #     print(service.list())
 
 def help_dict_create(
@@ -74,32 +74,66 @@ def get_cataloged_service_defs():
     return service_list_by_catalog
 
 
-def service_status(cmd_pointer, parser) -> Dict:
+def model_service_status(cmd_pointer, parser) -> Dict:
     """Get a model service status"""
     service_name = parser.as_dict()["service_name"]
-    return json.loads(model_service.status(service_name))
+    with model_service(SERVICE_DEFINTION_PATH + service_name) as model:
+        print(model.status(service_name))
 
+def get_namespaces():
+    list_of_namespaces = [
+        os.path.basename(f.path) for f in os.scandir(SERVICE_DEFINTION_PATH) if f.is_dir()
+    ]  # os.walk(SERVICE_DEFINTION_PATH)
+    return list_of_namespaces
  
 def list_cataloged_model_services(cmd_pointer, parser):
     """This function catalogs a service"""
-    print("listing services")
-    pass
+    print("listing catalog services")
+    namespaces = get_namespaces()
+    ns_status = []
+    print(f"{namespaces=}")
+    for ns in namespaces:
+        print("trying", ns)
+        try:
+            with model_service(SERVICE_DEFINTION_PATH + ns) as model:
+                    ns_status.append({ns: model.get_short_status(ns)})
+        except Exception as e:
+            print('[Error]', e)
+            continue  # service not cataloged or doesnt exist
+    print(ns_status)
+    # status = []
+    # catalog = model_service.list()
+    # for service in catalog:
+    #     status.append({service: model_service.get_short_status(service)})
+    # print(status)
 
 
-def catalog_model_service(cmd_pointer, parser):
+def catalog_add_model_service(cmd_pointer, parser):
+    """Add model service repo to catalog"""
     service_name = parser.as_dict()["service_name"]
-
     path = parser.as_dict()["path"]
-    print("service_up " + service_name + " at " + path)
-    print("catalog service")
-    return json.loads(model_service.status(service_name))
+    # add service to api
+    model_path = SERVICE_DEFINTION_PATH + service_name
+    print(f"{model_path=}")
+    # model_service.save(model_path)  # add to catalog
+    with model_service(model_path) as model:
+        # configure the sky yaml
+        config = UserProvidedConfig(
+            workdir=model_path,
+            run="python openad_model_property_service/property_service.py",
+            # disk_size=100
+            )
+        model.add_service(service_name, config)
+        print(f"service {service_name} added to catalog from {path}")
 
 
 def service_up(cmd_pointer, parser) -> None:
     """This function synchronously starts a service"""
     service_name = parser.as_dict()["service_name"]
-    print("service_up " + service_name)
-    model_service.up(service_name)
+    print(SERVICE_DEFINTION_PATH + service_name)
+    with model_service(SERVICE_DEFINTION_PATH + service_name) as model:
+        model.up(service_name)
+        print("service up")
 
 
 def service_down(cmd_pointer, parser) -> None:
@@ -111,12 +145,20 @@ def service_down(cmd_pointer, parser) -> None:
 def uncatalog_model_service(cmd_pointer, parser):
     """This function removes a catalog from the ~/.openad_model_service directory"""
     service_name = parser.as_dict()["service_name"]
-    print("uncatalog service " + service_name)
-    try:
-       model_service.down(service_name)
-       model_service.remove_service(service_name)
-    except Exception as e:
-      print(f"Error: {e}")
+    with model_service(SERVICE_DEFINTION_PATH + service_name) as model:
+        try:
+            model.down(service_name)
+            model.remove_service(service_name)
+        except Exception as e:
+            print("dies")
+            print(e)
+        finally:
+            print('cache: ', model.cache)
+            print('services: ', model.list())
+            model.remove_service(service_name)
+            print("finally done")
+            # model.save(SERVICE_DEFINTION_PATH + service_name)
+    print(f"service {service_name} removed from catalog")
 
 
 def get_service_endpoint(service_name) -> List:
@@ -158,16 +200,16 @@ def service_catalog_grammar(statements: list, help: list):
     )
     help.append(
         help_dict_create(
-            name="uncatalog Model service",
+            name="uncatalog model service",
             category="Model",
-            command="uncatalog model '<service_name>'",
-            description="uncatlog a model service",
+            command="uncatalog model service '<service_name>'",
+            description="uncatalog a model service",
         )
     )
 
     statements.append(
         py.Forward(catalog + model + service + fr_om + quoted_string("path") + a_s + quoted_string("service_name"))(
-            "catalog_model_service"
+            "catalog_add_model_service"
         )
     )
     help.append(
