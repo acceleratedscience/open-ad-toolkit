@@ -16,7 +16,8 @@ from openad.openad_model_plugin.openad_model_toolkit import openad_model_request
 from openad.openad_model_plugin.catalog_model_services import (
     catalog_add_model_service,
     uncatalog_model_service,
-    list_cataloged_model_services,
+    get_catalog_namespaces,
+    model_service_status,
     service_down,
     service_up,
 )
@@ -146,7 +147,9 @@ def lang_parse(cmd_pointer, parser):
     elif parser.getName() == "uncatalog_model_service":
         return uncatalog_model_service(cmd_pointer, parser)
     elif parser.getName() == "model_service_status":
-        list_cataloged_model_services(cmd_pointer, parser)
+        model_service_status(cmd_pointer, parser)
+    elif parser.getName() == "get_catalog_namespaces":
+        get_catalog_namespaces(cmd_pointer, parser)
     elif parser.getName() == "model_up":
         return service_up(cmd_pointer, parser)
     elif parser.getName() == "model_down":

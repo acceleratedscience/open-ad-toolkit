@@ -65,7 +65,7 @@ nbformat = "5.8.0"
 notebook = "6.5.4"
 ibm-generative-ai = "2.0.0"
 sentence-transformers = "2.2.2"
-servicing = "^0.0.5"
+servicing = "^0.0.6"
 
 [tool.poetry.scripts]
 openad = "openad.app.main:cmd_line"

@@ -3,7 +3,7 @@ import os
 import json
 import glob
 from openad.helpers.output import output_text, output_table, output_warning, output_error, output_success
-from openad.openad_model_plugin.services import ModelService, UserProvidedConfig
+from openad.openad_model_plugin.services import ServiceManager, UserProvidedConfig
 from typing import List, Dict
 
 
@@ -12,15 +12,25 @@ SERVICES_PATH = os.path.expanduser("/definitions/services/")
 if not os.path.exists(SERVICE_DEFINTION_PATH):
     os.makedirs(SERVICE_DEFINTION_PATH)
 
-# initialize model services
-model_service = ModelService()
 
-model_service.download_model(name="gtsd4_gen", url="", model_dir=SERVICE_DEFINTION_PATH)
-model_service.download_model(name="gtsd4_prop", url="", model_dir=SERVICE_DEFINTION_PATH)
-
+Service = ServiceManager()
 ### example of how to load services by namespace ###
-# with model_service(TEST_PATH) as service:
+# with Service(TEST_PATH) as service:
 #     print(service.list())
+
+def get_namespaces():
+    list_of_namespaces = [
+        os.path.basename(f.path) for f in os.scandir(SERVICE_DEFINTION_PATH) if f.is_dir()
+    ]  # os.walk(SERVICE_DEFINTION_PATH)
+    return list_of_namespaces
+
+# load available model services on startup
+try:
+    for namespace in get_namespaces():
+        with Service(SERVICE_DEFINTION_PATH + namespace) as service:
+            print(f"> loaded: {service.cache}")
+except:
+    pass
 
 def help_dict_create(
     name: str,  # Name of the comand - used for ...?
@@ -74,39 +84,25 @@ def get_cataloged_service_defs():
     return service_list_by_catalog
 
 
-def model_service_status(cmd_pointer, parser) -> Dict:
+def get_catalog_namespaces(cmd_pointer, parser) -> Dict:
     """Get a model service status"""
-    service_name = parser.as_dict()["service_name"]
-    with model_service(SERVICE_DEFINTION_PATH + service_name) as model:
-        print(model.status(service_name))
+    ns = get_namespaces()
+    print(ns)
 
-def get_namespaces():
-    list_of_namespaces = [
-        os.path.basename(f.path) for f in os.scandir(SERVICE_DEFINTION_PATH) if f.is_dir()
-    ]  # os.walk(SERVICE_DEFINTION_PATH)
-    return list_of_namespaces
- 
-def list_cataloged_model_services(cmd_pointer, parser):
+def model_service_status(cmd_pointer, parser):
     """This function catalogs a service"""
-    print("listing catalog services")
+    # get list of directory names for the catalog models
     namespaces = get_namespaces()
     ns_status = []
-    print(f"{namespaces=}")
     for ns in namespaces:
-        print("trying", ns)
         try:
-            with model_service(SERVICE_DEFINTION_PATH + ns) as model:
-                    ns_status.append({ns: model.get_short_status(ns)})
+            with Service(SERVICE_DEFINTION_PATH + ns) as model:
+                    ns_status.append({ns: model.get_short_status(ns)}) # check list first
         except Exception as e:
-            print('[Error]', e)
+            print(e)
             continue  # service not cataloged or doesnt exist
     print(ns_status)
-    # status = []
-    # catalog = model_service.list()
-    # for service in catalog:
-    #     status.append({service: model_service.get_short_status(service)})
-    # print(status)
-
+    # print(json.dumps(ns_status[0], indent=2))
 
 def catalog_add_model_service(cmd_pointer, parser):
     """Add model service repo to catalog"""
@@ -114,50 +110,47 @@ def catalog_add_model_service(cmd_pointer, parser):
     path = parser.as_dict()["path"]
     # add service to api
     model_path = SERVICE_DEFINTION_PATH + service_name
-    print(f"{model_path=}")
-    # model_service.save(model_path)  # add to catalog
-    with model_service(model_path) as model:
+    with Service(model_path) as model:
         # configure the sky yaml
         config = UserProvidedConfig(
             workdir=model_path,
-            run="python openad_model_property_service/property_service.py",
-            # disk_size=100
+            port=8080,
+            setup="docker buildx build -f Dockerfile -t inference-service .",
+            run="docker run --rm \
+                    -p 8080:8080 \
+                    inference-service",
+            disk_size=100,
             )
         model.add_service(service_name, config)
-        print(f"service {service_name} added to catalog from {path}")
+        print(f"service {service_name} added to catalog")
 
 
 def service_up(cmd_pointer, parser) -> None:
     """This function synchronously starts a service"""
     service_name = parser.as_dict()["service_name"]
-    print(SERVICE_DEFINTION_PATH + service_name)
-    with model_service(SERVICE_DEFINTION_PATH + service_name) as model:
+    with Service(SERVICE_DEFINTION_PATH + service_name) as model:
         model.up(service_name)
-        print("service up")
+        print(f"{service_name} started")
 
 
 def service_down(cmd_pointer, parser) -> None:
     """This function synchronously shuts down a service"""
     service_name = parser.as_dict()["service_name"]
-    model_service.down(service_name)
+    with Service(SERVICE_DEFINTION_PATH + service_name) as model:
+        model.down(service_name)
+        print(f"{service_name} terminating")
 
 
 def uncatalog_model_service(cmd_pointer, parser):
     """This function removes a catalog from the ~/.openad_model_service directory"""
     service_name = parser.as_dict()["service_name"]
-    with model_service(SERVICE_DEFINTION_PATH + service_name) as model:
+    with Service(SERVICE_DEFINTION_PATH + service_name) as model:
         try:
             model.down(service_name)
-            model.remove_service(service_name)
         except Exception as e:
-            print("dies")
-            print(e)
+            pass
         finally:
-            print('cache: ', model.cache)
-            print('services: ', model.list())
             model.remove_service(service_name)
-            print("finally done")
-            # model.save(SERVICE_DEFINTION_PATH + service_name)
     print(f"service {service_name} removed from catalog")
 
 
@@ -166,8 +159,9 @@ def get_service_endpoint(service_name) -> List:
     if service_name is None:
         "may in future return a default local service"
         return []
-    endpoint = json.loads(model_service.status(service_name)).get("url")
-    return endpoint
+    with Service(SERVICE_DEFINTION_PATH + service_name) as model:
+        endpoint = json.loads(model.status(service_name)).get("url")
+        return endpoint
 
 
 
@@ -181,6 +175,7 @@ def service_catalog_grammar(statements: list, help: list):
     service = py.CaselessKeyword("service")
     status = py.CaselessKeyword("status")
     fr_om = py.CaselessKeyword("from")
+    _list = py.CaselessKeyword("list")
     path = py.CaselessKeyword("path")
     quoted_string = py.QuotedString("'", escQuote="\\")
     a_s = py.CaselessKeyword("as")
@@ -192,6 +187,16 @@ def service_catalog_grammar(statements: list, help: list):
             category="Model",
             command="model service status",
             description="get the status of currently cataloged services",
+        )
+    )
+
+    statements.append(py.Forward(model + catalog + _list)("get_catalog_namespaces"))
+    help.append(
+        help_dict_create(
+            name="model catalog list",
+            category="Model",
+            command="model catalog list",
+            description="get the list of currently cataloged services",
         )
     )
 
