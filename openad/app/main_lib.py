@@ -153,7 +153,6 @@ def lang_parse(cmd_pointer, parser):
     elif parser.getName() == "model_up":
         return service_up(cmd_pointer, parser)
     elif parser.getName() == "model_down":
-
         return service_down(cmd_pointer, parser)
 
     # Language Model How To
