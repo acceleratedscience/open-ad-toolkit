@@ -3,9 +3,13 @@ import os
 import json
 import glob
 from openad.helpers.output import output_text, output_table, output_warning, output_error, output_success
+from openad.helpers.spinner import spinner
 from openad.openad_model_plugin.services import ModelService, UserProvidedConfig
 from typing import List, Dict
 from pandas  import DataFrame
+from subprocess import run
+import shlex
+import shutil
 
 
 SERVICE_DEFINTION_PATH = os.path.expanduser("~/.openad_model_services/")
@@ -83,33 +87,71 @@ def get_catalog_namespaces(cmd_pointer, parser) -> Dict:
     """Get a model service status"""
     ns = get_namespaces()
 
-    return output_table(DataFrame(ns), is_data=False, headers=["Services"])
+    return output_table(DataFrame(ns), is_data=False, headers=["Cataloged Services"])
 
 
 def model_service_status(cmd_pointer, parser):
     """This function catalogs a service"""
     # get list of directory names for the catalog models
-    namespaces = get_namespaces()
     ns_status = []
-    for ns in namespaces:
+    for service in Dispatcher.list():
         try:
-            res = Dispatcher.get_short_status(ns)
+            res = Dispatcher.get_short_status(service)
             status = ""
             if res.get("up"):
-                ns = f"<green>{ns}</green>"
+                service = f"<green>{service}</green>"
                 status = "READY"
             elif res.get("url"):
-                ns = f"<yellow>{ns}</yellow>"
+                service = f"<yellow>{service}</yellow>"
                 status = "PENDING"
             else:
                 status = "DOWN"
-            ns_status.append([ns, status, res.get("url")])
+            ns_status.append([service, status, res.get("url")])
         except Exception as e:
             # model service not cataloged or doesnt exist
             # output_warning(str(e) + ' (hint: catalog service must be installed and configured)')
             continue
-    return output_table(ns_status, is_data=False, headers=["Service", "Status", "URL"])
+    if not ns_status:
+        output_warning("No services available")
+        return []
+    else:
+        return output_table(ns_status, is_data=False, headers=["Service", "Status", "URL"])
 
+
+def retrieve_model(service_name: str, user_path: str) -> bool:
+    local_model_path = os.path.join(SERVICE_DEFINTION_PATH, service_name)
+    # uses ssh
+    if user_path.startswith("git@") and user_path.endswith(".git"):
+        # test if git is available
+        try:
+            cmd = shlex.split("git --version")
+            git_version = run(cmd, capture_output=True, text=True, check=True)
+        except Exception as e:
+            spinner.fail(f"git not installed or unreachable")
+            return False
+        # attempt to download model using git ssh
+        try:
+            cmd = shlex.split(f"git clone {user_path} {local_model_path}")
+            clone = run(cmd, capture_output=True, text=True, check=True)
+            spinner.succeed(f"successfully retrieved model {user_path} as {service_name}")
+            return True
+        except Exception as e:
+            spinner.fail(f"failed to fetch remote model from {user_path} ; is ssh configured?")
+            return False
+    # uses local path
+    else:
+        # attempt to copy model
+        if not os.path.exists(user_path):
+            spinner.fail(f"no such path exists {user_path}")
+            return False
+        try:
+            cmd = shlex.split(f"cp -r {user_path} {local_model_path}")
+            cp = run(cmd, capture_output=True, text=True, check=True)
+            spinner.succeed(f"successfully retrieved model {user_path} as {service_name}")
+            return True
+        except Exception as e:
+            spinner.fail(f"failed to fetch path {user_path} >> unkown error: {e}")
+            return False
 
 def catalog_add_model_service(cmd_pointer, parser):
     """Add model service repo to catalog"""
@@ -117,6 +159,10 @@ def catalog_add_model_service(cmd_pointer, parser):
     path = parser.as_dict()["path"]
     # add service to api
     model_path = SERVICE_DEFINTION_PATH + service_name
+    spinner.start("Retrieving model")
+    is_model_path = retrieve_model(service_name, path)
+    spinner.stop()
+    if is_model_path is False: return
     with Dispatcher as service:
         # configure the sky yaml
         config = UserProvidedConfig(
@@ -151,24 +197,32 @@ def service_down(cmd_pointer, parser) -> None:
 def uncatalog_model_service(cmd_pointer, parser):
     """This function removes a catalog from the ~/.openad_model_service directory"""
     service_name = parser.as_dict()["service_name"]
+    if service_name not in Dispatcher.list():
+        return output_error(f"service {service_name} not found in catalog")
+    spinner.start()
     with Dispatcher as service:
         try:
             service.down(service_name)
-            output_warning(f"service {service_name} terminating..")
+            spinner.succeed(f"service {service_name} has been terminated")
         except Exception as e:
             pass
-        finally:
+        try:
+            shutil.rmtree(os.path.join(SERVICE_DEFINTION_PATH, service_name))
             service.remove_service(service_name)
-    return output_success(f"service {service_name} removed from catalog")
+            spinner.succeed(f"service {service_name} removed from catalog")
+        except:
+            spinner.fail(f"could not delete local service at {os.path.join(SERVICE_DEFINTION_PATH, service_name)}")
+    spinner.stop()
+    return
 
 
-def get_service_endpoint(service_name) -> List:
+def get_service_endpoint(service_name) -> str | None:
     """gets the service endpoint for a given service, if endpoint is not available it returns None"""
     if service_name is None:
-        "may in future return a default local service"
-        return []
+        # may in future return a default local service
+        return None
     endpoint = json.loads(Dispatcher.status(service_name)).get("url")
-    return output_success(f"{endpoint}")
+    return endpoint
 
 
 def service_catalog_grammar(statements: list, help: list):
