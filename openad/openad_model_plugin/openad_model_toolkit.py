@@ -123,7 +123,7 @@ molecule = MatchFirst(map(CaselessKeyword, mol))
 molecule_set = MatchFirst(map(CaselessKeyword, molset))
 molecule_sets = MatchFirst(map(CaselessKeyword, molsets))
 molecule_identifier = Word(
-    alphas, alphanums + "_" + "[" + "]" + "(" + ")" + "=" + "," + "-" + "+" + "/" + "#" + "@" + "." + "*" + ";"
+    alphas, alphanums + "_" + "[" + "]" + "(" + ")" + "=" + "," + "-" + "+" + "/" + "\\" + "#" + "@" + "." + "*" + ";"
 ) | Word(nums)
 
 
@@ -158,16 +158,28 @@ generation_targets = {
         "object": "CaselessKeyword('for')+input_object('target@object')+",
         "string": "CaselessKeyword('for')+(molecule_identifier|desc)('target@string')+",
         "list": "CaselessKeyword('for')+delimitedList(desc)('target@list')+",
+        "array": "CaselessKeyword('for')+delimitedList(desc)('target@list')+",
+    },
+    "prediction": {
+        # "object": "CaselessKeyword('for')+input_object('target@object')+",
+        "object": "CaselessKeyword('for')+(molecule_identifier|desc)('target@string')+",
+        "string": "CaselessKeyword('for')+(molecule_identifier|desc)('target@string')+",
+        "list": "CaselessKeyword('for')+delimitedList(desc)('target@list')+",
+        "array": "CaselessKeyword('for')+delimitedList(desc)('target@list')+",
+        "number": "CaselessKeyword('for')+number_type('target@snumber')+",
     },
     "generation": {
         "object": "Optional(CaselessKeyword('for')+input_object('target@object'))+",
         "string": "Optional(CaselessKeyword('for')+(molecule_identifier|desc)('target@string'))+",
         "list": "Optional(CaselessKeyword('for')+delimitedList(desc))('target@list')+",
+        "array": "CaselessKeyword('for')+delimitedList(desc)('target@list')+",
     },
-    "controlled_generation": {
+    "controlled_sampling": {
         "object": "Optional(CaselessKeyword('for')+input_object('target@object'))+",
         "string": "Optional(CaselessKeyword('for')+ (molecule_identifier|desc)('target@string'))+",
         "list": "Optional(CaselessKeyword('for')+delimitedList(desc))('target@list')+",
+        "number": "CaselessKeyword('for')+number_type('target@number')+",
+        "array": "CaselessKeyword('for')+delimitedList(desc)('target@list')+",
     },
 }
 """ algorithm_version="solubility", search="sample", temperature=1.5, tolerance=60,
@@ -186,6 +198,7 @@ service_command_help["get_protein_property"] = (
 service_command_help["generate_data"] = (
     "generate with <property> data <TARGET> (sample <sample_size>)  USING (<parameter>=<value> <parameter>=<value>) "
 )
+
 
 def service_grammar_add(statements: list, help: list, service_catalog: dict):
     """defines the grammar available for managing molecules"""
@@ -229,12 +242,15 @@ def service_grammar_add(statements: list, help: list, service_catalog: dict):
                             "<TARGET>", generation_targets[schema["generator_type"]["algorithm_type"]][target_type]
                         )
                     except Exception as e:
-                        print(e)
+                        print(schema)
+                        print(1)
+                        output_error(e)
                         continue
                 else:
                     cmd_subject = str(service_command_subject[schema["service_type"]]).replace("<TARGET>", "")
             else:
                 cmd_subject = service_command_subject[schema["service_type"]]
+
             print(
                 "Forward( "
                 + command
@@ -245,6 +261,7 @@ def service_grammar_add(statements: list, help: list, service_catalog: dict):
                 + ")"
                 + f'("{schema["service_name"]}@{schema["service_type"]}")'
             )
+            print("--------------------------------------------------------------------")
             try:
                 stmt = eval(
                     "Forward( "
@@ -257,8 +274,9 @@ def service_grammar_add(statements: list, help: list, service_catalog: dict):
                     + f'("{schema["service_name"]}@{schema["service_type"]}")'
                 )
             except:
-                print("error for schema")
-                print(schema)
+                print(2)
+                output_error("error for schema")
+                output_error(schema)
                 continue
 
             statements.append(stmt)
@@ -276,7 +294,9 @@ def service_grammar_add(statements: list, help: list, service_catalog: dict):
                     while "  " in function_description:
                         function_description = function_description.replace("  ", " ")
             except Exception as e:
-                print(e)
+
+                print(3)
+                output_error(e)
 
             parameter_help = "<h2>Parameters:</h2>"
             for parameter, description in dict(schema["parameters"]).items():
@@ -305,7 +325,10 @@ def service_grammar_add(statements: list, help: list, service_catalog: dict):
                             .replace("<property>", help_type)
                         )
                     else:
-                        if schema["generator_type"]["algorithm_type"] == "conditional_generation":
+                        if schema["generator_type"]["algorithm_type"] in [
+                            "conditional_generation",
+                            "controlled_sampling",
+                        ]:
                             command_str = (
                                 service
                                 + " "
@@ -326,9 +349,9 @@ def service_grammar_add(statements: list, help: list, service_catalog: dict):
                         "<property>", help_type
                     )
             except Exception as e:
-                print("-------")
-                print(e)
-                print("-------")
+                output_error("-------")
+                output_error(e)
+                output_error("-------")
             if "generator_type" in schema:
                 category = schema["generator_type"]["algorithm_type"]
             else:
@@ -510,12 +533,12 @@ def request_generate(request_input):
         if "sample_size" in request_input.as_dict():
             Sample_Size = request_input.as_dict()["sample_size"]
         if "target@object" in request_input.as_dict():
-            print(1111111)
-            print(request_input.as_dict()["target@object"])
             subjects = [json.loads(str(request_input.as_dict()["target@object"]).replace("'", '"'))]
-            print(subjects)
         if "target@string" in request_input.as_dict():
             subjects = request_input.as_dict()["target@string"]
+        if "target@number" in request_input.as_dict():
+            subjects = request_input.as_dict()["target@number"]
+
         if "target@list" in request_input.as_dict():
             subjects = request_input.as_dict()["target@list"]
 
@@ -630,6 +653,7 @@ def openad_model_requestor(cmd_pointer, parser):
                 return output_text(run_error)
 
     except Exception as e:
+        run_error = "Request Error:\n"
         spinner.fail("Request Failed")
         spinner.stop()
         return output_error(run_error + "\n" + str(e))
