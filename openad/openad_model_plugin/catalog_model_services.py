@@ -5,7 +5,7 @@ import glob
 from openad.helpers.output import output_text, output_table, output_warning, output_error, output_success
 from openad.helpers.spinner import spinner
 from openad.openad_model_plugin.services import ModelService, UserProvidedConfig
-from typing import List, Dict
+from typing import List, Dict, Tuple
 from pandas  import DataFrame
 from subprocess import run
 import shlex
@@ -118,49 +118,50 @@ def model_service_status(cmd_pointer, parser):
         return output_table(ns_status, is_data=False, headers=["Service", "Status", "URL"])
 
 
-def retrieve_model(service_name: str, user_path: str) -> bool:
-    local_model_path = os.path.join(SERVICE_DEFINTION_PATH, service_name)
-    # uses ssh
-    if user_path.startswith("git@") and user_path.endswith(".git"):
+def retrieve_model(from_path: str, to_path: str) -> Tuple[bool, str]:
+    # uses ssh or https
+    if (from_path.startswith("git@") or from_path.startswith("https://")) and from_path.endswith(".git"):
         # test if git is available
         try:
             cmd = shlex.split("git --version")
             git_version = run(cmd, capture_output=True, text=True, check=True)
         except Exception as e:
             spinner.fail(f"git not installed or unreachable")
-            return False
+            return False, "git not installed or unreachable"
         # attempt to download model using git ssh
         try:
-            cmd = shlex.split(f"git clone {user_path} {local_model_path}")
-            clone = run(cmd, capture_output=True, text=True, check=True)
-            spinner.succeed(f"successfully retrieved model {user_path} as {service_name}")
-            return True
+            cmd = shlex.split(f"git clone {from_path} {to_path}")
+            clone = run(cmd, capture_output=True, text=True)  # not running check=true
+            assert clone.returncode == 0, clone.stderr
+            spinner.succeed(f"successfully retrieved model {from_path}")
+            return True, ""
         except Exception as e:
-            spinner.fail(f"failed to fetch remote model from {user_path} ; is ssh configured?")
-            return False
+            spinner.fail(f"error: {str(e)}")
+            return False, str(e)
     # uses local path
-    else:
+    elif os.path.exists(from_path):
         # attempt to copy model
-        if not os.path.exists(user_path):
-            spinner.fail(f"no such path exists {user_path}")
-            return False
         try:
-            cmd = shlex.split(f"cp -r {user_path} {local_model_path}")
-            cp = run(cmd, capture_output=True, text=True, check=True)
-            spinner.succeed(f"successfully retrieved model {user_path} as {service_name}")
-            return True
+            cmd = shlex.split(f"cp -r {from_path} {to_path}")
+            cp = run(cmd, capture_output=True, text=True)
+            assert cp.returncode == 0, cp.stderr
+            spinner.succeed(f"successfully retrieved model {from_path}")
+            return True, ""
         except Exception as e:
-            spinner.fail(f"failed to fetch path {user_path} >> unkown error: {e}")
-            return False
+            spinner.fail(f"failed to fetch path {from_path} >> {str(e)}")
+            return False, str(e)
+    else:
+        spinner.fail(f"invalid path {from_path}")
+        return False, f"invalid path {from_path}"
 
 def catalog_add_model_service(cmd_pointer, parser):
     """Add model service repo to catalog"""
     service_name = parser.as_dict()["service_name"]
     path = parser.as_dict()["path"]
     # add service to api
-    model_path = SERVICE_DEFINTION_PATH + service_name
+    model_path = os.path.join(SERVICE_DEFINTION_PATH, service_name)
     spinner.start("Retrieving model")
-    is_model_path = retrieve_model(service_name, path)
+    is_model_path, _ = retrieve_model(path, model_path)
     spinner.stop()
     if is_model_path is False: return
     with Dispatcher as service:

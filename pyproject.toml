@@ -40,7 +40,6 @@ pubchempy = "1.0.4"
 py3dmol = "^2.0.4"
 pyparsing = "3.0.9"
 pyjwt = "2.8.0"
-pytest = "7.3.1"
 rdkit = "2023.3.2"
 tqdm = "4.66.1"
 mols2grid = "^2.0.0"
@@ -66,7 +65,7 @@ notebook = "6.5.4"
 ibm-generative-ai = "2.0.0"
 sentence-transformers = "2.2.2"
 servicing = "^0.0.6"
-skypilot = {version="^0.5.0", extras = ["aws"] }
+skypilot = {version="^0.5.0", extras = ["aws", "kubernetes"] }
 
 [tool.poetry.scripts]
 openad = "openad.app.main:cmd_line"
@@ -76,6 +75,31 @@ init_examples = "openad.app.openad_examples:openad_create_examps"
 [tool.poetry.group.dev.dependencies]
 pyright = "^1.1.331"
 black = "^23.9.1"
+
+[tool.poetry.group.test.dependencies]
+pytest = "8.1.1"
+pytest-cov = "^5.0.0"
+
+[tool.poetry.group.typing.dependencies]
+mypy = "1.9.0"
+
+[tool.mypy]
+files = "tests"
+mypy_path = "."
+namespace_packages = true
+explicit_package_bases = true
+show_error_codes = true
+strict = true
+enable_error_code = [
+    "ignore-without-code",
+    "redundant-expr",
+    "truthy-bool",
+]
+
+[tool.pytest.ini_options]
+addopts = "--cov=openad/openad_model_plugin"
+testpaths = ["tests"]
+
 
 [build-system]
 requires = ["poetry_core>=1.0.0"]
