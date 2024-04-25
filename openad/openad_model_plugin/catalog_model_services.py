@@ -177,7 +177,7 @@ def catalog_add_model_service(cmd_pointer, parser):
         # configure the sky yaml
         config = UserProvidedConfig(
             workdir=model_path,
-            port=8090,
+            port=8080,
             setup="docker buildx build -f Dockerfile -t service .",
             run=f"docker run --rm --network host service",
             disk_size=100,
