@@ -124,23 +124,34 @@ class ModelService(Dispatcher):
     def __init__(self) -> None:
         super().__init__()
         try:
-            self.load()
+            # search for previous running services
+            self.load(update_status=True)
         except:
             self.save()
+
     def __enter__(self, name: str = None):
         self.name = name
         self.load()
         return self
+
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.save()
+
     def get_short_status(self, name: str):
         status = self.status(name)
         return {"up": bool(status.get("up")), "url": status.get("url")}
     
     def status(self, name: str, pretty: bool | None = None) -> Dict[str, Any]:
         return json.loads(super().status(name, pretty))
+
+    def get_config(self, name: str):
+        status = self.status(name)
+        return UserProvidedConfig(**status["data"])
+
+    def down(self, name: str, force: bool = None):
+        super().down(name, force)
     
-    def get_build_step_count(self, name: str):
+    def __get_build_step_count(self, name: str):
         dock_list = ["ADD", "ARG", "CMD", "COPY", "ENTRYPOINT", "ENV", "EXPOSE", "FROM",
                      "HEALTHCHECK", "LABEL", "MAINTAINER", "ONBUILD", "RUN", "SHELL",
                      "STOPSIGNAL", "USER", "VOLUME", "WORKDIR"]
@@ -157,7 +168,7 @@ class ModelService(Dispatcher):
         return total_dock_steps
     
     def get_build_log_completion(self, name: str):
-        t_step = self.get_build_step_count(name)
+        t_step = self.__get_build_step_count(name)
         cmd = shlex.split(f"sky serve logs {name} 1")
         print(cmd)
         print(run(cmd, capture_output=True))
@@ -208,6 +219,9 @@ if __name__ == "__main__":
     servicer = ModelService()
     print("all services:", servicer.list())
     with servicer as model:
-        print(model.list())
+        import time
+        time.sleep(5)
+        status = model.status("gt4sd_gen")
+        print(json.dumps(status, indent=2))
 
     # servicer.get_build_log_completion('gt4sd_prop')

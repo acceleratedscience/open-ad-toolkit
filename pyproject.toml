@@ -64,7 +64,7 @@ nbformat = "5.8.0"
 notebook = "6.5.4"
 ibm-generative-ai = "2.0.0"
 sentence-transformers = "2.2.2"
-servicing = "^0.0.6"
+servicing = "^0.0.7"
 skypilot = {version="^0.5.0", extras = ["aws", "kubernetes"] }
 
 [tool.poetry.scripts]

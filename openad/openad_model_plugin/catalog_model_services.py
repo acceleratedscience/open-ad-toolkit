@@ -111,14 +111,17 @@ def model_service_status(cmd_pointer, parser):
             # model service not cataloged or doesnt exist
             # output_warning(str(e) + ' (hint: catalog service must be installed and configured)')
             continue
+    headers=["Service", "Status", "URL"]
+    data = DataFrame(ns_status, columns=headers)
     if not ns_status:
         output_warning("No services available")
-        return []
     else:
-        return output_table(ns_status, is_data=False, headers=["Service", "Status", "URL"])
+        output_table(ns_status, is_data=False, headers=headers)
+    return data
 
 
 def retrieve_model(from_path: str, to_path: str) -> Tuple[bool, str]:
+    spinner.start("Retrieving model")
     # uses ssh or https
     if (from_path.startswith("git@") or from_path.startswith("https://")) and from_path.endswith(".git"):
         # test if git is available
@@ -127,6 +130,7 @@ def retrieve_model(from_path: str, to_path: str) -> Tuple[bool, str]:
             git_version = run(cmd, capture_output=True, text=True, check=True)
         except Exception as e:
             spinner.fail(f"git not installed or unreachable")
+            spinner.stop()
             return False, "git not installed or unreachable"
         # attempt to download model using git ssh
         try:
@@ -134,9 +138,11 @@ def retrieve_model(from_path: str, to_path: str) -> Tuple[bool, str]:
             clone = run(cmd, capture_output=True, text=True)  # not running check=true
             assert clone.returncode == 0, clone.stderr
             spinner.succeed(f"successfully retrieved model {from_path}")
+            spinner.stop()
             return True, ""
         except Exception as e:
             spinner.fail(f"error: {str(e)}")
+            spinner.stop()
             return False, str(e)
     # uses local path
     elif os.path.exists(from_path):
@@ -146,12 +152,15 @@ def retrieve_model(from_path: str, to_path: str) -> Tuple[bool, str]:
             cp = run(cmd, capture_output=True, text=True)
             assert cp.returncode == 0, cp.stderr
             spinner.succeed(f"successfully retrieved model {from_path}")
+            spinner.stop()
             return True, ""
         except Exception as e:
             spinner.fail(f"failed to fetch path {from_path} >> {str(e)}")
+            spinner.stop()
             return False, str(e)
     else:
         spinner.fail(f"invalid path {from_path}")
+        spinner.stop()
         return False, f"invalid path {from_path}"
 
 def catalog_add_model_service(cmd_pointer, parser):
@@ -160,19 +169,17 @@ def catalog_add_model_service(cmd_pointer, parser):
     path = parser.as_dict()["path"]
     # add service to api
     model_path = os.path.join(SERVICE_DEFINTION_PATH, service_name)
-    spinner.start("Retrieving model")
+    
     is_model_path, _ = retrieve_model(path, model_path)
-    spinner.stop()
+    
     if is_model_path is False: return
     with Dispatcher as service:
         # configure the sky yaml
         config = UserProvidedConfig(
             workdir=model_path,
-            port=8080,
+            port=8090,
             setup="docker buildx build -f Dockerfile -t service .",
-            run="docker run --rm \
-                    -p 8080:8080 \
-                    service",
+            run=f"docker run --rm --network host service",
             disk_size=100,
             )
         service.add_service(service_name, config)
@@ -182,17 +189,33 @@ def catalog_add_model_service(cmd_pointer, parser):
 def service_up(cmd_pointer, parser) -> None:
     """This function synchronously starts a service"""
     service_name = parser.as_dict()["service_name"]
+    spinner.start("Starting service")
+    try:
+        with Dispatcher as service:
+            service.up(service_name)
+        spinner.succeed(f"service ({service_name}) started")
+    except Exception as e:
+        spinner.fail(str(e))
+    spinner.stop()
+    # return output_success(f"service ({service_name}) started")
+
+
+def start_service_shutdown(service_name):
     with Dispatcher as service:
-        service.up(service_name)
-    return output_success(f"service ({service_name}) started")
+        if service.status(service_name).get("url") or bool(service.status(service_name).get("up")):
+            # shut down service
+            service.down(service_name, force=True)
+            # reinitialize service
+            config = service.get_config(service_name)
+            service.remove_service(service_name)
+            service.add_service(service_name, config)
+            output_warning(f"service {service_name} is terminating.. make take some time.")
 
 
 def service_down(cmd_pointer, parser) -> None:
     """This function synchronously shuts down a service"""
     service_name = parser.as_dict()["service_name"]
-    with Dispatcher as service:
-        service.down(service_name)
-    return output_success(f"service {service_name} terminating..")
+    start_service_shutdown(service_name)
 
 
 def uncatalog_model_service(cmd_pointer, parser):
@@ -200,13 +223,9 @@ def uncatalog_model_service(cmd_pointer, parser):
     service_name = parser.as_dict()["service_name"]
     if service_name not in Dispatcher.list():
         return output_error(f"service {service_name} not found in catalog")
-    spinner.start()
+    spinner.start(f"Removing service {service_name}")
+    start_service_shutdown(service_name)
     with Dispatcher as service:
-        try:
-            service.down(service_name)
-            spinner.succeed(f"service {service_name} has been terminated")
-        except Exception as e:
-            pass
         try:
             shutil.rmtree(os.path.join(SERVICE_DEFINTION_PATH, service_name))
             service.remove_service(service_name)
@@ -222,7 +241,8 @@ def get_service_endpoint(service_name) -> str | None:
     if service_name is None:
         # may in future return a default local service
         return None
-    endpoint = json.loads(Dispatcher.status(service_name)).get("url")
+    with Dispatcher as service:
+        endpoint = json.loads(service.status(service_name)).get("url")
     return endpoint
 
 
