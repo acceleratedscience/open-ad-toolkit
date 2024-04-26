@@ -36,7 +36,7 @@ from pyparsing import (
     Combine,
     nums,
     oneOf,
-    # Literal,
+    Literal,
     # replaceWith,
     # Combine,
     # pyparsing_test,
@@ -106,6 +106,7 @@ key_val_expr_num = Word(nums)
 key_val_expr_alpha = Word(alphanums + "_" + ".")
 number_type = Combine((Word(nums) + "." + Word(nums))) | Word(nums)
 key_val_line = Group(name_expr("key") + Suppress("=") + key_val_expr("val"))
+boolean_var = Keyword("True") | Keyword("False")
 
 mol = ["molecule", "mol"]
 mols = ["molecules", "mols"]
@@ -122,24 +123,62 @@ molecules = MatchFirst(map(CaselessKeyword, mols))
 molecule = MatchFirst(map(CaselessKeyword, mol))
 molecule_set = MatchFirst(map(CaselessKeyword, molset))
 molecule_sets = MatchFirst(map(CaselessKeyword, molsets))
-molecule_identifier = Word(
-    alphas, alphanums + "_" + "[" + "]" + "(" + ")" + "=" + "," + "-" + "+" + "/" + "\\" + "#" + "@" + "." + "*" + ";"
-) | Word(nums)
+numbers = (
+    Word(nums + "." + nums)
+    | Word(nums)
+    | Word("-" + nums + "." + nums)
+    | Word("-" + nums)
+    | Word("+" + nums + "." + nums)
+    | Word("+" + nums)
+)
+molecule_identifier = (
+    Word(
+        alphanums + "_" + "[" + "]" + "(" + ")" + "=" + "," + "-" + "+" + "/" + "\\" + "#" + "@" + "." + "*" + ";",
+    )
+    | Word(
+        alphas,
+        alphanums + "_" + "[" + "]" + "(" + ")" + "=" + "," + "-" + "+" + "/" + "\\" + "#" + "@" + "." + "*" + ";",
+    )
+    | Word(nums)
+) | Suppress(Word("'")) + (
+    Word(
+        alphanums + "_" + "[" + "]" + "(" + ")" + "=" + "," + "-" + "+" + "/" + "\\" + "#" + "@" + "." + "*" + ";",
+    )
+    | Word(
+        alphas,
+        alphanums + "_" + "[" + "]" + "(" + ")" + "=" + "," + "-" + "+" + "/" + "\\" + "#" + "@" + "." + "*" + ";",
+    )
+    | Word(nums)
+) + Suppress(
+    Word("'")
+)
 
 
 desc = QuotedString("'", escQuote="\\")
 input_object = QuotedString('"', end_quote_char='"', escQuote="\\")
 
+####################################################################################
+# here we are setting out the help and pyparsing grammar string components for creating grammar from memtadata
+# service_command_start  is used to contruct the start of a string and is broken up by type of service
+#       # get_molecule_property is used for properties of molecules defined by smiles strings, this is restrictied to valid smiles characters.
+#       # get_protein_property is for protein properties, this uses a different dtring format and currently we just take any alphanum
+#       # get_crystal_property is for crystaline properties and takes descriptors from files, yet to determine if this is strategic or not
+#       # generate_data is for any of the different types of data set generation options
+
+save_as_clause = "+ Optional(CaselessKeyword('save_as')('save_as')+desc('results_file'))"
+save_as_clause_help = " (save_as '<filename.csv>')"
+
 service_command_start = {}
 service_command_subject = {}
 service_command_help = {}
+
 service_command_start["get_molecule_property"] = 'get + CaselessKeyword("molecule") + CaselessKeyword("property")'
 service_command_start["get_crystal_property"] = 'get + CaselessKeyword("crystal") + CaselessKeyword("property")'
 service_command_start["get_protein_property"] = 'get + CaselessKeyword("protein") + CaselessKeyword("property")'
 service_command_start["generate_data"] = 'CaselessKeyword("generate") + CaselessKeyword("with")'
 
 service_command_subject["get_molecule_property"] = (
-    '+CaselessKeyword("for")+((Word("[")+ delimitedList(molecule_identifier,delim=",")("molecules")+Word("]")|molecule_identifier("molecule")))'
+    '+CaselessKeyword("for")+((Word("[")+delimitedList(molecule_identifier,delim=",")("molecules")+Word("]")|molecule_identifier("molecule")))'
 )
 service_command_subject["get_protein_property"] = (
     '+CaselessKeyword("for")+((Word("[")+ delimitedList(molecule_identifier,delim=",")("proteins")+Word("]")|molecule_identifier("protein")))'
@@ -157,27 +196,27 @@ generation_targets = {
     "conditional_generation": {
         "object": "CaselessKeyword('for')+input_object('target@object')+",
         "string": "CaselessKeyword('for')+(molecule_identifier|desc)('target@string')+",
-        "list": "CaselessKeyword('for')+delimitedList(desc)('target@list')+",
-        "array": "CaselessKeyword('for')+delimitedList(desc)('target@list')+",
+        "list": "CaselessKeyword('for')+Word('[')+delimitedList(desc|numbers)('target@list')+Word(']')+",
+        "array": "CaselessKeyword('for')+Word('[')+delimitedList(desc|numbers)('target@list')+Word(']')+",
     },
     "prediction": {
         # "object": "CaselessKeyword('for')+input_object('target@object')+",
         "object": "CaselessKeyword('for')+(molecule_identifier|desc)('target@string')+",
         "string": "CaselessKeyword('for')+(molecule_identifier|desc)('target@string')+",
-        "list": "CaselessKeyword('for')+delimitedList(desc)('target@list')+",
-        "array": "CaselessKeyword('for')+delimitedList(desc)('target@list')+",
+        "list": "CaselessKeyword('for')+Word('[')+delimitedList(desc)('target@list')+Word(']')+",
+        "array": "CaselessKeyword('for')+Word('[')+delimitedList(desc)('target@list')+Word(']')+",
         "number": "CaselessKeyword('for')+number_type('target@snumber')+",
     },
     "generation": {
         "object": "Optional(CaselessKeyword('for')+input_object('target@object'))+",
         "string": "Optional(CaselessKeyword('for')+(molecule_identifier|desc)('target@string'))+",
-        "list": "Optional(CaselessKeyword('for')+delimitedList(desc))('target@list')+",
-        "array": "CaselessKeyword('for')+delimitedList(desc)('target@list')+",
+        "list": "Optional(CaselessKeyword('for')+Word('[')+delimitedList(desc|numbers)('target@list')+Word(']'))+",
+        "array": "Optional(CaselessKeyword('for')+Word('[')+delimitedList(desc|numbers)('target@list')+Word(']'))+",
     },
     "controlled_sampling": {
         "object": "Optional(CaselessKeyword('for')+input_object('target@object'))+",
-        "string": "Optional(CaselessKeyword('for')+ (molecule_identifier|desc)('target@string'))+",
-        "list": "Optional(CaselessKeyword('for')+delimitedList(desc))('target@list')+",
+        "string": "Optional(CaselessKeyword('for')+ (molecule_identifier|desc)('target@string')+Word(']'))+",
+        "list": "Optional(CaselessKeyword('for')+Word('[')+delimitedList(desc)('target@list')+Word(']'))+",
         "number": "CaselessKeyword('for')+number_type('target@number')+",
         "array": "CaselessKeyword('for')+delimitedList(desc)('target@list')+",
     },
@@ -208,7 +247,9 @@ def service_grammar_add(statements: list, help: list, service_catalog: dict):
             command = f"CaselessKeyword(service)('service')+" + service_command_start[schema["service_type"]]
             valid_types = None
             valid_type = None
-            first = True
+
+            # in properties this refers to generateable properties for a Target in Generators this is simple a single name of a generarion Algorithm
+            # for some propertyy statements there can be multiple properties in a single statement
 
             if len(list(schema["valid_types"])) > 1:
                 valid_types = list(schema["valid_types"])  # Useed in eval statement
@@ -217,10 +258,11 @@ def service_grammar_add(statements: list, help: list, service_catalog: dict):
                 help_type = list(schema["valid_types"])[0]
 
             if valid_type is None:
-                valid_type = f'( (Word("[")+delimitedList(oneOf(valid_types),delim=",")("types")+Word("]")) | ( oneOf(valid_types)("type")) ) '
+                valid_type = f'( (Word("[")+delimitedList(oneOf(valid_types)|Suppress(Word("\'"))+oneOf(valid_types)+Suppress(Word("\'")),delim=",")("types")+Word("]")) | ( oneOf(valid_types)("type")) ) '
                 help_type = "[ " + ", ".join(list(schema["valid_types"])) + " ] | <valid_type>  "
             expression = ""
 
+            # if parameters  exist for command build parameter grammar
             if len(list(schema["parameters"])) > 0:
                 if len(list(schema["required_parameters"])) > 0:
                     expression = "+"
@@ -233,7 +275,7 @@ def service_grammar_add(statements: list, help: list, service_catalog: dict):
                     + optional_parameter_list(schema, "parameters")
                     + '+Suppress(")") )("USING"))'
                 )
-
+            # prepare command for generator type
             if "generator_type" in schema.keys():
                 if schema["target"]:
                     target_type = schema["target"]["type"]
@@ -251,6 +293,8 @@ def service_grammar_add(statements: list, help: list, service_catalog: dict):
             else:
                 cmd_subject = service_command_subject[schema["service_type"]]
 
+            # below is simply for when debugging is required
+            """"
             print(
                 "Forward( "
                 + command
@@ -262,6 +306,9 @@ def service_grammar_add(statements: list, help: list, service_catalog: dict):
                 + f'("{schema["service_name"]}@{schema["service_type"]}")'
             )
             print("--------------------------------------------------------------------")
+            """
+
+            # Compile the pyparsing grammar for the statement
             try:
                 stmt = eval(
                     "Forward( "
@@ -270,6 +317,7 @@ def service_grammar_add(statements: list, help: list, service_catalog: dict):
                     + valid_type
                     + cmd_subject
                     + expression
+                    + save_as_clause
                     + ")"
                     + f'("{schema["service_name"]}@{schema["service_type"]}")'
                 )
@@ -279,7 +327,10 @@ def service_grammar_add(statements: list, help: list, service_catalog: dict):
                 output_error(schema)
                 continue
 
+            # Add pyparsing to statament grammar array for pyparsing.
             statements.append(stmt)
+
+            ## the following generates the Help statements for a given command
             try:
                 target_description = ""
                 function_description = ""
@@ -299,7 +350,9 @@ def service_grammar_add(statements: list, help: list, service_catalog: dict):
                 output_error(e)
 
             parameter_help = "<h2>Parameters:</h2>"
+            num_params = 0
             for parameter, description in dict(schema["parameters"]).items():
+                num_params += 1
                 print_description = ""
                 for key, value in description.items():
                     print_description = print_description + f"- <cmd>{key}</cmd> : {value}\n  "
@@ -356,12 +409,18 @@ def service_grammar_add(statements: list, help: list, service_catalog: dict):
                 category = schema["generator_type"]["algorithm_type"]
             else:
                 category = "Model-" + schema["sub_category"]
+
+            # if command has no parameters simply remove the USING Clause
+            if num_params == 0:
+                command_str = command_str.replace(" USING (<parameter>=<value> <parameter>=<value>)", "")
+
+            # add help statement to help array psed through into function
             help.append(
                 help_dict_create(
                     name=schema["service_type"],
                     category=service + "->" + category,
                     parent=None,
-                    command=command_str,
+                    command=command_str + save_as_clause_help,
                     description=target_description
                     + parameter_help
                     + algo_versions
@@ -444,6 +503,16 @@ def optional_parameter_list(inp_statement: dict, clause: str):
                     + "'))"
                     + " "
                 )
+            elif inp_statement[clause][i][type_str] == "boolean":
+                expression = (
+                    expression
+                    + f" {status}(Group( CaselessKeyword ('"
+                    + i
+                    + "') +Suppress('=')+boolean_var('val'))('"
+                    + parameter
+                    + "'))"
+                    + " "
+                )
             else:
                 expression = (
                     expression
@@ -496,6 +565,16 @@ def optional_parameter_list(inp_statement: dict, clause: str):
                     + "'))"
                     + " "
                 )
+            elif inp_statement[clause][i][type_str] == "boolean":
+                expression = (
+                    expression
+                    + f" & {status}(Group( CaselessKeyword ('"
+                    + i
+                    + "') +Suppress('=')+boolean_var('val'))('"
+                    + parameter
+                    + "'))"
+                    + " "
+                )
             else:
                 expression = (
                     expression
@@ -507,6 +586,7 @@ def optional_parameter_list(inp_statement: dict, clause: str):
                     + " "
                 )
         ii = 1
+    print(expression)
     return expression
 
 
@@ -525,6 +605,7 @@ def subject_files_repository(file_directory, suffix):
 
 def request_generate(request_input):
     """This function constructs the request to be passed to the remote Server"""
+
     name = request_input.getName()
     Sample_Size = None
     subjects = []
@@ -547,12 +628,18 @@ def request_generate(request_input):
             subjects = request_input.as_dict()["molecules"]
 
         if "molecule" in request_input.as_dict():
-            subjects = [request_input.as_dict()["molecule"]]
+            if isinstance(request_input.as_dict()["molecule"], list):
+                subjects = request_input.as_dict()["molecule"]
+            else:
+                subjects = [request_input.as_dict()["molecule"]]
     if name.split("@")[1] == "get_protein_property":
         if "proteins" in request_input.as_dict():
             subjects = request_input.as_dict()["proteins"]
         if "protein" in request_input.as_dict():
-            subjects = [request_input.as_dict()["protein"]]
+            if isinstance(request_input.as_dict()["protein"], list):
+                subjects = request_input.as_dict()["protein"]
+            else:
+                subjects = [request_input.as_dict()["protein"]]
 
     if "types" in request_input.as_dict():
         property_types = request_input.as_dict()["types"]
@@ -560,7 +647,7 @@ def request_generate(request_input):
         property_types = [request_input.as_dict()["type"]]
     if name.split("@")[1] == "get_crystal_property":
         subjects = subject_files_repository(request_input.as_dict()["crystal_PATH"], "cif")
-
+        subjects.extend(subject_files_repository(request_input.as_dict()["crystal_PATH"], "csv"))
     template = {
         "service_name": request_input.getName().split("@")[0],
         "service_type": request_input.getName().split("@")[1],
@@ -589,6 +676,9 @@ def request_generate(request_input):
                 template["parameters"][actual_param.split("@")[0]] = json.loads(
                     request_input.as_dict()[param]["val"].replace("'", '"')
                 )
+            elif actual_param.split("@")[1] == "integer":
+                template["parameters"][actual_param.split("@")[0]] = bool(request_input.as_dict()[param]["val"])
+
             else:
                 template["parameters"][actual_param.split("@")[0]] = request_input.as_dict()[param]["val"]
     return template
@@ -640,6 +730,14 @@ def openad_model_requestor(cmd_pointer, parser):
                     return output_error(run_error)
 
             result = pd.DataFrame(response_result)
+            if "save_as" in parser:
+                results_file = str(parser["results_file"])
+                if not results_file.endswith(".csv"):
+                    results_file = results_file + ".csv"
+                result.to_csv(
+                    cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/" + results_file,
+                    index=False,
+                )
             return result
 
         except:
