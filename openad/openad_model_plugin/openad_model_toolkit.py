@@ -285,7 +285,6 @@ def service_grammar_add(statements: list, help: list, service_catalog: dict):
                         )
                     except Exception as e:
                         print(schema)
-                        print(1)
                         output_error(e)
                         continue
                 else:
@@ -345,8 +344,6 @@ def service_grammar_add(statements: list, help: list, service_catalog: dict):
                     while "  " in function_description:
                         function_description = function_description.replace("  ", " ")
             except Exception as e:
-
-                print(3)
                 output_error(e)
 
             parameter_help = "<h2>Parameters:</h2>"
@@ -586,7 +583,7 @@ def optional_parameter_list(inp_statement: dict, clause: str):
                     + " "
                 )
         ii = 1
-    print(expression)
+
     return expression
 
 
