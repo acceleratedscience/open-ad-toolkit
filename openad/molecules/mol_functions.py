@@ -260,7 +260,10 @@ def get_mol_from_smiles(smiles_str: str):
     """return pubchem molecule data based on smiles"""
     if valid_smiles(smiles_str):
         # print("getting smiles")
-        return get_mol(smiles_str, MOL_SMILES_INDEX)
+        success, openad_mol, molecule = get_mol(smiles_str, MOL_SMILES_INDEX)
+
+        openad_mol["properties"]["canonical_smiles"] = Chem.MolToSmiles(Chem.MolFromSmiles(smiles_str))
+        return success, openad_mol, molecule
     else:
         return False, "Invalid Smiles", None
 
