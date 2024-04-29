@@ -121,13 +121,17 @@ class ModelServiceUniqueLocation(Dispatcher):
     
 
 class ModelService(Dispatcher):
-    def __init__(self) -> None:
+    def __init__(self, location: str = None, update_status: bool = True) -> None:
         super().__init__()
+        # search for previous running services
+        self.load(location=location, update_status=update_status)
+    
+    def load(self, location: str = None, update_status: bool = False):
+        """load a config. if it doesnt exist auto create it"""
         try:
-            # search for previous running services
-            self.load(update_status=True)
+            super().load(location=location, update_status=update_status)
         except:
-            self.save()
+            self.save(location=location)
 
     def __enter__(self, name: str = None):
         self.name = name
@@ -214,14 +218,6 @@ class DispatchManager:
         del service
 
 
-
 if __name__ == "__main__":
-    servicer = ModelService()
-    print("all services:", servicer.list())
-    with servicer as model:
-        import time
-        time.sleep(5)
-        status = model.status("gt4sd_gen")
-        print(json.dumps(status, indent=2))
-
-    # servicer.get_build_log_completion('gt4sd_prop')
+    dispatcher1 = ModelService()
+    print(dispatcher1.list())

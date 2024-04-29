@@ -1,7 +1,8 @@
 import unittest
-
+import pytest
 
 class TestMyModule(unittest.TestCase):
+    @pytest.mark.skip
     def test_dummy(self):
         # Test the add function
         self.assertEqual(5, 5)

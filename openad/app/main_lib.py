@@ -147,12 +147,12 @@ def lang_parse(cmd_pointer, parser):
     elif parser.getName() == "uncatalog_model_service":
         return uncatalog_model_service(cmd_pointer, parser)
     elif parser.getName() == "model_service_status":
-        model_service_status(cmd_pointer, parser)
+        return model_service_status(cmd_pointer, parser)
     elif parser.getName() == "get_catalog_namespaces":
-        get_catalog_namespaces(cmd_pointer, parser)
-    elif parser.getName() == "model_up":
+        return get_catalog_namespaces(cmd_pointer, parser)
+    elif parser.getName() == "service_up":
         return service_up(cmd_pointer, parser)
-    elif parser.getName() == "model_down":
+    elif parser.getName() == "service_down":
         return service_down(cmd_pointer, parser)
 
     # Language Model How To

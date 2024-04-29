@@ -18,6 +18,7 @@ if not os.path.exists(SERVICE_DEFINTION_PATH):
     os.makedirs(SERVICE_DEFINTION_PATH)
 
 
+# this is the global object that should be used across openad and testing
 Dispatcher = ModelService()
 ### example of how to use the dispatcher ###
 # with Dispatcher as service:
@@ -93,31 +94,28 @@ def get_catalog_namespaces(cmd_pointer, parser) -> Dict:
 def model_service_status(cmd_pointer, parser):
     """This function catalogs a service"""
     # get list of directory names for the catalog models
-    ns_status = []
-    for service in Dispatcher.list():
+    models = {"Service":[], "Status":[], "Endpoint":[]}
+    with Dispatcher as service:
+        all_services = service.list()
+    for service in all_services:
         try:
             res = Dispatcher.get_short_status(service)
             status = ""
             if res.get("up"):
-                service = f"<green>{service}</green>"
+                # service = f"<green>{service}</green>"
                 status = "READY"
             elif res.get("url"):
-                service = f"<yellow>{service}</yellow>"
+                # service = f"<yellow>{service}</yellow>"
                 status = "PENDING"
             else:
                 status = "DOWN"
-            ns_status.append([service, status, res.get("url")])
+            models["Service"].append(service)
+            models["Status"].append(status)
+            models["Endpoint"].append(res.get("url"))
         except Exception as e:
             # model service not cataloged or doesnt exist
-            # output_warning(str(e) + ' (hint: catalog service must be installed and configured)')
-            continue
-    headers=["Service", "Status", "URL"]
-    data = DataFrame(ns_status, columns=headers)
-    if not ns_status:
-        output_warning("No services available")
-    else:
-        output_table(ns_status, is_data=False, headers=headers)
-    return data
+            output_warning(str(e))
+    return DataFrame(models)
 
 
 def retrieve_model(from_path: str, to_path: str) -> Tuple[bool, str]:
@@ -163,16 +161,21 @@ def retrieve_model(from_path: str, to_path: str) -> Tuple[bool, str]:
         spinner.stop()
         return False, f"invalid path {from_path}"
 
-def catalog_add_model_service(cmd_pointer, parser):
+def catalog_add_model_service(cmd_pointer, parser) -> bool:
     """Add model service repo to catalog"""
     service_name = parser.as_dict()["service_name"]
     path = parser.as_dict()["path"]
+    # check if service exists
+    if service_name in Dispatcher.list():
+        spinner.fail(f"service {service_name} already exists in catalog")
+        return False
     # add service to api
     model_path = os.path.join(SERVICE_DEFINTION_PATH, service_name)
-    
     is_model_path, _ = retrieve_model(path, model_path)
-    
-    if is_model_path is False: return
+    # check if model successfully retrieved
+    if is_model_path is False: 
+        return False
+    # add the service
     with Dispatcher as service:
         # configure the sky yaml
         config = UserProvidedConfig(
@@ -183,7 +186,28 @@ def catalog_add_model_service(cmd_pointer, parser):
             disk_size=100,
             )
         service.add_service(service_name, config)
-    return output_success(f"service {service_name} added to catalog")
+        spinner.succeed(f"service {service_name} added to catalog")
+    return True
+
+
+def uncatalog_model_service(cmd_pointer, parser):
+    """This function removes a catalog from the ~/.openad_model_service directory"""
+    service_name = parser.as_dict()["service_name"]
+    with Dispatcher as service:
+        # check if service exists
+        if service_name not in service.list():
+            return output_error(f"service {service_name} not found in catalog")
+        # stop running service
+        start_service_shutdown(service_name)
+        # remove service from cache
+        service.remove_service(service_name)
+        # remove local files for service
+        if os.path.exists(os.path.join(SERVICE_DEFINTION_PATH, service_name)):
+            shutil.rmtree(os.path.join(SERVICE_DEFINTION_PATH, service_name))
+        spinner.fail(f"could not delete local service at {os.path.join(SERVICE_DEFINTION_PATH, service_name)}")
+        spinner.succeed(f"service {service_name} removed from catalog")
+    spinner.stop()
+    return
 
 
 def service_up(cmd_pointer, parser) -> None:
@@ -216,24 +240,6 @@ def service_down(cmd_pointer, parser) -> None:
     """This function synchronously shuts down a service"""
     service_name = parser.as_dict()["service_name"]
     start_service_shutdown(service_name)
-
-
-def uncatalog_model_service(cmd_pointer, parser):
-    """This function removes a catalog from the ~/.openad_model_service directory"""
-    service_name = parser.as_dict()["service_name"]
-    if service_name not in Dispatcher.list():
-        return output_error(f"service {service_name} not found in catalog")
-    spinner.start(f"Removing service {service_name}")
-    start_service_shutdown(service_name)
-    with Dispatcher as service:
-        try:
-            shutil.rmtree(os.path.join(SERVICE_DEFINTION_PATH, service_name))
-            service.remove_service(service_name)
-            spinner.succeed(f"service {service_name} removed from catalog")
-        except:
-            spinner.fail(f"could not delete local service at {os.path.join(SERVICE_DEFINTION_PATH, service_name)}")
-    spinner.stop()
-    return
 
 
 def get_service_endpoint(service_name) -> str | None:
@@ -302,12 +308,12 @@ def service_catalog_grammar(statements: list, help: list):
         help_dict_create(
             name="catalog Model servie",
             category="Model",
-            command="catalog model service from '<path or github' as  '<service_name>'",
+            command="catalog model service from '<path or github>' as  '<service_name>'",
             description="catalog a model service from a path or github",
         )
     )
 
-    statements.append(py.Forward(model + service + up + quoted_string("service_name"))("model_up"))
+    statements.append(py.Forward(model + service + up + quoted_string("service_name"))("service_up"))
     help.append(
         help_dict_create(
             name="Model up",
@@ -317,7 +323,7 @@ def service_catalog_grammar(statements: list, help: list):
         )
     )
 
-    statements.append(py.Forward(model + service + down + quoted_string("service_name"))("model_down"))
+    statements.append(py.Forward(model + service + down + quoted_string("service_name"))("service_down"))
     help.append(
         help_dict_create(
             name="Model down",
