@@ -688,7 +688,7 @@ def convert(lst):
 
 def openad_model_requestor(cmd_pointer, parser):
     """The Procedure handles communication with external services"""
-
+    print("here")
     if "service" in parser.as_dict():
         service = parser.as_dict()["service"]
     else:
@@ -696,8 +696,8 @@ def openad_model_requestor(cmd_pointer, parser):
 
     a_request = request_generate(parser)
 
-    Endpoint = get_service_endpoint(service)
-
+    Endpoint = "http://" + get_service_endpoint(service)
+    # Endpoint = "http://34.205.69.8:8080"
     if Endpoint is None:
         output_error("No Service Cataloged")
         return None
@@ -706,7 +706,8 @@ def openad_model_requestor(cmd_pointer, parser):
 
     try:
         response = requests.post(Endpoint + "/service", json=a_request)
-    except:
+    except Exception as e:
+        print(e)
         spinner.fail("Request Failed")
         spinner.stop()
         return output_error("Error: \n Server not reachable at " + str(Endpoint))

@@ -191,7 +191,7 @@ def style(
         text = _edge(text, edge)
 
     # Add top and bottom padding
-    if pad:
+    if pad and pad != 0 and isinstance(pad, int):
         padding = "\n" * pad
         text = padding + text + padding
     else:

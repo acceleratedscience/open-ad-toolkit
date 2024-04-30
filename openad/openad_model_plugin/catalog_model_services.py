@@ -6,14 +6,14 @@ from openad.helpers.output import output_text, output_table, output_warning, out
 from openad.helpers.spinner import spinner
 from openad.openad_model_plugin.services import ModelService, UserProvidedConfig
 from typing import List, Dict, Tuple
-from pandas  import DataFrame
+from pandas import DataFrame
 from subprocess import run
 import shlex
 import shutil
 
 
 SERVICE_DEFINTION_PATH = os.path.expanduser("~/.openad_model_services/")
-SERVICES_PATH = os.path.expanduser("/definitions/services/")
+SERVICES_PATH = "/definitions/services/"
 if not os.path.exists(SERVICE_DEFINTION_PATH):
     os.makedirs(SERVICE_DEFINTION_PATH)
 
@@ -56,7 +56,8 @@ def get_namespaces():
 def get_service_defs(reference) -> list:
     """pulls the list of available service definitions"""
     service_list = []
-    service_files = glob.glob(reference + "/*.json")
+    service_files = glob.glob(reference + "/*.json", recursive=True)
+
     for file in service_files:
         with open(file, "r") as file_handle:
             try:
@@ -78,8 +79,15 @@ def get_cataloged_service_defs():
     for namespace in list_of_namespaces:
         service_list = []
         services_path = SERVICE_DEFINTION_PATH + namespace + SERVICES_PATH
+
         if os.path.exists(services_path):
             service_list = get_service_defs(services_path)
+        else:
+            services_path = SERVICE_DEFINTION_PATH + namespace + "/**" + SERVICES_PATH
+            services_path = glob.glob(services_path, recursive=True)
+            if len(services_path) > 0:
+                services_path = services_path[0]
+                service_list = get_service_defs(services_path)
         service_list_by_catalog[namespace] = service_list
     return service_list_by_catalog
 
@@ -94,7 +102,7 @@ def get_catalog_namespaces(cmd_pointer, parser) -> Dict:
 def model_service_status(cmd_pointer, parser):
     """This function catalogs a service"""
     # get list of directory names for the catalog models
-    models = {"Service":[], "Status":[], "Endpoint":[]}
+    models = {"Service": [], "Status": [], "Endpoint": []}
     with Dispatcher as service:
         all_services = service.list()
     for service in all_services:
@@ -161,6 +169,7 @@ def retrieve_model(from_path: str, to_path: str) -> Tuple[bool, str]:
         spinner.stop()
         return False, f"invalid path {from_path}"
 
+
 def catalog_add_model_service(cmd_pointer, parser) -> bool:
     """Add model service repo to catalog"""
     service_name = parser.as_dict()["service_name"]
@@ -173,7 +182,7 @@ def catalog_add_model_service(cmd_pointer, parser) -> bool:
     model_path = os.path.join(SERVICE_DEFINTION_PATH, service_name)
     is_model_path, _ = retrieve_model(path, model_path)
     # check if model successfully retrieved
-    if is_model_path is False: 
+    if is_model_path is False:
         return False
     # add the service
     with Dispatcher as service:
@@ -184,7 +193,7 @@ def catalog_add_model_service(cmd_pointer, parser) -> bool:
             setup="docker buildx build -f Dockerfile -t service .",
             run=f"docker run --rm --network host service",
             disk_size=100,
-            )
+        )
         service.add_service(service_name, config)
         spinner.succeed(f"service {service_name} added to catalog")
     return True
@@ -248,7 +257,10 @@ def get_service_endpoint(service_name) -> str | None:
         # may in future return a default local service
         return None
     with Dispatcher as service:
-        endpoint = json.loads(service.status(service_name)).get("url")
+
+        # endpoint = json.loads(service.status(service_name)).get("url")
+        endpoint = service.status(service_name)["url"]
+
     return endpoint
 
 

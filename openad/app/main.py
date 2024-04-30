@@ -745,11 +745,11 @@ class RUNCMD(Cmd):
                         self.do_help(help_ref + " ?", starts_with_only=True, return_val=False, pad_top=pad_top)
                         note = msg("run_?")
                         output_text(f"<soft>{note}</soft>", return_val=False, pad=1)
-                    return
+                    return False
 
             else:
                 output_error(msg("err_unknown"), return_val=False)
-                return
+                return False
 
         if self.refresh_train is True:
             output_train_statements(self)
@@ -763,7 +763,7 @@ class RUNCMD(Cmd):
             elif x is not None and not isinstance(x, bool):
                 print(x)
             else:
-                return
+                return False
         else:
             return x
 
