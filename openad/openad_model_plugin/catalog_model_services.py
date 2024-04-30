@@ -64,8 +64,8 @@ def get_service_defs(reference) -> list:
                 jdoc = json.load(file_handle)
                 service_list.append(jdoc)
             except Exception as e:
-                print(e)
-                print("invalid service json definition  " + file)
+                output_error("invalid service json definition  " + file)
+                output_error(e)
     return service_list
 
 

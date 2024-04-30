@@ -1,4 +1,5 @@
 """Handles file System interactions"""
+
 #!/usr/local/opt/python@3.9/bin/python3.9
 #
 
@@ -77,6 +78,7 @@ def list_files(cmd_pointer, parser):
         files.append(result)
 
     # Display/return table.
+
     return output_table(files, is_data=False, headers=table_headers)
 
 

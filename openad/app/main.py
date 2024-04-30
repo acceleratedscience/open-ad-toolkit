@@ -719,6 +719,7 @@ class RUNCMD(Cmd):
                     # the input string letter by letter until something pops up.
                     if not show_suggestions:
                         error_col = error_col_grabber(error_descriptor)
+
                         while error_col > 1 and not show_suggestions:
                             error_col = error_col - 1
                             # Not for printing
@@ -734,6 +735,7 @@ class RUNCMD(Cmd):
 
                     # Display error.
                     output_error(msg("err_invalid_cmd", error_msg), return_val=False)
+                    print("here")
                     if show_suggestions:
                         if not multiple_suggestions:
                             output_text("<yellow>You may want to try:</yellow>", return_val=False)
@@ -742,14 +744,15 @@ class RUNCMD(Cmd):
                             pad_top = 0  # List of commands should not get padded.
 
                         # Example to trigger this: `list xxx`
+
                         self.do_help(help_ref + " ?", starts_with_only=True, return_val=False, pad_top=pad_top)
                         note = msg("run_?")
                         output_text(f"<soft>{note}</soft>", return_val=False, pad=1)
-                    return False
+                    return
 
             else:
                 output_error(msg("err_unknown"), return_val=False)
-                return False
+                return
 
         if self.refresh_train is True:
             output_train_statements(self)
@@ -763,7 +766,7 @@ class RUNCMD(Cmd):
             elif x is not None and not isinstance(x, bool):
                 print(x)
             else:
-                return False
+                return
         else:
             return x
 
@@ -900,6 +903,7 @@ def cmd_line():
         return
 
     # Check for help from a command line request.
+    result = ""
     if len(inp.strip()) > 0:
         words = inp.split()
         if inp.split()[0] == "?" or inp.split()[-1] == "?" or inp.strip() == "??":
@@ -925,15 +929,21 @@ def cmd_line():
                 command_line.preloop()
                 command_line.add_history(str(" ".join(words[3:])).strip())
                 command_line.postloop()
-                command_line.default(str(" ".join(words[3:])).strip())
+                GLOBAL_SETTINGS["display"] = "api"
+                result = command_line.default(str(" ".join(words[3:])).strip())
         else:
             # If there is an argument and it is not help, attempt to run the command
             # Note, may be possible add code completion here #revisit
             command_line.preloop()
             command_line.add_history(inp.strip())
             command_line.postloop()
-            command_line.default(inp.strip())
+            GLOBAL_SETTINGS["display"] = "api"
+            result = command_line.default(inp.strip())
         command_line.do_exit("dummy do not remove")
+        import pandas as pd
+
+        pd.set_option("expand_frame_repr", False)
+        print(result)
     else:
         # If no argument passed then enter
         lets_exit = False

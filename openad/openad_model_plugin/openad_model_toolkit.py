@@ -688,7 +688,6 @@ def convert(lst):
 
 def openad_model_requestor(cmd_pointer, parser):
     """The Procedure handles communication with external services"""
-    print("here")
     if "service" in parser.as_dict():
         service = parser.as_dict()["service"]
     else:
@@ -707,9 +706,10 @@ def openad_model_requestor(cmd_pointer, parser):
     try:
         response = requests.post(Endpoint + "/service", json=a_request)
     except Exception as e:
-        print(e)
+
         spinner.fail("Request Failed")
         spinner.stop()
+        output_error(str(e))
         return output_error("Error: \n Server not reachable at " + str(Endpoint))
 
     spinner.succeed("Request Returned")
