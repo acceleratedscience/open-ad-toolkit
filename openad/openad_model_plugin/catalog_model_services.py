@@ -186,12 +186,12 @@ def load_service_config(local_service_path: str) -> UserProvidedConfig:
                 spinner.info("found non defaults in openad.config")
             table_data = [[key, value] for key, value in conf.items()]
             print(tabulate(table_data, headers=["service spec", "value"], tablefmt="pretty"))
-            return UserProvidedConfig(**conf)
+            return UserProvidedConfig(**conf, workdir=local_service_path)
         except Exception as e:
             print(e)
             spinner.warn("error with (openad.toml). Could not load user config. Loading defaults.")
     # use default config
-    return UserProvidedConfig()
+    return UserProvidedConfig(workdir=local_service_path)
 
 
 def catalog_add_model_service(cmd_pointer, parser) -> bool:
