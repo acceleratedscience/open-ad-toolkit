@@ -174,6 +174,7 @@ def catalog_add_model_service(cmd_pointer, parser) -> bool:
     """Add model service repo to catalog"""
     service_name = parser.as_dict()["service_name"]
     path = parser.as_dict()["path"]
+    use_gpu = True if "--gpu" in parser.as_dict()["catalog_add_model_service"] else False
     # check if service exists
     if service_name in Dispatcher.list():
         spinner.fail(f"service {service_name} already exists in catalog")
@@ -193,6 +194,7 @@ def catalog_add_model_service(cmd_pointer, parser) -> bool:
             setup="docker buildx build -f Dockerfile -t service .",
             run=f"docker run --rm --network host service",
             disk_size=100,
+            accelerator="V100:1" if use_gpu else None,
         )
         service.add_service(service_name, config)
         spinner.succeed(f"service {service_name} added to catalog")
@@ -278,6 +280,7 @@ def service_catalog_grammar(statements: list, help: list):
     path = py.CaselessKeyword("path")
     quoted_string = py.QuotedString("'", escQuote="\\")
     a_s = py.CaselessKeyword("as")
+    with_gpu = py.Optional(py.CaselessKeyword("--gpu"))
 
     statements.append(py.Forward(model + service + status)("model_service_status"))
     help.append(
@@ -312,7 +315,7 @@ def service_catalog_grammar(statements: list, help: list):
     )
 
     statements.append(
-        py.Forward(catalog + model + service + fr_om + quoted_string("path") + a_s + quoted_string("service_name"))(
+        py.Forward(catalog + model + service + fr_om + quoted_string("path") + a_s + quoted_string("service_name") + with_gpu)(
             "catalog_add_model_service"
         )
     )
