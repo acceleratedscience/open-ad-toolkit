@@ -10,6 +10,8 @@ from pandas import DataFrame
 from subprocess import run
 import shlex
 import shutil
+from tabulate import tabulate
+from tomlkit import parse
 
 
 SERVICE_DEFINTION_PATH = os.path.expanduser("~/.openad_model_services/")
@@ -170,32 +172,46 @@ def retrieve_model(from_path: str, to_path: str) -> Tuple[bool, str]:
         return False, f"invalid path {from_path}"
 
 
+def load_service_config(local_service_path: str) -> UserProvidedConfig:
+    """loads service params from openad.config file"""
+    if os.path.exists(os.path.join(local_service_path, "openad.config")):
+        try:
+            with open(os.path.join(local_service_path, "openad.config")) as f:
+                parser = parse(f.read())
+                conf = {}
+                for key, value in parser.items():
+                    if value:
+                        conf[key] = value
+            if conf:
+                spinner.info("found non defaults in openad.config")
+            table_data = [[key, value] for key, value in conf.items()]
+            print(tabulate(table_data, headers=["service spec", "value"], tablefmt="pretty"))
+            return UserProvidedConfig(**conf)
+        except Exception as e:
+            print(e)
+            spinner.warn("error with (openad.toml). Could not load user config. Loading defaults.")
+    # use default config
+    return UserProvidedConfig()
+
+
 def catalog_add_model_service(cmd_pointer, parser) -> bool:
     """Add model service repo to catalog"""
     service_name = parser.as_dict()["service_name"]
-    path = parser.as_dict()["path"]
+    remote_service = parser.as_dict()["path"]
     use_gpu = True if "--gpu" in parser.as_dict()["catalog_add_model_service"] else False
     # check if service exists
     if service_name in Dispatcher.list():
         spinner.fail(f"service {service_name} already exists in catalog")
         return False
-    # add service to api
-    model_path = os.path.join(SERVICE_DEFINTION_PATH, service_name)
-    is_model_path, _ = retrieve_model(path, model_path)
-    # check if model successfully retrieved
-    if is_model_path is False:
+    # download model
+    local_service_path = os.path.join(SERVICE_DEFINTION_PATH, service_name)
+    is_local_service_path, _ = retrieve_model(remote_service, local_service_path)
+    if is_local_service_path is False:
         return False
+    # get any available configs from service
+    config = load_service_config(local_service_path)
     # add the service
     with Dispatcher as service:
-        # configure the sky yaml
-        config = UserProvidedConfig(
-            workdir=model_path,
-            port=8080,
-            setup="docker buildx build -f Dockerfile -t service .",
-            run=f"docker run --rm --network host service",
-            disk_size=100,
-            accelerator="V100:1" if use_gpu else None,
-        )
         service.add_service(service_name, config)
         spinner.succeed(f"service {service_name} added to catalog")
     return True
@@ -215,7 +231,6 @@ def uncatalog_model_service(cmd_pointer, parser):
         # remove local files for service
         if os.path.exists(os.path.join(SERVICE_DEFINTION_PATH, service_name)):
             shutil.rmtree(os.path.join(SERVICE_DEFINTION_PATH, service_name))
-        spinner.fail(f"could not delete local service at {os.path.join(SERVICE_DEFINTION_PATH, service_name)}")
         spinner.succeed(f"service {service_name} removed from catalog")
     spinner.stop()
     return
