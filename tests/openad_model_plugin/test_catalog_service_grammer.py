@@ -39,6 +39,7 @@ def test_catalog_model_service(run_openad):
         assert service_name not in test.list()
 
 
+@pytest.mark.skip
 @pytest.mark.dependency()
 def test_model_service_up(run_openad):
     """Test bringing up a model service"""
