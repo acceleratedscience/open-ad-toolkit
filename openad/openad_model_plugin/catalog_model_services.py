@@ -228,19 +228,22 @@ def catalog_add_model_service(cmd_pointer, parser) -> bool:
 def uncatalog_model_service(cmd_pointer, parser):
     """This function removes a catalog from the ~/.openad_model_service directory"""
     service_name = parser.as_dict()["service_name"]
+    print("log 1")
     with Dispatcher as service:
         # check if service exists
         if service_name not in service.list():
             return output_error(f"service {service_name} not found in catalog")
         # stop running service
         start_service_shutdown(service_name)
-        # remove service from cache
-        service.remove_service(service_name)
         # remove local files for service
         if os.path.exists(os.path.join(SERVICE_DEFINTION_PATH, service_name)):
             shutil.rmtree(os.path.join(SERVICE_DEFINTION_PATH, service_name))
-        spinner.succeed(f"service {service_name} removed from catalog")
-    spinner.stop()
+        # remove service from cache
+        try:
+            service.remove_service(service_name)
+            spinner.succeed(f"service {service_name} removed from catalog")
+        except Exception as e:
+            spinner.fail(f"failed to remove service: {str(e)}")
     return
 
 
