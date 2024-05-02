@@ -5,7 +5,6 @@ from pandas import DataFrame
 from openad.openad_model_plugin.catalog_model_services import retrieve_model, Dispatcher
 from tests.helpers import random_name
 
-@pytest.mark.skip
 @pytest.mark.parametrize(
     'from_path',
     [

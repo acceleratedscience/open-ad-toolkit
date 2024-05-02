@@ -230,7 +230,6 @@ def catalog_add_model_service(cmd_pointer, parser) -> bool:
 def uncatalog_model_service(cmd_pointer, parser):
     """This function removes a catalog from the ~/.openad_model_service directory"""
     service_name = parser.as_dict()["service_name"]
-    print("log 1")
     with Dispatcher as service:
         # check if service exists
         if service_name not in service.list():
@@ -272,13 +271,18 @@ def start_service_shutdown(service_name):
             config = service.get_user_provided_config(service_name)
             service.remove_service(service_name)
             service.add_service(service_name, config)
-            output_warning(f"service {service_name} is terminating.. make take some time.")
+            spinner.succeed(f"service {service_name} is terminating.. make take some time.")
+            return True
+        else:
+            return False
+            
 
 
 def service_down(cmd_pointer, parser) -> None:
     """This function synchronously shuts down a service"""
     service_name = parser.as_dict()["service_name"]
-    start_service_shutdown(service_name)
+    if not start_service_shutdown(service_name):
+        spinner.warn(f"service {service_name} is not up")
 
 
 def get_service_endpoint(service_name) -> str | None:
