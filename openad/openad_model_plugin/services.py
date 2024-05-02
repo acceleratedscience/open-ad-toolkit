@@ -152,13 +152,12 @@ class ModelService(Dispatcher):
     def status(self, name: str, pretty: bool | None = None) -> Dict[str, Any]:
         return json.loads(super().status(name, pretty))
 
-    def get_config(self, name: str) -> UserProvidedConfig:
+    def get_user_provided_config(self, name: str) -> UserProvidedConfig:
         status = self.status(name)
         return UserProvidedConfig(**status["data"])
 
     def get_config_as_dict(self, name: str) -> dict:
-        status = self.status(name)
-        return {**status["template"]["resources"]}
+        return {**self.status(name)}
 
     def down(self, name: str, force: bool = None):
         super().down(name, force)
@@ -248,4 +247,4 @@ if __name__ == "__main__":
     dispatcher1 = Dispatcher()
     dispatcher1.load()
     print(dispatcher1.list())
-    print(json.dumps(dispatcher1.status(dispatcher1.list()[0]), indent=2))
+    # print(json.dumps(dispatcher1.status(dispatcher1.list()[0]), indent=2))

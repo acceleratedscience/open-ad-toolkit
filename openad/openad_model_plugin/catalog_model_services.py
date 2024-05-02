@@ -129,11 +129,13 @@ def model_service_status(cmd_pointer, parser):
 
 
 def model_service_config(cmd_pointer, parser):
+    """prints service resources"""
     service_name = parser.as_dict()["service_name"]
     with Dispatcher as service:
-        config = service.get_config_as_dict(service_name)
+        res = service.get_config_as_dict(service_name)
+        config = {**res["template"]["service"], **res["template"]["resources"]}
         table_data = [[key, value] for key, value in config.items()]
-        print(tabulate(table_data, headers=["service spec", "value"], tablefmt="pretty"))
+        print(tabulate(table_data, headers=["Resource", "value"], tablefmt="pretty"))
 
 
 def retrieve_model(from_path: str, to_path: str) -> Tuple[bool, str]:
@@ -267,7 +269,7 @@ def start_service_shutdown(service_name):
             # shut down service
             service.down(service_name, force=True)
             # reinitialize service
-            config = service.get_config(service_name)
+            config = service.get_user_provided_config(service_name)
             service.remove_service(service_name)
             service.add_service(service_name, config)
             output_warning(f"service {service_name} is terminating.. make take some time.")
