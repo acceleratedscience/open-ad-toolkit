@@ -128,6 +128,14 @@ def model_service_status(cmd_pointer, parser):
     return DataFrame(models)
 
 
+def model_service_config(cmd_pointer, parser):
+    service_name = parser.as_dict()["service_name"]
+    with Dispatcher as service:
+        config = service.get_config_as_dict(service_name)
+        table_data = [[key, value] for key, value in config.items()]
+        print(tabulate(table_data, headers=["service spec", "value"], tablefmt="pretty"))
+
+
 def retrieve_model(from_path: str, to_path: str) -> Tuple[bool, str]:
     spinner.start("Retrieving model")
     # uses ssh or https
@@ -295,6 +303,7 @@ def service_catalog_grammar(statements: list, help: list):
     path = py.CaselessKeyword("path")
     quoted_string = py.QuotedString("'", escQuote="\\")
     a_s = py.CaselessKeyword("as")
+    config = py.CaselessKeyword("config")
 
     statements.append(py.Forward(model + service + status)("model_service_status"))
     help.append(
@@ -303,6 +312,16 @@ def service_catalog_grammar(statements: list, help: list):
             category="Model",
             command="model service status",
             description="get the status of currently cataloged services",
+        )
+    )
+
+    statements.append(py.Forward(model + service + config + quoted_string("service_name"))("model_service_config"))
+    help.append(
+        help_dict_create(
+            name="model service config",
+            category="Model",
+            command="model service config '<service_name>'",
+            description="get the config of a service",
         )
     )
 

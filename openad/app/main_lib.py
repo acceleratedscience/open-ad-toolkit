@@ -20,6 +20,7 @@ from openad.openad_model_plugin.catalog_model_services import (
     model_service_status,
     service_down,
     service_up,
+    model_service_config,
 )
 
 # molecules
@@ -148,6 +149,8 @@ def lang_parse(cmd_pointer, parser):
         return uncatalog_model_service(cmd_pointer, parser)
     elif parser.getName() == "model_service_status":
         return model_service_status(cmd_pointer, parser)
+    elif parser.getName() == "model_service_config":
+        return model_service_config(cmd_pointer, parser)
     elif parser.getName() == "get_catalog_namespaces":
         return get_catalog_namespaces(cmd_pointer, parser)
     elif parser.getName() == "service_up":
