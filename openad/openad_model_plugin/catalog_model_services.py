@@ -181,17 +181,17 @@ def retrieve_model(from_path: str, to_path: str) -> Tuple[bool, str]:
 
 
 def load_service_config(local_service_path: str) -> UserProvidedConfig:
-    """loads service params from openad.config file"""
-    if os.path.exists(os.path.join(local_service_path, "openad.config")):
+    """loads service params from openad.cfg file"""
+    if os.path.exists(os.path.join(local_service_path, "openad.cfg")):
         try:
-            with open(os.path.join(local_service_path, "openad.config")) as f:
+            with open(os.path.join(local_service_path, "openad.cfg")) as f:
                 parser = parse(f.read())
                 conf = {}
                 for key, value in parser.items():
                     if value:
                         conf[key] = value
             if conf:
-                spinner.info("found non defaults in openad.config")
+                spinner.info("found non defaults in openad.cfg")
             table_data = [[key, value] for key, value in conf.items()]
             print(tabulate(table_data, headers=["service spec", "value"], tablefmt="pretty"))
             return UserProvidedConfig(**conf, workdir=local_service_path)
