@@ -241,6 +241,7 @@ class DispatchManager:
 
 
 if __name__ == "__main__":
-    dispatcher1 = ModelService()
+    dispatcher1 = Dispatcher()
+    dispatcher1.load()
     print(dispatcher1.list())
     print(json.dumps(dispatcher1.status(dispatcher1.list()[0]), indent=2))

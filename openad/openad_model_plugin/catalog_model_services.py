@@ -199,9 +199,10 @@ def catalog_add_model_service(cmd_pointer, parser) -> bool:
     service_name = parser.as_dict()["service_name"]
     remote_service = parser.as_dict()["path"]
     # check if service exists
-    if service_name in Dispatcher.list():
-        spinner.fail(f"service {service_name} already exists in catalog")
-        return False
+    with Dispatcher as service:
+        if service_name in service.list():
+            spinner.fail(f"service {service_name} already exists in catalog")
+            return False
     # download model
     local_service_path = os.path.join(SERVICE_DEFINTION_PATH, service_name)
     is_local_service_path, _ = retrieve_model(remote_service, local_service_path)
