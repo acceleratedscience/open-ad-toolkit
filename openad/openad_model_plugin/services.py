@@ -159,9 +159,6 @@ class ModelService(Dispatcher):
     def get_config_as_dict(self, name: str) -> dict:
         return {**self.status(name)}
 
-    def down(self, name: str, force: bool = None):
-        super().down(name, force)
-
     def __get_build_step_count(self, name: str):
         dock_list = [
             "ADD",

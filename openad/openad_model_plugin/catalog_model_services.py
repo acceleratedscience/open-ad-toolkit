@@ -254,7 +254,7 @@ def service_up(cmd_pointer, parser) -> None:
     spinner.start("Starting service")
     try:
         with Dispatcher as service:
-            service.up(service_name)
+            service.up(service_name, skip_prompt=True)
         spinner.succeed(f"service ({service_name}) started")
     except Exception as e:
         spinner.fail(str(e))
@@ -266,7 +266,7 @@ def start_service_shutdown(service_name):
     with Dispatcher as service:
         if service.status(service_name).get("url") or bool(service.status(service_name).get("up")):
             # shut down service
-            service.down(service_name, force=True)
+            service.down(service_name, skip_prompt=True)
             # reinitialize service
             config = service.get_user_provided_config(service_name)
             service.remove_service(service_name)
