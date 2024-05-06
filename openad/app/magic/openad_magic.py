@@ -45,7 +45,7 @@ class AD(Magics):
     def openad(self, line, cell=None, local_ns=None):
         """Invokes the Magic command interface for OpenAD"""
         api_variable = {}
-
+        openad.app.main.GLOBAL_SETTINGS["display"] = "notebook"
         line_list = line.split()
         x = len(line_list)
         i = 1
@@ -60,7 +60,7 @@ class AD(Magics):
                         pass
                 i += 1
         result = openad.app.main.api_remote(line, context_cache, api_variable)
-        print(type(result))
+
         if isinstance(result, DataFrame):
             result = output_table(result, return_val=True)
         elif isinstance(result, str):
@@ -73,7 +73,7 @@ class AD(Magics):
     def openadd(self, line, cell=None, local_ns=None):
         """Invokes the Magic command interface for OpenAD and ensure dataFrame Data is of type data"""
         api_variable = {}
-
+        openad.app.main.GLOBAL_SETTINGS["display"] = "api"
         line_list = line.split()
         x = len(line_list)
         i = 1

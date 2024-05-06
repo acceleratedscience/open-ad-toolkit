@@ -735,7 +735,7 @@ class RUNCMD(Cmd):
 
                     # Display error.
                     output_error(msg("err_invalid_cmd", error_msg), return_val=False)
-                    print("here")
+
                     if show_suggestions:
                         if not multiple_suggestions:
                             output_text("<yellow>You may want to try:</yellow>", return_val=False)
@@ -808,7 +808,7 @@ def api_remote(
       exit point for magic commands, unlike a command line.
     """
 
-    GLOBAL_SETTINGS["display"] = "notebook"
+    # GLOBAL_SETTINGS["display"] = "notebook"
     initialise()
 
     arguments = inp.split()
@@ -904,9 +904,16 @@ def cmd_line():
 
     # Check for help from a command line request.
     result = ""
+    increment = 0
+    word_increment = 0
     if len(inp.strip()) > 0:
         words = inp.split()
-        if inp.split()[0] == "?" or inp.split()[-1] == "?" or inp.strip() == "??":
+        if words[0].upper() == "-C":
+            increment = 2
+            word_increment = 1
+            GLOBAL_SETTINGS["display"] = "api"
+
+        if inp.split()[0 + increment] == "?" or inp.split()[-1 + increment] == "?" or inp[+increment:].strip() == "??":
             # Impossible clause...?
             # you can't add `?` to `openad <command>` because the terminal interprets the `?` separately.
             if inp.strip() == "?":
@@ -915,30 +922,30 @@ def cmd_line():
                 inp = "?"
 
             # Triggered by running commands from main terminal prepended with `openad`.
-            starts_with_qmark = len(inp) > 0 and inp.split()[0] == "?" and inp.strip() != "??"
+            starts_with_qmark = len(inp) > 0 and inp.split()[0] == "?" and inp[+increment:].strip() != "??"
             command_line.do_help(inp.strip(), display_info=starts_with_qmark)
 
         # If user wants to run command line and specify toolkit, for a specific command:
-        elif words[0].lower() == "-s" and len(words) > 3:
-            set_workspace(command_line, {"Workspace_Name": words[1].upper()})
-            set_context(command_line, {"toolkit_name": words[2].upper()})
+        elif words[0 + word_increment].lower() == "-s" and len(words) > 3 + increment:
+
+            set_workspace(command_line, {"Workspace_Name": words[1 + word_increment].upper()})
+            set_context(command_line, {"toolkit_name": words[2 + word_increment].upper()})
             if (
-                command_line.settings["workspace"] == words[1].upper()
-                and command_line.settings["context"] == words[2].upper()
+                command_line.settings["workspace"] == words[1 + word_increment].upper()
+                and command_line.settings["context"] == words[2 + word_increment].upper()
             ):
                 command_line.preloop()
-                command_line.add_history(str(" ".join(words[3:])).strip())
+                command_line.add_history(str(" ".join(words[3 + word_increment :])).strip())
                 command_line.postloop()
-                GLOBAL_SETTINGS["display"] = "api"
-                result = command_line.default(str(" ".join(words[3:])).strip())
+                result = command_line.default(str(" ".join(words[3 + word_increment :])).strip())
         else:
             # If there is an argument and it is not help, attempt to run the command
             # Note, may be possible add code completion here #revisit
+
             command_line.preloop()
-            command_line.add_history(inp.strip())
+            command_line.add_history(inp[+increment:].strip())
             command_line.postloop()
-            GLOBAL_SETTINGS["display"] = "api"
-            result = command_line.default(inp.strip())
+            result = command_line.default(inp[+increment:].strip())
         command_line.do_exit("dummy do not remove")
         import pandas as pd
 
