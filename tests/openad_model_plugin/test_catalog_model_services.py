@@ -18,9 +18,9 @@ def test_retrieve_model(from_path):
     # setup
     local_to_path = "/tmp/" + random_name()
     # test
-    is_success, err = retrieve_model(from_path, local_to_path)
+    is_success = retrieve_model(from_path, local_to_path)
     # cleanup first in case test fails
     if os.path.exists(os.path.join(local_to_path)):
         shutil.rmtree(os.path.join(local_to_path))
     # validate
-    assert is_success, str(err)
+    assert is_success

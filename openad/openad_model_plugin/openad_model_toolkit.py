@@ -697,6 +697,7 @@ def openad_model_requestor(cmd_pointer, parser):
 
     Endpoint = "http://" + get_service_endpoint(service)
     # Endpoint = "http://34.205.69.8:8080"
+    # Endpoint = "http://192.168.1.6:8080"
     if Endpoint is None:
         output_error("No Service Cataloged")
         return None
@@ -704,6 +705,7 @@ def openad_model_requestor(cmd_pointer, parser):
     spinner.start("Executing Request Against Server")
 
     try:
+        # print(json.dumps(a_request, indent=2))
         response = requests.post(Endpoint + "/service", json=a_request)
     except Exception as e:
 

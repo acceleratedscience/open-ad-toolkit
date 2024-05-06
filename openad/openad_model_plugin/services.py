@@ -6,6 +6,7 @@ import json
 import os
 from subprocess import run
 import shlex
+from tomlkit import parse
 
 
 class ModelServiceUniqueLocation(Dispatcher):
@@ -125,10 +126,34 @@ class ModelServiceUniqueLocation(Dispatcher):
 
 
 class ModelService(Dispatcher):
+    SERVICE_CONFIG = ".services.cfg"
+
     def __init__(self, location: str = None, update_status: bool = True) -> None:
         super().__init__()
         # search for previous running services
         self.load(location=location, update_status=update_status)
+    
+    def get_location_config(self, name: str) -> dict:
+        """to be replaced with servicing 0.1.0"""
+        """Return the remote location where project was fetched from
+        
+        returns:
+        (dict) {"remote", "operation", "local"}
+        """
+        r = {}
+        try:
+            status = self.status(name)
+            r.update({'local': status["data"]["workdir"]})
+            local_path = os.path.join(status["data"]["workdir"], self.SERVICE_CONFIG)
+            if os.path.exists(local_path):
+                with open(local_path, 'rb') as f:
+                    parser = parse(f.read())
+                    r.update(dict(parser.items()))
+                    return r
+        except Exception as e:
+            print(e)
+        return {'remote': '', 'operation': '', 'local':''}
+
 
     def load(self, location: str = None, update_status: bool = False):
         """load a config. if it doesnt exist auto create it"""
@@ -241,7 +266,8 @@ class DispatchManager:
 
 
 if __name__ == "__main__":
-    dispatcher1 = Dispatcher()
-    dispatcher1.load()
+    dispatcher1 = ModelService()
+    # dispatcher1.load()
     print(dispatcher1.list())
-    # print(json.dumps(dispatcher1.status(dispatcher1.list()[0]), indent=2))
+    print(json.dumps(dispatcher1.status(dispatcher1.list()[0]), indent=2))
+    print(dispatcher1.get_location_config('gen3'))

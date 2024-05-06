@@ -138,48 +138,81 @@ def model_service_config(cmd_pointer, parser):
         print(tabulate(table_data, headers=["Resource", "value"], tablefmt="pretty"))
 
 
-def retrieve_model(from_path: str, to_path: str) -> Tuple[bool, str]:
-    spinner.start("Retrieving model")
-    # uses ssh or https
-    if (from_path.startswith("git@") or from_path.startswith("https://")) and from_path.endswith(".git"):
-        # test if git is available
-        try:
-            cmd = shlex.split("git --version")
-            git_version = run(cmd, capture_output=True, text=True, check=True)
-        except Exception as e:
-            spinner.fail(f"git not installed or unreachable")
-            spinner.stop()
-            return False, "git not installed or unreachable"
-        # attempt to download model using git ssh
-        try:
-            cmd = shlex.split(f"git clone {from_path} {to_path}")
-            clone = run(cmd, capture_output=True, text=True)  # not running check=true
-            assert clone.returncode == 0, clone.stderr
-            spinner.succeed(f"successfully retrieved model {from_path}")
-            spinner.stop()
-            return True, ""
-        except Exception as e:
-            spinner.fail(f"error: {str(e)}")
-            spinner.stop()
-            return False, str(e)
-    # uses local path
-    elif os.path.exists(from_path):
-        # attempt to copy model
-        try:
-            cmd = shlex.split(f"cp -r {from_path} {to_path}")
-            cp = run(cmd, capture_output=True, text=True)
-            assert cp.returncode == 0, cp.stderr
-            spinner.succeed(f"successfully retrieved model {from_path}")
-            spinner.stop()
-            return True, ""
-        except Exception as e:
-            spinner.fail(f"failed to fetch path {from_path} >> {str(e)}")
-            spinner.stop()
-            return False, str(e)
-    else:
-        spinner.fail(f"invalid path {from_path}")
+class DownloadException(Exception):
+    """Raise for error when attempting to download a model"""
+    pass
+
+
+def save_from_config():
+    pass
+
+def retrieve_model(from_path: str, to_path: str, is_update: bool=False) -> bool:
+    try:
+        spinner.start("Retrieving model")
+        # uses ssh or https
+        if (from_path.startswith("git@") or from_path.startswith("https://")) and from_path.endswith(".git"):
+            # test if git is available
+            try:
+                cmd = shlex.split("git --version")
+                git_version = run(cmd, capture_output=True, text=True, check=True)
+            except Exception as e:
+                output_warning(str(e))
+                raise DownloadException("git not installed or unreachable")
+            # attempt to download model using git ssh
+            try:
+                if is_update:  # path already exists. do update.
+                    cmd = shlex.split(f"git --work-tree={to_path} --git-dir={to_path}/.git pull")
+                    clone = run(cmd, capture_output=True, text=True)  # not running check=true
+                else:
+                    cmd = shlex.split(f"git clone {from_path} {to_path}")
+                    clone = run(cmd, capture_output=True, text=True)  # not running check=true
+                assert clone.returncode == 0, clone.stderr
+            except Exception as e:
+                raise DownloadException(str(e))
+        # uses local path
+        elif os.path.exists(from_path):
+            # attempt to copy model
+            try:
+                if is_update:  # path already exists. do delete.
+                    cmd = shlex.split(f"rm -rf {to_path}")
+                    rm = run(cmd, capture_output=True, text=True)
+                    assert rm.returncode == 0, rm.stderr
+                cmd = shlex.split(f"cp -r {from_path} {to_path}")
+                cp = run(cmd, capture_output=True, text=True)
+                assert cp.returncode == 0, cp.stderr
+            except Exception as e:
+                raise DownloadException(f"failed to fetch path '{from_path}' >> {str(e)}")
+        # path is empty
+        elif from_path == "":
+            raise DownloadException(f"model path unknown. unable to retrieve.")
+        # path unknown or not implemented
+        else:
+            raise DownloadException(f"unable to retrieve model from '{from_path}'")
+    except Exception as e:
         spinner.stop()
-        return False, f"invalid path {from_path}"
+        spinner.fail(str(e))
+        return False
+    # success
+    spinner.stop()
+    if is_update:
+        spinner.succeed(f"successfully updated model from '{from_path}'")
+    else:
+        spinner.succeed(f"successfully retrieved model from '{from_path}'")
+    return True
+
+
+def model_service_update(cmd_pointer, parser):
+    """update cataloged model service"""
+    service_name = parser.as_dict()["service_name"]
+    try:
+        location_config = Dispatcher.get_location_config(service_name)
+        from_loc = location_config["remote"]
+        to_loc = location_config["local"]
+        if not retrieve_model(from_path=from_loc, to_path=to_loc, is_update=True):
+            spinner.warn(f"failed to update service {service_name}")
+            return
+    except Exception as e:
+        output_error(e)
 
 
 def load_service_config(local_service_path: str) -> UserProvidedConfig:
@@ -211,13 +244,13 @@ def catalog_add_model_service(cmd_pointer, parser) -> bool:
     # check if service exists
     with Dispatcher as service:
         if service_name in service.list():
-            spinner.fail(f"service {service_name} already exists in catalog")
+            spinner.fail(f"service {service_name} already exists in catalog. exiting..")
+            spinner.info(f"to update service use command: model service update '{service_name}'")
             return False
     # download model
     local_service_path = os.path.join(SERVICE_DEFINTION_PATH, service_name)
-    is_local_service_path, _ = retrieve_model(remote_service, local_service_path)
-    if is_local_service_path is False:
-        return False
+    if not retrieve_model(remote_service, local_service_path):
+        return False  # failed to download
     # get any available configs from service
     config = load_service_config(local_service_path)
     # add the service
@@ -271,7 +304,7 @@ def start_service_shutdown(service_name):
             config = service.get_user_provided_config(service_name)
             service.remove_service(service_name)
             service.add_service(service_name, config)
-            spinner.succeed(f"service {service_name} is terminating.. make take some time.")
+            spinner.succeed(f"service {service_name} is terminating.. may take some time.")
             return True
         else:
             return False
@@ -313,6 +346,17 @@ def service_catalog_grammar(statements: list, help: list):
     quoted_string = py.QuotedString("'", escQuote="\\")
     a_s = py.CaselessKeyword("as")
     config = py.CaselessKeyword("config")
+    update = py.CaselessKeyword("update")
+
+    statements.append(py.Forward(model + service + update + quoted_string("service_name"))("model_service_update"))
+    help.append(
+        help_dict_create(
+            name="model service update",
+            category="Model",
+            command="model service update",
+            description="update the cataloged service",
+        )
+    )
 
     statements.append(py.Forward(model + service + status)("model_service_status"))
     help.append(
@@ -363,7 +407,7 @@ def service_catalog_grammar(statements: list, help: list):
     )
     help.append(
         help_dict_create(
-            name="catalog Model servie",
+            name="catalog Model service",
             category="Model",
             command="catalog model service from '<path or github>' as  '<service_name>'",
             description="catalog a model service from a path or github",
