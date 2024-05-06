@@ -20,7 +20,7 @@ class Spinner(Halo):
     def __init__(self):
         # Alternative spinners:
         # simpleDotsScrolling, interval=100
-        super().__init__(spinner="triangle", color="white")
+        super().__init__(spinner="triangle", color="white", interval=700)
 
     def start(self, text=None, no_format=False):
         if no_format:

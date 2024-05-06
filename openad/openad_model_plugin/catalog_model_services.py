@@ -149,6 +149,7 @@ def retrieve_model(from_path: str, to_path: str) -> Tuple[bool, str]:
         except Exception as e:
             spinner.fail(f"git not installed or unreachable")
             spinner.stop()
+            spinner.start()
             return False, "git not installed or unreachable"
         # attempt to download model using git ssh
         try:
@@ -157,10 +158,12 @@ def retrieve_model(from_path: str, to_path: str) -> Tuple[bool, str]:
             assert clone.returncode == 0, clone.stderr
             spinner.succeed(f"successfully retrieved model {from_path}")
             spinner.stop()
+            spinner.start()
             return True, ""
         except Exception as e:
             spinner.fail(f"error: {str(e)}")
             spinner.stop()
+            spinner.start()
             return False, str(e)
     # uses local path
     elif os.path.exists(from_path):
@@ -171,14 +174,17 @@ def retrieve_model(from_path: str, to_path: str) -> Tuple[bool, str]:
             assert cp.returncode == 0, cp.stderr
             spinner.succeed(f"successfully retrieved model {from_path}")
             spinner.stop()
+            spinner.start()
             return True, ""
         except Exception as e:
             spinner.fail(f"failed to fetch path {from_path} >> {str(e)}")
             spinner.stop()
+            spinner.start()
             return False, str(e)
     else:
         spinner.fail(f"invalid path {from_path}")
         spinner.stop()
+        spinner.start()
         return False, f"invalid path {from_path}"
 
 
@@ -212,11 +218,16 @@ def catalog_add_model_service(cmd_pointer, parser) -> bool:
     with Dispatcher as service:
         if service_name in service.list():
             spinner.fail(f"service {service_name} already exists in catalog")
+            output_error(f"service {service_name} already exists in catalog", return_val=False)
             return False
     # download model
     local_service_path = os.path.join(SERVICE_DEFINTION_PATH, service_name)
     is_local_service_path, _ = retrieve_model(remote_service, local_service_path)
     if is_local_service_path is False:
+        spinner.fail(f"service {service_name} was unable to be added to check url or path")
+        output_error(f"service {service_name} was unable to be added to check url or path", return_val=False)
+        spinner.stop()
+        spinner.start()
         return False
     # get any available configs from service
     config = load_service_config(local_service_path)
@@ -224,6 +235,7 @@ def catalog_add_model_service(cmd_pointer, parser) -> bool:
     with Dispatcher as service:
         service.add_service(service_name, config)
         spinner.succeed(f"service {service_name} added to catalog")
+        output_success(f"service {service_name} added to catalog", return_val=False)
     return True
 
 
@@ -233,7 +245,8 @@ def uncatalog_model_service(cmd_pointer, parser):
     with Dispatcher as service:
         # check if service exists
         if service_name not in service.list():
-            return output_error(f"service {service_name} not found in catalog")
+            return output_error(f"service {service_name} not found in catalog", return_val=False)
+            return False
         # stop running service
         start_service_shutdown(service_name)
         # remove local files for service
@@ -245,20 +258,26 @@ def uncatalog_model_service(cmd_pointer, parser):
             spinner.succeed(f"service {service_name} removed from catalog")
         except Exception as e:
             spinner.fail(f"failed to remove service: {str(e)}")
-    return
+            output_error(f"failed to remove service: {str(e)}", return_val=False)
+            return False
+        output_success(f"service {service_name} removed from catalog", return_val=False)
+    return True
 
 
 def service_up(cmd_pointer, parser) -> None:
     """This function synchronously starts a service"""
     service_name = parser.as_dict()["service_name"]
-    spinner.start("Starting service")
+    # spinner.start("Starting service")
     try:
         with Dispatcher as service:
             service.up(service_name, skip_prompt=True)
-        spinner.succeed(f"service ({service_name}) started")
+        # spinner.succeed(f"service ({service_name}) started")
     except Exception as e:
-        spinner.fail(str(e))
-    spinner.stop()
+        output_error("Service was unable to be started:\n" + str(e), return_val=False)
+        return False
+    output_success(f"Service {service_name} is Starting.. may take some time.", return_val=False)
+    return True
+    # spinner.stop()
     # return output_success(f"service ({service_name}) started")
 
 
@@ -271,9 +290,13 @@ def start_service_shutdown(service_name):
             config = service.get_user_provided_config(service_name)
             service.remove_service(service_name)
             service.add_service(service_name, config)
-            spinner.succeed(f"service {service_name} is terminating.. make take some time.")
+            output_success(f"service {service_name} is terminating.. may take some time.", return_val=False)
             return True
         else:
+            # output_error(
+            #    f"service {service_name} was not able to terminate, please check error sky pilot to determine status and force shutdown",
+            #    return_val=False,
+            # )
             return False
 
 
@@ -282,6 +305,8 @@ def service_down(cmd_pointer, parser) -> None:
     service_name = parser.as_dict()["service_name"]
     if not start_service_shutdown(service_name):
         spinner.warn(f"service {service_name} is not up")
+        output_warning(f"service {service_name} is not up", return_val=True)
+    return True
 
 
 def get_service_endpoint(service_name) -> str | None:
