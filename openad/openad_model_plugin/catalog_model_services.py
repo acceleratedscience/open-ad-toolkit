@@ -98,7 +98,7 @@ def get_catalog_namespaces(cmd_pointer, parser) -> Dict:
     """Get a model service status"""
     ns = get_namespaces()
 
-    return output_table(DataFrame(ns), is_data=False, headers=["Cataloged Services"])
+    return output_table(DataFrame(ns), headers=["Cataloged Services"], is_data=False)
 
 
 def model_service_status(cmd_pointer, parser):
@@ -125,7 +125,7 @@ def model_service_status(cmd_pointer, parser):
         except Exception as e:
             # model service not cataloged or doesnt exist
             output_warning(str(e))
-    return DataFrame(models)
+    return output_table(DataFrame(models), is_data=False)
 
 
 def model_service_config(cmd_pointer, parser):
@@ -275,7 +275,6 @@ def start_service_shutdown(service_name):
             return True
         else:
             return False
-            
 
 
 def service_down(cmd_pointer, parser) -> None:

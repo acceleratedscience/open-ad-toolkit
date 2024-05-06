@@ -56,7 +56,7 @@ def predict_reaction(inputs: dict, cmd_pointer):
     if len(error_list) > 0:
         df = pd.DataFrame(error_list, columns=["smiles"])
         output_error(" The following invalid Smiles were supplied:", return_val=False)
-        output_table(df)
+        output_table(df, is_data=False)
         return False
     ##################################################################################################################
     # check for cached reaction

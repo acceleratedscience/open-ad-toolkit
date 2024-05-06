@@ -329,6 +329,8 @@ def search_collection(inputs: dict, cmd_pointer):
 
 
 def _confirm_prompt(question: str) -> bool:
+    if GLOBAL_SETTINGS["display"] == "api":
+        return True
     reply = None
     while reply not in ("y", "n"):
         reply = input(f"{question} (y/n): ").casefold()

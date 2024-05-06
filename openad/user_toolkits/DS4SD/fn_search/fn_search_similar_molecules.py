@@ -111,4 +111,4 @@ def search_similar_molecules(inputs: dict, cmd_pointer):
         df.insert(1, col.name, col)
         return output_table(df, is_data=True).data
 
-    return output_table(df)
+    return output_table(df, is_data=True)
