@@ -12,6 +12,7 @@ import shlex
 import shutil
 from tabulate import tabulate
 from tomlkit import parse
+import time
 
 
 SERVICE_DEFINTION_PATH = os.path.expanduser("~/.openad_model_services/")
@@ -107,24 +108,30 @@ def model_service_status(cmd_pointer, parser):
     models = {"Service": [], "Status": [], "Endpoint": []}
     with Dispatcher as service:
         all_services = service.list()
-    for service in all_services:
-        try:
-            res = Dispatcher.get_short_status(service)
-            status = ""
-            if res.get("up"):
-                # service = f"<green>{service}</green>"
-                status = "READY"
-            elif res.get("url"):
-                # service = f"<yellow>{service}</yellow>"
-                status = "PENDING"
-            else:
-                status = "DOWN"
-            models["Service"].append(service)
-            models["Status"].append(status)
-            models["Endpoint"].append(res.get("url"))
-        except Exception as e:
-            # model service not cataloged or doesnt exist
-            output_warning(str(e))
+        service.load(update_status=True)
+        spinner.start()
+        time.sleep(3)
+        for name in all_services:
+            try:
+                res = service.get_short_status(name)
+                # res = all_services[service]
+                status = ""
+                if res.get("up"):
+                    # service = f"<green>{service}</green>"
+                    status = "READY"
+                elif res.get("url"):
+                    # service = f"<yellow>{service}</yellow>"
+                    status = "PENDING"
+                else:
+                    status = "DOWN"
+                models["Service"].append(name)
+                models["Status"].append(status)
+                models["Endpoint"].append(res.get("url"))
+            except Exception as e:
+                # model service not cataloged or doesnt exist
+                output_warning(str(e))
+            finally:
+                spinner.stop()
     return output_table(DataFrame(models), is_data=False)
 
 
