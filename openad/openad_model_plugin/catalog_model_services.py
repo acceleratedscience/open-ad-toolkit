@@ -109,7 +109,7 @@ def model_service_status(cmd_pointer, parser):
     with Dispatcher as service:
         all_services = service.list()
         service.load(update_status=True)
-        spinner.start()
+        spinner.start("searching running services")
         time.sleep(3)
         for name in all_services:
             try:
