@@ -209,6 +209,10 @@ def load_service_config(local_service_path: str) -> UserProvidedConfig:
                 spinner.info("found non defaults in openad.cfg")
             table_data = [[key, value] for key, value in conf.items()]
             print(tabulate(table_data, headers=["service spec", "value"], tablefmt="pretty"))
+            if conf.get("replicas"):
+                conf["replicas"] = int(conf["replicas"])
+                conf["port"] = int(conf["port"])
+                conf["disk_size"] = int(conf["disk_size"])
             return UserProvidedConfig(**conf, workdir=local_service_path)
         except Exception as e:
             print(e)
