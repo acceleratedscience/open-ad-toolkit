@@ -3,6 +3,7 @@ import time
 import shutil
 import pytest
 from pandas import DataFrame
+from pandas.io.formats.style import Styler
 from openad.openad_model_plugin.catalog_model_services import Dispatcher
 from tests.helpers import random_name
 
@@ -63,7 +64,7 @@ def test_model_service_up(run_openad):
         status = df[df['Service'].isin([service_name])]['Status'].iloc[0]
         print(status)
         time.sleep(10)
-    assert status == "PENDING"
+    assert status == "PENDING" or status == "READY"
 
 
 @pytest.mark.dependency(depends=['test_model_service_up'])

@@ -124,12 +124,13 @@ def model_service_status(cmd_pointer, parser):
                         status = "DOWN"
                     models["Service"].append(name)
                     models["Status"].append(status)
-                    models["Endpoint"].append(res.get("url"))
+                    models["Endpoint"].append("http://" + res.get("url"))
             except Exception as e:
                 # model service not cataloged or doesnt exist
                 output_warning(str(e))
             finally:
                 spinner.stop()
+    return DataFrame(models)
     return output_table(DataFrame(models), is_data=False)
 
 
