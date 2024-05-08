@@ -211,7 +211,9 @@ def load_service_config(local_service_path: str) -> UserProvidedConfig:
             print(tabulate(table_data, headers=["service spec", "value"], tablefmt="pretty"))
             if conf.get("replicas"):
                 conf["replicas"] = int(conf["replicas"])
+            if conf.get("port"):
                 conf["port"] = int(conf["port"])
+            if conf.get("disk_size"):
                 conf["disk_size"] = int(conf["disk_size"])
             return UserProvidedConfig(**conf, workdir=local_service_path)
         except Exception as e:
