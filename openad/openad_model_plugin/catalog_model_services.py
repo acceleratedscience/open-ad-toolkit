@@ -299,6 +299,10 @@ def service_up(cmd_pointer, parser) -> None:
     # spinner.stop()
     # return output_success(f"service ({service_name}) started")
 
+def local_service_up(cmd_pointer, parser) -> None:
+    service_name = parser.as_dict()["service_name"]
+    output_error("Not yet implemented")
+
 
 def start_service_shutdown(service_name):
     with Dispatcher as service:
@@ -347,6 +351,7 @@ def service_catalog_grammar(statements: list, help: list):
     uncatalog = py.CaselessKeyword("uncatalog")
     model = py.CaselessKeyword("model")
     up = py.CaselessKeyword("up")
+    local = py.CaselessKeyword("local")
     down = py.CaselessKeyword("down")
     service = py.CaselessKeyword("service")
     status = py.CaselessKeyword("status")
@@ -406,7 +411,7 @@ def service_catalog_grammar(statements: list, help: list):
     )
     help.append(
         help_dict_create(
-            name="catalog Model servie",
+            name="catalog Model service",
             category="Model",
             command="catalog model service from '<path or github>' as  '<service_name>'",
             description="catalog a model service from a path or github",
@@ -420,6 +425,16 @@ def service_catalog_grammar(statements: list, help: list):
             category="Model",
             command="model service up '<service_name>'",
             description="launch a model service",
+        )
+    )
+
+    statements.append(py.Forward(model + service + local + up + quoted_string("service_name"))("local_service_up"))
+    help.append(
+        help_dict_create(
+            name="Model local up",
+            category="Model",
+            command="model service local up '<service_name>'",
+            description="launch a model service locally",
         )
     )
 
