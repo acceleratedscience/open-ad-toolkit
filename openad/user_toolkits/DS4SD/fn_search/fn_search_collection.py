@@ -311,6 +311,8 @@ def search_collection(inputs: dict, cmd_pointer):
             df = df.set_properties(**{"text-align": "left"})
         else:
             return output_table(df, is_data=True).data
+    elif GLOBAL_SETTINGS["display"] == "api":
+        return df
 
     elif GLOBAL_SETTINGS["display"] == "terminal":
         if "save_as" not in inputs:
