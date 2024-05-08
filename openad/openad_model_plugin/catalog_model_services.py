@@ -124,7 +124,10 @@ def model_service_status(cmd_pointer, parser):
                         status = "DOWN"
                     models["Service"].append(name)
                     models["Status"].append(status)
-                    models["Endpoint"].append("http://" + res.get("url"))
+                    if res.get("url"):
+                        models["Endpoint"].append("http://" + res.get("url"))
+                    else:
+                        models["Endpoint"].append(res.get("url"))
             except Exception as e:
                 # model service not cataloged or doesnt exist
                 output_warning(str(e))
@@ -244,7 +247,6 @@ def catalog_add_model_service(cmd_pointer, parser) -> bool:
         spinner.fail(f"service {service_name} was unable to be added to check url or path")
         output_error(f"service {service_name} was unable to be added to check url or path", return_val=False)
         spinner.stop()
-        spinner.start()
         return False
     # get any available configs from service
     config = load_service_config(local_service_path)
