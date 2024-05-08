@@ -5,7 +5,7 @@ import glob
 from openad.helpers.output import output_text, output_table, output_warning, output_error, output_success
 from openad.helpers.spinner import spinner
 from openad.openad_model_plugin.services import ModelService, UserProvidedConfig
-from typing import List, Dict, Tuple
+from typing import List, Dict, Tuple, cast
 from pandas import DataFrame
 from subprocess import run
 import shlex
@@ -109,24 +109,22 @@ def model_service_status(cmd_pointer, parser):
     with Dispatcher as service:
         all_services = service.list()
         service.load(update_status=True)
-        spinner.start("searching running services")
-        time.sleep(3)
-        for name in all_services:
+        if all_services:  # proceed if any service available
             try:
-                res = service.get_short_status(name)
-                # res = all_services[service]
-                status = ""
-                if res.get("up"):
-                    # service = f"<green>{service}</green>"
-                    status = "READY"
-                elif res.get("url"):
-                    # service = f"<yellow>{service}</yellow>"
-                    status = "PENDING"
-                else:
-                    status = "DOWN"
-                models["Service"].append(name)
-                models["Status"].append(status)
-                models["Endpoint"].append(res.get("url"))
+                spinner.start("searching running services")
+                time.sleep(3)  # wait for service threads to ping endpoint
+                for name in all_services:
+                    res = service.get_short_status(name)
+                    # set the status of the service
+                    if res.get("up"):
+                        status = "READY"
+                    elif res.get("url"):
+                        status = "PENDING"
+                    else:
+                        status = "DOWN"
+                    models["Service"].append(name)
+                    models["Status"].append(status)
+                    models["Endpoint"].append(res.get("url"))
             except Exception as e:
                 # model service not cataloged or doesnt exist
                 output_warning(str(e))
@@ -163,7 +161,7 @@ def retrieve_model(from_path: str, to_path: str) -> Tuple[bool, str]:
             cmd = shlex.split(f"git clone {from_path} {to_path}")
             clone = run(cmd, capture_output=True, text=True)  # not running check=true
             assert clone.returncode == 0, clone.stderr
-            spinner.succeed(f"successfully retrieved model {from_path}")
+            spinner.info(f"successfully retrieved model {from_path}")
             spinner.stop()
             spinner.start()
             return True, ""
@@ -179,7 +177,7 @@ def retrieve_model(from_path: str, to_path: str) -> Tuple[bool, str]:
             cmd = shlex.split(f"cp -r {from_path} {to_path}")
             cp = run(cmd, capture_output=True, text=True)
             assert cp.returncode == 0, cp.stderr
-            spinner.succeed(f"successfully retrieved model {from_path}")
+            spinner.info(f"successfully retrieved model {from_path}")
             spinner.stop()
             spinner.start()
             return True, ""
@@ -197,28 +195,33 @@ def retrieve_model(from_path: str, to_path: str) -> Tuple[bool, str]:
 
 def load_service_config(local_service_path: str) -> UserProvidedConfig:
     """loads service params from openad.cfg file"""
+    cfg_map = {"port":int, "replicas":int, "cloud":str,"disk_size":int, "cpu":str, "memory":str, "accelerators":str, "setup":str, "run":str}
     if os.path.exists(os.path.join(local_service_path, "openad.cfg")):
         try:
+            # open the document
             with open(os.path.join(local_service_path, "openad.cfg")) as f:
                 parser = parse(f.read())
-                conf = {}
-                for key, value in parser.items():
-                    if value:
-                        conf[key] = value
+            conf = {}
+            # check if [defaults] key exists if not ignore. allows for new fields in the future
+            if "defaults" in parser.keys():
+                parser = parser.get("defaults")
+            # cast the values into a new dict
+            for key, value in parser.items():
+                key = key.lower()
+                if value and key in cfg_map.keys():
+                    conf[key] = cfg_map[key](value)  # cast the type to value
+            # check if conf has any values
             if conf:
+                # create a UserProvidedConfig with conf data
                 spinner.info("found non defaults in openad.cfg")
-            table_data = [[key, value] for key, value in conf.items()]
-            print(tabulate(table_data, headers=["service spec", "value"], tablefmt="pretty"))
-            if conf.get("replicas"):
-                conf["replicas"] = int(conf["replicas"])
-            if conf.get("port"):
-                conf["port"] = int(conf["port"])
-            if conf.get("disk_size"):
-                conf["disk_size"] = int(conf["disk_size"])
-            return UserProvidedConfig(**conf, workdir=local_service_path)
+                table_data = [[key, value] for key, value in conf.items()]
+                print(tabulate(table_data, headers=["service spec", "value"], tablefmt="pretty"))
+                return UserProvidedConfig(**conf, workdir=local_service_path)
+            else:
+                spinner.warn("error with (openad.cfg). Could not load user config. Loading defaults.")
         except Exception as e:
-            print(e)
-            spinner.warn("error with (openad.toml). Could not load user config. Loading defaults.")
+            output_error(str(e))
+            spinner.warn("error with (openad.cfg). Could not load user config. Loading defaults.")
     # use default config
     return UserProvidedConfig(workdir=local_service_path)
 
@@ -247,7 +250,7 @@ def catalog_add_model_service(cmd_pointer, parser) -> bool:
     # add the service
     with Dispatcher as service:
         service.add_service(service_name, config)
-        spinner.succeed(f"service {service_name} added to catalog")
+        # spinner.succeed(f"service {service_name} added to catalog")
         output_success(f"service {service_name} added to catalog", return_val=False)
     return True
 
