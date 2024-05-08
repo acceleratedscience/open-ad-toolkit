@@ -1,4 +1,5 @@
 """Functions that are called for molecule commands"""
+
 import glob
 import pickle
 import os
@@ -575,6 +576,10 @@ def _create_workspace_dir_if_nonexistent(cmd_pointer, dir_name):
     if not os.path.isdir(cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/" + dir_name):
         os.mkdir(cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/" + dir_name)
     return cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/" + dir_name
+
+
+def merge_molecule_property_data(cmd_pointer, inp):
+    """merges data into the molecule list"""
 
 
 def load_molecules(cmd_pointer, inp):

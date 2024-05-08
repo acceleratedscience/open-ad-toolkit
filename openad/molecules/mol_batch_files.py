@@ -18,6 +18,96 @@ from openad.app.global_var_lib import GLOBAL_SETTINGS
 naming_cache = {}
 
 
+def merge_molecule_property_data(cmd_pointer, inp):
+    "merges data where SMILES,Property and Value are in Data Frame or csv"
+    mol_dataframe = None
+    if "force" in inp.as_dict():
+        force = True
+    else:
+        force = False
+
+    if "merge_molecules_data_dataframe" in inp.as_dict():
+        mol_dataframe = cmd_pointer.api_variables[inp.as_dict()["in_dataframe"]]
+    else:
+        mol_dataframe = load_mol_data(inp.as_dict()["moles_file"], cmd_pointer)
+    if mol_dataframe is None:
+        output_error("Source not Found ", return_val=False)
+        return True
+
+    if "subject" in mol_dataframe.columns:
+        SMILES = "subject"
+    elif "smiles" in mol_dataframe.columns:
+        SMILES = "smiles"
+    elif "SMILES" in mol_dataframe.columns:
+        SMILES = "SMILES"
+    else:
+        output_error("No  'subject' or 'SMILES' column found ", return_val=False)
+        return True
+    if "property" in mol_dataframe.columns:
+        prop = "property"
+    elif "PROPERTY" in mol_dataframe.columns:
+        prop = "PROPERTY"
+    else:
+        output_error("No  'property' or 'PROPERTY' column found ", return_val=False)
+        return True
+    if "value" in mol_dataframe.columns:
+        val = "value"
+    elif "VALUE" in mol_dataframe.columns:
+        val = "VALUE"
+    elif "result" in mol_dataframe.columns:
+        val = "result"
+    elif "RESULT" in mol_dataframe.columns:
+        val = "RESULT"
+    else:
+        output_error("No  'result' or 'value' column found ", return_val=False)
+        return True
+
+    for row in mol_dataframe.to_dict("records"):
+        update_flag = True
+        merge_mol = None
+        merge_mol = retrieve_mol_from_list(cmd_pointer, row[SMILES])
+        if merge_mol is None:
+            merge_mol = new_molecule(row[SMILES], row[SMILES])
+            update_flag = False
+        else:
+            update_flag = True
+
+        # else duplicate
+        a_mol = {"SMILES": row[SMILES], row[prop]: row[val]}
+        if merge_mol is not None:
+            merge_mol = merge_molecule_properties(a_mol, merge_mol)
+            # print("updated: " + str(a_mol))
+            if update_flag is False:
+                cmd_pointer.molecule_list.append(merge_mol)
+    return True
+
+
+def load_mol_data(source_file, cmd_pointer):
+    """loads molecule data from a file where Smiles, property and values are supplied in row format"""
+    if source_file.split(".")[-1].lower() == "sdf":
+        # From sdf file
+        try:
+            name = source_file.split("/")[-1]
+            sdffile = cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/" + name
+            mol_frame = PandasTools.LoadSDF(sdffile)
+        except BaseException as err:
+            output_error(msg("err_load_sdf", err), return_val=False)
+            return None
+    elif source_file.split(".")[-1].lower() == "csv":
+        # From csv file.
+        try:
+            name = source_file.split("/")[-1]
+            name = cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/" + name
+
+            mol_frame = pandas.read_csv(name, dtype="string")
+
+        except BaseException as err:
+            output_error(msg("err_load_csv", err), return_val=False)
+            return None
+
+    return mol_frame
+
+
 def load_batch_molecules(cmd_pointer, inp):
     """loads molecules in batch"""
     mol_dataframe = None

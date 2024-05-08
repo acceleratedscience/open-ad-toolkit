@@ -24,7 +24,7 @@ from openad.openad_model_plugin.catalog_model_services import (
 )
 
 # molecules
-from openad.molecules.mol_batch_files import load_batch_molecules
+from openad.molecules.mol_batch_files import load_batch_molecules, merge_molecule_property_data
 
 from openad.molecules.mol_commands import (
     display_molecule,
@@ -237,6 +237,8 @@ def lang_parse(cmd_pointer, parser):
         return clear_workset(cmd_pointer, parser)
     elif parser.getName() in ["load_molecules_file", "load_molecules_dataframe"]:
         return load_batch_molecules(cmd_pointer, parser)
+    elif parser.getName() in ["merge_molecules_data_file", "merge_molecules_data_dataframe"]:
+        return merge_molecule_property_data(cmd_pointer, parser)
     elif parser.getName() == "export_molecules":
         return export_molecule_set(cmd_pointer, parser)
     elif parser.getName() == "show_molsgrid":
