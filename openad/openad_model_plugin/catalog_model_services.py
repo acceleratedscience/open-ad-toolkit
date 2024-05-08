@@ -272,13 +272,21 @@ def uncatalog_model_service(cmd_pointer, parser):
         if os.path.exists(os.path.join(SERVICE_DEFINTION_PATH, service_name)):
             shutil.rmtree(os.path.join(SERVICE_DEFINTION_PATH, service_name))
         # remove service from cache
+    with Dispatcher as service:  # initialize fresh load
         try:
             service.remove_service(service_name)
             spinner.succeed(f"service {service_name} removed from catalog")
         except Exception as e:
-            spinner.fail(f"failed to remove service: {str(e)}")
-            output_error(f"failed to remove service: {str(e)}", return_val=False)
-            return False
+            if "No such file or directory" in str(e):
+                spinner.warn("service doesnt exist but trying to remove from list. config file was already deleted")
+                # TODO: make more robust error handling
+                path = os.path.join(os.path.expanduser("~/.servicing"), f"{service_name}_service.yaml")
+                open(path).close()  # create file
+                service.remove_service(service_name)
+            else:
+                spinner.fail(f"failed to remove service: {str(e)}")
+                # output_error(f"failed to remove service: {str(e)}", return_val=False)
+                return False
         output_success(f"service {service_name} removed from catalog", return_val=False)
     return True
 
@@ -313,7 +321,7 @@ def start_service_shutdown(service_name):
             config = service.get_user_provided_config(service_name)
             service.remove_service(service_name)
             service.add_service(service_name, config)
-            output_success(f"service {service_name} is terminating.. may take some time.", return_val=False)
+            spinner.succeed(f"service {service_name} is terminating.. may take some time.")
             return True
         else:
             # output_error(
@@ -325,11 +333,19 @@ def start_service_shutdown(service_name):
 
 def service_down(cmd_pointer, parser) -> None:
     """This function synchronously shuts down a service"""
-    service_name = parser.as_dict()["service_name"]
-    if not start_service_shutdown(service_name):
-        spinner.warn(f"service {service_name} is not up")
-        output_warning(f"service {service_name} is not up", return_val=True)
-    return True
+    is_success = False
+    try:
+        service_name = parser.as_dict()["service_name"]
+        spinner.start(f"terminating {service_name} service")
+        if not start_service_shutdown(service_name):
+            spinner.info(f"service {service_name} is not up")
+            # output_warning(f"service {service_name} is not up")
+            is_success = True
+    except Exception as e:
+        output_error(str(e))
+    finally:
+        spinner.stop()
+    return is_success
 
 
 def get_service_endpoint(service_name) -> str | None:
