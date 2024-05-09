@@ -62,7 +62,12 @@ def merge_molecule_property_data(cmd_pointer, inp):
         output_error("No  'result' or 'value' column found ", return_val=False)
         return True
 
+    mol_dataframe = mol_dataframe.pivot_table(index=SMILES, columns=[prop], values=val)
+
+    mol_dataframe = mol_dataframe.reset_index()
+    print("loading records")
     for row in mol_dataframe.to_dict("records"):
+
         update_flag = True
         merge_mol = None
         merge_mol = retrieve_mol_from_list(cmd_pointer, row[SMILES])
@@ -73,9 +78,9 @@ def merge_molecule_property_data(cmd_pointer, inp):
             update_flag = True
 
         # else duplicate
-        a_mol = {"SMILES": row[SMILES], row[prop]: row[val]}
+        # a_mol = {"SMILES": row[SMILES], row[prop]: row[val]}
         if merge_mol is not None:
-            merge_mol = merge_molecule_properties(a_mol, merge_mol)
+            merge_mol = merge_molecule_properties(row, merge_mol)
             # print("updated: " + str(a_mol))
             if update_flag is False:
                 cmd_pointer.molecule_list.append(merge_mol)

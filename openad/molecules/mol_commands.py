@@ -300,10 +300,11 @@ def list_molecules(cmd_pointer, inp):
         for mol in cmd_pointer.molecule_list:
             identifiers = get_identifiers(mol)
             display_list = pd.concat([display_list, pd.DataFrame([identifiers])])
-        if GLOBAL_SETTINGS["display"] == "notebook":
-            return output_table(display_list, is_data=True).data
-        else:
-            return output_table(display_list)
+        return display_list
+        # if GLOBAL_SETTINGS["display"] == "notebook":
+        #    return output_table(display_list, is_data=True)
+        # else:
+        #    return output_table(display_list)
 
     else:
         return output_text("No molecules in list")
@@ -354,8 +355,9 @@ def export_molecule_set(cmd_pointer, inp):
         return True
     csv_file_name = None
 
-    if GLOBAL_SETTINGS["display"] == "notebook" and "csv_file_name" not in inp.as_dict():
+    if GLOBAL_SETTINGS["display"] in ["notebook", "api"] and "csv_file_name" not in inp.as_dict():
         return moleculelist_to_data_frame(cmd_pointer.molecule_list.copy())
+
     else:
         if "csv_file_name" not in inp.as_dict():
             output_warning(msg("war_no_filename_provided", "mols_export.csv"), return_val=False)
@@ -425,6 +427,8 @@ def is_molecule(mol, molecule):
         mol["properties"]["isomeric_smiles"] is not None
         and molecule.upper() == mol["properties"]["isomeric_smiles"].upper()
     ):
+        return mol
+    if molecule == mol["properties"]["canonical_smiles"]:
         return mol
     try:
         if canonical_smiles(molecule) == canonical_smiles(mol["properties"]["canonical_smiles"]):
