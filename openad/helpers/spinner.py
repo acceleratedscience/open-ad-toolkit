@@ -29,6 +29,9 @@ class Spinner(Halo):
             text = output_text(f"<soft>{text}...</soft>", return_val=True, jup_return_format="plain") if text else None
         super().start(text)
     
+    def succeed(self, *args, **kwargs):
+        return super().succeed(*args, **kwargs)
+    
     def info(self, *args, **kwargs):
         return super().info(*args, **kwargs)
     
