@@ -8,7 +8,7 @@ import os
 import pandas as pd
 import glob
 import json
-from openad.helpers.output import output_error, output_text, output_success
+from openad.helpers.output import output_error, output_text, output_success, output_warning
 from openad.helpers.spinner import spinner
 from openad.openad_model_plugin.catalog_model_services import help_dict_create, get_service_endpoint
 
@@ -694,12 +694,19 @@ def openad_model_requestor(cmd_pointer, parser):
         service = None
 
     a_request = request_generate(parser)
+    Endpoint = get_service_endpoint(service)
 
-    Endpoint = "http://" + get_service_endpoint(service)
+    if Endpoint is not None and len((Endpoint.strip())) > 0:
+        Endpoint = "http://" + Endpoint
     # Endpoint = "http://34.205.69.8:8080"
+    else:
+        Endpoint = None
+
     if Endpoint is None:
-        output_error("No Service Cataloged")
-        return None
+
+        return output_error(
+            "No Service Cataloged or service not up. \n Check Service Status <cmd>model service status</cmd> "
+        )
 
     spinner.start("Executing Request Against Server")
 
@@ -726,6 +733,8 @@ def openad_model_requestor(cmd_pointer, parser):
                     for key, value in response_result["error"].items():
                         run_error = run_error + f"- <cmd>{key}</cmd> : {value}\n  "
                     return output_error(run_error)
+                if "detail" in response_result:
+                    return output_warning(response_result["detail"])
 
             result = pd.DataFrame(response_result)
             if "save_as" in parser:

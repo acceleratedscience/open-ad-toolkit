@@ -4,6 +4,7 @@ import pandas
 
 # required for Magic Template
 from IPython.display import Markdown
+from IPython.display import display
 from IPython.core.magic import (
     Magics,
     magics_class,
@@ -92,6 +93,8 @@ class AD(Magics):
 
         if isinstance(result, Styler):
             result = result.data
+        if isinstance(result, str):
+            display(Markdown(result))
         return result
 
 
