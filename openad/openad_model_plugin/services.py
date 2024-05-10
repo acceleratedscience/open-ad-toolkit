@@ -145,7 +145,15 @@ class ModelService(Dispatcher):
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.save()
 
-    def get_short_status(self, name: str):
+    def get_short_status(self, name: str) -> Dict[str, Any]:
+        """Get a condensed dictionary of service status
+
+        Args:
+            name (str): name of service
+
+        Returns:
+            Dict[str, Any]: {"up", "url"}
+        """
         status = self.status(name)
         return {"up": bool(status.get("up")), "url": status.get("url")}
 

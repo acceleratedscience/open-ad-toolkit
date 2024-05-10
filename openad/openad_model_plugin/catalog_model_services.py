@@ -107,13 +107,19 @@ def model_service_status(cmd_pointer, parser):
     # get list of directory names for the catalog models
     models = {"Service": [], "Status": [], "Endpoint": []}
     with Dispatcher as service:
-        all_services = service.list()
+        # get all the services then order by name and if url exists
+        all_services: list = service.list()
+        with_url: set = set(i for i in all_services if service.get_short_status(i).get("url"))
+        without_url: set = set(all_services) - with_url
+        order_services = sorted(list(with_url)) + sorted(list(without_url))
+        # !important load services with update
         service.load(update_status=True)
         if all_services:  # proceed if any service available
             try:
                 spinner.start("searching running services")
+                # TODO: verify how much time or have a more robust method
                 time.sleep(3)  # wait for service threads to ping endpoint
-                for name in all_services:
+                for name in order_services:
                     res = service.get_short_status(name)
                     # set the status of the service
                     if res.get("up"):
@@ -134,7 +140,6 @@ def model_service_status(cmd_pointer, parser):
             finally:
                 spinner.stop()
     return DataFrame(models)
-    return output_table(DataFrame(models), is_data=False)
 
 
 def model_service_config(cmd_pointer, parser):
@@ -144,7 +149,8 @@ def model_service_config(cmd_pointer, parser):
         res = service.get_config_as_dict(service_name)
         config = {**res["template"]["service"], **res["template"]["resources"]}
         table_data = [[key, value] for key, value in config.items()]
-        print(tabulate(table_data, headers=["Resource", "value"], tablefmt="pretty"))
+        # print(tabulate(table_data, headers=["Resource", "value"], tablefmt="pretty"))
+    return DataFrame(table_data, columns=["Resource", "value"])
 
 
 def retrieve_model(from_path: str, to_path: str) -> Tuple[bool, str]:
@@ -321,7 +327,7 @@ def start_service_shutdown(service_name):
             config = service.get_user_provided_config(service_name)
             service.remove_service(service_name)
             service.add_service(service_name, config)
-            spinner.succeed(f"service {service_name} is terminating.. may take some time.")
+            spinner.warn(f"service {service_name} is terminating.. may take some time.")
             return True
         else:
             # output_error(
