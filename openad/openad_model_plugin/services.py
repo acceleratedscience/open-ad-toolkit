@@ -7,6 +7,8 @@ import json
 import os
 from subprocess import run
 import shlex
+import requests
+import time
 
 
 class ModelServiceUniqueLocation(Dispatcher):
@@ -168,9 +170,10 @@ class ModelService(Dispatcher):
                 # ok. create file
                 self.save(location=location)
 
-    def __call__(self, *args: Any, **kwargs: Any) -> Any:
+    def __call__(self, *args: Any, **kwargs: Any) -> Self:
             # always does a load() but can optionally update servicer threads
             self.load(location=kwargs.get("location"), update_status=kwargs.get("update_status"))
+            # TODO: load remote services here?
             return self
 
     def __enter__(self):
@@ -180,9 +183,61 @@ class ModelService(Dispatcher):
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.save()
+    
+    def check_service_up(self, address: str, resource: str = "/health", timeout: float=1.0) -> int | str:
+        """ping the host address to see if service is up
+
+        Args:
+            address (str): _description_
+            resource (str, optional): _description_. Defaults to "/health".
+            timeout (float, optional): _description_. Defaults to 1.0.
+
+        Returns:
+            bool: _description_
+        """
+        start_time = time.time()
+        # Ping the endpoint until timeout has elapsed
+        up = False
+        while True:
+            try:
+                # Make a GET request to the endpoint
+                response = requests.get(address + resource, timeout=0.2)
+                if response.status_code == 200:
+                    up = True
+                    break
+                # Check if timeout has elapsed
+                if time.time() - start_time >= timeout:
+                    break
+            except requests.exceptions.RequestException as e:
+                # Check if timeout has elapsed
+                if time.time() - start_time >= timeout:
+                    break
+        return up
+
+    def load_extra_data(self, name: str) -> Dict[str, Any]:
+        """Returns data if data field in UserProvidedConfig is the only available field
+        """
+        status = self.status(name).get("data")
+        if status["data"]:
+            return json.loads(status["data"])
+        return dict()
+    
+    def get_url(self, name: str):
+        status = self.status(name)
+        extra_data = self.load_extra_data(name)
+        url = ""
+        # check if remote url
+        if extra_data and extra_data.get("remote_endpoint"):
+            url = extra_data.get("remote_endpoint")
+        elif status.get("url"):
+            url = status.get("url")
+        # add url prefix
+        if url and "http" not in url:
+            url = "http://" + url
+        return url
 
     def get_short_status(self, name: str) -> Dict[str, Any]:
-        """Get a condensed dictionary of service status
+        """Get service url and up status for local services and remote services
 
         Args:
             name (str): name of service
@@ -191,9 +246,31 @@ class ModelService(Dispatcher):
             Dict[str, Any]: {"up", "url"}
         """
         status = self.status(name)
-        return {"up": bool(status.get("up")), "url": status.get("url")}
+        extra_data = self.load_extra_data(name)
+        ret_status = {"is_remote": False}
+        # alternative data exists
+        if extra_data and extra_data.get("remote_endpoint"):
+            url = extra_data.get("remote_endpoint")
+            ret_status["url"] = extra_data.get("remote_endpoint")
+            ret_status["up"] = self.check_service_up(url)
+            ret_status["is_remote"] = True
+        # use service data
+        if status.get("url"):
+            url = status.get("url")
+        if status.get("up"):
+            ret_status["up"] = bool(status.get("up"))
+        return ret_status
 
     def status(self, name: str, pretty: bool | None = None) -> Dict[str, Any]:
+        """Loads status as json object
+
+        Args:
+            name (str): service name
+            pretty (bool | None, optional): format indent. Defaults to None.
+
+        Returns:
+            Dict[str, Any]: data
+        """
         return json.loads(super().status(name, pretty))
 
     def get_user_provided_config(self, name: str) -> UserProvidedConfig:

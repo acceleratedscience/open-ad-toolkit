@@ -105,11 +105,11 @@ def get_catalog_namespaces(cmd_pointer, parser) -> Dict:
 def model_service_status(cmd_pointer, parser):
     """This function catalogs a service"""
     # get list of directory names for the catalog models
-    models = {"Service": [], "Status": [], "Endpoint": []}
+    models = {"Service": [], "Status": [], "Endpoint": [], "Type": []}
     with Dispatcher(update_status=True) as service:
         # get all the services then order by name and if url exists
         all_services: list = service.list()
-        with_url: set = set(i for i in all_services if service.get_short_status(i).get("url"))
+        with_url: set = set(i for i in all_services if service.get_url(i))
         without_url: set = set(all_services) - with_url
         order_services = sorted(list(with_url)) + sorted(list(without_url))
         # !important load services with update
@@ -117,22 +117,25 @@ def model_service_status(cmd_pointer, parser):
             try:
                 spinner.start("searching running services")
                 # TODO: verify how much time or have a more robust method
-                time.sleep(3)  # wait for service threads to ping endpoint
+                time.sleep(2)  # wait for service threads to ping endpoint
                 for name in order_services:
                     res = service.get_short_status(name)
                     # set the status of the service
                     if res.get("up"):
                         status = "READY"
-                    elif res.get("url"):
+                    elif res.get("url") and not res.get("is_remote"):
                         status = "PENDING"
+                    elif res.get("is_remote") and res.get("url"):
+                        status = "UNREACHABLE"
                     else:
                         status = "DOWN"
+                    if res.get("is_remote"):
+                        models["Type"].append("remote")
+                    else:
+                        models["Type"].append("local")
                     models["Service"].append(name)
                     models["Status"].append(status)
-                    if res.get("url"):
-                        models["Endpoint"].append("http://" + res.get("url"))
-                    else:
-                        models["Endpoint"].append(res.get("url"))
+                    models["Endpoint"].append(res.get("url"))
             except Exception as e:
                 # model service not cataloged or doesnt exist
                 output_warning(str(e))
@@ -307,9 +310,22 @@ def service_up(cmd_pointer, parser) -> None:
     # return output_success(f"service ({service_name}) started")
 
 
-def service_up_endpoint(cmd_pointer, parser) -> None:
+def service_up_endpoint(cmd_pointer, parser) -> bool:
+    service_name = parser.as_dict()["service_name"]
     endpoint = parser.as_dict()["endpoint"]
-    output_error("Not yet implemented")
+    
+    with Dispatcher() as service:
+        if service_name in service.list():
+            spinner.fail(f"service {service_name} already exists")
+            return False
+        # load remote endpoint to config custom field
+        config = json.dumps({
+            "remote_service": True,
+            "remote_endpoint": endpoint,
+            "remote_status": False
+        })
+        service.add_service(service_name, UserProvidedConfig(data=config))
+    spinner.succeed(f"Remote service '{service_name}' added!")
 
 
 def local_service_up(cmd_pointer, parser) -> None:
@@ -394,12 +410,12 @@ def service_catalog_grammar(statements: list, help: list):
         )
     )
 
-    statements.append(py.Forward(model + service + up + remote + quoted_string("endpoint"))("service_up_endpoint"))
+    statements.append(py.Forward(model + service + up + remote + quoted_string("endpoint") + a_s + quoted_string("service_name"))("service_up_endpoint"))
     help.append(
         help_dict_create(
             name="model service up remote",
             category="Model",
-            command="model service up remote <endpoint>",
+            command="model service up remote <endpoint> as <service_name>",
             description="connect to a remote model endpoint",
         )
     )
