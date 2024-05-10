@@ -5,7 +5,7 @@ import glob
 from openad.helpers.output import output_text, output_table, output_warning, output_error, output_success
 from openad.helpers.spinner import spinner
 from openad.openad_model_plugin.services import ModelService, UserProvidedConfig
-from typing import List, Dict, Tuple, cast
+from typing import List, Dict, Tuple
 from pandas import DataFrame
 from subprocess import run
 import shlex
@@ -24,7 +24,7 @@ if not os.path.exists(SERVICE_DEFINTION_PATH):
 # this is the global object that should be used across openad and testing
 Dispatcher = ModelService()
 ### example of how to use the dispatcher ###
-# with Dispatcher as service:
+# with Dispatcher() as service:
 #     print(service.list())
 
 
@@ -106,14 +106,13 @@ def model_service_status(cmd_pointer, parser):
     """This function catalogs a service"""
     # get list of directory names for the catalog models
     models = {"Service": [], "Status": [], "Endpoint": []}
-    with Dispatcher as service:
+    with Dispatcher(update_status=True) as service:
         # get all the services then order by name and if url exists
         all_services: list = service.list()
         with_url: set = set(i for i in all_services if service.get_short_status(i).get("url"))
         without_url: set = set(all_services) - with_url
         order_services = sorted(list(with_url)) + sorted(list(without_url))
         # !important load services with update
-        service.load(update_status=True)
         if all_services:  # proceed if any service available
             try:
                 spinner.start("searching running services")
@@ -145,7 +144,7 @@ def model_service_status(cmd_pointer, parser):
 def model_service_config(cmd_pointer, parser):
     """prints service resources"""
     service_name = parser.as_dict()["service_name"]
-    with Dispatcher as service:
+    with Dispatcher() as service:
         res = service.get_config_as_dict(service_name)
         config = {**res["template"]["service"], **res["template"]["resources"]}
         table_data = [[key, value] for key, value in config.items()]
@@ -164,7 +163,6 @@ def retrieve_model(from_path: str, to_path: str) -> Tuple[bool, str]:
         except Exception as e:
             spinner.fail(f"git not installed or unreachable")
             spinner.stop()
-            spinner.start()
             return False, "git not installed or unreachable"
         # attempt to download model using git ssh
         try:
@@ -173,12 +171,10 @@ def retrieve_model(from_path: str, to_path: str) -> Tuple[bool, str]:
             assert clone.returncode == 0, clone.stderr
             spinner.info(f"successfully retrieved model {from_path}")
             spinner.stop()
-            spinner.start()
             return True, ""
         except Exception as e:
             spinner.fail(f"error: {str(e)}")
             spinner.stop()
-            spinner.start()
             return False, str(e)
     # uses local path
     elif os.path.exists(from_path):
@@ -189,17 +185,14 @@ def retrieve_model(from_path: str, to_path: str) -> Tuple[bool, str]:
             assert cp.returncode == 0, cp.stderr
             spinner.info(f"successfully retrieved model {from_path}")
             spinner.stop()
-            spinner.start()
             return True, ""
         except Exception as e:
             spinner.fail(f"failed to fetch path {from_path} >> {str(e)}")
             spinner.stop()
-            spinner.start()
             return False, str(e)
     else:
         spinner.fail(f"invalid path {from_path}")
         spinner.stop()
-        spinner.start()
         return False, f"invalid path {from_path}"
 
 
@@ -241,7 +234,7 @@ def catalog_add_model_service(cmd_pointer, parser) -> bool:
     service_name = parser.as_dict()["service_name"]
     remote_service = parser.as_dict()["path"]
     # check if service exists
-    with Dispatcher as service:
+    with Dispatcher() as service:
         if service_name in service.list():
             spinner.fail(f"service {service_name} already exists in catalog")
             output_error(f"service {service_name} already exists in catalog", return_val=False)
@@ -257,7 +250,7 @@ def catalog_add_model_service(cmd_pointer, parser) -> bool:
     # get any available configs from service
     config = load_service_config(local_service_path)
     # add the service
-    with Dispatcher as service:
+    with Dispatcher() as service:
         service.add_service(service_name, config)
         # spinner.succeed(f"service {service_name} added to catalog")
         output_success(f"service {service_name} added to catalog", return_val=False)
@@ -267,7 +260,7 @@ def catalog_add_model_service(cmd_pointer, parser) -> bool:
 def uncatalog_model_service(cmd_pointer, parser):
     """This function removes a catalog from the ~/.openad_model_service directory"""
     service_name = parser.as_dict()["service_name"]
-    with Dispatcher as service:
+    with Dispatcher() as service:
         # check if service exists
         if service_name not in service.list():
             return output_error(f"service {service_name} not found in catalog", return_val=False)
@@ -278,7 +271,7 @@ def uncatalog_model_service(cmd_pointer, parser):
         if os.path.exists(os.path.join(SERVICE_DEFINTION_PATH, service_name)):
             shutil.rmtree(os.path.join(SERVICE_DEFINTION_PATH, service_name))
         # remove service from cache
-    with Dispatcher as service:  # initialize fresh load
+    with Dispatcher() as service:  # initialize fresh load
         try:
             service.remove_service(service_name)
             spinner.succeed(f"service {service_name} removed from catalog")
@@ -302,7 +295,7 @@ def service_up(cmd_pointer, parser) -> None:
     service_name = parser.as_dict()["service_name"]
     # spinner.start("Starting service")
     try:
-        with Dispatcher as service:
+        with Dispatcher() as service:
             service.up(service_name, skip_prompt=True)
         # spinner.succeed(f"service ({service_name}) started")
     except Exception as e:
@@ -313,13 +306,19 @@ def service_up(cmd_pointer, parser) -> None:
     # spinner.stop()
     # return output_success(f"service ({service_name}) started")
 
+
+def service_up_endpoint(cmd_pointer, parser) -> None:
+    endpoint = parser.as_dict()["endpoint"]
+    output_error("Not yet implemented")
+
+
 def local_service_up(cmd_pointer, parser) -> None:
     service_name = parser.as_dict()["service_name"]
     output_error("Not yet implemented")
 
 
 def start_service_shutdown(service_name):
-    with Dispatcher as service:
+    with Dispatcher() as service:
         if service.status(service_name).get("url") or bool(service.status(service_name).get("up")):
             # shut down service
             service.down(service_name, skip_prompt=True)
@@ -359,7 +358,7 @@ def get_service_endpoint(service_name) -> str | None:
     if service_name is None:
         # may in future return a default local service
         return None
-    with Dispatcher as service:
+    with Dispatcher() as service:
 
         # endpoint = json.loads(service.status(service_name)).get("url")
         endpoint = service.status(service_name)["url"]
@@ -383,6 +382,7 @@ def service_catalog_grammar(statements: list, help: list):
     quoted_string = py.QuotedString("'", escQuote="\\")
     a_s = py.CaselessKeyword("as")
     config = py.CaselessKeyword("config")
+    remote = py.CaselessKeyword("remote")
 
     statements.append(py.Forward(model + service + status)("model_service_status"))
     help.append(
@@ -391,6 +391,16 @@ def service_catalog_grammar(statements: list, help: list):
             category="Model",
             command="model service status",
             description="get the status of currently cataloged services",
+        )
+    )
+
+    statements.append(py.Forward(model + service + up + remote + quoted_string("endpoint"))("service_up_endpoint"))
+    help.append(
+        help_dict_create(
+            name="model service up remote",
+            category="Model",
+            command="model service up remote <endpoint>",
+            description="connect to a remote model endpoint",
         )
     )
 

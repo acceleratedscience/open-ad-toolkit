@@ -1,7 +1,8 @@
+import datetime
 from typing import Any, List, Optional, Callable, Tuple, Dict
 from typing_extensions import Self
 from servicing import Dispatcher, UserProvidedConfig
-from openad.helpers.output import output_error, output_text, output_success
+from openad.helpers.output import output_error, output_warning
 import json
 import os
 from subprocess import run
@@ -124,22 +125,57 @@ class ModelServiceUniqueLocation(Dispatcher):
         return list(filter(lambda x: not x.startswith("__"), dir(self)))
 
 
-class ModelService(Dispatcher):
-    def __init__(self, location: str = None, update_status: bool = True) -> None:
-        super().__init__()
-        # search for previous running services
-        self.load(location=location, update_status=update_status)
+class ServiceFileLoadError(Exception):
+    """Raises error if a service file could not load
 
-    def load(self, location: str = None, update_status: bool = False):
+    Args:
+        Exception (_type_): _description_
+    """
+    def __init__(self, *args: object) -> None:
+        super().__init__(*args)
+
+
+class ModelService(Dispatcher):
+    def __init__(self, *args, **kwargs) -> None:
+        # search for previous running services
+        self.load(location=kwargs.get("location"), update_status=kwargs.get("update_status"))
+        super().__init__()
+
+    def load(self, location: str | None = None, update_status: bool | None = False):
         """load a config. if it doesnt exist auto create it"""
         try:
             super().load(location=location, update_status=update_status)
+            # output_success("loaded services")
         except:
-            self.save(location=location)
+            # use default directory
+            if location is None:
+                location = os.path.expanduser("~/.servicing")
+            # check if services file exists in path
+            if os.path.exists(location + "/services.bin"):
+                output_error("Error: unable to load services config")
+                user_choice = input("Do you want to overwrite the current services?\nUse with caution this can lead to hanging services! (y/n) : ")
+                if user_choice.strip().lower() == "y":
+                    # rename directory to save as backup
+                    backup_location = f"{location}.backup-{datetime.datetime.now().strftime('%Y-%m-%d-%H:%M:%S')}"
+                    os.rename(location, backup_location)
+                    # create new services directory
+                    self.save(location=location)
+                    output_warning(f"New services file created. Old services backed up to: {backup_location}")
+                else:
+                    # error
+                    raise ServiceFileLoadError("Shutdown running services and try again or revert to an older version of openad")
+            else:
+                # ok. create file
+                self.save(location=location)
 
-    def __enter__(self, name: str = None):
-        self.name = name
-        self.load()
+    def __call__(self, *args: Any, **kwargs: Any) -> Any:
+            # always does a load() but can optionally update servicer threads
+            self.load(location=kwargs.get("location"), update_status=kwargs.get("update_status"))
+            return self
+
+    def __enter__(self):
+        # only does a load() if you call constructor method
+        # like mymodelservice()
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
