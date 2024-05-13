@@ -243,7 +243,7 @@ def load_service_config(local_service_path: str) -> UserProvidedConfig:
                 # create a UserProvidedConfig with conf data
                 spinner.info("found non defaults in openad.cfg")
                 table_data = [[key, value] for key, value in conf.items()]
-                print(tabulate(table_data, headers=["service spec", "value"], tablefmt="pretty"))
+                print(tabulate(table_data, headers=["Resource", "value"], tablefmt="pretty"))
                 return UserProvidedConfig(**conf, workdir=local_service_path)
             else:
                 spinner.warn("error with (openad.cfg). Could not load user config. Loading defaults.")
@@ -319,21 +319,20 @@ def uncatalog_model_service(cmd_pointer, parser):
 
 def service_up(cmd_pointer, parser) -> None:
     """This function synchronously starts a service"""
+    gpu_disable = "no_gpu" in parser.as_dict()  # boolean flag to disable gpu
     if "no_gpu" in parser.as_dict():
         print("disable gpu for deployment")
     service_name = parser.as_dict()["service_name"]
     # spinner.start("Starting service")
     try:
         with Dispatcher() as service:
-            service.up(service_name, skip_prompt=True)
-        # spinner.succeed(f"service ({service_name}) started")
+            service.up(service_name, skip_prompt=True, gpu_disable=gpu_disable)
+            # spinner.succeed(f"service ({service_name}) started")
+            output_success(f"Service {service_name} is Starting.. may take some time.", return_val=False)
+            return True
     except Exception as e:
         output_error("Service was unable to be started:\n" + str(e), return_val=False)
         return False
-    output_success(f"Service {service_name} is Starting.. may take some time.", return_val=False)
-    return True
-    # spinner.stop()
-    # return output_success(f"service ({service_name}) started")
 
 
 def service_up_endpoint(cmd_pointer, parser) -> bool:
@@ -499,7 +498,14 @@ def service_catalog_grammar(statements: list, help: list):
         )
     )
 
-    statements.append(py.Forward(model + service + up + quoted_string("service_name"))("service_up"))
+    statements.append(
+        py.Forward(
+            model 
+            + service 
+            + up 
+            + quoted_string("service_name")
+            + py.Optional(py.CaselessKeyword("NO_GPU")("no_gpu"))
+            )("service_up"))
     help.append(
         help_dict_create(
             name="Model up",

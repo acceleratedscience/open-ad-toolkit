@@ -188,6 +188,37 @@ class ModelService(Dispatcher):
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.save()
+    
+    def up(self, name: str, skip_prompt: bool | None = None, gpu_disable: bool = False) -> None:
+        # TODO: update openad.cfg file for resource state
+        if gpu_disable:
+            service_config_dict = self.get_config_as_dict(name)
+            old_config = self.get_user_provided_config(name)
+            # remove gpu from config
+            if service_config_dict.get("data")["accelerators"]:
+                try:
+                    # get resource values for service
+                    tmp_data = {**service_config_dict["data"]}
+                    tmp_data["accelerators"] = None
+                    gpu_disable_config = UserProvidedConfig(**tmp_data)
+                    # replace current config
+                    self.remove_service(name)
+                    self.add_service(name, config=gpu_disable_config)
+                    # start service without gpu
+                    super().up(name, skip_prompt)
+                except Exception as e:
+                    # put back old config
+                    self.remove_service(name)
+                    self.add_service(name, config=old_config)
+                    raise e
+                finally:
+                    # put back old config
+                    self.remove_service(name)
+                    self.add_service(name, config=old_config)
+                    return
+            else:
+                output_warning("service already not configured for gpu")
+        return super().up(name, skip_prompt)
 
     def check_service_up(self, address: str, resource: str = "/health", timeout: float = 1.0) -> int | str:
         """ping the host address to see if service is up
@@ -369,7 +400,7 @@ class DispatchManager:
 
 
 if __name__ == "__main__":
-    dispatcher1 = Dispatcher()
+    dispatcher1 = ModelService()
     dispatcher1.load()
     print(dispatcher1.list())
-    # print(json.dumps(dispatcher1.status(dispatcher1.list()[0]), indent=2))
+    print(json.dumps(dispatcher1.status(dispatcher1.list()[0]), indent=2))
