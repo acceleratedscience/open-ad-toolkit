@@ -201,7 +201,17 @@ def retrieve_model(from_path: str, to_path: str) -> Tuple[bool, str]:
 
 def load_service_config(local_service_path: str) -> UserProvidedConfig:
     """loads service params from openad.cfg file"""
-    cfg_map = {"port":int, "replicas":int, "cloud":str,"disk_size":int, "cpu":str, "memory":str, "accelerators":str, "setup":str, "run":str}
+    cfg_map = {
+        "port": int,
+        "replicas": int,
+        "cloud": str,
+        "disk_size": int,
+        "cpu": str,
+        "memory": str,
+        "accelerators": str,
+        "setup": str,
+        "run": str,
+    }
     if os.path.exists(os.path.join(local_service_path, "openad.cfg")):
         try:
             # open the document
@@ -236,6 +246,8 @@ def catalog_add_model_service(cmd_pointer, parser) -> bool:
     """Add model service repo to catalog"""
     service_name = parser.as_dict()["service_name"]
     remote_service = parser.as_dict()["path"]
+    if "remote" in parser:
+        print(" Cataloging a Remote Service")
     # check if service exists
     with Dispatcher() as service:
         if service_name in service.list():
@@ -313,17 +325,13 @@ def service_up(cmd_pointer, parser) -> None:
 def service_up_endpoint(cmd_pointer, parser) -> bool:
     service_name = parser.as_dict()["service_name"]
     endpoint = parser.as_dict()["endpoint"]
-    
+
     with Dispatcher() as service:
         if service_name in service.list():
             spinner.fail(f"service {service_name} already exists")
             return False
         # load remote endpoint to config custom field
-        config = json.dumps({
-            "remote_service": True,
-            "remote_endpoint": endpoint,
-            "remote_status": False
-        })
+        config = json.dumps({"remote_service": True, "remote_endpoint": endpoint, "remote_status": False})
         service.add_service(service_name, UserProvidedConfig(data=config))
     spinner.succeed(f"Remote service '{service_name}' added!")
 
@@ -410,7 +418,11 @@ def service_catalog_grammar(statements: list, help: list):
         )
     )
 
-    statements.append(py.Forward(model + service + up + remote + quoted_string("endpoint") + a_s + quoted_string("service_name"))("service_up_endpoint"))
+    statements.append(
+        py.Forward(model + service + up + remote + quoted_string("endpoint") + a_s + quoted_string("service_name"))(
+            "service_up_endpoint"
+        )
+    )
     help.append(
         help_dict_create(
             name="model service up remote",
@@ -453,16 +465,23 @@ def service_catalog_grammar(statements: list, help: list):
     )
 
     statements.append(
-        py.Forward(catalog + model + service + fr_om + quoted_string("path") + a_s + quoted_string("service_name"))(
-            "catalog_add_model_service"
-        )
+        py.Forward(
+            catalog
+            + model
+            + service
+            + fr_om
+            + py.Optional(remote("remote"))
+            + quoted_string("path")
+            + a_s
+            + quoted_string("service_name")
+        )("catalog_add_model_service")
     )
     help.append(
         help_dict_create(
             name="catalog Model service",
             category="Model",
-            command="catalog model service from '<path or github>' as  '<service_name>'",
-            description="catalog a model service from a path or github",
+            command="catalog model service from (remote)'<path or github>' as  '<service_name>'",
+            description="catalog a model service from a path or github or remotely from an existing OpenAD service",
         )
     )
 
