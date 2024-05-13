@@ -283,6 +283,7 @@ class ModelService(Dispatcher):
         Returns:
             Dict[str, Any]: {"up", "url"}
         """
+        # TODO: refactor
         status = self.status(name)
         extra_data = self.load_extra_data(name)
         ret_status = {"is_remote": False}
@@ -294,7 +295,7 @@ class ModelService(Dispatcher):
             ret_status["is_remote"] = True
         # use service data
         if status.get("url"):
-            url = status.get("url")
+            ret_status["url"] = self.get_url(name)
         if status.get("up"):
             ret_status["up"] = bool(status.get("up"))
         return ret_status

@@ -109,19 +109,10 @@ def model_service_status(cmd_pointer, parser):
     with Dispatcher(update_status=True) as service:
         # get all the services then order by name and if url exists
         all_services: list = service.list()
-        print(all_services)
-        try:
-            print(service.get_url("prop"))
-        except Exception as e:
-            print(e)
-
         with_url: set = set(i for i in all_services if service.get_url(i))
-
         without_url: set = set(all_services) - with_url
-
         order_services = sorted(list(with_url)) + sorted(list(without_url))
-
-        order_services = all_services
+        # order_services = all_services
         # !important load services with update
         if all_services:  # proceed if any service available
             try:
