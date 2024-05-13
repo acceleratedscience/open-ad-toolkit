@@ -109,9 +109,19 @@ def model_service_status(cmd_pointer, parser):
     with Dispatcher(update_status=True) as service:
         # get all the services then order by name and if url exists
         all_services: list = service.list()
+        print(all_services)
+        try:
+            print(service.get_url("prop"))
+        except Exception as e:
+            print(e)
+
         with_url: set = set(i for i in all_services if service.get_url(i))
+
         without_url: set = set(all_services) - with_url
+
         order_services = sorted(list(with_url)) + sorted(list(without_url))
+
+        order_services = all_services
         # !important load services with update
         if all_services:  # proceed if any service available
             try:
@@ -137,10 +147,12 @@ def model_service_status(cmd_pointer, parser):
                     models["Status"].append(status)
                     models["Endpoint"].append(res.get("url"))
             except Exception as e:
+
                 # model service not cataloged or doesnt exist
                 output_warning(str(e))
             finally:
                 spinner.stop()
+
     return DataFrame(models)
 
 
@@ -307,6 +319,8 @@ def uncatalog_model_service(cmd_pointer, parser):
 
 def service_up(cmd_pointer, parser) -> None:
     """This function synchronously starts a service"""
+    if "no_gpu" in parser.as_dict():
+        print("disable gpu for deployment")
     service_name = parser.as_dict()["service_name"]
     # spinner.start("Starting service")
     try:
@@ -495,7 +509,16 @@ def service_catalog_grammar(statements: list, help: list):
         )
     )
 
-    statements.append(py.Forward(model + service + local + up + quoted_string("service_name"))("local_service_up"))
+    statements.append(
+        py.Forward(
+            model
+            + service
+            + local
+            + up
+            + quoted_string("service_name")
+            + py.Optional(py.CaselessKeyword("NO_GPU")("no_gpu"))
+        )("local_service_up")
+    )
     help.append(
         help_dict_create(
             name="Model local up",

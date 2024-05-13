@@ -1165,7 +1165,7 @@ if (Clazz.instanceOf (pt, JU.P3)) return pt;
 break;
 case 7:
 pt = JU.Escape.uP ("{" + JS.SV.sValue (x).$replace (']', ' ').$replace ('[', ' ') + "}");
-if (Clazz.instanceOf (pt, JU.P3)) return pt;
+if (Clazz. (pt, JU.P3)) return pt;
 break;
 }
 return null;

@@ -196,6 +196,8 @@ def merge_molecule_properties(molecule_dict, mol):
         return None
     if "ROMol" in molecule_dict:
         del molecule_dict["ROMol"]
+    if "subject" in molecule_dict:
+        del molecule_dict["subject"]
 
     for key in molecule_dict:
         mol["properties"][key] = molecule_dict[key]

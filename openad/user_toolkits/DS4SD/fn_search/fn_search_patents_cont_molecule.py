@@ -104,8 +104,12 @@ def search_patents_cont_molecule(inputs: dict, cmd_pointer):
         ),
         cmd_pointer=cmd_pointer,
     )
+
     if GLOBAL_SETTINGS["display"] == "notebook":
         df = pd.DataFrame(results_table)
-        return output_table(df, is_data=True).data
+        if results_table != []:
+            return output_table(df, is_data=True).data
+        else:
+            return None
 
     return output_table(pd.DataFrame(results_table))

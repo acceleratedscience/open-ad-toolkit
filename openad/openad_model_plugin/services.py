@@ -133,6 +133,7 @@ class ServiceFileLoadError(Exception):
     Args:
         Exception (_type_): _description_
     """
+
     def __init__(self, *args: object) -> None:
         super().__init__(*args)
 
@@ -155,7 +156,9 @@ class ModelService(Dispatcher):
             # check if services file exists in path
             if os.path.exists(location + "/services.bin"):
                 output_error("Error: unable to load services config")
-                user_choice = input("Do you want to overwrite the current services?\nUse with caution this can lead to hanging services! (y/n) : ")
+                user_choice = input(
+                    "Do you want to overwrite the current services?\nUse with caution this can lead to hanging services! (y/n) : "
+                )
                 if user_choice.strip().lower() == "y":
                     # rename directory to save as backup
                     backup_location = f"{location}.backup-{datetime.datetime.now().strftime('%Y-%m-%d-%H:%M:%S')}"
@@ -165,16 +168,18 @@ class ModelService(Dispatcher):
                     output_warning(f"New services file created. Old services backed up to: {backup_location}")
                 else:
                     # error
-                    raise ServiceFileLoadError("Shutdown running services and try again or revert to an older version of openad")
+                    raise ServiceFileLoadError(
+                        "Shutdown running services and try again or revert to an older version of openad"
+                    )
             else:
                 # ok. create file
                 self.save(location=location)
 
     def __call__(self, *args: Any, **kwargs: Any) -> Self:
-            # always does a load() but can optionally update servicer threads
-            self.load(location=kwargs.get("location"), update_status=kwargs.get("update_status"))
-            # TODO: load remote services here?
-            return self
+        # always does a load() but can optionally update servicer threads
+        self.load(location=kwargs.get("location"), update_status=kwargs.get("update_status"))
+        # TODO: load remote services here?
+        return self
 
     def __enter__(self):
         # only does a load() if you call constructor method
@@ -183,8 +188,8 @@ class ModelService(Dispatcher):
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.save()
-    
-    def check_service_up(self, address: str, resource: str = "/health", timeout: float=1.0) -> int | str:
+
+    def check_service_up(self, address: str, resource: str = "/health", timeout: float = 1.0) -> int | str:
         """ping the host address to see if service is up
 
         Args:
@@ -215,16 +220,18 @@ class ModelService(Dispatcher):
         return up
 
     def load_extra_data(self, name: str) -> Dict[str, Any]:
-        """Returns data if data field in UserProvidedConfig is the only available field
-        """
+        """Returns data if data field in UserProvidedConfig is the only available field"""
         status = self.status(name).get("data")
         if status["data"]:
             return json.loads(status["data"])
         return dict()
-    
+
     def get_url(self, name: str):
+
         status = self.status(name)
+
         extra_data = self.load_extra_data(name)
+
         url = ""
         # check if remote url
         if extra_data and extra_data.get("remote_endpoint"):
