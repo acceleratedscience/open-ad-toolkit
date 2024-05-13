@@ -141,7 +141,9 @@ class ServiceFileLoadError(Exception):
 class ModelService(Dispatcher):
     def __init__(self, *args, **kwargs) -> None:
         # search for previous running services
-        self.load(location=kwargs.get("location"), update_status=kwargs.get("update_status"))
+        self.load(
+            location=kwargs.get("location"), update_status=kwargs.get("update_status")
+        )
         super().__init__()
 
     def load(self, location: str | None = None, update_status: bool | None = False):
@@ -165,7 +167,9 @@ class ModelService(Dispatcher):
                     os.rename(location, backup_location)
                     # create new services directory
                     self.save(location=location)
-                    output_warning(f"New services file created. Old services backed up to: {backup_location}")
+                    output_warning(
+                        f"New services file created. Old services backed up to: {backup_location}"
+                    )
                 else:
                     # error
                     raise ServiceFileLoadError(
@@ -177,7 +181,9 @@ class ModelService(Dispatcher):
 
     def __call__(self, *args: Any, **kwargs: Any) -> Self:
         # always does a load() but can optionally update servicer threads
-        self.load(location=kwargs.get("location"), update_status=kwargs.get("update_status"))
+        self.load(
+            location=kwargs.get("location"), update_status=kwargs.get("update_status")
+        )
         # TODO: load remote services here?
         return self
 
@@ -188,8 +194,10 @@ class ModelService(Dispatcher):
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.save()
-    
-    def up(self, name: str, skip_prompt: bool | None = None, gpu_disable: bool = False) -> None:
+
+    def up(
+        self, name: str, skip_prompt: bool | None = None, gpu_disable: bool = False
+    ) -> None:
         # TODO: update openad.cfg file for resource state
         if gpu_disable:
             service_config_dict = self.get_config_as_dict(name)
@@ -220,7 +228,9 @@ class ModelService(Dispatcher):
                 output_warning("service already not configured for gpu")
         return super().up(name, skip_prompt)
 
-    def check_service_up(self, address: str, resource: str = "/health", timeout: float = 1.0) -> int | str:
+    def check_service_up(
+        self, address: str, resource: str = "/health", timeout: float = 1.0
+    ) -> int | str:
         """ping the host address to see if service is up
 
         Args:
@@ -244,7 +254,7 @@ class ModelService(Dispatcher):
                 # Check if timeout has elapsed
                 if time.time() - start_time >= timeout:
                     break
-            except requests.exceptions.RequestException as e:
+            except requests.exceptions.RequestException:
                 # Check if timeout has elapsed
                 if time.time() - start_time >= timeout:
                     break
@@ -258,7 +268,6 @@ class ModelService(Dispatcher):
         return dict()
 
     def get_url(self, name: str):
-
         status = self.status(name)
 
         extra_data = self.load_extra_data(name)
@@ -344,7 +353,9 @@ class ModelService(Dispatcher):
         workdir = status["template"]["workdir"]
         print(json.dumps(workdir, indent=2))
         with open(workdir + "/Dockerfile", "r") as f:
-            dockerfile = [line.strip().split(" ", maxsplit=1)[0] for line in f.readlines()]
+            dockerfile = [
+                line.strip().split(" ", maxsplit=1)[0] for line in f.readlines()
+            ]
         # get a count for each dock in dockerfile
         total_dock_steps = 0
         for i in dockerfile:
@@ -353,7 +364,7 @@ class ModelService(Dispatcher):
         return total_dock_steps
 
     def get_build_log_completion(self, name: str):
-        t_step = self.__get_build_step_count(name)
+        t_step = self.__get_build_step_count(name)  # noqa: F841
         cmd = shlex.split(f"sky serve logs {name} 1")
         print(cmd)
         print(run(cmd, capture_output=True))
