@@ -950,7 +950,9 @@ def cmd_line():
         import pandas as pd
 
         pd.set_option("expand_frame_repr", False)
-        print(result)
+        if result is not None and not isinstance(result, bool):
+            print(result)
+
     else:
         # If no argument passed then enter
         lets_exit = False

@@ -260,11 +260,14 @@ def get_mol_from_inchikey(inchikey_str: str):
 
 def get_mol_from_smiles(smiles_str: str):
     """return pubchem molecule data based on smiles"""
+
     if valid_smiles(smiles_str):
         # print("getting smiles")
-        success, openad_mol, molecule = get_mol(smiles_str, MOL_SMILES_INDEX)
 
-        openad_mol["properties"]["canonical_smiles"] = Chem.MolToSmiles(Chem.MolFromSmiles(smiles_str))
+        success, openad_mol, molecule = get_mol(smiles_str, MOL_SMILES_INDEX)
+        if openad_mol is not None:
+            openad_mol["properties"]["canonical_smiles"] = Chem.MolToSmiles(Chem.MolFromSmiles(smiles_str))
+
         return success, openad_mol, molecule
     else:
         return False, "Invalid Smiles", None

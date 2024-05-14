@@ -77,6 +77,13 @@ def display_molecule(cmd_pointer, inp):
 
     else:
         mol = retrieve_mol(molecule_identifier)
+
+        if mol is None:
+            mol = new_molecule(molecule_identifier, molecule_identifier)
+
+        if mol is None:
+            output_error("Error: Not a valid Molecule", return_val=False)
+            return None
         if mol is not None:
             cmd_pointer.last_external_molecule = mol.copy()
             print_string = (
@@ -88,10 +95,6 @@ def display_molecule(cmd_pointer, inp):
                 + "\n"
                 + format_analysis(mol)
             )
-
-        else:
-            output_error(msg("err_mol_not_on_pubchem"), return_val=False)
-            return None
     if GLOBAL_SETTINGS["display"] == "notebook":
         import py3Dmol
         from IPython.display import Markdown, display, HTML
@@ -206,13 +209,18 @@ def add_molecule(cmd_pointer, inp, force=False, suppress=False):
         mol = new_molecule(molecule_identifier, molecule_name)
 
     else:
+
         if (
             cmd_pointer.last_external_molecule is not None
             and is_molecule(cmd_pointer.last_external_molecule, molecule_identifier) is not None
         ):
             mol = cmd_pointer.last_external_molecule
+
         else:
+
             mol = retrieve_mol(molecule_identifier)
+            if mol is None:
+                mol = new_molecule(molecule_identifier, molecule_identifier)
     if mol is None:
         output_error("Unable to identify molecule", return_val=False)
         if basic is True:
@@ -412,6 +420,7 @@ def moleculelist_to_data_frame(molecule_set):
 
 def is_molecule(mol, molecule):
     """determines if a given molecule identifier is actually a valid molecule"""
+
     if molecule.upper() == mol["name"].upper():
         return mol
     try:
@@ -431,8 +440,10 @@ def is_molecule(mol, molecule):
     if molecule == mol["properties"]["canonical_smiles"]:
         return mol
     try:
+
         if canonical_smiles(molecule) == canonical_smiles(mol["properties"]["canonical_smiles"]):
             return mol
+
     except:
         pass
     return None
@@ -450,13 +461,13 @@ def is_molecule_synonym(mol, molecule):
 
 def retrieve_mol(molecule):
     """gets molecule from pubchem"""
+
     success, mol, comp = get_mol_from_name(molecule)
     if success:
         return mol
     success, mol, comp = get_mol_from_inchi(molecule)
     if success:
         return mol
-
     success, mol, comp = get_mol_from_smiles(molecule)
     if success:
         return mol
@@ -464,11 +475,9 @@ def retrieve_mol(molecule):
     # success, mol, comp = get_mol_from_formula(molecule)
     # if success:
     #    return mol
-
     success, mol, comp = get_mol_from_inchikey(molecule)
     if success:
         return mol
-
     success, mol, comp = get_mol_from_cid(molecule)
     if success:
         return mol
