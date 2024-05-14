@@ -592,7 +592,8 @@ def load_molecules(cmd_pointer, inp):
         return False
 
     mol_file_path = _create_workspace_dir_if_nonexistent(cmd_pointer, "_mols")
-    cmd_pointer.molecule_list.clear()
+    if "append" not in inp:
+        cmd_pointer.molecule_list.clear()
 
     for i in glob.glob(mol_file_path + "/" + inp["molecule-set_name"].upper() + "--*.molecule", recursive=True):
         func_file = open(i, "rb")

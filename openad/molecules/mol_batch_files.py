@@ -65,9 +65,7 @@ def merge_molecule_property_data(cmd_pointer, inp):
     mol_dataframe = mol_dataframe.pivot_table(index=SMILES, columns=[prop], values=val)
 
     mol_dataframe = mol_dataframe.reset_index()
-    print("loading records")
     for row in mol_dataframe.to_dict("records"):
-
         update_flag = True
         merge_mol = None
         merge_mol = retrieve_mol_from_list(cmd_pointer, row[SMILES])
@@ -130,7 +128,7 @@ def load_batch_molecules(cmd_pointer, inp):
         shred_merge_add_df_mols(mol_dataframe, cmd_pointer)
         output_success("Records loaded from file : " + str(len(mol_dataframe)), return_val=False)
         output_success(
-            "Unique Molecules loaded to Working list : " + str(len(cmd_pointer.molecule_list)), return_val=False
+            "Distinct molecules loaded to molecule set : " + str(len(cmd_pointer.molecule_list)), return_val=False
         )
 
     return True
