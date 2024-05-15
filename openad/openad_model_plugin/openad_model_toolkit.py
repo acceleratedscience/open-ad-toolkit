@@ -141,87 +141,25 @@ numbers = (
 )
 molecule_identifier = (
     Word(
-        alphanums
-        + "_"
-        + "["
-        + "]"
-        + "("
-        + ")"
-        + "="
-        + ","
-        + "-"
-        + "+"
-        + "/"
-        + "\\"
-        + "#"
-        + "@"
-        + "."
-        + "*"
-        + ";",
+        alphanums + "_" + "[" + "]" + "(" + ")" + "=" + "," + "-" + "+" + "/" + "\\" + "#" + "@" + "." + "*" + ";",
     )
     | Word(
         alphas,
-        alphanums
-        + "_"
-        + "["
-        + "]"
-        + "("
-        + ")"
-        + "="
-        + ","
-        + "-"
-        + "+"
-        + "/"
-        + "\\"
-        + "#"
-        + "@"
-        + "."
-        + "*"
-        + ";",
+        alphanums + "_" + "[" + "]" + "(" + ")" + "=" + "," + "-" + "+" + "/" + "\\" + "#" + "@" + "." + "*" + ";",
     )
     | Word(nums)
 ) | Suppress(Word("'")) + (
     Word(
-        alphanums
-        + "_"
-        + "["
-        + "]"
-        + "("
-        + ")"
-        + "="
-        + ","
-        + "-"
-        + "+"
-        + "/"
-        + "\\"
-        + "#"
-        + "@"
-        + "."
-        + "*"
-        + ";",
+        alphanums + "_" + "[" + "]" + "(" + ")" + "=" + "," + "-" + "+" + "/" + "\\" + "#" + "@" + "." + "*" + ";",
     )
     | Word(
         alphas,
-        alphanums
-        + "_"
-        + "["
-        + "]"
-        + "("
-        + ")"
-        + "="
-        + ","
-        + "-"
-        + "+"
-        + "/"
-        + "\\"
-        + "#"
-        + "@"
-        + "."
-        + "*"
-        + ";",
+        alphanums + "_" + "[" + "]" + "(" + ")" + "=" + "," + "-" + "+" + "/" + "\\" + "#" + "@" + "." + "*" + ";",
     )
     | Word(nums)
-) + Suppress(Word("'"))
+) + Suppress(
+    Word("'")
+)
 
 
 desc = QuotedString("'", escQuote="\\")
@@ -235,27 +173,17 @@ input_object = QuotedString('"', end_quote_char='"', escQuote="\\")
 #       # get_crystal_property is for crystaline properties and takes descriptors from files, yet to determine if this is strategic or not
 #       # generate_data is for any of the different types of data set generation options
 
-save_as_clause = (
-    "+ Optional(CaselessKeyword('save_as')('save_as')+desc('results_file'))"
-)
+save_as_clause = "+ Optional(CaselessKeyword('save_as')('save_as')+desc('results_file'))"
 save_as_clause_help = " (save_as '<filename.csv>')"
 
 service_command_start = {}
 service_command_subject = {}
 service_command_help = {}
 
-service_command_start["get_molecule_property"] = (
-    'get + CaselessKeyword("molecule") + CaselessKeyword("property")'
-)
-service_command_start["get_crystal_property"] = (
-    'get + CaselessKeyword("crystal") + CaselessKeyword("property")'
-)
-service_command_start["get_protein_property"] = (
-    'get + CaselessKeyword("protein") + CaselessKeyword("property")'
-)
-service_command_start["generate_data"] = (
-    'CaselessKeyword("generate") + CaselessKeyword("with")'
-)
+service_command_start["get_molecule_property"] = 'get + CaselessKeyword("molecule") + CaselessKeyword("property")'
+service_command_start["get_crystal_property"] = 'get + CaselessKeyword("crystal") + CaselessKeyword("property")'
+service_command_start["get_protein_property"] = 'get + CaselessKeyword("protein") + CaselessKeyword("property")'
+service_command_start["generate_data"] = 'CaselessKeyword("generate") + CaselessKeyword("with")'
 
 service_command_subject["get_molecule_property"] = (
     '+CaselessKeyword("for")+((Word("[")+delimitedList(molecule_identifier,delim=",")("molecules")+Word("]")|molecule_identifier("molecule")))'
@@ -324,10 +252,7 @@ def service_grammar_add(statements: list, help: list, service_catalog: dict):
     for service in service_catalog.keys():
         service_list = service_catalog[service]
         for schema in service_list:
-            command = (
-                "CaselessKeyword(service)('service')+"
-                + service_command_start[schema["service_type"]]
-            )
+            command = "CaselessKeyword(service)('service')+" + service_command_start[schema["service_type"]]
             valid_types = None  # noqa: F841
             valid_type = None
 
@@ -335,22 +260,14 @@ def service_grammar_add(statements: list, help: list, service_catalog: dict):
             # for some propertyy statements there can be multiple properties in a single statement
 
             if len(list(schema["valid_types"])) > 1:
-                valid_types = list(  # noqa: F841
-                    schema["valid_types"]
-                )  # Used in eval statement
+                valid_types = list(schema["valid_types"])  # noqa: F841  # Used in eval statement
             else:
-                valid_type = (
-                    f'CaselessKeyword("{list(schema["valid_types"])[0]}")("type")'
-                )
+                valid_type = f'CaselessKeyword("{list(schema["valid_types"])[0]}")("type")'
                 help_type = list(schema["valid_types"])[0]
 
             if valid_type is None:
                 valid_type = '( (Word("[")+delimitedList(oneOf(valid_types)|Suppress(Word("\'"))+oneOf(valid_types)+Suppress(Word("\'")),delim=",")("types")+Word("]")) | ( oneOf(valid_types)("type")) ) '
-                help_type = (
-                    "[ "
-                    + ", ".join(list(schema["valid_types"]))
-                    + " ] | <valid_type>  "
-                )
+                help_type = "[ " + ", ".join(list(schema["valid_types"])) + " ] | <valid_type>  "
             expression = ""
 
             # if parameters  exist for command build parameter grammar
@@ -371,22 +288,16 @@ def service_grammar_add(statements: list, help: list, service_catalog: dict):
                 if schema["target"]:
                     target_type = schema["target"]["type"]
                     try:
-                        cmd_subject = str(
-                            service_command_subject[schema["service_type"]]
-                        ).replace(
+                        cmd_subject = str(service_command_subject[schema["service_type"]]).replace(
                             "<TARGET>",
-                            generation_targets[
-                                schema["generator_type"]["algorithm_type"]
-                            ][target_type],
+                            generation_targets[schema["generator_type"]["algorithm_type"]][target_type],
                         )
                     except Exception as e:
                         print(schema)
                         output_error(e)
                         continue
                 else:
-                    cmd_subject = str(
-                        service_command_subject[schema["service_type"]]
-                    ).replace("<TARGET>", "")
+                    cmd_subject = str(service_command_subject[schema["service_type"]]).replace("<TARGET>", "")
             else:
                 cmd_subject = service_command_subject[schema["service_type"]]
 
@@ -435,14 +346,10 @@ def service_grammar_add(statements: list, help: list, service_catalog: dict):
                     if schema["target"] is not None:
                         target_description = "<h2>Target:</h2>\r"
                         for key, value in schema["target"].items():
-                            target_description = (
-                                target_description + f"- <cmd>{key}</cmd> : {value}\n  "
-                            )
+                            target_description = target_description + f"- <cmd>{key}</cmd> : {value}\n  "
 
                 if schema["description"] is not None:
-                    function_description = (
-                        "\r<h2>Function Description:</h2>\r" + schema["description"]
-                    )
+                    function_description = "\r<h2>Function Description:</h2>\r" + schema["description"]
                     while "  " in function_description:
                         function_description = function_description.replace("  ", " ")
             except Exception as e:
@@ -454,14 +361,9 @@ def service_grammar_add(statements: list, help: list, service_catalog: dict):
                 num_params += 1
                 print_description = ""
                 for key, value in description.items():
-                    print_description = (
-                        print_description + f"- <cmd>{key}</cmd> : {value}\n  "
-                    )
+                    print_description = print_description + f"- <cmd>{key}</cmd> : {value}\n  "
 
-                parameter_help = (
-                    parameter_help
-                    + f"\n<cmd>{parameter}</cmd> \r {print_description}\n  "
-                )
+                parameter_help = parameter_help + f"\n<cmd>{parameter}</cmd> \r {print_description}\n  "
 
             required_parameters = ""
             for i in schema["required_parameters"]:
@@ -508,9 +410,9 @@ def service_grammar_add(statements: list, help: list, service_catalog: dict):
                                 .replace("<property>", help_type)
                             )
                 else:
-                    command_str = str(
-                        service + " " + service_command_help[schema["service_type"]]
-                    ).replace("<property>", help_type)
+                    command_str = str(service + " " + service_command_help[schema["service_type"]]).replace(
+                        "<property>", help_type
+                    )
             except Exception as e:
                 output_error("-------")
                 output_error(e)
@@ -522,9 +424,7 @@ def service_grammar_add(statements: list, help: list, service_catalog: dict):
 
             # if command has no parameters simply remove the USING Clause
             if num_params == 0:
-                command_str = command_str.replace(
-                    " USING (<parameter>=<value> <parameter>=<value>)", ""
-                )
+                command_str = command_str.replace(" USING (<parameter>=<value> <parameter>=<value>)", "")
 
             # add help statement to help array psed through into function
             help.append(
@@ -549,15 +449,9 @@ def optional_parameter_list(inp_statement: dict, clause: str):
     ii = 0
     expression = " "
     for i in inp_statement[clause]:
-        if (
-            "allOf" in inp_statement[clause][i]
-            and "type" not in inp_statement[clause][i]
-        ):
+        if "allOf" in inp_statement[clause][i] and "type" not in inp_statement[clause][i]:
             type_str = "allOf"
-        elif (
-            "anyOf" in inp_statement[clause][i]
-            and "type" not in inp_statement[clause][i]
-        ):
+        elif "anyOf" in inp_statement[clause][i] and "type" not in inp_statement[clause][i]:
             type_str = "anyOf"
         elif "type" in inp_statement[clause][i]:
             type_str = "type"
@@ -708,6 +602,7 @@ def optional_parameter_list(inp_statement: dict, clause: str):
 
 
 def subject_files_repository(file_directory, suffix):
+    file_directory = os.path.expanduser(file_directory)
     parameter_files = glob.glob(file_directory + "/*." + suffix)
     parameter_list_files = []
     for file in parameter_files:
@@ -729,11 +624,7 @@ def request_generate(request_input):
         if "sample_size" in request_input.as_dict():
             Sample_Size = request_input.as_dict()["sample_size"]
         if "target@object" in request_input.as_dict():
-            subjects = [
-                json.loads(
-                    str(request_input.as_dict()["target@object"]).replace("'", '"')
-                )
-            ]
+            subjects = [json.loads(str(request_input.as_dict()["target@object"]).replace("'", '"'))]
         if "target@string" in request_input.as_dict():
             subjects = request_input.as_dict()["target@string"]
         if "target@number" in request_input.as_dict():
@@ -765,12 +656,8 @@ def request_generate(request_input):
     if "type" in request_input.as_dict():
         property_types = [request_input.as_dict()["type"]]
     if name.split("@")[1] == "get_crystal_property":
-        subjects = subject_files_repository(
-            request_input.as_dict()["crystal_PATH"], "cif"
-        )
-        subjects.extend(
-            subject_files_repository(request_input.as_dict()["crystal_PATH"], "csv")
-        )
+        subjects = subject_files_repository(request_input.as_dict()["crystal_PATH"], "cif")
+        subjects.extend(subject_files_repository(request_input.as_dict()["crystal_PATH"], "csv"))
     template = {
         "service_name": request_input.getName().split("@")[0],
         "service_type": request_input.getName().split("@")[1],
@@ -786,10 +673,7 @@ def request_generate(request_input):
     for param in request_input.as_dict().keys():
         if str(param).startswith("param_"):
             actual_param = str(param)[6:]
-            if (
-                actual_param.split("@")[1] == "number"
-                or actual_param.split("@")[1] == "float"
-            ):
+            if actual_param.split("@")[1] == "number" or actual_param.split("@")[1] == "float":
                 template["parameters"][actual_param.split("@")[0]] = float(
                     "".join(list(request_input.as_dict()[param]["val"]))
                 )
@@ -803,14 +687,10 @@ def request_generate(request_input):
                     request_input.as_dict()[param]["val"].replace("'", '"')
                 )
             elif actual_param.split("@")[1] == "integer":
-                template["parameters"][actual_param.split("@")[0]] = bool(
-                    request_input.as_dict()[param]["val"]
-                )
+                template["parameters"][actual_param.split("@")[0]] = bool(request_input.as_dict()[param]["val"])
 
             else:
-                template["parameters"][actual_param.split("@")[0]] = (
-                    request_input.as_dict()[param]["val"]
-                )
+                template["parameters"][actual_param.split("@")[0]] = request_input.as_dict()[param]["val"]
     return template
 
 
@@ -870,11 +750,7 @@ def openad_model_requestor(cmd_pointer, parser):
                 if not results_file.endswith(".csv"):
                     results_file = results_file + ".csv"
                 result.to_csv(
-                    cmd_pointer.workspace_path(
-                        cmd_pointer.settings["workspace"].upper()
-                    )
-                    + "/"
-                    + results_file,
+                    cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/" + results_file,
                     index=False,
                 )
             return result

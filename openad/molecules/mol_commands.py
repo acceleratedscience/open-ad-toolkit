@@ -226,25 +226,27 @@ def add_molecule(cmd_pointer, inp, force=False, suppress=False):
         if basic is True:
             output_error("You may only use a valid smiles string", return_val=False)
         return True
-
-    identifier = mol["name"] + "   " + mol["properties"]["canonical_smiles"]
+    if mol["name"] != mol["properties"]["canonical_smiles"]:
+        identifier = mol["name"] + "   " + mol["properties"]["canonical_smiles"]
+    else:
+        identifier = mol["name"]
 
     if retrieve_mol_from_list(cmd_pointer, mol["properties"]["canonical_smiles"]) is not None:
         output_error("Molecule already in list", return_val=False)
         return True
 
     if force is False:
-        if confirm_prompt("Are you wish to add " + identifier + " to your working list ?"):
+        if confirm_prompt("Are you source you wish to add " + identifier + " to your working list ?"):
             cmd_pointer.molecule_list.append(mol.copy())
-            output_success("Molecule was added", return_val=False)
+            output_success(f"Molecule {identifier} was added", return_val=False)
             return True
 
-        output_error("Molecule was not added", return_val=False)
+        output_error(f"Molecule was {identifier} not added", return_val=False)
         return False
 
     cmd_pointer.molecule_list.append(mol.copy())
     if suppress == False:
-        output_success("Molecule was added", return_val=False)
+        output_success(f"Molecule {identifier} was added", return_val=False)
     return True
 
 
