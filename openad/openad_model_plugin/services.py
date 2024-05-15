@@ -1,157 +1,169 @@
 import datetime
-from typing import Any, List, Optional, Callable, Tuple, Dict
+from typing import Any, Dict
 from typing_extensions import Self
 from servicing import Dispatcher, UserProvidedConfig
 from openad.helpers.output import output_error, output_warning
 import json
 import os
-from subprocess import run
-import shlex
 import requests
 import time
+from openad.openad_model_plugin.models import ServiceConfig
+from openad.openad_model_plugin.utils import get_logger
 
 
-class ModelServiceUniqueLocation(Dispatcher):
-    """
-    ModelService is a class that represents the servicing library
-    """
-
-    def __init__(self, cache: str | None = None) -> None:
-        self.cache = cache
-        self.name = "test"
-
-        try:
-            self.load(cache)
-        except:
-            self.create(cache)
-
-    def save_on_exit(func: Callable[[], Any]) -> Any:
-        """
-        decorator to save the dispatcher services
-        """
-
-        def wrapper(self, *args, **kwargs) -> Any:
-            print("> ---entering wrapper---")
-            result = func(self, *args, **kwargs)
-            print("> ---wrapper---", self)
-            self.save()  # save the dispatcher state
-            return result
-
-        return wrapper
-
-    def __call__(self, cache: Optional[str] = "") -> Self:
-        if cache:
-            self.cache = cache
-        return self
-
-    def __enter__(self) -> Self:
-        self.load()
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self.save()
-        self.cache = None
-
-    def save(self, location: str | None = None) -> None:
-        if location:
-            # save to specified cache
-            return super().save(location)
-        elif self.cache:
-            # save to saved cache
-            return super().save(self.cache)
-        else:
-            # save to default cache
-            return super().save()
-
-    def create(self, location: str | None = None) -> None:
-        """same signiture as save() but helps logic flow"""
-        self.save(location)
-
-    def load(self, location: str | None = None) -> None:
-        model_cache = ""
-        if location:
-            # load specified cache
-            model_cache = location
-        elif self.cache:
-            # load saved cache
-            model_cache = self.cache
-        else:
-            # load default cache
-            model_cache = None
-        try:
-            super().load(model_cache)
-        except:
-            # create and load services.bin file for namespace
-            self.create(model_cache)
-            self.load(model_cache)
-
-    def add_service(self, name: str, config: UserProvidedConfig | None = None) -> None:
-        return super().add_service(name, config)
-
-    def remove_service(self, name: str) -> None:
-        (f"removing service: {name}")
-        return super().remove_service(name)
-
-    def up(self, name: str) -> None:
-        return super().up(name)
-
-    def down(self, name: str) -> None:
-        return super().down(name)
-
-    def status(self, name: str, pretty: bool | None = None) -> Dict[str, Any]:
-        return json.loads(super().status(name, pretty))
-
-    def get_short_status(self, name: str):
-        status = self.status(name)
-        return {"up": status.get("up"), "url": status.get("url")}
-
-    def get_url(self, name: str) -> str:
-        return self.status(name).get("url")
-
-    def get_services(self) -> List[Tuple[str, bool]]:
-        """
-        List the status of all the services"""
-        details = []
-        for service in self.list():
-            status = self.status(service)
-            details.append((service, status.get("up")))
-        return details
-
-    @property
-    def servicer_apis(self) -> List[str]:
-        """Gets available services during runtime
-
-        Returns:
-            List[str]: services
-        """
-        return list(filter(lambda x: not x.startswith("__"), dir(self)))
+logger = get_logger(__name__)
 
 
 class ServiceFileLoadError(Exception):
-    """Raises error if a service file could not load
-
-    Args:
-        Exception (_type_): _description_
-    """
+    """Raises error if a service file could not load"""
 
     def __init__(self, *args: object) -> None:
         super().__init__(*args)
 
 
+class Service:
+    """class to simplify service data fetching"""
+
+    def __init__(self, name, location) -> None:
+        self.name: str = name
+        self.location = location
+        self.dispatcher: Dispatcher = Dispatcher(skip_sky_validation=True)
+        self.dispatcher.load()
+        self.status_copy: dict = self.status
+
+    @property
+    def status(self) -> dict:
+        # return old copy if service is removed but need its data
+        try:
+            logger.debug(f"fetching status '{self.name=}' | {self.location=}")
+            # TODO: maybe cache status per context manager?
+            return json.loads(self.dispatcher.status(self.name))
+            return self.dispatcher.status(self.name)
+        except Exception as e:
+            logger.error(f"'{self.name=}' | {str(e)}. returning cached status")
+            return self.status_copy
+
+    @property
+    def userprovidedconfig(self) -> UserProvidedConfig:
+        return UserProvidedConfig(**self.status.get("data"))
+
+    @property
+    def serviceconfig(self) -> ServiceConfig:
+        data = self.config
+        data["data"] = json.dumps(self.config_data)
+        return ServiceConfig(**data)
+
+    @property
+    def config(self) -> dict:
+        return self.status.get("data")
+
+    @property
+    def config_data(self) -> dict:
+        data = self.config.get("data", {}) or json.dumps({})
+        return json.loads(data)
+
+    @property
+    def is_remote(self) -> bool:
+        return self.config_data.get("remote_service", False)
+
+    @property
+    def is_alive(self) -> bool:
+        if self.is_remote:
+            return self.check_service_up()
+        return self.status.get("up", False)
+        # return self.status.get("up", False) or self.check_service_up()
+
+    @property
+    def template(self) -> dict:
+        return self.status.get("template", {})
+
+    def check_service_up(self, resource: str = "/health", timeout: float = 1.0) -> bool:
+        """ping the host address to see if service is up
+
+        Args:
+            resource (str, optional): _description_. Defaults to "/health".
+            timeout (float, optional): _description_. Defaults to 1.0.
+
+        Returns:
+            bool: _description_
+        """
+        start_time = time.time()
+        # Ping the endpoint until timeout has elapsed
+        up = False
+        address = self.url  # reduces calls to function
+        while True:
+            try:
+                # Make a GET request to the endpoint
+                response = requests.get(address + resource, timeout=0.2)
+                if response.status_code == 200:
+                    up = True
+                    break
+                # Check if timeout has elapsed
+                if time.time() - start_time >= timeout:
+                    break
+            except requests.exceptions.RequestException:
+                # Check if timeout has elapsed
+                if time.time() - start_time >= timeout:
+                    break
+        return up
+
+    @property
+    def url(self) -> str:
+        url = ""
+        # check if remote url
+        if self.is_remote:
+            url = self.config_data.get("remote_endpoint")
+        elif self.status.get("url"):
+            url = self.status.get("url")
+        # add url prefix
+        if url and "http" not in url:
+            url = "http://" + url
+        return url
+
+
 class ModelService(Dispatcher):
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(
+        self,
+        location: str | None = None,
+        update_status: bool | None = False,
+        skip_sky_validation: bool = False,
+    ) -> None:
+        self.services: Dict[str, Service] = dict()
         # search for previous running services
-        self.load(
-            location=kwargs.get("location"), update_status=kwargs.get("update_status")
-        )
+        self.load(location=location, update_status=update_status)
         super().__init__()
 
-    def load(self, location: str | None = None, update_status: bool | None = False):
+    def save(self, location: str | None = None) -> None:
+        # check if service deleted by another window
+        # dispatch = Dispatcher(skip_sky_validation=True)
+        # if sorted(dispatch.list()) != self.list():
+        #     logger.debug("services changed!. not saving")
+        #     return
+        logger.debug(f"saved config {location=}")
+        return super().save(location)
+
+    def load(
+        self,
+        location: str | None = None,
+        update_status: bool | None = False,
+        extend: bool = True,
+    ):
         """load a config. if it doesnt exist auto create it"""
         try:
-            super().load(location=location, update_status=update_status)
-            # output_success("loaded services")
-        except:
+            # load services
+            super().load(extend=extend, location=location, update_status=update_status)
+            logger.debug(f"loaded config {location=} {update_status=} {extend=}")
+            # create service objects
+            for name in self.list():
+                if name not in self.services:
+                    self.update_service_map(name, location=location)
+            logger.debug(f"config objects  | num={len(self.list())} | {self.list()}")
+            logger.debug(
+                f"Service objects | num={len(self.services)} | {list(self.services.keys())}"
+            )
+
+        except Exception as e:
+            output_error(str(e))
             # use default directory
             if location is None:
                 location = os.path.expanduser("~/.servicing")
@@ -179,36 +191,40 @@ class ModelService(Dispatcher):
                 # ok. create file
                 self.save(location=location)
 
-    def __call__(self, *args: Any, **kwargs: Any) -> Self:
+    def __call__(
+        self, location: str | None = None, update_status: bool = False
+    ) -> Self:
         # always does a load() but can optionally update servicer threads
-        self.load(
-            location=kwargs.get("location"), update_status=kwargs.get("update_status")
-        )
+        self.load(location=location, update_status=update_status)
         # TODO: load remote services here?
         return self
 
     def __enter__(self):
         # only does a load() if you call constructor method
-        # like mymodelservice()
+        # with mymodelservice() as service:
+        logger.debug("---entering context---")
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.save()
+        logger.debug("---exiting context---")
 
     def up(
         self, name: str, skip_prompt: bool | None = None, gpu_disable: bool = False
     ) -> None:
+        service = self.services.get(name)
+        logger.debug(f"starting service '{name}'")
         # TODO: update openad.cfg file for resource state
         if gpu_disable:
-            service_config_dict = self.get_config_as_dict(name)
-            old_config = self.get_user_provided_config(name)
+            logger.debug("gpu flag found")
             # remove gpu from config
-            if service_config_dict.get("data")["accelerators"]:
+            if service.config.get("accelerators"):
                 try:
+                    logger.debug("creating temporary service without gpu")
                     # get resource values for service
-                    tmp_data = {**service_config_dict["data"]}
-                    tmp_data["accelerators"] = None
-                    gpu_disable_config = UserProvidedConfig(**tmp_data)
+                    tmp_data = service.serviceconfig
+                    tmp_data.accelerators = None
+                    gpu_disable_config = ServiceConfig(**tmp_data)
                     # replace current config
                     self.remove_service(name)
                     self.add_service(name, config=gpu_disable_config)
@@ -217,71 +233,80 @@ class ModelService(Dispatcher):
                 except Exception as e:
                     # put back old config
                     self.remove_service(name)
-                    self.add_service(name, config=old_config)
+                    self.add_service(name, config=service.userprovidedconfig)
                     raise e
                 finally:
                     # put back old config
                     self.remove_service(name)
-                    self.add_service(name, config=old_config)
+                    self.add_service(name, config=service.userprovidedconfig)
+                    logger.debug(f"reverted '{name}' to original configuration")
                     return
             else:
                 output_warning("service already not configured for gpu")
         return super().up(name, skip_prompt)
 
-    def check_service_up(
-        self, address: str, resource: str = "/health", timeout: float = 1.0
-    ) -> int | str:
-        """ping the host address to see if service is up
+    def down(
+        self, name: str, skip_prompt: bool | None = None, force: bool | None = None
+    ) -> None:
+        logger.debug(f"shutting down service '{name}' | {skip_prompt=} {force=}")
+        service = self.services.get(name)
+        if service.is_remote:
+            logger.debug(f"service '{name}' is remote service. exiting.")
+            return
+        # stop service
+        super().down(name, skip_prompt, force)
+        # reinitialize service
+        self.reinit_service(name, service.userprovidedconfig)
 
-        Args:
-            address (str): _description_
-            resource (str, optional): _description_. Defaults to "/health".
-            timeout (float, optional): _description_. Defaults to 1.0.
+    def reinit_service(
+        self,
+        name: str,
+        config: ServiceConfig | UserProvidedConfig | None = None,
+        remote_endpoint: str | None = None,
+    ):
+        """same signiture as add_service but removes and readds service"""
+        logger.debug(f"reinit '{name}'")
+        if name in self.list():
+            # remove the service without removing self.services[name] object
+            super().remove_service(name)
+            self.add_service(name, config=config)
+            logger.debug(f"'{name}' reinitialized.")
 
-        Returns:
-            bool: _description_
-        """
-        start_time = time.time()
-        # Ping the endpoint until timeout has elapsed
-        up = False
-        while True:
-            try:
-                # Make a GET request to the endpoint
-                response = requests.get(address + resource, timeout=0.2)
-                if response.status_code == 200:
-                    up = True
-                    break
-                # Check if timeout has elapsed
-                if time.time() - start_time >= timeout:
-                    break
-            except requests.exceptions.RequestException:
-                # Check if timeout has elapsed
-                if time.time() - start_time >= timeout:
-                    break
-        return up
+    def remove_service(self, name: str) -> None:
+        if name in self.list():
+            logger.debug(f"removing service '{name}'")
+            self.services.pop(name)  # remove service from map
+            super().remove_service(name)
 
-    def load_extra_data(self, name: str) -> Dict[str, Any]:
-        """Returns data if data field in UserProvidedConfig is the only available field"""
-        status = self.status(name).get("data")
-        if status["data"]:
-            return json.loads(status["data"])
-        return dict()
+    def add_service(
+        self,
+        name: str,
+        location: str,
+        config: ServiceConfig | UserProvidedConfig | None = None,
+        remote_endpoint: str | None = None,
+    ) -> None:
+        logger.debug(
+            f"adding service '{name}' | type={type(config)} {remote_endpoint=}"
+        )
+        if isinstance(config, UserProvidedConfig):
+            super().add_service(name, config)
+        elif not config:
+            config = ServiceConfig()
+            if remote_endpoint:
+                config.data.remote_service = True
+                config.data.remote_endpoint = remote_endpoint
+        else:
+            super().add_service(name, config.convert())
+        # have to add after service added
+        self.update_service_map(name, location, config)
 
-    def get_url(self, name: str):
-        status = self.status(name)
+    def update_service_map(self, name: str, location: str):
+        if name not in self.services:
+            self.services[name] = Service(name, location)
+            logger.debug(f"creating object Service({name})")
 
-        extra_data = self.load_extra_data(name)
-
-        url = ""
-        # check if remote url
-        if extra_data and extra_data.get("remote_endpoint"):
-            url = extra_data.get("remote_endpoint")
-        elif status.get("url"):
-            url = status.get("url")
-        # add url prefix
-        if url and "http" not in url:
-            url = "http://" + url
-        return url
+    def get_url(self, name: str) -> str:
+        return self.services.get(name).url
 
     def get_short_status(self, name: str) -> Dict[str, Any]:
         """Get service url and up status for local services and remote services
@@ -292,21 +317,12 @@ class ModelService(Dispatcher):
         Returns:
             Dict[str, Any]: {"up", "url"}
         """
-        # TODO: refactor
-        status = self.status(name)
-        extra_data = self.load_extra_data(name)
-        ret_status = {"is_remote": False}
-        # alternative data exists
-        if extra_data and extra_data.get("remote_endpoint"):
-            url = extra_data.get("remote_endpoint")
-            ret_status["url"] = extra_data.get("remote_endpoint")
-            ret_status["up"] = self.check_service_up(url)
-            ret_status["is_remote"] = True
-        # use service data
-        if status.get("url"):
-            ret_status["url"] = self.get_url(name)
-        if status.get("up"):
-            ret_status["up"] = bool(status.get("up"))
+        service = self.services.get(name)
+        ret_status = {
+            "is_remote": service.is_remote,
+            "up": service.is_alive,
+            "url": service.url,
+        }
         return ret_status
 
     def status(self, name: str, pretty: bool | None = None) -> Dict[str, Any]:
@@ -321,98 +337,16 @@ class ModelService(Dispatcher):
         """
         return json.loads(super().status(name, pretty))
 
-    def get_user_provided_config(self, name: str) -> UserProvidedConfig:
-        status = self.status(name)
-        return UserProvidedConfig(**status["data"])
-
     def get_config_as_dict(self, name: str) -> dict:
-        return {**self.status(name)}
+        return self.services.get(name).status.copy()
 
-    def __get_build_step_count(self, name: str):
-        dock_list = [
-            "ADD",
-            "ARG",
-            "CMD",
-            "COPY",
-            "ENTRYPOINT",
-            "ENV",
-            "EXPOSE",
-            "FROM",
-            "HEALTHCHECK",
-            "LABEL",
-            "MAINTAINER",
-            "ONBUILD",
-            "RUN",
-            "SHELL",
-            "STOPSIGNAL",
-            "USER",
-            "VOLUME",
-            "WORKDIR",
-        ]
-        status = self.status(name)
-        workdir = status["template"]["workdir"]
-        print(json.dumps(workdir, indent=2))
-        with open(workdir + "/Dockerfile", "r") as f:
-            dockerfile = [
-                line.strip().split(" ", maxsplit=1)[0] for line in f.readlines()
-            ]
-        # get a count for each dock in dockerfile
-        total_dock_steps = 0
-        for i in dockerfile:
-            if i in dock_list:
-                total_dock_steps += 1
-        return total_dock_steps
-
-    def get_build_log_completion(self, name: str):
-        t_step = self.__get_build_step_count(name)  # noqa: F841
-        cmd = shlex.split(f"sky serve logs {name} 1")
-        print(cmd)
-        print(run(cmd, capture_output=True))
-        # run a subprocess to print output from stdout
-
-
-class ServiceManager:
-    def __init__(self) -> None:
-        self.services = {}
-
-    def __call__(self, location: str | None = None) -> ModelService:
-        name = location
-        if location is None:
-            name = "default"
-        if location in self.services:
-            return self.services[name]
-        else:
-            service = ModelService(location)
-            self.services.update({name: service})
-            return self.services[name]
-
-
-class DispatchManager:
-    def __init__(self) -> None:
-        self.head_dispatcher = Dispatcher()
-        self.services = {}  # name: obj
-        try:
-            self.head_dispatcher.load()
-        except:
-            self.head_dispatcher.save()
-        # load all services
-        for name in self.head_dispatcher.list():
-            self.catalog_service(name)
-
-    def __call__(self, service_name: str | None = None) -> ModelService:
-        print(f"dispatching {service_name}")
-        return self.services.get(service_name)
-
-    def catalog_service(self, service_name: str):
-        self.services[service_name] = ModelService(service_name)
-
-    def uncatalog_service(self, service_name: str):
-        service = self.services.pop(service_name)
-        del service
+    def get(self, name: str) -> Service | None:
+        return self.services.get(name)
 
 
 if __name__ == "__main__":
-    dispatcher1 = ModelService()
+    dispatcher1 = ModelService(skip_sky_validation=True)
     dispatcher1.load()
     print(dispatcher1.list())
+    print(dispatcher1.services["remote"].is_remote)
     print(json.dumps(dispatcher1.status(dispatcher1.list()[0]), indent=2))

@@ -1,4 +1,4 @@
-""" This library is the main library for invoking functions from the command line
+"""This library is the main library for invoking functions from the command line
 it does contain some general functions or plugin calls otherwise invokes toolkits or core / plugin functions"""
 
 #!/usr/local/opt/python@3.9/bin/python3.9
@@ -21,12 +21,15 @@ from openad.openad_model_plugin.catalog_model_services import (
     service_down,
     service_up,
     local_service_up,
-    service_up_endpoint,
+    service_up_remote,
     model_service_config,
 )
 
 # molecules
-from openad.molecules.mol_batch_files import load_batch_molecules, merge_molecule_property_data
+from openad.molecules.mol_batch_files import (
+    load_batch_molecules,
+    merge_molecule_property_data,
+)
 
 from openad.molecules.mol_commands import (
     display_molecule,
@@ -53,7 +56,13 @@ from openad.molecules.molecule_cache import attach_all_results, clear_results
 import openad.app.login_manager as login_manager
 
 # Core
-from openad.core.lang_file_system import import_file, export_file, copy_file, remove_file, list_files
+from openad.core.lang_file_system import (
+    import_file,
+    export_file,
+    copy_file,
+    remove_file,
+    list_files,
+)
 from openad.core.lang_sessions_and_registry import (
     clear_sessions,
     write_registry,
@@ -93,9 +102,19 @@ from openad.app.global_var_lib import MEMORY
 from openad.app.global_var_lib import GLOBAL_SETTINGS
 
 # Helpers
-from openad.helpers.output import output_text, output_error, output_success, output_table
+from openad.helpers.output import (
+    output_text,
+    output_error,
+    output_success,
+    output_table,
+)
 from openad.helpers.output_msgs import msg
-from openad.helpers.general import refresh_prompt, user_input, validate_file_path, ensure_file_path
+from openad.helpers.general import (
+    refresh_prompt,
+    user_input,
+    validate_file_path,
+    ensure_file_path,
+)
 from openad.helpers.splash import splash
 from openad.helpers.output_content import openad_intro
 
@@ -159,8 +178,8 @@ def lang_parse(cmd_pointer, parser):
         return service_up(cmd_pointer, parser)
     elif parser.getName() == "local_service_up":
         return local_service_up(cmd_pointer, parser)
-    elif parser.getName() == "service_up_endpoint":
-        return service_up_endpoint(cmd_pointer, parser)
+    elif parser.getName() == "service_up_remote":
+        return service_up_remote(cmd_pointer, parser)
     elif parser.getName() == "service_down":
         return service_down(cmd_pointer, parser)
 
@@ -176,7 +195,9 @@ def lang_parse(cmd_pointer, parser):
         try:
             result = set_llm(cmd_pointer, parser)
             cmd_pointer.llm_model = cmd_pointer.llm_models[cmd_pointer.llm_service]
-            update_main_registry_env_var(cmd_pointer, "llm_service", cmd_pointer.llm_service)
+            update_main_registry_env_var(
+                cmd_pointer, "llm_service", cmd_pointer.llm_service
+            )
             cmd_pointer.refresh_vector = True
             cmd_pointer.refresh_train = True
             cmd_pointer.settings["env_vars"]["refresh_help_ai"] = True
@@ -243,7 +264,10 @@ def lang_parse(cmd_pointer, parser):
         return clear_workset(cmd_pointer, parser)
     elif parser.getName() in ["load_molecules_file", "load_molecules_dataframe"]:
         return load_batch_molecules(cmd_pointer, parser)
-    elif parser.getName() in ["merge_molecules_data_file", "merge_molecules_data_dataframe"]:
+    elif parser.getName() in [
+        "merge_molecules_data_file",
+        "merge_molecules_data_dataframe",
+    ]:
         return merge_molecule_property_data(cmd_pointer, parser)
     elif parser.getName() == "export_molecules":
         return export_molecule_set(cmd_pointer, parser)
@@ -397,7 +421,12 @@ def list_toolkits(cmd_pointer, parser):  # pylint: disable=unused-argument # gen
         return output_text(msg("no_toolkits_installed"), pad=1)
 
     # Display/return table.
-    return output_table(toolkits, is_data=False, headers=table_headers, note=msg("all_toolkits_currently_installed"))
+    return output_table(
+        toolkits,
+        is_data=False,
+        headers=table_headers,
+        note=msg("all_toolkits_currently_installed"),
+    )
 
 
 # List all available toolkits
@@ -446,7 +475,9 @@ def set_context_by_name(cmd_pointer, toolkit_name, reset=False, suppress_splash=
 
     # Toolkit doesn't exist.
     if toolkit_name.upper() not in cmd_pointer.settings["toolkits"]:
-        return output_error(msg("fail_toolkit_not_installed", toolkit_name), nowrap=True)
+        return output_error(
+            msg("fail_toolkit_not_installed", toolkit_name), nowrap=True
+        )
 
     else:
         old_cmd_pointer_context = cmd_pointer.settings["context"]
@@ -465,25 +496,48 @@ def set_context_by_name(cmd_pointer, toolkit_name, reset=False, suppress_splash=
             expiry_datetime = None
             try:
                 # raise BaseException('Error message') # For testing
-                login_success, expiry_datetime = login_manager.load_login_api(cmd_pointer, toolkit_name, reset=reset)
+                login_success, expiry_datetime = login_manager.load_login_api(
+                    cmd_pointer, toolkit_name, reset=reset
+                )
 
             except Exception as err:  # pylint: disable=broad-exception-caught
                 # Error loading login API.
-                _handle_login_error(cmd_pointer, toolkit_name, old_toolkit_current, old_cmd_pointer_context, err)
+                _handle_login_error(
+                    cmd_pointer,
+                    toolkit_name,
+                    old_toolkit_current,
+                    old_cmd_pointer_context,
+                    err,
+                )
                 return False
 
             if not login_success:
                 # Failed to log in.
                 err = expiry_datetime  # On fail, error is passed as second parameter instead of expiry.
-                _handle_login_error(cmd_pointer, toolkit_name, old_toolkit_current, old_cmd_pointer_context, err)
+                _handle_login_error(
+                    cmd_pointer,
+                    toolkit_name,
+                    old_toolkit_current,
+                    old_cmd_pointer_context,
+                    err,
+                )
                 return False
 
             # Success switching context & loggin in.
-            if old_cmd_pointer_context != cmd_pointer.settings["context"] and not suppress_splash:
-                if GLOBAL_SETTINGS["display"] == "terminal" or GLOBAL_SETTINGS["display"] == None:
+            if (
+                old_cmd_pointer_context != cmd_pointer.settings["context"]
+                and not suppress_splash
+            ):
+                if (
+                    GLOBAL_SETTINGS["display"] == "terminal"
+                    or GLOBAL_SETTINGS["display"] == None
+                ):
                     return output_text(splash(toolkit_name, cmd_pointer), nowrap=True)
                 else:
-                    return output_success(msg("success_login", toolkit_name, expiry_datetime), return_val=False)
+                    return output_success(
+                        msg("success_login", toolkit_name, expiry_datetime),
+                        return_val=False,
+                    )
 
         else:
             # Failed to load the toolkit
@@ -493,7 +547,9 @@ def set_context_by_name(cmd_pointer, toolkit_name, reset=False, suppress_splash=
 
 
 # Handle toolkit login error.
-def _handle_login_error(cmd_pointer, toolkit_name, old_toolkit_current, old_cmd_pointer_context, err):
+def _handle_login_error(
+    cmd_pointer, toolkit_name, old_toolkit_current, old_cmd_pointer_context, err
+):
     output_error(msg("err_login", toolkit_name, err), return_val=False)
     cmd_pointer.settings["context"] = old_cmd_pointer_context
     cmd_pointer.toolkit_current = old_toolkit_current
@@ -574,7 +630,9 @@ def display_history(cmd_pointer, parser):  # pylint: disable=unused-argument # g
 # Display a csv file in a table.
 def display_data(cmd_pointer, parser):
     """display data in a file"""
-    workspace_path = cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/"
+    workspace_path = (
+        cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/"
+    )
     file_path = parser["file_path"]
     filename = file_path.split("/")[-1]
 
@@ -614,8 +672,12 @@ def display_data__save(cmd_pointer, parser):
         return output_error(msg("memory_empty", "display"), pad=1)
 
     # Set variables.
-    workspace_path = cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/"
-    file_path = parser["file_path"] if "file_path" in parser else None  # Parser as_dict?
+    workspace_path = (
+        cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/"
+    )
+    file_path = (
+        parser["file_path"] if "file_path" in parser else None
+    )  # Parser as_dict?
     file_path = validate_file_path(file_path, ["csv"], cmd_pointer)
 
     # Prompt file path if missing.
@@ -637,9 +699,7 @@ def display_data__save(cmd_pointer, parser):
 
 
 # --> Open data in browser UI.
-def display_data__open(
-    cmd_pointer, parser, edit_mode=False
-):  # pylint: disable=unused-argument # generic pass through used or unused
+def display_data__open(cmd_pointer, parser, edit_mode=False):  # pylint: disable=unused-argument # generic pass through used or unused
     # Preserve memory for further follow-up commands.
     """open display data"""
     MEMORY.preserve()
@@ -687,9 +747,7 @@ def display_data__display(cmd_pointer, parser):  # pylint: disable=unused-argume
 
 
 # --> Return result as dataframe
-def display_data__as_dataframe(
-    cmd_pointer, parser
-):  # pylint: disable=unused-argument # generic pass through used or unused
+def display_data__as_dataframe(cmd_pointer, parser):  # pylint: disable=unused-argument # generic pass through used or unused
     """displays last result set in viewer"""
     # Preserve memory for further follow-up commands.
     MEMORY.preserve()
@@ -708,7 +766,9 @@ def display_data__as_dataframe(
 # Edit a JSON config file.
 def edit_config(cmd_pointer, parser):
     """Edits a json document in current workspace"""
-    workspace_path = cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/"
+    workspace_path = (
+        cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/"
+    )
 
     # Abort in Jupyter.
     if GLOBAL_SETTINGS["display"] == "notebook":
@@ -723,7 +783,11 @@ def edit_config(cmd_pointer, parser):
     else:
         # Scan for same filename with -schema suffix.
 
-        schema = workspace_path + re.sub(r"\.json$", "", parser.as_dict()["json_file"]) + "-schema.json"
+        schema = (
+            workspace_path
+            + re.sub(r"\.json$", "", parser.as_dict()["json_file"])
+            + "-schema.json"
+        )
         if not os.path.isfile(schema):
             schema = None
 

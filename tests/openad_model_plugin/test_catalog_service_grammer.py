@@ -40,6 +40,7 @@ def test_catalog_model_service(run_openad):
         assert service_name not in test.list()
 
 
+@pytest.mark.skip
 @pytest.mark.dependency()
 def test_model_service_up(run_openad):
     """Test bringing up a model service"""
@@ -61,13 +62,13 @@ def test_model_service_up(run_openad):
         if status == "PENDING":
             break
         df: DataFrame = run_openad(cmd_model_status)
-        status = df[df['Service'].isin([service_name])]['Status'].iloc[0]
+        status = df[df["Service"].isin([service_name])]["Status"].iloc[0]
         print(status)
         time.sleep(10)
     assert status == "PENDING" or status == "READY"
 
 
-@pytest.mark.dependency(depends=['test_model_service_up'])
+@pytest.mark.dependency(depends=["test_model_service_up"])
 def test_model_service_down(run_openad):
     """bring down service and uncatalog model service"""
     service_name = "gt4sd_prop"

@@ -25,3 +25,15 @@ repos:
     hooks:
       - id: ruff
       - id: ruff-format
+
+  # - repo: local
+  #   hooks:
+  #     - id: pytest-check
+  #       name: pytest-check
+  #       stages: [commit]
+  #       entry: poetry run pytest -v
+  #       language: system
+  #       pass_filenames: false
+  #       always_run: true
+  #       verbose: true
+  #       require_serial: true

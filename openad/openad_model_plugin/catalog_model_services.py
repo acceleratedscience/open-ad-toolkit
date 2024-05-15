@@ -1,3 +1,5 @@
+from ast import mod
+import logging
 import pyparsing as py
 import os
 import json
@@ -10,6 +12,7 @@ from openad.helpers.output import (
     output_success,
 )
 from openad.helpers.spinner import spinner
+from openad.openad_model_plugin.models import ServiceConfig
 from openad.openad_model_plugin.services import ModelService, UserProvidedConfig
 from typing import List, Dict, Tuple
 from pandas import DataFrame
@@ -19,6 +22,10 @@ import shutil
 from tabulate import tabulate
 from tomlkit import parse
 import time
+from openad.openad_model_plugin.utils import get_logger
+
+
+logger = get_logger(__name__)
 
 
 SERVICE_DEFINTION_PATH = os.path.expanduser("~/.openad_model_services/")
@@ -28,7 +35,7 @@ if not os.path.exists(SERVICE_DEFINTION_PATH):
 
 
 # this is the global object that should be used across openad and testing
-Dispatcher = ModelService()
+Dispatcher = ModelService(skip_sky_validation=True)
 ### example of how to use the dispatcher ###
 # with Dispatcher() as service:
 #     print(service.list())
@@ -119,18 +126,20 @@ def model_service_status(cmd_pointer, parser):
     with Dispatcher(update_status=True) as service:
         # get all the services then order by name and if url exists
         all_services: list = service.list()
-        with_url: set = set(i for i in all_services if service.get_url(i))
-        without_url: set = set(all_services) - with_url
-        order_services = sorted(list(with_url)) + sorted(list(without_url))
+        # with_url: set = set(i for i in all_services if service.get_url(i))
+        # without_url: set = set(all_services) - with_url
+        # order_services = sorted(list(with_url)) + sorted(list(without_url))
         # order_services = all_services
         # !important load services with update
+        logger.debug(f"getting model status #{len(all_services)} {all_services}")
         if all_services:  # proceed if any service available
             try:
                 spinner.start("searching running services")
                 # TODO: verify how much time or have a more robust method
                 time.sleep(2)  # wait for service threads to ping endpoint
-                for name in order_services:
+                for name in all_services:
                     res = service.get_short_status(name)
+                    logger.debug(f"Status {name=} | {res=}")
                     # set the status of the service
                     if res.get("up"):
                         status = "READY"
@@ -160,8 +169,10 @@ def model_service_config(cmd_pointer, parser):
     """prints service resources"""
     service_name = parser.as_dict()["service_name"]
     with Dispatcher() as service:
-        res = service.get_config_as_dict(service_name)
-        config = {**res["template"]["service"], **res["template"]["resources"]}
+        if service_name not in service.list():
+            return DataFrame()
+        res = service.get(service_name)
+        config = {**res.template["service"], **res.template["resources"]}
         table_data = [[key, value] for key, value in config.items()]
         # print(tabulate(table_data, headers=["Resource", "value"], tablefmt="pretty"))
     return DataFrame(table_data, columns=["Resource", "value"])
@@ -213,7 +224,7 @@ def retrieve_model(from_path: str, to_path: str) -> Tuple[bool, str]:
         return False, f"invalid path {from_path}"
 
 
-def load_service_config(local_service_path: str) -> UserProvidedConfig:
+def load_service_config(local_service_path: str) -> ServiceConfig:
     """loads service params from openad.cfg file"""
     cfg_map = {
         "port": int,
@@ -250,7 +261,7 @@ def load_service_config(local_service_path: str) -> UserProvidedConfig:
                         table_data, headers=["Resource", "value"], tablefmt="pretty"
                     )
                 )
-                return UserProvidedConfig(**conf, workdir=local_service_path)
+                return ServiceConfig(**conf, workdir=local_service_path)
             else:
                 spinner.warn(
                     "error with (openad.cfg). Could not load user config. Loading defaults."
@@ -261,7 +272,7 @@ def load_service_config(local_service_path: str) -> UserProvidedConfig:
                 "error with (openad.cfg). Could not load user config. Loading defaults."
             )
     # use default config
-    return UserProvidedConfig(workdir=local_service_path)
+    return ServiceConfig(workdir=local_service_path)
 
 
 def catalog_add_model_service(cmd_pointer, parser) -> bool:
@@ -294,9 +305,8 @@ def catalog_add_model_service(cmd_pointer, parser) -> bool:
     # get any available configs from service
     config = load_service_config(local_service_path)
     # add the service
-    with Dispatcher() as service:
+    with Dispatcher(local_service_path) as service:
         service.add_service(service_name, config)
-        # spinner.succeed(f"service {service_name} added to catalog")
         output_success(f"service {service_name} added to catalog", return_val=False)
     return True
 
@@ -310,9 +320,12 @@ def uncatalog_model_service(cmd_pointer, parser):
             return output_error(
                 f"service {service_name} not found in catalog", return_val=False
             )
-            return False
         # stop running service
-        start_service_shutdown(service_name)
+        model = service.get(service_name)
+        if not model.is_remote and model.url:
+            # shut down service
+            service.down(service_name, skip_prompt=True)
+            spinner.warn(f"service {service_name} is terminating.. may take some time.")
         # remove local files for service
         if os.path.exists(os.path.join(SERVICE_DEFINTION_PATH, service_name)):
             shutil.rmtree(os.path.join(SERVICE_DEFINTION_PATH, service_name))
@@ -346,22 +359,27 @@ def service_up(cmd_pointer, parser) -> None:
     if "no_gpu" in parser.as_dict():
         print("disable gpu for deployment")
     service_name = parser.as_dict()["service_name"]
-    # spinner.start("Starting service")
     try:
+        spinner.start("Starting service")
         with Dispatcher() as service:
+            if service_name not in service.list():
+                spinner.fail("No such service available")
+                return
             service.up(service_name, skip_prompt=True, gpu_disable=gpu_disable)
             # spinner.succeed(f"service ({service_name}) started")
             output_success(
                 f"Service {service_name} is Starting.. may take some time.",
                 return_val=False,
             )
+            spinner.stop()
             return True
     except Exception as e:
         output_error("Service was unable to be started:\n" + str(e), return_val=False)
+        spinner.stop()
         return False
 
 
-def service_up_endpoint(cmd_pointer, parser) -> bool:
+def service_up_remote(cmd_pointer, parser) -> bool:
     service_name = parser.as_dict()["service_name"]
     endpoint = parser.as_dict()["endpoint"]
 
@@ -369,15 +387,7 @@ def service_up_endpoint(cmd_pointer, parser) -> bool:
         if service_name in service.list():
             spinner.fail(f"service {service_name} already exists")
             return False
-        # load remote endpoint to config custom field
-        config = json.dumps(
-            {
-                "remote_service": True,
-                "remote_endpoint": endpoint,
-                "remote_status": False,
-            }
-        )
-        service.add_service(service_name, UserProvidedConfig(data=config))
+        service.add_service(service_name, remote_endpoint=endpoint)
     spinner.succeed(f"Remote service '{service_name}' added!")
 
 
@@ -386,42 +396,28 @@ def local_service_up(cmd_pointer, parser) -> None:
     output_error(f" {service_name} Not yet implemented")
 
 
-def start_service_shutdown(service_name):
-    with Dispatcher() as service:
-        if service.status(service_name).get("url") or bool(
-            service.status(service_name).get("up")
-        ):
-            # shut down service
-            service.down(service_name, skip_prompt=True)
-            # reinitialize service
-            config = service.get_user_provided_config(service_name)
-            service.remove_service(service_name)
-            service.add_service(service_name, config)
-            spinner.warn(f"service {service_name} is terminating.. may take some time.")
-            return True
-        else:
-            # output_error(
-            #    f"service {service_name} was not able to terminate, please check error sky pilot to determine status and force shutdown",
-            #    return_val=False,
-            # )
-            return False
-
-
 def service_down(cmd_pointer, parser) -> None:
     """This function synchronously shuts down a service"""
-    is_success = False
     try:
         service_name = parser.as_dict()["service_name"]
         spinner.start(f"terminating {service_name} service")
-        if not start_service_shutdown(service_name):
-            spinner.info(f"service {service_name} is not up")
-            # output_warning(f"service {service_name} is not up")
-            is_success = True
+        with Dispatcher() as service:
+            if service_name not in service.list():
+                spinner.fail(f"service {service_name} is not cataloged")
+                return
+            model = service.get(service_name)
+            if not model.is_remote and not model.url:
+                spinner.fail(f"service {service_name} is not up")
+            elif model.is_remote:
+                spinner.fail(
+                    f"'{service_name}' is not local. cannot shutdown a remote service."
+                )
+            else:
+                service.down(service_name, skip_prompt=True)
     except Exception as e:
         output_error(str(e))
     finally:
         spinner.stop()
-    return is_success
 
 
 def get_service_endpoint(service_name) -> str | None:
@@ -472,7 +468,7 @@ def service_catalog_grammar(statements: list, help: list):
             + quoted_string("endpoint")
             + a_s
             + quoted_string("service_name")
-        )("service_up_endpoint")
+        )("service_up_remote")
     )
     help.append(
         help_dict_create(
