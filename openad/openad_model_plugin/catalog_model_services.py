@@ -325,7 +325,7 @@ def service_up(cmd_pointer, parser) -> None:
     #    print("disable gpu for deployment")
     service_name = parser.as_dict()["service_name"]
     # spinner.start("Starting service")
-    output_success("Deploying Service. Please Wait.....", return_value=False)
+    output_success("Deploying Service. Please Wait.....", return_val=False)
     try:
 
         with Dispatcher() as service:

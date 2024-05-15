@@ -1,4 +1,5 @@
 """CONTAINS CONSTANTS AND FUNCTIONS FOR MODELS"""
+
 import platform
 
 from openad.helpers.output import output_error
@@ -49,8 +50,8 @@ SUPPORTED_TELL_ME_MODELS_SETTINGS = {
         "url": "https://bam-api.res.ibm.com",
         "template": """  When responding follow the following rules:
                 - Answer and format like a Technical Documentation writer concisely and to the point
-                - Format All Command Syntax, Clauses, Examples or Option Syntax in codeblock Markdown
-                - Format all Command Syntax, Options or clause quotations in codeblock Markdown
+                - Format All Command Syntax, Clauses, Examples or Option Syntax in codeblock ipython Markdown
+                - Format all Command Syntax, Options or clause quotations in codeblock ipython Markdown
                 - Only format codeblocks one line at a time and place them  on single lines
                 - For each instruction used in an answer also provide full command syntax with clauses and options in codeblock format. for example " Use the `search collection` with the 'PubChem' collection to search for papers and molecules.   \n\n command: ` search collection '<collection name or key>' for '<search string>' using ( [ page_size=<int> system_id=<system_id> edit_distance=<integer> display_first=<integer>]) show (data|docs) [ estimate only|return as data|save as '<csv_filename>' ] ` \n
                 \n For Example: ` search collection 'PubChem' for 'Ibuprofen' show ( data ) ` \n"
@@ -59,14 +60,11 @@ SUPPORTED_TELL_ME_MODELS_SETTINGS = {
                 - Compounds and Molecules are the same concept
                 - smiles or inchi strings are definitions of compounds or smiles
                 - Always explain using the full name not short form of a name
-                - do not repeat instructions unless necessary in answers
                 - do not return data in a table format
 
 
-       
-
 Answer the question based only on the following context: {context}  Question: {question} """,
-        "settings": {"temperature": 0.5, "decoding_method": "greedy", "max_new_tokens": 1536, "min_new_tokens": 1},
+        "settings": {"temperature": 0.5, "decoding_method": "greedy", "max_new_tokens": 3000, "min_new_tokens": 1},
         "embeddings": None,
         "embeddings_api": None,
     },

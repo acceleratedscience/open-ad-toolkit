@@ -598,7 +598,7 @@ class RUNCMD(Cmd):
                 # , shut down abruptly so as not to kill registry file.
                 output_error(
                     "Fatal error: the session registry is not avaiable, performing emergency shutdown" + str(e),
-                    return_value=False,
+                    return_val=False,
                 )
                 self.do_exit("exit emergency")
             # print("------------------------------")
