@@ -46,7 +46,7 @@ SUPPORTED_TELL_ME_MODELS = ["BAM", "OPENAI"]
 SUPPORTED_TELL_ME_MODELS_SETTINGS = {
     "BAM": {
         "model": "ibm/granite-20b-code-instruct-v1",
-        "model2": "mistralai/mistral-7b-instruct-v0-2",
+        # "model": "meta-llama/llama-3-70b-instruct",
         "url": "https://bam-api.res.ibm.com",
         "template": """  When responding follow the following rules:
                 - Answer and format like a Technical Documentation writer concisely and to the point
