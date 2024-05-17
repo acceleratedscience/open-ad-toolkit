@@ -42,15 +42,9 @@ The goal of openAD is to provide a common language for scientists to interact wi
 For updating to 0.2.0 first remove toolkits `remove toolkit DS4SD` and `remove toolkit RXN` prior to updating
 
 > **Whats New ?**
-- Increased number of Molecules Functions for retrieving from pubchem molecules or creating your own in a working set, including visualisation, tracking of source info
-- 3D displaying of molecules in your working set or direct from pubchem
-- Attaching Analysis to target Molecules with the `enrich` command
-- Enhanced Help and Tell Me command
-- Linking to source documents in DeepSearch
-- merging molecules and molsets together
-- easy access to dataframes and results sets with the new `result` command
-- smaller install package
-- introductory molecule viewer
+- Property and Data Set Generation Services
+
+
 
 **Note: uninstall all toolkits before installing the new version**
 
@@ -129,6 +123,18 @@ Ensure you're running Python 3.10 or 3.11. There's multiple ways of updating Pyt
 2.  **Step 2: Installation**
 
         pip install openad
+
+    if you are going to use the model services you will need to have an AWS CLI enabled on your machine and follow the below steps to install and check skypilot is enabled on your machine:
+
+        A. Install Sky  with `pip install "skypilot-nightly[aws]"`
+
+        B. setup your aws command line
+
+        C. run `sky check`
+
+        
+    Services will take about 10 minutes to deploy it can be monitored through the controllers logs.
+        e.g. `sky serve logs sky-service-0af4  --controller`
 
 <br>
 

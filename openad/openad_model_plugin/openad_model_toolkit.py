@@ -738,7 +738,10 @@ def openad_model_requestor(cmd_pointer, parser):
             if isinstance(response_result, dict):
                 if "error" in response_result:
                     run_error = "Request Error:\n"
+
                     for key, value in response_result["error"].items():
+                        value = str(value).replace("<", "`<")
+                        value = str(value).replace(">", ">`")
                         run_error = run_error + f"- <cmd>{key}</cmd> : {value}\n  "
                     return output_error(run_error)
                 if "detail" in response_result:
@@ -759,14 +762,16 @@ def openad_model_requestor(cmd_pointer, parser):
             result = response_result
 
         if isinstance(result, dict):
+
             if "error" in result:
                 run_error = "Request Error:\n"
                 for key, value in result["error"].items():
+
                     run_error = run_error + f"- <cmd>{key}</cmd> : {value}\n  "
                 return output_text(run_error)
 
     except Exception as e:
-        run_error = "Request Error:\n"
+        run_error = "HTTP Request Error:\n"
         spinner.fail("Request Failed")
         spinner.stop()
         return output_error(run_error + "\n" + str(e))
