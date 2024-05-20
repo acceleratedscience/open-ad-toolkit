@@ -139,15 +139,21 @@ class ServiceFileLoadError(Exception):
 
 
 class ModelService(Dispatcher):
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, location: str = None, update_status: bool=False, skip_sky_validation: bool = True) -> None:
         # search for previous running services
+        self.default_location = location
         self.load(
-            location=kwargs.get("location"), update_status=kwargs.get("update_status")
+            location=location, update_status=update_status
         )
         super().__init__()
+    
+    def save(self, location: str | None = None) -> None:
+        location = location or self.default_location
+        return super().save(location)
 
     def load(self, location: str | None = None, update_status: bool | None = False):
         """load a config. if it doesnt exist auto create it"""
+        location = location or self.default_location
         try:
             super().load(location=location, update_status=update_status)
             # output_success("loaded services")
@@ -308,6 +314,20 @@ class ModelService(Dispatcher):
         if status.get("up"):
             ret_status["up"] = bool(status.get("up"))
         return ret_status
+    
+    def get_remote_service_definitions(self, name: str):
+        service_definitions = []
+        service_data = self.get_short_status(name)
+        if service_data.get("is_remote"):
+            try:
+                url = service_data.get("url")
+                response = requests.get(url + "/service", timeout=2)
+                if response.status_code == 200:
+                    service_definitions = response.json()
+            except requests.exceptions.RequestException:
+                # could not get service defs. service not up or wrong url
+                pass
+        return service_definitions
 
     def status(self, name: str, pretty: bool | None = None) -> Dict[str, Any]:
         """Loads status as json object

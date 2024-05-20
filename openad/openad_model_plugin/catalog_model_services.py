@@ -30,7 +30,7 @@ if not os.path.exists(SERVICE_DEFINTION_PATH):
 
 
 # this is the global object that should be used across openad and testing
-Dispatcher = ModelService()
+Dispatcher = ModelService(update_status=True, skip_sky_validation=True)
 ### example of how to use the dispatcher ###
 # with Dispatcher() as service:
 #     print(service.list())
@@ -64,7 +64,7 @@ def get_namespaces():
     return list_of_namespaces
 
 
-def get_service_defs(reference) -> list:
+def get_local_service_defs(reference) -> list:
     """pulls the list of available service definitions"""
     service_list = []
     service_files = glob.glob(reference + "/*.json", recursive=True)
@@ -82,24 +82,32 @@ def get_service_defs(reference) -> list:
 
 def get_cataloged_service_defs():
     """Returns a list of cataloged Services definitions and their Namespaces"""
+    # get local namespace service definitions
     list_of_namespaces = [
         os.path.basename(f.path) for f in os.scandir(SERVICE_DEFINTION_PATH) if f.is_dir()
     ]  # os.walk(SERVICE_DEFINTION_PATH)
-
     service_list_by_catalog = {}
     for namespace in list_of_namespaces:
         service_list = []
         services_path = SERVICE_DEFINTION_PATH + namespace + SERVICES_PATH
 
         if os.path.exists(services_path):
-            service_list = get_service_defs(services_path)
+            service_list = get_local_service_defs(services_path)
         else:
             services_path = SERVICE_DEFINTION_PATH + namespace + "/**" + SERVICES_PATH
             services_path = glob.glob(services_path, recursive=True)
             if len(services_path) > 0:
                 services_path = services_path[0]
-                service_list = get_service_defs(services_path)
+                service_list = get_local_service_defs(services_path)
         service_list_by_catalog[namespace] = service_list
+    # get remote service definitions
+    with Dispatcher() as service:
+        dispatcher_services = service.list()
+        for name in dispatcher_services:
+            remote_definitions = service.get_remote_service_definitions(name)
+            if remote_definitions:
+                service_list_by_catalog[name] = remote_definitions
+
     return service_list_by_catalog
 
 
@@ -258,6 +266,7 @@ def catalog_add_model_service(cmd_pointer, parser) -> bool:
     remote_service = parser.as_dict()["path"]
     if "remote" in parser:
         print(" Cataloging a Remote Service")
+        return service_up_endpoint(cmd_pointer, parser)
     # check if service exists
     with Dispatcher() as service:
         if service_name in service.list():
@@ -292,7 +301,6 @@ def uncatalog_model_service(cmd_pointer, parser):
         # check if service exists
         if service_name not in service.list():
             return output_error(f"service {service_name} not found in catalog", return_val=False)
-            return False
         # stop running service
         start_service_shutdown(service_name)
         # remove local files for service
@@ -341,7 +349,7 @@ def service_up(cmd_pointer, parser) -> None:
 
 def service_up_endpoint(cmd_pointer, parser) -> bool:
     service_name = parser.as_dict()["service_name"]
-    endpoint = parser.as_dict()["endpoint"]
+    endpoint = parser.as_dict()["path"]
 
     with Dispatcher() as service:
         if service_name in service.list():
@@ -357,6 +365,7 @@ def service_up_endpoint(cmd_pointer, parser) -> bool:
         )
         service.add_service(service_name, UserProvidedConfig(data=config))
     spinner.succeed(f"Remote service '{service_name}' added!")
+    return True
 
 
 def local_service_up(cmd_pointer, parser) -> None:
@@ -439,20 +448,6 @@ def service_catalog_grammar(statements: list, help: list):
         )
     )
 
-    statements.append(
-        py.Forward(model + service + up + remote + quoted_string("endpoint") + a_s + quoted_string("service_name"))(
-            "service_up_endpoint"
-        )
-    )
-    help.append(
-        help_dict_create(
-            name="model service up remote",
-            category="Model",
-            command="model service up remote <endpoint> as <service_name>",
-            description="connect to a remote model endpoint",
-        )
-    )
-
     statements.append(py.Forward(model + service + config + quoted_string("service_name"))("model_service_config"))
     help.append(
         help_dict_create(
@@ -501,7 +496,7 @@ def service_catalog_grammar(statements: list, help: list):
         help_dict_create(
             name="catalog Model service",
             category="Model",
-            command="catalog model service from (remote)'<path or github>' as  '<service_name>'",
+            command="catalog model service from (remote) '<path or github>' as  '<service_name>'",
             description="catalog a model service from a path or github or remotely from an existing OpenAD service",
         )
     )

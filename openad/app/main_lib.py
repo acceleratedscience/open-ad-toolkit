@@ -21,7 +21,6 @@ from openad.openad_model_plugin.catalog_model_services import (
     service_down,
     service_up,
     local_service_up,
-    service_up_endpoint,
     model_service_config,
 )
 
@@ -159,8 +158,6 @@ def lang_parse(cmd_pointer, parser):
         return service_up(cmd_pointer, parser)
     elif parser.getName() == "local_service_up":
         return local_service_up(cmd_pointer, parser)
-    elif parser.getName() == "service_up_endpoint":
-        return service_up_endpoint(cmd_pointer, parser)
     elif parser.getName() == "service_down":
         return service_down(cmd_pointer, parser)
 
