@@ -1,4 +1,5 @@
 import logging
+
 # import logging.config
 import sys
 import os
@@ -29,7 +30,9 @@ def get_level(level: int | str):
         return level
 
 
-def get_logger(name, level: int = logging.CRITICAL, disable_existing_loggers: bool=False):
+def get_logger(
+    name, level: int = logging.CRITICAL, disable_existing_loggers: bool = False
+):
     level = get_level(level)
     if ENV_DEBUG:
         level = logging.DEBUG

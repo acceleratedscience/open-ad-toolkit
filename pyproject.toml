@@ -113,7 +113,7 @@ build-backend = "poetry.core.masonry.api"
 [tool.ruff]
 fix = true
 line-length = 88
-# src = ["src"]
+src = ["openad/openad_model_plugin"]
 target-version = "py310"
 show-fixes = true
 

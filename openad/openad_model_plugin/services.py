@@ -143,14 +143,17 @@ class ServiceFileLoadError(Exception):
 
 
 class ModelService(Dispatcher):
-    def __init__(self, location: str = None, update_status: bool=False, skip_sky_validation: bool = True) -> None:
+    def __init__(
+        self,
+        location: str = None,
+        update_status: bool = False,
+        skip_sky_validation: bool = True,
+    ) -> None:
         # search for previous running services
         self.default_location = location
-        self.load(
-            location=location, update_status=update_status
-        )
+        self.load(location=location, update_status=update_status)
         super().__init__()
-    
+
     def save(self, location: str | None = None) -> None:
         location = location or self.default_location
         return super().save(location)
@@ -318,7 +321,7 @@ class ModelService(Dispatcher):
         if status.get("up"):
             ret_status["up"] = bool(status.get("up"))
         return ret_status
-    
+
     def get_remote_service_definitions(self, name: str):
         service_definitions = []
         service_data = self.get_short_status(name)
