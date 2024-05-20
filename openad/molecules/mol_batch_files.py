@@ -82,6 +82,7 @@ def merge_molecule_property_data(cmd_pointer, inp):
             # print("updated: " + str(a_mol))
             if update_flag is False:
                 cmd_pointer.molecule_list.append(merge_mol)
+    output_success("Molecule Data Merged", return_val=False)
     return True
 
 
