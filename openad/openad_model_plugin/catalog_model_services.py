@@ -21,6 +21,10 @@ import shutil
 from tabulate import tabulate
 from tomlkit import parse
 import time
+from openad.openad_model_plugin.utils import get_logger
+
+
+logger = get_logger(__name__, level="debug")
 
 
 SERVICE_DEFINTION_PATH = os.path.expanduser("~/.openad_model_services/")
@@ -415,9 +419,7 @@ def get_service_endpoint(service_name) -> str | None:
         # may in future return a default local service
         return None
     with Dispatcher() as service:
-        # endpoint = json.loads(service.status(service_name)).get("url")
-        endpoint = service.status(service_name)["url"]
-
+        endpoint = service.get_url(service_name)
     return endpoint
 
 

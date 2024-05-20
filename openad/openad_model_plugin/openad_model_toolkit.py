@@ -710,7 +710,8 @@ def openad_model_requestor(cmd_pointer, parser):
     Endpoint = get_service_endpoint(service)
 
     if Endpoint is not None and len((Endpoint.strip())) > 0:
-        Endpoint = "http://" + Endpoint
+        if "http" not in Endpoint:
+            Endpoint = "http://" + Endpoint
     # Endpoint = "http://34.205.69.8:8080"
     else:
         Endpoint = None

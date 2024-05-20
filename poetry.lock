@@ -152,13 +152,13 @@ docs = ["sphinx (==7.2.6)", "sphinx-mdinclude (==0.5.3)"]
 
 [[package]]
 name = "annotated-types"
-version = "0.6.0"
+version = "0.7.0"
 description = "Reusable constraint types to use with typing.Annotated"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "annotated_types-0.6.0-py3-none-any.whl", hash = "sha256:0641064de18ba7a25dee8f96403ebc39113d0cb953a01429249d5c7564666a43"},
-    {file = "annotated_types-0.6.0.tar.gz", hash = "sha256:563339e807e53ffd9c267e99fc6d9ea23eb8443c08f112651963e24e22f84a5d"},
+    {file = "annotated_types-0.7.0-py3-none-any.whl", hash = "sha256:1f02e8b43a8fbbc3f3e0d4f0f4bfc8131bcb4eebe8849b8e5c773f3a1c582a53"},
+    {file = "annotated_types-0.7.0.tar.gz", hash = "sha256:aff07c09a53a08bc8cfccb9c85b05f1aa9a2a6f23728d790723543408344ce89"},
 ]
 
 [[package]]
@@ -4812,18 +4812,33 @@ files = [
 
 [[package]]
 name = "servicing"
-version = "0.0.11"
+version = "0.0.12"
 description = ""
 optional = false
-python-versions = "*"
-files = []
-develop = false
-
-[package.source]
-type = "git"
-url = "https://github.com/acceleratedscience/servicing.git"
-reference = "config_extend"
-resolved_reference = "86b2b73d6d4272eab2df17d238c790403d91a61c"
+python-versions = ">=3.10"
+files = [
+    {file = "servicing-0.0.12-cp310-cp310-macosx_10_12_x86_64.whl", hash = "sha256:b7912420a2276543799a806c1bb5793fcaa1862cc0b5e3fe19e2e82604fa4827"},
+    {file = "servicing-0.0.12-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:b4d4c3031caa05baa420bc27af1ddb0f62eb195e67b8d668493aaacca30a3ca2"},
+    {file = "servicing-0.0.12-cp310-cp310-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:4ba88bf62bfa3337ccb4f3f0adea5984a1f94a58e6dec207bdb909f109398f91"},
+    {file = "servicing-0.0.12-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:53b3e8551d5af517aa6cad4c8ec8d3fa69baac657bf778365b53f792dd0a4044"},
+    {file = "servicing-0.0.12-cp310-none-win32.whl", hash = "sha256:244c5718b03667b2265cc7731b4899218af872bb79638a3bdbe744d421684b71"},
+    {file = "servicing-0.0.12-cp310-none-win_amd64.whl", hash = "sha256:a58c7e3d802999b417ca990d3f952cf5f31499cb3071fbe030d9c08bce473ea5"},
+    {file = "servicing-0.0.12-cp311-cp311-macosx_10_12_x86_64.whl", hash = "sha256:fb2d2dc942408c734e429df6ef6847d25374911f8f3d58a6b778bf2946d474c1"},
+    {file = "servicing-0.0.12-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:829dd32b6c642767c129cd9b350f22197cad8e2faab67a1eaefe48779efa90c4"},
+    {file = "servicing-0.0.12-cp311-cp311-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:35dd8a911510430a614762e8eb8e4446cc0a623d6e66cee6d9e6f0829f086def"},
+    {file = "servicing-0.0.12-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:520a302e212222071ad11ff2b4b3af03b361364237c636c7e0ecc00b0b8aec88"},
+    {file = "servicing-0.0.12-cp311-none-win32.whl", hash = "sha256:7fe72db38d61efc46f46c27e7317740a82e9fd15bc0b5535ec0d2e1085427564"},
+    {file = "servicing-0.0.12-cp311-none-win_amd64.whl", hash = "sha256:e37faf7f0c3a7247889821cf327a5a8cafa55d2673fc12f4dfcc9b548796c643"},
+    {file = "servicing-0.0.12-cp312-cp312-macosx_10_12_x86_64.whl", hash = "sha256:b17fd38d96973a5acc8a64bc8a21420bc318046c0fc416d32e586c10e37fcb7e"},
+    {file = "servicing-0.0.12-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:f22f1288d7a30bf445ac4e705fa924177759ca23cd06ee7f3985af88f4c4ce0d"},
+    {file = "servicing-0.0.12-cp312-cp312-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:a3f0733e0143d3b75357378dfc59aaf3548b487617ef34aa37d7e4dcdcd67fd1"},
+    {file = "servicing-0.0.12-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:b29c5ad921ca8cd0bf38e443899abcef10acf9b7af63402dcc66f7cb1c7ca416"},
+    {file = "servicing-0.0.12-cp312-none-win32.whl", hash = "sha256:587dcbef4c9f7a3c655adcf415e72ccd1ca7cb7e832d45877d725895c237dd2d"},
+    {file = "servicing-0.0.12-cp312-none-win_amd64.whl", hash = "sha256:c75658ab297cea8c1db7668dff7317e01c8bcce6fe82e6f660a5d1fc5959e6c0"},
+    {file = "servicing-0.0.12-pp310-pypy310_pp73-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:79ed45898b067f7e5be17b911c5b601431bce1de65092467c227022bb49130a2"},
+    {file = "servicing-0.0.12-pp310-pypy310_pp73-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:339b4b535d5ddd6cdff86790d6c0e25117a85ddeb3446f7973f750e3e7c1055f"},
+    {file = "servicing-0.0.12.tar.gz", hash = "sha256:4c661a85a6f1599b4e531c5ab9a869c9461620869116b1fc431510924db42eb8"},
+]
 
 [[package]]
 name = "setuptools"
@@ -6025,4 +6040,4 @@ test = ["mypy", "pre-commit", "pytest", "pytest-asyncio", "websockets (>=10.0)"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10,<3.12"
-content-hash = "61c714b39575e9803ab4c76dce909b7e65ee80ef32dc6dd56817465491a1c998"
+content-hash = "6798f245e6d99f945db49e69a680cbd1b77de194072d8443ae04b0671e1f5125"
