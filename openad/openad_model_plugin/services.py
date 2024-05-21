@@ -12,7 +12,7 @@ import time
 from openad.openad_model_plugin.utils import get_logger
 
 
-logger = get_logger(__name__, level="debug")
+logger = get_logger(__name__)
 
 
 class ModelServiceUniqueLocation(Dispatcher):

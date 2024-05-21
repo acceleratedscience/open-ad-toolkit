@@ -24,7 +24,7 @@ class bcolors:
 
 def get_level(level: int | str):
     """get the correct log level from a string. 'DEBUG'=logging.DEBUG"""
-    if isinstance(level.upper(), str):
+    if isinstance(level, str):
         return getattr(logging, level.upper())
     else:
         return level
