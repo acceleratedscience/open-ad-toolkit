@@ -167,6 +167,7 @@ class ModelService(Dispatcher):
                 # Check if timeout has elapsed
                 if time.time() - start_time >= timeout:
                     break
+        logger.debug(f"service | {address=} {up=}")
         return up
 
     def load_extra_data(self, name: str) -> Dict[str, Any]:
