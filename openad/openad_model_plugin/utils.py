@@ -31,10 +31,13 @@ def get_level(level: int | str):
 
 
 def get_logger(
-    name, level: int = logging.CRITICAL, disable_existing_loggers: bool = False
+    name,
+    level: int = logging.CRITICAL,
+    color: bcolors = bcolors.ENDC,
+    disable_existing_loggers: bool = False,
 ):
     level = get_level(level)
-    if ENV_DEBUG:
+    if ENV_DEBUG.lower() == "services":
         level = logging.DEBUG
     logger = logging.getLogger(name)
     logger.setLevel(level)
@@ -42,7 +45,7 @@ def get_logger(
         "\n%(asctime)s |"
         + bcolors.OKBLUE
         + " %(levelname)s | %(module)s:%(funcName)s:%(lineno)d |"
-        + bcolors.WARNING
+        + color
         + " %(message)s"
         + bcolors.ENDC
     )

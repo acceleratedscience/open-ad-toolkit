@@ -21,10 +21,10 @@ import shutil
 from tabulate import tabulate
 from tomlkit import parse
 import time
-from openad.openad_model_plugin.utils import get_logger
+from openad.openad_model_plugin.utils import get_logger, bcolors
 
 
-logger = get_logger(__name__)
+logger = get_logger(__name__, color=bcolors.OKCYAN + bcolors.UNDERLINE)
 
 
 SERVICE_DEFINTION_PATH = os.path.expanduser("~/.openad_model_services/")
@@ -34,6 +34,7 @@ if not os.path.exists(SERVICE_DEFINTION_PATH):
 
 
 # this is the global object that should be used across openad and testing
+logger.debug("initializing global Model Service.")
 Dispatcher = ModelService(update_status=True, skip_sky_validation=True)
 ### example of how to use the dispatcher ###
 # with Dispatcher() as service:
@@ -67,14 +68,15 @@ def get_namespaces():
         for f in os.scandir(SERVICE_DEFINTION_PATH)
         if f.is_dir()
     ]  # os.walk(SERVICE_DEFINTION_PATH)
+    logger.debug(f"finding namespaces | {list_of_namespaces=}")
     return list_of_namespaces
 
 
 def get_local_service_defs(reference) -> list:
     """pulls the list of available service definitions"""
+    logger.debug(f"getting local service defs | {reference=}")
     service_list = []
     service_files = glob.glob(reference + "/*.json", recursive=True)
-
     for file in service_files:
         with open(file, "r") as file_handle:
             try:
@@ -88,6 +90,7 @@ def get_local_service_defs(reference) -> list:
 
 def get_cataloged_service_defs():
     """Returns a list of cataloged Services definitions and their Namespaces"""
+    logger.debug("getting local service defs and remote service defs")
     # get local namespace service definitions
     list_of_namespaces = [
         os.path.basename(f.path)
@@ -128,14 +131,15 @@ def get_catalog_namespaces(cmd_pointer, parser) -> Dict:
 
 def model_service_status(cmd_pointer, parser):
     """This function catalogs a service"""
+    logger.debug("listing model status")
     # get list of directory names for the catalog models
     models = {"Service": [], "Status": [], "Endpoint": [], "Type": []}
     with Dispatcher(update_status=True) as service:
         # get all the services then order by name and if url exists
         all_services: list = service.list()
-        with_url: set = set(i for i in all_services if service.get_url(i))
-        without_url: set = set(all_services) - with_url
-        order_services = sorted(list(with_url)) + sorted(list(without_url))
+        # with_url: set = set(i for i in all_services if service.get_url(i))
+        # without_url: set = set(all_services) - with_url
+        # order_services = sorted(list(with_url)) + sorted(list(without_url))
         # order_services = all_services
         # !important load services with update
         if all_services:  # proceed if any service available
@@ -143,7 +147,7 @@ def model_service_status(cmd_pointer, parser):
                 spinner.start("searching running services")
                 # TODO: verify how much time or have a more robust method
                 time.sleep(2)  # wait for service threads to ping endpoint
-                for name in order_services:
+                for name in all_services:
                     res = service.get_short_status(name)
                     # set the status of the service
                     if res.get("up"):
@@ -166,12 +170,13 @@ def model_service_status(cmd_pointer, parser):
                 output_warning(str(e))
             finally:
                 spinner.stop()
-
-    return DataFrame(models)
+    df = DataFrame(models)
+    return df.sort_values(by=["Status", "Service"], ascending=[True, True])
 
 
 def model_service_config(cmd_pointer, parser):
     """prints service resources"""
+    logger.debug("listing service config")
     service_name = parser.as_dict()["service_name"]
     with Dispatcher() as service:
         res = service.get_config_as_dict(service_name)
@@ -182,6 +187,7 @@ def model_service_config(cmd_pointer, parser):
 
 
 def retrieve_model(from_path: str, to_path: str) -> Tuple[bool, str]:
+    logger.debug("retrieving service model")
     spinner.start("Retrieving model")
     # uses ssh or https
     if (
@@ -229,6 +235,7 @@ def retrieve_model(from_path: str, to_path: str) -> Tuple[bool, str]:
 
 def load_service_config(local_service_path: str) -> UserProvidedConfig:
     """loads service params from openad.cfg file"""
+    logger.debug(f"get local service configuration | {local_service_path=}")
     cfg_map = {
         "port": int,
         "replicas": int,
@@ -281,7 +288,8 @@ def load_service_config(local_service_path: str) -> UserProvidedConfig:
 def catalog_add_model_service(cmd_pointer, parser) -> bool:
     """Add model service repo to catalog"""
     service_name = parser.as_dict()["service_name"]
-    remote_service = parser.as_dict()["path"]
+    service_path = parser.as_dict()["path"]
+    logger.debug(f"catalog model service | {service_name=} {service_path=}")
     if "remote" in parser:
         print(" Cataloging a Remote Service")
         return service_up_endpoint(cmd_pointer, parser)
@@ -295,7 +303,7 @@ def catalog_add_model_service(cmd_pointer, parser) -> bool:
             return False
     # download model
     local_service_path = os.path.join(SERVICE_DEFINTION_PATH, service_name)
-    is_local_service_path, _ = retrieve_model(remote_service, local_service_path)
+    is_local_service_path, _ = retrieve_model(service_path, local_service_path)
     if is_local_service_path is False:
         spinner.fail(
             f"service {service_name} was unable to be added to check url or path"
@@ -319,6 +327,7 @@ def catalog_add_model_service(cmd_pointer, parser) -> bool:
 def uncatalog_model_service(cmd_pointer, parser):
     """This function removes a catalog from the ~/.openad_model_service directory"""
     service_name = parser.as_dict()["service_name"]
+    logger.debug(f"uncatalog model service | {service_name=}")
     with Dispatcher() as service:
         # check if service exists
         if service_name not in service.list():
@@ -357,9 +366,8 @@ def uncatalog_model_service(cmd_pointer, parser):
 def service_up(cmd_pointer, parser) -> None:
     """This function synchronously starts a service"""
     gpu_disable = "no_gpu" in parser.as_dict()  # boolean flag to disable gpu
-    # if "no_gpu" in parser.as_dict():
-    #    print("disable gpu for deployment")
     service_name = parser.as_dict()["service_name"]
+    logger.debug(f"start service | {service_name=} {gpu_disable=}")
     # spinner.start("Starting service")
     output_success("Deploying Service. Please Wait.....", return_val=False)
     try:
@@ -377,7 +385,7 @@ def service_up(cmd_pointer, parser) -> None:
 def service_up_endpoint(cmd_pointer, parser) -> bool:
     service_name = parser.as_dict()["service_name"]
     endpoint = parser.as_dict()["path"]
-
+    logger.debug(f"add as remote service | {service_name=} {endpoint=}")
     with Dispatcher() as service:
         if service_name in service.list():
             spinner.fail(f"service {service_name} already exists")
@@ -397,10 +405,12 @@ def service_up_endpoint(cmd_pointer, parser) -> bool:
 
 def local_service_up(cmd_pointer, parser) -> None:
     service_name = parser.as_dict()["service_name"]
+    logger.debug(f"start service locally | {service_name=}")
     output_error(f" {service_name} Not yet implemented")
 
 
 def start_service_shutdown(service_name):
+    logger.debug(f"prepare service shutdown | {service_name=}")
     with Dispatcher() as service:
         if service.status(service_name).get("url") or bool(
             service.status(service_name).get("up")
@@ -426,6 +436,7 @@ def service_down(cmd_pointer, parser) -> None:
     is_success = False
     try:
         service_name = parser.as_dict()["service_name"]
+        logger.debug(f"attempt to stop service | {service_name=}")
         spinner.start(f"terminating {service_name} service")
         if not start_service_shutdown(service_name):
             spinner.info(f"service {service_name} is not up")
@@ -445,11 +456,13 @@ def get_service_endpoint(service_name) -> str | None:
         return None
     with Dispatcher() as service:
         endpoint = service.get_url(service_name)
+    logger.debug(f"get service endpoint | {service_name=} {endpoint=}")
     return endpoint
 
 
 def service_catalog_grammar(statements: list, help: list):
     """This function creates the required grammar for managing cataloging services and model up or down"""
+    logger.debug("catalog model service grammer")
     catalog = py.CaselessKeyword("catalog")
     uncatalog = py.CaselessKeyword("uncatalog")
     model = py.CaselessKeyword("model")
