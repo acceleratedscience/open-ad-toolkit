@@ -5,6 +5,10 @@ import sys
 import os
 
 
+##########################################################################
+# region - Logging
+##########################################################################
+
 ENV_DEBUG = os.environ.get("debug") or os.environ.get("DEBUG")
 
 
@@ -37,7 +41,7 @@ def get_logger(
     disable_existing_loggers: bool = False,
 ):
     level = get_level(level)
-    if ENV_DEBUG.lower() == "services":
+    if ENV_DEBUG == "services":
         level = logging.DEBUG
     logger = logging.getLogger(name)
     logger.setLevel(level)
