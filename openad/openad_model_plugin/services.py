@@ -38,7 +38,7 @@ class ModelService(Dispatcher):
 
     def save(self, location: str | None = None) -> None:
         location = location or self.default_location
-        logger.debug(f"loading config | {location=}")
+        logger.debug(f"saving config | {location=}")
         return super().save(location)
 
     def load(self, location: str | None = None, update_status: bool | None = False):
@@ -156,7 +156,7 @@ class ModelService(Dispatcher):
         while True:
             try:
                 # Make a GET request to the endpoint
-                response = requests.get(address + resource, timeout=0.2)
+                response = requests.head(address + resource, timeout=0.2)
                 if response.status_code == 200:
                     up = True
                     break
