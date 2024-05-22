@@ -288,7 +288,7 @@ def load_service_config(local_service_path: str) -> UserProvidedConfig:
 def catalog_add_model_service(cmd_pointer, parser) -> bool:
     """Add model service repo to catalog"""
     service_name = parser.as_dict()["service_name"]
-    service_path = parser.as_dict()["path"]
+    service_path = os.path.expanduser(parser.as_dict()["path"])
     logger.debug(f"catalog model service | {service_name=} {service_path=}")
     if "remote" in parser:
         print(" Cataloging a Remote Service")
