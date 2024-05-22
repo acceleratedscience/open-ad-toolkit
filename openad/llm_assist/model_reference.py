@@ -3,18 +3,25 @@
 import platform
 
 from openad.helpers.output import output_error
-from langchain.chat_models import ChatOpenAI
-from langchain.embeddings.openai import OpenAIEmbeddings
-from langchain.embeddings import HuggingFaceEmbeddings
-
+from langchain_openai import ChatOpenAI
+from langchain_openai import OpenAIEmbeddings
+from langchain_community.embeddings import HuggingFaceEmbeddings
+from genai.schema import TextEmbeddingParameters
 from genai import Credentials, Client
 
 # from genai import Model
 # from genai.schemas import GenerateParams
+
 from genai import Client, Credentials
-from genai.extensions.langchain.chat_llm import LangChainChatInterface
+
+
+# from genai.extensions.langchain.chat_llm import LangChainChatInterface
+from genai.extensions.langchain import LangChainEmbeddingsInterface
+
 from genai.extensions.langchain import LangChainInterface
-from genai.text.generation import (
+
+
+from genai.schema import (
     DecodingMethod,
     ModerationHAP,
     ModerationParameters,
@@ -22,13 +29,15 @@ from genai.text.generation import (
     TextGenerationReturnOptions,
 )
 
+
 # Determine in the sentence transformer embbedings model is installed
 # this is currently required for BAM and WATSON
-MINI_EMBEDDINGS_MODEL_PRESENT = True
-try:
-    from sentence_transformers import SentenceTransformer
-except:
-    MINI_EMBEDDINGS_MODEL_PRESENT = False
+MINI_EMBEDDINGS_MODEL_PRESENT = False
+
+# try:
+#    from sentence_transformers import SentenceTransformer
+# except:
+#    MINI_EMBEDDINGS_MODEL_PRESENT = False
 
 
 if platform.processor().upper() == "ARM":
@@ -100,21 +109,18 @@ def get_tell_me_model(service: str, api_key: str):
 
     if service == "OPENAI":
         try:
+
             model = ChatOpenAI(
                 model_name=SUPPORTED_TELL_ME_MODELS_SETTINGS[service]["model"],
                 openai_api_key=api_key,
             )
+
             return model, SUPPORTED_TELL_ME_MODELS_SETTINGS[service]["template"]
         except Exception as e:  # pylint: disable=broad-exception-caught
             output_error("Error Loading OPENAI Model see error Messsage : \n" + e, return_val=False)
             return None, None
 
     elif service == "BAM":
-        if MINI_EMBEDDINGS_MODEL_PRESENT is False:
-            output_error(
-                "Error: Loading BAM Model you need to install `sentence-transformers` : \n" + e, return_val=False
-            )
-            return False
 
         creds = Credentials(api_key=api_key, api_endpoint=SUPPORTED_TELL_ME_MODELS_SETTINGS[service]["url"])
 
@@ -127,6 +133,7 @@ def get_tell_me_model(service: str, api_key: str):
             # model = Model(
             # model=SUPPORTED_TELL_ME_MODELS_SETTINGS[service]["template"], credentials=creds, params=params
             # )
+
             model = LangChainInterface(
                 client=client,
                 model_id=SUPPORTED_TELL_ME_MODELS_SETTINGS[service]["model"],
@@ -153,21 +160,25 @@ def get_embeddings_model(service: str, api_key: str):
                 "Error: cannot initialise embeddings, check API Key"
             ) from e  # pylint: disable=broad-exception-raised
     elif service == "BAM":
-        if MINI_EMBEDDINGS_MODEL_PRESENT is False:
-            return False
+        ##if MINI_EMBEDDINGS_MODEL_PRESENT is False:
+        ##    return False
         try:
-            # creds = Credentials(
-            #    api_key=api_key,
-            #    api_endpoint=SUPPORTED_TELL_ME_MODELS_SETTINGS[service]["url"],
-            #    model_id=LOCAL_MODEL_PATH,
-            # )
-            # embeddings = Client(credentials=creds)
-
-            embeddings = HuggingFaceEmbeddings(
-                model_name=LOCAL_MODEL_PATH,
-                model_kwargs=LOCAL_MODEL_KWARGS,
-                encode_kwargs=LOCAL_ENCODE_KWARGS,
+            creds = Credentials(
+                api_key=api_key,
+                api_endpoint=SUPPORTED_TELL_ME_MODELS_SETTINGS[service]["url"],
             )
+            client = Client(credentials=creds)
+            embeddings = LangChainEmbeddingsInterface(
+                client=client,
+                model_id="sentence-transformers/all-minilm-l6-v2",
+                parameters=TextEmbeddingParameters(truncate_input_tokens=True),
+            )
+
+        # embeddings = HuggingFaceEmbeddings(
+        #    model_name=LOCAL_MODEL_PATH,
+        #    model_kwargs=LOCAL_MODEL_KWARGS,
+        #    encode_kwargs=LOCAL_ENCODE_KWARGS,
+        # )
 
         except Exception as e:
             print(e)
