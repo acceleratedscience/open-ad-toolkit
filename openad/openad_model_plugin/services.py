@@ -156,7 +156,7 @@ class ModelService(Dispatcher):
         while True:
             try:
                 # Make a GET request to the endpoint
-                response = requests.head(address + resource, timeout=0.2)
+                response = requests.get(address + resource, timeout=0.2)
                 if response.status_code == 200:
                     up = True
                     break
