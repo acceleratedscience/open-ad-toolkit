@@ -8,6 +8,7 @@ from typing_extensions import Self
 from openad.helpers.output import output_error, output_warning
 from servicing import Dispatcher, UserProvidedConfig
 from openad.openad_model_plugin.utils import get_logger
+from functools import cache, lru_cache
 
 
 logger = get_logger(__name__)
@@ -31,7 +32,9 @@ class ModelService(Dispatcher):
         update_status: bool = False,
         skip_sky_validation: bool = True,
     ) -> None:
-        # search for previous running services
+        logger.debug(
+            f"dispatcher init | {location=} {update_status=} {skip_sky_validation=}"
+        )
         self.default_location = location
         self.load(location=location, update_status=update_status)
         super().__init__()
@@ -81,15 +84,13 @@ class ModelService(Dispatcher):
                 logger.debug(f"creating config | {location=} {update_status=}")
                 self.save(location=location)
 
-    def __call__(self, *args: Any, **kwargs: Any) -> Self:
-        logger.debug(
-            f"calling constructor | location={kwargs.get('location')} update_status={kwargs.get('update_status')}"
-        )
+    def __call__(
+        self, location: str | None = None, update_status: bool = False
+    ) -> Self:
+        if location or update_status:
+            logger.debug(f"update load method | {location=} {update_status=}")
         # always does a load() but can optionally update servicer threads
-        self.load(
-            location=kwargs.get("location"), update_status=kwargs.get("update_status")
-        )
-        # TODO: load remote services here?
+        self.load(location=location, update_status=update_status)
         return self
 
     def __enter__(self):
@@ -244,11 +245,13 @@ class ModelService(Dispatcher):
         logger.debug(f"service info | {name=} {ret_status=}")
         return ret_status
 
+    @lru_cache(maxsize=16)
     def get_remote_service_definitions(self, name: str):
-        logger.debug(f"fetching remote service defs | {name=}")
+        """retrieve remote service definitions. caches first result"""
         service_definitions = []
         service_data = self.get_short_status(name)
         if service_data.get("is_remote"):
+            logger.debug(f"fetching remote service defs | {name=}")
             try:
                 url = service_data.get("url")
                 response = requests.get(url + "/service", timeout=2)

@@ -11,7 +11,8 @@ from openad.helpers.output import (
     output_success,
 )
 from openad.helpers.spinner import spinner
-from openad.app.global_var_lib import GLOBAL_SETTINGS
+
+# from openad.app.global_var_lib import GLOBAL_SETTINGS
 from openad.openad_model_plugin.services import ModelService, UserProvidedConfig
 from typing import List, Dict, Tuple
 from pandas import DataFrame
@@ -22,20 +23,24 @@ from tabulate import tabulate
 from tomlkit import parse
 import time
 from openad.openad_model_plugin.utils import get_logger, bcolors
+from functools import cache, lru_cache
 
 
 logger = get_logger(__name__, color=bcolors.OKCYAN + bcolors.UNDERLINE)
 
 
-SERVICE_DEFINTION_PATH = os.path.expanduser("~/.openad_model_services/")
+DISPATCHER_SERVICE_PATH = os.path.expanduser("~/.servicing/")
+SERVICE_MODEL_PATH = os.path.expanduser("~/.openad_model_services/")
 SERVICES_PATH = "/definitions/services/"
-if not os.path.exists(SERVICE_DEFINTION_PATH):
-    os.makedirs(SERVICE_DEFINTION_PATH)
+if not os.path.exists(SERVICE_MODEL_PATH):
+    os.makedirs(SERVICE_MODEL_PATH)
 
 
 # this is the global object that should be used across openad and testing
 logger.debug("initializing global Model Service.")
-Dispatcher = ModelService(update_status=True, skip_sky_validation=True)
+Dispatcher = ModelService(
+    location=DISPATCHER_SERVICE_PATH, update_status=True, skip_sky_validation=True
+)
 ### example of how to use the dispatcher ###
 # with Dispatcher() as service:
 #     print(service.list())
@@ -64,16 +69,16 @@ def help_dict_create(
 
 def get_namespaces():
     list_of_namespaces = [
-        os.path.basename(f.path)
-        for f in os.scandir(SERVICE_DEFINTION_PATH)
-        if f.is_dir()
-    ]  # os.walk(SERVICE_DEFINTION_PATH)
+        os.path.basename(f.path) for f in os.scandir(SERVICE_MODEL_PATH) if f.is_dir()
+    ]  # os.walk(SERVICE_MODEL_PATH)
     logger.debug(f"finding namespaces | {list_of_namespaces=}")
     return list_of_namespaces
 
 
-def get_local_service_defs(reference) -> list:
-    """pulls the list of available service definitions"""
+@lru_cache(maxsize=16)
+def get_local_service_defs(reference: str) -> list:
+    """pulls the list of available service definitions. caches first result"""
+    logger.debug(f"searching defs in {reference}")
     service_list = []
     service_files = glob.glob(reference + "/*.json", recursive=True)
     for file in service_files:
@@ -87,51 +92,77 @@ def get_local_service_defs(reference) -> list:
     return service_list
 
 
-def get_cataloged_service_defs():
-    """Returns a list of cataloged Services definitions and their Namespaces"""
-    if GLOBAL_SETTINGS["MODEL_SERVICES"] is None:
-        logger.debug('GLOBAL_SETTINGS["MODEL_SERVICES"] is None. resetting')
-        GLOBAL_SETTINGS["MODEL_SERVICES"] = dict()
+def load_service_cache() -> Dict[str, dict] | None:
+    """load latest cache"""
+    # TODO: implement load at beginning. need to make custom cache
+    try:
+        with open(
+            os.path.join(DISPATCHER_SERVICE_PATH, "cached_service_defs.json"), "w+"
+        ) as f_cached:
+            logger.debug("loading service defs cache")
+            return json.load(f_cached)
+    except Exception as e:
+        # catch all. if it fails should not stop us from proceeding
+        logger.error(f"could not load service defs cache: {str(e)}")
+        return None
+
+
+def save_service_cache(service_definitions):
+    """save latest cache"""
+    try:
+        with open(
+            os.path.join(DISPATCHER_SERVICE_PATH, "cached_service_defs.json"), "w+"
+        ) as f_cached:
+            logger.debug("saving cache to file")
+            json.dump(service_definitions, f_cached)
+    except Exception as e:
+        # catch all. if it fails should not stop us from proceeding
+        logger.error(f"could not save service defs cache to file: {str(e)}")
+        pass
+
+
+def get_cataloged_service_defs() -> Dict[str, dict]:
+    """Returns a dictionary of cataloged services definitions"""
     logger.debug("checking available service definitions")
+    service_definitions = dict()
     # get local namespace service definitions
     list_of_namespaces = [
-        os.path.basename(f.path)
-        for f in os.scandir(SERVICE_DEFINTION_PATH)
-        if f.is_dir()
-    ]  # os.walk(SERVICE_DEFINTION_PATH)
+        os.path.basename(f.path) for f in os.scandir(SERVICE_MODEL_PATH) if f.is_dir()
+    ]
+    # iterate over local service definitions
     for namespace in list_of_namespaces:
-        if namespace in GLOBAL_SETTINGS["MODEL_SERVICES"]:
-            continue
         service_list = []
-        services_path = SERVICE_DEFINTION_PATH + namespace + SERVICES_PATH
+        services_path = SERVICE_MODEL_PATH + namespace + SERVICES_PATH
         if os.path.exists(services_path):
             service_list = get_local_service_defs(services_path)
         else:
-            services_path = SERVICE_DEFINTION_PATH + namespace + "/**" + SERVICES_PATH
+            services_path = SERVICE_MODEL_PATH + namespace + "/**" + SERVICES_PATH
             services_path = glob.glob(services_path, recursive=True)
             if len(services_path) > 0:
                 services_path = services_path[0]
                 service_list = get_local_service_defs(services_path)
         if service_list:
             logger.debug(f"adding local defs for | {namespace=}")
-            GLOBAL_SETTINGS["MODEL_SERVICES"][namespace] = service_list
-    # get remote service definitions
+            service_definitions[namespace] = service_list
+    # iterate over remote service definitions
     with Dispatcher() as service:
         dispatcher_services = service.list()
-        for name in dispatcher_services:
-            if name in GLOBAL_SETTINGS["MODEL_SERVICES"]:
-                continue
+        # iterate over keys not used before
+        for name in set(dispatcher_services) - set(list_of_namespaces):
             remote_definitions = service.get_remote_service_definitions(name)
             if remote_definitions:
                 logger.debug(f"adding remote service defs  for | {name=}")
-                GLOBAL_SETTINGS["MODEL_SERVICES"][name] = remote_definitions
-    return GLOBAL_SETTINGS["MODEL_SERVICES"]
+                service_definitions[name] = remote_definitions
+    logger.debug(f"local cache info : {get_local_service_defs.cache_info()})")
+    logger.debug(
+        f"remote cache info : {Dispatcher.get_remote_service_definitions.cache_info()})"
+    )
+    return service_definitions
 
 
 def get_catalog_namespaces(cmd_pointer, parser) -> Dict:
-    """Get a model service status"""
+    """Get a local model catalog"""
     ns = get_namespaces()
-
     return output_table(DataFrame(ns), headers=["Cataloged Services"], is_data=False)
 
 
@@ -308,7 +339,7 @@ def catalog_add_model_service(cmd_pointer, parser) -> bool:
             )
             return False
     # download model
-    local_service_path = os.path.join(SERVICE_DEFINTION_PATH, service_name)
+    local_service_path = os.path.join(SERVICE_MODEL_PATH, service_name)
     is_local_service_path, _ = retrieve_model(service_path, local_service_path)
     if is_local_service_path is False:
         spinner.fail(
@@ -327,7 +358,6 @@ def catalog_add_model_service(cmd_pointer, parser) -> bool:
         service.add_service(service_name, config)
         # spinner.succeed(f"service {service_name} added to catalog")
         output_success(f"service {service_name} added to catalog", return_val=False)
-    GLOBAL_SETTINGS["MODEL_SERVICES"] = None
     return True
 
 
@@ -338,14 +368,15 @@ def uncatalog_model_service(cmd_pointer, parser):
     with Dispatcher() as service:
         # check if service exists
         if service_name not in service.list():
-            return output_error(
+            output_error(
                 f"service {service_name} not found in catalog", return_val=False
             )
+            return False
         # stop running service
         start_service_shutdown(service_name)
         # remove local files for service
-        if os.path.exists(os.path.join(SERVICE_DEFINTION_PATH, service_name)):
-            shutil.rmtree(os.path.join(SERVICE_DEFINTION_PATH, service_name))
+        if os.path.exists(os.path.join(SERVICE_MODEL_PATH, service_name)):
+            shutil.rmtree(os.path.join(SERVICE_MODEL_PATH, service_name))
         # remove service from cache
     with Dispatcher() as service:  # initialize fresh load
         try:
@@ -367,7 +398,6 @@ def uncatalog_model_service(cmd_pointer, parser):
                 # output_error(f"failed to remove service: {str(e)}", return_val=False)
                 return False
         output_success(f"service {service_name} removed from catalog", return_val=False)
-    GLOBAL_SETTINGS["MODEL_SERVICES"] = None
     return True
 
 
