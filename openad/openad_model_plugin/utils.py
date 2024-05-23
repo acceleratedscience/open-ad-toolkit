@@ -1,4 +1,6 @@
 import logging
+from collections import OrderedDict
+from typing import Generic, Hashable, Optional, TypeVar
 
 # import logging.config
 import sys
@@ -64,3 +66,34 @@ def get_logger(
     #         'disable_existing_loggers': True,
     #     })
     return logger
+
+
+##########################################################################
+# region - Lru Cache
+##########################################################################
+
+T = TypeVar("T")
+
+
+class LruCache(Generic[T]):
+    def __init__(self, capacity: int):
+        self.capacity = capacity
+        self.__cache: OrderedDict[Hashable, T] = OrderedDict()
+
+    def get(self, key: Hashable) -> Optional[T]:
+        if key not in self.__cache:
+            return None
+        self.__cache.move_to_end(key)
+        return self.__cache[key]
+
+    def insert(self, key: Hashable, value: T) -> None:
+        if len(self.__cache) == self.capacity:
+            self.__cache.popitem(last=False)
+        self.__cache[key] = value
+        self.__cache.move_to_end(key)
+
+    def __len__(self) -> int:
+        return len(self.__cache)
+
+    def clear(self) -> None:
+        self.__cache.clear()

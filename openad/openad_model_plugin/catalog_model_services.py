@@ -12,7 +12,7 @@ from openad.helpers.output import (
 )
 from openad.helpers.spinner import spinner
 from openad.app.global_var_lib import GLOBAL_SETTINGS
-from openad.openad_model_plugin.services import ModelService, UserProvidedConfig
+from openad.openad_model_plugin.services import ModelService, UserProvidedConfig, ServiceFetchError
 from typing import List, Dict, Tuple
 from pandas import DataFrame
 from subprocess import run
@@ -142,10 +142,8 @@ def get_cataloged_service_defs() -> Dict[str, dict]:
         for name in set(dispatcher_services) - set(list_of_namespaces):
             remote_definitions = service.get_remote_service_definitions(name)
             if remote_definitions:
-                logger.debug(f"adding remote service defs  for | {name=}")
+                logger.debug(f"adding remote service defs for | {name=}")
                 service_definitions[name] = remote_definitions
-    logger.debug(f"local cache info : {get_local_service_defs.cache_info()})")
-    logger.debug(f"remote cache info : {Dispatcher.get_remote_service_definitions.cache_info()})")
     return service_definitions
 
 
@@ -193,7 +191,7 @@ def model_service_status(cmd_pointer, parser):
             finally:
                 spinner.stop()
     df = DataFrame(models)
-    return df.sort_values(by=["Status", "Service"], ascending=[True, True])
+    return df.sort_values(by=["Status", "Service"], ascending=[False, True])
 
 
 def model_service_config(cmd_pointer, parser):
@@ -303,7 +301,6 @@ def catalog_add_model_service(cmd_pointer, parser) -> bool:
     service_path = os.path.expanduser(parser.as_dict()["path"])
     logger.debug(f"catalog model service | {service_name=} {service_path=}")
     if "remote" in parser:
-        print(" Cataloging a Remote Service")
         return service_up_endpoint(cmd_pointer, parser)
     # check if service exists
     with Dispatcher() as service:

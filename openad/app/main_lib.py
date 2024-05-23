@@ -1,4 +1,4 @@
-""" This library is the main library for invoking functions from the command line
+"""This library is the main library for invoking functions from the command line
 it does contain some general functions or plugin calls otherwise invokes toolkits or core / plugin functions"""
 
 #!/usr/local/opt/python@3.9/bin/python3.9
@@ -147,15 +147,19 @@ def lang_parse(cmd_pointer, parser):
     elif parser.getName() == "catalog_add_model_service":
         result = catalog_add_model_service(cmd_pointer, parser)
         if result is True:
+            # update grammer new service added
             create_statements(cmd_pointer)
         return result
     elif parser.getName() == "uncatalog_model_service":
         result = uncatalog_model_service(cmd_pointer, parser)
         if result is True:
+            # update grammer service removed
             create_statements(cmd_pointer)
         return result
 
     elif parser.getName() == "model_service_status":
+        # update grammer for definitions not fetched because service was down
+        create_statements(cmd_pointer)
         return model_service_status(cmd_pointer, parser)
     elif parser.getName() == "model_service_config":
         return model_service_config(cmd_pointer, parser)
@@ -484,7 +488,7 @@ def set_context_by_name(cmd_pointer, toolkit_name, reset=False, suppress_splash=
 
             # Success switching context & loggin in.
             if old_cmd_pointer_context != cmd_pointer.settings["context"] and not suppress_splash:
-                if GLOBAL_SETTINGS["display"] == "terminal" or GLOBAL_SETTINGS["display"] == None:
+                if GLOBAL_SETTINGS["display"] == "terminal" or GLOBAL_SETTINGS["display"] is None:
                     return output_text(splash(toolkit_name, cmd_pointer), nowrap=True)
                 else:
                     return output_success(msg("success_login", toolkit_name, expiry_datetime), return_val=False)
@@ -641,9 +645,7 @@ def display_data__save(cmd_pointer, parser):
 
 
 # --> Open data in browser UI.
-def display_data__open(
-    cmd_pointer, parser, edit_mode=False
-):  # pylint: disable=unused-argument # generic pass through used or unused
+def display_data__open(cmd_pointer, parser, edit_mode=False):  # pylint: disable=unused-argument # generic pass through used or unused
     # Preserve memory for further follow-up commands.
     """open display data"""
     MEMORY.preserve()
@@ -691,9 +693,7 @@ def display_data__display(cmd_pointer, parser):  # pylint: disable=unused-argume
 
 
 # --> Return result as dataframe
-def display_data__as_dataframe(
-    cmd_pointer, parser
-):  # pylint: disable=unused-argument # generic pass through used or unused
+def display_data__as_dataframe(cmd_pointer, parser):  # pylint: disable=unused-argument # generic pass through used or unused
     """displays last result set in viewer"""
     # Preserve memory for further follow-up commands.
     MEMORY.preserve()

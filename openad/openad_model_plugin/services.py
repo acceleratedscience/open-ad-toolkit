@@ -7,11 +7,14 @@ from typing import Any, Dict
 from typing_extensions import Self
 from openad.helpers.output import output_error, output_warning
 from servicing import Dispatcher, UserProvidedConfig
-from openad.openad_model_plugin.utils import get_logger
+from openad.openad_model_plugin.utils import get_logger, LruCache
 from functools import cache, lru_cache
 
 
 logger = get_logger(__name__)
+
+
+remote_services_cache = LruCache[dict](capacity=16)
 
 
 class ServiceFileLoadError(Exception):
@@ -19,6 +22,18 @@ class ServiceFileLoadError(Exception):
 
     Args:
         Exception (_type_): _description_
+    """
+
+    def __init__(self, *args: object) -> None:
+        super().__init__(*args)
+
+
+class ServiceFetchError(Exception):
+    """Raises error when failed to fetch remote service definitions
+
+    Raises:
+        ServiceFileLoadError:
+        e: failed to fetch remote service definitions
     """
 
     def __init__(self, *args: object) -> None:
@@ -149,7 +164,7 @@ class ModelService(Dispatcher):
         super().up(name, skip_prompt)
         self.save()
 
-    def check_service_up(self, address: str, resource: str = "/health", timeout: float = 10.0) -> int | str:
+    def check_service_up(self, address: str, resource: str = "/health", timeout: float = 2.0) -> int | str:
         """ping the host address to see if service is up
 
         Args:
@@ -161,24 +176,19 @@ class ModelService(Dispatcher):
             bool: _description_
         """
         logger.debug(f"pinging service | {address=} {resource=} {timeout=}")
-        start_time = time.time()
-        # Ping the endpoint until timeout has elapsed
         up = False
-        while True:
-            try:
-                # Make a GET request to the endpoint
-                response = requests.get(address + resource, timeout=2.0)
-                if response.status_code == 200:
-                    up = True
-                    break
-                # Check if timeout has elapsed
-                if time.time() - start_time >= timeout:
-                    break
-            except requests.exceptions.RequestException:
-                # Check if timeout has elapsed
-                if time.time() - start_time >= timeout:
-                    break
-        logger.debug(f"service | {address=} {up=}")
+        # Ping the endpoint until timeout has elapsed
+        try:
+            # Make a GET request to the endpoint
+            response = requests.get(address + resource, timeout=timeout)
+            if response.status_code == 200:
+                up = True
+            else:
+                # got some error status code
+                logger.debug(f"got unexpected status code of {response.status_code}")
+        except requests.exceptions.RequestException:
+            logger.debug(f"failed to reach {address=}")
+        logger.debug(f"service endpoint status | {address+resource} {up=}")
         return up
 
     def load_extra_data(self, name: str) -> Dict[str, Any]:
@@ -231,22 +241,32 @@ class ModelService(Dispatcher):
         logger.debug(f"service info | {name=} {ret_status=}")
         return ret_status
 
-    @lru_cache(maxsize=16)
-    def get_remote_service_definitions(self, name: str):
+    def get_remote_service_definitions(self, name: str) -> list | None:
         """retrieve remote service definitions. caches first result"""
+        if remote_services_cache.get(name):
+            # cache hit
+            logger.debug(f"getting '{name}' from cache")
+            return remote_services_cache.get(name)
         service_definitions = []
         service_data = self.get_short_status(name)
         if service_data.get("is_remote"):
             logger.debug(f"fetching remote service defs | {name=}")
             try:
                 url = service_data.get("url")
-                response = requests.get(url + "/service", timeout=2)
+                response = requests.get(url + "/service", timeout=10)
                 if response.status_code == 200:
                     service_definitions = response.json()
-            except requests.exceptions.RequestException:
+            except requests.exceptions.RequestException as e:
                 # could not get service defs. service not up or wrong url
-                pass
+                logger.error(f"could not fetch service defs | {name=} {str(e)}")
+        if service_definitions:
+            # insert when not None
+            logger.debug(f"inserting '{name}' into cache")
+            remote_services_cache.insert(name, service_definitions)
         return service_definitions
+
+    def get_service_cache(self) -> LruCache[dict]:
+        return remote_services_cache
 
     def status(self, name: str, pretty: bool | None = None) -> Dict[str, Any]:
         """Loads status as json object
