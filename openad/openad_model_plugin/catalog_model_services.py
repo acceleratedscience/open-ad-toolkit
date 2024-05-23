@@ -64,7 +64,9 @@ def help_dict_create(
 
 def get_namespaces():
     list_of_namespaces = [
-        os.path.basename(f.path) for f in os.scandir(SERVICE_DEFINTION_PATH) if f.is_dir()
+        os.path.basename(f.path)
+        for f in os.scandir(SERVICE_DEFINTION_PATH)
+        if f.is_dir()
     ]  # os.walk(SERVICE_DEFINTION_PATH)
     logger.debug(f"finding namespaces | {list_of_namespaces=}")
     return list_of_namespaces
@@ -72,7 +74,6 @@ def get_namespaces():
 
 def get_local_service_defs(reference) -> list:
     """pulls the list of available service definitions"""
-    logger.debug(f"getting local service defs | {reference=}")
     service_list = []
     service_files = glob.glob(reference + "/*.json", recursive=True)
     for file in service_files:
@@ -88,39 +89,43 @@ def get_local_service_defs(reference) -> list:
 
 def get_cataloged_service_defs():
     """Returns a list of cataloged Services definitions and their Namespaces"""
-    logger.debug("getting local service defs and remote service defs")
+    if GLOBAL_SETTINGS["MODEL_SERVICES"] is None:
+        logger.debug('GLOBAL_SETTINGS["MODEL_SERVICES"] is None. resetting')
+        GLOBAL_SETTINGS["MODEL_SERVICES"] = dict()
+    logger.debug("checking available service definitions")
     # get local namespace service definitions
     list_of_namespaces = [
-        os.path.basename(f.path) for f in os.scandir(SERVICE_DEFINTION_PATH) if f.is_dir()
+        os.path.basename(f.path)
+        for f in os.scandir(SERVICE_DEFINTION_PATH)
+        if f.is_dir()
     ]  # os.walk(SERVICE_DEFINTION_PATH)
-    if GLOBAL_SETTINGS["MODEL_SERVICES"] is None:
-        service_list_by_catalog = {}
-        for namespace in list_of_namespaces:
-            service_list = []
-            services_path = SERVICE_DEFINTION_PATH + namespace + SERVICES_PATH
-
-            if os.path.exists(services_path):
+    for namespace in list_of_namespaces:
+        if namespace in GLOBAL_SETTINGS["MODEL_SERVICES"]:
+            continue
+        service_list = []
+        services_path = SERVICE_DEFINTION_PATH + namespace + SERVICES_PATH
+        if os.path.exists(services_path):
+            service_list = get_local_service_defs(services_path)
+        else:
+            services_path = SERVICE_DEFINTION_PATH + namespace + "/**" + SERVICES_PATH
+            services_path = glob.glob(services_path, recursive=True)
+            if len(services_path) > 0:
+                services_path = services_path[0]
                 service_list = get_local_service_defs(services_path)
-            else:
-                services_path = SERVICE_DEFINTION_PATH + namespace + "/**" + SERVICES_PATH
-                services_path = glob.glob(services_path, recursive=True)
-                if len(services_path) > 0:
-                    services_path = services_path[0]
-                    service_list = get_local_service_defs(services_path)
-            service_list_by_catalog[namespace] = service_list
-        # get remote service definitions
-
-        with Dispatcher() as service:
-            dispatcher_services = service.list()
-            for name in dispatcher_services:
-                remote_definitions = service.get_remote_service_definitions(name)
-                if remote_definitions:
-                    service_list_by_catalog[name] = remote_definitions
-        GLOBAL_SETTINGS["MODEL_SERVICES"] = service_list_by_catalog
-    else:
-        service_list_by_catalog = GLOBAL_SETTINGS["MODEL_SERVICES"]
-
-    return service_list_by_catalog
+        if service_list:
+            logger.debug(f"adding local defs for | {namespace=}")
+            GLOBAL_SETTINGS["MODEL_SERVICES"][namespace] = service_list
+    # get remote service definitions
+    with Dispatcher() as service:
+        dispatcher_services = service.list()
+        for name in dispatcher_services:
+            if name in GLOBAL_SETTINGS["MODEL_SERVICES"]:
+                continue
+            remote_definitions = service.get_remote_service_definitions(name)
+            if remote_definitions:
+                logger.debug(f"adding remote service defs  for | {name=}")
+                GLOBAL_SETTINGS["MODEL_SERVICES"][name] = remote_definitions
+    return GLOBAL_SETTINGS["MODEL_SERVICES"]
 
 
 def get_catalog_namespaces(cmd_pointer, parser) -> Dict:
@@ -191,7 +196,9 @@ def retrieve_model(from_path: str, to_path: str) -> Tuple[bool, str]:
     logger.debug("retrieving service model")
     spinner.start("Retrieving model")
     # uses ssh or https
-    if (from_path.startswith("git@") or from_path.startswith("https://")) and from_path.endswith(".git"):
+    if (
+        from_path.startswith("git@") or from_path.startswith("https://")
+    ) and from_path.endswith(".git"):
         # test if git is available
         try:
             cmd = shlex.split("git --version")
@@ -265,13 +272,21 @@ def load_service_config(local_service_path: str) -> UserProvidedConfig:
                 # create a UserProvidedConfig with conf data
                 spinner.info("found non defaults in openad.cfg")
                 table_data = [[key, value] for key, value in conf.items()]
-                print(tabulate(table_data, headers=["Resource", "value"], tablefmt="pretty"))
+                print(
+                    tabulate(
+                        table_data, headers=["Resource", "value"], tablefmt="pretty"
+                    )
+                )
                 return UserProvidedConfig(**conf, workdir=local_service_path)
             else:
-                spinner.warn("error with (openad.cfg). Could not load user config. Loading defaults.")
+                spinner.warn(
+                    "error with (openad.cfg). Could not load user config. Loading defaults."
+                )
         except Exception as e:
             output_error(str(e))
-            spinner.warn("error with (openad.cfg). Could not load user config. Loading defaults.")
+            spinner.warn(
+                "error with (openad.cfg). Could not load user config. Loading defaults."
+            )
     # use default config
     return UserProvidedConfig(workdir=local_service_path)
 
@@ -288,13 +303,17 @@ def catalog_add_model_service(cmd_pointer, parser) -> bool:
     with Dispatcher() as service:
         if service_name in service.list():
             spinner.fail(f"service {service_name} already exists in catalog")
-            output_error(f"service {service_name} already exists in catalog", return_val=False)
+            output_error(
+                f"service {service_name} already exists in catalog", return_val=False
+            )
             return False
     # download model
     local_service_path = os.path.join(SERVICE_DEFINTION_PATH, service_name)
     is_local_service_path, _ = retrieve_model(service_path, local_service_path)
     if is_local_service_path is False:
-        spinner.fail(f"service {service_name} was unable to be added to check url or path")
+        spinner.fail(
+            f"service {service_name} was unable to be added to check url or path"
+        )
         output_error(
             f"service {service_name} was unable to be added to check url or path",
             return_val=False,
@@ -319,7 +338,9 @@ def uncatalog_model_service(cmd_pointer, parser):
     with Dispatcher() as service:
         # check if service exists
         if service_name not in service.list():
-            return output_error(f"service {service_name} not found in catalog", return_val=False)
+            return output_error(
+                f"service {service_name} not found in catalog", return_val=False
+            )
         # stop running service
         start_service_shutdown(service_name)
         # remove local files for service
@@ -332,9 +353,13 @@ def uncatalog_model_service(cmd_pointer, parser):
             spinner.succeed(f"service {service_name} removed from catalog")
         except Exception as e:
             if "No such file or directory" in str(e):
-                spinner.warn("service doesnt exist but trying to remove from list. config file was already deleted")
+                spinner.warn(
+                    "service doesnt exist but trying to remove from list. config file was already deleted"
+                )
                 # TODO: make more robust error handling
-                path = os.path.join(os.path.expanduser("~/.servicing"), f"{service_name}_service.yaml")
+                path = os.path.join(
+                    os.path.expanduser("~/.servicing"), f"{service_name}_service.yaml"
+                )
                 open(path).close()  # create file
                 service.remove_service(service_name)
             else:
@@ -395,7 +420,9 @@ def local_service_up(cmd_pointer, parser) -> None:
 def start_service_shutdown(service_name):
     logger.debug(f"prepare service shutdown | {service_name=}")
     with Dispatcher() as service:
-        if service.status(service_name).get("url") or bool(service.status(service_name).get("up")):
+        if service.status(service_name).get("url") or bool(
+            service.status(service_name).get("up")
+        ):
             # shut down service
             service.down(service_name, skip_prompt=True)
             # reinitialize service
@@ -470,9 +497,12 @@ def service_catalog_grammar(statements: list, help: list):
     )
 
     statements.append(
-        py.Forward(model + service + config + (quoted_string | py.Word(py.alphanums + "_"))("service_name"))(
-            "model_service_config"
-        )
+        py.Forward(
+            model
+            + service
+            + config
+            + (quoted_string | py.Word(py.alphanums + "_"))("service_name")
+        )("model_service_config")
     )
     help.append(
         help_dict_create(
@@ -494,9 +524,12 @@ def service_catalog_grammar(statements: list, help: list):
     )
 
     statements.append(
-        py.Forward(uncatalog + model + service + (quoted_string | py.Word(py.alphanums + "_"))("service_name"))(
-            "uncatalog_model_service"
-        )
+        py.Forward(
+            uncatalog
+            + model
+            + service
+            + (quoted_string | py.Word(py.alphanums + "_"))("service_name")
+        )("uncatalog_model_service")
     )
     help.append(
         help_dict_create(
@@ -525,12 +558,12 @@ def service_catalog_grammar(statements: list, help: list):
             category="Model",
             command="catalog model service from (remote) '<path or github>' as  '<service_name>'|<service_name>",
             description="""catalog a model service from a path or github or remotely from an existing OpenAD service.
-              
+
 Example:
-    
+
 -<cmd>catalog model service from 'git@github.com:acceleratedscience/generation_inference_service.git' as 'gen'</cmd>
-    
-or to catalog a remote service shared with you:  
+
+or to catalog a remote service shared with you:
 -<cmd>catalog model service from remote 'http://54.235.3.243:30001' as gen</cmd>""",
         )
     )
@@ -552,9 +585,9 @@ or to catalog a remote service shared with you:
             description="""launches a cataloged model service.
 If you do not want to launch a service with GPU you should specify <cmd>no_gpu</cmd> at the end of the command.
 Examples:
-            
+
 -<cmd>model service up gen</cmd>
-               
+
 -<cmd>model service up 'gen'</cmd>
 
 -<cmd>model service up gen no_gpu</cmd>""",
@@ -577,18 +610,21 @@ Examples:
             category="Model",
             command="model service local up '<service_name>'|<service_name> ",
             description="""launch a model service locally.
-            
+
             Example:
               <cmd> model service local up gen</cmd>
-              
+
              """,
         )
     )
 
     statements.append(
-        py.Forward(model + service + down + (quoted_string | py.Word(py.alphanums + "_"))("service_name"))(
-            "service_down"
-        )
+        py.Forward(
+            model
+            + service
+            + down
+            + (quoted_string | py.Word(py.alphanums + "_"))("service_name")
+        )("service_down")
     )
     help.append(
         help_dict_create(

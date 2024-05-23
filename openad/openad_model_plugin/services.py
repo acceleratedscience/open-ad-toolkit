@@ -93,13 +93,14 @@ class ModelService(Dispatcher):
         return self
 
     def __enter__(self):
-        logger.debug("--entering context--")
         # only does a load() if you call constructor method
         # like mymodelservice()
+        # logger.debug("--entering context--")
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        logger.debug("--exiting context--")
+        # logger.debug("--exiting context--")
+        pass
 
     def load_as_b64(self, b64: str) -> None:
         # No Implementation
