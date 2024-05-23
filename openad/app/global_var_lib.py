@@ -42,5 +42,6 @@ GLOBAL_SETTINGS = {
     # - api: not yet used
     # - web: not yet used
     "display": None,
+    "MODEL_SERVICES": None,
 }
 MEMORY = Memory()

@@ -93,27 +93,32 @@ def get_cataloged_service_defs():
     list_of_namespaces = [
         os.path.basename(f.path) for f in os.scandir(SERVICE_DEFINTION_PATH) if f.is_dir()
     ]  # os.walk(SERVICE_DEFINTION_PATH)
-    service_list_by_catalog = {}
-    for namespace in list_of_namespaces:
-        service_list = []
-        services_path = SERVICE_DEFINTION_PATH + namespace + SERVICES_PATH
+    if GLOBAL_SETTINGS["MODEL_SERVICES"] is None:
+        service_list_by_catalog = {}
+        for namespace in list_of_namespaces:
+            service_list = []
+            services_path = SERVICE_DEFINTION_PATH + namespace + SERVICES_PATH
 
-        if os.path.exists(services_path):
-            service_list = get_local_service_defs(services_path)
-        else:
-            services_path = SERVICE_DEFINTION_PATH + namespace + "/**" + SERVICES_PATH
-            services_path = glob.glob(services_path, recursive=True)
-            if len(services_path) > 0:
-                services_path = services_path[0]
+            if os.path.exists(services_path):
                 service_list = get_local_service_defs(services_path)
-        service_list_by_catalog[namespace] = service_list
-    # get remote service definitions
-    with Dispatcher() as service:
-        dispatcher_services = service.list()
-        for name in dispatcher_services:
-            remote_definitions = service.get_remote_service_definitions(name)
-            if remote_definitions:
-                service_list_by_catalog[name] = remote_definitions
+            else:
+                services_path = SERVICE_DEFINTION_PATH + namespace + "/**" + SERVICES_PATH
+                services_path = glob.glob(services_path, recursive=True)
+                if len(services_path) > 0:
+                    services_path = services_path[0]
+                    service_list = get_local_service_defs(services_path)
+            service_list_by_catalog[namespace] = service_list
+        # get remote service definitions
+
+        with Dispatcher() as service:
+            dispatcher_services = service.list()
+            for name in dispatcher_services:
+                remote_definitions = service.get_remote_service_definitions(name)
+                if remote_definitions:
+                    service_list_by_catalog[name] = remote_definitions
+        GLOBAL_SETTINGS["MODEL_SERVICES"] = service_list_by_catalog
+    else:
+        service_list_by_catalog = GLOBAL_SETTINGS["MODEL_SERVICES"]
 
     return service_list_by_catalog
 
@@ -303,7 +308,7 @@ def catalog_add_model_service(cmd_pointer, parser) -> bool:
         service.add_service(service_name, config)
         # spinner.succeed(f"service {service_name} added to catalog")
         output_success(f"service {service_name} added to catalog", return_val=False)
-
+    GLOBAL_SETTINGS["MODEL_SERVICES"] = None
     return True
 
 
@@ -337,7 +342,7 @@ def uncatalog_model_service(cmd_pointer, parser):
                 # output_error(f"failed to remove service: {str(e)}", return_val=False)
                 return False
         output_success(f"service {service_name} removed from catalog", return_val=False)
-
+    GLOBAL_SETTINGS["MODEL_SERVICES"] = None
     return True
 
 
