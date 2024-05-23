@@ -11,8 +11,7 @@ from openad.helpers.output import (
     output_success,
 )
 from openad.helpers.spinner import spinner
-
-# from openad.app.global_var_lib import GLOBAL_SETTINGS
+from openad.app.global_var_lib import GLOBAL_SETTINGS
 from openad.openad_model_plugin.services import ModelService, UserProvidedConfig
 from typing import List, Dict, Tuple
 from pandas import DataFrame
@@ -167,23 +166,19 @@ def get_catalog_namespaces(cmd_pointer, parser) -> Dict:
 
 
 def model_service_status(cmd_pointer, parser):
-    """This function catalogs a service"""
+    """get all services status"""
     logger.debug("listing model status")
     # get list of directory names for the catalog models
     models = {"Service": [], "Status": [], "Endpoint": [], "Type": []}
     with Dispatcher(update_status=True) as service:
         # get all the services then order by name and if url exists
         all_services: list = service.list()
-        # with_url: set = set(i for i in all_services if service.get_url(i))
-        # without_url: set = set(all_services) - with_url
-        # order_services = sorted(list(with_url)) + sorted(list(without_url))
-        # order_services = all_services
         # !important load services with update
         if all_services:  # proceed if any service available
             try:
                 spinner.start("searching running services")
                 # TODO: verify how much time or have a more robust method
-                time.sleep(2)  # wait for service threads to ping endpoint
+                time.sleep(1)  # wait for service threads to ping endpoint
                 for name in all_services:
                     res = service.get_short_status(name)
                     # set the status of the service
@@ -361,7 +356,7 @@ def catalog_add_model_service(cmd_pointer, parser) -> bool:
     return True
 
 
-def uncatalog_model_service(cmd_pointer, parser):
+def uncatalog_model_service(cmd_pointer, parser) -> bool:
     """This function removes a catalog from the ~/.openad_model_service directory"""
     service_name = parser.as_dict()["service_name"]
     logger.debug(f"uncatalog model service | {service_name=}")
@@ -401,7 +396,7 @@ def uncatalog_model_service(cmd_pointer, parser):
     return True
 
 
-def service_up(cmd_pointer, parser) -> None:
+def service_up(cmd_pointer, parser) -> bool:
     """This function synchronously starts a service"""
     gpu_disable = "no_gpu" in parser.as_dict()  # boolean flag to disable gpu
     service_name = parser.as_dict()["service_name"]
