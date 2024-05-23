@@ -62,6 +62,10 @@ Get started with Jupyter:
     init_examples
     jupyter lab ~/openad_notebooks/Table_of_Contents.ipynb
 
+If you get an error when running `init_magic`, you may first need to setup the default iPython profile for magic commands.
+
+    ipython profile create
+
 <br>
 
 ---
@@ -74,25 +78,26 @@ Get started with Jupyter:
 
 ## Table of Contents <!-- omit from toc -->
 
-- [OpenAD Beta](#openad-beta)
-- [Installation](#installation)
-- [Getting Started - CLI](#getting-started---cli)
-- [Getting Started - Jupyter](#getting-started---jupyter)
-  - [Setting up Jupyter](#setting-up-jupyter)
-  - [Launching OpenAD in Jupyter](#launching-openad-in-jupyter)
-- [Interacting with the Toolkits](#interacting-with-the-toolkits)
-    - [Registration](#registration)
-    - [Adding a Toolkit](#adding-a-toolkit)
-    - [Sample Commands](#sample-commands)
-    - [Running Bash Commands (CLI)](#running-bash-commands-cli)
-- [AI Assistant](#ai-assistant)
-- [For Developers](#for-developers)
-  - [Installation for Development](#installation-for-development)
-  - [Testing a branch](#testing-a-branch)
-- [Installing on Windows](#installing-on-windows)
-  - [Before you start](#before-you-start)
-  - [Installing WSL](#installing-wsl)
-- [Linux Notes](#linux-notes)
+<a href="#openad-beta">OpenAD Beta</a>
+
+<a href="#installation">Installation</a>
+<li><a href="#getting-started---cli">Getting Started - CLI</a></li>
+<li><a href="#getting-started---jupyter">Getting Started - Jupyter</a></li>
+<li><a href="#Setting up Jupyter">#setting-up-jupyter</a><br></li>
+<li><a href="#launching-openad-in-jupyter">Launching OpenAD in Jupyter</a><br></li>
+<a href="#interacting-with-the-toolkits">Interacting with the Toolkits</a>
+<li><a href="#registration">Registration</a></li>
+<li><a href="#adding-a-toolkit">Adding a Toolkit</a></li>
+<li><a href="#sample-commands">Sample Commands</a></li>
+<li><a href="#running-bash-commands-cli">Running Bash Commands (CLI)</a></li>
+<a href="#ai-assistant">AI AssistantL</a>
+<a href="#for-developers">For Developer</a>
+<li><a href="#installation-for-development">Installation for Development</a></li>
+<li><a href="#testing-a-branch">Testing a branch</a></li>
+<a href="#installing-on-windows">Installing on Windows</a>
+<li><a href="#before-you-start">Before you start</a></li>
+<li><a href="#installing-wsl">Installing WSL</a></li>
+<a href="#linux-notes">Linux Notes</a>
 
 
 ---
@@ -328,7 +333,13 @@ To run a command in bash mode, prepend it with `openad` and make sure to escape 
 
 To enable our AI assistant, you'll need an account with OpenAI. There is a one month free trial.
 
+This is available for IBM BAM service and Openai.
+
 > **Note:** watsonx coming soon
+
+For IBM BAM simply used your supplied API key if you have BAM access
+
+For OpenAI
 
 1. Go to [platform.openai.com](https://platform.openai.com) and create an account
 
@@ -433,7 +444,7 @@ Install WSL and create a user called 'openad' or one of your choosing.
 
     wsl --install Ubuntu-22.04
 
-**Optional:** To setup an Ubuntu Python environment from scratch, continue to [Linux Notes](#linux-notes)
+**Optional:** To setup an Ubuntu Python environment from scratch, continue to <a href="#linux-notes">Linux Notes</a>
 
 <br>
 
@@ -447,6 +458,8 @@ If you wish to setup an Ubuntu Python environment from scratch, run:
     sudo apt install python3-pip
     sudo update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 100
     sudo pip install pip --upgrade
+
+You will need to restart your Linux session before running `pip install openad` so that the python libraries are in your path.
 
 If you get an error when running `init_magic`, you may first need to setup the default iPython profile for magic commands.
 
