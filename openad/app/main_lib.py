@@ -145,9 +145,16 @@ def lang_parse(cmd_pointer, parser):
         return output_text(splash(parser.getName(), cmd_pointer), nowrap=True)
     # Model Service grammar
     elif parser.getName() == "catalog_add_model_service":
-        return catalog_add_model_service(cmd_pointer, parser)
+        result = catalog_add_model_service(cmd_pointer, parser)
+        if result is True:
+            create_statements(cmd_pointer)
+        return result
     elif parser.getName() == "uncatalog_model_service":
-        return uncatalog_model_service(cmd_pointer, parser)
+        result = uncatalog_model_service(cmd_pointer, parser)
+        if result is True:
+            create_statements(cmd_pointer)
+        return result
+
     elif parser.getName() == "model_service_status":
         return model_service_status(cmd_pointer, parser)
     elif parser.getName() == "model_service_config":

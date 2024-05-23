@@ -840,13 +840,13 @@ grammar_help.append(
     )
 )
 service_catalog_grammar(statements=statements, help=grammar_help)
-try:
+"""try:
     service_catalog = get_cataloged_service_defs()
     service_grammar_add(statements=statements, help=grammar_help, service_catalog=service_catalog)
 except Exception as e:
     print(e)
     pass
-
+"""
 
 # endregion
 
@@ -887,8 +887,21 @@ def create_statements(cmd_pointer):
 
     cmd_pointer.current_statements_def = Forward()
     cmd_pointer.current_statements = orig_statements.copy()
+    service_statements = []
+    try:
+        service_catalog = get_cataloged_service_defs()
+        temp_help = []
 
-    for i in orig_statements:
+        service_grammar_add(statements=cmd_pointer.current_statements, help=temp_help, service_catalog=service_catalog)
+
+        # cmd_pointer.current_statements.extend(service_statements)
+        cmd_pointer.current_help.help_model_services.clear()
+        cmd_pointer.current_help.help_model_services.extend(temp_help)
+        cmd_pointer.current_help.reset_help()
+    except Exception as e:
+        print(e)
+        pass
+    for i in cmd_pointer.current_statements:
         cmd_pointer.current_statement_defs |= i
     if cmd_pointer.toolkit_current is not None:
         for i in cmd_pointer.toolkit_current.methods_grammar:

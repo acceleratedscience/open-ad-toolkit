@@ -142,11 +142,13 @@ class RUNCMD(Cmd):
         self.prompt = refresh_prompt(self.settings)  # sets the command prompt
 
         # load the toolkit in current context
+
         if self.settings["context"] in self.settings["toolkits"]:
             ok, toolkit_current = load_toolkit(self.settings["context"])
             if ok:
                 self.toolkit_current = toolkit_current
-                create_statements(self)
+        create_statements(self)
+
         # Initialise current toolkit registry
         self.login_settings = login_manager.load_login_registry()
 
