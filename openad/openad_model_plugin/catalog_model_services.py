@@ -524,7 +524,14 @@ def service_catalog_grammar(statements: list, help: list):
             name="catalog Model service",
             category="Model",
             command="catalog model service from (remote) '<path or github>' as  '<service_name>'|<service_name>",
-            description="catalog a model service from a path or github or remotely from an existing OpenAD service.  \n Example: \n\n<cmd>catalog model service from 'git@github.com:acceleratedscience/generation_inference_service.git' as 'gen'</cmd>",
+            description="""catalog a model service from a path or github or remotely from an existing OpenAD service.
+              
+Example:
+    
+-<cmd>catalog model service from 'git@github.com:acceleratedscience/generation_inference_service.git' as 'gen'</cmd>
+    
+or to catalog a remote service shared with you:  
+-<cmd>catalog model service from remote 'http://54.235.3.243:30001' as gen</cmd>""",
         )
     )
 
@@ -541,8 +548,16 @@ def service_catalog_grammar(statements: list, help: list):
         help_dict_create(
             name="Model up",
             category="Model",
-            command="model service up '<service_name>'|<service_name>",
-            description="launch a model service  \n Examples: \n<cmd>model service up gen</cmd> \n<cmd>model service up 'gen'</cmd>",
+            command="model service up '<service_name>'|<service_name> [no_gpu]}",
+            description="""launches a cataloged model service.
+If you do not want to launch a service with GPU you should specify <cmd>no_gpu</cmd> at the end of the command.
+Examples:
+            
+-<cmd>model service up gen</cmd>
+               
+-<cmd>model service up 'gen'</cmd>
+
+-<cmd>model service up gen no_gpu</cmd>""",
         )
     )
 
@@ -560,8 +575,13 @@ def service_catalog_grammar(statements: list, help: list):
         help_dict_create(
             name="Model local up",
             category="Model",
-            command="model service local up '<service_name>'|<service_name>",
-            description="launch a model service locally \n\nExample:\n <cmd> model service local up gen</cmd>",
+            command="model service local up '<service_name>'|<service_name> ",
+            description="""launch a model service locally.
+            
+            Example:
+              <cmd> model service local up gen</cmd>
+              
+             """,
         )
     )
 
@@ -575,6 +595,6 @@ def service_catalog_grammar(statements: list, help: list):
             name="Model down",
             category="Model",
             command="model service down '<service_name>'|<service_name>",
-            description="bring down a model service  \n Examples: \n\n<cmd>model service down gen</cmd> \n\n<cmd>model service down 'gen'</cmd> ",
+            description="Bring down a model service  \n Examples: \n\n<cmd>model service down gen</cmd> \n\n<cmd>model service down 'gen'</cmd> ",
         )
     )

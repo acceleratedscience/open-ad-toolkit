@@ -102,7 +102,7 @@ def strip_leading_blanks(input):
     temp = input.split("\n")
     output = ""
     for x in temp:
-        while str(x).starts_with("   "):
+        while str(x).startswith("   "):
             X = str(x).replace("   ", "  ")
         output = output + x + "\n"
     return output

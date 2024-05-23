@@ -1286,7 +1286,7 @@ def output_train_statements(cmd_pointer):
             Load: load a file from project directory to Target system
             pyparsing_statement: a statement defined using pyparsing for the domain specific language
             help_text: description of the Domain Specific language statement defined in a pyparsing_statement
-            toolkit: these are contextual plugins that are available one at a time for providing specific functionality to the user. Valid toolkits are DS4SD (deepSearch), GT4SD(generative AI toolkit), RXN (retro synthesis), ST4SD(simulation toolkit)
+            toolkit: these are contextual plugins that are available one at a time for providing specific functionality to the user. Valid toolkits are DS4SD (deepSearch),  RXN (retro synthesis), ST4SD(simulation toolkit)
             History: History of DSL commands for a given Workspace
             run: list of sequential commands saved by the user')
             working list: is a set of molecules in memory that can added to using the 'add molecule' command  and also loaded from a molecule-set and maipulated by commands suchs as 'display molecule', 'add Molecule','create molecule', 'remove molecule' 'merge mol-set'
@@ -1299,6 +1299,7 @@ def output_train_statements(cmd_pointer):
             molecule-set: a molecule-set is a set a copy of a working list of molecules that has been stored in disk under a molecule set name and can be loaded into the working list of molecules in a users sessions
             The short form of 'molecule-set' is 'molset' 
             The short form of 'molecule' is 'mol' 
+            The Model Service is a capability to register and launch model services for property prediction and data set generation and allows you to launch ones you catalog yourself or remotely catalog already running services.
 
             
             

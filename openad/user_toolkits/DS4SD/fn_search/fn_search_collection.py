@@ -311,6 +311,7 @@ def search_collection(inputs: dict, cmd_pointer):
             df = df.set_properties(**{"text-align": "left"})
         else:
             return output_table(df, is_data=True).data
+
     elif GLOBAL_SETTINGS["display"] == "api":
         return df
 
@@ -327,7 +328,7 @@ def search_collection(inputs: dict, cmd_pointer):
             if display_first > 0:
                 df = df.truncate(after=display_first)
 
-    return output_table(df)
+    return output_table(df, is_data=True)
 
 
 def _confirm_prompt(question: str) -> bool:

@@ -123,6 +123,7 @@ def search_molecules_in_patents(inputs: dict, cmd_pointer):
             df.insert(0, col.name, col)
             col = df.pop("SMILES")
             df.insert(1, col.name, col)
-        return output_table(df, is_data=True).data
+        # return output_table(df, is_data=True).data
+        return df
 
     return output_table(df)

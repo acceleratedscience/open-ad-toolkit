@@ -238,7 +238,7 @@ The following commands only need to be run once after installation:
 
 # Interacting with the Toolkits
 
-OpenAD integrates with `DS4SD`, `RXN`, and has placeholder support for `GT4SD` and `ST4SD`.
+OpenAD integrates with `DS4SD`, `RXN`, and has placeholder support for  `ST4SD`.
 
 <div class="notice" style="margin-top: 16px;" markdown="block">
 
