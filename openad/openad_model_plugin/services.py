@@ -38,13 +38,13 @@ class ModelService(Dispatcher):
 
     def save(self, location: str | None = None) -> None:
         location = location or self.default_location
-        logger.debug(f"saving config | {location=}")
+        logger.debug(f">> saving config << | {location=}")
         return super().save(location)
 
     def load(self, location: str | None = None, update_status: bool | None = False):
         """load a config. if it doesnt exist auto create it"""
         location = location or self.default_location
-        logger.debug(f"loading config | {location=} {update_status=}")
+        logger.debug(f">> loading config << | {location=} {update_status=}")
         try:
             super().load(location=location, update_status=update_status)
             # output_success("loaded services")
@@ -100,6 +100,28 @@ class ModelService(Dispatcher):
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         logger.debug("--exiting context--")
+
+    def load_as_b64(self, b64: str) -> None:
+        # No Implementation
+        logger.debug(f"loading config from b64 string | {b64=}")
+        super().load_as_b64(b64)
+        self.save()
+
+    def down(
+        self, name: str, skip_prompt: bool | None = None, force: bool | None = None
+    ) -> None:
+        logger.debug(f"stopping running service | {name=} {skip_prompt=} {force=}")
+        super().down(name, skip_prompt, force)
+        self.save()
+
+    def remove_service(self, name: str) -> None:
+        logger.debug(f"removing service | {name=}")
+        super().remove_service(name)
+        self.save()
+
+    def add_service(self, name: str, config: UserProvidedConfig | None = None) -> None:
+        logger.debug(f"adding service | {name=}")
+        super().add_service(name, config)
         self.save()
 
     def up(
@@ -134,7 +156,8 @@ class ModelService(Dispatcher):
                     return
             else:
                 output_warning("service already not configured for gpu")
-        return super().up(name, skip_prompt)
+        super().up(name, skip_prompt)
+        self.save()
 
     def check_service_up(
         self, address: str, resource: str = "/health", timeout: float = 1.0
