@@ -32,9 +32,7 @@ class ModelService(Dispatcher):
         update_status: bool = False,
         skip_sky_validation: bool = True,
     ) -> None:
-        logger.debug(
-            f"dispatcher init | {location=} {update_status=} {skip_sky_validation=}"
-        )
+        logger.debug(f"dispatcher init | {location=} {update_status=} {skip_sky_validation=}")
         self.default_location = location
         self.load(location=location, update_status=update_status)
         super().__init__()
@@ -57,9 +55,7 @@ class ModelService(Dispatcher):
                 location = os.path.expanduser("~/.servicing")
             # check if services file exists in path
             if os.path.exists(os.path.join(location, "services.bin")):
-                logger.warn(
-                    f"config already exists but could not load | {location=} {update_status=}"
-                )
+                logger.warn(f"config already exists but could not load | {location=} {update_status=}")
                 output_error("Error: unable to load services config")
                 user_choice = input(
                     "Do you want to overwrite the current services?\nUse with caution this can lead to hanging services! (y/n) : "
@@ -70,9 +66,7 @@ class ModelService(Dispatcher):
                     os.rename(location, backup_location)
                     # create new services directory
                     self.save(location=location)
-                    output_warning(
-                        f"New services file created. Old services backed up to: {backup_location}"
-                    )
+                    output_warning(f"New services file created. Old services backed up to: {backup_location}")
                 else:
                     # error
                     logger.error(f"creating config | {location=} {update_status=}")
@@ -84,9 +78,7 @@ class ModelService(Dispatcher):
                 logger.debug(f"creating config | {location=} {update_status=}")
                 self.save(location=location)
 
-    def __call__(
-        self, location: str | None = None, update_status: bool = False
-    ) -> Self:
+    def __call__(self, location: str | None = None, update_status: bool = False) -> Self:
         if location or update_status:
             logger.debug(f"update load method | {location=} {update_status=}")
         # always does a load() but can optionally update servicer threads
@@ -109,9 +101,7 @@ class ModelService(Dispatcher):
         super().load_as_b64(b64)
         self.save()
 
-    def down(
-        self, name: str, skip_prompt: bool | None = None, force: bool | None = None
-    ) -> None:
+    def down(self, name: str, skip_prompt: bool | None = None, force: bool | None = None) -> None:
         logger.debug(f"stopping running service | {name=} {skip_prompt=} {force=}")
         super().down(name, skip_prompt, force)
         self.save()
@@ -126,9 +116,7 @@ class ModelService(Dispatcher):
         super().add_service(name, config)
         self.save()
 
-    def up(
-        self, name: str, skip_prompt: bool | None = None, gpu_disable: bool = False
-    ) -> None:
+    def up(self, name: str, skip_prompt: bool | None = None, gpu_disable: bool = False) -> None:
         # TODO: update openad.cfg file for resource state
         logger.debug(f"starting service | {name=} {skip_prompt=} {gpu_disable=}")
         if gpu_disable:
@@ -161,9 +149,7 @@ class ModelService(Dispatcher):
         super().up(name, skip_prompt)
         self.save()
 
-    def check_service_up(
-        self, address: str, resource: str = "/health", timeout: float = 1.0
-    ) -> int | str:
+    def check_service_up(self, address: str, resource: str = "/health", timeout: float = 10.0) -> int | str:
         """ping the host address to see if service is up
 
         Args:
@@ -181,7 +167,7 @@ class ModelService(Dispatcher):
         while True:
             try:
                 # Make a GET request to the endpoint
-                response = requests.get(address + resource, timeout=0.2)
+                response = requests.get(address + resource, timeout=2.0)
                 if response.status_code == 200:
                     up = True
                     break
