@@ -56,7 +56,7 @@ class ModelService(Dispatcher):
             if location is None:
                 location = os.path.expanduser("~/.servicing")
             # check if services file exists in path
-            if os.path.exists(location + "/services.bin"):
+            if os.path.exists(os.path.join(location, "services.bin")):
                 logger.warn(
                     f"config already exists but could not load | {location=} {update_status=}"
                 )
