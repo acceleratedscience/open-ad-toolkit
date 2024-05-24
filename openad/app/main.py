@@ -279,7 +279,6 @@ class RUNCMD(Cmd):
 
         # Then list commands starting with the input string.
         for command in all_commands:
-
             if re.match(re.escape(inp), command["command"].lower()) and command not in matching_commands["match_word"]:
                 matching_commands["match_start"].append(command)
 
@@ -929,7 +928,6 @@ def cmd_line():
 
         # If user wants to run command line and specify toolkit, for a specific command:
         elif words[0 + word_increment].lower() == "-s" and len(words) > 3 + increment:
-
             set_workspace(command_line, {"Workspace_Name": words[1 + word_increment].upper()})
             set_context(command_line, {"toolkit_name": words[2 + word_increment].upper()})
             if (

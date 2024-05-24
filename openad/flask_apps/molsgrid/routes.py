@@ -60,7 +60,6 @@ def fetchRoutesMolsGrid(cmd_pointer, parser):
                 # From dataframe.
 
                 try:
-
                     name = parser.getName() + "_" + parser.as_dict()["in_dataframe"]
 
                     mol_frame = cmd_pointer.api_variables[parser.as_dict()["in_dataframe"]]
@@ -69,7 +68,6 @@ def fetchRoutesMolsGrid(cmd_pointer, parser):
 
                     the_mols2grid = mols2grid.MolGrid(mol_frame, name=name, smiles_col="SMILES", **m2g_params_init)
                 except BaseException as err:
-
                     output_error(msg("err_load_dataframe", err), return_val=False)
                     return False
             elif origin_file.split(".")[-1].lower() == "sdf":

@@ -645,7 +645,9 @@ def display_data__save(cmd_pointer, parser):
 
 
 # --> Open data in browser UI.
-def display_data__open(cmd_pointer, parser, edit_mode=False):  # pylint: disable=unused-argument # generic pass through used or unused
+def display_data__open(
+    cmd_pointer, parser, edit_mode=False
+):  # pylint: disable=unused-argument # generic pass through used or unused
     # Preserve memory for further follow-up commands.
     """open display data"""
     MEMORY.preserve()
@@ -693,7 +695,9 @@ def display_data__display(cmd_pointer, parser):  # pylint: disable=unused-argume
 
 
 # --> Return result as dataframe
-def display_data__as_dataframe(cmd_pointer, parser):  # pylint: disable=unused-argument # generic pass through used or unused
+def display_data__as_dataframe(
+    cmd_pointer, parser
+):  # pylint: disable=unused-argument # generic pass through used or unused
     """displays last result set in viewer"""
     # Preserve memory for further follow-up commands.
     MEMORY.preserve()

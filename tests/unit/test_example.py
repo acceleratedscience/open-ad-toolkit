@@ -1,6 +1,7 @@
 import unittest
 import pytest
 
+
 class TestMyModule(unittest.TestCase):
     @pytest.mark.skip
     def test_dummy(self):

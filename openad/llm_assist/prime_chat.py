@@ -161,7 +161,6 @@ class Chatobject:
                                 # we skip over ones that cannot be processed
                                 pass
                     elif j == "**/*.pdf":
-
                         loader = DirectoryLoader(i, glob=j, loader_cls=pdf.BasePDFLoader)
                         documents = loader.load()
                         text_splitter = RecursiveCharacterTextSplitter(

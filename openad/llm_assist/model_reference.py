@@ -109,7 +109,6 @@ def get_tell_me_model(service: str, api_key: str):
 
     if service == "OPENAI":
         try:
-
             model = ChatOpenAI(
                 model_name=SUPPORTED_TELL_ME_MODELS_SETTINGS[service]["model"],
                 openai_api_key=api_key,
@@ -121,7 +120,6 @@ def get_tell_me_model(service: str, api_key: str):
             return None, None
 
     elif service == "BAM":
-
         creds = Credentials(api_key=api_key, api_endpoint=SUPPORTED_TELL_ME_MODELS_SETTINGS[service]["url"])
 
         client = Client(credentials=creds)

@@ -209,7 +209,6 @@ def add_molecule(cmd_pointer, inp, force=False, suppress=False):
         mol = new_molecule(molecule_identifier, molecule_name)
 
     else:
-
         if (
             cmd_pointer.last_external_molecule is not None
             and is_molecule(cmd_pointer.last_external_molecule, molecule_identifier) is not None
@@ -217,7 +216,6 @@ def add_molecule(cmd_pointer, inp, force=False, suppress=False):
             mol = cmd_pointer.last_external_molecule
 
         else:
-
             mol = retrieve_mol(molecule_identifier)
             if mol is None:
                 mol = new_molecule(molecule_identifier, molecule_identifier)
@@ -442,7 +440,6 @@ def is_molecule(mol, molecule):
     if molecule == mol["properties"]["canonical_smiles"]:
         return mol
     try:
-
         if canonical_smiles(molecule) == canonical_smiles(mol["properties"]["canonical_smiles"]):
             return mol
 

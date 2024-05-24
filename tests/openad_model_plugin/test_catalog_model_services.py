@@ -5,13 +5,14 @@ from pandas import DataFrame
 from openad.openad_model_plugin.catalog_model_services import retrieve_model, Dispatcher
 from tests.helpers import random_name
 
+
 @pytest.mark.parametrize(
-    'from_path',
+    "from_path",
     [
         "git@github.com:acceleratedscience/property_inference_service.git",
         "git@github.com:acceleratedscience/generation_inference_service.git",
         "https://github.com/acceleratedscience/property_inference_service.git",
-    ]
+    ],
 )
 def test_retrieve_model(from_path):
     """test model download to direcotry using ssh and cp"""

@@ -23,4 +23,3 @@ def dispatcher():
     Recommend using the running object from catalog_model_services.py (Dispatcher)
     """
     return ModelService()
-

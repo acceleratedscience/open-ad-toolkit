@@ -9,4 +9,4 @@ def random_name(length: int = 10) -> str:
         str: random name
     """
     letters = string.ascii_lowercase
-    return "pytest_" + ''.join(random.choice(letters) for i in range(length))
+    return "pytest_" + "".join(random.choice(letters) for i in range(length))
