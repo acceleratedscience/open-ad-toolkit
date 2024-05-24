@@ -187,7 +187,7 @@ def model_service_status(cmd_pointer, parser):
                     models["Endpoint"].append(res.get("url"))
             except Exception as e:
                 # model service not cataloged or doesnt exist
-                output_warning(str(e))
+                output_warning(f"Error getting status: {str(e)}")
             finally:
                 spinner.stop()
     df = DataFrame(models)

@@ -229,15 +229,20 @@ class ModelService(Dispatcher):
         ret_status = {"is_remote": False}
         # alternative data exists
         if extra_data and extra_data.get("remote_endpoint"):
+            # use remote service data
             url = extra_data.get("remote_endpoint")
             ret_status["url"] = extra_data.get("remote_endpoint")
             ret_status["up"] = self.check_service_up(url)
             ret_status["is_remote"] = True
-        # use service data
+        # use local service data
         if status.get("url"):
             ret_status["url"] = self.get_url(name)
         if status.get("up"):
             ret_status["up"] = bool(status.get("up"))
+        elif not ret_status.get("is_remote") and ret_status.get("url"):
+            # TODO: this should be fixed in servicing library
+            # recheck if service is actually down
+            ret_status["up"] = self.check_service_up(ret_status["url"])
         logger.debug(f"service info | {name=} {ret_status=}")
         return ret_status
 
