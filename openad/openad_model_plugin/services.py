@@ -226,7 +226,8 @@ class ModelService(Dispatcher):
         # TODO: refactor
         status = self.status(name)
         extra_data = self.load_extra_data(name)
-        ret_status = {"is_remote": False}
+        # init default status data
+        ret_status = {"is_remote": False, "url": "", "up": False}
         # alternative data exists
         if extra_data and extra_data.get("remote_endpoint"):
             # use remote service data
