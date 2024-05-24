@@ -39,10 +39,49 @@ The goal of openAD is to provide a common language for scientists to interact wi
 
 ---
 > **Pre-install Note:** 
-For updating to 0.2.0 first remove toolkits `remove toolkit DS4SD` and `remove toolkit RXN` prior to updating
+For updating to 0.3.0 first remove toolkits `remove toolkit DS4SD` and `remove toolkit RXN` prior to updating
 
 > **Whats New ?**
+-  `%Openadd` has been added to the magic commands to provide pure data type results for data returning commands
+- Upgraded IBM BAM model support for latest IBm generative AI embeddings and Langchain 
 - Property and Data Set Generation Services
+   We support the following Model Services
+     - GT4SD Generation Services  `git@github.com:acceleratedscience/generation_inference_service.git`
+     - GT4SD Property Services `git@github.com:acceleratedscience/property_inference_service.git`
+     - GT4SD MoleR Generation `git@github.com:acceleratedscience/moler_inference_service.git`
+     - GT4SD Molformer `git@github.com:acceleratedscience/molformer_inference_service.git`
+    Pre-Requisite is that you have a AWS Account and can launch your own EC2 Instances Or someone else can launch them for you and you can catalog a Remote Service via URL.
+
+        **Example:**
+
+        `catalog model service from 'git@github.com:acceleratedscience/property_inference_service.git' as prop`
+
+        To start the service `model service up prop`
+
+        `model service status` # wait until service is ready
+
+         Once ready you can run
+         `prop get molecule property [qed,esol] for [ C(C(C1C(=C(C(=O)O1)O)O)O)O ,[H-] ]`
+
+         `prop get molecule property esol for C(C(C1C(=C(C(=O)O1)O)O)O)O`
+        
+        examples are supplied in the Sample Notebooks, see below how to install.
+
+        To shut down the service `model service down prop`
+
+        Available commands for managing model services...
+
+        ```
+        model service status
+        model service config '<service_name>'|<service_name>
+        model catalog list
+        uncatalog model service '<service_name>'|<service_name>
+        catalog model service from (remote) '<path or github>' as  '<service_name>'|<service_name>
+        model service up '<service_name>'|<service_name> [no_gpu]
+        model service local up '<service_name>'|<service_name> 
+        model service down '<service_name>'|<service_name>
+        ```
+
 
 
 
@@ -349,10 +388,6 @@ For OpenAI
 
 4. Run `tell me` to be prompted for your OpenAI API credentials
 
-
-<!-- ![Landing](readme/openai-api-key.png) -->
-
-<a href="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/openai-api-key.png" target="_blank"><img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/openai-api-key.png" /></a>
 
 <br>
 
