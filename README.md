@@ -60,12 +60,13 @@ For updating to 0.3.0 first remove toolkits `remove toolkit DS4SD` and `remove t
 
         `model service status` # wait until service is ready
 
-         Once ready you can run
+         Once the service is `Ready` you can run the following commands to test:
+         
          `prop get molecule property [qed,esol] for [ C(C(C1C(=C(C(=O)O1)O)O)O)O ,[H-] ]`
 
          `prop get molecule property esol for C(C(C1C(=C(C(=O)O1)O)O)O)O`
         
-        examples are supplied in the Sample Notebooks, see below how to install.
+        Examples are supplied in the Sample Notebooks, see below how to install.
 
         To shut down the service `model service down prop`
 
