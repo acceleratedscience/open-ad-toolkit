@@ -26,6 +26,7 @@ export molecules [ as <csv_filename> ];Molecules
 show molecule <name> | <smiles> | <inchi> | <inchikey> | <cid>;Molecules
 show molecules using ( file '<mols_file>' | dataframe <dataframe> ) [ save as '<sdf_or_csv_file>' | as molsobject ];Molecules
 load molecules using dataframe <dataframe> [ merge with pubchem ];Utility
+merge molecules data using dataframe <dataframe> [ merge with pubchem ];Utility
 display data '<filename.csv>';Utility
   -> result save [as '<filename.csv>'];Utility
   -> result open;Utility
@@ -37,7 +38,6 @@ edit config '<json_config_file>' [ schema '<schema_file>'];Utility
 ds4sd;Toolkits
 rxn;Toolkits
 st4sd;Toolkits
-gt4sd;Toolkits
 list toolkits;Toolkits
 list all toolkits;Toolkits
 add toolkit <toolkit_name>;Toolkits
@@ -65,6 +65,14 @@ docs;Help
 ?;Help
 ? ...<soft>   --> List all commands containing "..."</soft>;Help
 ... ?<soft>   --> List all commands starting with "..."</soft>;Help
+model service status;Model
+model service config '<service_name>'|<service_name>;Model
+model catalog list;Model
+uncatalog model service '<service_name>'|<service_name>;Model
+catalog model service from (remote) '<path or github>' as  '<service_name>'|<service_name>;Model
+model service up '<service_name>'|<service_name>;Model
+model service local up '<service_name>'|<service_name>;Model
+model service down '<service_name>'|<service_name>;Model
 search for similar molecules to '<smiles>' [ save as '<filename.csv>' ];Search Molecules
 search for molecules in patents from list ['<patent1>', '<patent2>', ...] | dataframe <dataframe_name> | file '<filename.csv>' [ save as '<filename.csv>' ];Search Molecules
 search for patents containing molecule '<smiles>' | '<inchi>' | '<inchikey>' [ save as '<filename.csv>' ];Search Molecules

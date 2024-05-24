@@ -57,4 +57,4 @@ def display_all_collections(inputs: dict, cmd_pointer):
         df = df.replace(np.nan, "", regex=True)
         output_success(msg("success_file_saved", results_file), return_val=False, pad_top=1, pad_btm=0)
 
-    return output_table(pd.DataFrame(results))
+    return output_table(pd.DataFrame(results), is_data=False)

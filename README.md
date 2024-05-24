@@ -39,18 +39,52 @@ The goal of openAD is to provide a common language for scientists to interact wi
 
 ---
 > **Pre-install Note:** 
-For updating to 0.2.0 first remove toolkits `remove toolkit DS4SD` and `remove toolkit RXN` prior to updating
+For updating to 0.3.0 first remove toolkits `remove toolkit DS4SD` and `remove toolkit RXN` prior to updating
 
 > **Whats New ?**
-- Increased number of Molecules Functions for retrieving from pubchem molecules or creating your own in a working set, including visualisation, tracking of source info
-- 3D displaying of molecules in your working set or direct from pubchem
-- Attaching Analysis to target Molecules with the `enrich` command
-- Enhanced Help and Tell Me command
-- Linking to source documents in DeepSearch
-- merging molecules and molsets together
-- easy access to dataframes and results sets with the new `result` command
-- smaller install package
-- introductory molecule viewer
+-  `%Openadd` has been added to the magic commands to provide pure data type results for data returning commands
+- Upgraded IBM BAM model support for latest IBm generative AI embeddings and Langchain 
+- Property and Data Set Generation Services
+   We support the following Model Services
+     - GT4SD Generation Services  `git@github.com:acceleratedscience/generation_inference_service.git`
+     - GT4SD Property Services `git@github.com:acceleratedscience/property_inference_service.git`
+     - GT4SD MoleR Generation `git@github.com:acceleratedscience/moler_inference_service.git`
+     - GT4SD Molformer `git@github.com:acceleratedscience/molformer_inference_service.git`
+    Pre-Requisite is that you have a AWS Account and can launch your own EC2 Instances Or someone else can launch them for you and you can catalog a Remote Service via URL.
+
+        **Example:**
+
+        `catalog model service from 'git@github.com:acceleratedscience/property_inference_service.git' as prop`
+
+        To start the service `model service up prop`
+
+        `model service status` # wait until service is ready
+
+         Once the service is `Ready` you can run the following commands to test:
+         
+         `prop get molecule property [qed,esol] for [ C(C(C1C(=C(C(=O)O1)O)O)O)O ,[H-] ]`
+
+         `prop get molecule property esol for C(C(C1C(=C(C(=O)O1)O)O)O)O`
+        
+        Examples are supplied in the Sample Notebooks, see below how to install.
+
+        To shut down the service `model service down prop`
+
+        Available commands for managing model services...
+
+        ```
+        model service status
+        model service config '<service_name>'|<service_name>
+        model catalog list
+        uncatalog model service '<service_name>'|<service_name>
+        catalog model service from (remote) '<path or github>' as  '<service_name>'|<service_name>
+        model service up '<service_name>'|<service_name> [no_gpu]
+        model service local up '<service_name>'|<service_name> 
+        model service down '<service_name>'|<service_name>
+        ```
+
+
+
 
 **Note: uninstall all toolkits before installing the new version**
 
@@ -68,6 +102,10 @@ Get started with Jupyter:
     init_examples
     jupyter lab ~/openad_notebooks/Table_of_Contents.ipynb
 
+If you get an error when running `init_magic`, you may first need to setup the default iPython profile for magic commands.
+
+    ipython profile create
+
 <br>
 
 ---
@@ -80,25 +118,26 @@ Get started with Jupyter:
 
 ## Table of Contents <!-- omit from toc -->
 
-- [OpenAD Beta](#openad-beta)
-- [Installation](#installation)
-- [Getting Started - CLI](#getting-started---cli)
-- [Getting Started - Jupyter](#getting-started---jupyter)
-  - [Setting up Jupyter](#setting-up-jupyter)
-  - [Launching OpenAD in Jupyter](#launching-openad-in-jupyter)
-- [Interacting with the Toolkits](#interacting-with-the-toolkits)
-    - [Registration](#registration)
-    - [Adding a Toolkit](#adding-a-toolkit)
-    - [Sample Commands](#sample-commands)
-    - [Running Bash Commands (CLI)](#running-bash-commands-cli)
-- [AI Assistant](#ai-assistant)
-- [For Developers](#for-developers)
-  - [Installation for Development](#installation-for-development)
-  - [Testing a branch](#testing-a-branch)
-- [Installing on Windows](#installing-on-windows)
-  - [Before you start](#before-you-start)
-  - [Installing WSL](#installing-wsl)
-- [Linux Notes](#linux-notes)
+<a href="#openad-beta">OpenAD Beta</a>
+
+<a href="#installation">Installation</a>
+<li><a href="#getting-started---cli">Getting Started - CLI</a></li>
+<li><a href="#getting-started---jupyter">Getting Started - Jupyter</a></li>
+<li><a href="#Setting up Jupyter">#setting-up-jupyter</a><br></li>
+<li><a href="#launching-openad-in-jupyter">Launching OpenAD in Jupyter</a><br></li>
+<a href="#interacting-with-the-toolkits">Interacting with the Toolkits</a>
+<li><a href="#registration">Registration</a></li>
+<li><a href="#adding-a-toolkit">Adding a Toolkit</a></li>
+<li><a href="#sample-commands">Sample Commands</a></li>
+<li><a href="#running-bash-commands-cli">Running Bash Commands (CLI)</a></li>
+<a href="#ai-assistant">AI AssistantL</a>
+<a href="#for-developers">For Developer</a>
+<li><a href="#installation-for-development">Installation for Development</a></li>
+<li><a href="#testing-a-branch">Testing a branch</a></li>
+<a href="#installing-on-windows">Installing on Windows</a>
+<li><a href="#before-you-start">Before you start</a></li>
+<li><a href="#installing-wsl">Installing WSL</a></li>
+<a href="#linux-notes">Linux Notes</a>
 
 
 ---
@@ -129,6 +168,18 @@ Ensure you're running Python 3.10 or 3.11. There's multiple ways of updating Pyt
 2.  **Step 2: Installation**
 
         pip install openad
+
+    if you are going to use the model services you will need to have an AWS CLI enabled on your machine and follow the below steps to install and check skypilot is enabled on your machine:
+
+        A. Install Sky  with `pip install "skypilot-nightly[aws]"`
+
+        B. setup your aws command line
+
+        C. run `sky check`
+
+        
+    Services will take about 10 minutes to deploy it can be monitored through the controllers logs.
+        e.g. `sky serve logs sky-service-0af4  --controller`
 
 <br>
 
@@ -232,7 +283,7 @@ The following commands only need to be run once after installation:
 
 # Interacting with the Toolkits
 
-OpenAD integrates with `DS4SD`, `RXN`, and has placeholder support for `GT4SD` and `ST4SD`.
+OpenAD integrates with `DS4SD`, `RXN`, and has placeholder support for  `ST4SD`.
 
 <div class="notice" style="margin-top: 16px;" markdown="block">
 
@@ -322,7 +373,13 @@ To run a command in bash mode, prepend it with `openad` and make sure to escape 
 
 To enable our AI assistant, you'll need an account with OpenAI. There is a one month free trial.
 
+This is available for IBM BAM service and Openai.
+
 > **Note:** watsonx coming soon
+
+For IBM BAM simply used your supplied API key if you have BAM access
+
+For OpenAI
 
 1. Go to [platform.openai.com](https://platform.openai.com) and create an account
 
@@ -332,10 +389,6 @@ To enable our AI assistant, you'll need an account with OpenAI. There is a one m
 
 4. Run `tell me` to be prompted for your OpenAI API credentials
 
-
-<!-- ![Landing](readme/openai-api-key.png) -->
-
-<a href="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/openai-api-key.png" target="_blank"><img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/openai-api-key.png" /></a>
 
 <br>
 
@@ -427,7 +480,7 @@ Install WSL and create a user called 'openad' or one of your choosing.
 
     wsl --install Ubuntu-22.04
 
-**Optional:** To setup an Ubuntu Python environment from scratch, continue to [Linux Notes](#linux-notes)
+**Optional:** To setup an Ubuntu Python environment from scratch, continue to <a href="#linux-notes">Linux Notes</a>
 
 <br>
 
@@ -441,6 +494,8 @@ If you wish to setup an Ubuntu Python environment from scratch, run:
     sudo apt install python3-pip
     sudo update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 100
     sudo pip install pip --upgrade
+
+You will need to restart your Linux session before running `pip install openad` so that the python libraries are in your path.
 
 If you get an error when running `init_magic`, you may first need to setup the default iPython profile for magic commands.
 

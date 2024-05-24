@@ -312,6 +312,9 @@ def search_collection(inputs: dict, cmd_pointer):
         else:
             return output_table(df, is_data=True).data
 
+    elif GLOBAL_SETTINGS["display"] == "api":
+        return df
+
     elif GLOBAL_SETTINGS["display"] == "terminal":
         if "save_as" not in inputs:
             df.style.format(hyperlinks="html")
@@ -325,10 +328,12 @@ def search_collection(inputs: dict, cmd_pointer):
             if display_first > 0:
                 df = df.truncate(after=display_first)
 
-    return output_table(df)
+    return output_table(df, is_data=True)
 
 
 def _confirm_prompt(question: str) -> bool:
+    if GLOBAL_SETTINGS["display"] == "api":
+        return True
     reply = None
     while reply not in ("y", "n"):
         reply = input(f"{question} (y/n): ").casefold()

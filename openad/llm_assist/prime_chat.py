@@ -1,18 +1,29 @@
 """ this library Automates the creation of a Langchain Chat object"""
+
 import os
 import glob
 
-
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
-from langchain.document_loaders import NotebookLoader
-from langchain.vectorstores import FAISS
-from langchain.document_loaders import TextLoader, DirectoryLoader
+from langchain_community.document_loaders import NotebookLoader, pdf
+from langchain_community.vectorstores import FAISS
+from langchain_community.document_loaders import TextLoader, DirectoryLoader
 from langchain.prompts import ChatPromptTemplate
+
+
 from langchain.schema.output_parser import StrOutputParser
+
+
 from langchain.schema.runnable import RunnablePassthrough
+
+
 from openad.helpers.output import output_error, output_warning
-from openad.llm_assist.model_reference import get_tell_me_model, get_embeddings_model
+
+
+from openad.llm_assist.model_reference import get_tell_me_model
+
+
+from openad.llm_assist.model_reference import get_embeddings_model
 
 
 ## Creds clas for Watson X disabled currently
@@ -55,7 +66,7 @@ class Chatobject:
     chat_history = []
     db_dir = "~/.vector_embed"
     document_folders = ["./"]
-    document_types = ["**/*.txt", "**/*.ipynb", "**/*.run", "**/*.cdoc"]
+    document_types = ["**/*.txt", "**/*.ipynb", "**/*.run", "**/*.cdoc", "**/*.pdf"]
 
     def __init__(
         self,
@@ -149,6 +160,13 @@ class Chatobject:
                                 # Some notebook files are just not processable rather than notifying as user could have many,
                                 # we skip over ones that cannot be processed
                                 pass
+                    elif j == "**/*.pdf":
+                        loader = DirectoryLoader(i, glob=j, loader_cls=pdf.BasePDFLoader)
+                        documents = loader.load()
+                        text_splitter = RecursiveCharacterTextSplitter(
+                            chunk_size=2000, chunk_overlap=100, separators=["\@"], keep_separator=False
+                        )
+                        docs.extend(text_splitter.split_documents(documents))
                     elif j == "**/*.cdoc":
                         loader = DirectoryLoader(i, glob=j, loader_cls=TextLoader)
                         documents = loader.load()

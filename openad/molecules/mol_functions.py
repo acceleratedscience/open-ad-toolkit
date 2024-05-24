@@ -196,6 +196,8 @@ def merge_molecule_properties(molecule_dict, mol):
         return None
     if "ROMol" in molecule_dict:
         del molecule_dict["ROMol"]
+    if "subject" in molecule_dict:
+        del molecule_dict["subject"]
 
     for key in molecule_dict:
         mol["properties"][key] = molecule_dict[key]
@@ -258,9 +260,15 @@ def get_mol_from_inchikey(inchikey_str: str):
 
 def get_mol_from_smiles(smiles_str: str):
     """return pubchem molecule data based on smiles"""
+
     if valid_smiles(smiles_str):
         # print("getting smiles")
-        return get_mol(smiles_str, MOL_SMILES_INDEX)
+
+        success, openad_mol, molecule = get_mol(smiles_str, MOL_SMILES_INDEX)
+        if openad_mol is not None:
+            openad_mol["properties"]["canonical_smiles"] = Chem.MolToSmiles(Chem.MolFromSmiles(smiles_str))
+
+        return success, openad_mol, molecule
     else:
         return False, "Invalid Smiles", None
 

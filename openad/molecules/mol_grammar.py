@@ -526,9 +526,10 @@ Available properties: <cmd>{'</cmd>, <cmd>'.join(m_props)}</cmd>
     # ---
     # Load molecules from file
     statements.append(
-        Forward(
-            load + molecules + using + file + desc("moles_file") + Optional((merge + w_ith + pubchem))("pubchem_merge")
-        )("load_molecules_file")
+        Forward(load + molecules + using + file + desc("moles_file") + Optional((merge + w_ith + pubchem)))(
+            "pubchem_merge"
+        )
+        + Optional(CaselessKeyword("append")("append"))("load_molecules_file")
     )  # From mols file
     grammar_help.append(
         help_dict_create(
@@ -548,7 +549,8 @@ Available properties: <cmd>{'</cmd>, <cmd>'.join(m_props)}</cmd>
             + using
             + CaselessKeyword("dataframe")
             + molecule_identifier("in_dataframe")
-            + Optional((merge + w_ith + pubchem))("pubchem_merge")
+            + Optional((merge + w_ith + pubchem) + Optional(CaselessKeyword("append")("append")))("pubchem_merge")
+            + Optional(CaselessKeyword("append")("append"))
         )("load_molecules_dataframe")
     )  # From dataframe
     grammar_help.append(
@@ -560,6 +562,27 @@ Available properties: <cmd>{'</cmd>, <cmd>'.join(m_props)}</cmd>
 This command Load molecules into the molecule working list from a dataframe. 
 
 If the <cmd> merge with pubchem</cmd>  clause is used then loaded molecules will have properties that are not in the source file filled in using pubchem requests, this will slow the process down""",
+        )
+    )
+    statements.append(
+        Forward(
+            CaselessKeyword("merge")
+            + molecules
+            + data
+            + using
+            + CaselessKeyword("dataframe")
+            + molecule_identifier("in_dataframe")
+            + Optional((merge + w_ith + pubchem))("pubchem_merge")
+        )("merge_molecules_data_dataframe")
+    )  # From dataframe
+    grammar_help.append(
+        help_dict_create(
+            name="merge molecules data",
+            category="Utility",
+            command="merge molecules data using dataframe <dataframe> [ merge with pubchem ]",
+            description=""""            
+This command merges molecules into the molecule working list from a dataframe. 
+     """,
         )
     )
 

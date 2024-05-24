@@ -1,5 +1,6 @@
-""" This library is the main library for invoking functions from the command line
+"""This library is the main library for invoking functions from the command line
 it does contain some general functions or plugin calls otherwise invokes toolkits or core / plugin functions"""
+
 #!/usr/local/opt/python@3.9/bin/python3.9
 import os
 import re
@@ -11,9 +12,20 @@ import pandas as pd
 # Flask
 from openad.flask_apps import launcher
 from openad.flask_apps.dataviewer.routes import fetchRoutesDataViewer
+from openad.openad_model_plugin.openad_model_toolkit import openad_model_requestor
+from openad.openad_model_plugin.catalog_model_services import (
+    catalog_add_model_service,
+    uncatalog_model_service,
+    get_catalog_namespaces,
+    model_service_status,
+    service_down,
+    service_up,
+    local_service_up,
+    model_service_config,
+)
 
 # molecules
-from openad.molecules.mol_batch_files import load_batch_molecules
+from openad.molecules.mol_batch_files import load_batch_molecules, merge_molecule_property_data
 
 from openad.molecules.mol_commands import (
     display_molecule,
@@ -131,6 +143,34 @@ def lang_parse(cmd_pointer, parser):
     elif parser.getName() in _all_toolkits:
         # Toolkit welcome screens
         return output_text(splash(parser.getName(), cmd_pointer), nowrap=True)
+    # Model Service grammar
+    elif parser.getName() == "catalog_add_model_service":
+        result = catalog_add_model_service(cmd_pointer, parser)
+        if result is True:
+            # update grammer new service added
+            create_statements(cmd_pointer)
+        return result
+    elif parser.getName() == "uncatalog_model_service":
+        result = uncatalog_model_service(cmd_pointer, parser)
+        if result is True:
+            # update grammer service removed
+            create_statements(cmd_pointer)
+        return result
+
+    elif parser.getName() == "model_service_status":
+        # update grammer for definitions not fetched because service was down
+        create_statements(cmd_pointer)
+        return model_service_status(cmd_pointer, parser)
+    elif parser.getName() == "model_service_config":
+        return model_service_config(cmd_pointer, parser)
+    elif parser.getName() == "get_catalog_namespaces":
+        return get_catalog_namespaces(cmd_pointer, parser)
+    elif parser.getName() == "service_up":
+        return service_up(cmd_pointer, parser)
+    elif parser.getName() == "local_service_up":
+        return local_service_up(cmd_pointer, parser)
+    elif parser.getName() == "service_down":
+        return service_down(cmd_pointer, parser)
 
     # Language Model How To
     elif parser.getName() == "how_do_i":
@@ -211,6 +251,8 @@ def lang_parse(cmd_pointer, parser):
         return clear_workset(cmd_pointer, parser)
     elif parser.getName() in ["load_molecules_file", "load_molecules_dataframe"]:
         return load_batch_molecules(cmd_pointer, parser)
+    elif parser.getName() in ["merge_molecules_data_file", "merge_molecules_data_dataframe"]:
+        return merge_molecule_property_data(cmd_pointer, parser)
     elif parser.getName() == "export_molecules":
         return export_molecule_set(cmd_pointer, parser)
     elif parser.getName() == "show_molsgrid":
@@ -263,6 +305,14 @@ def lang_parse(cmd_pointer, parser):
         return output_text(openad_intro, edge=True, pad=3)
     elif parser.getName() == "docs":
         return docs(cmd_pointer, parser)
+
+    elif "@" in parser.getName() and parser.getName().split("@")[1] in [
+        "get_molecule_property",
+        "get_crystal_property",
+        "get_protein_property",
+        "generate_data",
+    ]:
+        return openad_model_requestor(cmd_pointer, parser)
 
     # # Show molecules commands
     # elif parser.getName() == "show_molecules":
@@ -438,7 +488,7 @@ def set_context_by_name(cmd_pointer, toolkit_name, reset=False, suppress_splash=
 
             # Success switching context & loggin in.
             if old_cmd_pointer_context != cmd_pointer.settings["context"] and not suppress_splash:
-                if GLOBAL_SETTINGS["display"] == "terminal" or GLOBAL_SETTINGS["display"] == None:
+                if GLOBAL_SETTINGS["display"] == "terminal" or GLOBAL_SETTINGS["display"] is None:
                     return output_text(splash(toolkit_name, cmd_pointer), nowrap=True)
                 else:
                     return output_success(msg("success_login", toolkit_name, expiry_datetime), return_val=False)

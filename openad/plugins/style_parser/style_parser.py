@@ -31,6 +31,7 @@ To do:
     Update wrap_text to account for ANSI escape codes - see function in JSON editor.
 
 """
+
 import sys
 import re
 import textwrap
@@ -190,7 +191,7 @@ def style(
         text = _edge(text, edge)
 
     # Add top and bottom padding
-    if pad:
+    if pad and pad != 0 and isinstance(pad, int):
         padding = "\n" * pad
         text = padding + text + padding
     else:
@@ -339,7 +340,8 @@ def tags_to_markdown(text: str):
 
     # Restore line breaks.
     text = text.replace("---LINEBREAKSOFT---", "\n")
-    text = text.replace("---LINEBREAK3---", "<br>\n")
+    text = text.replace("---LINEBREAK3---", " <br> \n")
+
     return text
 
 

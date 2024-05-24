@@ -1,4 +1,5 @@
 """Main application contain runtime class RUNCMD()"""
+
 #!/usr/local/opt/python@3.9/bin/python3.9
 # Copyright 2022 IBM, Inc. or its affiliates. All Rights Reserved.
 
@@ -9,11 +10,13 @@ import re
 import string
 import uuid
 from cmd import Cmd
+from pandas import DataFrame
 
 # Main
 from openad.app.main_lib import lang_parse, initialise, set_context, unset_context
 from openad.toolkit.toolkit_main import load_toolkit
 from openad.app import login_manager
+from openad.helpers.output import output_table
 
 # Core
 import openad.core.help as openad_help
@@ -139,11 +142,13 @@ class RUNCMD(Cmd):
         self.prompt = refresh_prompt(self.settings)  # sets the command prompt
 
         # load the toolkit in current context
+
         if self.settings["context"] in self.settings["toolkits"]:
             ok, toolkit_current = load_toolkit(self.settings["context"])
             if ok:
                 self.toolkit_current = toolkit_current
-                create_statements(self)
+        create_statements(self)
+
         # Initialise current toolkit registry
         self.login_settings = login_manager.load_login_registry()
 
@@ -274,14 +279,14 @@ class RUNCMD(Cmd):
 
         # Then list commands starting with the input string.
         for command in all_commands:
-            if re.match(re.escape(inp), command["command"]) and command not in matching_commands["match_word"]:
+            if re.match(re.escape(inp), command["command"].lower()) and command not in matching_commands["match_word"]:
                 matching_commands["match_start"].append(command)
 
         # Then list commands containing the input string.
         if not starts_with_only:
             for command in all_commands:
                 if (
-                    re.search(re.escape(inp), command["command"])
+                    re.search(re.escape(inp), command["command"].lower())
                     and command not in matching_commands["match_word"]
                     and command not in matching_commands["match_start"]
                 ):
@@ -298,6 +303,7 @@ class RUNCMD(Cmd):
         # This is for case like `run <run_name> ?` which would otherwise
         # display `run <run_name>` as well as `display run <run_name>`
         all_matching_commands_str = [item["command"] for item in all_matching_commands]
+
         exact_match = inp in all_matching_commands_str
 
         # This lets us pass a custom padding value.
@@ -593,15 +599,18 @@ class RUNCMD(Cmd):
                 # , shut down abruptly so as not to kill registry file.
                 output_error(
                     "Fatal error: the session registry is not avaiable, performing emergency shutdown" + str(e),
-                    return_value=False,
+                    return_val=False,
                 )
                 self.do_exit("exit emergency")
-
+            # print("------------------------------")
+            # print(convert(inp))
+            # print("------------------------------")
             y = self.current_statement_defs.parseString(convert(inp), parseAll=True)
             x = lang_parse(self, y)
             self.prompt = refresh_prompt(self.settings)
             MEMORY.before_command()
         except Exception as err1:  # pylint: disable=broad-exception-caught # error could be unknown
+            # print(err1)
             error_descriptor = None
             error_col = -1
             invalid_command = False
@@ -688,7 +697,7 @@ class RUNCMD(Cmd):
                     # Fetch commands matching recognized words, or the first word.
                     # Example input -> `search for molecules in`
                     do_help_output_C = self.do_help(
-                        help_ref + " ?", return_val=True, jup_return_format="plain", starts_with_only=True
+                        help_ref.lower() + " ?", return_val=True, jup_return_format="plain", starts_with_only=True
                     )
 
                     # Check for scenario A, B, C in that order.
@@ -711,6 +720,7 @@ class RUNCMD(Cmd):
                     # the input string letter by letter until something pops up.
                     if not show_suggestions:
                         error_col = error_col_grabber(error_descriptor)
+
                         while error_col > 1 and not show_suggestions:
                             error_col = error_col - 1
                             # Not for printing
@@ -726,6 +736,7 @@ class RUNCMD(Cmd):
 
                     # Display error.
                     output_error(msg("err_invalid_cmd", error_msg), return_val=False)
+
                     if show_suggestions:
                         if not multiple_suggestions:
                             output_text("<yellow>You may want to try:</yellow>", return_val=False)
@@ -734,6 +745,7 @@ class RUNCMD(Cmd):
                             pad_top = 0  # List of commands should not get padded.
 
                         # Example to trigger this: `list xxx`
+
                         self.do_help(help_ref + " ?", starts_with_only=True, return_val=False, pad_top=pad_top)
                         note = msg("run_?")
                         output_text(f"<soft>{note}</soft>", return_val=False, pad=1)
@@ -749,10 +761,15 @@ class RUNCMD(Cmd):
         if GLOBAL_SETTINGS["display"] == "notebook":
             return x
         elif GLOBAL_SETTINGS["display"] != "api":
-            if x is not None and not isinstance(x, bool):
+            if isinstance(x, DataFrame):
+                x = output_table(x)
+                return
+            elif x is not None and not isinstance(x, bool):
                 print(x)
             else:
                 return
+        else:
+            return x
 
 
 # Returns the error positioning in the statement that has been parsed.
@@ -792,7 +809,7 @@ def api_remote(
       exit point for magic commands, unlike a command line.
     """
 
-    GLOBAL_SETTINGS["display"] = "notebook"
+    # GLOBAL_SETTINGS["display"] = "notebook"
     initialise()
 
     arguments = inp.split()
@@ -849,7 +866,7 @@ def api_remote(
 
             # Triggered by magic commands, eg. `%openad ? list files`
             starts_with_qmark = len(inp) > 0 and inp.split()[0] == "?" and inp.strip() != "??"
-            return magic_prompt.do_help(inp.strip(), display_info=starts_with_qmark)
+            return magic_prompt.do_help(inp.strip(), jup_return_format=None, display_info=starts_with_qmark)
 
         # If there is a argument and it is not a help attempt to run the command.
         # Note, may be possible add code completion here #revisit
@@ -887,9 +904,17 @@ def cmd_line():
         return
 
     # Check for help from a command line request.
+    result = ""
+    increment = 0
+    word_increment = 0
     if len(inp.strip()) > 0:
         words = inp.split()
-        if inp.split()[0] == "?" or inp.split()[-1] == "?" or inp.strip() == "??":
+        if words[0].upper() == "-C":
+            increment = 2
+            word_increment = 1
+            GLOBAL_SETTINGS["display"] = "api"
+
+        if inp.split()[0 + increment] == "?" or inp.split()[-1 + increment] == "?" or inp[+increment:].strip() == "??":
             # Impossible clause...?
             # you can't add `?` to `openad <command>` because the terminal interprets the `?` separately.
             if inp.strip() == "?":
@@ -898,29 +923,36 @@ def cmd_line():
                 inp = "?"
 
             # Triggered by running commands from main terminal prepended with `openad`.
-            starts_with_qmark = len(inp) > 0 and inp.split()[0] == "?" and inp.strip() != "??"
+            starts_with_qmark = len(inp) > 0 and inp.split()[0] == "?" and inp[+increment:].strip() != "??"
             command_line.do_help(inp.strip(), display_info=starts_with_qmark)
 
         # If user wants to run command line and specify toolkit, for a specific command:
-        elif words[0].lower() == "-s" and len(words) > 3:
-            set_workspace(command_line, {"Workspace_Name": words[1].upper()})
-            set_context(command_line, {"toolkit_name": words[2].upper()})
+        elif words[0 + word_increment].lower() == "-s" and len(words) > 3 + increment:
+            set_workspace(command_line, {"Workspace_Name": words[1 + word_increment].upper()})
+            set_context(command_line, {"toolkit_name": words[2 + word_increment].upper()})
             if (
-                command_line.settings["workspace"] == words[1].upper()
-                and command_line.settings["context"] == words[2].upper()
+                command_line.settings["workspace"] == words[1 + word_increment].upper()
+                and command_line.settings["context"] == words[2 + word_increment].upper()
             ):
                 command_line.preloop()
-                command_line.add_history(str(" ".join(words[3:])).strip())
+                command_line.add_history(str(" ".join(words[3 + word_increment :])).strip())
                 command_line.postloop()
-                command_line.default(str(" ".join(words[3:])).strip())
+                result = command_line.default(str(" ".join(words[3 + word_increment :])).strip())
         else:
             # If there is an argument and it is not help, attempt to run the command
             # Note, may be possible add code completion here #revisit
+
             command_line.preloop()
-            command_line.add_history(inp.strip())
+            command_line.add_history(inp[+increment:].strip())
             command_line.postloop()
-            command_line.default(inp.strip())
+            result = command_line.default(inp[+increment:].strip())
         command_line.do_exit("dummy do not remove")
+        import pandas as pd
+
+        pd.set_option("expand_frame_repr", False)
+        if result is not None and not isinstance(result, bool):
+            print(result)
+
     else:
         # If no argument passed then enter
         lets_exit = False
