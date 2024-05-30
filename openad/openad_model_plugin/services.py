@@ -8,13 +8,13 @@ from typing_extensions import Self
 from openad.helpers.output import output_error, output_warning
 from servicing import Dispatcher, UserProvidedConfig
 from openad.openad_model_plugin.utils import get_logger, LruCache
-from functools import cache, lru_cache
+from openad.openad_model_plugin.auth_services import load_lookup_table
 
 
 logger = get_logger(__name__)
 
 
-remote_services_cache = LruCache[dict](capacity=16)
+REMOTE_SERVICES_CACHE = LruCache[dict](capacity=16)
 
 
 class ServiceFileLoadError(Exception):
@@ -249,17 +249,18 @@ class ModelService(Dispatcher):
 
     def get_remote_service_definitions(self, name: str) -> list | None:
         """retrieve remote service definitions. caches first result"""
-        if remote_services_cache.get(name):
+        if REMOTE_SERVICES_CACHE.get(name):
             # cache hit
             logger.debug(f"getting '{name}' from cache")
-            return remote_services_cache.get(name)
+            return REMOTE_SERVICES_CACHE.get(name)
         service_definitions = []
         service_data = self.get_short_status(name)
         if service_data.get("is_remote"):
-            logger.debug(f"fetching remote service defs | {name=}")
+            api_key = self.get_api_key(name)
+            endpoint = service_data.get("url") + "/service"
+            logger.debug(f"fetching remote service defs | {endpoint=} | x-inference='{name}' x-api-key='{api_key}'")
             try:
-                url = service_data.get("url")
-                response = requests.get(url + "/service", timeout=10)
+                response = requests.get(endpoint, timeout=10, headers={"x-api-key": api_key, "x-inference": name})
                 if response.status_code == 200:
                     service_definitions = response.json()
             except requests.exceptions.RequestException as e:
@@ -268,11 +269,19 @@ class ModelService(Dispatcher):
         if service_definitions:
             # insert when not None
             logger.debug(f"inserting '{name}' into cache")
-            remote_services_cache.insert(name, service_definitions)
+            REMOTE_SERVICES_CACHE.insert(name, service_definitions)
         return service_definitions
 
     def get_service_cache(self) -> LruCache[dict]:
-        return remote_services_cache
+        return REMOTE_SERVICES_CACHE
+
+    def get_api_key(self, name: str) -> str:
+        """get api key from auth lookup table. returns empty string for no api key"""
+        # get lookup table
+        auth_lookup_table = load_lookup_table()
+        # find group name belonging to service
+        group_name = auth_lookup_table["service_table"].get(name, "")
+        return auth_lookup_table["auth_table"].get(group_name, "")
 
     def status(self, name: str, pretty: bool | None = None) -> Dict[str, Any]:
         """Loads status as json object

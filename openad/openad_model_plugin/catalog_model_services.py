@@ -12,8 +12,8 @@ from openad.helpers.output import (
 )
 from openad.helpers.spinner import spinner
 from openad.app.global_var_lib import GLOBAL_SETTINGS
-from openad.openad_model_plugin.services import ModelService, UserProvidedConfig, ServiceFetchError
-from typing import List, Dict, Tuple
+from openad.openad_model_plugin.services import ModelService, UserProvidedConfig
+from typing import Dict, Tuple
 from pandas import DataFrame
 from subprocess import run
 import shlex
@@ -22,18 +22,17 @@ from tabulate import tabulate
 from tomlkit import parse
 import time
 from openad.openad_model_plugin.utils import get_logger, bcolors
-from functools import cache, lru_cache
-import pickle
+from functools import lru_cache
+from openad.openad_model_plugin.config import DISPATCHER_SERVICE_PATH, SERVICE_MODEL_PATH, SERVICES_PATH
+from openad.openad_model_plugin.auth_services import (
+    load_lookup_table,
+    update_lookup_table,
+    remove_auth_group,
+    remove_service_group,
+)
 
 
 logger = get_logger(__name__, color=bcolors.OKCYAN + bcolors.UNDERLINE)
-
-
-DISPATCHER_SERVICE_PATH = os.path.expanduser("~/.servicing/")
-SERVICE_MODEL_PATH = os.path.expanduser("~/.openad_model_services/")
-SERVICES_PATH = "/definitions/services/"
-if not os.path.exists(SERVICE_MODEL_PATH):
-    os.makedirs(SERVICE_MODEL_PATH)
 
 
 # this is the global object that should be used across openad and testing
@@ -42,74 +41,6 @@ Dispatcher = ModelService(location=DISPATCHER_SERVICE_PATH, update_status=True, 
 ### example of how to use the dispatcher ###
 # with Dispatcher() as service:
 #     print(service.list())
-
-# path to authentication lookup table
-auth_lookup_path = os.path.join(SERVICE_MODEL_PATH, "auth_lookup.pkl")
-
-
-def load_lookup_table():
-    """load lookup authentication lookup table from pickle file"""
-    logger.debug("loading auth lookup table")
-    # load the current auth groups
-    if os.path.exists(auth_lookup_path):
-        with open(auth_lookup_path, "rb") as file:
-            data = pickle.load(file)
-    else:
-        data = {"auth_table": {}, "service_table": {}}
-        with open(auth_lookup_path, "wb") as file:
-            pickle.dump(data, file)
-    return data
-
-
-def update_lookup_table(group_name, api_key=None, service=None):
-    """update the lookup table values on either api_key or model service"""
-    logger.debug(f"updating auth group '{group_name}' {api_key=} {service=}")
-    # Load the existing data or create a new dictionary
-    data = load_lookup_table()
-    # Update the dictionary with new key-value pairs
-    if api_key:
-        # create auth group entry
-        data["auth_table"].update({group_name: api_key})
-    if service and group_name in data["auth_table"]:
-        # map a model service to auth group
-        data["service_table"].update({service: group_name})
-    # Save the updated dictionary back to the pickle file
-    with open(auth_lookup_path, "wb") as file:
-        pickle.dump(data, file)
-    # return latest data
-    return data
-
-
-def remove_service_group(service_name):
-    """remove a model service from lookup table"""
-    logger.debug(f"removing service auth group | '{service_name}'")
-    # Load the existing data or create a new dictionary
-    data = load_lookup_table()
-    data["service_table"].pop(service_name)
-    # Save the updated dictionary back to the pickle file
-    with open(auth_lookup_path, "wb") as file:
-        pickle.dump(data, file)
-    # return latest data
-    return data
-
-
-def remove_auth_group(group_name):
-    """remove a authentication group from lookup table and and relationships to model service"""
-    logger.debug(f"removing auth group '{group_name}'")
-    # Load the existing data or create a new dictionary
-    data = load_lookup_table()
-    # remove the dictionary values with matching auth group
-    data["auth_table"].pop(group_name)
-    for name, val in data["service_table"].copy().items():
-        logger.debug(f"evaluating {name=} {val=}")
-        if group_name == val:
-            logger.debug(f"removing auth group '{group_name}' from service '{name}'")
-            data["service_table"].pop(name)
-    # Save the updated dictionary back to the pickle file
-    with open(auth_lookup_path, "wb") as file:
-        pickle.dump(data, file)
-    # return latest data
-    return data
 
 
 def help_dict_create(
