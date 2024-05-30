@@ -52,6 +52,26 @@ from openad.app.global_var_lib import _meta_dir_toolkits
 from openad.app.global_var_lib import GLOBAL_SETTINGS
 from openad.app.global_var_lib import MEMORY
 
+# Load available_Plugins modules
+import pkg_resources
+import inspect
+import importlib
+
+
+PLUGIN_CLASS_LIST = []
+installed_packages = pkg_resources.working_set
+installed_packages_list = [
+    i.key for i in installed_packages if i.key.startswith("openad-plugin-") or i.key.startswith("openad_plugin_")
+]
+
+for module_name in installed_packages_list:
+    try:
+        module_name = module_name.replace("-", "_")
+        module = importlib.import_module(f"{module_name}.plugins")
+        PLUGIN_CLASS_LIST.append(getattr(module, "openad_plugins"))
+    except:
+        output_error("ignoring addin, incorrect class definition")
+
 
 sys.ps1 = "\x01\033[31m\x02>>> \x01\033[0m\x02"
 
@@ -99,6 +119,18 @@ class RUNCMD(Cmd):
     llm_service = "OPENAI"  # set with OPENAI as default type until WatsonX or alternative available
     llm_model = "gpt-3.5-turbo"
     llm_models = SUPPORTED_TELL_ME_MODELS_SETTINGS
+
+    # Load OpenAD Plugins into cmd_pointer
+    plugins = PLUGIN_CLASS_LIST.copy()
+    plugin_objects = {}
+    plugins_statements = []
+    plugins_help = []
+    for plugin in plugins:
+
+        p = plugin()
+        plugin_objects.update(p.PLUGIN_OBJECTS)
+        plugins_statements.extend(p.statements)
+        plugins_help.extend(p.help)
 
     # # Instantiate memory class # Trash
     # memory = Memory()

@@ -901,12 +901,22 @@ def create_statements(cmd_pointer):
     except Exception as e:
         print(e)
         pass
+    # add plugins
+
+    for stmt in cmd_pointer.plugins_statements:
+        cmd_pointer.current_statements.append(stmt)
+
+    cmd_pointer.current_help.help_plugins.extend(cmd_pointer.plugins_help)
+    cmd_pointer.current_help.reset_help()
+
     for i in cmd_pointer.current_statements:
         cmd_pointer.current_statement_defs |= i
+
     if cmd_pointer.toolkit_current is not None:
         for i in cmd_pointer.toolkit_current.methods_grammar:
             cmd_pointer.current_statement_defs |= i
             cmd_pointer.current_statements.append(i)
+
     # statements_zom = ZeroOrMore(statements_def)
 
 
