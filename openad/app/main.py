@@ -126,7 +126,6 @@ class RUNCMD(Cmd):
     plugins_statements = []
     plugins_help = []
     for plugin in plugins:
-
         p = plugin()
         plugin_objects.update(p.PLUGIN_OBJECTS)
         plugins_statements.extend(p.statements)
