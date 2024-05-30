@@ -1,36 +1,30 @@
-import pyparsing as py
-import os
-import sys
-import json
 import glob
-from openad.helpers.output import (
-    output_text,
-    output_table,
-    output_warning,
-    output_error,
-    output_success,
-)
-from openad.helpers.spinner import spinner
-from openad.app.global_var_lib import GLOBAL_SETTINGS
-from openad.openad_model_plugin.services import ModelService, UserProvidedConfig
-from typing import Dict, Tuple
-from pandas import DataFrame
-from subprocess import run
+import json
+import os
 import shlex
 import shutil
-from tabulate import tabulate
-from tomlkit import parse
+import sys
 import time
-from openad.openad_model_plugin.utils import get_logger, bcolors
 from functools import lru_cache
-from openad.openad_model_plugin.config import DISPATCHER_SERVICE_PATH, SERVICE_MODEL_PATH, SERVICES_PATH
+from subprocess import run
+from typing import Dict, Tuple
+
+import pyparsing as py
+from openad.app.global_var_lib import GLOBAL_SETTINGS
+from openad.helpers.output import output_error, output_success, output_table, output_text, output_warning
+from openad.helpers.spinner import spinner
 from openad.openad_model_plugin.auth_services import (
     load_lookup_table,
-    update_lookup_table,
     remove_auth_group,
     remove_service_group,
+    update_lookup_table,
 )
-
+from openad.openad_model_plugin.config import DISPATCHER_SERVICE_PATH, SERVICE_MODEL_PATH, SERVICES_PATH
+from openad.openad_model_plugin.services import ModelService, UserProvidedConfig
+from openad.openad_model_plugin.utils import bcolors, get_logger
+from pandas import DataFrame
+from tabulate import tabulate
+from tomlkit import parse
 
 logger = get_logger(__name__, color=bcolors.OKCYAN + bcolors.UNDERLINE)
 

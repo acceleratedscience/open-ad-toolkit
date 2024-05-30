@@ -1,15 +1,14 @@
-import os
-import time
 import datetime
 import json
-import requests
+import os
 from typing import Any, Dict
-from typing_extensions import Self
-from openad.helpers.output import output_error, output_warning
-from servicing import Dispatcher, UserProvidedConfig
-from openad.openad_model_plugin.utils import get_logger, LruCache
-from openad.openad_model_plugin.auth_services import load_lookup_table
 
+import requests
+from openad.helpers.output import output_error, output_warning
+from openad.openad_model_plugin.auth_services import load_lookup_table
+from openad.openad_model_plugin.utils import LruCache, get_logger
+from servicing import Dispatcher, UserProvidedConfig
+from typing_extensions import Self
 
 logger = get_logger(__name__)
 

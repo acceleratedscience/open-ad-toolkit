@@ -1,9 +1,9 @@
 import os
 import pickle
 from typing import Dict, TypedDict
-from openad.openad_model_plugin.utils import get_logger, bcolors
-from openad.openad_model_plugin.config import SERVICE_MODEL_PATH
 
+from openad.openad_model_plugin.config import SERVICE_MODEL_PATH
+from openad.openad_model_plugin.utils import bcolors, get_logger
 
 logger = get_logger(__name__, color=bcolors.OKCYAN + bcolors.UNDERLINE)
 
