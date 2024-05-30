@@ -18,6 +18,7 @@ from openad.openad_model_plugin.auth_services import (
     remove_auth_group,
     remove_service_group,
     update_lookup_table,
+    get_service_api_key,
 )
 from openad.openad_model_plugin.config import DISPATCHER_SERVICE_PATH, SERVICE_MODEL_PATH, SERVICES_PATH
 from openad.openad_model_plugin.services import ModelService, UserProvidedConfig
@@ -357,6 +358,9 @@ def uncatalog_model_service(cmd_pointer, parser) -> bool:
                 # output_error(f"failed to remove service: {str(e)}", return_val=False)
                 return False
         output_success(f"service {service_name} removed from catalog", return_val=False)
+    # remove service from authentication lookup table
+    if get_service_api_key(service_name):
+        remove_service_group(service_name)
     return True
 
 

@@ -33,6 +33,15 @@ def load_lookup_table() -> LookupTable:
     return data
 
 
+def get_service_api_key(service_name: str) -> str:
+    """get api key from auth lookup table. returns empty string for no api key"""
+    # get lookup table
+    auth_lookup_table = load_lookup_table()
+    # find group name belonging to service
+    group_name = auth_lookup_table["service_table"].get(service_name, "")
+    return auth_lookup_table["auth_table"].get(group_name, "")
+
+
 def update_lookup_table(group_name, api_key=None, service=None):
     """update the lookup table values on either api_key or model service"""
     logger.debug(f"updating auth group '{group_name}' {api_key=} {service=}")

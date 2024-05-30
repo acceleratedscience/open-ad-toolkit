@@ -13,6 +13,7 @@ import requests
 from openad.helpers.output import output_error, output_success, output_text, output_warning
 from openad.helpers.spinner import spinner
 from openad.openad_model_plugin.catalog_model_services import get_service_endpoint, help_dict_create
+from openad.openad_model_plugin.auth_services import get_service_api_key
 from pyparsing import (  # replaceWith,; Combine,; pyparsing_test,; ParseException,
     CaselessKeyword,
     CharsNotIn,
@@ -689,12 +690,13 @@ def convert(lst):
 def openad_model_requestor(cmd_pointer, parser):
     """The Procedure handles communication with external services"""
     if "service" in parser.as_dict():
-        service = parser.as_dict()["service"]
+        service_name = parser.as_dict()["service"]
     else:
-        service = None
+        service_name = None
 
     a_request = request_generate(parser)
-    Endpoint = get_service_endpoint(service)
+    Endpoint = get_service_endpoint(service_name)
+    api_key = get_service_api_key(service_name)
 
     if Endpoint is not None and len((Endpoint.strip())) > 0:
         if "http" not in Endpoint:
@@ -711,7 +713,9 @@ def openad_model_requestor(cmd_pointer, parser):
     spinner.start("Executing Request Against Server")
 
     try:
-        response = requests.post(Endpoint + "/service", json=a_request)
+        response = requests.post(
+            Endpoint + "/service", json=a_request, headers={"x-api-key": api_key, "x-inference": service_name}
+        )
     except Exception as e:
         spinner.fail("Request Failed")
         spinner.stop()

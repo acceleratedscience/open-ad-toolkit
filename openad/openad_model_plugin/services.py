@@ -5,7 +5,7 @@ from typing import Any, Dict
 
 import requests
 from openad.helpers.output import output_error, output_warning
-from openad.openad_model_plugin.auth_services import load_lookup_table
+from openad.openad_model_plugin.auth_services import get_service_api_key
 from openad.openad_model_plugin.utils import LruCache, get_logger
 from servicing import Dispatcher, UserProvidedConfig
 from typing_extensions import Self
@@ -255,7 +255,7 @@ class ModelService(Dispatcher):
         service_definitions = []
         service_data = self.get_short_status(name)
         if service_data.get("is_remote"):
-            api_key = self.get_api_key(name)
+            api_key = get_service_api_key(name)
             endpoint = service_data.get("url") + "/service"
             logger.debug(f"fetching remote service defs | {endpoint=} | x-inference='{name}' x-api-key='{api_key}'")
             try:
@@ -273,14 +273,6 @@ class ModelService(Dispatcher):
 
     def get_service_cache(self) -> LruCache[dict]:
         return REMOTE_SERVICES_CACHE
-
-    def get_api_key(self, name: str) -> str:
-        """get api key from auth lookup table. returns empty string for no api key"""
-        # get lookup table
-        auth_lookup_table = load_lookup_table()
-        # find group name belonging to service
-        group_name = auth_lookup_table["service_table"].get(name, "")
-        return auth_lookup_table["auth_table"].get(group_name, "")
 
     def status(self, name: str, pretty: bool | None = None) -> Dict[str, Any]:
         """Loads status as json object
