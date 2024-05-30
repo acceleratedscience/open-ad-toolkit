@@ -23,6 +23,7 @@ from tomlkit import parse
 import time
 from openad.openad_model_plugin.utils import get_logger, bcolors
 from functools import cache, lru_cache
+import pickle
 
 
 logger = get_logger(__name__, color=bcolors.OKCYAN + bcolors.UNDERLINE)
@@ -41,6 +42,74 @@ Dispatcher = ModelService(location=DISPATCHER_SERVICE_PATH, update_status=True, 
 ### example of how to use the dispatcher ###
 # with Dispatcher() as service:
 #     print(service.list())
+
+# path to authentication lookup table
+auth_lookup_path = os.path.join(SERVICE_MODEL_PATH, "auth_lookup.pkl")
+
+
+def load_lookup_table():
+    """load lookup authentication lookup table from pickle file"""
+    logger.debug("loading auth lookup table")
+    # load the current auth groups
+    if os.path.exists(auth_lookup_path):
+        with open(auth_lookup_path, "rb") as file:
+            data = pickle.load(file)
+    else:
+        data = {"auth_table": {}, "service_table": {}}
+        with open(auth_lookup_path, "wb") as file:
+            pickle.dump(data, file)
+    return data
+
+
+def update_lookup_table(group_name, api_key=None, service=None):
+    """update the lookup table values on either api_key or model service"""
+    logger.debug(f"updating auth group '{group_name}' {api_key=} {service=}")
+    # Load the existing data or create a new dictionary
+    data = load_lookup_table()
+    # Update the dictionary with new key-value pairs
+    if api_key:
+        # create auth group entry
+        data["auth_table"].update({group_name: api_key})
+    if service and group_name in data["auth_table"]:
+        # map a model service to auth group
+        data["service_table"].update({service: group_name})
+    # Save the updated dictionary back to the pickle file
+    with open(auth_lookup_path, "wb") as file:
+        pickle.dump(data, file)
+    # return latest data
+    return data
+
+
+def remove_service_group(service_name):
+    """remove a model service from lookup table"""
+    logger.debug(f"removing service auth group | '{service_name}'")
+    # Load the existing data or create a new dictionary
+    data = load_lookup_table()
+    data["service_table"].pop(service_name)
+    # Save the updated dictionary back to the pickle file
+    with open(auth_lookup_path, "wb") as file:
+        pickle.dump(data, file)
+    # return latest data
+    return data
+
+
+def remove_auth_group(group_name):
+    """remove a authentication group from lookup table and and relationships to model service"""
+    logger.debug(f"removing auth group '{group_name}'")
+    # Load the existing data or create a new dictionary
+    data = load_lookup_table()
+    # remove the dictionary values with matching auth group
+    data["auth_table"].pop(group_name)
+    for name, val in data["service_table"].copy().items():
+        logger.debug(f"evaluating {name=} {val=}")
+        if group_name == val:
+            logger.debug(f"removing auth group '{group_name}' from service '{name}'")
+            data["service_table"].pop(name)
+    # Save the updated dictionary back to the pickle file
+    with open(auth_lookup_path, "wb") as file:
+        pickle.dump(data, file)
+    # return latest data
+    return data
 
 
 def help_dict_create(
@@ -198,11 +267,14 @@ def model_service_config(cmd_pointer, parser):
     """prints service resources"""
     logger.debug("listing service config")
     service_name = parser.as_dict()["service_name"]
+    # load service status details
     with Dispatcher() as service:
         res = service.get_config_as_dict(service_name)
         config = {**res["template"]["service"], **res["template"]["resources"]}
         table_data = [[key, value] for key, value in config.items()]
-        # print(tabulate(table_data, headers=["Resource", "value"], tablefmt="pretty"))
+    # add authentication group details
+    auth_lookup_table = load_lookup_table()
+    table_data.insert(0, ["authentication group", auth_lookup_table["service_table"].get(service_name, "None")])
     return DataFrame(table_data, columns=["Resource", "value"])
 
 
@@ -285,14 +357,14 @@ def load_service_config(local_service_path: str) -> UserProvidedConfig:
                 spinner.info("found non defaults in openad.cfg")
                 table_data = [[key, value] for key, value in conf.items()]
                 print(tabulate(table_data, headers=["Resource", "value"], tablefmt="pretty"))
-                return UserProvidedConfig(**conf, workdir=local_service_path)
+                return UserProvidedConfig(**conf, workdir=local_service_path, data=json.dumps({}))
             else:
                 spinner.warn("error with (openad.cfg). Could not load user config. Loading defaults.")
         except Exception as e:
             output_error(str(e))
             spinner.warn("error with (openad.cfg). Could not load user config. Loading defaults.")
     # use default config
-    return UserProvidedConfig(workdir=local_service_path)
+    return UserProvidedConfig(workdir=local_service_path, data=json.dumps({}))
 
 
 def catalog_add_model_service(cmd_pointer, parser) -> bool:
@@ -458,6 +530,82 @@ def get_service_endpoint(service_name) -> str | None:
     return endpoint
 
 
+def add_service_auth_group(cmd_pointer, parser):
+    """Create an authentication group"""
+    group_name = parser.as_dict()["group_name"]
+    api_key = parser.as_dict()["api_key"]
+    logger.debug(f"adding auth group | {group_name=} {api_key=}")
+    lookup_table = load_lookup_table()
+    if group_name in lookup_table["auth_table"]:
+        return output_error(f"authentication group '{group_name}' already exists")
+    updated_lookup_table = update_lookup_table(group_name=group_name, api_key=api_key)
+    output_success(f"successfully added authentication group '{group_name}'")
+    return DataFrame(updated_lookup_table["auth_table"].items(), columns=["auth groups", "api key"])
+
+
+def remove_service_auth_group(cmd_pointer, parser):
+    """remove an authentication group"""
+    group_name = parser.as_dict()["group_name"]
+    logger.debug(f"removing auth group | {group_name=}")
+    lookup_table = load_lookup_table()
+    if group_name not in lookup_table["auth_table"]:
+        return output_error(f"authentication group '{group_name}' does not exists")
+    updated_lookup_table = remove_auth_group(group_name)
+    output_success(f"removed authentication group '{group_name}'")
+    return DataFrame(updated_lookup_table["auth_table"].items(), columns=["auth groups", "api key"])
+
+
+def attach_service_auth_group(cmd_pointer, parser):
+    """add a model service to an authentication group"""
+    service_name = parser.as_dict()["service_name"]
+    group_name = parser.as_dict()["group_name"]
+    logger.debug(f"attaching auth group to service | {service_name=} {group_name=}")
+    lookup_table = load_lookup_table()
+    # connect mapping to service from auth group
+    with Dispatcher() as dispatch:
+        models = dispatch.list()
+        if service_name not in models:
+            return output_error(f"service '{service_name}' does not exist")
+        if group_name not in lookup_table["auth_table"]:
+            return output_error(f"auth group '{group_name}' does not exist")
+        # add auth to service
+        updated_lookup_table = update_lookup_table(group_name=group_name, service=service_name)
+    return DataFrame(updated_lookup_table["service_table"].items(), columns=["services", "auth groups"])
+
+
+def detach_service_auth_group(cmd_pointer, parser):
+    """remove a model service from an authentication group"""
+    service_name = parser.as_dict()["service_name"]
+    logger.debug(f"detaching auth group from service | {service_name=}")
+    lookup_table = load_lookup_table()
+    if service_name not in lookup_table["service_table"]:
+        return output_error(f"service '{service_name}' does not have an authentication group")
+    updated_lookup_table = remove_service_group(service_name)
+    return DataFrame(updated_lookup_table["service_table"].items(), columns=["services", "auth groups"])
+
+
+def list_auth_services(cmd_pointer, parser):
+    """list authentication groups and services that use it"""
+    # Extracting the data from the dictionary
+    lookup_table = load_lookup_table()
+    services = []
+    auth_groups = []
+    apis = []
+    # Extract services and their corresponding auth groups
+    for service, auth_group in lookup_table["service_table"].items():
+        services.append(service)
+        auth_groups.append(auth_group)
+        apis.append(lookup_table["auth_table"].get(auth_group))
+    # Add auth groups from auth_table that are not in service_table
+    for auth_group, api in lookup_table["auth_table"].items():
+        if auth_group not in auth_groups:
+            services.append(None)
+            auth_groups.append(auth_group)
+            apis.append(api)
+    # Creating the DataFrame
+    return DataFrame({"services": services, "auth groups": auth_groups, "api": apis})
+
+
 def service_catalog_grammar(statements: list, help: list):
     """This function creates the required grammar for managing cataloging services and model up or down"""
     logger.debug("catalog model service grammer")
@@ -473,8 +621,76 @@ def service_catalog_grammar(statements: list, help: list):
     _list = py.CaselessKeyword("list")
     quoted_string = py.QuotedString("'", escQuote="\\")
     a_s = py.CaselessKeyword("as")
-    config = py.CaselessKeyword("config")
+    describe = py.CaselessKeyword("describe")
     remote = py.CaselessKeyword("remote")
+    auth = py.CaselessKeyword("auth")
+    group = py.CaselessKeyword("group")
+    _with = py.CaselessKeyword("with")
+    add = py.CaselessKeyword("add")
+    remove = py.CaselessKeyword("remove")
+    to = py.CaselessKeyword("to")
+
+    statements.append(py.Forward(model + auth + _list)("list_auth_services"))
+    help.append(
+        help_dict_create(
+            name="model auth list",
+            category="Model",
+            command="model auth list",
+            description="show authentication group mapping",
+        )
+    )
+
+    statements.append(
+        py.Forward(model + auth + add + group + quoted_string("group_name") + _with + quoted_string("api_key"))(
+            "add_service_auth_group"
+        )
+    )
+    help.append(
+        help_dict_create(
+            name="model auth add group",
+            category="Model",
+            command="model auth add group '<group_name>' with '<api_key>'",
+            description="add an authentication group for model services to use",
+        )
+    )
+
+    statements.append(
+        py.Forward(model + auth + remove + group + quoted_string("group_name"))("remove_service_auth_group")
+    )
+    help.append(
+        help_dict_create(
+            name="model auth remove group",
+            category="Model",
+            command="model auth remove group '<group_name>'",
+            description="remove an authentication group",
+        )
+    )
+
+    statements.append(
+        py.Forward(
+            model + auth + add + service + quoted_string("service_name") + to + group + quoted_string("group_name")
+        )("attach_service_auth_group")
+    )
+    help.append(
+        help_dict_create(
+            name="model auth add service",
+            category="Model",
+            command="model auth add service '<service_name>' to group '<group_name>'",
+            description="attach an authentication group to a model service",
+        )
+    )
+
+    statements.append(
+        py.Forward(model + auth + remove + service + quoted_string("service_name"))("detach_service_auth_group")
+    )
+    help.append(
+        help_dict_create(
+            name="model auth remove service",
+            category="Model",
+            command="model auth remove service '<service_name>'",
+            description="detatch an authentication group from a model service",
+        )
+    )
 
     statements.append(py.Forward(model + service + status)("model_service_status"))
     help.append(
@@ -487,16 +703,16 @@ def service_catalog_grammar(statements: list, help: list):
     )
 
     statements.append(
-        py.Forward(model + service + config + (quoted_string | py.Word(py.alphanums + "_"))("service_name"))(
+        py.Forward(model + service + describe + (quoted_string | py.Word(py.alphanums + "_"))("service_name"))(
             "model_service_config"
         )
     )
     help.append(
         help_dict_create(
-            name="model service config",
+            name="model service describe",
             category="Model",
-            command="model service config '<service_name>'|<service_name>",
-            description="get the config of a service",
+            command="model service describe '<service_name>'|<service_name>",
+            description="get the configuration of a service",
         )
     )
 
