@@ -714,7 +714,7 @@ def openad_model_requestor(cmd_pointer, parser):
 
     try:
         response = requests.post(
-            Endpoint + "/service", json=a_request, headers={"x-api-key": api_key, "x-inference": service_name}
+            Endpoint + "/service", json=a_request, headers={"Api-Key": api_key, "Model-Inference": service_name}
         )
     except Exception as e:
         spinner.fail("Request Failed")

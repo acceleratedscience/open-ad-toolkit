@@ -257,9 +257,9 @@ class ModelService(Dispatcher):
         if service_data.get("is_remote"):
             api_key = get_service_api_key(name)
             endpoint = service_data.get("url") + "/service"
-            logger.debug(f"fetching remote service defs | {endpoint=} | x-inference='{name}' x-api-key='{api_key}'")
+            logger.debug(f"fetching remote service defs | {endpoint=} | Model-Inference='{name}' Api-Key='{api_key}'")
             try:
-                response = requests.get(endpoint, timeout=10, headers={"x-api-key": api_key, "x-inference": name})
+                response = requests.get(endpoint, timeout=10, headers={"Api-Key": api_key, "Model-Inference": name})
                 if response.status_code == 200:
                     service_definitions = response.json()
             except requests.exceptions.RequestException as e:
