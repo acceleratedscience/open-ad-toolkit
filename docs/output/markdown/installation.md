@@ -44,28 +44,25 @@ If you get an error when running `init_magic`, you may first need to setup the d
 
 ## Table of Contents 
 
-<a href="#openad-beta">OpenAD Beta</a>
-
-<a href="#installation">Installation</a>
-<li><a href="#getting-started---cli">Getting Started - CLI</a></li>
-<li><a href="#getting-started---jupyter">Getting Started - Jupyter</a></li>
-<li><a href="#Setting up Jupyter">#setting-up-jupyter</a><br></li>
-<li><a href="#launching-openad-in-jupyter">Launching OpenAD in Jupyter</a><br></li>
-<a href="#interacting-with-the-toolkits">Interacting with the Toolkits</a>
-<li><a href="#registration">Registration</a></li>
-<li><a href="#adding-a-toolkit">Adding a Toolkit</a></li>
-<li><a href="#sample-commands">Sample Commands</a></li>
-<li><a href="#running-bash-commands-cli">Running Bash Commands (CLI)</a></li>
-<a href="#ai-assistant">AI AssistantL</a>
-<a href="#for-developers">For Developer</a>
-<li><a href="#installation-for-development">Installation for Development</a></li>
-<li><a href="#testing-a-branch">Testing a branch</a></li>
-<a href="#installing-on-windows">Installing on Windows</a>
-<li><a href="#before-you-start">Before you start</a></li>
-<li><a href="#installing-wsl">Installing WSL</a></li>
-<a href="#linux-notes">Linux Notes</a>
-
----
+- [OpenAD Beta](#openad-beta)
+- [Installation](#installation)
+- [Getting Started - CLI](#getting-started---cli)
+- [Getting Started - Jupyter](#getting-started---jupyter)
+  - [Setting up Jupyter](#setting-up-jupyter)
+  - [Launching OpenAD in Jupyter](#launching-openad-in-jupyter)
+- [Interacting with the Toolkits](#interacting-with-the-toolkits)
+    - [Registration](#registration)
+    - [Adding a Toolkit](#adding-a-toolkit)
+    - [Sample Commands](#sample-commands)
+    - [Running Bash Commands (CLI)](#running-bash-commands-cli)
+- [AI Assistant](#ai-assistant)
+- [For Developers](#for-developers)
+  - [Installation for Development](#installation-for-development)
+  - [Testing a branch](#testing-a-branch)
+- [Installing on Windows](#installing-on-windows)
+  - [Before you start](#before-you-start)
+  - [Installing WSL](#installing-wsl)
+- [Linux Notes](#linux-notes)
 
 <br>
 
@@ -85,7 +82,7 @@ Ensure you're running Python 3.10 or 3.11. There's multiple ways of updating Pyt
 
 1.  **Step 1: Set up your virtual environment** (optional)<br>
 
-        python -m venv ~/ad-venv
+        python3.11 -m venv ~/ad-venv
         source ~/ad-venv/bin/activate
 
     > **Note:** To exit the virtual environment, you can run `deactivate`
@@ -94,15 +91,11 @@ Ensure you're running Python 3.10 or 3.11. There's multiple ways of updating Pyt
 
         pip install openad
 
-    if you are going to use the model services you will need to have an AWS CLI enabled on your machine and follow the below steps to install and check skypilot is enabled on your machine:
+    if you are going to use the model services you will need to have an AWS CLI enabled on your machine and follow the below steps to  check skypilot is enabled to deploy on aws on your machine:
 
-        A. Install Sky  with `pip install "skypilot-nightly[aws]"`
+        A. run `sky check`
 
-        B. setup your aws command line
-
-        C. run `sky check`
-
-    Services will take about 10 minutes to deploy it can be monitored through the controllers logs.
+    If you launch Model Services will take about 10 minutes to deploy it can be monitored through the controllers logs.
         e.g. `sky serve logs sky-service-0af4  --controller`
 
 <br>
