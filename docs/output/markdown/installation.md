@@ -28,6 +28,10 @@ Get started with Jupyter:
     init_examples
     jupyter lab ~/openad_notebooks/Table_of_Contents.ipynb
 
+If you get an error when running `init_magic`, you may first need to setup the default iPython profile for magic commands.
+
+    ipython profile create
+
 <br>
 
 ---
@@ -60,8 +64,6 @@ Get started with Jupyter:
   - [Installing WSL](#installing-wsl)
 - [Linux Notes](#linux-notes)
 
----
-
 <br>
 
 # Installation
@@ -80,7 +82,7 @@ Ensure you're running Python 3.10 or 3.11. There's multiple ways of updating Pyt
 
 1.  **Step 1: Set up your virtual environment** (optional)<br>
 
-        python -m venv ~/ad-venv
+        python3.11 -m venv ~/ad-venv
         source ~/ad-venv/bin/activate
 
     > **Note:** To exit the virtual environment, you can run `deactivate`
@@ -88,6 +90,13 @@ Ensure you're running Python 3.10 or 3.11. There's multiple ways of updating Pyt
 2.  **Step 2: Installation**
 
         pip install openad
+
+    if you are going to use the model services you will need to have an AWS CLI enabled on your machine and follow the below steps to  check skypilot is enabled to deploy on aws on your machine:
+
+        A. run `sky check`
+
+    If you launch Model Services will take about 10 minutes to deploy it can be monitored through the controllers logs.
+        e.g. `sky serve logs sky-service-0af4  --controller`
 
 <br>
 
@@ -187,7 +196,7 @@ The following commands only need to be run once after installation:
 
 # Interacting with the Toolkits
 
-OpenAD integrates with `DS4SD`, `RXN`, and has placeholder support for `ST4SD`.
+OpenAD integrates with `DS4SD`, `RXN`, and has placeholder support for  `ST4SD`.
 
 <div class="notice" style="margin-top: 16px;" markdown="block">
 
@@ -277,7 +286,13 @@ To run a command in bash mode, prepend it with `openad` and make sure to escape 
 
 To enable our AI assistant, you'll need an account with OpenAI. There is a one month free trial.
 
+This is available for IBM BAM service and Openai.
+
 > **Note:** watsonx coming soon
+
+For IBM BAM simply used your supplied API key if you have BAM access
+
+For OpenAI
 
 1. Go to [platform.openai.com](https://platform.openai.com) and create an account
 
@@ -286,8 +301,6 @@ To enable our AI assistant, you'll need an account with OpenAI. There is a one m
 3. Create a new key
 
 4. Run `tell me` to be prompted for your OpenAI API credentials
-
-<a href="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/openai-api-key.png" target="_blank"><img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/openai-api-key.png" /></a>
 
 <br>
 
@@ -378,7 +391,7 @@ Install WSL and create a user called 'openad' or one of your choosing.
 
     wsl --install Ubuntu-22.04
 
-**Optional:** To setup an Ubuntu Python environment from scratch, continue to [Linux Notes](#linux-notes)
+**Optional:** To setup an Ubuntu Python environment from scratch, continue to <a href="#linux-notes">Linux Notes</a>
 
 <br>
 
@@ -392,6 +405,8 @@ If you wish to setup an Ubuntu Python environment from scratch, run:
     sudo apt install python3-pip
     sudo update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 100
     sudo pip install pip --upgrade
+
+You will need to restart your Linux session before running `pip install openad` so that the python libraries are in your path.
 
 If you get an error when running `init_magic`, you may first need to setup the default iPython profile for magic commands.
 

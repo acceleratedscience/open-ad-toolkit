@@ -314,14 +314,6 @@ def lang_parse(cmd_pointer, parser):
     ]:
         return openad_model_requestor(cmd_pointer, parser)
 
-    # # Show molecules commands
-    # elif parser.getName() == "show_molecules":
-    #     return show_molsgrid(cmd_pointer, parser)
-    # elif parser.getName() == "show_molecules_df":
-    #     return show_molsgrid(cmd_pointer, parser)
-    # elif parser.getName() == "show_molecule":
-    #     return show_mol__TRASH(cmd_pointer, parser)
-
     # Toolkit execution
     elif str(parser.getName()).startswith("toolkit_exec_"):
         try:
@@ -335,6 +327,10 @@ def lang_parse(cmd_pointer, parser):
     # Development commands (unpublished in help)
     elif parser.getName() == "flask_example":
         return flask_example(cmd_pointer, parser)
+
+    # openad Plugin Search for commands
+    elif parser.getName() in cmd_pointer.plugin_objects.keys():
+        return cmd_pointer.plugin_objects[parser.getName()].exec_command(cmd_pointer, parser)
 
     return
 

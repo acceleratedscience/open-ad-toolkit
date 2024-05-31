@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "openad"
-version = "0.3.0"
+version = "0.3.1"
 description = "Open Accelerated Discovery Client "
 authors = ["Phil Downey <phil.downey1@ibm.com>"]
 readme = "README.md"
@@ -107,7 +107,7 @@ enable_error_code = [
 ]
 
 [tool.pytest.ini_options]
-addopts = "--cov=openad/openad_model_plugin"
+#addopts = "--cov=openad/openad_model_plugin"
 testpaths = ["tests"]
 filterwarnings = ["ignore::DeprecationWarning"]
 

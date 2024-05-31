@@ -482,25 +482,34 @@ uncatalog a model service  <br>
 `uncatalog model service 'gen'` <br><br>
 
 `catalog model service from (remote) '<path or github>' as  '<service_name>'|<service_name>`{: .cmd }
-catalog a model service from a path or github or remotely from an existing OpenAD service.   <br> 
- Example:  <br> 
-
-`catalog model service from 'git@github.com:acceleratedscience/generation_inference_service.git' as 'gen'` <br><br>
-
-`model service up '<service_name>'|<service_name>`{: .cmd }
-launch a model service   <br> 
- Examples:  <br> 
-`model service up gen`  <br> 
-`model service up 'gen'` <br><br>
-
-`model service local up '<service_name>'|<service_name>`{: .cmd }
-launch a model service locally  <br> 
+catalog a model service from a path or github or remotely from an existing OpenAD service. <br> 
 
 Example: <br> 
- ` model service local up gen` <br><br>
+
+-`catalog model service from 'git@github.com:acceleratedscience/generation_inference_service.git' as 'gen'` <br> 
+
+or to catalog a remote service shared with you: <br> 
+-`catalog model service from remote 'http://54.235.3.243:30001' as gen` <br><br>
+
+`model service up '<service_name>'|<service_name> [no_gpu]}`{: .cmd }
+launches a cataloged model service. <br> 
+If you do not want to launch a service with GPU you should specify `no_gpu` at the end of the command. <br> 
+Examples: <br> 
+
+-`model service up gen` <br> 
+
+-`model service up 'gen'` <br> 
+
+-`model service up gen no_gpu` <br><br>
+
+`model service local up '<service_name>'|<service_name>`{: .cmd }
+launch a model service locally. <br> 
+
+            Example: <br> 
+              ` model service local up gen` <br><br>
 
 `model service down '<service_name>'|<service_name>`{: .cmd }
-bring down a model service   <br> 
+Bring down a model service   <br> 
  Examples:  <br> 
 
 `model service down gen`  <br> 

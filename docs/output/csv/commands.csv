@@ -70,8 +70,8 @@ model service config '<service_name>'|<service_name>;Model
 model catalog list;Model
 uncatalog model service '<service_name>'|<service_name>;Model
 catalog model service from (remote) '<path or github>' as  '<service_name>'|<service_name>;Model
-model service up '<service_name>'|<service_name>;Model
-model service local up '<service_name>'|<service_name>;Model
+model service up '<service_name>'|<service_name> [no_gpu]};Model
+model service local up '<service_name>'|<service_name> ;Model
 model service down '<service_name>'|<service_name>;Model
 search for similar molecules to '<smiles>' [ save as '<filename.csv>' ];Search Molecules
 search for molecules in patents from list ['<patent1>', '<patent2>', ...] | dataframe <dataframe_name> | file '<filename.csv>' [ save as '<filename.csv>' ];Search Molecules

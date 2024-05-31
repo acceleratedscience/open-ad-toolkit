@@ -224,6 +224,7 @@ class OpenadHelp:
     help_orig = []
     help_current = []
     help_model_services = []
+    help_plugins = []
 
     def add_help(self, help_dict):
         for i in help_dict:
@@ -232,3 +233,4 @@ class OpenadHelp:
     def reset_help(self):
         self.help_current = self.help_orig.copy()
         self.help_current.extend(self.help_model_services)
+        self.help_current.extend(self.help_plugins)
