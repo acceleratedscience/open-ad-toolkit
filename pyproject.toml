@@ -107,7 +107,7 @@ enable_error_code = [
 ]
 
 [tool.pytest.ini_options]
-addopts = "--cov=openad/openad_model_plugin"
+#addopts = "--cov=openad/openad_model_plugin"
 testpaths = ["tests"]
 filterwarnings = ["ignore::DeprecationWarning"]
 

@@ -169,12 +169,25 @@ Ensure you're running Python 3.10 or 3.11. There's multiple ways of updating Pyt
 
         pip install openad
 
+<<<<<<< HEAD
     if you are going to use the model services you will need to have an AWS CLI enabled on your machine and follow the below steps to  check skypilot is enabled to deploy on aws on your machine:
 
         A. run `sky check`
 
         
     If you launch Model Services will take about 10 minutes to deploy it can be monitored through the controllers logs.
+=======
+    if you are going to use the model services you will need to have an AWS CLI enabled on your machine and follow the below steps to install and check skypilot is enabled on your machine:
+
+        A. Install Sky  with `pip install "skypilot-nightly[aws]"`
+
+        B. setup your aws command line
+
+        C. run `sky check`
+
+        
+    Services will take about 10 minutes to deploy it can be monitored through the controllers logs.
+>>>>>>> origin/main
         e.g. `sky serve logs sky-service-0af4  --controller`
 
 <br>
