@@ -208,7 +208,7 @@ def model_service_config(cmd_pointer, parser):
 
 def retrieve_model(from_path: str, to_path: str) -> Tuple[bool, str]:
     logger.debug("retrieving service model")
-    spinner.start("Retrieving model")
+    spinner.info("Retrieving model")
     # uses ssh or https
     if (from_path.startswith("git@") or from_path.startswith("https://")) and from_path.endswith(".git"):
         # test if git is available
@@ -217,19 +217,18 @@ def retrieve_model(from_path: str, to_path: str) -> Tuple[bool, str]:
             run(cmd, capture_output=True, text=True, check=True)
         except Exception:
             spinner.fail("git not installed or unreachable")
-            spinner.stop()
             return False, "git not installed or unreachable"
         # attempt to download model using git ssh
         try:
             cmd = shlex.split(f"git clone {from_path} {to_path}")
-            clone = run(cmd, capture_output=True, text=True)  # not running check=true
+            clone = run(
+                cmd, capture_output=True, text=True, env={"GIT_SSH_COMMAND": "ssh -o StrictHostKeyChecking=no"}
+            )  # not running check=true
             assert clone.returncode == 0, clone.stderr
             spinner.info(f"successfully retrieved model {from_path}")
-            spinner.stop()
             return True, ""
         except Exception as e:
             spinner.fail(f"error: {str(e)}")
-            spinner.stop()
             return False, str(e)
     # uses local path
     elif os.path.exists(from_path):
@@ -239,15 +238,12 @@ def retrieve_model(from_path: str, to_path: str) -> Tuple[bool, str]:
             cp = run(cmd, capture_output=True, text=True)
             assert cp.returncode == 0, cp.stderr
             spinner.info(f"successfully retrieved model {from_path}")
-            spinner.stop()
             return True, ""
         except Exception as e:
             spinner.fail(f"failed to fetch path {from_path} >> {str(e)}")
-            spinner.stop()
             return False, str(e)
     else:
         spinner.fail(f"invalid path {from_path}")
-        spinner.stop()
         return False, f"invalid path {from_path}"
 
 
