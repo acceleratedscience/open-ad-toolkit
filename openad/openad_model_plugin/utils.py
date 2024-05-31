@@ -48,11 +48,11 @@ def get_logger(
     logger = logging.getLogger(name)
     logger.setLevel(level)
     fmt = (
-        "\n%(asctime)s |"
+        "%(asctime)s|"
         + bcolors.OKBLUE
-        + " %(levelname)s | %(module)s:%(funcName)s:%(lineno)d |"
+        + "%(levelname)s|%(module)s:%(funcName)s:%(lineno)d| "
         + color
-        + " %(message)s"
+        + "%(message)s"
         + bcolors.ENDC
     )
     formatter = logging.Formatter(fmt=fmt, datefmt="%Y/%m/%d %H:%M:%S")
