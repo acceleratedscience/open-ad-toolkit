@@ -110,7 +110,7 @@ Answer the question based only on the following context: {context}  Question: {q
         "embeddings_api": None,
     },
     "OLLAMA": {
-        "model": "llama3",
+        "model": "granite-code:20b",
         "url": OLLAMA_HOST,
         "template": """You are a technical documentation writer and when responding follow the following rules:
                 - Answer and format like a Technical Documentation writer concisely and to the point
@@ -125,6 +125,7 @@ Answer the question based only on the following context: {context}  Question: {q
                 - smiles or inchi strings are definitions of compounds or smiles
                 - Always explain using the full name not short form of a name
                 - do not return data in a table format
+                - If the question asks for details reproduce the help text for the command
 
 
 Answer the question based only on the following 
@@ -230,7 +231,7 @@ def get_embeddings_model(service: str, api_key: str):
             ) from e  # pylint: disable=broad-exception-raised
     elif service == "OLLAMA":
         try:
-            embeddings = OllamaEmbeddings(model="mxbai-embed-large", base_url=OLLAMA_HOST)
+            embeddings = OllamaEmbeddings(model="nomic-embed-text", base_url=OLLAMA_HOST)
         except Exception as e:
             raise Exception(
                 "Error: cannot initialise embeddings, check API Key"

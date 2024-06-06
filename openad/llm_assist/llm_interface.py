@@ -165,6 +165,7 @@ def clean_up_llm_text(cmd_pointer, old_text):
     """This function cleans up text based on common LLM formatting and translates to our standard formatting"""
 
     text = old_text
+    print(text)
     # LLM sometimes places the code type used inside the markdown section this simply removes it
     # Needs tidyup
     text = re.sub(r"\`\`\`python\n", r"```\n", text)
@@ -199,6 +200,8 @@ def clean_up_llm_text(cmd_pointer, old_text):
     text = re.sub(r"\`([a-z]*[\s\S]*?)\`", r" <cmd>\1</cmd> ", text)
     text = re.sub(r"\`(\n*?)(\s*?)(\%*?)([a-z]\n*[\s\S]*?)(\n*?)(\s*?)\`", r" <cmd>\3\4</cmd> ", text)
     text = text.replace("<br>", "\n")
+    text = text.replace("&lt;", "<")
+    text = text.replace("&gt;", ">")
 
     # nuance of llm instructued to use markdown
 
