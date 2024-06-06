@@ -177,6 +177,7 @@ def lang_parse(cmd_pointer, parser):
         result = how_do_i(cmd_pointer, parser)
         if result is False:
             return False
+        cmd_pointer.settings["env_vars"]["refresh_help_ai"] = False
         update_main_registry_env_var(cmd_pointer, "refresh_help_ai", False)
         write_registry(cmd_pointer.settings, cmd_pointer)
         return result

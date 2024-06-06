@@ -199,8 +199,12 @@ class RUNCMD(Cmd):
                 output_error(msg("err_set_context"), return_val=False)
         try:
             if self.settings["env_vars"]["refresh_help_ai"] is True:
+                print("why is it true")
                 self.refresh_vector = True
                 self.refresh_train = True
+            else:
+                self.refresh_vector = False
+                self.refresh_train = False
         except Exception:  # pylint: disable=broad-exception-caught  # if LLM not initiated move on
             pass
         # Try to load variables for llm. If missing, just pass and move on.
