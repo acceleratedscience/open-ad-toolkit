@@ -697,6 +697,10 @@ def openad_model_requestor(cmd_pointer, parser):
     a_request = request_generate(parser)
     Endpoint = get_service_endpoint(service_name)
     api_key = get_service_api_key(service_name)
+    headers = {
+                "Inference-Service": service_name,
+                "Authorization": f"Bearer {get_service_api_key(service_name)}"
+            }
 
     if Endpoint is not None and len((Endpoint.strip())) > 0:
         if "http" not in Endpoint:
@@ -714,7 +718,10 @@ def openad_model_requestor(cmd_pointer, parser):
 
     try:
         response = requests.post(
-            Endpoint + "/service", json=a_request, headers={"Api-Key": api_key, "Model-Inference": service_name}
+            Endpoint + "/service", 
+            json=a_request, 
+            headers=headers,
+            verify=False
         )
     except Exception as e:
         spinner.fail("Request Failed")

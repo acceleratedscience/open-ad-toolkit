@@ -9,6 +9,8 @@ from openad.openad_model_plugin.auth_services import get_service_api_key
 from openad.openad_model_plugin.utils import LruCache, get_logger
 from servicing import Dispatcher, UserProvidedConfig
 from typing_extensions import Self
+import urllib3
+
 
 logger = get_logger(__name__)
 
@@ -163,7 +165,7 @@ class ModelService(Dispatcher):
         super().up(name, skip_prompt)
         self.save()
 
-    def check_service_up(self, address: str, resource: str = "/health", timeout: float = 2.0) -> int | str:
+    def check_service_up(self, address: str, resource: str = "/health", timeout: float = 2.0, headers=None, verify=True) -> int | str:
         """ping the host address to see if service is up
 
         Args:
@@ -176,10 +178,16 @@ class ModelService(Dispatcher):
         """
         logger.debug(f"pinging service | {address=} {resource=} {timeout=}")
         up = False
+        if verify is False:
+            # ignore urllib3 warnings
+            urllib3.warnings.simplefilter("ignore", urllib3.exceptions.InsecureRequestWarning)
+        else:
+            # reset warning
+            urllib3.warnings.simplefilter("defaul", urllib3.exceptions.InsecureRequestWarning)
         # Ping the endpoint until timeout has elapsed
         try:
             # Make a GET request to the endpoint
-            response = requests.get(address + resource, timeout=timeout)
+            response = requests.get(address + resource, timeout=timeout, headers=headers, verify=verify)
             if response.status_code == 200:
                 up = True
             else:
@@ -232,7 +240,11 @@ class ModelService(Dispatcher):
             # use remote service data
             url = extra_data.get("remote_endpoint")
             ret_status["url"] = extra_data.get("remote_endpoint")
-            ret_status["up"] = self.check_service_up(url)
+            headers = {
+                "Inference-Service": name,
+                "Authorization": f"Bearer {get_service_api_key(name)}"
+            }
+            ret_status["up"] = self.check_service_up(url, headers=headers, verify=False)
             ret_status["is_remote"] = True
         # use local service data
         if status.get("url"):
@@ -255,11 +267,14 @@ class ModelService(Dispatcher):
         service_definitions = []
         service_data = self.get_short_status(name)
         if service_data.get("is_remote"):
-            api_key = get_service_api_key(name)
+            headers = {
+                "Inference-Service": name,
+                "Authorization": f"Bearer {get_service_api_key(name)}"
+            }
             endpoint = service_data.get("url") + "/service"
-            logger.debug(f"fetching remote service defs | {endpoint=} | Model-Inference='{name}' Api-Key='{api_key}'")
+            logger.debug(f"fetching remote service defs | {endpoint=} | {headers=}'")
             try:
-                response = requests.get(endpoint, timeout=10, headers={"Api-Key": api_key, "Model-Inference": name})
+                response = requests.get(endpoint, timeout=10, headers=headers, verify=False)
                 if response.status_code == 200:
                     service_definitions = response.json()
             except requests.exceptions.RequestException as e:

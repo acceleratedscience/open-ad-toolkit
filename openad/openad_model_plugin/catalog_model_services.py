@@ -294,13 +294,61 @@ def load_service_config(local_service_path: str) -> UserProvidedConfig:
     return UserProvidedConfig(workdir=local_service_path, data=json.dumps({}))
 
 
+def add_remote_service_from_endpoint(cmd_pointer, parser) -> bool:
+    service_name = parser.as_dict()["service_name"]
+    endpoint = parser.as_dict()["path"]
+    logger.debug(f"add as remote service | {service_name=} {endpoint=}")
+    with Dispatcher() as service:
+        if service_name in service.list():
+            spinner.fail(f"service {service_name} already exists")
+            return False
+        # load remote endpoint to config custom field
+        config = json.dumps(
+            {
+                "remote_service": True,
+                "remote_endpoint": endpoint,
+                "remote_status": False,
+            }
+        )
+        service.add_service(service_name, UserProvidedConfig(data=config))
+    spinner.succeed(f"Remote service '{service_name}' added!")
+    return True
+
+
+def add_proxy_service_from_endpoint(cmd_pointer, parser):
+    ## TODO: implement
+    return output_error("Not Implemented")
+    service_name = parser.as_dict()["service_name"]
+    endpoint = parser.as_dict()["path"]
+    logger.debug(f"add as proxy service | {service_name=} {endpoint=}")
+    with Dispatcher() as service:
+        if service_name in service.list():
+            spinner.fail(f"service {service_name} already exists")
+            return False
+        # load remote endpoint to config custom field
+        config = json.dumps(
+            {
+                "remote_service": True,
+                "remote_endpoint": endpoint,
+                "remote_status": False,
+            }
+        )
+        service.add_service(service_name, UserProvidedConfig(data=config))
+    spinner.succeed(f"Remote service '{service_name}' added!")
+    return True
+
+
 def catalog_add_model_service(cmd_pointer, parser) -> bool:
     """Add model service repo to catalog"""
     service_name = parser.as_dict()["service_name"]
     service_path = os.path.expanduser(parser.as_dict()["path"])
     logger.debug(f"catalog model service | {service_name=} {service_path=}")
     if "remote" in parser:
-        return service_up_endpoint(cmd_pointer, parser)
+        # run this code and exit
+        return add_remote_service_from_endpoint(cmd_pointer, parser)
+    if "proxy" in parser:
+        # run this code and exit
+        return add_proxy_service_from_endpoint(cmd_pointer, parser)
     # check if service exists
     with Dispatcher() as service:
         if service_name in service.list():
@@ -382,27 +430,6 @@ def service_up(cmd_pointer, parser) -> bool:
     except Exception as e:
         output_error("Service was unable to be started:\n" + str(e), return_val=False)
         return False
-
-
-def service_up_endpoint(cmd_pointer, parser) -> bool:
-    service_name = parser.as_dict()["service_name"]
-    endpoint = parser.as_dict()["path"]
-    logger.debug(f"add as remote service | {service_name=} {endpoint=}")
-    with Dispatcher() as service:
-        if service_name in service.list():
-            spinner.fail(f"service {service_name} already exists")
-            return False
-        # load remote endpoint to config custom field
-        config = json.dumps(
-            {
-                "remote_service": True,
-                "remote_endpoint": endpoint,
-                "remote_status": False,
-            }
-        )
-        service.add_service(service_name, UserProvidedConfig(data=config))
-    spinner.succeed(f"Remote service '{service_name}' added!")
-    return True
 
 
 def local_service_up(cmd_pointer, parser) -> None:
@@ -557,6 +584,7 @@ def service_catalog_grammar(statements: list, help: list):
     a_s = py.CaselessKeyword("as")
     describe = py.CaselessKeyword("describe")
     remote = py.CaselessKeyword("remote")
+    proxy = py.CaselessKeyword("proxy")
     auth = py.CaselessKeyword("auth")
     group = py.CaselessKeyword("group")
     _with = py.CaselessKeyword("with")
@@ -680,7 +708,7 @@ def service_catalog_grammar(statements: list, help: list):
             + model
             + service
             + fr_om
-            + py.Optional(remote("remote"))
+            + py.Optional(remote("remote") | proxy("proxy"))
             + quoted_string("path")
             + a_s
             + (quoted_string | py.Word(py.alphanums + "_"))("service_name")
@@ -690,7 +718,7 @@ def service_catalog_grammar(statements: list, help: list):
         help_dict_create(
             name="catalog Model service",
             category="Model",
-            command="catalog model service from (remote) '<path or github>' as  '<service_name>'|<service_name>",
+            command="catalog model service from (remote) | (proxy) '<path or github>' as  '<service_name>'|<service_name>   USING (<parameter>=<value> <parameter>=<value>)",
             description="""catalog a model service from a path or github or remotely from an existing OpenAD service.
 
 Example:
