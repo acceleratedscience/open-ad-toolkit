@@ -166,12 +166,15 @@ def model_service_status(cmd_pointer, parser):
                 for name in all_services:
                     res = service.get_short_status(name)
                     # set the status of the service
-                    if res.get("up"):
-                        status = "READY"
+                    if res.get("message"):
+                        # an overwite if something occured
+                        status = res.get("message")
+                    elif res.get("up"):
+                        status = "Ready"
                     elif res.get("url") and not res.get("is_remote"):
-                        status = "PENDING"
+                        status = "Pending"
                     elif res.get("is_remote") and res.get("url"):
-                        status = "UNREACHABLE"
+                        status = "Unreachable"
                     else:
                         status = "DOWN"
                     if res.get("is_remote"):
@@ -303,34 +306,17 @@ def add_remote_service_from_endpoint(cmd_pointer, parser) -> bool:
             spinner.fail(f"service {service_name} already exists")
             return False
         # load remote endpoint to config custom field
+        if "params" in parser:
+            params = {k:v for k,v in parser.as_dict().get("params")}
+            logger.debug(f"user added params: {params}")
+        else:
+            params = {}
         config = json.dumps(
             {
                 "remote_service": True,
                 "remote_endpoint": endpoint,
                 "remote_status": False,
-            }
-        )
-        service.add_service(service_name, UserProvidedConfig(data=config))
-    spinner.succeed(f"Remote service '{service_name}' added!")
-    return True
-
-
-def add_proxy_service_from_endpoint(cmd_pointer, parser):
-    ## TODO: implement
-    return output_error("Not Implemented")
-    service_name = parser.as_dict()["service_name"]
-    endpoint = parser.as_dict()["path"]
-    logger.debug(f"add as proxy service | {service_name=} {endpoint=}")
-    with Dispatcher() as service:
-        if service_name in service.list():
-            spinner.fail(f"service {service_name} already exists")
-            return False
-        # load remote endpoint to config custom field
-        config = json.dumps(
-            {
-                "remote_service": True,
-                "remote_endpoint": endpoint,
-                "remote_status": False,
+                "params": params  # header values for request
             }
         )
         service.add_service(service_name, UserProvidedConfig(data=config))
@@ -346,9 +332,6 @@ def catalog_add_model_service(cmd_pointer, parser) -> bool:
     if "remote" in parser:
         # run this code and exit
         return add_remote_service_from_endpoint(cmd_pointer, parser)
-    if "proxy" in parser:
-        # run this code and exit
-        return add_proxy_service_from_endpoint(cmd_pointer, parser)
     # check if service exists
     with Dispatcher() as service:
         if service_name in service.list():
@@ -584,13 +567,28 @@ def service_catalog_grammar(statements: list, help: list):
     a_s = py.CaselessKeyword("as")
     describe = py.CaselessKeyword("describe")
     remote = py.CaselessKeyword("remote")
-    proxy = py.CaselessKeyword("proxy")
     auth = py.CaselessKeyword("auth")
     group = py.CaselessKeyword("group")
     _with = py.CaselessKeyword("with")
     add = py.CaselessKeyword("add")
     remove = py.CaselessKeyword("remove")
     to = py.CaselessKeyword("to")
+
+    # catalog service
+    using_keyword = py.Literal("USING").suppress()
+    parameter = py.Word(py.alphas, py.alphanums + "-_")
+    value = py.Word(py.alphanums + "-_")
+    param_value_pair = py.Group(parameter + py.Suppress("=") + value)
+    using_clause = py.Optional(
+        using_keyword
+        + py.Suppress("(")
+        + py.Optional(
+            py.OneOrMore(
+                param_value_pair
+            )
+        )("params")
+        + py.Suppress(")")
+    )
 
     statements.append(py.Forward(model + auth + _list)("list_auth_services"))
     help.append(
@@ -708,18 +706,20 @@ def service_catalog_grammar(statements: list, help: list):
             + model
             + service
             + fr_om
-            + py.Optional(remote("remote") | proxy("proxy"))
+            + py.Optional(remote("remote"))
             + quoted_string("path")
             + a_s
             + (quoted_string | py.Word(py.alphanums + "_"))("service_name")
+            + using_clause
         )("catalog_add_model_service")
     )
     help.append(
         help_dict_create(
             name="catalog Model service",
             category="Model",
-            command="catalog model service from (remote) | (proxy) '<path or github>' as  '<service_name>'|<service_name>   USING (<parameter>=<value> <parameter>=<value>)",
+            command="catalog model service from (remote) '<path or github>' as  '<service_name>'|<service_name>   USING (<parameter>=<value> <parameter>=<value>)",
             description="""catalog a model service from a path or github or remotely from an existing OpenAD service.
+(USING) optional headers parameters for communication with service backend.
 
 Example:
 

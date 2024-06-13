@@ -12,6 +12,9 @@ from typing_extensions import Self
 import urllib3
 
 
+urllib3.disable_warnings()
+
+
 logger = get_logger(__name__)
 
 
@@ -183,7 +186,7 @@ class ModelService(Dispatcher):
             urllib3.warnings.simplefilter("ignore", urllib3.exceptions.InsecureRequestWarning)
         else:
             # reset warning
-            urllib3.warnings.simplefilter("defaul", urllib3.exceptions.InsecureRequestWarning)
+            urllib3.warnings.simplefilter("default", urllib3.exceptions.InsecureRequestWarning)
         # Ping the endpoint until timeout has elapsed
         try:
             # Make a GET request to the endpoint
@@ -234,17 +237,25 @@ class ModelService(Dispatcher):
         status = self.status(name)
         extra_data = self.load_extra_data(name)
         # init default status data
-        ret_status = {"is_remote": False, "url": "", "up": False}
+        ret_status = {"is_remote": False, "url": "", "up": False, "message": None}
         # alternative data exists
         if extra_data and extra_data.get("remote_endpoint"):
             # use remote service data
             url = extra_data.get("remote_endpoint")
             ret_status["url"] = extra_data.get("remote_endpoint")
             headers = {
-                "Inference-Service": name,
                 "Authorization": f"Bearer {get_service_api_key(name)}"
             }
-            ret_status["up"] = self.check_service_up(url, headers=headers, verify=False)
+            headers.update(extra_data.get("params", {}))  # add params from USING grammer
+            # ret_status["up"] = self.check_service_up(url, headers=headers, verify=False)
+            response = self.service_request(name, path='/health', timeout=2, verify=False)
+            ret_status["up"] = response.status_code == 200
+            if response.status_code == 200:
+                ret_status["message"] = "Connected"
+            if response.status_code == 401:
+                ret_status["message"] = "Unauthorized"
+            if response.status_code == 404:
+                ret_status["message"] = "/health Not Found"
             ret_status["is_remote"] = True
         # use local service data
         if status.get("url"):
@@ -254,9 +265,45 @@ class ModelService(Dispatcher):
         elif not ret_status.get("is_remote") and ret_status.get("url"):
             # TODO: this should be fixed in servicing library
             # recheck if service is actually down
-            ret_status["up"] = self.check_service_up(ret_status["url"])
+            ret_status["up"] = self.service_request(name, '/health', timeout=2).status_code == 200
+            # ret_status["up"] = self.check_service_up(ret_status["url"])
         logger.debug(f"service info | {name=} {ret_status=}")
         return ret_status
+    
+    def service_request(self, name: str, path="/service", method="GET", timeout=10, verify=True) -> requests.Response:
+        """make a request to the service backend"""
+        # if verify is False:
+        #     # ignore urllib3 warnings
+        #     urllib3.warnings.simplefilter("ignore", urllib3.exceptions.InsecureRequestWarning)
+        # else:
+        #     # reset warning
+        #     urllib3.warnings.simplefilter("default", urllib3.exceptions.InsecureRequestWarning)
+        service_meta_data = self.load_extra_data(name)
+        headers = service_meta_data.get("params", {})
+        bearer_token = get_service_api_key(name)
+        # overwrite headers with new token
+        if bearer_token:
+            headers.update({
+                "Authorization": f"Bearer {get_service_api_key(name)}"
+            })
+        endpoint = self.get_url(name) + path
+        logger.debug(f"fetching service | {method=} | {endpoint=}{path} | {headers=}'")
+        try:
+            response = requests.request(
+                method=method,
+                url=endpoint,
+                headers=headers,
+                verify=verify,
+                timeout=timeout)
+            if response.status_code != 200:
+                logger.debug(f"service returned error | {response.status_code=}")
+            return response
+        except urllib3.exceptions.NewConnectionError as e:
+            logger.error(f"could not connect to service | {name=} {str(e)}")
+        except requests.exceptions.RequestException as e:
+            # could not get service defs. service not up or wrong url
+            logger.error(f"could not fetch service | {name=} {str(e)}")
+        return requests.Response()
 
     def get_remote_service_definitions(self, name: str) -> list | None:
         """retrieve remote service definitions. caches first result"""
@@ -267,21 +314,12 @@ class ModelService(Dispatcher):
         service_definitions = []
         service_data = self.get_short_status(name)
         if service_data.get("is_remote"):
-            headers = {
-                "Inference-Service": name,
-                "Authorization": f"Bearer {get_service_api_key(name)}"
-            }
-            endpoint = service_data.get("url") + "/service"
-            logger.debug(f"fetching remote service defs | {endpoint=} | {headers=}'")
-            try:
-                response = requests.get(endpoint, timeout=10, headers=headers, verify=False)
-                if response.status_code == 200:
-                    service_definitions = response.json()
-            except requests.exceptions.RequestException as e:
-                # could not get service defs. service not up or wrong url
-                logger.error(f"could not fetch service defs | {name=} {str(e)}")
+            logger.debug(f"fetching remote service defs | {name=}'")
+            response = self.service_request(name, verify=False)
+            if response.status_code == 200:
+                service_definitions = response.json()
         if service_definitions:
-            # insert when not None
+            # insert into chache when not None
             logger.debug(f"inserting '{name}' into cache")
             REMOTE_SERVICES_CACHE.insert(name, service_definitions)
         return service_definitions
