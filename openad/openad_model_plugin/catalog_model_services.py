@@ -576,8 +576,9 @@ def service_catalog_grammar(statements: list, help: list):
 
     # catalog service
     using_keyword = py.Literal("USING").suppress()
-    parameter = py.Word(py.alphas, py.alphanums + "-_")
-    value = py.Word(py.alphanums + "-_")
+    quoted_identifier = py.QuotedString("'", escChar='\\', unquoteResults=True)
+    parameter = py.Word(py.alphas, py.alphanums + "-_") | quoted_identifier
+    value = py.Word(py.alphanums + "-_") | quoted_identifier
     param_value_pair = py.Group(parameter + py.Suppress("=") + value)
     using_clause = py.Optional(
         using_keyword
