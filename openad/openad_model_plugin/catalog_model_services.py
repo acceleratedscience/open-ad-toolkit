@@ -1,38 +1,34 @@
-import pyparsing as py
-import os
-import sys
-import json
 import glob
-from openad.helpers.output import (
-    output_text,
-    output_table,
-    output_warning,
-    output_error,
-    output_success,
-)
-from openad.helpers.spinner import spinner
-from openad.app.global_var_lib import GLOBAL_SETTINGS
-from openad.openad_model_plugin.services import ModelService, UserProvidedConfig, ServiceFetchError
-from typing import List, Dict, Tuple
-from pandas import DataFrame
-from subprocess import run
+import json
+import os
 import shlex
 import shutil
+import sys
+import time
+from functools import lru_cache
+from subprocess import run
+from typing import Dict, Tuple
+
+import pyparsing as py
+from openad.app.global_var_lib import GLOBAL_SETTINGS
+from openad.helpers.output import output_error, output_success, output_table, output_text, output_warning
+from openad.helpers.spinner import spinner
+from openad.openad_model_plugin.auth_services import (
+    load_lookup_table,
+    remove_auth_group,
+    remove_service_group,
+    update_lookup_table,
+    get_service_api_key,
+    hide_api_keys,
+)
+from openad.openad_model_plugin.config import DISPATCHER_SERVICE_PATH, SERVICE_MODEL_PATH, SERVICES_PATH
+from openad.openad_model_plugin.services import ModelService, UserProvidedConfig
+from openad.openad_model_plugin.utils import bcolors, get_logger
+from pandas import DataFrame
 from tabulate import tabulate
 from tomlkit import parse
-import time
-from openad.openad_model_plugin.utils import get_logger, bcolors
-from functools import cache, lru_cache
-
 
 logger = get_logger(__name__, color=bcolors.OKCYAN + bcolors.UNDERLINE)
-
-
-DISPATCHER_SERVICE_PATH = os.path.expanduser("~/.servicing/")
-SERVICE_MODEL_PATH = os.path.expanduser("~/.openad_model_services/")
-SERVICES_PATH = "/definitions/services/"
-if not os.path.exists(SERVICE_MODEL_PATH):
-    os.makedirs(SERVICE_MODEL_PATH)
 
 
 # this is the global object that should be used across openad and testing
@@ -170,12 +166,15 @@ def model_service_status(cmd_pointer, parser):
                 for name in all_services:
                     res = service.get_short_status(name)
                     # set the status of the service
-                    if res.get("up"):
-                        status = "READY"
+                    if res.get("message"):
+                        # an overwite if something occured
+                        status = res.get("message")
+                    elif res.get("up"):
+                        status = "Ready"
                     elif res.get("url") and not res.get("is_remote"):
-                        status = "PENDING"
+                        status = "Pending"
                     elif res.get("is_remote") and res.get("url"):
-                        status = "UNREACHABLE"
+                        status = "Unreachable"
                     else:
                         status = "DOWN"
                     if res.get("is_remote"):
@@ -198,11 +197,14 @@ def model_service_config(cmd_pointer, parser):
     """prints service resources"""
     logger.debug("listing service config")
     service_name = parser.as_dict()["service_name"]
+    # load service status details
     with Dispatcher() as service:
         res = service.get_config_as_dict(service_name)
         config = {**res["template"]["service"], **res["template"]["resources"]}
         table_data = [[key, value] for key, value in config.items()]
-        # print(tabulate(table_data, headers=["Resource", "value"], tablefmt="pretty"))
+    # add authentication group details
+    auth_lookup_table = load_lookup_table()
+    table_data.insert(0, ["authentication group", auth_lookup_table["service_table"].get(service_name, "None")])
     return DataFrame(table_data, columns=["Resource", "value"])
 
 
@@ -285,14 +287,41 @@ def load_service_config(local_service_path: str) -> UserProvidedConfig:
                 spinner.info("found non defaults in openad.cfg")
                 table_data = [[key, value] for key, value in conf.items()]
                 print(tabulate(table_data, headers=["Resource", "value"], tablefmt="pretty"))
-                return UserProvidedConfig(**conf, workdir=local_service_path)
+                return UserProvidedConfig(**conf, workdir=local_service_path, data=json.dumps({}))
             else:
                 spinner.warn("error with (openad.cfg). Could not load user config. Loading defaults.")
         except Exception as e:
             output_error(str(e))
             spinner.warn("error with (openad.cfg). Could not load user config. Loading defaults.")
     # use default config
-    return UserProvidedConfig(workdir=local_service_path)
+    return UserProvidedConfig(workdir=local_service_path, data=json.dumps({}))
+
+
+def add_remote_service_from_endpoint(cmd_pointer, parser) -> bool:
+    service_name = parser.as_dict()["service_name"]
+    endpoint = parser.as_dict()["path"]
+    logger.debug(f"add as remote service | {service_name=} {endpoint=}")
+    with Dispatcher() as service:
+        if service_name in service.list():
+            spinner.fail(f"service {service_name} already exists")
+            return False
+        # load remote endpoint to config custom field
+        if "params" in parser:
+            params = {k:v for k,v in parser.as_dict().get("params")}
+            logger.debug(f"user added params: {params}")
+        else:
+            params = {}
+        config = json.dumps(
+            {
+                "remote_service": True,
+                "remote_endpoint": endpoint,
+                "remote_status": False,
+                "params": params  # header values for request
+            }
+        )
+        service.add_service(service_name, UserProvidedConfig(data=config))
+    spinner.succeed(f"Remote service '{service_name}' added!")
+    return True
 
 
 def catalog_add_model_service(cmd_pointer, parser) -> bool:
@@ -301,7 +330,8 @@ def catalog_add_model_service(cmd_pointer, parser) -> bool:
     service_path = os.path.expanduser(parser.as_dict()["path"])
     logger.debug(f"catalog model service | {service_name=} {service_path=}")
     if "remote" in parser:
-        return service_up_endpoint(cmd_pointer, parser)
+        # run this code and exit
+        return add_remote_service_from_endpoint(cmd_pointer, parser)
     # check if service exists
     with Dispatcher() as service:
         if service_name in service.list():
@@ -360,6 +390,9 @@ def uncatalog_model_service(cmd_pointer, parser) -> bool:
                 # output_error(f"failed to remove service: {str(e)}", return_val=False)
                 return False
         output_success(f"service {service_name} removed from catalog", return_val=False)
+    # remove service from authentication lookup table
+    if get_service_api_key(service_name):
+        remove_service_group(service_name)
     return True
 
 
@@ -380,27 +413,6 @@ def service_up(cmd_pointer, parser) -> bool:
     except Exception as e:
         output_error("Service was unable to be started:\n" + str(e), return_val=False)
         return False
-
-
-def service_up_endpoint(cmd_pointer, parser) -> bool:
-    service_name = parser.as_dict()["service_name"]
-    endpoint = parser.as_dict()["path"]
-    logger.debug(f"add as remote service | {service_name=} {endpoint=}")
-    with Dispatcher() as service:
-        if service_name in service.list():
-            spinner.fail(f"service {service_name} already exists")
-            return False
-        # load remote endpoint to config custom field
-        config = json.dumps(
-            {
-                "remote_service": True,
-                "remote_endpoint": endpoint,
-                "remote_status": False,
-            }
-        )
-        service.add_service(service_name, UserProvidedConfig(data=config))
-    spinner.succeed(f"Remote service '{service_name}' added!")
-    return True
 
 
 def local_service_up(cmd_pointer, parser) -> None:
@@ -458,6 +470,86 @@ def get_service_endpoint(service_name) -> str | None:
     return endpoint
 
 
+def add_service_auth_group(cmd_pointer, parser):
+    """Create an authentication group"""
+    auth_group = parser.as_dict()["auth_group"]
+    api_key = parser.as_dict()["api_key"]
+    logger.debug(f"adding auth group | {auth_group=} {api_key=}")
+    lookup_table = load_lookup_table()
+    if auth_group in lookup_table["auth_table"]:
+        return output_error(f"authentication group '{auth_group}' already exists")
+    updated_lookup_table = update_lookup_table(auth_group=auth_group, api_key=api_key)
+    output_success(f"successfully added authentication group '{auth_group}'")
+    hide_api_keys(updated_lookup_table)
+    return DataFrame(updated_lookup_table["auth_table"].items(), columns=["auth group", "api key"])
+
+
+def remove_service_auth_group(cmd_pointer, parser):
+    """remove an authentication group"""
+    auth_group = parser.as_dict()["auth_group"]
+    logger.debug(f"removing auth group | {auth_group=}")
+    lookup_table = load_lookup_table()
+    if auth_group not in lookup_table["auth_table"]:
+        return output_error(f"authentication group '{auth_group}' does not exists")
+    updated_lookup_table = remove_auth_group(auth_group)
+    output_success(f"removed authentication group '{auth_group}'")
+    hide_api_keys(updated_lookup_table)
+    return DataFrame(updated_lookup_table["auth_table"].items(), columns=["auth group", "api key"])
+
+
+def attach_service_auth_group(cmd_pointer, parser):
+    """add a model service to an authentication group"""
+    service_name = parser.as_dict()["service_name"]
+    auth_group = parser.as_dict()["auth_group"]
+    logger.debug(f"attaching auth group to service | {service_name=} {auth_group=}")
+    lookup_table = load_lookup_table()
+    # connect mapping to service from auth group
+    with Dispatcher() as dispatch:
+        models = dispatch.list()
+        if service_name not in models:
+            return output_error(f"service '{service_name}' does not exist")
+        if auth_group not in lookup_table["auth_table"]:
+            return output_error(f"auth group '{auth_group}' does not exist")
+    # add auth to service
+    updated_lookup_table = update_lookup_table(auth_group=auth_group, service=service_name)
+    hide_api_keys(updated_lookup_table)
+    return DataFrame(updated_lookup_table["service_table"].items(), columns=["service", "auth group"])
+
+
+def detach_service_auth_group(cmd_pointer, parser):
+    """remove a model service from an authentication group"""
+    service_name = parser.as_dict()["service_name"]
+    logger.debug(f"detaching auth group from service | {service_name=}")
+    lookup_table = load_lookup_table()
+    if service_name not in lookup_table["service_table"]:
+        return output_error(f"service '{service_name}' does not have an authentication group")
+    updated_lookup_table = remove_service_group(service_name)
+    hide_api_keys(updated_lookup_table)
+    return DataFrame(updated_lookup_table["service_table"].items(), columns=["service", "auth group"])
+
+
+def list_auth_services(cmd_pointer, parser):
+    """list authentication groups and services that use it"""
+    # Extracting the data from the dictionary
+    lookup_table = load_lookup_table(hide_api=True)
+    services = []
+    auth_groups = []
+    apis = []
+    # Extract services and their corresponding auth groups
+    for service, auth_group in lookup_table["service_table"].items():
+        services.append(service)
+        auth_groups.append(auth_group)
+        apis.append(lookup_table["auth_table"].get(auth_group))
+    # Add auth groups from auth_table that are not in service_table
+    for auth_group, api in lookup_table["auth_table"].items():
+        if auth_group not in auth_groups:
+            services.append(None)
+            auth_groups.append(auth_group)
+            apis.append(api)
+    # Creating the DataFrame
+    return DataFrame({"service": services, "auth group": auth_groups, "api key": apis})
+
+
 def service_catalog_grammar(statements: list, help: list):
     """This function creates the required grammar for managing cataloging services and model up or down"""
     logger.debug("catalog model service grammer")
@@ -473,8 +565,93 @@ def service_catalog_grammar(statements: list, help: list):
     _list = py.CaselessKeyword("list")
     quoted_string = py.QuotedString("'", escQuote="\\")
     a_s = py.CaselessKeyword("as")
-    config = py.CaselessKeyword("config")
+    describe = py.CaselessKeyword("describe")
     remote = py.CaselessKeyword("remote")
+    auth = py.CaselessKeyword("auth")
+    group = py.CaselessKeyword("group")
+    _with = py.CaselessKeyword("with")
+    add = py.CaselessKeyword("add")
+    remove = py.CaselessKeyword("remove")
+    to = py.CaselessKeyword("to")
+
+    # catalog service
+    using_keyword = py.Literal("USING").suppress()
+    quoted_identifier = py.QuotedString("'", escChar='\\', unquoteResults=True)
+    parameter = py.Word(py.alphas, py.alphanums + "-_") | quoted_identifier
+    value = py.Word(py.alphanums + "-_") | quoted_identifier
+    param_value_pair = py.Group(parameter + py.Suppress("=") + value)
+    using_clause = py.Optional(
+        using_keyword
+        + py.Suppress("(")
+        + py.Optional(
+            py.OneOrMore(
+                param_value_pair
+            )
+        )("params")
+        + py.Suppress(")")
+    )
+
+    statements.append(py.Forward(model + auth + _list)("list_auth_services"))
+    help.append(
+        help_dict_create(
+            name="model auth list",
+            category="Model",
+            command="model auth list",
+            description="show authentication group mapping",
+        )
+    )
+
+    statements.append(
+        py.Forward(model + auth + add + group + quoted_string("auth_group") + _with + quoted_string("api_key"))(
+            "add_service_auth_group"
+        )
+    )
+    help.append(
+        help_dict_create(
+            name="model auth add group",
+            category="Model",
+            command="model auth add group '<auth_group>' with '<api_key>'",
+            description="add an authentication group for model services to use",
+        )
+    )
+
+    statements.append(
+        py.Forward(model + auth + remove + group + quoted_string("auth_group"))("remove_service_auth_group")
+    )
+    help.append(
+        help_dict_create(
+            name="model auth remove group",
+            category="Model",
+            command="model auth remove group '<auth_group>'",
+            description="remove an authentication group",
+        )
+    )
+
+    statements.append(
+        py.Forward(
+            model + auth + add + service + quoted_string("service_name") + to + group + quoted_string("auth_group")
+        )("attach_service_auth_group")
+    )
+    help.append(
+        help_dict_create(
+            name="model auth add service",
+            category="Model",
+            command="model auth add service '<service_name>' to group '<auth_group>'",
+            description="attach an authentication group to a model service",
+        )
+    )
+
+    statements.append(
+        py.Forward(model + auth + remove + service + quoted_string("service_name"))("detach_service_auth_group")
+    )
+    help.append(
+        help_dict_create(
+            name="model auth remove service",
+            category="Model",
+            command="model auth remove service '<service_name>'",
+            description="detatch an authentication group from a model service",
+        )
+    )
 
     statements.append(py.Forward(model + service + status)("model_service_status"))
     help.append(
@@ -487,16 +664,16 @@ def service_catalog_grammar(statements: list, help: list):
     )
 
     statements.append(
-        py.Forward(model + service + config + (quoted_string | py.Word(py.alphanums + "_"))("service_name"))(
+        py.Forward(model + service + describe + (quoted_string | py.Word(py.alphanums + "_"))("service_name"))(
             "model_service_config"
         )
     )
     help.append(
         help_dict_create(
-            name="model service config",
+            name="model service describe",
             category="Model",
-            command="model service config '<service_name>'|<service_name>",
-            description="get the config of a service",
+            command="model service describe '<service_name>'|<service_name>",
+            description="get the configuration of a service",
         )
     )
 
@@ -534,14 +711,16 @@ def service_catalog_grammar(statements: list, help: list):
             + quoted_string("path")
             + a_s
             + (quoted_string | py.Word(py.alphanums + "_"))("service_name")
+            + using_clause
         )("catalog_add_model_service")
     )
     help.append(
         help_dict_create(
             name="catalog Model service",
             category="Model",
-            command="catalog model service from (remote) '<path or github>' as  '<service_name>'|<service_name>",
+            command="catalog model service from (remote) '<path or github>' as  '<service_name>'|<service_name>   USING (<parameter>=<value> <parameter>=<value>)",
             description="""catalog a model service from a path or github or remotely from an existing OpenAD service.
+(USING) optional headers parameters for communication with service backend.
 
 Example:
 

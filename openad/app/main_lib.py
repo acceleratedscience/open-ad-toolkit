@@ -22,6 +22,11 @@ from openad.openad_model_plugin.catalog_model_services import (
     service_up,
     local_service_up,
     model_service_config,
+    add_service_auth_group,
+    remove_service_auth_group,
+    attach_service_auth_group,
+    detach_service_auth_group,
+    list_auth_services,
 )
 
 # molecules
@@ -171,6 +176,16 @@ def lang_parse(cmd_pointer, parser):
         return local_service_up(cmd_pointer, parser)
     elif parser.getName() == "service_down":
         return service_down(cmd_pointer, parser)
+    elif parser.getName() == "add_service_auth_group":
+        return add_service_auth_group(cmd_pointer, parser)
+    elif parser.getName() == "remove_service_auth_group":
+        return remove_service_auth_group(cmd_pointer, parser)
+    elif parser.getName() == "attach_service_auth_group":
+        return attach_service_auth_group(cmd_pointer, parser)
+    elif parser.getName() == "detach_service_auth_group":
+        return detach_service_auth_group(cmd_pointer, parser)
+    elif parser.getName() == "list_auth_services":
+        return list_auth_services(cmd_pointer, parser)
 
     # Language Model How To
     elif parser.getName() == "how_do_i":
@@ -642,9 +657,7 @@ def display_data__save(cmd_pointer, parser):
 
 
 # --> Open data in browser UI.
-def display_data__open(
-    cmd_pointer, parser, edit_mode=False
-):  # pylint: disable=unused-argument # generic pass through used or unused
+def display_data__open(cmd_pointer, parser, edit_mode=False):  # pylint: disable=unused-argument # generic pass through used or unused
     # Preserve memory for further follow-up commands.
     """open display data"""
     MEMORY.preserve()
@@ -692,9 +705,7 @@ def display_data__display(cmd_pointer, parser):  # pylint: disable=unused-argume
 
 
 # --> Return result as dataframe
-def display_data__as_dataframe(
-    cmd_pointer, parser
-):  # pylint: disable=unused-argument # generic pass through used or unused
+def display_data__as_dataframe(cmd_pointer, parser):  # pylint: disable=unused-argument # generic pass through used or unused
     """displays last result set in viewer"""
     # Preserve memory for further follow-up commands.
     MEMORY.preserve()
