@@ -367,23 +367,90 @@ To run a command in bash mode, prepend it with `openad` and make sure to escape 
 
 # AI Assistant
 
-To enable our AI assistant, you'll need an account with OpenAI. There is a one month free trial.
-
-This is available for IBM BAM service and Openai.
+To enable our AI assistant, you'll need either have access to IBM BAM or to usine free open source LLM use OLLAMA(see ollama.com).
 
 > **Note:** watsonx coming soon
 
 For IBM BAM simply used your supplied API key if you have BAM access
 
-For OpenAI
+For ollama you can either use OLLAMA or on a server of your choice including using Sky Pilot which is installed with OpenAD. See below for the sky yaml script to launch.
 
-1. Go to [platform.openai.com](https://platform.openai.com) and create an account
+1. if deploying yourself and not on Sky Pilot install Ollama from ollama.com then run the follwing commands 
+     `ollama pull the llama3:latest` 
+     `ollama pull  nomic-embed-text`
 
-2. Click on the profile icon in the top right and choose "View API keys"
+2. (only when running OLLAMA remotely) If you are not installing on the same environment as openad you will need to run `export OLLAMA_HOST=0.0.0.0:11434` or on windows `setx OLLAMA_HOST=0.0.0.0:11434` in power shell. 
 
-3. Create a new key
+3. (only when running OLLAMA remotely) you then will need to for your openad environment set the following ollama environment variable `export OLLAMA_HOST=<ollam host ip>:11434` or if launched on skypilot `export OLLAMA_HOST=<endpoint>`
+   if you launched this on Skypilot run `sky status` to get the end point you need to attach to .
 
-4. Run `tell me` to be prompted for your OpenAI API credentials
+If using IBM BAM when you run `tell me` to be prompted for your OpenAI API credentials
+
+once this is all done your assistant is ready to go !
+
+```envs:
+  MODEL_NAME: llama3  # mistral, phi, other ollama supported models
+  EMBEDDINGS_MODEL_NAME: nomic-embed-text  # mistral, phi, other ollama supported models
+  OLLAMA_HOST: 0.0.0.0:8888  # Host and port for Ollama to listen on
+
+resources:
+  cpus: 8+
+  memory: 16+  # 8 GB+ for 7B models, 16 GB+ for 13B models, 32 GB+ for 33B models
+  accelerators: V100:1  # No GPUs necessary for Ollama, but you can use them to run inference faster
+  ports: 8888
+
+service:
+  replicas: 2
+  # An actual request for readiness probe.
+  readiness_probe:
+    path: /v1/chat/completions
+    post_data:
+      model: $MODEL_NAME
+      messages:
+        - role: user
+          content: Hello! What is your name?
+      max_tokens: 1
+
+setup: |
+  # Install Ollama
+  if [ "$(uname -m)" == "aarch64" ]; then
+    # For apple silicon support
+    sudo curl -L https://ollama.com/download/ollama-linux-arm64 -o /usr/bin/ollama
+  else
+    sudo curl -L https://ollama.com/download/ollama-linux-amd64 -o /usr/bin/ollama
+  fi
+  sudo chmod +x /usr/bin/ollama
+  
+  # Start `ollama serve` and capture PID to kill it after pull is done
+  ollama serve &
+  OLLAMA_PID=$!
+  
+  # Wait for ollama to be ready
+  IS_READY=false
+  for i in {1..20};
+    do ollama list && IS_READY=true && break;
+    sleep 5;
+  done
+  if [ "$IS_READY" = false ]; then
+      echo "Ollama was not ready after 100 seconds. Exiting."
+      exit 1
+  fi
+  
+  # Pull the model
+  ollama pull $EMBEDDINGS_MODEL_NAME
+  echo "Model $EMBEDDINGS_MODEL_NAME pulled successfully."
+  # Pull the model
+  ollama pull $MODEL_NAME
+  echo "Model $MODEL_NAME pulled successfully."
+  
+  # Kill `ollama serve` after pull is done
+  kill $OLLAMA_PID
+
+run: |
+  # Run `ollama serve` in the foreground
+  echo "Serving model $MODEL_NAME"
+  ollama serve
+  ```
 
 
 <br>
@@ -495,4 +562,4 @@ You will need to restart your Linux session before running `pip install openad` 
 
 If you get an error when running `init_magic`, you may first need to setup the default iPython profile for magic commands.
 
-    ipython profile create
+ `ipython profile create`
