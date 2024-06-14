@@ -39,7 +39,7 @@ The goal of openAD is to provide a common language for scientists to interact wi
 
 ---
 > **Pre-install Note:** 
-For updating to 0.3.0 first remove toolkits `remove toolkit DS4SD` and `remove toolkit RXN` prior to updating
+For updating to 0.3.0 or above first remove toolkits `remove toolkit DS4SD` and `remove toolkit RXN` prior to updating
 
 > **Whats New ?**
 -  `%Openadd` has been added to the magic commands to provide pure data type results for data returning commands
@@ -368,6 +368,8 @@ To run a command in bash mode, prepend it with `openad` and make sure to escape 
 # AI Assistant
 
 To enable our AI assistant, you'll need either have access to [IBM BAM](https://bam.res.ibm.com/auth/signin) or to use a free open source LLM use [ollama](ollama.com).
+
+**Note:** Ollama will regire a 8gb GPU
 
 > **Note:** watsonx coming soon
 
