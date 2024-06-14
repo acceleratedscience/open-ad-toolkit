@@ -457,6 +457,9 @@ Options:
             - RXN Toolkit <cmd>predict retrosynthesis </cmd>
             - DS4SD Toolkit <cmd>search for patents containing molecule</cmd>
             - DS4SD Toolkit <cmd>search for similiar molecules</cmd>
+
+            See the Deep Search toolkit  and RXN toolkit help for further assistance on these commands. 
+              
               """,
         )
     )

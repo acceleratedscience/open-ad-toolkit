@@ -14,14 +14,13 @@ from openad.app.global_var_lib import _repo_dir
 from openad.app.global_var_lib import _meta_dir
 from openad.helpers.credentials import load_credentials
 
-
 from openad.helpers.credentials import write_credentials, get_credentials
 from openad.app.global_var_lib import GLOBAL_SETTINGS
 
 
 # Constants
 TRAINING_LLM_DIR = "/prompt_train/"
-SUPPORTED_LLMS = ["WATSONX", "OPENAI", "BAM"]
+SUPPORTED_LLMS = ["WATSONX", "OPENAI", "BAM", "OLLAMA"]
 PROMPT_DIR = "~/.chat_embedded"
 STANDARD_FILE_TYPES_EMBED = ["*.txt", "*.ipynb", "*.run", "*.cdoc", "*.pdf"]
 EXTENDED_FILE_TYPES_EMBED = ["**/*.txt", "**/*.ipynb", "**/*.run", "**/*.cdoc", "**/*.pdf"]
@@ -200,6 +199,10 @@ def clean_up_llm_text(cmd_pointer, old_text):
     text = re.sub(r"\`([a-z]*[\s\S]*?)\`", r" <cmd>\1</cmd> ", text)
     text = re.sub(r"\`(\n*?)(\s*?)(\%*?)([a-z]\n*[\s\S]*?)(\n*?)(\s*?)\`", r" <cmd>\3\4</cmd> ", text)
     text = text.replace("<br>", "\n")
+    text = text.replace("&lt;", "<")
+    text = text.replace("&gt;", ">")
+    text = text.replace("<cmd><cmd>", "<cmd>")
+    text = text.replace("</cmd></cmd>", "</cmd>")
 
     # nuance of llm instructued to use markdown
 

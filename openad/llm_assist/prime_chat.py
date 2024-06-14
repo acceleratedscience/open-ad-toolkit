@@ -127,11 +127,14 @@ class Chatobject:
             try:
                 if self.vector_db == "FAISS":
                     main_db = FAISS.load_local(
-                        os.path.expanduser(self.db_dir + "/faiss_index"), embeddings
+                        os.path.expanduser(self.db_dir + "/faiss_index"),
+                        embeddings,
+                        allow_dangerous_deserialization=True,
                     )  # pylint: disable=no-member
                 return main_db
             except:  # pylint: disable=bare-except
                 # if datatabase not there force a refresh
+
                 refresh = True
 
         docs = []

@@ -22,6 +22,11 @@ from openad.openad_model_plugin.catalog_model_services import (
     service_up,
     local_service_up,
     model_service_config,
+    add_service_auth_group,
+    remove_service_auth_group,
+    attach_service_auth_group,
+    detach_service_auth_group,
+    list_auth_services,
 )
 
 # molecules
@@ -171,12 +176,23 @@ def lang_parse(cmd_pointer, parser):
         return local_service_up(cmd_pointer, parser)
     elif parser.getName() == "service_down":
         return service_down(cmd_pointer, parser)
+    elif parser.getName() == "add_service_auth_group":
+        return add_service_auth_group(cmd_pointer, parser)
+    elif parser.getName() == "remove_service_auth_group":
+        return remove_service_auth_group(cmd_pointer, parser)
+    elif parser.getName() == "attach_service_auth_group":
+        return attach_service_auth_group(cmd_pointer, parser)
+    elif parser.getName() == "detach_service_auth_group":
+        return detach_service_auth_group(cmd_pointer, parser)
+    elif parser.getName() == "list_auth_services":
+        return list_auth_services(cmd_pointer, parser)
 
     # Language Model How To
     elif parser.getName() == "how_do_i":
         result = how_do_i(cmd_pointer, parser)
         if result is False:
             return False
+        cmd_pointer.settings["env_vars"]["refresh_help_ai"] = False
         update_main_registry_env_var(cmd_pointer, "refresh_help_ai", False)
         write_registry(cmd_pointer.settings, cmd_pointer)
         return result

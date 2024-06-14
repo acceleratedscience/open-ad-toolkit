@@ -39,7 +39,7 @@ The goal of openAD is to provide a common language for scientists to interact wi
 
 ---
 > **Pre-install Note:** 
-For updating to 0.3.0 first remove toolkits `remove toolkit DS4SD` and `remove toolkit RXN` prior to updating
+For updating to 0.3.0 or above first remove toolkits `remove toolkit DS4SD` and `remove toolkit RXN` prior to updating
 
 > **Whats New ?**
 -  `%Openadd` has been added to the magic commands to provide pure data type results for data returning commands
@@ -367,24 +367,56 @@ To run a command in bash mode, prepend it with `openad` and make sure to escape 
 
 # AI Assistant
 
-To enable our AI assistant, you'll need an account with OpenAI. There is a one month free trial.
+To enable our AI assistant, you'll need either have access to [IBM BAM](https://bam.res.ibm.com/auth/signin) or to use a free open source LLM use [ollama](ollama.com).
 
-This is available for IBM BAM service and Openai.
+**Note:** Ollama will regire a 8gb GPU
 
 > **Note:** watsonx coming soon
 
+## IBM BAM Setup
 For IBM BAM simply used your supplied API key if you have BAM access
 
-For OpenAI
+### Run BAM LLM
+run `tell me` to be prompted for your OpenAI API credentials
+```
+>> set llm bam
+>> tell me <enter prompt>
+```
 
-1. Go to [platform.openai.com](https://platform.openai.com) and create an account
+## Ollama setup
+Install ollama on your platform  from [here](https://ollama.com/download)
 
-2. Click on the profile icon in the top right and choose "View API keys"
+Download appropriate models
+```
+ollama pull llama3:latest
+ollama pull nomic-embed-text
+```
 
-3. Create a new key
+Start the server if not already started
+```
+ollama serve
+```
+Thats it for local usage. If you want to run ollama remotely continue.
 
-4. Run `tell me` to be prompted for your OpenAI API credentials
+### Ollama remote setup with skypilot
+Check out our configuration file to launch ollama on skypilot [ollama_setup.yaml](./ollama_setup.yaml)
+```
+sky serve up ollama_setup.yaml
+```
 
+Setup local environment variables
+
+1. For windows `setx OLLAMA_HOST=<sky-server-ip>:11434`
+2. For Linux and macos `export OLLAMA_HOST=<sky-server-ip>:11434`
+3. To reset to local use `OLLAMA_HOST=0.0.0.0:11434`
+
+
+### Run ollama on openad toolkit
+> if prompted for api key and none was setup just leave empty
+```
+>> set llm ollama
+>> tell me <enter prompt>
+```
 
 <br>
 
@@ -495,4 +527,4 @@ You will need to restart your Linux session before running `pip install openad` 
 
 If you get an error when running `init_magic`, you may first need to setup the default iPython profile for magic commands.
 
-    ipython profile create
+ `ipython profile create`

@@ -2,54 +2,44 @@
 
 # import openad_model_property_service.service_defs as new_prop_services
 
-# from openad.core.help import help_dict_create
-import requests
-import os
-import pandas as pd
 import glob
 import json
-from openad.helpers.output import (
-    output_error,
-    output_text,
-    output_success,
-    output_warning,
-)
-from openad.helpers.spinner import spinner
-from openad.openad_model_plugin.catalog_model_services import (
-    help_dict_create,
-    get_service_endpoint,
-)
+import os
 
+import pandas as pd
+
+# from openad.core.help import help_dict_create
+import requests
+from openad.helpers.output import output_error, output_success, output_text, output_warning
+from openad.helpers.spinner import spinner
+from openad.openad_model_plugin.catalog_model_services import get_service_endpoint, help_dict_create
+from openad.openad_model_plugin.auth_services import get_service_api_key
+from pyparsing import (  # replaceWith,; Combine,; pyparsing_test,; ParseException,
+    CaselessKeyword,
+    CharsNotIn,
+    Combine,
+    Forward,
+    Group,
+    Keyword,
+    Literal,
+    MatchFirst,
+    OneOrMore,
+    Optional,
+    ParserElement,
+    QuotedString,
+    Suppress,
+    Word,
+    ZeroOrMore,
+    alphanums,
+    alphas,
+    delimitedList,
+    nums,
+    oneOf,
+)
 
 # from openad.molecules.mol_functions import MOL_PROPERTIES as m_props
 # from openad.helpers.general import is_notebook_mode
 
-from pyparsing import (
-    Word,
-    delimitedList,
-    alphas,
-    alphanums,
-    OneOrMore,
-    ZeroOrMore,
-    CharsNotIn,
-    Forward,
-    CaselessKeyword,
-    MatchFirst,
-    Keyword,
-    QuotedString,
-    ParserElement,
-    Suppress,
-    Optional,
-    Group,
-    Combine,
-    nums,
-    oneOf,
-    Literal,
-    # replaceWith,
-    # Combine,
-    # pyparsing_test,
-    # ParseException,
-)
 
 (
     get,
@@ -702,12 +692,14 @@ def convert(lst):
 def openad_model_requestor(cmd_pointer, parser):
     """The Procedure handles communication with external services"""
     if "service" in parser.as_dict():
-        service = parser.as_dict()["service"]
+        service_name = parser.as_dict()["service"]
     else:
-        service = None
+        service_name = None
 
     a_request = request_generate(parser)
-    Endpoint = get_service_endpoint(service)
+    Endpoint = get_service_endpoint(service_name)
+    api_key = get_service_api_key(service_name)
+    headers = {"Inference-Service": service_name, "Authorization": f"Bearer {get_service_api_key(service_name)}"}
 
     if Endpoint is not None and len((Endpoint.strip())) > 0:
         if "http" not in Endpoint:
@@ -724,7 +716,7 @@ def openad_model_requestor(cmd_pointer, parser):
     spinner.start("Executing Request Against Server")
 
     try:
-        response = requests.post(Endpoint + "/service", json=a_request)
+        response = requests.post(Endpoint + "/service", json=a_request, headers=headers, verify=False)
     except Exception as e:
         spinner.fail("Request Failed")
         spinner.stop()
