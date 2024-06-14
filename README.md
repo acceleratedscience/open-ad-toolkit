@@ -367,91 +367,54 @@ To run a command in bash mode, prepend it with `openad` and make sure to escape 
 
 # AI Assistant
 
-To enable our AI assistant, you'll need either have access to IBM BAM or to usine free open source LLM use OLLAMA(see ollama.com).
+To enable our AI assistant, you'll need either have access to [IBM BAM](https://bam.res.ibm.com/auth/signin) or to use a free open source LLM use [ollama](ollama.com).
 
 > **Note:** watsonx coming soon
 
+## IBM BAM Setup
 For IBM BAM simply used your supplied API key if you have BAM access
 
-For ollama you can either use OLLAMA or on a server of your choice including using Sky Pilot which is installed with OpenAD. See below for the sky yaml script to launch.
+### Run BAM LLM
+run `tell me` to be prompted for your OpenAI API credentials
+```
+>> set llm bam
+>> tell me <enter prompt>
+```
 
-1. if deploying yourself and not on Sky Pilot install Ollama from ollama.com then run the follwing commands 
-     `ollama pull the llama3:latest` 
-     `ollama pull  nomic-embed-text`
+## Ollama setup
+Install ollama on your platform  from [here](https://ollama.com/download)
 
-2. (only when running OLLAMA remotely) If you are not installing on the same environment as openad you will need to run `export OLLAMA_HOST=0.0.0.0:11434` or on windows `setx OLLAMA_HOST=0.0.0.0:11434` in power shell. 
+Download appropriate models
+```
+ollama pull llama3:latest
+ollama pull nomic-embed-text
+```
 
-3. (only when running OLLAMA remotely) you then will need to for your openad environment set the following ollama environment variable `export OLLAMA_HOST=<ollam host ip>:11434` or if launched on skypilot `export OLLAMA_HOST=<endpoint>`
-   if you launched this on Skypilot run `sky status` to get the end point you need to attach to .
+Start the server if not already started
+```
+ollama serve
+```
+Thats it for local usage. If you want to run ollama remotely continue.
 
-If using IBM BAM when you run `tell me` to be prompted for your OpenAI API credentials
+### Ollama remote setup with skypilot
+Check out our configuration file to launch ollama on skypilot [ollama_setup.yaml](./ollama_setup.yaml)
+```
+sky serve up ollama_setup.yaml
+```
 
-once this is all done your assistant is ready to go !
+Setup local environment variables
 
-```envs:
-  MODEL_NAME: llama3  # mistral, phi, other ollama supported models
-  EMBEDDINGS_MODEL_NAME: nomic-embed-text  # mistral, phi, other ollama supported models
-  OLLAMA_HOST: 0.0.0.0:8888  # Host and port for Ollama to listen on
+1. For windows `setx OLLAMA_HOST=<sky-server-ip>:11434`
+2. For Linux and macos `export OLLAMA_HOST=<sky-server-ip>:11434`
+3. To reset to local use `OLLAMA_HOST=0.0.0.0:11434`
 
-resources:
-  cpus: 8+
-  memory: 16+  # 8 GB+ for 7B models, 16 GB+ for 13B models, 32 GB+ for 33B models
-  accelerators: V100:1  # No GPUs necessary for Ollama, but you can use them to run inference faster
-  ports: 8888
 
-service:
-  replicas: 2
-  # An actual request for readiness probe.
-  readiness_probe:
-    path: /v1/chat/completions
-    post_data:
-      model: $MODEL_NAME
-      messages:
-        - role: user
-          content: Hello! What is your name?
-      max_tokens: 1
-
-setup: |
-  # Install Ollama
-  if [ "$(uname -m)" == "aarch64" ]; then
-    # For apple silicon support
-    sudo curl -L https://ollama.com/download/ollama-linux-arm64 -o /usr/bin/ollama
-  else
-    sudo curl -L https://ollama.com/download/ollama-linux-amd64 -o /usr/bin/ollama
-  fi
-  sudo chmod +x /usr/bin/ollama
-  
-  # Start `ollama serve` and capture PID to kill it after pull is done
-  ollama serve &
-  OLLAMA_PID=$!
-  
-  # Wait for ollama to be ready
-  IS_READY=false
-  for i in {1..20};
-    do ollama list && IS_READY=true && break;
-    sleep 5;
-  done
-  if [ "$IS_READY" = false ]; then
-      echo "Ollama was not ready after 100 seconds. Exiting."
-      exit 1
-  fi
-  
-  # Pull the model
-  ollama pull $EMBEDDINGS_MODEL_NAME
-  echo "Model $EMBEDDINGS_MODEL_NAME pulled successfully."
-  # Pull the model
-  ollama pull $MODEL_NAME
-  echo "Model $MODEL_NAME pulled successfully."
-  
-  # Kill `ollama serve` after pull is done
-  kill $OLLAMA_PID
-
-run: |
-  # Run `ollama serve` in the foreground
-  echo "Serving model $MODEL_NAME"
-  ollama serve
-  ```
-
+### Run ollama on openad toolkit
+> if prompted for api key and none was setup just leave empty
+```
+>> set llm ollama
+>> tell me <enter prompt>
+```
 
 <br>
 
