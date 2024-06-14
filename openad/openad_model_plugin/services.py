@@ -168,7 +168,9 @@ class ModelService(Dispatcher):
         super().up(name, skip_prompt)
         self.save()
 
-    def check_service_up(self, address: str, resource: str = "/health", timeout: float = 2.0, headers=None, verify=True) -> int | str:
+    def check_service_up(
+        self, address: str, resource: str = "/health", timeout: float = 2.0, headers=None, verify=True
+    ) -> int | str:
         """ping the host address to see if service is up
 
         Args:
@@ -243,12 +245,10 @@ class ModelService(Dispatcher):
             # use remote service data
             url = extra_data.get("remote_endpoint")
             ret_status["url"] = extra_data.get("remote_endpoint")
-            headers = {
-                "Authorization": f"Bearer {get_service_api_key(name)}"
-            }
+            headers = {"Authorization": f"Bearer {get_service_api_key(name)}"}
             headers.update(extra_data.get("params", {}))  # add params from USING grammer
             # ret_status["up"] = self.check_service_up(url, headers=headers, verify=False)
-            response = self.service_request(name, path='/health', timeout=2, verify=False)
+            response = self.service_request(name, path="/health", timeout=2, verify=False)
             ret_status["up"] = response.status_code == 200
             if response.status_code == 200:
                 ret_status["message"] = "Connected"
@@ -265,11 +265,11 @@ class ModelService(Dispatcher):
         elif not ret_status.get("is_remote") and ret_status.get("url"):
             # TODO: this should be fixed in servicing library
             # recheck if service is actually down
-            ret_status["up"] = self.service_request(name, '/health', timeout=2).status_code == 200
+            ret_status["up"] = self.service_request(name, "/health", timeout=2).status_code == 200
             # ret_status["up"] = self.check_service_up(ret_status["url"])
         logger.debug(f"service info | {name=} {ret_status=}")
         return ret_status
-    
+
     def service_request(self, name: str, path="/service", method="GET", timeout=10, verify=True) -> requests.Response:
         """make a request to the service backend"""
         # if verify is False:
@@ -283,18 +283,11 @@ class ModelService(Dispatcher):
         bearer_token = get_service_api_key(name)
         # overwrite headers with new token
         if bearer_token:
-            headers.update({
-                "Authorization": f"Bearer {get_service_api_key(name)}"
-            })
+            headers.update({"Authorization": f"Bearer {get_service_api_key(name)}"})
         endpoint = self.get_url(name) + path
         logger.debug(f"fetching service | {method=} | {endpoint=}{path} | {headers=}'")
         try:
-            response = requests.request(
-                method=method,
-                url=endpoint,
-                headers=headers,
-                verify=verify,
-                timeout=timeout)
+            response = requests.request(method=method, url=endpoint, headers=headers, verify=verify, timeout=timeout)
             if response.status_code != 200:
                 logger.debug(f"service returned error | {response.status_code=}")
             return response

@@ -199,7 +199,6 @@ class RUNCMD(Cmd):
                 output_error(msg("err_set_context"), return_val=False)
         try:
             if self.settings["env_vars"]["refresh_help_ai"] is True:
-
                 self.refresh_vector = True
                 self.refresh_train = True
             else:

@@ -307,7 +307,7 @@ def add_remote_service_from_endpoint(cmd_pointer, parser) -> bool:
             return False
         # load remote endpoint to config custom field
         if "params" in parser:
-            params = {k:v for k,v in parser.as_dict().get("params")}
+            params = {k: v for k, v in parser.as_dict().get("params")}
             logger.debug(f"user added params: {params}")
         else:
             params = {}
@@ -316,7 +316,7 @@ def add_remote_service_from_endpoint(cmd_pointer, parser) -> bool:
                 "remote_service": True,
                 "remote_endpoint": endpoint,
                 "remote_status": False,
-                "params": params  # header values for request
+                "params": params,  # header values for request
             }
         )
         service.add_service(service_name, UserProvidedConfig(data=config))
@@ -576,19 +576,12 @@ def service_catalog_grammar(statements: list, help: list):
 
     # catalog service
     using_keyword = py.Literal("USING").suppress()
-    quoted_identifier = py.QuotedString("'", escChar='\\', unquoteResults=True)
+    quoted_identifier = py.QuotedString("'", escChar="\\", unquoteResults=True)
     parameter = py.Word(py.alphas, py.alphanums + "-_") | quoted_identifier
     value = py.Word(py.alphanums + "-_") | quoted_identifier
     param_value_pair = py.Group(parameter + py.Suppress("=") + value)
     using_clause = py.Optional(
-        using_keyword
-        + py.Suppress("(")
-        + py.Optional(
-            py.OneOrMore(
-                param_value_pair
-            )
-        )("params")
-        + py.Suppress(")")
+        using_keyword + py.Suppress("(") + py.Optional(py.OneOrMore(param_value_pair))("params") + py.Suppress(")")
     )
 
     statements.append(py.Forward(model + auth + _list)("list_auth_services"))
