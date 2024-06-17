@@ -16,6 +16,7 @@ from openad.openad_model_plugin.catalog_model_services import (
     get_service_endpoint,
     help_dict_create,
     get_model_remote_name,
+    Dispatcher,
 )
 from openad.openad_model_plugin.auth_services import get_service_api_key, load_lookup_table
 from pyparsing import (  # replaceWith,; Combine,; pyparsing_test,; ParseException,
@@ -700,12 +701,24 @@ def openad_model_requestor(cmd_pointer, parser):
         remote_service_name = get_model_remote_name(service_name)
     else:
         service_name = None
+    with Dispatcher() as a_service:
+        service_meta_data = a_service.load_extra_data(service_name)
+        headers = service_meta_data.get("params", {})
+        service_bearer_token = ""
+        if "Authorization" in headers and headers["Authorization"] != "":
+            service_bearer_token = headers["Authorization"]
+
+            # overwrite headers with new token
+        if service_bearer_token == "":
+            headers.update({"Authorization": f"Bearer {get_service_api_key(service_name)}"})
+
+        if not str(headers["Authorization"]).startswith("Bearer "):
+            headers["Authorization"] = f"Bearer {headers['Authorization']}"
 
     a_request = request_generate(parser)
     Endpoint = get_service_endpoint(service_name)
-    api_key = get_service_api_key(service_name)
 
-    headers = {"Inference-Service": remote_service_name, "Authorization": f"Bearer {get_service_api_key(service_name)}"}
+    # headers = {"Inference-Service": remote_service_name, "Authorization": f"Bearer {get_service_api_key(service_name)}"}
 
     if Endpoint is not None and len((Endpoint.strip())) > 0:
         if "http" not in Endpoint:

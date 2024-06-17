@@ -278,12 +278,20 @@ class ModelService(Dispatcher):
         # else:
         #     # reset warning
         #     urllib3.warnings.simplefilter("default", urllib3.exceptions.InsecureRequestWarning)
+
         service_meta_data = self.load_extra_data(name)
         headers = service_meta_data.get("params", {})
-        bearer_token = get_service_api_key(name)
-        # overwrite headers with new token
-        if bearer_token:
+        bearer_token = ""
+        if "Authorization" in headers and headers["Authorization"] != "":
+            bearer_token = headers["Authorization"]
+
+            # overwrite headers with new token
+        if bearer_token == "":
             headers.update({"Authorization": f"Bearer {get_service_api_key(name)}"})
+
+        if not str(headers["Authorization"]).startswith("Bearer "):
+            headers["Authorization"] = f"Bearer {headers['Authorization']}"
+
         endpoint = self.get_url(name) + path
         logger.debug(f"fetching service | {method=} | {endpoint=}{path} | {headers=}'")
         try:

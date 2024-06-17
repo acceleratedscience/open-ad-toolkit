@@ -340,6 +340,7 @@ def add_remote_service_from_endpoint(cmd_pointer, parser) -> bool:
             }
         )
         service.add_service(service_name, UserProvidedConfig(data=config))
+
     spinner.succeed(f"Remote service '{service_name}' added!")
     return True
 
@@ -373,6 +374,7 @@ def catalog_add_model_service(cmd_pointer, parser) -> bool:
     config = load_service_config(local_service_path)
     # add the service
     with Dispatcher() as service:
+
         service.add_service(service_name, config)
         # spinner.succeed(f"service {service_name} added to catalog")
         output_success(f"service {service_name} added to catalog", return_val=False)

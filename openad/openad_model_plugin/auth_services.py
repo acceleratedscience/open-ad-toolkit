@@ -66,6 +66,7 @@ def get_service_api_key(service_name: str) -> str:
     # find group name belonging to service
     auth_group = auth_lookup_table["service_table"].get(service_name, "")
     api_key = auth_lookup_table["auth_table"].get(auth_group, "")
+
     logger.debug(f"get service api key | {service_name=} {auth_group=} {api_key=}")
 
     return api_key
