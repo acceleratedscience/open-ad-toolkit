@@ -1,4 +1,5 @@
 """ Helpers for getting and Saving Credentials"""
+
 import pickle
 import readline
 import os
@@ -59,4 +60,4 @@ def write_credentials(registry: dict, location):
 
 
 if __name__ == "__main__":
-    print(load_credentials("~/.openad/openai_api.json"))
+    print(load_credentials("~/.openad/bam_api.json"))

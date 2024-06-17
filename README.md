@@ -15,7 +15,7 @@ urls = [
     'https://cps.foc-deepsearch.zurich.ibm.com',
     'https://rxn.app.accelerate.science',
     'https://sds.app.accelerate.science',
-    'https://platform.openai.com/account/api-keys'
+
 ]
 for (var i=0; i< urls.length; i++) {
     window.open(urls[i], '_blank', 'width=1000,height=600');
@@ -377,7 +377,7 @@ To enable our AI assistant, you'll need either have access to [IBM BAM](https://
 For IBM BAM simply used your supplied API key if you have BAM access
 
 ### Run BAM LLM
-run `tell me` to be prompted for your OpenAI API credentials
+run `tell me` to be prompted for your  API credentials if using BAM
 ```
 >> set llm bam
 >> tell me <enter prompt>
@@ -388,9 +388,10 @@ Install ollama on your platform  from [here](https://ollama.com/download)
 
 Download appropriate models
 ```
-ollama pull llama3:latest
+ollama pull instructlab/granite-7b-lab
 ollama pull nomic-embed-text
 ```
+see https://ollama.com/instructlab/granite-7b-lab for more details
 
 Start the server if not already started
 ```
@@ -400,6 +401,7 @@ Thats it for local usage. If you want to run ollama remotely continue.
 
 ### Ollama remote setup with skypilot
 Check out our configuration file to launch ollama on skypilot [ollama_setup.yaml](./ollama_setup.yaml)
+(if reading from pypi, go to our github repository)
 ```
 sky serve up ollama_setup.yaml
 ```

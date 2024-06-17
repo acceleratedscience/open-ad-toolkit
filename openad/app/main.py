@@ -116,8 +116,8 @@ class RUNCMD(Cmd):
         False  # Signals the Refresh of the vector DB should be done due to changes in Workspace or Toolkits
     )
     refresh_train = False  # Signals Refreshing of the training repository for help should be done
-    llm_service = "OPENAI"  # set with OPENAI as default type until WatsonX or alternative available
-    llm_model = "gpt-3.5-turbo"
+    llm_service = "OLLAMA"  # set with OLLAMA as default type until WatsonX or alternative available
+    llm_model = "instructlab/granite-7b-lab"
     llm_models = SUPPORTED_TELL_ME_MODELS_SETTINGS
 
     # Load OpenAD Plugins into cmd_pointer
