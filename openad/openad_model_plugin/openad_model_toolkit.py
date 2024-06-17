@@ -731,7 +731,7 @@ def openad_model_requestor(cmd_pointer, parser):
         spinner.fail("Request Failed")
         spinner.stop()
         output_error(str(e))
-        return output_error("Error: \n Server not reachable at " + str(Endpoint))
+        return output_error("Error: \n Server not reachable at " + str(service_status.get("url")))
 
     spinner.succeed("Request Returned")
     spinner.stop()
