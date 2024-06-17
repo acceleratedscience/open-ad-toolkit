@@ -234,6 +234,8 @@ class ModelService(Dispatcher):
 
         Returns:
             Dict[str, Any]: {"up", "url"}
+            ...
+            {"is_remote": False, "url": "", "up": False, "message": None}
         """
         # TODO: refactor
         status = self.status(name)
@@ -270,7 +272,7 @@ class ModelService(Dispatcher):
         logger.debug(f"service info | {name=} {ret_status=}")
         return ret_status
 
-    def service_request(self, name: str, path="/service", method="GET", timeout=10, verify=True) -> requests.Response:
+    def service_request(self, name: str, path="/service", method="GET", timeout=10, verify=True, _json=None) -> requests.Response:
         """make a request to the service backend"""
         # if verify is False:
         #     # ignore urllib3 warnings
@@ -287,7 +289,7 @@ class ModelService(Dispatcher):
         endpoint = self.get_url(name) + path
         logger.debug(f"fetching service | {method=} | {endpoint=}{path} | {headers=}'")
         try:
-            response = requests.request(method=method, url=endpoint, headers=headers, verify=verify, timeout=timeout)
+            response = requests.request(method=method, url=endpoint, headers=headers, json=_json, verify=verify, timeout=timeout)
             if response.status_code != 200:
                 logger.debug(f"service returned error | {response.status_code=}")
             return response

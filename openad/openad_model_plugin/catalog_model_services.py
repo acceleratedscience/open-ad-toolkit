@@ -470,6 +470,21 @@ def get_service_endpoint(service_name) -> str | None:
     return endpoint
 
 
+def get_service_requester(service_name) -> str | None:
+    """gets the service request params for a given service, if endpoint is not available it returns None"""
+    if service_name is None:
+        # may in future return a default local service
+        return None
+    with Dispatcher() as service:
+        status = service.get_short_status(service_name)
+        endpoint = service.get_url(service_name)
+        return {
+            'func': service.service_request,
+            'status': status,
+            'endpoint': endpoint
+            }
+
+
 def add_service_auth_group(cmd_pointer, parser):
     """Create an authentication group"""
     auth_group = parser.as_dict()["auth_group"]
