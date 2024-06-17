@@ -98,6 +98,26 @@ def load_service_cache() -> Dict[str, dict] | None:
         return None
 
 
+def get_model_remote_name(alias):
+    res = Dispatcher.get_config_as_dict(alias)
+
+    config = res["data"]
+
+    if config["data"] is not None:
+        config = json.loads(config["data"])
+    else:
+        return alias
+
+    if "params" in config:
+        config = config["params"]
+    else:
+        return alias
+    if "Inference-Service" in config:
+        return config["Inference-Service"]
+    else:
+        return alias
+
+
 def save_service_cache(service_definitions):
     """save latest cache"""
     try:

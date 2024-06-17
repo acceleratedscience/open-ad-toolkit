@@ -95,7 +95,7 @@ Answer the question based only on the following context: {context}  Question: {q
     },
     "OLLAMA": {
         # "model": "granite-code:8b",
-        "model": "llama3",
+        "model": "instructlab/granite-7b-lab",
         "url": OLLAMA_HOST,
         "template": """You are a technical documentation writer and when responding follow the following rules:
                 - Format All Command Syntax, Clauses, Examples or Option Syntax in codeblock ipython Markdown

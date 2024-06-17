@@ -51,6 +51,7 @@ def load_lookup_table(hide_api: bool = False) -> LookupTable:
             data = {"auth_table": {}, "service_table": {}}
             save_lookup_table(data)  # create an empty lookup table
     # make only 6 character of api key visible
+
     if hide_api:
         logger.debug("hiding api keys1")
         return hide_api_keys(data)
@@ -61,10 +62,12 @@ def get_service_api_key(service_name: str) -> str:
     """get api key from auth lookup table. returns empty string for no api key"""
     # get lookup table
     auth_lookup_table = load_lookup_table()
+
     # find group name belonging to service
     auth_group = auth_lookup_table["service_table"].get(service_name, "")
     api_key = auth_lookup_table["auth_table"].get(auth_group, "")
     logger.debug(f"get service api key | {service_name=} {auth_group=} {api_key=}")
+
     return api_key
 
 

@@ -12,8 +12,12 @@ import pandas as pd
 import requests
 from openad.helpers.output import output_error, output_success, output_text, output_warning
 from openad.helpers.spinner import spinner
-from openad.openad_model_plugin.catalog_model_services import get_service_endpoint, help_dict_create
-from openad.openad_model_plugin.auth_services import get_service_api_key
+from openad.openad_model_plugin.catalog_model_services import (
+    get_service_endpoint,
+    help_dict_create,
+    get_model_remote_name,
+)
+from openad.openad_model_plugin.auth_services import get_service_api_key, load_lookup_table
 from pyparsing import (  # replaceWith,; Combine,; pyparsing_test,; ParseException,
     CaselessKeyword,
     CharsNotIn,
@@ -175,18 +179,18 @@ service_command_start["get_crystal_property"] = 'get + CaselessKeyword("crystal"
 service_command_start["get_protein_property"] = 'get + CaselessKeyword("protein") + CaselessKeyword("property")'
 service_command_start["generate_data"] = 'CaselessKeyword("generate") + CaselessKeyword("with")'
 
-service_command_subject[
-    "get_molecule_property"
-] = '+CaselessKeyword("for")+((Word("[")+delimitedList(molecule_identifier,delim=",")("molecules")+Word("]")|molecule_identifier("molecule")))'
-service_command_subject[
-    "get_protein_property"
-] = '+CaselessKeyword("for")+((Word("[")+ delimitedList(molecule_identifier,delim=",")("proteins")+Word("]")|molecule_identifier("protein")))'
-service_command_subject[
-    "get_crystal_property"
-] = '+CaselessKeyword("for")+((Word("[")+ delimitedList(desc,delim=",")("crystal_files")+Word("]")|desc("crystal_file")("crystal_PATH")))'
-service_command_subject[
-    "generate_data"
-] = '+CaselessKeyword("data")+<TARGET>Optional(CaselessKeyword("Sample")+Word(nums)("sample_size"))'
+service_command_subject["get_molecule_property"] = (
+    '+CaselessKeyword("for")+((Word("[")+delimitedList(molecule_identifier,delim=",")("molecules")+Word("]")|molecule_identifier("molecule")))'
+)
+service_command_subject["get_protein_property"] = (
+    '+CaselessKeyword("for")+((Word("[")+ delimitedList(molecule_identifier,delim=",")("proteins")+Word("]")|molecule_identifier("protein")))'
+)
+service_command_subject["get_crystal_property"] = (
+    '+CaselessKeyword("for")+((Word("[")+ delimitedList(desc,delim=",")("crystal_files")+Word("]")|desc("crystal_file")("crystal_PATH")))'
+)
+service_command_subject["generate_data"] = (
+    '+CaselessKeyword("data")+<TARGET>Optional(CaselessKeyword("Sample")+Word(nums)("sample_size"))'
+)
 
 ###################################################################
 # targets for generate Data
@@ -223,18 +227,18 @@ generation_targets = {
 #         sampling_wrapper={'fraction_to_mask': mask, 'property_goal': {'<esol>': 0.234}}"""
 
 
-service_command_help[
-    "get_molecule_property"
-] = "get molecule property <property> for [<list of SMILES>] | <SMILES>   USING (<parameter>=<value> <parameter>=<value>)"
-service_command_help[
-    "get_crystal_property"
-] = "get crystal property <property> for <directory>   USING (<parameter>=<value> <parameter>=<value>)"
-service_command_help[
-    "get_protein_property"
-] = "get protein property <property> for [<list of Proteins>] | <Protein>   USING (<parameter>=<value> <parameter>=<value>)"
-service_command_help[
-    "generate_data"
-] = "generate with <property> data <TARGET> (sample <sample_size>)  USING (<parameter>=<value> <parameter>=<value>) "
+service_command_help["get_molecule_property"] = (
+    "get molecule property <property> for [<list of SMILES>] | <SMILES>   USING (<parameter>=<value> <parameter>=<value>)"
+)
+service_command_help["get_crystal_property"] = (
+    "get crystal property <property> for <directory>   USING (<parameter>=<value> <parameter>=<value>)"
+)
+service_command_help["get_protein_property"] = (
+    "get protein property <property> for [<list of Proteins>] | <Protein>   USING (<parameter>=<value> <parameter>=<value>)"
+)
+service_command_help["generate_data"] = (
+    "generate with <property> data <TARGET> (sample <sample_size>)  USING (<parameter>=<value> <parameter>=<value>) "
+)
 
 
 def service_grammar_add(statements: list, help: list, service_catalog: dict):
@@ -693,13 +697,15 @@ def openad_model_requestor(cmd_pointer, parser):
     """The Procedure handles communication with external services"""
     if "service" in parser.as_dict():
         service_name = parser.as_dict()["service"]
+        remote_service_name = get_model_remote_name(service_name)
     else:
         service_name = None
 
     a_request = request_generate(parser)
     Endpoint = get_service_endpoint(service_name)
     api_key = get_service_api_key(service_name)
-    headers = {"Inference-Service": service_name, "Authorization": f"Bearer {get_service_api_key(service_name)}"}
+
+    headers = {"Inference-Service": remote_service_name, "Authorization": f"Bearer {get_service_api_key(service_name)}"}
 
     if Endpoint is not None and len((Endpoint.strip())) > 0:
         if "http" not in Endpoint:
@@ -718,6 +724,7 @@ def openad_model_requestor(cmd_pointer, parser):
     try:
         response = requests.post(Endpoint + "/service", json=a_request, headers=headers, verify=False)
     except Exception as e:
+
         spinner.fail("Request Failed")
         spinner.stop()
         output_error(str(e))
@@ -726,7 +733,9 @@ def openad_model_requestor(cmd_pointer, parser):
     spinner.succeed("Request Returned")
     spinner.stop()
     try:
+
         response_result = response.json()
+
         try:
             if isinstance(response_result, dict):
                 if "error" in response_result:
