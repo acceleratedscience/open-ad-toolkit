@@ -5,6 +5,7 @@ import base64
 import string
 import hashlib
 from openad.app.global_var_lib import GLOBAL_SETTINGS
+from time import sleep
 
 
 def generate_smiles_hash(smiles_string):
@@ -235,6 +236,8 @@ class rxn_helper:
             while retries < 5 and result == False:
                 if retries > 1:
                     sleep(3)
+                else:
+                    sleep(3)
                 retries = retries + 1
                 import sys
 
@@ -246,7 +249,7 @@ class rxn_helper:
                         cmd_pointer.login_settings["toolkits"].index("RXN")
                     ]
                     x = rxn4chemistry_wrapper.create_project(cmd_pointer.settings["workspace"])
-                    # print(x)
+
                     if len(x) == 0:
                         # print("continuing")
                         continue
@@ -261,7 +264,6 @@ class rxn_helper:
                     # sys.stderr = sys.__stderr__
                     raise BaseException("Unable to create project :" + str(e))
                 try:
-                    from time import sleep
 
                     sleep(2)
                     result = self.set_current_project(cmd_pointer, cmd_pointer.settings["workspace"])
