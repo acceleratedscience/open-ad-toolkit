@@ -148,7 +148,9 @@ molecule_identifier = (
         alphanums + "_" + "[" + "]" + "(" + ")" + "=" + "," + "-" + "+" + "/" + "\\" + "#" + "@" + "." + "*" + ";",
     )
     | Word(nums)
-) + Suppress(Word("'"))
+) + Suppress(
+    Word("'")
+)
 
 
 desc = QuotedString("'", escQuote="\\")
@@ -174,18 +176,18 @@ service_command_start["get_crystal_property"] = 'get + CaselessKeyword("crystal"
 service_command_start["get_protein_property"] = 'get + CaselessKeyword("protein") + CaselessKeyword("property")'
 service_command_start["generate_data"] = 'CaselessKeyword("generate") + CaselessKeyword("with")'
 
-service_command_subject["get_molecule_property"] = (
-    '+CaselessKeyword("for")+((Word("[")+delimitedList(molecule_identifier,delim=",")("molecules")+Word("]")|molecule_identifier("molecule")))'
-)
-service_command_subject["get_protein_property"] = (
-    '+CaselessKeyword("for")+((Word("[")+ delimitedList(molecule_identifier,delim=",")("proteins")+Word("]")|molecule_identifier("protein")))'
-)
-service_command_subject["get_crystal_property"] = (
-    '+CaselessKeyword("for")+((Word("[")+ delimitedList(desc,delim=",")("crystal_files")+Word("]")|desc("crystal_file")("crystal_PATH")))'
-)
-service_command_subject["generate_data"] = (
-    '+CaselessKeyword("data")+<TARGET>Optional(CaselessKeyword("Sample")+Word(nums)("sample_size"))'
-)
+service_command_subject[
+    "get_molecule_property"
+] = '+CaselessKeyword("for")+((Word("[")+delimitedList(molecule_identifier,delim=",")("molecules")+Word("]")|molecule_identifier("molecule")))'
+service_command_subject[
+    "get_protein_property"
+] = '+CaselessKeyword("for")+((Word("[")+ delimitedList(molecule_identifier,delim=",")("proteins")+Word("]")|molecule_identifier("protein")))'
+service_command_subject[
+    "get_crystal_property"
+] = '+CaselessKeyword("for")+((Word("[")+ delimitedList(desc,delim=",")("crystal_files")+Word("]")|desc("crystal_file")("crystal_PATH")))'
+service_command_subject[
+    "generate_data"
+] = '+CaselessKeyword("data")+<TARGET>Optional(CaselessKeyword("Sample")+Word(nums)("sample_size"))'
 
 ###################################################################
 # targets for generate Data
@@ -222,18 +224,18 @@ generation_targets = {
 #         sampling_wrapper={'fraction_to_mask': mask, 'property_goal': {'<esol>': 0.234}}"""
 
 
-service_command_help["get_molecule_property"] = (
-    "get molecule property <property> for [<list of SMILES>] | <SMILES>   USING (<parameter>=<value> <parameter>=<value>)"
-)
-service_command_help["get_crystal_property"] = (
-    "get crystal property <property> for <directory>   USING (<parameter>=<value> <parameter>=<value>)"
-)
-service_command_help["get_protein_property"] = (
-    "get protein property <property> for [<list of Proteins>] | <Protein>   USING (<parameter>=<value> <parameter>=<value>)"
-)
-service_command_help["generate_data"] = (
-    "generate with <property> data <TARGET> (sample <sample_size>)  USING (<parameter>=<value> <parameter>=<value>) "
-)
+service_command_help[
+    "get_molecule_property"
+] = "get molecule property <property> for [<list of SMILES>] | <SMILES>   USING (<parameter>=<value> <parameter>=<value>)"
+service_command_help[
+    "get_crystal_property"
+] = "get crystal property <property> for <directory>   USING (<parameter>=<value> <parameter>=<value>)"
+service_command_help[
+    "get_protein_property"
+] = "get protein property <property> for [<list of Proteins>] | <Protein>   USING (<parameter>=<value> <parameter>=<value>)"
+service_command_help[
+    "generate_data"
+] = "generate with <property> data <TARGET> (sample <sample_size>)  USING (<parameter>=<value> <parameter>=<value>) "
 
 
 def service_grammar_add(statements: list, help: list, service_catalog: dict):
