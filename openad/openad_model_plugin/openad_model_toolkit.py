@@ -12,8 +12,9 @@ import pandas as pd
 import requests
 from openad.helpers.output import output_error, output_success, output_text, output_warning
 from openad.helpers.spinner import spinner
-from openad.openad_model_plugin.catalog_model_services import get_service_endpoint, help_dict_create
+from openad.openad_model_plugin.catalog_model_services import get_service_requester, help_dict_create
 from openad.openad_model_plugin.auth_services import get_service_api_key
+from openad.openad_model_plugin.catalog_model_services import Dispatcher
 from pyparsing import (  # replaceWith,; Combine,; pyparsing_test,; ParseException,
     CaselessKeyword,
     CharsNotIn,
@@ -697,31 +698,36 @@ def openad_model_requestor(cmd_pointer, parser):
         service_name = None
 
     a_request = request_generate(parser)
-    Endpoint = get_service_endpoint(service_name)
-    api_key = get_service_api_key(service_name)
-    headers = {"Inference-Service": service_name, "Authorization": f"Bearer {get_service_api_key(service_name)}"}
+    # request_params = get_service_requester(service_name)
+    # api_key = get_service_api_key(service_name)
+    # headers = {"Inference-Service": service_name, "Authorization": f"Bearer {get_service_api_key(service_name)}"}
 
-    if Endpoint is not None and len((Endpoint.strip())) > 0:
-        if "http" not in Endpoint:
-            Endpoint = "http://" + Endpoint
+    # if Endpoint is not None and len((Endpoint.strip())) > 0:
+    #     if "http" not in Endpoint:
+    #         Endpoint = "http://" + Endpoint
     # Endpoint = "http://34.205.69.8:8080"
-    else:
-        Endpoint = None
+    # else:
+    #     Endpoint = None
 
-    if Endpoint is None:
-        return output_error(
-            "No Service Cataloged or service not up. \n Check Service Status <cmd>model service status</cmd> "
-        )
+    # if Endpoint is None:
+    #     return output_error(
+    #         "No Service Cataloged or service not up. \n Check Service Status <cmd>model service status</cmd> "
+    #     )
 
     spinner.start("Executing Request Against Server")
 
+    with Dispatcher as servicer:
+        service_status = servicer.get_short_status(service_name)
     try:
-        response = requests.post(Endpoint + "/service", json=a_request, headers=headers, verify=False)
+        response = Dispatcher.service_request(
+            name=service_name, method="POST", timeout=None, verify=not service_status.get("is_remote"), _json=a_request
+        )
+        # response = requests.post(Endpoint + "/service", json=a_request, headers=headers, verify=False)
     except Exception as e:
         spinner.fail("Request Failed")
         spinner.stop()
         output_error(str(e))
-        return output_error("Error: \n Server not reachable at " + str(Endpoint))
+        return output_error("Error: \n Server not reachable at " + str(service_status.get("url")))
 
     spinner.succeed("Request Returned")
     spinner.stop()

@@ -234,6 +234,8 @@ class ModelService(Dispatcher):
 
         Returns:
             Dict[str, Any]: {"up", "url"}
+            ...
+            {"is_remote": False, "url": "", "up": False, "message": None}
         """
         # TODO: refactor
         status = self.status(name)
@@ -243,7 +245,6 @@ class ModelService(Dispatcher):
         # alternative data exists
         if extra_data and extra_data.get("remote_endpoint"):
             # use remote service data
-            url = extra_data.get("remote_endpoint")
             ret_status["url"] = extra_data.get("remote_endpoint")
             headers = {"Authorization": f"Bearer {get_service_api_key(name)}"}
             headers.update(extra_data.get("params", {}))  # add params from USING grammer
@@ -270,7 +271,9 @@ class ModelService(Dispatcher):
         logger.debug(f"service info | {name=} {ret_status=}")
         return ret_status
 
-    def service_request(self, name: str, path="/service", method="GET", timeout=10, verify=True) -> requests.Response:
+    def service_request(
+        self, name: str, path="/service", method="GET", timeout=10, verify=True, _json=None
+    ) -> requests.Response:
         """make a request to the service backend"""
         # if verify is False:
         #     # ignore urllib3 warnings
@@ -280,6 +283,9 @@ class ModelService(Dispatcher):
         #     urllib3.warnings.simplefilter("default", urllib3.exceptions.InsecureRequestWarning)
         service_meta_data = self.load_extra_data(name)
         headers = service_meta_data.get("params", {})
+        if headers.get("Authorization") and "Bearer" not in headers.get("Authorization"):
+            logger.debug("adding bearer prefix to Authorization header")
+            headers.update({"Authorization": "Bearer " + headers.get("Authorization").strip()})
         bearer_token = get_service_api_key(name)
         # overwrite headers with new token
         if bearer_token:
@@ -287,7 +293,9 @@ class ModelService(Dispatcher):
         endpoint = self.get_url(name) + path
         logger.debug(f"fetching service | {method=} | {endpoint=}{path} | {headers=}'")
         try:
-            response = requests.request(method=method, url=endpoint, headers=headers, verify=verify, timeout=timeout)
+            response = requests.request(
+                method=method, url=endpoint, headers=headers, json=_json, verify=verify, timeout=timeout
+            )
             if response.status_code != 200:
                 logger.debug(f"service returned error | {response.status_code=}")
             return response
