@@ -57,7 +57,7 @@ import pkg_resources
 import inspect
 import importlib
 
-
+MAGIC_PROMPT = None
 PLUGIN_CLASS_LIST = []
 installed_packages = pkg_resources.working_set
 installed_packages_list = [
@@ -825,6 +825,8 @@ def error_first_word_grabber(error):
 # If the application is called with parameters, it executes the parameters.
 # If called without parameters, the command line enters the shell environment.
 # History is only kept for commands executed once in the shell.
+
+
 def api_remote(
     inp: str,
     api_context: dict = {"workspace": None, "toolkit": None},
@@ -842,8 +844,9 @@ def api_remote(
     - It is deliberate that the whole RUNCMD class object is not kept alive as there is no logical
       exit point for magic commands, unlike a command line.
     """
-
+    global MAGIC_PROMPT
     # GLOBAL_SETTINGS["display"] = "notebook"
+
     initialise()
 
     arguments = inp.split()
@@ -851,7 +854,11 @@ def api_remote(
     a_space = ""  # reset a_space
 
     # setup for notebook mode
-    magic_prompt = RUNCMD()
+    if MAGIC_PROMPT is None:
+        magic_prompt = RUNCMD()
+        MAGIC_PROMPT = magic_prompt
+    else:
+        magic_prompt = MAGIC_PROMPT
 
     if api_context["workspace"] is None:
         api_context["workspace"] = magic_prompt.settings["workspace"]
