@@ -369,7 +369,7 @@ To run a command in bash mode, prepend it with `openad` and make sure to escape 
 
 To enable our AI assistant, you'll need either have access to [IBM BAM](https://bam.res.ibm.com/auth/signin) or to use a free open source LLM use [ollama](ollama.com).
 
-**Note:** Ollama will reqire a 8gb GPU
+**Note:** Ollama will requires a 8gb GPU
 
 > **Note:** watsonx coming soon
 
@@ -377,7 +377,7 @@ To enable our AI assistant, you'll need either have access to [IBM BAM](https://
 For IBM BAM simply used your supplied API key if you have BAM access
 
 ### Run BAM LLM
-run `tell me` to be prompted for your BM API credentials
+run `tell me` to be prompted for your BAM API credentials
 ```
 >> set llm bam
 >> tell me <enter prompt>
