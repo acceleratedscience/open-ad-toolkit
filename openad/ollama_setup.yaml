@@ -1,0 +1,62 @@
+envs:
+  MODEL_NAME: instructlab/granite-7b-lab # mistral, phi, other ollama supported models
+  EMBEDDINGS_MODEL_NAME: nomic-embed-text  # mistral, phi, other ollama supported models
+  OLLAMA_HOST: 0.0.0.0:8888  # Host and port for Ollama to listen on
+
+resources:
+  cpus: 8+
+  memory: 16+  # 8 GB+ for 7B models, 16 GB+ for 13B models, 32 GB+ for 33B models
+  accelerators: V100:1  # No GPUs necessary for Ollama, but you can use them to run inference faster
+  ports: 8888
+
+service:
+  replicas: 2
+  # An actual request for readiness probe.
+  readiness_probe:
+    path: /v1/chat/completions
+    post_data:
+      model: $MODEL_NAME
+      messages:
+        - role: user
+          content: Hello! What is your name?
+      max_tokens: 1
+
+setup: |
+  # Install Ollama
+  if [ "$(uname -m)" == "aarch64" ]; then
+    # For apple silicon support
+    sudo curl -L https://ollama.com/download/ollama-linux-arm64 -o /usr/bin/ollama
+  else
+    sudo curl -L https://ollama.com/download/ollama-linux-amd64 -o /usr/bin/ollama
+  fi
+  sudo chmod +x /usr/bin/ollama
+  
+  # Start `ollama serve` and capture PID to kill it after pull is done
+  ollama serve &
+  OLLAMA_PID=$!
+  
+  # Wait for ollama to be ready
+  IS_READY=false
+  for i in {1..20};
+    do ollama list && IS_READY=true && break;
+    sleep 5;
+  done
+  if [ "$IS_READY" = false ]; then
+      echo "Ollama was not ready after 100 seconds. Exiting."
+      exit 1
+  fi
+  
+  # Pull the model
+  ollama pull $EMBEDDINGS_MODEL_NAME
+  echo "Model $EMBEDDINGS_MODEL_NAME pulled successfully."
+  # Pull the model
+  ollama pull $MODEL_NAME
+  echo "Model $MODEL_NAME pulled successfully."
+  
+  # Kill `ollama serve` after pull is done
+  kill $OLLAMA_PID
+
+run: |
+  # Run `ollama serve` in the foreground
+  echo "Serving model $MODEL_NAME"
+  ollama serve
