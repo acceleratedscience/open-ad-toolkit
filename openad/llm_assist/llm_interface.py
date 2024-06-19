@@ -20,7 +20,8 @@ from openad.app.global_var_lib import GLOBAL_SETTINGS
 
 # Constants
 TRAINING_LLM_DIR = "/prompt_train/"
-SUPPORTED_LLMS = ["WATSONX", "OPENAI", "BAM", "OLLAMA"]
+# SUPPORTED_LLMS = ["WATSONX", "OPENAI", "BAM", "OLLAMA"]
+SUPPORTED_LLMS = ["WATSONX", "BAM", "OLLAMA"]
 PROMPT_DIR = "~/.chat_embedded"
 STANDARD_FILE_TYPES_EMBED = ["*.txt", "*.ipynb", "*.run", "*.cdoc", "*.pdf"]
 EXTENDED_FILE_TYPES_EMBED = ["**/*.txt", "**/*.ipynb", "**/*.run", "**/*.cdoc", "**/*.pdf"]

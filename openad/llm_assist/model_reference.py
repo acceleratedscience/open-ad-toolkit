@@ -52,8 +52,9 @@ LOCAL_MODEL_PATH = "sentence-transformers/all-MiniLM-L6-v2"
 LOCAL_MODEL_KWARGS = {"device": LOCAL_EMBEDDINGS_DEVICE}
 LOCAL_ENCODE_KWARGS = {"normalize_embeddings": False}
 
-DEFAULT_TELL_ME_MODEL = "BAM"
-SUPPORTED_TELL_ME_MODELS = ["BAM", "OPENAI", "OLLAMA"]
+DEFAULT_TELL_ME_MODEL = "OLLAMA"
+# SUPPORTED_TELL_ME_MODELS = ["BAM", "OPENAI", "OLLAMA"]
+SUPPORTED_TELL_ME_MODELS = ["BAM", "OLLAMA"]
 OLLAMA_HOST = "http://0.0.0.0:11434"
 
 try:
@@ -83,7 +84,7 @@ SUPPORTED_TELL_ME_MODELS_SETTINGS = {
 
 Answer the question based only on the following context: {context}  Question: {question} """,
         "settings": {
-            "temperature": 0.7,
+            "temperature": 0.5,
             "decoding_method": "greedy",
             "max_new_tokens": 2048,
             "min_new_tokens": 1,
@@ -95,7 +96,7 @@ Answer the question based only on the following context: {context}  Question: {q
     },
     "OLLAMA": {
         # "model": "granite-code:8b",
-        "model": "llama3",
+        "model": "instructlab/granite-7b-lab",
         "url": OLLAMA_HOST,
         "template": """You are a technical documentation writer and when responding follow the following rules:
                 - Format All Command Syntax, Clauses, Examples or Option Syntax in codeblock ipython Markdown
@@ -175,7 +176,7 @@ def get_tell_me_model(service: str, api_key: str):
 
             return model, SUPPORTED_TELL_ME_MODELS_SETTINGS[service]["template"]
         except Exception as e:  # pylint: disable=broad-exception-caught
-            output_error("Error Loading OPENAI Model see error Messsage : \n" + e, return_val=False)
+            output_error("Error Loading  Model see error Messsage : \n" + e, return_val=False)
             return None, None
     elif service == "OLLAMA":
         try:
@@ -183,7 +184,7 @@ def get_tell_me_model(service: str, api_key: str):
 
             return model, SUPPORTED_TELL_ME_MODELS_SETTINGS[service]["template"]
         except Exception as e:  # pylint: disable=broad-exception-caught
-            output_error("Error Loading OPENAI Model see error Messsage : \n" + e, return_val=False)
+            output_error("Error Loading  Model see error Messsage : \n" + e, return_val=False)
             return None, None
     elif service == "BAM":
         creds = Credentials(api_key=api_key, api_endpoint=SUPPORTED_TELL_ME_MODELS_SETTINGS[service]["url"])

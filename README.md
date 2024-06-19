@@ -15,7 +15,7 @@ urls = [
     'https://cps.foc-deepsearch.zurich.ibm.com',
     'https://rxn.app.accelerate.science',
     'https://sds.app.accelerate.science',
-    'https://platform.openai.com/account/api-keys'
+    
 ]
 for (var i=0; i< urls.length; i++) {
     window.open(urls[i], '_blank', 'width=1000,height=600');
@@ -377,7 +377,7 @@ To enable our AI assistant, you'll need either have access to [IBM BAM](https://
 For IBM BAM simply used your supplied API key if you have BAM access
 
 ### Run BAM LLM
-run `tell me` to be prompted for your OpenAI API credentials
+run `tell me` to be prompted for your BM API credentials
 ```
 >> set llm bam
 >> tell me <enter prompt>

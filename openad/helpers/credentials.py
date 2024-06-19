@@ -59,4 +59,4 @@ def write_credentials(registry: dict, location):
 
 
 if __name__ == "__main__":
-    print(load_credentials("~/.openad/openai_api.json"))
+   
