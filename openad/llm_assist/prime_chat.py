@@ -78,8 +78,8 @@ class Chatobject:
         document_types=document_types,
         db_dir_override=None,
         refresh_vector=False,
-        llm_model="gpt-4",
-        llm_service="OPENAI",
+        llm_model="nstructlab/granite-7b-lab",
+        llm_service="ollama",
     ):
         self.organisation = organisation
         self.target = target

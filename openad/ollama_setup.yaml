@@ -1,5 +1,5 @@
 envs:
-  MODEL_NAME: llama3  # mistral, phi, other ollama supported models
+  MODEL_NAME: instructlab/granite-7b-lab # mistral, phi, other ollama supported models
   EMBEDDINGS_MODEL_NAME: nomic-embed-text  # mistral, phi, other ollama supported models
   OLLAMA_HOST: 0.0.0.0:8888  # Host and port for Ollama to listen on
 
