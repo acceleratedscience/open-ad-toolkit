@@ -84,7 +84,7 @@ SUPPORTED_TELL_ME_MODELS_SETTINGS = {
 
 Answer the question based only on the following context: {context}  Question: {question} """,
         "settings": {
-            "temperature": 0.3,
+            "temperature": 0.5,
             "decoding_method": "greedy",
             "max_new_tokens": 2048,
             "min_new_tokens": 1,
@@ -108,12 +108,16 @@ Answer the question based only on the following context: {context}  Question: {q
                 - Provide All syntax, clauses, Options, Parameters and Examples separated by "\n" for a command when answering a question with no leading spaces on the line
                 - Compounds and Molecules are the same concept
                 - Always explain using the full name not short form of a name
+                - Never refer to source files from the embeddings
                 - after explaning a command  tell them how to go to the help using `<command> ?` substituing the command into the string
+                - respond with a output format as per following example
+                '''Command: <put command syntax here >
 
+                Description: <brief description of funciton
 
-               
-               
+                Parameters: < Tell the user what Parameters are available for the comand>
 
+                Examples:  < examples of how to use the function> '''
 
 Answer the question based only on the following 
 context: {context} 
@@ -126,6 +130,8 @@ Answer:""",
             "decoding_method": "greedy",
             "max_new_tokens": 3000,
             "min_new_tokens": 1,
+            "top_p": 0.85,
+            "top_k": 50,
         },
         "embeddings": None,
         "embeddings_api": None,
