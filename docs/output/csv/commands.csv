@@ -65,11 +65,16 @@ docs;Help
 ?;Help
 ? ...<soft>   --> List all commands containing "..."</soft>;Help
 ... ?<soft>   --> List all commands starting with "..."</soft>;Help
+model auth list;Model
+model auth add group '<auth_group>' with '<api_key>';Model
+model auth remove group '<auth_group>';Model
+model auth add service '<service_name>' to group '<auth_group>';Model
+model auth remove service '<service_name>';Model
 model service status;Model
-model service config '<service_name>'|<service_name>;Model
+model service describe '<service_name>'|<service_name>;Model
 model catalog list;Model
 uncatalog model service '<service_name>'|<service_name>;Model
-catalog model service from (remote) '<path or github>' as  '<service_name>'|<service_name>;Model
+catalog model service from (remote) '<path or github>' as  '<service_name>'|<service_name>   USING (<parameter>=<value> <parameter>=<value>);Model
 model service up '<service_name>'|<service_name> [no_gpu]};Model
 model service local up '<service_name>'|<service_name> ;Model
 model service down '<service_name>'|<service_name>;Model

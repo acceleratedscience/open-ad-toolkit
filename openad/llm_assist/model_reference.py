@@ -99,24 +99,25 @@ Answer the question based only on the following context: {context}  Question: {q
         "model": "instructlab/granite-7b-lab",
         "url": OLLAMA_HOST,
         "template": """You are a technical documentation writer and when responding follow the following rules:
-                - Format All Command Syntax, Clauses, Examples or Option Syntax in codeblock ipython Markdown
+                - Respond like you were writing a refernce guide for a software package
+                - Format All Command Syntax, Clauses, Examples or Option  Syntax in codeblock ipython Markdown
                 - Format all Command Syntax, Options or clause quotations in codeblock ipython Markdown
-                - reply with all the paramters or options for a command from the help text if syntax requested
                 - Only format codeblocks one line at a time and place them  on single lines
                 - For each instruction used in an answer also provide full command syntax with clauses and options in codeblock format. for example " Use the `search collection` with the 'PubChem' collection to search for papers and molecules.   \n\n command: ` search collection '<collection name or key>' for '<search string>' using ( [ page_size=<int> system_id=<system_id> edit_distance=<integer> display_first=<integer>]) show (data|docs) [ estimate only|return as data|save as '<csv_filename>' ] ` \n
                 \n For Example: ` search collection 'PubChem' for 'Ibuprofen' show ( data ) ` \n"
                 - Provide All syntax, clauses, Options, Parameters and Examples separated by "\n" for a command when answering a question with no leading spaces on the line
-                - ensure bullet lines are indented consistently
                 - Compounds and Molecules are the same concept
-                - smiles or inchi strings are definitions of compounds or smiles
                 - Always explain using the full name not short form of a name
-                - Always list all parameters for a command
+                - Never refer to source files from the embeddings
                 - after explaning a command  tell them how to go to the help using `<command> ?` substituing the command into the string
-                - if asked to tell the user about a command , display the commands help
+                - respond with a output format as per following example
+                '''Command: <put command syntax here >
 
-               
-               
+                Description: <brief description of funciton
 
+                Parameters: < Tell the user what Parameters are available for the comand>
+
+                Examples:  < examples of how to use the function> '''
 
 Answer the question based only on the following 
 context: {context} 
@@ -125,10 +126,12 @@ Question: {question}
 
 Answer:""",
         "settings": {
-            "temperature": 0.3,
+            "temperature": 0.5,
             "decoding_method": "greedy",
-            "max_new_tokens": 4000,
+            "max_new_tokens": 3000,
             "min_new_tokens": 1,
+            "top_p": 0.85,
+            "top_k": 50,
         },
         "embeddings": None,
         "embeddings_api": None,

@@ -252,7 +252,9 @@ This command Enriches every molecule in your current working list of molecules w
             - RXN Toolkit `predict Reaction` <br> 
             - RXN Toolkit `predict retrosynthesis ` <br> 
             - DS4SD Toolkit `search for patents containing molecule` <br> 
-            - DS4SD Toolkit `search for similiar molecules` <br><br>
+            - DS4SD Toolkit `search for similiar molecules` <br> 
+
+            See the Deep Search toolkit  and RXN toolkit help for further assistance on these commands.  <br><br>
 
 `clear analysis cache`{: .cmd }
 this command clears the cache of analysis results for your current workspace. <br><br>
@@ -466,11 +468,26 @@ List all available commands. <br><br>
 
 ### Model
 
+`model auth list`{: .cmd }
+show authentication group mapping <br><br>
+
+`model auth add group '<auth_group>' with '<api_key>'`{: .cmd }
+add an authentication group for model services to use <br><br>
+
+`model auth remove group '<auth_group>'`{: .cmd }
+remove an authentication group <br><br>
+
+`model auth add service '<service_name>' to group '<auth_group>'`{: .cmd }
+attach an authentication group to a model service <br><br>
+
+`model auth remove service '<service_name>'`{: .cmd }
+detatch an authentication group from a model service <br><br>
+
 `model service status`{: .cmd }
 get the status of currently cataloged services <br><br>
 
-`model service config '<service_name>'|<service_name>`{: .cmd }
-get the config of a service <br><br>
+`model service describe '<service_name>'|<service_name>`{: .cmd }
+get the configuration of a service <br><br>
 
 `model catalog list`{: .cmd }
 get the list of currently cataloged services <br><br>
@@ -481,8 +498,9 @@ uncatalog a model service  <br>
  Example:  <br> 
 `uncatalog model service 'gen'` <br><br>
 
-`catalog model service from (remote) '<path or github>' as  '<service_name>'|<service_name>`{: .cmd }
+`catalog model service from (remote) '<path or github>' as  '<service_name>'|<service_name>   USING (<parameter>=<value> <parameter>=<value>)`{: .cmd }
 catalog a model service from a path or github or remotely from an existing OpenAD service. <br> 
+(USING) optional headers parameters for communication with service backend. <br> 
 
 Example: <br> 
 
@@ -679,7 +697,7 @@ Lists all RXN AI models currently available. <br><br>
 `predict retrosynthesis '<smiles>' [ using (option1=<value> option2=<value>) ]`{: .cmd }
 Perform a retrosynthesis route prediction on a molecule. <br> 
 
-Options for the optional `using` clause: <br> 
+Optional Parameters that can be specified in the `using` clause: <br> 
 - `availability_pricing_threshold=<int>` Maximum price in USD per g/ml of compounds. Default: no threshold. <br> 
 - `available_smiles='<smiles>.<smiles>.<smiles>'` List of molecules available as precursors, delimited with a period. <br> 
 - `exclude_smiles='<smiles>.<smiles>.<smiles>'` List of molecules to exlude from the set of precursors, delimited with a period. <br> 
@@ -703,7 +721,7 @@ Run a batch of reaction predictions. The provided list of reactions can be speci
 
 Reactions are defined by combining two SMILES strings delimited by a period. For example: `'BrBr.c1ccc2cc3ccccc3cc2c1'` <br> 
 
-Options for the optional `using` clause: <br> 
+Optional Parameters that can be specified in the `using` clause: <br> 
 - `ai_model='<model_name>'` What model to use. Use the command `list rxn models` to list all available models. The default is '2020-07-01'. <br> 
 
 You can reuse previously generated results by appending the optional `use_saved` clause. This will reuse the results of a previously run command with the same parameters, if available. <br> 
@@ -717,7 +735,7 @@ Predict the reaction between two molecules. <br>
 
 Reactions are defined by combining two SMILES strings delimited by a period. For example: `'BrBr.c1ccc2cc3ccccc3cc2c1'` <br> 
 
-Options for the optional `using` clause: <br> 
+Optional Parameters that can be specified in the `using` clause: <br> 
 - `ai_model='<model_name>'` What model to use. Use the command `list rxn models` to list all available models. The default is '2020-07-01'. <br> 
 
 You can reuse previously generated results by appending the optional `use_saved` clause. This will reuse the results of a previously run command with the same parameters, if available. <br> 
@@ -731,7 +749,7 @@ Run a batch of reaction predictions for topn. The provided list of reactions can
 
 Reactions are defined by combining two SMILES strings delimited by a period. For example: `'BrBr.c1ccc2cc3ccccc3cc2c1'` <br> 
 
-Options for the optional `using` clause: <br> 
+Optional Parameters that can be specified in the `using` clause: <br> 
 - `ai_model='<model_name>'` What model to use. Use the command `list rxn models` to list all available models. The default is '2020-07-01'. <br> 
 - `topn=<integer>` Defined the number of results being returned. The default value is 3. <br> 
 

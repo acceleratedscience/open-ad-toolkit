@@ -1,6 +1,7 @@
 import os
 import sys
 import pandas
+import atexit
 
 # required for Magic Template
 from IPython.display import Markdown
@@ -110,3 +111,11 @@ def strip_leading_blanks(input):
 
 ip = get_ipython()  # pylint: disable=undefined-variable
 ip.register_magics(AD)
+
+
+def cleanup():
+    print("killing magic")
+    openad.app.main.MAGIC_PROMPT.do_exit("exit magic")
+
+
+atexit.register(cleanup)

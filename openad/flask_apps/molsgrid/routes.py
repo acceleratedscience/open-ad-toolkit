@@ -146,6 +146,9 @@ def fetchRoutesMolsGrid(cmd_pointer, parser):
         else:
             # Display the grid.
             m2g_params = _compile_default_m2g_params(mol_frame)
+            import sys
+
+            # ToDO silence redunant error for RISE
 
             return None, the_mols2grid.display(**m2g_params)
 
