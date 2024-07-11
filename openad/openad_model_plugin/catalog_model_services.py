@@ -575,6 +575,9 @@ def service_catalog_grammar(statements: list, help: list):
     fr_om = py.CaselessKeyword("from")
     _list = py.CaselessKeyword("list")
     quoted_string = py.QuotedString("'", escQuote="\\")
+    auth_group = quoted_string | py.Word(py.alphanums + "_")
+    service_name = quoted_string | py.Word(py.alphanums + "_")
+
     a_s = py.CaselessKeyword("as")
     describe = py.CaselessKeyword("describe")
     remote = py.CaselessKeyword("remote")
@@ -606,7 +609,7 @@ def service_catalog_grammar(statements: list, help: list):
     )
 
     statements.append(
-        py.Forward(model + auth + add + group + quoted_string("auth_group") + _with + quoted_string("api_key"))(
+        py.Forward(model + auth + add + group + auth_group("auth_group") + _with + quoted_string("api_key"))(
             "add_service_auth_group"
         )
     )
@@ -614,45 +617,43 @@ def service_catalog_grammar(statements: list, help: list):
         help_dict_create(
             name="model auth add group",
             category="Model",
-            command="model auth add group '<auth_group>' with '<api_key>'",
+            command="model auth add group '<auth_group>'|<auth_group> with '<api_key>'",
             description="add an authentication group for model services to use",
         )
     )
 
-    statements.append(
-        py.Forward(model + auth + remove + group + quoted_string("auth_group"))("remove_service_auth_group")
-    )
+    statements.append(py.Forward(model + auth + remove + group + auth_group("auth_group"))("remove_service_auth_group"))
     help.append(
         help_dict_create(
             name="model auth remove group",
             category="Model",
-            command="model auth remove group '<auth_group>'",
+            command="model auth remove group '<auth_group>' | <auth_group>",
             description="remove an authentication group",
         )
     )
 
     statements.append(
-        py.Forward(
-            model + auth + add + service + quoted_string("service_name") + to + group + quoted_string("auth_group")
-        )("attach_service_auth_group")
+        py.Forward(model + auth + add + service + service_name("service_name") + to + group + auth_group("auth_group"))(
+            "attach_service_auth_group"
+        )
     )
     help.append(
         help_dict_create(
             name="model auth add service",
             category="Model",
-            command="model auth add service '<service_name>' to group '<auth_group>'",
+            command="model auth add service '<service_name>'|,service_name> to group '<auth_group>'|<auth_group>",
             description="attach an authentication group to a model service",
         )
     )
 
     statements.append(
-        py.Forward(model + auth + remove + service + quoted_string("service_name"))("detach_service_auth_group")
+        py.Forward(model + auth + remove + service + service_name("service_name"))("detach_service_auth_group")
     )
     help.append(
         help_dict_create(
             name="model auth remove service",
             category="Model",
-            command="model auth remove service '<service_name>'",
+            command="model auth remove service '<service_name>'|<service_name>",
             description="detatch an authentication group from a model service",
         )
     )
@@ -667,11 +668,7 @@ def service_catalog_grammar(statements: list, help: list):
         )
     )
 
-    statements.append(
-        py.Forward(model + service + describe + (quoted_string | py.Word(py.alphanums + "_"))("service_name"))(
-            "model_service_config"
-        )
-    )
+    statements.append(py.Forward(model + service + describe + (service_name)("service_name"))("model_service_config"))
     help.append(
         help_dict_create(
             name="model service describe",
@@ -691,11 +688,7 @@ def service_catalog_grammar(statements: list, help: list):
         )
     )
 
-    statements.append(
-        py.Forward(uncatalog + model + service + (quoted_string | py.Word(py.alphanums + "_"))("service_name"))(
-            "uncatalog_model_service"
-        )
-    )
+    statements.append(py.Forward(uncatalog + model + service + service_name("service_name"))("uncatalog_model_service"))
     help.append(
         help_dict_create(
             name="uncatalog model service",
@@ -728,20 +721,24 @@ def service_catalog_grammar(statements: list, help: list):
 
 Example:
 
+Skypilot Deployment
 -<cmd>catalog model service from 'git@github.com:acceleratedscience/generation_inference_service.git' as 'gen'</cmd>
 
-or to catalog a remote service shared with you:
+Service using a authentication group 
+-<cmd>catalog model service from remote '<service_url>' as  molf  USING (Inference-Service=molformer  )</cmd>
+<cmd> model auth add service 'molf' to group 'default'</cmd>
+
+Single Authorisation Service
+-<cmd>openad catalog model service from remote '<service_URL>' as 'gen' USING (Inference-Service=generation Authorization='<api_key>')</cmd>
+
+Catalog a remote service shared with you:
 -<cmd>catalog model service from remote 'http://54.235.3.243:30001' as gen</cmd>""",
         )
     )
 
     statements.append(
         py.Forward(
-            model
-            + service
-            + up
-            + (quoted_string | py.Word(py.alphanums + "_"))("service_name")
-            + py.Optional(py.CaselessKeyword("NO_GPU")("no_gpu"))
+            model + service + up + service_name("service_name") + py.Optional(py.CaselessKeyword("NO_GPU")("no_gpu"))
         )("service_up")
     )
     help.append(
@@ -767,7 +764,7 @@ Examples:
             + service
             + local
             + up
-            + (quoted_string | py.Word(py.alphanums + "_"))("service_name")
+            + service_name("service_name")
             + py.Optional(py.CaselessKeyword("NO_GPU")("no_gpu"))
         )("local_service_up")
     )
@@ -785,11 +782,7 @@ Examples:
         )
     )
 
-    statements.append(
-        py.Forward(model + service + down + (quoted_string | py.Word(py.alphanums + "_"))("service_name"))(
-            "service_down"
-        )
-    )
+    statements.append(py.Forward(model + service + down + service_name("service_name"))("service_down"))
     help.append(
         help_dict_create(
             name="Model down",
