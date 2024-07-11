@@ -67,6 +67,9 @@ def login(cmd_pointer):
         except Exception as e:  # pylint: disable=broad-exception-caught
             output_error(msg("err_login", "RXN", "Unable to connect to RXN Server"), return_val=False)
             output_error(msg("err_login", "RXN", f"system error {e}"), return_val=False)
+            output_error(
+                msg("if Persists,try removing RXN toolkit and restarting kernel or application./n Then add RXN again")
+            )
             return False, None
 
         if name != cmd_pointer.settings["workspace"]:
