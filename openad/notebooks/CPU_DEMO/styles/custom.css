@@ -1,0 +1,32 @@
+<style>
+body {
+  background-color: #003300;
+}
+
+h1 {
+  font-family: "IBM Plex Sans";
+  color: black;
+  text-align: left;
+  border: 1.5px solid #333;
+  padding: 8px 12px;
+  background-image: linear-gradient(180deg, #fff, rgb(160, 147, 147));
+  position: static;
+}
+
+h2 {
+  font-family: "IBM Plex Sans";
+  color: black;
+  text-align: left;
+}
+
+h3 {
+  font-family: "IBM Plex Sans";
+  color: black;
+  text-align: left;
+}
+
+p {
+	font-family: "IBM Plex Sans";
+	color: black;
+}
+</style>

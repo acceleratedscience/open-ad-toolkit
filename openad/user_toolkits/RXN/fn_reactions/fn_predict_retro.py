@@ -220,6 +220,7 @@ def predict_retro(inputs: dict, cmd_pointer):
             except Exception as e:  # pylint: disable=broad-exception-caught
                 retries = retries + 1
                 sleep(15)
+
                 newspin.text = "Processing Retrosynthesis: Waiting"
                 if retries > 20:
                     raise Exception(

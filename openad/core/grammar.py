@@ -39,10 +39,15 @@ from openad.core.help import help_dict_create
 import openad.toolkit.toolkit_main as toolkit_main  # Not using "from" to avoid circular import.
 from openad.molecules.mol_grammar import mol_grammar_add
 
+
 # Helpers
 from openad.helpers.general import is_notebook_mode
 from openad.helpers.output import output_error
 from openad.helpers.output_msgs import msg
+from openad.openad_model_plugin.openad_model_toolkit import service_grammar_add
+
+from openad.openad_model_plugin.catalog_model_services import get_cataloged_service_defs, service_catalog_grammar
+
 
 # Global variables
 from openad.app.global_var_lib import _all_toolkits
@@ -283,6 +288,7 @@ grammar_help.append(
 
 # Add molecule Grammar
 mol_grammar_add(statements=statements, grammar_help=grammar_help)
+
 # endregion
 
 ##########################################################################
@@ -883,6 +889,14 @@ grammar_help.append(
         description="",
     )
 )
+service_catalog_grammar(statements=statements, help=grammar_help)
+"""try:
+    service_catalog = get_cataloged_service_defs()
+    service_grammar_add(statements=statements, help=grammar_help, service_catalog=service_catalog)
+except Exception as e:
+    print(e)
+    pass
+"""
 
 # endregion
 
@@ -923,13 +937,36 @@ def create_statements(cmd_pointer):
 
     cmd_pointer.current_statements_def = Forward()
     cmd_pointer.current_statements = orig_statements.copy()
+    service_statements = []
+    try:
+        service_catalog = get_cataloged_service_defs()
+        temp_help = []
 
-    for i in orig_statements:
+        service_grammar_add(statements=cmd_pointer.current_statements, help=temp_help, service_catalog=service_catalog)
+
+        # cmd_pointer.current_statements.extend(service_statements)
+        cmd_pointer.current_help.help_model_services.clear()
+        cmd_pointer.current_help.help_model_services.extend(temp_help)
+        cmd_pointer.current_help.reset_help()
+    except Exception as e:
+        print(e)
+        pass
+    # add plugins
+
+    for stmt in cmd_pointer.plugins_statements:
+        cmd_pointer.current_statements.append(stmt)
+
+    cmd_pointer.current_help.help_plugins.extend(cmd_pointer.plugins_help)
+    cmd_pointer.current_help.reset_help()
+
+    for i in cmd_pointer.current_statements:
         cmd_pointer.current_statement_defs |= i
+
     if cmd_pointer.toolkit_current is not None:
         for i in cmd_pointer.toolkit_current.methods_grammar:
             cmd_pointer.current_statement_defs |= i
             cmd_pointer.current_statements.append(i)
+
     # statements_zom = ZeroOrMore(statements_def)
 
 
@@ -1309,7 +1346,8 @@ def output_train_statements(cmd_pointer):
             Load: load a file from project directory to Target system
             pyparsing_statement: a statement defined using pyparsing for the domain specific language
             help_text: description of the Domain Specific language statement defined in a pyparsing_statement
-            toolkit: these are contextual plugins that are available one at a time for providing specific functionality to the user. Valid toolkits are DS4SD (deepSearch), GT4SD(generative AI toolkit), RXN (retro synthesis), ST4SD(simulation toolkit)
+            toolkit: these are contextual plugins that are available one at a time for providing specific functionality to the user. Valid toolkits are DS4SD (deep Search),  RXN (retro synthesis), ST4SD(simulation toolkit)
+                   The Deep Search toolkit and RX toolkits have separate help outlining specific commands avilable to the user
             History: History of DSL commands for a given Workspace
             run: list of sequential commands saved by the user')
             working list: is a set of molecules in memory that can added to using the 'add molecule' command  and also loaded from a molecule-set and maipulated by commands suchs as 'display molecule', 'add Molecule','create molecule', 'remove molecule' 'merge mol-set'
@@ -1322,8 +1360,10 @@ def output_train_statements(cmd_pointer):
             molecule-set: a molecule-set is a set a copy of a working list of molecules that has been stored in disk under a molecule set name and can be loaded into the working list of molecules in a users sessions
             The short form of 'molecule-set' is 'molset' 
             The short form of 'molecule' is 'mol' 
-
             
+            The Model Service is a capability to register and launch model services for property prediction and data set generation and allows you to launch ones you catalog yourself or remotely catalog already running services.
+
+            If a user asks for parameters or options this refers to the parameters that can be given to a function. Make sure all parameters are provided to the user
             
             The Following commands are used to work with working list of molecules:
                 - add molecule <name> | <smiles> | <inchi> | <inchikey> | <cid>   [as '<name>' ] [ basic ] [ force ]

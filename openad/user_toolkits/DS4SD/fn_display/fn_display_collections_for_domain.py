@@ -31,4 +31,4 @@ def display_collections_for_domain(inputs: dict, cmd_pointer):
         for c in collections
     ]
 
-    return output_table(pd.DataFrame(results))
+    return output_table(pd.DataFrame(results), is_data=False)

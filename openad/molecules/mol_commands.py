@@ -82,6 +82,13 @@ def display_molecule(cmd_pointer, inp):
 
     else:
         mol = retrieve_mol(molecule_identifier)
+
+        if mol is None:
+            mol = new_molecule(molecule_identifier, molecule_identifier)
+
+        if mol is None:
+            output_error("Error: Not a valid Molecule", return_val=False)
+            return None
         if mol is not None:
             cmd_pointer.last_external_molecule = mol.copy()
             print_string = (
@@ -93,10 +100,6 @@ def display_molecule(cmd_pointer, inp):
                 + "\n"
                 + format_analysis(mol)
             )
-
-        else:
-            output_error(msg("err_mol_not_on_pubchem"), return_val=False)
-            return None
     if GLOBAL_SETTINGS["display"] == "notebook":
         import py3Dmol
         from IPython.display import Markdown, display, HTML
@@ -265,10 +268,11 @@ def list_molecules(cmd_pointer, inp):
         for mol in cmd_pointer.molecule_list:
             identifiers = get_identifiers(mol)
             display_list = pd.concat([display_list, pd.DataFrame([identifiers])])
-        if GLOBAL_SETTINGS["display"] == "notebook":
-            return output_table(display_list, is_data=True).data
-        else:
-            return output_table(display_list)
+        return display_list
+        # if GLOBAL_SETTINGS["display"] == "notebook":
+        #    return output_table(display_list, is_data=True)
+        # else:
+        #    return output_table(display_list)
 
     else:
         return output_warning("Your molecules working set is empty")
@@ -320,8 +324,9 @@ def export_molecule_set(cmd_pointer, inp):
         return True
     csv_file_name = None
 
-    if GLOBAL_SETTINGS["display"] == "notebook" and "csv_file_name" not in inp.as_dict():
+    if GLOBAL_SETTINGS["display"] in ["notebook", "api"] and "csv_file_name" not in inp.as_dict():
         return moleculelist_to_data_frame(cmd_pointer.molecule_list.copy())
+
     else:
         if "csv_file_name" not in inp.as_dict():
             output_warning(msg("war_no_filename_provided", "mols_export.csv"), return_val=False)
@@ -523,13 +528,18 @@ def _create_workspace_dir_if_nonexistent(cmd_pointer, dir_name):
     return cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/" + dir_name
 
 
+def merge_molecule_property_data(cmd_pointer, inp):
+    """merges data into the molecule list"""
+
+
 def load_molecules(cmd_pointer, inp):
     """loads a molecule set into the working list"""
     if "molecule-set_name" not in inp:
         return False
 
     mol_file_path = _create_workspace_dir_if_nonexistent(cmd_pointer, "_mols")
-    cmd_pointer.molecule_list.clear()
+    if "append" not in inp:
+        cmd_pointer.molecule_list.clear()
 
     for i in glob.glob(mol_file_path + "/" + inp["molecule-set_name"].upper() + "--*.molecule", recursive=True):
         func_file = open(i, "rb")

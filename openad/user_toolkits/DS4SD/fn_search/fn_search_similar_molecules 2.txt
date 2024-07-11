@@ -1,0 +1,6 @@
+Search for molecules that are similar to the provided molecule or molecule substructure as provided in the <cmd><smiles_string></cmd>.
+
+{{SAVE_AS_CLAUSE}}
+
+Example:
+<cmd>search for similar molecules to 'C1(C(=C)C([O-])C1C)=O'</cmd>

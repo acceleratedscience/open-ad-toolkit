@@ -7,7 +7,7 @@ Reactions are defined by combining two SMILES strings delimited by a period. For
 """
 
 USING_CLAUSE_OPTIONS = """
-Options for the optional <cmd>using</cmd> clause:
+Optional Parameters that can be specified in the <cmd>using</cmd> clause:
 """
 
 USING_AI_MODEL = """

@@ -66,6 +66,7 @@ def list_files(cmd_pointer, parser):
 
         result = (filename, size, timestamp)
         table.append(result)
+
     # return "OK"
     return output_table(table, is_data=False, headers=table_headers, colalign=("left", "right", "left"))
 

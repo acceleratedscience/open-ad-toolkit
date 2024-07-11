@@ -148,6 +148,8 @@ def merge_molecule_properties(molecule_dict, mol):
         return None
     if "ROMol" in molecule_dict:
         del molecule_dict["ROMol"]
+    if "subject" in molecule_dict:
+        del molecule_dict["subject"]
 
     for key in molecule_dict:
         mol["properties"][key] = molecule_dict[key]
@@ -218,7 +220,7 @@ def retrieve_mol_from_mymols(cmd_pointer, identifier, ignore_synonyms=False):
     #         return m.copy()
 
 
-# TODO: very convoluted way to call get_mol()
+# TODO: very convoluted way to call _get_mol()
 def retrieve_mol(molecule):
     """Fetch molecule from PubChem"""
     success, mol, comp = get_mol_from_name(molecule)
@@ -264,9 +266,15 @@ def get_mol_from_inchikey(inchikey_str: str):
 
 def get_mol_from_smiles(smiles_str: str):
     """return pubchem molecule data based on smiles"""
+
     if valid_smiles(smiles_str):
         # print("getting smiles")
-        return _get_mol(smiles_str, MOL_SMILES_INDEX)
+
+        success, openad_mol, molecule = _get_mol(smiles_str, MOL_SMILES_INDEX)
+        if openad_mol is not None:
+            openad_mol["properties"]["canonical_smiles"] = Chem.MolToSmiles(Chem.MolFromSmiles(smiles_str))
+
+        return success, openad_mol, molecule
     else:
         return False, "Invalid Smiles", None
 
@@ -684,7 +692,7 @@ def mol_from_identifier(cmd_pointer, identifier, mol_name=None, basic=False):
 
         # Fetch from PubChem.
         else:
-            openad_mol = retrieve_mol(identifier)  # TODO: very convoluted way to call get_mol()
+            openad_mol = retrieve_mol(identifier)  # TODO: very convoluted way to call _get_mol()
 
     # Fail - invalid.
     if openad_mol is None:

@@ -1,0 +1,18 @@
+{
+	"fplugin": "ds4sd",
+	"command": "search for similar molecules to",
+	"subject": "Search",
+	"exec_type": "standard_statement",
+	"exec_cmd": "search for similar molecules to",
+	"help": {
+		"name": "search for similar molecules to",
+		"category": "Search Molecules",
+		"command": "search for similar molecules to '<smiles>' [ save as '<filename.csv>' ]",
+		"description": "",
+		"url": ""
+	},
+	"library": "fn_search_similar_molecules",
+	"method": "search_similar_molecules",
+	"SINGLE_PARM": { "smiles": "desc" },
+	"SAVE_AS": {}
+}

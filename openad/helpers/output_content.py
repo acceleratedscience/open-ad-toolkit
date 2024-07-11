@@ -5,11 +5,10 @@ info_toolkits = """Toolkits are individual pieces of software that provide highl
 
 As of now, OpenAD supports 4 different toolkits.
 • DS4SD - Deep Search
-• GT4SD - Generative Toolkit
 • ST4SD - Simulation Toolkit
 • RXN - Digital Chemistry
 
-To learn more about what any of these toolkits does, run its name: <cmd>ds4sd</cmd> / <cmd>gt4sd</cmd> / <cmd>st4sd</cmd> / <cmd>rxn</cmd>"""
+To learn more about what any of these toolkits does, run its name: <cmd>ds4sd</cmd> / <cmd>st4sd</cmd> / <cmd>rxn</cmd>"""
 # # Add this back once this functionality is built:
 # You can access any toolkit's functionality by prepending its name:
 # <cmd>DS4SD <do_xyz></cmd>  <green># To be implemented</green>

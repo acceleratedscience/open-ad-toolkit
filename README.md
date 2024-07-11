@@ -15,7 +15,7 @@ urls = [
     'https://cps.foc-deepsearch.zurich.ibm.com',
     'https://rxn.app.accelerate.science',
     'https://sds.app.accelerate.science',
-    'https://platform.openai.com/account/api-keys'
+    
 ]
 for (var i=0; i< urls.length; i++) {
     window.open(urls[i], '_blank', 'width=1000,height=600');
@@ -39,18 +39,52 @@ The goal of openAD is to provide a common language for scientists to interact wi
 
 ---
 > **Pre-install Note:** 
-For updating to 0.2.0 first remove toolkits `remove toolkit DS4SD` and `remove toolkit RXN` prior to updating
+For updating to 0.3.0 or above first remove toolkits `remove toolkit DS4SD` and `remove toolkit RXN` prior to updating
 
 > **Whats New ?**
-- Increased number of Molecules Functions for retrieving from pubchem molecules or creating your own in a working set, including visualisation, tracking of source info
-- 3D displaying of molecules in your working set or direct from pubchem
-- Attaching Analysis to target Molecules with the `enrich` command
-- Enhanced Help and Tell Me command
-- Linking to source documents in DeepSearch
-- merging molecules and molsets together
-- easy access to dataframes and results sets with the new `result` command
-- smaller install package
-- introductory molecule viewer
+-  `%Openadd` has been added to the magic commands to provide pure data type results for data returning commands
+- Upgraded IBM BAM model support for latest IBm generative AI embeddings and Langchain 
+- Property and Data Set Generation Services
+   We support the following Model Services
+     - GT4SD Generation Services  `git@github.com:acceleratedscience/generation_inference_service.git`
+     - GT4SD Property Services `git@github.com:acceleratedscience/property_inference_service.git`
+     - GT4SD MoleR Generation `git@github.com:acceleratedscience/moler_inference_service.git`
+     - GT4SD Molformer `git@github.com:acceleratedscience/molformer_inference_service.git`
+    Pre-Requisite is that you have a AWS Account and can launch your own EC2 Instances Or someone else can launch them for you and you can catalog a Remote Service via URL.
+
+        **Example:**
+
+        `catalog model service from 'git@github.com:acceleratedscience/property_inference_service.git' as prop`
+
+        To start the service `model service up prop`
+
+        `model service status` # wait until service is ready
+
+         Once the service is `Ready` you can run the following commands to test:
+         
+         `prop get molecule property [qed,esol] for [ C(C(C1C(=C(C(=O)O1)O)O)O)O ,[H-] ]`
+
+         `prop get molecule property esol for C(C(C1C(=C(C(=O)O1)O)O)O)O`
+        
+        Examples are supplied in the Sample Notebooks, see below how to install.
+
+        To shut down the service `model service down prop`
+
+        Available commands for managing model services...
+
+        ```
+        model service status
+        model service config '<service_name>'|<service_name>
+        model catalog list
+        uncatalog model service '<service_name>'|<service_name>
+        catalog model service from (remote) '<path or github>' as  '<service_name>'|<service_name>
+        model service up '<service_name>'|<service_name> [no_gpu]
+        model service local up '<service_name>'|<service_name> 
+        model service down '<service_name>'|<service_name>
+        ```
+
+
+
 
 **Note: uninstall all toolkits before installing the new version**
 
@@ -68,6 +102,10 @@ Get started with Jupyter:
     init_examples
     jupyter lab ~/openad_notebooks/Table_of_Contents.ipynb
 
+If you get an error when running `init_magic`, you may first need to setup the default iPython profile for magic commands.
+
+    ipython profile create
+
 <br>
 
 ---
@@ -79,6 +117,8 @@ Get started with Jupyter:
 -   When not installing into a virtual environment on MacOS, you may need to use `python3` and `pip3` instead of `python` and `pip` respectively<br>
 
 ## Table of Contents <!-- omit from toc -->
+
+<!-- toc -->
 
 - [OpenAD Beta](#openad-beta)
 - [Installation](#installation)
@@ -100,8 +140,7 @@ Get started with Jupyter:
   - [Installing WSL](#installing-wsl)
 - [Linux Notes](#linux-notes)
 
-
----
+<!-- tocstop -->
 
 <br>
 
@@ -121,7 +160,7 @@ Ensure you're running Python 3.10 or 3.11. There's multiple ways of updating Pyt
 
 1.  **Step 1: Set up your virtual environment** (optional)<br>
 
-        python -m venv ~/ad-venv
+        python3.11 -m venv ~/ad-venv
         source ~/ad-venv/bin/activate
 
     > **Note:** To exit the virtual environment, you can run `deactivate`
@@ -129,6 +168,14 @@ Ensure you're running Python 3.10 or 3.11. There's multiple ways of updating Pyt
 2.  **Step 2: Installation**
 
         pip install openad
+
+    if you are going to use the model services you will need to have an AWS CLI enabled on your machine and follow the below steps to  check skypilot is enabled to deploy on aws on your machine:
+
+        A. run `sky check`
+
+        
+    If you launch Model Services will take about 10 minutes to deploy it can be monitored through the controllers logs.
+        e.g. `sky serve logs sky-service-0af4  --controller`
 
 <br>
 
@@ -232,7 +279,7 @@ The following commands only need to be run once after installation:
 
 # Interacting with the Toolkits
 
-OpenAD integrates with `DS4SD`, `RXN`, and has placeholder support for `GT4SD` and `ST4SD`.
+OpenAD integrates with `DS4SD`, `RXN`, and has placeholder support for  `ST4SD`.
 
 <div class="notice" style="margin-top: 16px;" markdown="block">
 
@@ -320,22 +367,56 @@ To run a command in bash mode, prepend it with `openad` and make sure to escape 
 
 # AI Assistant
 
-To enable our AI assistant, you'll need an account with OpenAI. There is a one month free trial.
+To enable our AI assistant, you'll need either have access to [IBM BAM](https://bam.res.ibm.com/auth/signin) or to use a free open source LLM use [ollama](ollama.com).
+
+**Note:** Ollama will requires a 8gb GPU
 
 > **Note:** watsonx coming soon
 
-1. Go to [platform.openai.com](https://platform.openai.com) and create an account
+## IBM BAM Setup
+For IBM BAM simply used your supplied API key if you have BAM access
 
-2. Click on the profile icon in the top right and choose "View API keys"
+### Run BAM LLM
+run `tell me` to be prompted for your BAM API credentials
+```
+>> set llm bam
+>> tell me <enter prompt>
+```
 
-3. Create a new key
+## Ollama setup
+Install ollama on your platform  from [here](https://ollama.com/download)
 
-4. Run `tell me` to be prompted for your OpenAI API credentials
+Download appropriate models
+```
+ollama pull llama3:latest
+ollama pull nomic-embed-text
+```
+
+Start the server if not already started
+```
+ollama serve
+```
+Thats it for local usage. If you want to run ollama remotely continue.
+
+### Ollama remote setup with skypilot
+Check out our configuration file to launch ollama on skypilot [ollama_setup.yaml](./ollama_setup.yaml)
+```
+sky serve up ollama_setup.yaml
+```
+
+Setup local environment variables
+
+1. For windows `setx OLLAMA_HOST=<sky-server-ip>:11434`
+2. For Linux and macos `export OLLAMA_HOST=<sky-server-ip>:11434`
+3. To reset to local use `OLLAMA_HOST=0.0.0.0:11434`
 
 
-<!-- ![Landing](readme/openai-api-key.png) -->
-
-<a href="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/openai-api-key.png" target="_blank"><img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/openai-api-key.png" /></a>
+### Run ollama on openad toolkit
+> if prompted for api key and none was setup just leave empty
+```
+>> set llm ollama
+>> tell me <enter prompt>
+```
 
 <br>
 
@@ -427,7 +508,7 @@ Install WSL and create a user called 'openad' or one of your choosing.
 
     wsl --install Ubuntu-22.04
 
-**Optional:** To setup an Ubuntu Python environment from scratch, continue to [Linux Notes](#linux-notes)
+**Optional:** To setup an Ubuntu Python environment from scratch, continue to <a href="#linux-notes">Linux Notes</a>
 
 <br>
 
@@ -442,6 +523,8 @@ If you wish to setup an Ubuntu Python environment from scratch, run:
     sudo update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 100
     sudo pip install pip --upgrade
 
+You will need to restart your Linux session before running `pip install openad` so that the python libraries are in your path.
+
 If you get an error when running `init_magic`, you may first need to setup the default iPython profile for magic commands.
 
-    ipython profile create
+ `ipython profile create`

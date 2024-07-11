@@ -287,7 +287,7 @@ def output_table(
 
     # - -
     # Format data for Jupyter.
-    if GLOBAL_SETTINGS["display"] == "notebook" or _display == "notebook":
+    if GLOBAL_SETTINGS["display"] in ["api", "notebook"] or _display == "notebook":
         pandas.set_option("display.max_colwidth", None)
         if is_df:
             pass
@@ -359,7 +359,7 @@ def output_table(
         footnote += f"<soft>{note}</soft>"
 
     # Output for Jupyter
-    if GLOBAL_SETTINGS["display"] == "notebook" or _display == "notebook":
+    if GLOBAL_SETTINGS["display"] in ["api", "notebook"] or _display == "notebook":
         # If the passed dataframe is a styler object, we extracted the
         # dataframe earlier, and now re-assign the manipulated dataframe
         # back to the styler object.
@@ -377,7 +377,12 @@ def output_table(
         if footnote:
             output_text(footnote, return_val=False)
 
-        if return_val is True or return_val is None:
+        if GLOBAL_SETTINGS["display"] == "api":
+            if isinstance(table, pandas.io.formats.style.Styler):
+                return table.data
+            else:
+                return table
+        elif return_val is True or return_val is None:
             return table
         else:
             display(table)

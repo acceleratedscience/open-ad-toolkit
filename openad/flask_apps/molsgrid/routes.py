@@ -58,10 +58,14 @@ def fetchRoutesMolsGrid(cmd_pointer, parser):
         try:
             if parser.getName() == "show_molsgrid_df":
                 # From dataframe.
+
                 try:
                     name = parser.getName() + "_" + parser.as_dict()["in_dataframe"]
+
                     mol_frame = cmd_pointer.api_variables[parser.as_dict()["in_dataframe"]]
+
                     mol_frame = _normalize_mol_df(mol_frame, cmd_pointer)
+
                     the_mols2grid = mols2grid.MolGrid(mol_frame, name=name, smiles_col="SMILES", **m2g_params_init)
                 except BaseException as err:
                     output_error(msg("err_load_dataframe", err), return_val=False)
@@ -142,6 +146,9 @@ def fetchRoutesMolsGrid(cmd_pointer, parser):
         else:
             # Display the grid.
             m2g_params = _compile_default_m2g_params(mol_frame)
+            import sys
+
+            # ToDO silence redunant error for RISE
 
             return None, the_mols2grid.display(**m2g_params)
 
@@ -284,6 +291,7 @@ def _normalize_mol_df(mol_df: pandas.DataFrame, cmd_pointer):
 
     for i in mol_df.columns:
         # Find the name column.
+
         if str(i.upper()) == "NAME":
             has_name = True
         if contains_name is None and "NAME" in str(i.upper()):

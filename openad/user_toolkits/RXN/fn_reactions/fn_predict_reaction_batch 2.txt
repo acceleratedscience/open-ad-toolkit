@@ -1,0 +1,12 @@
+Run a batch of reaction predictions. The provided list of reactions can be specified as a DataFrame, a CSV file from your current workspace or a list of strings. When proving a DataFrame or CSV file, we will look for the "reactions" column.
+
+{{REACTION_NOTATION}}
+
+{{USING_CLAUSE_OPTIONS}}
+- {{USING_AI_MODEL}}
+
+{{USE_SAVED_CLAUSE}}
+
+Examples:
+- <cmd>predict reaction in batch from list ['BrBr.c1ccc2cc3ccccc3cc2c1CCO' , 'BrBr.c1ccc2cc3ccccc3cc2c1']</cmd>
+- <cmd>predict reaction in batch from list ['BrBr.c1ccc2cc3ccccc3cc2c1CCO' , 'BrBr.c1ccc2cc3ccccc3cc2c1'] use_saved</cmd>
