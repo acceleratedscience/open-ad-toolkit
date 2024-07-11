@@ -199,7 +199,7 @@ def is_port_open(host, port):
 # This is used by the flask app launcher, we want to
 # avoid a situation where multiple apps are trying to
 # run on the same port.
-def next_avail_port(port=5000, host="127.0.0.1"):
+def next_avail_port(port=5000, host="0.0.0.0"):
     while not is_port_open(host, port):
         port += 1
     return port, host
