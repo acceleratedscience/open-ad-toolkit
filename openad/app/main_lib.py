@@ -16,7 +16,7 @@ from openad.flask_apps.dataviewer.routes import fetchRoutesDataViewer
 
 # molecules
 from openad.molecules.mol_batch_files import load_batch_molecules
-from openad.molecules.mol_functions import df_has_molecules, dataframe2molset, create_molset_cache_file
+from openad.molecules.mol_functions import df_has_molecules
 
 from openad.molecules.mol_commands import (
     display_molecule,
@@ -34,7 +34,6 @@ from openad.molecules.mol_commands import (
     clear_workset,
     export_molecule_set,
     show_mol,
-    show_molset,
     show_molsgrid_DEPRECATED,  # TRASH
     merge_molecules,
 )
@@ -44,7 +43,7 @@ from openad.molecules.molecule_cache import attach_all_results, clear_results
 import openad.app.login_manager as login_manager
 
 # Core
-from openad.core.lang_file_system import import_file, export_file, copy_file, remove_file, list_files
+from openad.core.lang_file_system import import_file, export_file, copy_file, remove_file, open_file, list_files
 from openad.core.lang_sessions_and_registry import (
     clear_sessions,
     write_registry,
@@ -225,8 +224,6 @@ def lang_parse(cmd_pointer, parser):
         return show_molsgrid_DEPRECATED(cmd_pointer, parser)
     elif parser.getName() == "show_molsgrid_df":
         return show_molsgrid_DEPRECATED(cmd_pointer, parser)
-    elif parser.getName() == "show_molset":
-        return show_molset(cmd_pointer, parser)
     elif parser.getName() == "show_mol":
         return show_mol(cmd_pointer, parser)
 
@@ -241,6 +238,8 @@ def lang_parse(cmd_pointer, parser):
         return copy_file(cmd_pointer, parser)
     elif parser.getName() == "remove_file":
         return remove_file(cmd_pointer, parser)
+    elif parser.getName() == "open_file":
+        return open_file(cmd_pointer, parser)
 
     # General commands
     elif parser.getName() == "welcome":
@@ -567,6 +566,7 @@ def display_data(cmd_pointer, parser):
             # From csv file.
             try:
                 df = pd.read_csv(workspace_path + file_path)
+                df = df.fillna("")  # Fill NaN with empty string
                 return output_table(df)
             except FileNotFoundError:
                 return output_error(msg("err_file_doesnt_exist", file_path))
@@ -618,21 +618,21 @@ def display_data__save(cmd_pointer, parser):
 def display_data__open(
     cmd_pointer, parser, edit_mode=False
 ):  # pylint: disable=unused-argument # generic pass through used or unused
-    # Preserve memory for further follow-up commands.
     """open display data"""
+    # Preserve memory for further follow-up commands.
     MEMORY.preserve()
 
-    df = MEMORY.get()  # Dataframe
+    df = MEMORY.get()
     if df is None:
         return output_error(msg("memory_empty", "display"), pad=1)
 
+    # If there's molecules in the dataframe, open the result in the molset viewer.
     if df_has_molecules(df):
-        molset = dataframe2molset(df)
-        cache_id = create_molset_cache_file(cmd_pointer, molset)
-        path = f"molset/{cache_id}"
-        gui_init(cmd_pointer, path)
-        # print(molset)
+        gui_init(cmd_pointer, "result")
         return
+
+    # Once the dataviewer is integrated, this will all be handled by the results page.
+    # but until then, when no molecules are detected we spin up the legacy flask dataviewer.
 
     # Load routes and launch browser UI.
     df = df.to_json(orient="records")

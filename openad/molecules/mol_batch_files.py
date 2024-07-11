@@ -3,13 +3,16 @@
 import pandas
 from rdkit.Chem import PandasTools
 from openad.molecules.mol_functions import (
+    retrieve_mol_from_mymols,
     merge_molecule_properties,
     valid_smiles,
     new_molecule,
-    canonical_smiles,
+    canonicalize,
+    mol_from_identifier,
+    mymols_add,
     INPUT_MAPPINGS,
 )
-from openad.molecules.mol_commands import retrieve_mol_from_list, add_molecule
+from openad.molecules.mol_commands import add_molecule
 from openad.helpers.output import output_error, output_warning, output_success, output_text
 
 from openad.helpers.output_msgs import msg
@@ -28,14 +31,17 @@ def load_batch_molecules(cmd_pointer, inp):
     if mol_dataframe is None:
         output_error("Source not Found ", return_val=False)
         return True
+    mol_dataframe = mol_dataframe.fillna("")  # Fill NaN with empty string
     cmd_pointer.molecule_list.clear()
     if "pubchem_merge" in inp.as_dict():
         batch_pubchem(cmd_pointer, mol_dataframe)
     if mol_dataframe is not None:
         shred_merge_add_df_mols(mol_dataframe, cmd_pointer)
-        output_success("Records loaded from file : " + str(len(mol_dataframe)), return_val=False)
+        # Todo: `load mols using file` should add instead of overwrite your current mols,
+        # when this is implemented, we'll need to calculate successfully loaded mols differently.
+        output_success(f"Total number of records: <yellow>{len(mol_dataframe)}</yellow>", pad=0, return_val=False)
         output_success(
-            "Unique Molecules loaded to Working list : " + str(len(cmd_pointer.molecule_list)), return_val=False
+            f"Successfully loaded: <yellow>{len(cmd_pointer.molecule_list)}</yellow>", pad=0, return_val=False
         )
 
     return True
@@ -60,7 +66,7 @@ def batch_pubchem(cmd_pointer, dataframe):
     batch_spinner.start("loading molecules from PubChem")
     dict_list = dataframe.to_dict("records")
 
-    for a_mol in dict_list:
+    for i, a_mol in enumerate(dict_list):
         try:
             Name_Flag = False
             if "name" in a_mol:
@@ -74,10 +80,10 @@ def batch_pubchem(cmd_pointer, dataframe):
             else:
                 name = None
             if name is not None:
-                merge_mol = retrieve_mol_from_list(cmd_pointer, name)
+                merge_mol = retrieve_mol_from_mymols(cmd_pointer, name)
                 if merge_mol is not None:
                     Name_Flag = True
-            batch_spinner.text = "loading :" + a_mol["SMILES"]
+            batch_spinner.text = output_text(f"<yellow>Loading:</yellow> {a_mol['SMILES']}", return_val=True)
             if not valid_smiles(a_mol["SMILES"]):
                 output_warning(
                     "error merging SMILES: "
@@ -87,14 +93,19 @@ def batch_pubchem(cmd_pointer, dataframe):
                 )
                 continue
 
-            add_molecule(cmd_pointer, {"molecule_identifier": a_mol["SMILES"]}, force=True, suppress=True)
+            # TRASH - @refactored
+            # add_molecule(cmd_pointer, {"molecule_identifier": a_mol["SMILES"]}, force=True, suppress=True)
 
-        except Exception as e:
-            print(e)
-            output_warning(
-                "error merging SMILES: " + a_mol["SMILES"] + " Smiles has been excluded by load issues with input file",
-                return_val=False,
-            )
+            # Create molecule dict.
+            openad_mol = mol_from_identifier(cmd_pointer, a_mol["SMILES"])
+
+            # Add it to the working set.
+            mymols_add(cmd_pointer, openad_mol, force=True, suppress=True)
+
+        except Exception as err:
+            print(err)
+            err_msg = f"#{i} - <error>Invalid SMILES, molecule dicarded:</error> <yellow>{a_mol['SMILES']}</yellow>"
+            output_text(err_msg, return_val=False)
 
     batch_spinner.succeed("Finished loading from PubChem")
     batch_spinner.stop()
@@ -104,7 +115,7 @@ def shred_merge_add_df_mols(dataframe, cmd_pointer):
     """shreds the molecule relevent properties from dataframe and loads into molecules"""
     dict_list = dataframe.to_dict("records")
     merge_list = []
-    for a_mol in dict_list:
+    for i, a_mol in enumerate(dict_list):
         Name_Flag = False
         if "name" in a_mol:
             name = a_mol["name"]
@@ -121,22 +132,18 @@ def shred_merge_add_df_mols(dataframe, cmd_pointer):
         if name == "":
             name = None
         if name is not None:
-            merge_mol = retrieve_mol_from_list(cmd_pointer, name)
+            merge_mol = retrieve_mol_from_mymols(cmd_pointer, name)
             if merge_mol is not None:
                 Name_Flag = True
         if not valid_smiles(a_mol["SMILES"]):
-            output_warning(
-                "error merging SMILES: "
-                + a_mol["SMILES"]
-                + " Smiles has been excluded by load, it is not recognised by RDKIT",
-                return_val=False,
-            )
+            err_msg = f"#{i} - <error>Invalid SMILES, molecule dicarded:</error> <yellow>{a_mol['SMILES']}</yellow>"
+            output_text(err_msg, return_val=False)
             continue
-        merge_mol = retrieve_mol_from_list(cmd_pointer, a_mol["SMILES"])
+        merge_mol = retrieve_mol_from_mymols(cmd_pointer, a_mol["SMILES"])
         if Name_Flag is True and merge_mol is None:
             # output_error("There is already a molecule by the name, adding  increment to the name  " + name, return_val=False)
             i = 1
-            while retrieve_mol_from_list(cmd_pointer, name + "-" + str(i)) is not None:
+            while retrieve_mol_from_mymols(cmd_pointer, name + "-" + str(i)) is not None:
                 i = i + 1
             name = name + "-" + str(i)
 
@@ -147,7 +154,7 @@ def shred_merge_add_df_mols(dataframe, cmd_pointer):
         if merge_mol is None:
             if name is None:
                 name = a_mol["SMILES"]
-            merge_mol = new_molecule(a_mol["SMILES"], name)
+            merge_mol = new_molecule(a_mol["SMILES"], name=name)
         if merge_mol is not None:
             merge_mol = merge_molecule_properties(a_mol, merge_mol)
         else:
@@ -202,7 +209,6 @@ def load_mol(source_file, cmd_pointer):
             SDFFile = cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/" + name
 
             mol_frame = pandas.read_csv(SDFFile)
-
             return _normalize_mol_df(mol_frame, cmd_pointer)
 
         except BaseException as err:

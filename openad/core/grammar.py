@@ -73,6 +73,7 @@ from openad.app.global_var_lib import _all_toolkits
     save,
     runs,
     show,
+    o_pen,
     mol,
     molecules,
     file,
@@ -85,14 +86,14 @@ from openad.app.global_var_lib import _all_toolkits
     install,
     launch,
     restart,
-    quit,
+    q_uit,
     gui,
     filebrowser,
     molviewer,
 ) = map(
     CaselessKeyword,
     "get list description using create set unset workspace workspaces context jobs exec\
-    as optimize with toolkits toolkit gpu experiment add run save runs show mol molecules\
+    as optimize with toolkits toolkit gpu experiment add run save runs show open mol molecules\
     file display history data remove update result install launch restart quit gui filebrowser molviewer".split(),
 )
 STRING_VALUE = alphanums
@@ -666,7 +667,7 @@ grammar_help.append(
 )
 
 # Exit gui
-statements.append(Forward(quit + gui)("quit_gui"))
+statements.append(Forward(q_uit + gui)("quit_gui"))
 grammar_help.append(
     help_dict_create(
         name="quit gui",
@@ -811,6 +812,22 @@ grammar_help.append(
         category="File System",
         command="remove '<filename>'",
         description="Remove a file from your current workspace.",
+    )
+)
+
+# Open file
+statements.append(Forward(o_pen("open") + desc("file"))("open_file"))  # From molset file
+grammar_help.append(
+    help_dict_create(
+        name="open",
+        category="File System",
+        command="open '<filename>'",
+        description=f"""Open a file or dataframe { 'in your browser' if is_notebook_mode() else 'in an iframe' } 
+
+Examples:
+- <cmd>open 'base_molecules.sdf'</cmd>
+- <cmd>open my_dataframe</cmd>
+""",
     )
 )
 
@@ -1309,7 +1326,7 @@ def output_train_statements(cmd_pointer):
             
             
             The Following commands are used to work with working list of molecules:
-                - add molecule <name> | <smiles> | <inchi> | <inchikey> | <cid>   [as '<name>' ] [ basic ] [force ]
+                - add molecule <name> | <smiles> | <inchi> | <inchikey> | <cid>   [as '<name>' ] [ basic ] [ force ]
                 - display molecule <name> | <smiles> | <inchi> | <inchikey> | <cid>
                 - rename molecule <molecule_identifer_string> as <molecule_name>
                 - export molecule <name> | <smiles> | <inchi> | <inchikey> | <cid> [ as file ]

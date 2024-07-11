@@ -1,12 +1,8 @@
 import os
 from openad.helpers.files import open_file, file_stats
-from openad.molecules.mol_functions import create_molset_cache_file
-from openad.gui.api.molecules_api import (
-    get_molset_mols,
-    create_molset_response,
-    smiles_path2molset,
-    sdf_path2molset,
-)
+from openad.molecules.mol_functions import create_molset_cache_file, get_molset_mols
+from openad.gui.api.molecules_api import create_molset_response
+from openad.molecules.mol_transformers import smiles_path2molset, sdf_path2molset, mdl_path2molset
 
 
 def fs_get_workspace_files(cmd_pointer, path=""):
@@ -27,16 +23,16 @@ def fs_get_workspace_files(cmd_pointer, path=""):
         "dirname": "",
         "files": [],
         "filesHidden": [],  # Filenames starting with .
-        # "filesSystem": [],  # Filenames starting with __ # Probably we can just use hidden for this.
+        # "filesSystem": [],  # Filenames starting with __ #fileSystem A place to hide our own system files out of sight? Will probably implement later, do not delete
         "dirs": [],
         "dirsHidden": [],  # Dir names starting with .
-        # "dirsSystem": [],  # Dir names starting with __ # Probably we can just use hidden for this.
+        # "dirsSystem": [],  # Dir names starting with __ # See #fileSystem
     }
 
     # Organize file & directory names into dictionary.
     for filename in os.listdir(dir_path):
         is_hidden = filename.startswith(".")
-        is_system = filename.startswith("__")
+        # is_system = filename.startswith("__")
         is_file = os.path.isfile(os.path.join(dir_path, filename))
 
         if is_file:
@@ -44,17 +40,19 @@ def fs_get_workspace_files(cmd_pointer, path=""):
                 continue
             elif is_hidden:
                 level["filesHidden"].append(filename)
-            elif is_system:
-                level["filesSystem"].append(filename)
+            # elif is_system:
+            #     level["filesSystem"].append(filename) # See #fileSystem
             else:
                 level["files"].append(filename)
         else:
             is_dir = os.path.isdir(os.path.join(dir_path, filename))
             if is_dir:
+                if filename == "._openad":
+                    continue
                 if is_hidden:
                     level["dirsHidden"].append(filename)
-                elif is_system:
-                    level["dirsSystem"].append(filename)
+                # elif is_system:
+                #     level["dirsSystem"].append(filename) # See #fileSystem
                 else:
                     level["dirs"].append(filename)
 
@@ -183,7 +181,7 @@ def fs_attach_file_data(cmd_pointer, file_obj, query=None):
     ext = file_obj["_meta"]["ext"]
 
     # Molset --> Load molset object with first page data
-    if file_type == "molset":
+    if file_type in ["molset", "sdf", "smi"]:
 
         # Step 1: Load or assemble the molset.
         # - - -
@@ -200,10 +198,10 @@ def fs_attach_file_data(cmd_pointer, file_obj, query=None):
         elif ext == "sdf":
             molset, err_code = sdf_path2molset(path_absolute)
 
-        # Step 2: Store a working copy of the molset in the cache.
-        # - - -
-
         if molset:
+            # Step 2: Store a working copy of the molset in the cache.
+            # - - -
+
             # For JSON files, we can simply copy the original file (fast).
             if ext == "json":
                 cache_id = create_molset_cache_file(cmd_pointer, path_absolute=path_absolute)
@@ -223,6 +221,10 @@ def fs_attach_file_data(cmd_pointer, file_obj, query=None):
         else:
             data = None
 
+    # Molecule .mol files --> convert to molecule JSON
+    elif file_type == "mdl":
+        data, err_code = mdl_path2molset(path_absolute)
+
     # Everything else --> Load file content
     else:
         # Read file's content
@@ -238,14 +240,24 @@ def fs_attach_file_data(cmd_pointer, file_obj, query=None):
 
 
 def _get_file_ext(filename):
+    """
+    Get the file extension from a filename.
+    """
     if filename.find(".") == -1:
         return ""
     else:
         return filename.split(".")[-1]
 
 
-# Secondary file extension, eg. foobar.mol.json --> mol
 def _get_file_ext2(filename):
+    """
+    Get the secondary file extension from a filename.
+
+    Secondary file extensions are used to indicate subformats, eg:
+    - foobar.json --> JSON file
+    - foobar.mol.json --> molecule JSON file
+    - foobar.molset.json --> molecule set JSON file
+    """
     has_ext2 = len(filename.split(".")) >= 3
     if has_ext2:
         parts = filename.split(".")
@@ -256,13 +268,25 @@ def _get_file_ext2(filename):
 
 
 def _get_file_type(ext, ext2):
+    """
+    Deduct the fileType from the file's primary and secondary extensions.
+
+    The file type is used in the frontend to determine:
+    - What icon to display
+    - What viewer to use when opening the file
+
+    In the frontend the fileType is mapped to its respective
+    display name and module name via _map_FileType.
+
+    Any changes here should also be reflected in the FileType TypeScript type.
+    """
     # Single molecule files
-    if ext in ["mol", "molecule", "pdb", "cif", "xyz", "mol2", "mmcif", "cml", "inchi"]:
-        return "mol"
+    if ext in ["mol"]:  # Future support: "molecule", "pdb", "cif", "xyz", "mol2", "mmcif", "cml", "inchi"
+        return "mdl"
 
     # Molecule set files
-    if ext in ["sdf", "smi"]:
-        return "molset"
+    if ext in ["smi"]:
+        return "smi"
 
     # JSON files --> parse secondary extension
     elif ext in ["json", "cjson"]:
@@ -297,7 +321,7 @@ def _get_file_type(ext, ext2):
         return "vid"
 
     # Individually recognized file formats (have their own icon)
-    elif ext in ["xml", "pdf", "svg", "run", "rxn", "md"]:
+    elif ext in ["sdf", "xml", "pdf", "svg", "run", "rxn", "md"]:
         return ext
 
     # # Yaml files

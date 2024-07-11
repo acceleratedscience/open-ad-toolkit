@@ -5,6 +5,11 @@ from flask import request
 
 
 class GeneralApi:
+    """
+    All the general API endpoints.
+    The API endpoints are called from gui_routes.py.
+    """
+
     def __init__(self, cmd_pointer):
         self.cmd_pointer = cmd_pointer
 

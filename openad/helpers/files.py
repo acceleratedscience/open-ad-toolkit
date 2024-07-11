@@ -1,5 +1,4 @@
 import os
-import csv
 import json
 import ijson
 import pandas as pd
@@ -250,3 +249,10 @@ def write_file(file_path, data, return_err=False):
     else:
         output_error(err_msg)
         return None
+
+
+# Remove trash folder and its contents.
+# Called on quit.
+def empty_trash(cmd_pointer):
+    trash_dir = f"{cmd_pointer.workspace_path()}/.trash"
+    os.system(f"rm -rf '{trash_dir}'")

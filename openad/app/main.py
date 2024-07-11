@@ -16,7 +16,7 @@ from openad.app.main_lib import lang_parse, initialise, set_context, unset_conte
 from openad.toolkit.toolkit_main import load_toolkit
 from openad.app import login_manager
 from openad.gui.gui_launcher import gui_init
-from openad.gui.ws_server import ws_server  # Web socket server for gui
+from openad.gui.ws_server import ws_server  # Web socket server for gui - experimental
 
 # Core
 import openad.core.help as openad_help
@@ -41,6 +41,7 @@ from openad.helpers.output import output_text, output_error, output_warning
 from openad.helpers.output_msgs import msg
 from openad.helpers.general import refresh_prompt
 from openad.helpers.splash import splash
+from openad.helpers.files import empty_trash
 from openad.helpers.output_content import info_workspaces, info_toolkits, info_runs, info_context
 
 # Globals
@@ -938,6 +939,7 @@ def cmd_line():
                     from openad.gui.gui_launcher import gui_shutdown
 
                     gui_shutdown(command_line, ignore_warning=True)
+                    empty_trash(command_line)
                     lets_exit = True
                     command_line.do_exit("dummy do not remove")
 

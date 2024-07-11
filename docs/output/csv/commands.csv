@@ -6,7 +6,7 @@ get workspace [ <workspace_name> ];Workspaces
 create workspace <workspace_name> [ description('<description>') on path '<path>' ];Workspaces
 remove workspace <workspace_name> ;Workspaces
 list workspaces;Workspaces
-add molecule <name> | <smiles> | <inchi> | <inchikey> | <cid> [ as '<name>' ] [ basic ] [force ];Molecules
+add molecule <name> | <smiles> | <inchi> | <inchikey> | <cid> [ as '<name>' ] [ basic ] [ force ];Molecules
 display molecule <name> | <smiles> | <inchi> | <inchikey> | <cid>;Molecules
 display sources <name> | <smiles> | <inchi> | <inchikey> | <cid>;Molecules
 rename molecule <molecule_identifer_string> as <molecule_name>;Molecules

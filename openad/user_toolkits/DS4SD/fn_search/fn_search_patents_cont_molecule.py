@@ -7,7 +7,7 @@ import pandas as pd
 from deepsearch.chemistry.queries.molecules import PatentsWithMoleculesQuery
 from deepsearch.chemistry.queries.molecules import MolId, MolIdType
 from openad.molecules.molecule_cache import create_analysis_record, save_result
-from openad.molecules.mol_functions import canonical_smiles, valid_smiles, valid_inchi
+from openad.molecules.mol_functions import canonicalize, valid_smiles, valid_inchi
 from openad.molecules.mol_commands import property_retrieve
 from openad.helpers.output import output_text, output_success, output_warning, output_error, output_table
 from openad.helpers.output_msgs import msg
@@ -35,7 +35,7 @@ def search_patents_cont_molecule(inputs: dict, cmd_pointer):
     try:
         if valid_smiles(inputs["smiles"]) is True:
             query = PatentsWithMoleculesQuery(
-                molecules=[MolId(type=MolIdType.SMILES, value=canonical_smiles(inputs["smiles"]))],
+                molecules=[MolId(type=MolIdType.SMILES, value=canonicalize(inputs["smiles"]))],
                 num_items=20,
             )
 
@@ -89,7 +89,7 @@ def search_patents_cont_molecule(inputs: dict, cmd_pointer):
         key = inputs["smiles"]
     elif result_type == "SMILES":
         # key = property_retrieve(inputs["smiles"], "canonical_smiles", cmd_pointer)
-        key = canonical_smiles(inputs["smiles"])
+        key = canonicalize(inputs["smiles"])
         if key is None:
             key = inputs["smiles"]
 

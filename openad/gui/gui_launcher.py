@@ -302,9 +302,9 @@ def _print_launch_msg(host, port):
 
 # Shutdown the GUI server.
 def gui_shutdown(cmd_pointer=None, ignore_warning=False):
-    # Clear all working copy molsets in the .cache folder
+    # Clear all working copy molsets in the /wc_cache folder
     workspace_path = cmd_pointer.workspace_path(cmd_pointer.settings["workspace"])
-    cache_dir = workspace_path + "/.cache"
+    cache_dir = workspace_path + "/._openad/wc_cache"
     if os.path.exists(cache_dir):
         for file in os.listdir(cache_dir):
             os.remove(os.path.join(cache_dir, file))

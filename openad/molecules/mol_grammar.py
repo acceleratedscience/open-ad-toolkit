@@ -129,12 +129,11 @@ def mol_grammar_add(statements, grammar_help):
             + Optional(force)("force")
         )("add_molecule")
     )
-
     grammar_help.append(
         help_dict_create(
             name="add molecule",
             category="Molecules",
-            command="add molecule <name> | <smiles> | <inchi> | <inchikey> | <cid> [ as '<name>' ] [ basic ] [force ]",
+            command="add molecule <name> | <smiles> | <inchi> | <inchikey> | <cid> [ as '<name>' ] [ basic ] [ force ]",
             description=f"""
 This command is how you add a molecule to a current working list of molecules in memory. When adding a molecule by name, this name will become the molecule's identifying string. 
 
@@ -322,13 +321,15 @@ Examples
     # ---
     # Remove molecule
     statements.append(
-        Forward(remove + molecule + (molecule_identifier | desc)("molecule_identifier"))("remove_molecule")
+        Forward(remove + molecule + (molecule_identifier | desc)("molecule_identifier") + Optional(force)("force"))(
+            "remove_molecule"
+        )
     )
     grammar_help.append(
         help_dict_create(
             name="remove molecule",
             category="Molecules",
-            command="remove molecule <name> | <smiles> | <inchi> | <inchikey> | <cid>",
+            command="remove molecule <name> | <smiles> | <inchi> | <inchikey> | <cid> [ force ]",
             description="""
 Remove a molecule from the current working list based on a given molecule identifier.
 
@@ -554,7 +555,7 @@ Available properties: <cmd>{'</cmd>, <cmd>'.join(m_props)}</cmd>
     grammar_help.append(
         help_dict_create(
             name="load molecules",
-            category="Utility",
+            category="Molecules",
             command="load molecules using dataframe <dataframe> [ merge with pubchem ]",
             description=""""            
 This command Load molecules into the molecule working list from a dataframe. 
@@ -643,24 +644,6 @@ Examples of how to show a molecule and its proerties in the molecule viewer:
     Examples of how to show molecules in mols2grid:
     - <cmd>show molecules using file 'base_molecules.sdf' as molsobject</cmd>
     - <cmd>show molecules using dataframe my_dataframe save as 'selection.sdf'</cmd>
-    """,
-        )
-    )
-
-    # ---
-    # Show molset in browser.
-    statements.append(Forward(show("show") + molecule_set + desc("molset_file"))("show_molset"))  # From molset file
-    grammar_help.append(
-        help_dict_create(
-            name="show molset",
-            category="Molecules",
-            command="show molset '<molset_file>' | <dataframe>",
-            description=f"""Visualize a molecule set { 'in your browser ' if is_notebook_mode() else '' }to examine and triage.
-Supported molset filetypes: <yellow>SDF</yellow>, <yellow>CSV</yellow> and <yellow>.molset.json</yellow>
-    
-    Examples of how to show molecules in mols2grid:
-    - <cmd>show molset 'base_molecules.sdf'</cmd>
-    - <cmd>show molset my_dataframe</cmd>
     """,
         )
     )
