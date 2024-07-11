@@ -693,6 +693,8 @@ def mol_from_identifier(cmd_pointer, identifier, mol_name=None, basic=False):
         # Fetch from PubChem.
         else:
             openad_mol = retrieve_mol(identifier)  # TODO: very convoluted way to call _get_mol()
+            if openad_mol is None:
+                openad_mol = new_molecule(identifier, name=identifier)
 
     # Fail - invalid.
     if openad_mol is None:

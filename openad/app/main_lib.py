@@ -31,13 +31,8 @@ from openad.openad_model_plugin.catalog_model_services import (
 )
 
 # molecules
-<<<<<<< HEAD
-from openad.molecules.mol_batch_files import load_batch_molecules
 from openad.molecules.mol_functions import df_has_molecules
-=======
 from openad.molecules.mol_batch_files import load_batch_molecules, merge_molecule_property_data
->>>>>>> main
-
 from openad.molecules.mol_commands import (
     display_molecule,
     display_property_sources,
