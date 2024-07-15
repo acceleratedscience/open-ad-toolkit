@@ -242,11 +242,13 @@ class rxn_helper:
                 # sys.stderr = open(os.devnull, "w")
 
                 try:
+                    print(cmd_pointer.login_settings["client"][cmd_pointer.login_settings["toolkits"].index("RXN")])
                     rxn4chemistry_wrapper = cmd_pointer.login_settings["client"][
                         cmd_pointer.login_settings["toolkits"].index("RXN")
                     ]
+                    print(cmd_pointer.settings["workspace"])
                     x = rxn4chemistry_wrapper.create_project(cmd_pointer.settings["workspace"])
-                    # print(x)
+                    print(x)
                     if len(x) == 0:
                         # print("continuing")
                         continue
