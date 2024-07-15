@@ -764,9 +764,9 @@ USING Parameters:
 If using a hosted service the following parameters must be supplied:
 -<cmd>Inference-Service</cmd>: this is the name of the inference service that is hosted, it is a required parameter if cataloging a remote service.
 An authorization parameter is always required if cataloging a hosted service, either Auhtorisation group (<cmd>auth_group</cmd>) or Authorisation bearer_token/api_key (<cmd>Authorization</cmd>):
--<cmd>auth_group</n>: this is the name of an authorization group which contains the api_key linked to the service access. This can only be used if <cmd>Authorization</cmd> is not also defined.
+-<cmd>auth_group</cmd>: this is the name of an authorization group which contains the api_key linked to the service access. This can only be used if <cmd>Authorization</cmd> is not also defined.
 OR
--<cmd>Authorization</n>: this parameter is designed to be used when a auth_group is not defined.
+-<cmd>Authorization</cmd>: this parameter is designed to be used when a <cmd>auth_group</cmd> is not defined.
 
 Example:
 
@@ -795,7 +795,7 @@ Catalog a remote service shared with you:
             name="Model up",
             category="Model",
             command="model service up '<service_name>'|<service_name> [no_gpu]}",
-            description="""launches a cataloged model service.
+            description="""launches a cataloged model service when it was cataloged as a self managed service from a directory or github repository.
 If you do not want to launch a service with GPU you should specify <cmd>no_gpu</cmd> at the end of the command.
 Examples:
 

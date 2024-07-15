@@ -83,6 +83,9 @@ def login(cmd_pointer):
     except BaseException:
         return False, None
     x = cmd_pointer.login_settings["toolkits"].index("RXN")
+    if config_file["host"].strip() == "" or config_file["host"].strip() == "None":
+        config_file["host"] = DEFAULT_URL
+
     try:
         client = RXN4ChemistryWrapper(api_key=config_file["auth"]["api_key"], base_url=config_file["host"])
         email = client.current_user()["response"]["payload"]["email"]
