@@ -5,6 +5,7 @@ import base64
 import string
 import hashlib
 from openad.app.global_var_lib import GLOBAL_SETTINGS
+from time import sleep
 
 
 def generate_smiles_hash(smiles_string):
@@ -263,7 +264,7 @@ class rxn_helper:
                 try:
                     from time import sleep
 
-                    sleep(2)
+                    sleep(3)
                     result = self.set_current_project(cmd_pointer, cmd_pointer.settings["workspace"])
                     # print(cmd_pointer.settings['workspace'])
                     # print(result)
@@ -337,7 +338,6 @@ class rxn_helper:
         source_list = []
         result = False
         retries = 0
-        from time import sleep
 
         while result == False:
             try:
