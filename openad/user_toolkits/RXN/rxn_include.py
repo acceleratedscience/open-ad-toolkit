@@ -262,7 +262,6 @@ class rxn_helper:
                     print(e)
                     raise BaseException("Unable to create project :" + str(e))
                 try:
-                    from time import sleep
 
                     sleep(3)
                     result = self.set_current_project(cmd_pointer, cmd_pointer.settings["workspace"])
