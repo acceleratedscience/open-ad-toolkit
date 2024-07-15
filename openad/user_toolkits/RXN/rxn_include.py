@@ -237,7 +237,6 @@ class rxn_helper:
                 if retries > 1:
                     sleep(3)
                 retries = retries + 1
-                import sys
 
                 # sys.stdout = open(os.devnull, "w")
                 # sys.stderr = open(os.devnull, "w")
@@ -260,6 +259,7 @@ class rxn_helper:
                     # result=False
                     # sys.stdout = sys.__stdout__
                     # sys.stderr = sys.__stderr__
+                    print(e)
                     raise BaseException("Unable to create project :" + str(e))
                 try:
                     from time import sleep
