@@ -82,7 +82,6 @@ class rxn_helper:
 
         except Exception as e:
             projects = {}
-
         projects[project_name] = project_id
 
         try:
@@ -230,7 +229,7 @@ class rxn_helper:
             raise BaseException(
                 "Unable to set current project due to API issue, check server connections Try Again: " + str(e)
             )
-
+        print(result)
         if result == False:
             retries = 0
             while retries < 5 and result == False:
@@ -246,11 +245,12 @@ class rxn_helper:
                     rxn4chemistry_wrapper = cmd_pointer.login_settings["client"][
                         cmd_pointer.login_settings["toolkits"].index("RXN")
                     ]
+                    sleep(3)
                     print(cmd_pointer.settings["workspace"])
                     x = rxn4chemistry_wrapper.create_project(cmd_pointer.settings["workspace"])
                     print(x)
                     if len(x) == 0:
-                        # print("continuing")
+
                         continue
                     else:
                         self.append_project(
@@ -258,9 +258,7 @@ class rxn_helper:
                         )
                     # print('here')
                 except BaseException as e:
-                    # result=False
-                    # sys.stdout = sys.__stdout__
-                    # sys.stderr = sys.__stderr__
+
                     print(e)
                     raise BaseException("Unable to create project :" + str(e))
                 try:
@@ -342,7 +340,7 @@ class rxn_helper:
 
         while result == False:
             try:
-                x = rxn4chemistry_wrapper.list_all_projects()["response"]["payload"]["content"]
+                x = rxn4chemistry_wrapper.list_all_projects(size=100)["response"]["payload"]["content"]
                 # print(x)
                 result = True
             except BaseException as e:
