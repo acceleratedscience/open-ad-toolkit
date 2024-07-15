@@ -229,7 +229,7 @@ class rxn_helper:
             raise BaseException(
                 "Unable to set current project due to API issue, check server connections Try Again: " + str(e)
             )
-        print(result)
+
         if result == False:
             retries = 0
             while retries < 5 and result == False:
@@ -246,9 +246,9 @@ class rxn_helper:
                         cmd_pointer.login_settings["toolkits"].index("RXN")
                     ]
                     sleep(3)
-                    print(cmd_pointer.settings["workspace"])
+
                     x = rxn4chemistry_wrapper.create_project(cmd_pointer.settings["workspace"])
-                    print(x)
+
                     if len(x) == 0:
 
                         continue
