@@ -326,12 +326,40 @@ def add_remote_service_from_endpoint(cmd_pointer, parser) -> bool:
 
 def catalog_add_model_service(cmd_pointer, parser) -> bool:
     """Add model service repo to catalog"""
+
     service_name = parser.as_dict()["service_name"]
     service_path = os.path.expanduser(parser.as_dict()["path"])
     logger.debug(f"catalog model service | {service_name=} {service_path=}")
+    params = {}
+    if "params" in parser.as_dict():
+        for i in parser.as_dict()["params"]:
+            params[i[0]] = i[1]
+
+    if "auth_group" in params.keys() and "authorization" in params.keys():
+        output_error(
+            f"It is not permitted to define auth_group and authroization in the same catalog statement ",
+            return_val=False,
+        )
+        return False
+
+    if "auth_group" in params.keys():
+        auth_group = params["auth_group"]
+        lookup_table = load_lookup_table()
+        if auth_group not in lookup_table["auth_table"]:
+            output_error(
+                f"auth_group {auth_group} not in auth table, please add the authgroup and recatalog the service {service_name} ",
+                return_val=False,
+            )
+            return False
+    else:
+        auth_group = None
+
     if "remote" in parser:
         # run this code and exit
-        return add_remote_service_from_endpoint(cmd_pointer, parser)
+        output = add_remote_service_from_endpoint(cmd_pointer, parser)
+        if auth_group is not None:
+            updated_lookup_table = update_lookup_table(auth_group=auth_group, service=service_name)
+        return output
     # check if service exists
     with Dispatcher() as service:
         if service_name in service.list():
@@ -356,6 +384,8 @@ def catalog_add_model_service(cmd_pointer, parser) -> bool:
         service.add_service(service_name, config)
         # spinner.succeed(f"service {service_name} added to catalog")
         output_success(f"service {service_name} added to catalog", return_val=False)
+    # If auth group in parameters apply authgroup
+
     return True
 
 
@@ -575,6 +605,7 @@ def service_catalog_grammar(statements: list, help: list):
     fr_om = py.CaselessKeyword("from")
     _list = py.CaselessKeyword("list")
     quoted_string = py.QuotedString("'", escQuote="\\")
+
     auth_group = quoted_string | py.Word(py.alphanums + "_")
     service_name = quoted_string | py.Word(py.alphanums + "_")
 
@@ -589,7 +620,7 @@ def service_catalog_grammar(statements: list, help: list):
     to = py.CaselessKeyword("to")
 
     # catalog service
-    using_keyword = py.Literal("USING").suppress()
+    using_keyword = py.CaselessKeyword("USING").suppress()
     quoted_identifier = py.QuotedString("'", escChar="\\", unquoteResults=True)
     parameter = py.Word(py.alphas, py.alphanums + "-_") | quoted_identifier
     value = py.Word(py.alphanums + "-_") | quoted_identifier
@@ -715,9 +746,27 @@ def service_catalog_grammar(statements: list, help: list):
         help_dict_create(
             name="catalog Model service",
             category="Model",
-            command="catalog model service from (remote) '<path or github>' as  '<service_name>'|<service_name>   USING (<parameter>=<value> <parameter>=<value>)",
+            command="catalog model service from (remote) '<path> or <github> or <service_url>' as  '<service_name>'|<service_name>   USING (<parameter>=<value> <parameter>=<value>)",
             description="""catalog a model service from a path or github or remotely from an existing OpenAD service.
 (USING) optional headers parameters for communication with service backend.
+If you are cataloging a service using a model defined in a directory, provide the absolute <cmd> <path> </cmd> of that directory in quotes.
+
+The following options require the <cmd>remote</cmd> option be declared.
+
+If you are cataloging a service using a model defined in github repository, provide the absolute <cmd> <github> </cmd> of that github directory quotes.
+
+If you are cataloging a remote service on a ip address and port provide the remote services ipaddress and port in quoted string e.g. <cmd>'0.0.0.0:8080'</cmd>
+
+<cmd>service_name</cmd>: this is the name of the service as you will define it for your usage. e.g <cmd>prop</cmd> short for properties. 
+
+USING Parameters:
+
+If using a hosted service the following parameters must be supplied:
+-<cmd>Inference-Service</cmd>: this is the name of the inference service that is hosted, it is a required parameter if cataloging a remote service.
+An authorization parameter is always required if cataloging a hosted service, either Auhtorisation group (<cmd>auth_group</cmd>) or Authorisation bearer_token/api_key (<cmd>Authorization</cmd>):
+-<cmd>auth_group</n>: this is the name of an authorization group which contains the api_key linked to the service access. This can only be used if <cmd>Authorization</cmd> is not also defined.
+OR
+-<cmd>Authorization</n>: this parameter is designed to be used when a auth_group is not defined.
 
 Example:
 

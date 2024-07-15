@@ -655,7 +655,7 @@ def request_generate(request_input):
             "property_type": property_types,
             "subjects": subjects,
         },
-        "api_key": "api-dthgwrhrthrtrth",
+        "api_key": "reserved for federated APIs",
     }
     if Sample_Size is not None:
         template["sample_size"] = Sample_Size
