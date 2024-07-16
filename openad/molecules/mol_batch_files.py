@@ -3,7 +3,7 @@
 import pandas
 from rdkit.Chem import PandasTools
 from openad.molecules.mol_functions import (
-    retrieve_mol_from_mymols,
+    retrieve_mol_from_list,
     merge_molecule_properties,
     valid_smiles,
     new_molecule,
@@ -174,7 +174,7 @@ def batch_pubchem(cmd_pointer, dataframe):
             else:
                 name = None
             if name is not None:
-                merge_mol = retrieve_mol_from_mymols(cmd_pointer, name)
+                merge_mol = retrieve_mol_from_list(cmd_pointer, name)
                 if merge_mol is not None:
                     Name_Flag = True
             batch_spinner.text = output_text(f"<yellow>Loading:</yellow> {a_mol['SMILES']}", return_val=True)
@@ -226,18 +226,18 @@ def shred_merge_add_df_mols(dataframe, cmd_pointer):
         if name == "":
             name = None
         if name is not None:
-            merge_mol = retrieve_mol_from_mymols(cmd_pointer, name)
+            merge_mol = retrieve_mol_from_list(cmd_pointer, name)
             if merge_mol is not None:
                 Name_Flag = True
         if not valid_smiles(a_mol["SMILES"]):
             err_msg = f"#{i} - <error>Invalid SMILES, molecule dicarded:</error> <yellow>{a_mol['SMILES']}</yellow>"
             output_text(err_msg, return_val=False)
             continue
-        merge_mol = retrieve_mol_from_mymols(cmd_pointer, a_mol["SMILES"])
+        merge_mol = retrieve_mol_from_list(cmd_pointer, a_mol["SMILES"])
         if Name_Flag is True and merge_mol is None:
             # output_error("There is already a molecule by the name, adding  increment to the name  " + name, return_val=False)
             i = 1
-            while retrieve_mol_from_mymols(cmd_pointer, name + "-" + str(i)) is not None:
+            while retrieve_mol_from_list(cmd_pointer, name + "-" + str(i)) is not None:
                 i = i + 1
             name = name + "-" + str(i)
 

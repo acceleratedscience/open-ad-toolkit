@@ -42,9 +42,9 @@ def fetchRoutes(cmd_pointer):
         f"{api_v1}/get-mol-viz-data": {"func": molecules_api.get_mol_viz_data, "method": "POST"},
         f"{api_v1}/get-mol-data-from-molset": {"func": molecules_api.get_mol_data_from_molset, "method": "POST"},
         #
-        f"{api_v1}/add-mol-to-mymols": {"func": molecules_api.add_mol_to_mymols, "method": "POST"},
-        f"{api_v1}/remove-mol-from-mymols": {"func": molecules_api.remove_mol_from_mymols, "method": "POST"},
-        f"{api_v1}/check-mol-in-mymols": {"func": molecules_api.check_mol_in_mymols, "method": "POST"},
+        f"{api_v1}/add-mol-to-mymols": {"func": molecules_api.add_mol_to_list, "method": "POST"},
+        f"{api_v1}/remove-mol-from-mymols": {"func": molecules_api.remove_mol_from_list, "method": "POST"},
+        f"{api_v1}/check-mol-in-mymols": {"func": molecules_api.check_mol_in_list, "method": "POST"},
         f"{api_v1}/enrich-mol": {"func": molecules_api.enrich_mol, "method": "POST"},
         #
         f"{api_v1}/save-mol-as-json": {"func": molecules_api.save_mol_as_json, "method": "POST"},
@@ -56,14 +56,14 @@ def fetchRoutes(cmd_pointer):
         #
         # Molecules - Molsets
         f"{api_v1}/get-molset": {"func": molecules_api.get_molset, "method": "POST"},
-        f"{api_v1}/get-molset-mymols": {"func": molecules_api.get_molset_mymols, "method": "POST"},
+        f"{api_v1}/get-molset-mymols": {"func": molecules_api.get_molset_list, "method": "POST"},
         f"{api_v1}/get-molset-result": {"func": molecules_api.get_molset_result, "method": "POST"},
         #
         f"{api_v1}/remove-from-molset": {"func": molecules_api.remove_from_molset, "method": "POST"},
         f"{api_v1}/clear-molset-working-copy": {"func": molecules_api.clear_molset_working_copy, "method": "POST"},
         #
         f"{api_v1}/update-molset": {"func": molecules_api.update_molset, "method": "POST"},
-        f"{api_v1}/update-molset-mymols": {"func": molecules_api.update_molset_mymols, "method": "POST"},
+        f"{api_v1}/update-molset-mymols": {"func": molecules_api.update_molset_list, "method": "POST"},
         f"{api_v1}/update-molset-result": {"func": molecules_api.update_molset_result, "method": "POST"},
         #
         f"{api_v1}/save-molset-as-json": {"func": molecules_api.save_molset_as_json, "method": "POST"},

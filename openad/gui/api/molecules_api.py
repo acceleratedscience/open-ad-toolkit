@@ -22,7 +22,7 @@ from openad.molecules.mol_functions import (
     mol_from_identifier,
     mymols_add,
     mymols_remove,
-    retrieve_mol_from_mymols,
+    retrieve_mol_from_list,
     get_best_available_identifier,
     get_best_available_smiles,
     merge_mols,
@@ -127,7 +127,7 @@ class MoleculesApi:
 
     ##
 
-    def add_mol_to_mymols(self):
+    def add_mol_to_list(self):
         """
         Add a molecule from the my-mols working set.
 
@@ -154,7 +154,7 @@ class MoleculesApi:
 
         return {"status": success}, 200
 
-    def remove_mol_from_mymols(self):
+    def remove_mol_from_list(self):
         """
         Remove a molecule from the my-mols working set.
 
@@ -173,7 +173,7 @@ class MoleculesApi:
 
         return {"status": success}, 200
 
-    def check_mol_in_mymols(self):
+    def check_mol_in_list(self):
         """
         Check if a molecule is stored in the my-mols working set.
         """
@@ -188,7 +188,7 @@ class MoleculesApi:
         _, identifier = get_best_available_identifier(openad_mol)
 
         # Check if it's in the working set.
-        success = bool(retrieve_mol_from_mymols(self.cmd_pointer, identifier))
+        success = bool(retrieve_mol_from_list(self.cmd_pointer, identifier))
 
         return {"status": success}, 200
 
@@ -343,7 +343,7 @@ class MoleculesApi:
         # Formulate response object.
         return create_molset_response(molset, query, cache_id), 200
 
-    def get_molset_mymols(self):
+    def get_molset_list(self):
         """
         Get the list of molecules currently stored in the cmd_pointer.
         """
@@ -481,7 +481,7 @@ class MoleculesApi:
         """
         return self._save_molset(new_file=False)
 
-    def update_molset_mymols(self):
+    def update_molset_list(self):
         """
         Save changes to the molecule list.
         """

@@ -204,7 +204,7 @@ def canonicalize(input_smiles):
     return Chem.MolToSmiles(Chem.MolFromSmiles(input_smiles), isomericSmiles=True)  # pylint: disable=no-member
 
 
-def retrieve_mol_from_mymols(cmd_pointer, identifier, ignore_synonyms=False):
+def retrieve_mol_from_list(cmd_pointer, identifier, ignore_synonyms=False):
     """retrieves a molecule from the working list"""
 
     openad_mol = find_mol_in_list(identifier, cmd_pointer.molecule_list, ignore_synonyms=ignore_synonyms)
@@ -726,7 +726,7 @@ def mymols_add(cmd_pointer, openad_mol, force=False, suppress=False):
         return False
 
     # Fail - already in list.
-    if retrieve_mol_from_mymols(cmd_pointer, openad_mol["properties"]["canonical_smiles"]) is not None:
+    if retrieve_mol_from_list(cmd_pointer, openad_mol["properties"]["canonical_smiles"]) is not None:
         output_error("Molecule already in list", return_val=False)
         return True
 
