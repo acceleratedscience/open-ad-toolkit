@@ -52,7 +52,7 @@ def gui_init(cmd_pointer=None, path=None, data=None, silent=False):
         If True, we'll start the server without opening the browser.
         This is used when restarting the server.
     """
-    template_folder = Path(__file__).resolve().parents[1] / "gui-build"
+    template_folder = Path(__file__).resolve().parents[2] / "openad-gui"
 
     # Parse potential data into a URL string.
     query = "?data=" + urllib.parse.quote(json.dumps(data)) if data else ""
@@ -105,7 +105,7 @@ def _launch(routes={}, path=None, query="", hash="", silent=False):
         return
 
     # Initialize Flask app.
-    template_folder = Path(__file__).resolve().parents[1] / "gui-build"
+    template_folder = Path(__file__).resolve().parents[2] / "openad-gui"
     if not template_folder.exists():
         output_error("The OpenAD GUI folder is missing")
         return
@@ -211,7 +211,7 @@ class ServerThread(Thread):
         self.join()  # Close thread
         self.active = False
         prefix = f"<red>{html.unescape('&empty;')}</red> "
-        output_success([f"{prefix}OpenAD GUI shutdown complete", f"{prefix}{self.host}:{self.port}"])
+        output_warning([f"{prefix}OpenAD GUI shutdown complete", f"{prefix}{self.host}:{self.port}"], tabs=1)
 
 
 def _open_browser(host, port, path, query, hash, silent=False):
@@ -274,18 +274,12 @@ def _open_browser(host, port, path, query, hash, silent=False):
 
     # CLI --> Open browser.
     else:
-        url = f"http://{host}:{port}{module_path}{query}{hash}"
         if not silent:
             socket.setdefaulttimeout(1)
-            webbrowser.open(url, new=1)
+            webbrowser.open(f"http://{host}:{port}{module_path}{query}{hash}", new=1)
 
         # Display our own launch message.
-        _print_launch_msg(url)
-
-
-# Generated a stylized launch message for the web server.
-def _print_launch_msg(url):
-    output_text(f"<yellow>Launching GUI:</yellow>\n<link>{url}</link>", pad=1)
+        _print_launch_msg(host, port)
 
 
 # Generated a stylized launch message for the web server

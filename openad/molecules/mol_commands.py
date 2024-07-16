@@ -659,7 +659,9 @@ def show_mol(cmd_pointer, inp):
 def show_molset(cmd_pointer, inp):
     from openad.gui.gui_launcher import gui_init
 
-    path = "molset/" + urllib.parse.quote(molset_file, safe="")
+    molset_file = inp.as_dict()["molset_file"]
+
+    path = "~/" + urllib.parse.quote(molset_file, safe="")
     gui_init(cmd_pointer, path)
 
 

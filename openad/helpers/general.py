@@ -204,6 +204,7 @@ def next_avail_port(port=8024, host="0.0.0.0"):
     # On the other hand, binding our server to the 0.0. 0.0 interface
     # means we want to accept traffic from all of the available interfaces.
     while not is_port_open(host, port):
+        print("port unavailable: ", port)
         port += 1
     return host, port
 
