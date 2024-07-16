@@ -634,7 +634,7 @@ Inspect a molecule in the browser.
 
 When you show a molecule by SMILES or InChI, we can display it immediately. When you show a molecule by name, InChIKey or PubChem CID, we need to first retrieve it from PubChem, which can take a few seconds.
 
-Examples of how to show a molecule and its proerties in the molecule viewer:
+Examples:
 - <cmd>show mol aspirin</cmd>
 - <cmd>show mol CC(=O)OC1=CC=CC=C1C(=O)O</cmd>
 - <cmd>show mol InChI=1S/C9H8O4/c1-6(10)13-8-5-3-2-4-7(8)9(11)12/h2-5H,1H3,(H,11,12)</cmd>
@@ -645,21 +645,24 @@ Examples of how to show a molecule and its proerties in the molecule viewer:
 
     # ---
     # Show molset in browser from file / dataframe
-    # statements.append(Forward(show("show") + molset + desc("molset_file"))("show_molset"))
-    # statements.append(Forward(show("show") + molset + Word(alphas, alphanums + "_")("in_dataframe"))("show_molset_df"))
-    # grammar_help.append(
-    #     help_dict_create(
-    #         name="show molecules",
-    #         category="Molecules",
-    #         command="show molecules using ( file '<mols_file>' | dataframe <dataframe> ) [ save as '<sdf_or_csv_file>' | as molsobject ]",
-    #         description=f"""Launch the molecule viewer { 'in your browser ' if is_notebook_mode() else '' }to examine and select molecules from a SMILES sdf/csv dataset.
-    # { 'if you are working from a notebook, the <cmd> as mols object </cmd> clause allows you to display the mols2grid object and use the <cmd>.get_selection()</cmd>  method to retrieve selected molecules ' if is_notebook_mode() else '' }
-    # Examples of how to show molecules in mols2grid:
-    # - <cmd>show molecules using file 'base_molecules.sdf' as molsobject</cmd>
-    # - <cmd>show molecules using dataframe my_dataframe save as 'selection.sdf'</cmd>
-    # """,
-    #     )
-    # )
+    statements.append(Forward(show("show") + molset + desc("molset_file"))("show_molset"))
+    statements.append(Forward(show("show") + molset + Word(alphas, alphanums + "_")("in_dataframe"))("show_molset_df"))
+    grammar_help.append(
+        help_dict_create(
+            name="show molset",
+            category="Molecules",
+            command="show molecule set '<molset_or_sdf_or_smi_path>' | <dataframe> )",
+            description=f"""
+Launch the molset viewer { 'in your browser ' if is_notebook_mode() else '' }to visualize your molecule dataset.
+
+Examples:
+- <cmd>show molset 'neurotransmitters.mol.json'</cmd>
+- <cmd>show molset 'neurotransmitters.sdf'</cmd>
+- <cmd>show molset 'neurotransmitters.smi'</cmd>
+- <cmd>show molset my_dataframe</cmd>
+""",
+        )
+    )
 
     # --- TRASH / DEPRECATED
     # Show molset in browser

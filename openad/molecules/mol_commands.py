@@ -655,6 +655,14 @@ def show_mol(cmd_pointer, inp):
     gui_init(cmd_pointer, path)
 
 
+# Launch molset viewer and display a molecule set file.
+def show_molset(cmd_pointer, inp):
+    from openad.gui.gui_launcher import gui_init
+
+    path = "molset/" + urllib.parse.quote(molset_file, safe="")
+    gui_init(cmd_pointer, path)
+
+
 # Launch molecule grid.
 def show_molsgrid_DEPRECATED(cmd_pointer, inp):
     # Load routes and launch browser UI.
