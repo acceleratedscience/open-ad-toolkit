@@ -85,21 +85,21 @@ from pyparsing import (
           as optimize with toolkits toolkit gpu experiment add run save runs show \
               file display history data remove result from inchi inchikey smiles formula name last load results export create rename merge pubchem sources basic force append only upsert".split(),
 )
-mol = ["molecule", "mol"]
-mols = ["molecules", "mols"]
-molset = ["molecule-set", "molset"]
-molsets = ["molecule-sets", "molsets"]
+_mol = ["molecule", "mol"]
+_mols = ["molecules", "mols"]
+_molset = ["molecule-set", "molset"]
+_molsets = ["molecule-sets", "molsets"]
+_mol_properties = ["synonyms"]
+_mol_properties.extend(m_props)
 clear = CaselessKeyword("clear")
 cache = CaselessKeyword("cache")
 analysis = CaselessKeyword("analysis")
 enrich = CaselessKeyword("enrich")
-mol_properties = ["synonyms"]
-mol_properties.extend(m_props)
-mol_properties = MatchFirst(map(CaselessKeyword, mol_properties))
-molecules = MatchFirst(map(CaselessKeyword, mols))
-molecule = MatchFirst(map(CaselessKeyword, mol))
-molecule_set = MatchFirst(map(CaselessKeyword, molset))
-molecule_sets = MatchFirst(map(CaselessKeyword, molsets))
+mol_properties = MatchFirst(map(CaselessKeyword, _mol_properties))
+molecules = MatchFirst(map(CaselessKeyword, _mols))
+molecule = MatchFirst(map(CaselessKeyword, _mol))
+molecule_set = MatchFirst(map(CaselessKeyword, _molset))
+molecule_sets = MatchFirst(map(CaselessKeyword, _molsets))
 molecule_identifier = Word(
     alphas, alphanums + "_" + "[" + "]" + "(" + ")" + "=" + "," + "-" + "+" + "/" + "#" + "@" + "." + "*" + ";"
 ) | Word(nums)
@@ -645,8 +645,10 @@ Examples:
 
     # ---
     # Show molset in browser from file / dataframe
-    statements.append(Forward(show("show") + molset + desc("molset_file"))("show_molset"))
-    statements.append(Forward(show("show") + molset + Word(alphas, alphanums + "_")("in_dataframe"))("show_molset_df"))
+    statements.append(Forward(show("show") + molecule_set + desc("molset_file"))("show_molset"))
+    statements.append(
+        Forward(show("show") + molecule_set + Word(alphas, alphanums + "_")("in_dataframe"))("show_molset_df")
+    )
     grammar_help.append(
         help_dict_create(
             name="show molset",

@@ -1,7 +1,7 @@
 """
 This file contains all the API endpoints consumed by the GUI.
 
-They can be accessed on: http://localhost:8024/api/v1/<endpoint>
+They can be accessed on: http://0.0.0.0:8024/api/v1/<endpoint>
 """
 
 from openad.gui.api.general_api import GeneralApi
