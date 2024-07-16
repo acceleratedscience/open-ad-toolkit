@@ -366,12 +366,23 @@ Examples:
         )
     )
 
-    statements.append(
-        Forward(save + molecule_set + a_s + Word(alphas, alphanums + "_")("molecule-set_name"))("save_molecule-set")
+    # ---
+    # Display my-mols (working set) in browser/iFrame (CLI/Jupyter)
+    statements.append(Forward(show("show") + molecules)("show_molecules"))
+    grammar_help.append(
+        help_dict_create(
+            name="show molecules",
+            category="Molecules",
+            command="show molecules",
+            description="Display the current working list of molecules in the GUI.",
+        )
     )
 
     # ---
     # Save molecules
+    statements.append(
+        Forward(save + molecule_set + a_s + Word(alphas, alphanums + "_")("molecule-set_name"))("save_molecule-set")
+    )
     grammar_help.append(
         help_dict_create(
             name="save molecule-set",

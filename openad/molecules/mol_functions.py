@@ -473,11 +473,11 @@ def molformat_v2_to_v1(mol):
     if mol is None:
         return None
     mol_v1 = copy.deepcopy(OPENAD_MOL_DICT)
-    mol_v1["name"] = copy.deepcopy(mol["identifiers"].get("name"))
-    mol_v1["properties"] = {**mol["identifiers"], **mol["properties"]}
-    mol_v1["synonyms"]["Synonym"] = copy.deepcopy(mol["synonyms"])
-    mol_v1["analysis"] = copy.deepcopy(mol["analysis"])
-    mol_v1["property_sources"] = copy.deepcopy(mol["property_sources"])
+    mol_v1["name"] = copy.deepcopy(mol.get("identifiers").get("name"))
+    mol_v1["properties"] = {**mol.get("identifiers"), **mol.get("properties")}
+    mol_v1["synonyms"]["Synonym"] = copy.deepcopy(mol.get("synonyms"))
+    mol_v1["analysis"] = copy.deepcopy(mol.get("analysis"))
+    mol_v1["property_sources"] = copy.deepcopy(mol.get("property_sources"))
     mol_v1["enriched"] = copy.deepcopy(mol.get("enriched"))
     return mol_v1
 

@@ -278,6 +278,13 @@ def list_molecules(cmd_pointer, inp):
         return output_warning("Your molecules working set is empty")
 
 
+def show_molecules(cmd_pointer, inp):
+    """Display your working set in the browser or iframe"""
+    from openad.gui.gui_launcher import gui_init
+
+    gui_init(cmd_pointer, "my-mols")
+
+
 def rename_mol_in_list(cmd_pointer, inp):
     """
     Renames a molecule in your working molecule list.

@@ -39,6 +39,7 @@ from openad.molecules.mol_commands import (
     add_molecule,
     remove_molecule,
     list_molecules,
+    show_molecules,
     save_molecules,
     load_molecules,
     list_molsets,
@@ -250,6 +251,8 @@ def lang_parse(cmd_pointer, parser):
         return remove_molecule(cmd_pointer, parser)
     elif parser.getName() == "list_molecules":
         return list_molecules(cmd_pointer, parser)
+    elif parser.getName() == "show_molecules":
+        return show_molecules(cmd_pointer, parser)
     elif parser.getName() == "save_molecule-set":
         return save_molecules(cmd_pointer, parser)
     elif parser.getName() == "load_molecule-set":
@@ -627,6 +630,7 @@ def display_data(cmd_pointer, parser):
             try:
                 df = pd.read_csv(workspace_path + file_path)
                 df = df.fillna("")  # Fill NaN with empty string
+
                 return output_table(df)
             except FileNotFoundError:
                 return output_error(msg("err_file_doesnt_exist", file_path))
