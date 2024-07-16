@@ -37,6 +37,7 @@ from openad.molecules.mol_functions import (
     mymols_add,
     mymols_remove,
     MOL_PROPERTIES,
+    normalize_mol_df,
 )
 
 # Globals
@@ -663,6 +664,21 @@ def show_molset(cmd_pointer, inp):
 
     path = "~/" + urllib.parse.quote(molset_file, safe="")
     gui_init(cmd_pointer, path)
+
+
+# Launch molset viewer and display a molecule set dataframe.
+def show_molset_df(cmd_pointer, inp):
+    from openad.gui.gui_launcher import gui_init
+
+    print(111)
+
+    molset_dataframe = cmd_pointer.api_variables[inp.as_dict()["in_dataframe"]]
+
+    print("****")
+    print(molset_dataframe, type(molset_dataframe))
+
+    # path = "~/" + urllib.parse.quote(molset_file, safe="")
+    # gui_init(cmd_pointer, path)
 
 
 # Launch molecule grid.

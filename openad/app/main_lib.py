@@ -51,6 +51,7 @@ from openad.molecules.mol_commands import (
     export_molecule_set,
     show_mol,
     show_molset,
+    show_molset_df,
     show_molsgrid_DEPRECATED,  # TRASH
     merge_molecules,
 )
@@ -288,6 +289,8 @@ def lang_parse(cmd_pointer, parser):
         return show_mol(cmd_pointer, parser)
     elif parser.getName() == "show_molset":
         return show_molset(cmd_pointer, parser)
+    elif parser.getName() == "show_molset_df":
+        return show_molset_df(cmd_pointer, parser)
 
     # File system commands
     elif parser.getName() == "list_files":
