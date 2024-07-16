@@ -943,7 +943,7 @@ def cmd_line():
     try:
         command_line = RUNCMD()
         # Launch the GUI if it is installed.
-        gui_init(command_line)
+        # gui_init(command_line)
         # ws_server(command_line) # Experimental
     except KeyboardInterrupt:
         output_error(msg("err_key_exit_before_init"))

@@ -130,7 +130,7 @@ dmypy.json
 .pyre/
 
 # GUI files
-openad-gui/
+# openad-gui/
 
 # Local test files
 **/Test
