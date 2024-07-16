@@ -52,7 +52,7 @@ def gui_init(cmd_pointer=None, path=None, data=None, silent=False):
         If True, we'll start the server without opening the browser.
         This is used when restarting the server.
     """
-    template_folder = Path(__file__).resolve().parents[2] / "openad-gui"
+    template_folder = Path(__file__).resolve().parents[1] / "gui-build"
 
     # Parse potential data into a URL string.
     query = "?data=" + urllib.parse.quote(json.dumps(data)) if data else ""
@@ -105,7 +105,7 @@ def _launch(routes={}, path=None, query="", hash="", silent=False):
         return
 
     # Initialize Flask app.
-    template_folder = Path(__file__).resolve().parents[2] / "openad-gui"
+    template_folder = Path(__file__).resolve().parents[1] / "gui-build"
     if not template_folder.exists():
         output_error("The OpenAD GUI folder is missing")
         return
