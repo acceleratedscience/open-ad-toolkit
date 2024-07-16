@@ -1,10 +1,11 @@
 """Store and retrieve results from analysis"""
+
 import os
 import glob
 import time
 import pickle
 
-from openad.molecules.mol_functions import canonical_smiles
+from openad.molecules.mol_functions import canonicalize
 from rdkit import Chem
 
 analysis_record = {"smiles": None, "toolkit": None, "function": None, "parameters": {}, "results": {}}
@@ -34,7 +35,7 @@ def save_result(result: dict, cmd_pointer) -> bool:
     try:
         timestr = time.strftime("%Y%m%d-%H%M%S")
 
-        rdkit_mol = Chem.MolFromSmiles(result["smiles"])
+        rdkit_mol = Chem.MolFromSmiles(result["smiles"])  # pylint: disable=no-member
 
         inchi = Chem.rdinchi.MolToInchi(rdkit_mol)[0]
 
@@ -50,7 +51,7 @@ def save_result(result: dict, cmd_pointer) -> bool:
 
 def _retrieve_results(smiles: str, cmd_pointer) -> list | bool:
     """retrieves results from workspace cache"""
-    rdkit_mol = Chem.MolFromSmiles(smiles)
+    rdkit_mol = Chem.MolFromSmiles(smiles)  # pylint: disable=no-member
     inchi = Chem.rdinchi.MolToInchi(rdkit_mol)[0]
     inchikey = Chem.inchi.InchiToInchiKey(inchi)
     results = []
@@ -77,16 +78,14 @@ def clear_results(cmd_pointer, inp) -> list | bool:
 def attach_results(smiles, cmd_pointer) -> bool:
     """attaches a result to an existing molecule in the current working set, if it exists"""
 
-    smiles = canonical_smiles(smiles)
+    smiles = canonicalize(smiles)
     results = _retrieve_results(smiles, cmd_pointer)
     for mol in cmd_pointer.molecule_list:
         if "analysis" not in mol:
             mol["analysis"] = []
         if mol["properties"]["canonical_smiles"] == smiles:
             for result in results:
-                if canonical_smiles(mol["properties"]["canonical_smiles"]) == canonical_smiles(
-                    result["smiles"].split("~")[0]
-                ):
+                if canonicalize(mol["properties"]["canonical_smiles"]) == canonicalize(result["smiles"].split("~")[0]):
                     if result not in mol["analysis"]:
                         mol["analysis"].append(result.copy())
     return True
@@ -100,11 +99,11 @@ def attach_all_results(cmd_pointer, inp) -> bool:
         mol = cmd_pointer.molecule_list[i].copy()
         if "analysis" not in mol:
             mol["analysis"] = []
-        results = _retrieve_results(canonical_smiles(mol["properties"]["canonical_smiles"]), cmd_pointer)
+        results = _retrieve_results(canonicalize(mol["properties"]["canonical_smiles"]), cmd_pointer)
         for result in results:
-            if result not in mol["analysis"] and canonical_smiles(
-                mol["properties"]["canonical_smiles"]
-            ) == canonical_smiles(result["smiles"].split("~")[0]):
+            if result not in mol["analysis"] and canonicalize(mol["properties"]["canonical_smiles"]) == canonicalize(
+                result["smiles"].split("~")[0]
+            ):
                 mol["analysis"].append(result)
                 cmd_pointer.molecule_list[i] = mol.copy()
         i = i + 1

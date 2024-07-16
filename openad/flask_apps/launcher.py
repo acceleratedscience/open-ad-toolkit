@@ -47,7 +47,7 @@ def launch(cmd_pointer=None, routes=None, app_name="", query="", hash=""):
         #     return render_template('/home.html')
 
     # Determine port and host.
-    port, host = next_avail_port()
+    host, port = next_avail_port()
 
     # Launch the UI
     if GLOBAL_SETTINGS["display"] == "notebook":

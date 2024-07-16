@@ -112,8 +112,8 @@ function setHeightParameters() {
 function render3dMol() {
 	const $wrap = document.querySelector('#mol-render .mol-3d')
 	const inchi = document.getElementById('data-inchi').innerText
-	_render3dMol_Jmol($wrap, inchi)
-	// _render3dMol_3DMol_UNUSED($wrap)
+	// _render3dMol_Jmol($wrap, inchi)
+	_render3dMol_3DMol_UNUSED($wrap)
 }
 
 // Using the 3DMol library - https://3dmol.org

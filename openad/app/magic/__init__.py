@@ -1,4 +1,4 @@
-from openad.app.magic.openad import AD
+from openad.app.magic.openad_magic import AD
 
 
 def load_ipython_extension(ipython):

@@ -226,6 +226,7 @@ def fetchRoutesMolsGrid(cmd_pointer, parser):
                     for index, row in filtered_df.iterrows():
                         if "ROMol" not in filtered_df.columns:
                             filtered_df["ROMol"] = None
+                        # pylint: disable=no-member
                         filtered_df.at[index, "ROMol"] = rdkit.Chem.MolFromSmiles(row["SMILES"])
 
                     PandasTools.WriteSDF(

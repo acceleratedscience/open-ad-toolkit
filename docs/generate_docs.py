@@ -34,7 +34,7 @@ from openad.toolkit.toolkit_main import load_toolkit
 from openad.plugins.style_parser import tags_to_markdown
 from openad.helpers.output import output_error, output_text, output_success
 from openad.helpers.output_msgs import msg
-from openad.helpers.general import open_file, write_file
+from openad.helpers.files import open_file, write_file
 
 # Get the repo path, this python file's parent folder.
 REPO_PATH = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
@@ -202,9 +202,9 @@ def _parse_description(description):
     # be treated as part of the blockquote.
     description = re.sub(
         r"(\*\*Note:\*\*.+?)(\n{1,})",
-        lambda match: f"  > {match.group(1)}\n\n"
-        if len(match.group(2)) == 1
-        else f"  > {match.group(1)}{match.group(2)}",
+        lambda match: (
+            f"  > {match.group(1)}\n\n" if len(match.group(2)) == 1 else f"  > {match.group(1)}{match.group(2)}"
+        ),
         description,
         flags=re.MULTILINE,
     )

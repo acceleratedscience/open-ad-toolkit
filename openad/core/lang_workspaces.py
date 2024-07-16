@@ -1,4 +1,5 @@
 """Workspace related Functions"""
+
 import os
 from time import sleep
 
@@ -175,7 +176,7 @@ def create_workspace(cmd_pointer, parser):
 
         # Expand user path: ~/ --> ../
         # from pathlib import PosixPath
-        # path = PosixPath(path).expanduser().resolve() #%%
+        # path = PosixPath(path).expanduser().resolve() # %%
         path = os.path.expanduser(path)
 
         if not os.path.exists(path):

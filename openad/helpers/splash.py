@@ -1,7 +1,7 @@
 import os
 import json
 
-from openad.helpers.general import open_file
+from openad.helpers.files import open_file
 from openad.helpers.output import output_text, output_error
 from openad.helpers.output_msgs import msg
 from openad.helpers.ascii_type import ascii_type

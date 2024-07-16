@@ -129,12 +129,11 @@ def mol_grammar_add(statements, grammar_help):
             + Optional(force)("force")
         )("add_molecule")
     )
-
     grammar_help.append(
         help_dict_create(
             name="add molecule",
             category="Molecules",
-            command="add molecule <name> | <smiles> | <inchi> | <inchikey> | <cid> [ as '<name>' ] [ basic ] [force ]",
+            command="add molecule <name> | <smiles> | <inchi> | <inchikey> | <cid> [ as '<name>' ] [ basic ] [ force ]",
             description=f"""
 This command is how you add a molecule to a current working list of molecules in memory. When adding a molecule by name, this name will become the molecule's identifying string. 
 
@@ -322,13 +321,15 @@ Examples
     # ---
     # Remove molecule
     statements.append(
-        Forward(remove + molecule + (molecule_identifier | desc)("molecule_identifier"))("remove_molecule")
+        Forward(remove + molecule + (molecule_identifier | desc)("molecule_identifier") + Optional(force)("force"))(
+            "remove_molecule"
+        )
     )
     grammar_help.append(
         help_dict_create(
             name="remove molecule",
             category="Molecules",
-            command="remove molecule <name> | <smiles> | <inchi> | <inchikey> | <cid>",
+            command="remove molecule <name> | <smiles> | <inchi> | <inchikey> | <cid> [ force ]",
             description="""
 Remove a molecule from the current working list based on a given molecule identifier.
 
@@ -365,12 +366,23 @@ Examples:
         )
     )
 
-    statements.append(
-        Forward(save + molecule_set + a_s + Word(alphas, alphanums + "_")("molecule-set_name"))("save_molecule-set")
+    # ---
+    # Display my-mols (working set) in browser/iFrame (CLI/Jupyter)
+    statements.append(Forward(show("show") + molecules)("show_molecules"))
+    grammar_help.append(
+        help_dict_create(
+            name="show molecules",
+            category="Molecules",
+            command="show molecules",
+            description="Display the current working list of molecules in the GUI.",
+        )
     )
 
     # ---
     # Save molecules
+    statements.append(
+        Forward(save + molecule_set + a_s + Word(alphas, alphanums + "_")("molecule-set_name"))("save_molecule-set")
+    )
     grammar_help.append(
         help_dict_create(
             name="save molecule-set",
@@ -559,7 +571,7 @@ Available properties: <cmd>{'</cmd>, <cmd>'.join(m_props)}</cmd>
     grammar_help.append(
         help_dict_create(
             name="load molecules",
-            category="Utility",
+            category="Molecules",
             command="load molecules using dataframe <dataframe> [ merge with pubchem ]",
             description=""""            
 This command Load molecules into the molecule working list from a dataframe. 
@@ -630,7 +642,28 @@ Examples of how to show a molecule and its proerties in the molecule viewer:
 """,
         )
     )
-    # Show molecules grid.
+
+    # ---
+    # Show molset in browser from file / dataframe
+    # statements.append(Forward(show("show") + molset + desc("molset_file"))("show_molset"))
+    # statements.append(Forward(show("show") + molset + Word(alphas, alphanums + "_")("in_dataframe"))("show_molset_df"))
+    # grammar_help.append(
+    #     help_dict_create(
+    #         name="show molecules",
+    #         category="Molecules",
+    #         command="show molecules using ( file '<mols_file>' | dataframe <dataframe> ) [ save as '<sdf_or_csv_file>' | as molsobject ]",
+    #         description=f"""Launch the molecule viewer { 'in your browser ' if is_notebook_mode() else '' }to examine and select molecules from a SMILES sdf/csv dataset.
+    # { 'if you are working from a notebook, the <cmd> as mols object </cmd> clause allows you to display the mols2grid object and use the <cmd>.get_selection()</cmd>  method to retrieve selected molecules ' if is_notebook_mode() else '' }
+    # Examples of how to show molecules in mols2grid:
+    # - <cmd>show molecules using file 'base_molecules.sdf' as molsobject</cmd>
+    # - <cmd>show molecules using dataframe my_dataframe save as 'selection.sdf'</cmd>
+    # """,
+    #     )
+    # )
+
+    # --- TRASH / DEPRECATED
+    # Show molset in browser
+    # ONLY HERE TO COMPARE OLD MOLS2GRID TO NEW GUI MOLSET VIEWER
     # Note: we don't allow dashes in dataframe names because it's a substraction operator and causes issues in Jupyter.
     statements.append(
         Forward(
@@ -644,8 +677,9 @@ Examples of how to show a molecule and its proerties in the molecule viewer:
         )("show_molsgrid_df")
     )
 
-    # ---
-    # Show molecule-set in browser.
+    # --- TRASH / DEPRECATED
+    # Show molset in browser
+    # ONLY HERE TO COMPARE OLD MOLS2GRID TO NEW GUI MOLSET VIEWER
     statements.append(
         Forward(
             show("show")
@@ -658,16 +692,17 @@ Examples of how to show a molecule and its proerties in the molecule viewer:
             + Optional(save + a_s + desc("results_file"))  # Save as csv/sdf
         )("show_molsgrid")
     )
-    grammar_help.append(
-        help_dict_create(
-            name="show molecules",
-            category="Molecules",
-            command="show molecules using ( file '<mols_file>' | dataframe <dataframe> ) [ save as '<sdf_or_csv_file>' | as molsobject ]",
-            description=f"""Launch the molecule viewer { 'in your browser ' if is_notebook_mode() else '' }to examine and select molecules from a SMILES sdf/csv dataset.
-    { 'if you are working from a notebook, the <cmd> as mols object </cmd> clause allows you to display the mols2grid object and use the <cmd>.get_selection()</cmd>  method to retrieve selected molecules ' if is_notebook_mode() else '' }
-    Examples of how to show molecules in mols2grid:
-    - <cmd>show molecules using file 'base_molecules.sdf' as molsobject</cmd>
-    - <cmd>show molecules using dataframe my_dataframe save as 'selection.sdf'</cmd>
-    """,
-        )
-    )
+    # Removed from the help display
+    # grammar_help.append(
+    #     help_dict_create(
+    #         name="show molecules",
+    #         category="Molecules",
+    #         command="show molecules using ( file '<mols_file>' | dataframe <dataframe> ) [ save as '<sdf_or_csv_file>' | as molsobject ]",
+    #         description=f"""Launch the molecule viewer { 'in your browser ' if is_notebook_mode() else '' }to examine and select molecules from a SMILES sdf/csv dataset.
+    # { 'if you are working from a notebook, the <cmd> as mols object </cmd> clause allows you to display the mols2grid object and use the <cmd>.get_selection()</cmd>  method to retrieve selected molecules ' if is_notebook_mode() else '' }
+    # Examples of how to show molecules in mols2grid:
+    # - <cmd>show molecules using file 'base_molecules.sdf' as molsobject</cmd>
+    # - <cmd>show molecules using dataframe my_dataframe save as 'selection.sdf'</cmd>
+    # """,
+    #     )
+    # )

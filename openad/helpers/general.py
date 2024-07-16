@@ -4,8 +4,7 @@ import sys
 import json
 import getpass
 import readline
-import pandas as pd
-from IPython.display import display
+from IPython.display import clear_output
 from openad.helpers.output import output_text, output_error
 from openad.helpers.output_msgs import msg
 
@@ -38,8 +37,6 @@ def remove_lines(count=1):
     if is_notebook_mode():
         # Jupyter
         # In Jupyter you can't clear a single line, only the entire cell output.
-        from IPython.display import clear_output
-
         clear_output(wait=True)
     else:
         # CLI
@@ -195,98 +192,14 @@ def is_port_open(host, port):
         return True  # Port is available
 
 
-# Return the next available port starting with 5000.
+# Return the next available port starting with 8024.
 # This is used by the flask app launcher, we want to
 # avoid a situation where multiple apps are trying to
 # run on the same port.
-def next_avail_port(port=5005, host="0.0.0.0"):
+def next_avail_port(port=8024, host="127.0.0.1"):
     while not is_port_open(host, port):
         port += 1
-    return port, host
-
-
-# Standardized file opener.
-# Detects file type and returns appropriate data format:
-# - JSON/CJSON: dict
-# - CSV: pandas dataframe
-# - Other: string
-def open_file(file_path, mode="r", return_err=False):
-    ext = file_path.split(".")[-1].lower()
-    err_msg = None
-    try:
-        with open(file_path, mode) as f:
-            data = None
-            if ext == "json" or ext == "cjson":
-                # Return JSON object
-                data = json.load(f)
-            elif ext == "csv":
-                # Return pandas dataframe
-                data = pd.read_csv(f)
-            else:
-                # Return string
-                data = f.read()
-
-            # Return data
-            if return_err:
-                return data, None
-            else:
-                return data
-    except FileNotFoundError:
-        err_msg = msg("err_file_not_found", file_path)
-    except PermissionError:
-        err_msg = msg("err_file_no_permission_read", file_path)
-    except IsADirectoryError:
-        err_msg = msg("err_file_is_dir", file_path)
-    except UnicodeDecodeError:
-        err_msg = msg("err_decode", file_path)
-    except IOError as err:
-        err_msg = msg("err_io", file_path, err.strerror)
-    except BaseException as err:
-        err_msg = msg("err_unknown", err)
-
-    # Return error
-    if return_err:
-        return None, err_msg
-
-    # Display error
-    else:
-        output_error(err_msg)
-        return None
-
-
-# Standardized file writer.
-def write_file(file_path, data, return_err=False):
-    err_msg = None
-    try:
-        with open(file_path, "w") as f:
-            f.write(data)
-
-            # Return success
-            if return_err:
-                return True, None
-            else:
-                return True
-    except FileNotFoundError:
-        err_msg = msg("err_file_not_found", file_path)
-    except PermissionError:
-        err_msg = msg("err_file_no_permission_write", file_path)
-    except IsADirectoryError:
-        err_msg = msg("err_file_is_dir", file_path)
-    except UnicodeDecodeError:
-        err_msg = msg("err_decode", file_path)
-    except IOError as err:
-        err_msg = msg("err_io", file_path, err.strerror)
-    except BaseException as err:
-        err_msg = msg("err_unknown", err)
-
-    # Return error
-    if return_err:
-        return None, err_msg
-
-    # Display error
-    else:
-        output_error(err_msg)
-        return None
+    return host, port
 
 
 # Load python module from a dynamic path
@@ -321,7 +234,8 @@ def print_separator(style=None, width=None, return_val=False):
             return output_text(f"{'-' * width}", nowrap=True, return_val=return_val)
 
 
-# Load a module or a module's function from a toolkit folder.
+# Load a module or a module's function dynamically from a toolkit folder.
+# This is a non-repo alt to `from foo import bar`
 def load_tk_module(cmd_pointer, toolkit_name, lib_name, func_name=None):
     import importlib.util as ilu
 

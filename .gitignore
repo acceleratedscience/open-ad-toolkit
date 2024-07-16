@@ -129,6 +129,9 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
+# GUI files
+openad-gui/
+
 # Local test files
 **/Test
 **/test
