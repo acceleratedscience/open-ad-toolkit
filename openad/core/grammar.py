@@ -535,25 +535,33 @@ grammar_help.append(
 )
 
 # --> result open --> Explore data in browser
-statements.append(Forward(result + CaselessKeyword("open"))("display_data__open"))
+statements.append(
+    Forward(result + CaselessKeyword("open") + Optional(CaselessKeyword("-d")("as_data")))("display_data__open")
+)
 grammar_help.append(
     help_dict_create(
         name="open",
         category="Utility",
         command="result open",
-        description="Explore table data in the browser.",
+        description="""Explore table data in the browser.
+        if you append <cmd>-d</cmd> to the end of the command <cmd>result open -d</cmd> display will result to data viewer.
+        """,
         parent="display data",
     )
 )
 
 # --> result edit --> Edit data in browser
-statements.append(Forward(result + CaselessKeyword("edit"))("display_data__edit"))
+statements.append(
+    Forward(result + CaselessKeyword("edit") + Optional(CaselessKeyword("-d")("as_data")))("display_data__edit")
+)
 grammar_help.append(
     help_dict_create(
         name="edit",
         category="Utility",
         command="result edit",
-        description="Edit table data in the browser.",
+        description="""Edit table data in the browser.
+        if you append <cmd>-d</cmd> to the end of the command <cmd>result open -d</cmd> display will result to data viewer.
+        """,
         parent="display data",
     )
 )

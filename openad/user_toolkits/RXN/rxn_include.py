@@ -241,7 +241,6 @@ class rxn_helper:
                 # sys.stderr = open(os.devnull, "w")
 
                 try:
-                    print(cmd_pointer.login_settings["client"][cmd_pointer.login_settings["toolkits"].index("RXN")])
                     rxn4chemistry_wrapper = cmd_pointer.login_settings["client"][
                         cmd_pointer.login_settings["toolkits"].index("RXN")
                     ]

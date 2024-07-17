@@ -691,7 +691,8 @@ def display_data__open(
         return output_error(msg("memory_empty", "display"), pad=1)
 
     # If there's molecules in the dataframe, open the result in the molset viewer.
-    if df_has_molecules(df):
+
+    if df_has_molecules(df) and "as_data" not in parser:
         gui_init(cmd_pointer, "result")
         return
 
@@ -702,7 +703,7 @@ def display_data__open(
     df = df.to_json(orient="records")
     routes = fetchRoutesDataViewer(df)
     a_hash = "#edit" if edit_mode else ""
-    launcher.launch(cmd_pointer, routes, "dataviewer", hash=a_hash)
+    return launcher.launch(cmd_pointer, routes, "dataviewer", hash=a_hash)
 
 
 # --> Open data in browser UI.

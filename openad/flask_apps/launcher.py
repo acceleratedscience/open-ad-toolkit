@@ -1,6 +1,9 @@
 import os
 import socket
 import webbrowser
+import warnings
+from IPython.display import HTML, display
+from IPython.display import IFrame as display_iframe
 from flask import Flask, send_from_directory
 from openad.app.global_var_lib import _repo_dir
 from openad.helpers.output import output_text, output_error
@@ -51,6 +54,7 @@ def launch(cmd_pointer=None, routes=None, app_name="", query="", hash=""):
 
     # Launch the UI
     if GLOBAL_SETTINGS["display"] == "notebook":
+
         # Jupyter --> Render iframe.
 
         # Rendering the iframe in the traditional way doesn't let us
@@ -61,9 +65,6 @@ def launch(cmd_pointer=None, routes=None, app_name="", query="", hash=""):
         #   from IPython.display import IFrame, display
         #   iframe = IFrame(src=f'http://{host}:{port}', width='100%', height=700)
         #   display(iframe)
-
-        import warnings
-        from IPython.display import HTML, display
 
         width = "100%"
         height = 700
