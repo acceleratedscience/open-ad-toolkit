@@ -579,13 +579,18 @@ grammar_help.append(
 )
 
 # --> result display --> Display the result in the CLI/Notebook
-statements.append(Forward(result + CaselessKeyword("display"))("display_data__display"))
+statements.append(
+    Forward(result + CaselessKeyword("display") + Optional(CaselessKeyword("-d")("as_data")))("display_data__display")
+)
 grammar_help.append(
     help_dict_create(
         name="display",
         category="Utility",
         command="result display",
-        description=f'Display the result in {"Jupyter Notebook" if is_notebook_mode() else "the CLI"}.',
+        description=f"""Display the result in {"Jupyter Notebook" if is_notebook_mode() else "the CLI"}.
+      
+        if you append <cmd>-d</cmd> to the end of the command <cmd>result open -d</cmd> display will result to data viewer.
+        """,
         parent="display data",
     )
 )
