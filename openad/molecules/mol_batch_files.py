@@ -126,7 +126,8 @@ def load_batch_molecules(cmd_pointer, inp):
         output_error("Source not Found ", return_val=False)
         return True
     mol_dataframe = mol_dataframe.fillna("")  # Fill NaN with empty string
-    cmd_pointer.molecule_list.clear()
+    if "append" not in inp:
+        cmd_pointer.molecule_list.clear()
     if "pubchem_merge" in inp.as_dict():
         batch_pubchem(cmd_pointer, mol_dataframe)
     if mol_dataframe is not None:
