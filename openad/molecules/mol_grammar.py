@@ -648,7 +648,13 @@ Examples:
     # Show molset in browser from file / dataframe
     statements.append(Forward(show("show") + molecule_set + desc("molset_file"))("show_molset"))
     statements.append(
-        Forward(show("show") + molecule_set + Word(alphas, alphanums + "_")("in_dataframe"))("show_molset_df")
+        Forward(
+            show("show")
+            + molecule_set
+            + using
+            + CaselessKeyword("dataframe")
+            + Word(alphas, alphanums + "_")("in_dataframe")
+        )("show_molset_df")
     )
     grammar_help.append(
         help_dict_create(

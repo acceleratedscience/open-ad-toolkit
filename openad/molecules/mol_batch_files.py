@@ -114,6 +114,7 @@ def load_mol_data(source_file, cmd_pointer):
 
 def load_batch_molecules(cmd_pointer, inp):
     """loads molecules in batch"""
+
     mol_dataframe = None
     if "load_molecules_dataframe" in inp.as_dict():
         mol_dataframe = normalize_mol_df(cmd_pointer.api_variables[inp.as_dict()["in_dataframe"]], batch=True)

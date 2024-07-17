@@ -670,12 +670,9 @@ def show_molset(cmd_pointer, inp):
 def show_molset_df(cmd_pointer, inp):
     from openad.gui.gui_launcher import gui_init
 
-    print(111)
-
     molset_dataframe = cmd_pointer.api_variables[inp.as_dict()["in_dataframe"]]
 
-    print("****")
-    print(molset_dataframe, type(molset_dataframe))
+    print(456)
 
     # path = "~/" + urllib.parse.quote(molset_file, safe="")
     # gui_init(cmd_pointer, path)
