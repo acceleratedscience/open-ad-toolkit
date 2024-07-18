@@ -122,6 +122,7 @@ def load_batch_molecules(cmd_pointer, inp):
         mol_dataframe = _normalize_mol_df(cmd_pointer.api_variables[inp.as_dict()["in_dataframe"]], cmd_pointer)
     else:
         mol_dataframe = load_mol(inp.as_dict()["moles_file"], cmd_pointer)
+
     if mol_dataframe is None:
         output_error("Source not Found ", return_val=False)
         return True
@@ -144,6 +145,7 @@ def load_batch_molecules(cmd_pointer, inp):
 
 def batch_pubchem(cmd_pointer, dataframe):
     """does the prompting of pubchem for data to merge in a bach operation"""
+
     if GLOBAL_SETTINGS["display"] == "notebook":
         from halo import HaloNotebook as Halo  # pylint: disable=import-outside-toplevel
     else:
@@ -158,10 +160,13 @@ def batch_pubchem(cmd_pointer, dataframe):
             super().__init__(spinner="dots", color="white")
 
     batch_spinner = Spinner()
+
     batch_spinner.start("loading molecules from PubChem")
+
     dict_list = dataframe.to_dict("records")
 
     for i, a_mol in enumerate(dict_list):
+
         try:
             Name_Flag = False
             if "name" in a_mol:
@@ -178,7 +183,8 @@ def batch_pubchem(cmd_pointer, dataframe):
                 merge_mol = retrieve_mol_from_list(cmd_pointer, name)
                 if merge_mol is not None:
                     Name_Flag = True
-            batch_spinner.text = output_text(f"<yellow>Loading:</yellow> {a_mol['SMILES']}", return_val=True)
+            batch_spinner.text = f"Loading: {a_mol['SMILES']}"
+
             if not valid_smiles(a_mol["SMILES"]):
                 output_warning(
                     "error merging SMILES: "
@@ -192,6 +198,7 @@ def batch_pubchem(cmd_pointer, dataframe):
             # add_molecule(cmd_pointer, {"molecule_identifier": a_mol["SMILES"]}, force=True, suppress=True)
 
             # Create molecule dict.
+
             openad_mol = mol_from_identifier(cmd_pointer, a_mol["SMILES"])
 
             # Add it to the working set.
@@ -199,7 +206,7 @@ def batch_pubchem(cmd_pointer, dataframe):
 
         except Exception as err:
             print(err)
-            err_msg = f"#{i} - <error>Invalid SMILES, molecule dicarded:</error> <yellow>{a_mol['SMILES']}</yellow>"
+            err_msg = f"#{i} - <error>Invalid SMILES, molecule discarded:</error> <yellow>{a_mol['SMILES']}</yellow>"
             output_text(err_msg, return_val=False)
 
     batch_spinner.succeed("Finished loading from PubChem")
@@ -208,6 +215,7 @@ def batch_pubchem(cmd_pointer, dataframe):
 
 def shred_merge_add_df_mols(dataframe, cmd_pointer):
     """shreds the molecule relevent properties from dataframe and loads into molecules"""
+
     dict_list = dataframe.to_dict("records")
     merge_list = []
     for i, a_mol in enumerate(dict_list):
@@ -231,7 +239,7 @@ def shred_merge_add_df_mols(dataframe, cmd_pointer):
             if merge_mol is not None:
                 Name_Flag = True
         if not valid_smiles(a_mol["SMILES"]):
-            err_msg = f"#{i} - <error>Invalid SMILES, molecule dicarded:</error> <yellow>{a_mol['SMILES']}</yellow>"
+            err_msg = f"#{i} - <error>Invalid SMILES, molecule discarded:</error> <yellow>{a_mol['SMILES']}</yellow>"
             output_text(err_msg, return_val=False)
             continue
         merge_mol = retrieve_mol_from_list(cmd_pointer, a_mol["SMILES"])
@@ -245,7 +253,6 @@ def shred_merge_add_df_mols(dataframe, cmd_pointer):
         # if Name_Flag is True and merge_mol["properties"]["canonical_smiles"] != canonical_smiles(a_mol["SMILES"]):
         #    output_error("There is already a molecule by the name, adding  increment to the name " + name, return_val=False)
         #    continue
-
         if merge_mol is None:
             if name is None:
                 name = a_mol["SMILES"]
