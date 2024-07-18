@@ -7,6 +7,8 @@ They can be accessed on: http://0.0.0.0:8024/api/v1/<endpoint>
 from openad.gui.api.general_api import GeneralApi
 from openad.gui.api.file_system_api import FileSystemApi
 from openad.gui.api.molecules_api import MoleculesApi
+from openad.gui.api.result_api import ResultApi
+from openad.gui.api.dataframe_api import DataframeApi
 
 
 def fetchRoutes(cmd_pointer):
@@ -16,6 +18,8 @@ def fetchRoutes(cmd_pointer):
     general_api = GeneralApi(cmd_pointer)
     file_system_api = FileSystemApi(cmd_pointer)
     molecules_api = MoleculesApi(cmd_pointer)
+    result_api = ResultApi(cmd_pointer)
+    dataframe_api = DataframeApi(cmd_pointer)
 
     routes = {
         #
@@ -24,6 +28,7 @@ def fetchRoutes(cmd_pointer):
         f"{api_v1}/": {"func": general_api.landing, "method": "GET"},
         f"{api_v1}/test": {"func": general_api.test, "method": "GET"},
         f"{api_v1}/health": {"func": general_api.health, "method": "GET"},
+        f"{api_v1}/get-port": {"func": general_api.get_port, "method": "GET"},
         f"{api_v1}/exec-command": {"func": general_api.exec_command, "method": "POST"},
         #
         #
@@ -57,20 +62,28 @@ def fetchRoutes(cmd_pointer):
         # Molecules - Molsets
         f"{api_v1}/get-molset": {"func": molecules_api.get_molset, "method": "POST"},
         f"{api_v1}/get-molset-mymols": {"func": molecules_api.get_molset_mymols, "method": "POST"},
-        f"{api_v1}/get-molset-result": {"func": molecules_api.get_molset_result, "method": "POST"},
         #
         f"{api_v1}/remove-from-molset": {"func": molecules_api.remove_from_molset, "method": "POST"},
         f"{api_v1}/clear-molset-working-copy": {"func": molecules_api.clear_molset_working_copy, "method": "POST"},
         #
         f"{api_v1}/update-molset": {"func": molecules_api.update_molset, "method": "POST"},
         f"{api_v1}/update-molset-mymols": {"func": molecules_api.update_molset_mymols, "method": "POST"},
-        f"{api_v1}/update-molset-result": {"func": molecules_api.update_molset_result, "method": "POST"},
         #
         f"{api_v1}/save-molset-as-json": {"func": molecules_api.save_molset_as_json, "method": "POST"},
         f"{api_v1}/save-molset-as-sdf": {"func": molecules_api.save_molset_as_sdf, "method": "POST"},
         f"{api_v1}/save-molset-as-csv": {"func": molecules_api.save_molset_as_csv, "method": "POST"},
         f"{api_v1}/save-molset-as-smiles": {"func": molecules_api.save_molset_as_smiles, "method": "POST"},
         f"{api_v1}/replace-mol-in-molset": {"func": molecules_api.replace_mol_in_molset, "method": "POST"},
+        #
+        #
+        # Result
+        f"{api_v1}/get-result": {"func": result_api.get_result, "method": "POST"},
+        f"{api_v1}/update-result-molset": {"func": result_api.update_molset_result, "method": "POST"},
+        #
+        #
+        # Dataframes
+        f"{api_v1}/get-dataframe/<df_name>": {"func": dataframe_api.get_dataframe, "method": "POST"},
+        f"{api_v1}/update-dataframe/<df_name>": {"func": dataframe_api.update_dataframe, "method": "POST"},
         #
         # "/": {"func": home, "method": "GET"},
         # "/submit": {"func": submit, "method": "POST"},

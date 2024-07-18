@@ -849,6 +849,8 @@ def api_remote(
       exit point for magic commands, unlike a command line.
     """
 
+    # print("T E S T", api_var_list)
+
     global MAGIC_PROMPT
     # GLOBAL_SETTINGS["display"] = "notebook"
 

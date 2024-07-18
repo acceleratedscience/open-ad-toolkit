@@ -171,7 +171,7 @@ _messages = {
     "toolkit_installed": lambda toolkit_name: (
         "<on_green> This toolkit is installed </on_green>",
         f"<soft>To activate this toolkit, run <cmd>set context {toolkit_name.lower()}</cmd></soft>",  # Repeat B1
-        f"<soft>To see what you can do, run <cmd>{toolkit_name.lower()} ?</cmd></soft>",  # Repeat C1
+        f"<soft>To see what you can do, run <cmd>? {toolkit_name.lower()}</cmd></soft>",  # Repeat C1
     ),
     "success_update_toolkit": lambda toolkit_name: f"The <yellow>{toolkit_name}</yellow> toolkit was successfully updated",
     # Negative
@@ -182,14 +182,14 @@ _messages = {
     "toolkit_already_installed": lambda toolkit_name: [
         f"The <reset>{toolkit_name}</reset> toolkit was already installed",
         f"To activate this toolkit, run <cmd>set context {toolkit_name.lower()}</cmd>",  # Repeat B2
-        f"To see what you can do, run <cmd>{toolkit_name.lower()} ?</cmd>",  # Repeat C2
+        f"To see what you can do, run <cmd>? {toolkit_name.lower()}</cmd>",  # Repeat C2
     ],
     "no_context_set": "<soft>No context was set</soft>",
     # Success
     "success_set_context": lambda toolkit_name: f"You successfully changed the toolkit context to <yellow>{toolkit_name}</yellow>",
     "success_toolkit_install": lambda toolkit_name: [
         f"The <yellow>{toolkit_name}</yellow> toolkit was successfully installed",
-        f"To see what you can do, run <cmd>{toolkit_name.lower()} ?</cmd>",  # Repeat C2
+        f"To see what you can do, run <cmd>? {toolkit_name.lower()}</cmd>",  # Repeat C2
     ],
     "success_instructions_txt": lambda toolkit_name: f"The <yellow>{toolkit_name}</yellow> toolkit's instructions.txt file was successfully updated",
     "success_toolkit_remove": lambda toolkit_name: f"The <yellow>{toolkit_name}</yellow> toolkit was removed",

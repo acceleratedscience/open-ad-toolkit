@@ -672,7 +672,7 @@ def show_molset_df(cmd_pointer, inp):
 
     molset_dataframe = cmd_pointer.api_variables[inp.as_dict()["in_dataframe"]]
 
-    print(456)
+    print(456, molset_dataframe)
 
     # path = "~/" + urllib.parse.quote(molset_file, safe="")
     # gui_init(cmd_pointer, path)
