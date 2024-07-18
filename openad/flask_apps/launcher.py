@@ -54,7 +54,6 @@ def launch(cmd_pointer=None, routes=None, app_name="", query="", hash=""):
 
     # Launch the UI
     if GLOBAL_SETTINGS["display"] == "notebook":
-
         # Jupyter --> Render iframe.
 
         # Rendering the iframe in the traditional way doesn't let us

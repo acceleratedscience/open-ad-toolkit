@@ -37,6 +37,7 @@ from openad.molecules.mol_functions import (
     mymols_add,
     mymols_remove,
     MOL_PROPERTIES,
+    new_molecule,
 )
 
 # Globals
@@ -533,10 +534,6 @@ def _create_workspace_dir_if_nonexistent(cmd_pointer, dir_name):
     if not os.path.isdir(cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/" + dir_name):
         os.mkdir(cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/" + dir_name)
     return cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/" + dir_name
-
-
-def merge_molecule_property_data(cmd_pointer, inp):
-    """merges data into the molecule list"""
 
 
 def load_molecules(cmd_pointer, inp):

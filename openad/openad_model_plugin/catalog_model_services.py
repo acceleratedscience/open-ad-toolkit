@@ -359,6 +359,7 @@ def catalog_add_model_service(cmd_pointer, parser) -> bool:
         output = add_remote_service_from_endpoint(cmd_pointer, parser)
         if auth_group is not None:
             updated_lookup_table = update_lookup_table(auth_group=auth_group, service=service_name)
+        output_success(f"Service {service_name} added to catalog", return_val=False)
         return output
     # check if service exists
     with Dispatcher() as service:
@@ -383,7 +384,7 @@ def catalog_add_model_service(cmd_pointer, parser) -> bool:
     with Dispatcher() as service:
         service.add_service(service_name, config)
         # spinner.succeed(f"service {service_name} added to catalog")
-        output_success(f"service {service_name} added to catalog", return_val=False)
+        output_success(f"Service {service_name} added to catalog", return_val=False)
     # If auth group in parameters apply authgroup
 
     return True
@@ -419,10 +420,11 @@ def uncatalog_model_service(cmd_pointer, parser) -> bool:
                 spinner.fail(f"failed to remove service: {str(e)}")
                 # output_error(f"failed to remove service: {str(e)}", return_val=False)
                 return False
-        output_success(f"service {service_name} removed from catalog", return_val=False)
+        output_success(f"Service {service_name} removed from catalog", return_val=False)
     # remove service from authentication lookup table
     if get_service_api_key(service_name):
         remove_service_group(service_name)
+
     return True
 
 
@@ -673,7 +675,7 @@ def service_catalog_grammar(statements: list, help: list):
             name="model auth add service",
             category="Model",
             command="model auth add service '<service_name>'|,service_name> to group '<auth_group>'|<auth_group>",
-            description="attach an authentication group to a model service",
+            description="Attach an authentication group to a model service",
         )
     )
 
@@ -685,7 +687,7 @@ def service_catalog_grammar(statements: list, help: list):
             name="model auth remove service",
             category="Model",
             command="model auth remove service '<service_name>'|<service_name>",
-            description="detatch an authentication group from a model service",
+            description="Detatch an authentication group from a model service",
         )
     )
 
@@ -695,7 +697,7 @@ def service_catalog_grammar(statements: list, help: list):
             name="model service status",
             category="Model",
             command="model service status",
-            description="get the status of currently cataloged services",
+            description="Get the status of currently cataloged services",
         )
     )
 
@@ -822,7 +824,7 @@ Examples:
             name="Model local up",
             category="Model",
             command="model service local up '<service_name>'|<service_name> ",
-            description="""launch a model service locally.
+            description="""Launches a model service locally.
 
             Example:
               <cmd> model service local up gen</cmd>

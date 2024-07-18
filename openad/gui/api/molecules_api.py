@@ -352,7 +352,6 @@ class MoleculesApi:
         query = data["query"] if "query" in data else {}
 
         if len(self.cmd_pointer.molecule_list) > 0:
-
             # Compile molset.
             molset = []
             for i, mol in enumerate(self.cmd_pointer.molecule_list):
@@ -391,7 +390,6 @@ class MoleculesApi:
 
         # Memory has dataframe
         elif isinstance(mem_data, pd.DataFrame):
-
             # Dataframe has molecules -> load as molset.
             if df_has_molecules(mem_data):
                 molset = dataframe2molset(mem_data)

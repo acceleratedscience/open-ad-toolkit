@@ -220,7 +220,6 @@ def _open_browser(host, port, path, query, hash, silent=False):
 
     # Jupyter --> Render iframe.
     if GLOBAL_SETTINGS["display"] == "notebook":
-
         # Rendering the iframe in the traditional way doesn't let
         # us style it, so we have to use a little hack, rendering
         # our iframe using HTML. Jupyter doesn't like our hack, so

@@ -249,7 +249,6 @@ class rxn_helper:
                     x = rxn4chemistry_wrapper.create_project(cmd_pointer.settings["workspace"])
 
                     if len(x) == 0:
-
                         continue
                     else:
                         self.append_project(
@@ -257,11 +256,9 @@ class rxn_helper:
                         )
                     # print('here')
                 except BaseException as e:
-
                     print(e)
                     raise BaseException("Unable to create project :" + str(e))
                 try:
-
                     sleep(3)
                     result = self.set_current_project(cmd_pointer, cmd_pointer.settings["workspace"])
                     # print(cmd_pointer.settings['workspace'])

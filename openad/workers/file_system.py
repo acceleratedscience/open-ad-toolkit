@@ -182,7 +182,6 @@ def fs_attach_file_data(cmd_pointer, file_obj, query=None):
 
     # Molset --> Load molset object with first page data
     if file_type in ["molset", "sdf", "smi"]:
-
         # Step 1: Load or assemble the molset.
         # - - -
 

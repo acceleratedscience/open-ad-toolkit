@@ -822,7 +822,6 @@ def find_mol_in_list(identifier, molset, ignore_synonyms=False):
     """
 
     for openad_mol in molset:
-
         # To support both v1 and v2 formats (see molformat_v2).
         identifiers_dict = openad_mol.get("identifiers")  # v2
         if not identifiers_dict:
@@ -967,7 +966,6 @@ def merge_mols(openad_mol_1, openad_mol_2):
 
     # Loop through all properties of the 2nd molecule.
     for key, value in openad_mol_2.items():
-
         # Skip if None
         if value is None:
             continue
