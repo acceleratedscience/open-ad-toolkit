@@ -4,6 +4,9 @@
 
 The OpenAD GUI provides a visual window onto your data, helping you with evaluation and triage.
 
+The code base for the GUI lives in a separate (not yet public) repository:<br>
+[https://github.com/acceleratedscience/openad-gui]()
+
 <br>
 
 ## How it works
@@ -187,5 +190,4 @@ Example: `display data 'demo/my-mols.csv'` + `result open`
 
 </details>
 
-|![Results](readme/results.png)|
-|---|
+![Results](readme/results.png)
