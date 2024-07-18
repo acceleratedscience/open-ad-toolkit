@@ -21,7 +21,18 @@ Any command that requires the GUI will start the server, which will then keep on
 
 ### 1. File Browser
 
-<img src= "_readme/file-browser.png" alt="File browser" style="border: 1px solid rgba(0,0,0,.1); box-shadow: 0 0 100px rgba(0,0,0,.05)">
+|![test](readme/file-browser.png)|
+|---|
+
+
+|   |   |   |   |   |
+|---|---|---|---|---|
+
+<img src= "readme/file-browser.png" alt="File browser" style="border: 1px solid rgba(0,0,0,.1);">
+
+> ![test](readme/file-browser.png)
+
+
 
 The file browser lets us open our own proprietary file formats:
 
