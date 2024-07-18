@@ -627,7 +627,7 @@ When run inside a Notebook, this will return a dataframe. When run from the comm
         help_dict_create(
             name="show molecule",
             category="Molecules",
-            command="show molecule <name> | <smiles> | <inchi> | <inchikey> | <cid>",
+            command="show mol|molecule <name> | <smiles> | <inchi> | <inchikey> | <cid>",
             description="""
 Inspect a molecule in the browser.
 
@@ -660,7 +660,7 @@ Examples:
         help_dict_create(
             name="show molset",
             category="Molecules",
-            command="show molecule set '<molset_or_sdf_or_smi_path>' | <dataframe> )",
+            command="show molset|molecule set '<molset_or_sdf_or_smi_path>' | using dataframe <dataframe>",
             description=f"""
 Launch the molset viewer { 'in your browser ' if is_notebook_mode() else '' }to visualize your molecule dataset.
 

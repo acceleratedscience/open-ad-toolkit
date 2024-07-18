@@ -327,6 +327,8 @@ def lang_parse(cmd_pointer, parser):
         return display_data__display(cmd_pointer, parser)
     elif parser.getName() == "display_data__as_dataframe":
         return display_data__as_dataframe(cmd_pointer, parser)
+    elif parser.getName() == "show_data":
+        return show_data(cmd_pointer, parser)
     elif parser.getName() == "clear_sessions":
         return clear_sessions(cmd_pointer, parser)
     elif parser.getName() == "edit_config":
@@ -759,6 +761,21 @@ def display_data__as_dataframe(
         return data
     else:
         return None
+
+
+def show_data(cmd_pointer, parser):
+    """
+    Show data in GUI.
+    """
+
+    file_path = parser["file_path"]
+    filename = file_path.split("/")[-1]
+
+    # Allow for no extension.
+    if len(filename.split(".")) == 1:
+        file_path = file_path + ".csv"
+
+    gui_init(cmd_pointer, "~/" + file_path)
 
 
 # Edit a JSON config file.
