@@ -22,15 +22,6 @@ class GeneralApi:
     def test(self):
         return "Hello World!"
 
-    def get_port(self):
-        """
-        Expose the Flask port to the frontend so that the frontend can
-        connect to the correct backend. This is because every notebook
-        or CLI will have its own designated port.
-        """
-        app = Flask(__name__)
-        return jsonify(port=app.config["SERVER_PORT"])
-
     def exec_command(self):
         from openad.app.main import api_remote
 

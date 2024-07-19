@@ -10,7 +10,7 @@ from openad.gui.api.molecules_api import MoleculesApi
 from openad.gui.api.result_api import ResultApi
 from openad.gui.api.dataframe_api import DataframeApi
 
-
+# fmt: off
 def fetchRoutes(cmd_pointer):
     api_v1 = "/api/v1"
 
@@ -21,6 +21,7 @@ def fetchRoutes(cmd_pointer):
     result_api = ResultApi(cmd_pointer)
     dataframe_api = DataframeApi(cmd_pointer)
 
+
     routes = {
         #
         #
@@ -28,7 +29,6 @@ def fetchRoutes(cmd_pointer):
         f"{api_v1}/": {"func": general_api.landing, "method": "GET"},
         f"{api_v1}/test": {"func": general_api.test, "method": "GET"},
         f"{api_v1}/health": {"func": general_api.health, "method": "GET"},
-        f"{api_v1}/get-port": {"func": general_api.get_port, "method": "GET"},
         f"{api_v1}/exec-command": {"func": general_api.exec_command, "method": "POST"},
         #
         #
@@ -78,12 +78,14 @@ def fetchRoutes(cmd_pointer):
         #
         # Result
         f"{api_v1}/get-result": {"func": result_api.get_result, "method": "POST"},
-        f"{api_v1}/update-result-molset": {"func": result_api.update_molset_result, "method": "POST"},
+        f"{api_v1}/update-result-molset": {"func": result_api.update_result_molset, "method": "POST"},
+        # f"{api_v1}/update-result-data": {"func": result_api.update_result_data, "method": "POST"}, # placeholder for when dataviewer is integrated.
         #
         #
         # Dataframes
         f"{api_v1}/get-dataframe/<df_name>": {"func": dataframe_api.get_dataframe, "method": "POST"},
-        f"{api_v1}/update-dataframe/<df_name>": {"func": dataframe_api.update_dataframe, "method": "POST"},
+        f"{api_v1}/update-dataframe-molset/<df_name>": {"func": dataframe_api.update_dataframe_molset, "method": "POST"},
+        # f"{api_v1}/update-dataframe-data/<df_name>": {"func": dataframe_api.update_dataframe_data, "method": "POST"},  # placeholder for when dataviewer is integrated.
         #
         # "/": {"func": home, "method": "GET"},
         # "/submit": {"func": submit, "method": "POST"},

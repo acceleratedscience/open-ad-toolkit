@@ -68,7 +68,7 @@ def merge_molecule_property_data(cmd_pointer, inp):
     for row in mol_dataframe.to_dict("records"):
         update_flag = True
         merge_mol = None
-        merge_mol = retrieve_mol_from_list(cmd_pointer, row[SMILES])
+        merge_mol = retrieve_mol_from_mymols(cmd_pointer, row[SMILES])
         if merge_mol is None:
             merge_mol = new_molecule(row[SMILES], row[SMILES])
             update_flag = False

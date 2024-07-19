@@ -10,7 +10,6 @@ class openad_api:
 
     def request(self, command):
         """Invokes the Magic command interface for OpenAD and ensure dataFrame Data is of type data"""
-        print("*****")
         api_variable = {}
         openad.app.main.GLOBAL_SETTINGS["display"] = "api"
         command_list = command.split()
@@ -22,7 +21,6 @@ class openad_api:
                     try:
                         df = eval(command_list[i])  # pylint: disable=eval-used #only way to execute
                         if isinstance(df, DataFrame):
-                            print(111123, df)
                             api_variable[command_list[i]] = df
                     except:  # pylint: disable=bare-except # We do not care what fails
                         pass

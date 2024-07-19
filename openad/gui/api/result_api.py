@@ -68,15 +68,16 @@ class ResultApi:
                 # TO DO: Implement dataviewer here.
                 return {"type": "data", "data": table}, 200
 
-    def update_molset_result(self):
+    def update_result_molset(self):
         """
         Save changes to a molset result stored in memory.
         """
+
         data = json.loads(request.data) if request.data else {}
         cache_id = data["cacheId"] if "cacheId" in data else ""
 
         if not cache_id:
-            return f"update_result() -> Unrecognized cache_id: {cache_id}", 500
+            return f"update_result_molset() -> Unrecognized cache_id: {cache_id}", 500
 
         # Read data from cache.
         cache_path = assemble_cache_path(self.cmd_pointer, "molset", cache_id)
@@ -86,35 +87,27 @@ class ResultApi:
 
         # Flatten the mol dictionaries.
         molset = [molformat_v2_to_v1(mol) for mol in molset]
-        props = set()
-        for mol in molset:
-            props.update(mol["properties"])
 
         # Store the columns of the current result table,
         # so we can recreate them when overwriting the result.
         df = MEMORY.get()
         columns = df.columns.tolist()
-        columns_lower = [col.lower() for col in columns]  # Lets us match case-insensitive
 
-        # Create new table
+        # Create new table.
         table = []
         for mol in molset:
             row = {}
-            for i, col_lower in enumerate(columns_lower):
-                col = columns[i]
-                row[col] = mol["properties"][col_lower]
+            for i, col in enumerate(columns):
+                row[col] = mol["properties"].get(col)
             table.append(row)
 
         # Write data back to memory as a dataframe.
         df = pd.DataFrame(table)
         MEMORY.store(df)
 
-        # Print result
-        output_table(df)
-
         return "ok", 200
 
-    def update_data_result(self):
+    def update_result_data(self):
         """
         Placeholder for when we implement datavierwer for the /result page
         """
