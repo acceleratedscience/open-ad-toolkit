@@ -6,6 +6,7 @@ The launcher will either start up the GUI server, or open the GUI in a
 browser if the server was already active.
 """
 
+import atexit
 import os
 import sys
 import json
@@ -25,7 +26,23 @@ from openad.helpers.output import output_text, output_error, output_success, out
 from openad.helpers.general import next_avail_port, confirm_prompt
 from openad.app.global_var_lib import GLOBAL_SETTINGS
 
+
 from openad.gui.gui_routes import fetchRoutes
+import openad.helpers.jupyterlab_settings as jl_settings
+
+JL_PROXY = False
+IS_STATIC = ""
+try:
+
+    jl = jl_settings.get_jupyter_lab_config()
+
+    if jl["ServerApp"]["allow_remote_access"] is True and "127.0.0.1" in jl["ServerProxy"]["host_allowlist"]:
+        JL_PROXY = True
+        IS_STATIC = "/static"
+except Exception as e:
+
+    JL_PROXY = False
+
 
 GUI_SERVER = None
 
@@ -52,12 +69,19 @@ def gui_init(cmd_pointer=None, path=None, data=None, silent=False):
         If True, we'll start the server without opening the browser.
         This is used when restarting the server.
     """
-    template_folder = Path(__file__).resolve().parents[1] / "gui-build"
+
+    if JL_PROXY is False and GLOBAL_SETTINGS["display"] != "notebook":
+        template_folder = Path(__file__).resolve().parents[1] / "gui-build"
+    elif JL_PROXY is False:
+        template_folder = Path(__file__).resolve().parents[1] / "gui-build"
+    else:
+        template_folder = Path(__file__).resolve().parents[1] / "gui-build-proxy"
 
     # Parse potential data into a URL string.
     query = "?data=" + urllib.parse.quote(json.dumps(data)) if data else ""
 
     # GUI is installed, launch it.
+
     if os.path.exists(template_folder):
         is_installed = template_folder / "index.html"
         if is_installed:
@@ -105,7 +129,13 @@ def _launch(routes={}, path=None, query="", hash="", silent=False):
         return
 
     # Initialize Flask app.
-    template_folder = Path(__file__).resolve().parents[1] / "gui-build"
+    if JL_PROXY is False and GLOBAL_SETTINGS["display"] != "notebook":
+        template_folder = Path(__file__).resolve().parents[1] / "gui-build"
+    elif JL_PROXY is False:
+        template_folder = Path(__file__).resolve().parents[1] / "gui-build"
+    else:
+        template_folder = Path(__file__).resolve().parents[1] / "gui-build-proxy"
+
     if not template_folder.exists():
         output_error("The OpenAD GUI folder is missing")
         return
@@ -113,9 +143,21 @@ def _launch(routes={}, path=None, query="", hash="", silent=False):
     CORS(app)  # Enable CORS for all routes
 
     # Make asset files available (CSS/JS).
+    #   @app.route("/static/assets/<path>")
+    #   def static_assets(path):
+    #       return send_from_directory(template_folder / "assets", f"{path}")
+
     @app.route("/assets/<path>")
     def assets(path):
         return send_from_directory(template_folder / "assets", f"{path}")
+
+    #   @app.route("/static/rdkit/<path>")
+    #   def static_rdkit(path):
+    #       return send_from_directory(template_folder / "rdkit", f"{path}")
+
+    @app.route("/rdkit/<path>")
+    def rdkit(path):
+        return send_from_directory(template_folder / "rdkit", f"{path}")
 
     # Shutdown path.
     @app.route("/shutdown", methods=["GET"])
@@ -143,6 +185,7 @@ def _launch(routes={}, path=None, query="", hash="", silent=False):
 
     # Serve all other paths by pointing to index.html.
     # Vue router takes care of the rest.
+
     @app.route("/", methods=["GET"])
     @app.route("/<path:path>")
     def serve(path=""):
@@ -154,6 +197,7 @@ def _launch(routes={}, path=None, query="", hash="", silent=False):
     host, port = next_avail_port()
 
     # Launch the UI
+
     _open_browser(host, port, path, query, hash, silent)
 
     # Remove Flask startup message.
@@ -176,6 +220,7 @@ def _launch(routes={}, path=None, query="", hash="", silent=False):
     # But unfortunately Flask's built-in server doesn't provide an option
     # to shut it down programatically from another thread, so instead
     # we use Werkzeug's more advanced WSGI server.
+
     GUI_SERVER = ServerThread(app, host, port)
     GUI_SERVER.start()
 
@@ -207,6 +252,7 @@ class ServerThread(Thread):
         # 1. Quitting the application (Ctrl+C) -> gui_shutdown() via main.py
         # 2. By command `exit gui` or `relaunch gui` -> gui_shutdown() via main_lib.py
         # 3. By browsing to the /shutdown path -> @app.route("/shutdown", methods=["GET"]) in this file
+
         self.srv.shutdown()  # Shutdown server
         self.join()  # Close thread
         self.active = False
@@ -268,7 +314,9 @@ def _open_browser(host, port, path, query, hash, silent=False):
             jl_padding_correction = "width:calc(100% + 20px)" if is_jupyterlab else ""
 
             # Render iframe & buttons
+
             iframe_html = f'{style}{btn_wrap}<iframe src="{url}" width="{width}" height="{height}" style="border:solid 1px #ddd;box-sizing:border-box;{jl_padding_correction}"></iframe>'
+
             display(HTML(iframe_html))
 
     # CLI --> Open browser.
@@ -302,11 +350,15 @@ def _print_launch_msg(host, port):
 # Shutdown the GUI server.
 def gui_shutdown(cmd_pointer=None, ignore_warning=False):
     # Clear all working copy molsets in the /wc_cache folder
-    workspace_path = cmd_pointer.workspace_path(cmd_pointer.settings["workspace"])
-    cache_dir = workspace_path + "/._openad/wc_cache"
-    if os.path.exists(cache_dir):
-        for file in os.listdir(cache_dir):
-            os.remove(os.path.join(cache_dir, file))
+
+    if cmd_pointer is not None:
+        workspace_path = cmd_pointer.workspace_path(cmd_pointer.settings["workspace"])
+
+        cache_dir = workspace_path + "/._openad/wc_cache"
+
+        if os.path.exists(cache_dir):
+            for file in os.listdir(cache_dir):
+                os.remove(os.path.join(cache_dir, file))
 
     if GUI_SERVER and GUI_SERVER.is_running():
         GUI_SERVER.shutdown()
@@ -314,6 +366,12 @@ def gui_shutdown(cmd_pointer=None, ignore_warning=False):
         output_error("The GUI server is not running")
         return
 
+
+def cleanup():
+    gui_shutdown(ignore_warning=True)
+
+
+atexit.register(cleanup)
 
 if __name__ == "__main__":
     gui_init()

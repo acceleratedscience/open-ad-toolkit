@@ -7,6 +7,7 @@ They can be accessed on: http://localhost:8024/api/v1/<endpoint>
 from openad.gui.api.general_api import GeneralApi
 from openad.gui.api.file_system_api import FileSystemApi
 from openad.gui.api.molecules_api import MoleculesApi
+import jupyterlab_server.config as jlc
 
 
 def fetchRoutes(cmd_pointer):
