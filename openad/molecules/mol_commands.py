@@ -27,8 +27,8 @@ from openad.molecules.mol_functions import (
     # get_mol_from_smiles,
     # get_mol_from_cid,
     # canonical_smiles,
-    # new_molecule,
-    retrieve_mol_from_list,
+    new_molecule,
+    retrieve_mol_from_mymols,
     retrieve_mol,
     get_properties,
     get_identifiers,
@@ -37,7 +37,7 @@ from openad.molecules.mol_functions import (
     mymols_add,
     mymols_remove,
     MOL_PROPERTIES,
-    new_molecule,
+    normalize_mol_df,
 )
 
 # Globals
@@ -649,6 +649,27 @@ def show_mol(cmd_pointer, inp):
 
     molecule_identifier = inp.as_dict()["molecule_identifier"]
     path = "mol/" + urllib.parse.quote(molecule_identifier, safe="")
+    gui_init(cmd_pointer, path)
+
+
+# Launch molset viewer and display a molecule set file.
+def show_molset(cmd_pointer, inp):
+    from openad.gui.gui_launcher import gui_init
+
+    molset_file = inp.as_dict()["molset_file"]
+
+    path = "~/" + urllib.parse.quote(molset_file, safe="")
+    gui_init(cmd_pointer, path)
+
+
+# Launch molset viewer and display a molecule set dataframe.
+def show_molset_df(cmd_pointer, inp):
+    from openad.gui.gui_launcher import gui_init
+
+    # molset_dataframe = cmd_pointer.api_variables[inp.as_dict()["in_dataframe"]]
+    df_name = inp.as_dict()["in_dataframe"]
+
+    path = "dataframe/" + df_name
     gui_init(cmd_pointer, path)
 
 

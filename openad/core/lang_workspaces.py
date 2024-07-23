@@ -50,7 +50,7 @@ def list_workspaces(cmd_pointer, parser):
     """Lists all Workspaces"""
     workspaces = []
     table_headers = ("Workspace", "Description")
-    note = "To see what you can do with a workspace, run <cmd>workspace ?</cmd>."
+    note = "To see what you can do with a workspace, run <cmd>? workspace</cmd>."
     current_workspace_name = cmd_pointer.settings["workspace"].upper()
 
     for name in cmd_pointer.settings["workspaces"]:

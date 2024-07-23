@@ -7,17 +7,21 @@ import time
 import json
 import copy
 import shutil
+import pandas
 import asyncio
-from datetime import datetime
 import aiofiles
 import pubchempy as pcy
+from datetime import datetime
 from rdkit import Chem, rdBase
-from rdkit.Chem.Descriptors import MolWt, ExactMolWt
 from rdkit.Chem.rdchem import Mol
+from rdkit.Chem.Descriptors import MolWt, ExactMolWt
+
+from openad.helpers.output_msgs import msg
+from openad.helpers.output import output_error, output_warning, output_success
 from openad.helpers.files import open_file
 from openad.helpers.general import confirm_prompt
+from openad.helpers.spinner import spinner
 from openad.helpers.json_decimal_encoder import DecimalEncoder
-from openad.helpers.output import output_error, output_success
 
 # The base for our molecule dictionary.
 OPENAD_MOL_DICT = {
@@ -138,6 +142,7 @@ MOL_PROPERTIES = sorted(
 )
 
 blocker = rdBase.BlockLogs()  # pylint: disable=c-extension-no-member
+mol_name_cache = {}
 
 
 def merge_molecule_properties(molecule_dict, mol):
@@ -990,3 +995,79 @@ def merge_mols(openad_mol_1, openad_mol_2):
 
     # Return
     return openad_mol_1
+
+
+def normalize_mol_df(mol_df: pandas.DataFrame, batch=False):
+    """
+    Normalize the column names of a molecule dataframe
+    """
+    has_name = False
+    contains_name = None
+
+    for i in mol_df.columns:
+        # Find the name column.
+        if str(i.upper()) == "NAME" or str(i.lower()) == "chemical_name":
+            has_name = True
+        if contains_name is None and "NAME" in str(i.upper()):
+            contains_name = i
+        if contains_name is None and "CHEMICAL_NAME" in str(i.upper()):
+            contains_name = i
+
+        # Normalize any columns we'll be referring to later.
+        if str(i.upper()) == "SMILES":
+            mol_df.rename(columns={i: "SMILES"}, inplace=True)
+        if str(i.upper()) == "ROMOL":
+            mol_df.rename(columns={i: "ROMol"}, inplace=True)
+        if str(i.upper()) == "IMG":
+            mol_df.rename(columns={i: "IMG"}, inplace=True)
+        if i in INPUT_MAPPINGS:
+            mol_df.rename(columns={i: INPUT_MAPPINGS[i]}, inplace=True)
+
+    # Normalize name column.
+    if has_name == False and contains_name is not None:
+        mol_df.rename(columns={contains_name: "NAME"}, inplace=True)
+
+    # Add names when missing.
+    try:
+        if has_name is False:
+            output_warning(msg("no_m2g_name_column"))
+
+            if not batch:
+                spinner.start("Downloading names")
+
+            mol_df["NAME"] = "unknown"
+            for i in mol_df.itertuples():
+                mol_df.loc[i.Index, "NAME"] = _smiles_to_iupac(mol_df.loc[i.Index, "SMILES"])
+
+            if not batch:
+                spinner.succeed("Names downloaded")
+                spinner.start()
+                spinner.stop()
+
+    except BaseException as err:
+        spinner.fail("There was an issue loading the molecule names.")
+        spinner.start()
+        spinner.stop()
+        print(err)
+
+    return mol_df
+
+
+def _smiles_to_iupac(smiles):
+    """
+    Get the official IUPAC(*) name of a molecules based on its SMILES.
+
+    (*) International Union of Pure and Applied Chemistry
+    """
+
+    import pubchempy
+
+    if smiles in mol_name_cache:
+        return mol_name_cache[smiles]
+    try:
+        compounds = pubchempy.get_compounds(smiles, namespace="smiles")
+        match = compounds[0]
+        mol_name_cache[smiles] = str(match)
+    except BaseException:
+        match = smiles
+    return str(match)

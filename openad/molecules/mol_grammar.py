@@ -85,21 +85,21 @@ from pyparsing import (
           as optimize with toolkits toolkit gpu experiment add run save runs show \
               file display history data remove result from inchi inchikey smiles formula name last load results export create rename merge pubchem sources basic force append only upsert".split(),
 )
-mol = ["molecule", "mol"]
-mols = ["molecules", "mols"]
-molset = ["molecule-set", "molset"]
-molsets = ["molecule-sets", "molsets"]
+_mol = ["molecule", "mol"]
+_mols = ["molecules", "mols"]
+_molset = ["molecule-set", "molset"]
+_molsets = ["molecule-sets", "molsets"]
+_mol_properties = ["synonyms"]
+_mol_properties.extend(m_props)
 clear = CaselessKeyword("clear")
 cache = CaselessKeyword("cache")
 analysis = CaselessKeyword("analysis")
 enrich = CaselessKeyword("enrich")
-mol_properties = ["synonyms"]
-mol_properties.extend(m_props)
-mol_properties = MatchFirst(map(CaselessKeyword, mol_properties))
-molecules = MatchFirst(map(CaselessKeyword, mols))
-molecule = MatchFirst(map(CaselessKeyword, mol))
-molecule_set = MatchFirst(map(CaselessKeyword, molset))
-molecule_sets = MatchFirst(map(CaselessKeyword, molsets))
+mol_properties = MatchFirst(map(CaselessKeyword, _mol_properties))
+molecules = MatchFirst(map(CaselessKeyword, _mols))
+molecule = MatchFirst(map(CaselessKeyword, _mol))
+molecule_set = MatchFirst(map(CaselessKeyword, _molset))
+molecule_sets = MatchFirst(map(CaselessKeyword, _molsets))
 molecule_identifier = Word(
     alphas, alphanums + "_" + "[" + "]" + "(" + ")" + "=" + "," + "-" + "+" + "/" + "#" + "@" + "." + "*" + ";"
 ) | Word(nums)
@@ -257,6 +257,7 @@ Display the sources of a molecule's properties, attributing back to how they wer
 """,
         )
     )
+
     # ---
     # Rename molecule
     statements.append(
@@ -633,7 +634,7 @@ When run inside a Notebook, this will return a dataframe. When run from the comm
         help_dict_create(
             name="show molecule",
             category="Molecules",
-            command="show molecule <name> | <smiles> | <inchi> | <inchikey> | <cid>",
+            command="show mol|molecule <name> | <smiles> | <inchi> | <inchikey> | <cid>",
             description="""
 Inspect a molecule in the browser.
 
@@ -641,7 +642,7 @@ Inspect a molecule in the browser.
 
 When you show a molecule by SMILES or InChI, we can display it immediately. When you show a molecule by name, InChIKey or PubChem CID, we need to first retrieve it from PubChem, which can take a few seconds.
 
-Examples of how to show a molecule and its proerties in the molecule viewer:
+Examples:
 - <cmd>show mol aspirin</cmd>
 - <cmd>show mol CC(=O)OC1=CC=CC=C1C(=O)O</cmd>
 - <cmd>show mol InChI=1S/C9H8O4/c1-6(10)13-8-5-3-2-4-7(8)9(11)12/h2-5H,1H3,(H,11,12)</cmd>
@@ -652,21 +653,32 @@ Examples of how to show a molecule and its proerties in the molecule viewer:
 
     # ---
     # Show molset in browser from file / dataframe
-    # statements.append(Forward(show("show") + molset + desc("molset_file"))("show_molset"))
-    # statements.append(Forward(show("show") + molset + Word(alphas, alphanums + "_")("in_dataframe"))("show_molset_df"))
-    # grammar_help.append(
-    #     help_dict_create(
-    #         name="show molecules",
-    #         category="Molecules",
-    #         command="show molecules using ( file '<mols_file>' | dataframe <dataframe> ) [ save as '<sdf_or_csv_file>' | as molsobject ]",
-    #         description=f"""Launch the molecule viewer { 'in your browser ' if is_notebook_mode() else '' }to examine and select molecules from a SMILES sdf/csv dataset.
-    # { 'if you are working from a notebook, the <cmd> as mols object </cmd> clause allows you to display the mols2grid object and use the <cmd>.get_selection()</cmd>  method to retrieve selected molecules ' if is_notebook_mode() else '' }
-    # Examples of how to show molecules in mols2grid:
-    # - <cmd>show molecules using file 'base_molecules.sdf' as molsobject</cmd>
-    # - <cmd>show molecules using dataframe my_dataframe save as 'selection.sdf'</cmd>
-    # """,
-    #     )
-    # )
+    statements.append(Forward(show("show") + molecule_set + desc("molset_file"))("show_molset"))
+    statements.append(
+        Forward(
+            show("show")
+            + molecule_set
+            + using
+            + CaselessKeyword("dataframe")
+            + Word(alphas, alphanums + "_")("in_dataframe")
+        )("show_molset_df")
+    )
+    grammar_help.append(
+        help_dict_create(
+            name="show molset",
+            category="Molecules",
+            command="show molset|molecule set '<molset_or_sdf_or_smi_path>' | using dataframe <dataframe>",
+            description=f"""
+Launch the molset viewer { 'in your browser ' if is_notebook_mode() else '' }to visualize your molecule dataset.
+
+Examples:
+- <cmd>show molset 'neurotransmitters.mol.json'</cmd>
+- <cmd>show molset 'neurotransmitters.sdf'</cmd>
+- <cmd>show molset 'neurotransmitters.smi'</cmd>
+- <cmd>show molset my_dataframe</cmd>
+""",
+        )
+    )
 
     # --- TRASH / DEPRECATED
     # Show molset in browser

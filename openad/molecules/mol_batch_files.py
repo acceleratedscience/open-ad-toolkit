@@ -7,18 +7,15 @@ from openad.molecules.mol_functions import (
     merge_molecule_properties,
     valid_smiles,
     new_molecule,
-    canonicalize,
     mol_from_identifier,
     mymols_add,
-    INPUT_MAPPINGS,
+    normalize_mol_df,
 )
-from openad.molecules.mol_commands import add_molecule
-from openad.helpers.output import output_error, output_warning, output_success, output_text
-
-from openad.helpers.output_msgs import msg
 from openad.app.global_var_lib import GLOBAL_SETTINGS
+from openad.helpers.output import output_error, output_warning, output_success, output_text
+from openad.helpers.output_msgs import msg
 
-naming_cache = {}
+mol_name_cache = {}
 
 
 def merge_molecule_property_data(cmd_pointer, inp):
@@ -71,7 +68,7 @@ def merge_molecule_property_data(cmd_pointer, inp):
     for row in mol_dataframe.to_dict("records"):
         update_flag = True
         merge_mol = None
-        merge_mol = retrieve_mol_from_list(cmd_pointer, row[SMILES])
+        merge_mol = retrieve_mol_from_mymols(cmd_pointer, row[SMILES])
         if merge_mol is None:
             merge_mol = new_molecule(row[SMILES], row[SMILES])
             update_flag = False
@@ -117,9 +114,10 @@ def load_mol_data(source_file, cmd_pointer):
 
 def load_batch_molecules(cmd_pointer, inp):
     """loads molecules in batch"""
+
     mol_dataframe = None
     if "load_molecules_dataframe" in inp.as_dict():
-        mol_dataframe = _normalize_mol_df(cmd_pointer.api_variables[inp.as_dict()["in_dataframe"]], cmd_pointer)
+        mol_dataframe = normalize_mol_df(cmd_pointer.api_variables[inp.as_dict()["in_dataframe"]], batch=True)
     else:
         mol_dataframe = load_mol(inp.as_dict()["moles_file"], cmd_pointer)
 
@@ -299,7 +297,7 @@ def load_mol(source_file, cmd_pointer):
             name = source_file.split("/")[-1]
             SDFFile = cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/" + name
 
-            return _normalize_mol_df(PandasTools.LoadSDF(SDFFile), cmd_pointer)
+            return normalize_mol_df(PandasTools.LoadSDF(SDFFile), batch=True)
 
         except BaseException as err:
             output_error(msg("err_load_sdf", err), return_val=False)
@@ -310,63 +308,8 @@ def load_mol(source_file, cmd_pointer):
             name = source_file.split("/")[-1]
             SDFFile = cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/" + name
             mol_frame = pandas.read_csv(SDFFile, dtype="string")
-            return _normalize_mol_df(mol_frame, cmd_pointer)
+            return normalize_mol_df(mol_frame, batch=True)
 
         except BaseException as err:
             output_error(msg("err_load_csv", err), return_val=False)
             return None
-
-
-def _normalize_mol_df(mol_df: pandas.DataFrame, cmd_pointer):
-    has_name = False
-    contains_name = None
-
-    for i in mol_df.columns:
-        # Find the name column.
-        if str(i.upper()) == "NAME" or str(i.lower()) == "chemical_name":
-            has_name = True
-        if contains_name is None and "NAME" in str(i.upper()):
-            contains_name = i
-        if contains_name is None and "CHEMICAL_NAME" in str(i.upper()):
-            contains_name = i
-
-        # Normalize any columns we'll be referring to later.
-        if str(i.upper()) == "SMILES":
-            mol_df.rename(columns={i: "SMILES"}, inplace=True)
-        if str(i.upper()) == "ROMOL":
-            mol_df.rename(columns={i: "ROMol"}, inplace=True)
-        if str(i.upper()) == "IMG":
-            mol_df.rename(columns={i: "IMG"}, inplace=True)
-        if i in INPUT_MAPPINGS:
-            mol_df.rename(columns={i: INPUT_MAPPINGS[i]}, inplace=True)
-
-    # Normalize name column.
-    if has_name is False and contains_name is not None:
-        mol_df.rename(columns={contains_name: "NAME"}, inplace=True)
-
-    # Add names when missing.
-    try:
-        if has_name is False:
-            output_warning(msg("no_m2g_name_column"), return_val=False)
-
-            mol_df["NAME"] = "unknown"
-            for i in mol_df.itertuples():
-                mol_df.loc[i.Index, "NAME"] = _smiles_to_iupac(mol_df.loc[i.Index, "SMILES"])
-
-    except BaseException as err:
-        return None
-    return mol_df
-
-
-def _smiles_to_iupac(smiles):
-    import pubchempy
-
-    if smiles in naming_cache:
-        return naming_cache[smiles]
-    try:
-        compounds = pubchempy.get_compounds(smiles, namespace="smiles")
-        match = compounds[0]
-        naming_cache[smiles] = str(match)
-    except BaseException:
-        match = smiles
-    return str(match)

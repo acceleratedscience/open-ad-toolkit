@@ -211,7 +211,7 @@ class ServerThread(Thread):
         self.join()  # Close thread
         self.active = False
         prefix = f"<red>{html.unescape('&empty;')}</red> "
-        output_warning([f"{prefix}OpenAD GUI shutdown complete", f"{prefix}{self.host}:{self.port}"], tabs=1)
+        output_success([f"{prefix}OpenAD GUI shutdown complete", f"{prefix}{self.host}:{self.port}"])
 
 
 def _open_browser(host, port, path, query, hash, silent=False):
@@ -273,16 +273,23 @@ def _open_browser(host, port, path, query, hash, silent=False):
 
     # CLI --> Open browser.
     else:
+        url = f"http://{host}:{port}{module_path}{query}{hash}"
         if not silent:
             socket.setdefaulttimeout(1)
-            webbrowser.open(f"http://{host}:{port}{module_path}{query}{hash}", new=1)
+            webbrowser.open(url, new=1)
 
         # Display our own launch message.
-        _print_launch_msg(host, port)
+        _print_launch_msg(url)
 
 
 # Generated a stylized launch message for the web server.
-def _print_launch_msg(host, port):
+def _print_launch_msg(url):
+    output_text(f"<yellow>Launching GUI:</yellow>\n<link>{url}</link>", pad=1)
+
+
+# Generated a stylized launch message for the web server
+# – no longer useful since we don't launch it on startup
+def _print_launch_msg_TRASH(host, port):
     text = "User interface:"
     url = f"{host}:{port}"
     width = max(len(text), len(url))

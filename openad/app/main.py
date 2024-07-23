@@ -848,6 +848,7 @@ def api_remote(
     - It is deliberate that the whole RUNCMD class object is not kept alive as there is no logical
       exit point for magic commands, unlike a command line.
     """
+
     global MAGIC_PROMPT
     # GLOBAL_SETTINGS["display"] = "notebook"
 

@@ -607,6 +607,19 @@ grammar_help.append(
     )
 )
 
+# Show data
+# Note: hidden from help commands because the dataviewer is not yet implemented into the GUI.
+# Until then you need to make a detour via `display data` and then `result open`.
+statements.append(Forward(show + data("data") + desc("file_path"))("show_data"))
+# grammar_help.append(
+#     help_dict_create(
+#         name="show data",
+#         category="Utility",
+#         command="show data '<filename.csv>'",
+#         description="Explore CSV data in the browser.",
+#     )
+# )
+
 # Edit config file (CLI-only)
 if not is_notebook_mode():
     statements.append(
