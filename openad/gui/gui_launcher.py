@@ -20,32 +20,35 @@ from pathlib import Path
 from threading import Thread
 import IPython.external
 from werkzeug.serving import make_server
-from flask import Flask, send_from_directory, Response, Request, jsonify, request
+from flask import Flask, send_from_directory
 from flask_cors import CORS, cross_origin
 from openad.helpers.output_msgs import msg
 from openad.helpers.output import output_text, output_error, output_success, output_warning
 from openad.helpers.general import next_avail_port, confirm_prompt
 from openad.app.global_var_lib import GLOBAL_SETTINGS
-
-
 from openad.gui.gui_routes import fetchRoutes
 import openad.helpers.jupyterlab_settings as jl_settings
 
+
+# Global variable to store the GUI server,
+# so we don't start it multiple times.
+GUI_SERVER = None
+
+# If Jupyter Lab is running inside a container
+# we need to launch the GUI on a proxy URL.
 JL_PROXY = False
-URL_PROXY = False
 try:
-
-    jl = jl_settings.get_jupyter_lab_config()
-
-    if jl["ServerApp"]["allow_remote_access"] is True and "127.0.0.1" in jl["ServerProxy"]["host_allowlist"]:
+    jl_config = jl_settings.get_jupyter_lab_config()
+    if (
+        jl_config["ServerApp"]["allow_remote_access"] is True
+        and "127.0.0.1" in jl_config["ServerProxy"]["host_allowlist"]
+    ):
         JL_PROXY = True
-        IS_STATIC = "/static"
-except Exception as e:
-
+except Exception:
     JL_PROXY = False
 
-
-GUI_SERVER = None
+# For testing:
+JL_PROXY = True
 
 
 def gui_init(cmd_pointer=None, path=None, data=None, silent=False):
@@ -71,47 +74,10 @@ def gui_init(cmd_pointer=None, path=None, data=None, silent=False):
         This is used when restarting the server.
     """
 
-    if JL_PROXY is False and GLOBAL_SETTINGS["display"] != "notebook":
-        template_folder = Path(__file__).resolve().parents[1] / "gui-build"
-    elif JL_PROXY is False:
-        template_folder = Path(__file__).resolve().parents[1] / "gui-build"
-    else:
-        template_folder = Path(__file__).resolve().parents[1] / "gui-build-proxy"
-        URL_PROXY = True
-    
-    # # For testing:
-    # template_folder = Path(__file__).resolve().parents[1] / "gui-build-proxy"
-    # URL_PROXY = True
-
     # Parse potential data into a URL string.
     query = "?data=" + urllib.parse.quote(json.dumps(data)) if data else ""
 
-    # GUI is installed, launch it.
-    if os.path.exists(template_folder):
-        is_installed = template_folder / "index.html"
-        if is_installed:
-            _launch(routes=fetchRoutes(cmd_pointer), path=path, query=query, silent=silent)
-
-    # GUI is not yet installed, suggest installation.
-    else:
-        install_now = confirm_prompt(
-            "The OpenAD GUI (graphical user interface) is not yet installed. Would you like to install it now?"
-        )
-        if install_now:
-            gui_install()
-        else:
-            output_text("You can install the GUI at any time by running <cmd>install gui</cmd>")
-            remind_me = confirm_prompt("Remind you next time?", default=True)
-            if not remind_me:
-                # Create the openad-cli folder with an empty README.txt file inside.
-                try:
-                    Path(template_folder).mkdir(parents=False)
-                    readme = Path(template_folder) / "README.txt"
-                    readme.touch()
-                    readme_text = "You have declined to install the OpenAD GUI.\nYou can install it at any time by running `install gui`.\n- - -\nThe graphical user interface allows you to browse your workspace and visualize your datasets and molecules."  # Partly repeated. Move to msgs()
-                    readme.write_text(readme_text)
-                except BaseException as err:
-                    output_error(["Something went wrong while creating the openad-gui folder.", err])
+    _launch(routes=fetchRoutes(cmd_pointer), path=path, query=query, silent=silent)
 
 
 def gui_install():
@@ -134,17 +100,10 @@ def _launch(routes={}, path=None, query="", hash="", silent=False):
         return
 
     # Initialize Flask app.
-    if JL_PROXY is False and GLOBAL_SETTINGS["display"] != "notebook":
-        template_folder = Path(__file__).resolve().parents[1] / "gui-build"
-    elif JL_PROXY is False:
-        template_folder = Path(__file__).resolve().parents[1] / "gui-build"
-    else:
+    if JL_PROXY is True:
         template_folder = Path(__file__).resolve().parents[1] / "gui-build-proxy"
-        URL_PROXY = True
-
-    # # For testing:
-    # template_folder = Path(__file__).resolve().parents[1] / "gui-build-proxy"
-    # URL_PROXY = True
+    else:
+        template_folder = Path(__file__).resolve().parents[1] / "gui-build"
 
     if not template_folder.exists():
         output_error("The OpenAD GUI folder is missing")
@@ -197,7 +156,7 @@ def _launch(routes={}, path=None, query="", hash="", silent=False):
         method = routes[route]["method"] if "method" in routes[route] else "GET"
         app.route(route, methods=[method])(func)
         # print(route + " " + str(method) + " " + str(func))
-        
+
         # This is the equivalent of:
         # @app.route('/', methods=['GET'])
         # def home():
@@ -302,16 +261,6 @@ def _open_browser(host, port, path, query, hash, silent=False):
 
         width = "100%"
         height = 700
-        
-        if JL_PROXY is False and GLOBAL_SETTINGS["display"] != "notebook":
-            URL_PROXY = False
-        elif JL_PROXY is False:
-            URL_PROXY = False
-        else:
-            URL_PROXY = True
-
-        # # For testing:
-        # URL_PROXY = True
 
         with warnings.catch_warnings():
             # Disable the warning about the iframe hack.
@@ -326,8 +275,7 @@ def _open_browser(host, port, path, query, hash, silent=False):
                 #{id} a:hover {{ color: #0f62fe }}
             </style>
             """
-            if URL_PROXY:
-                url2 = f"http://127.0.0.1:8888/proxy/{port}{module_path}{query}{hash}"
+            if JL_PROXY is True:
                 url = f"/../proxy/{port}{module_path}{query}{hash}"
             else:
                 url = f"http://{host}:{port}{module_path}{query}{hash}"
