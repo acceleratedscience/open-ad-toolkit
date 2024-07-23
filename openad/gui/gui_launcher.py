@@ -20,8 +20,8 @@ from pathlib import Path
 from threading import Thread
 import IPython.external
 from werkzeug.serving import make_server
-from flask import Flask, send_from_directory
-from flask_cors import CORS
+from flask import Flask, send_from_directory, Response, Request, jsonify, request
+from flask_cors import CORS, cross_origin
 from openad.helpers.output_msgs import msg
 from openad.helpers.output import output_text, output_error, output_success, output_warning
 from openad.helpers.general import next_avail_port, confirm_prompt
@@ -143,12 +143,21 @@ def _launch(routes={}, path=None, query="", hash="", silent=False):
         output_error("The OpenAD GUI folder is missing")
         return
     app = Flask("OpenAD", template_folder=template_folder)
-    CORS(app)  # Enable CORS for all routes
+    CORS(app, allow_headers="*", resources={r"/api/*": {"origins": "*"}})  # Enable CORS for all routes
 
     # Make asset files available (CSS/JS).
     #   @app.route("/static/assets/<path>")
     #   def static_assets(path):
     #       return send_from_directory(template_folder / "assets", f"{path}")
+    # @app.before_request
+    # def before_request():
+    #   headers = {
+    #         "Access-Control-Allow-Origin": "*",
+    #        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+    #        "Access-Control-Allow-Headers": "Content-Type",
+    #    }
+    #    if request.method.lower() == "options":
+    #        return jsonify(headers), 200
 
     @app.route("/assets/<path>")
     def assets(path):
@@ -180,7 +189,7 @@ def _launch(routes={}, path=None, query="", hash="", silent=False):
         func = routes[route]["func"]
         method = routes[route]["method"] if "method" in routes[route] else "GET"
         app.route(route, methods=[method])(func)
-
+        print(route + " " + str(method) + " " + str(func))
         # This is the equivalent of:
         # @app.route('/', methods=['GET'])
         # def home():
@@ -191,6 +200,7 @@ def _launch(routes={}, path=None, query="", hash="", silent=False):
 
     @app.route("/", methods=["GET"])
     @app.route("/<path:path>")
+    # @cross_origin()
     def serve(path=""):
         if path != "" and (template_folder / path).exists():
             return send_from_directory(template_folder, path)
@@ -304,7 +314,8 @@ def _open_browser(host, port, path, query, hash, silent=False):
             </style>
             """
             if URL_PROXY:
-                url = f"http://127.0.0.1:8888/proxy/{port}{module_path}{query}{hash}"
+                url2 = f"http://127.0.0.1:8888/proxy/{port}{module_path}{query}{hash}"
+                url = f"/../proxy/{port}{module_path}{query}{hash}"
             else:
                 url = f"http://{host}:{port}{module_path}{query}{hash}"
 
@@ -328,7 +339,7 @@ def _open_browser(host, port, path, query, hash, silent=False):
             # Render iframe & buttons
 
             iframe_html = f'{style}{btn_wrap}<iframe src="{url}" width="{width}" height="{height}" style="border:solid 1px #ddd;box-sizing:border-box;{jl_padding_correction}"></iframe>'
-
+            print(iframe_html)
             display(HTML(iframe_html))
 
     # CLI --> Open browser.
