@@ -11,12 +11,13 @@ import string
 import uuid
 from cmd import Cmd
 from pandas import DataFrame
+import atexit
 
 # Main
 from openad.app.main_lib import lang_parse, initialise, set_context, unset_context
 from openad.toolkit.toolkit_main import load_toolkit
 from openad.app import login_manager
-from openad.gui.gui_launcher import gui_init
+from openad.gui.gui_launcher import gui_init, GUI_SERVER, gui_shutdown
 from openad.gui.ws_server import ws_server  # Web socket server for gui - experimental
 from openad.helpers.output import output_table
 
@@ -59,6 +60,7 @@ from openad.app.global_var_lib import MEMORY
 import pkg_resources
 import inspect
 import importlib
+
 
 MAGIC_PROMPT = None
 PLUGIN_CLASS_LIST = []
@@ -609,8 +611,13 @@ class RUNCMD(Cmd):
     # Catches the exit command
     def do_exit(self, dummy_inp_do_not_remove):
         """CMD Funcion: called on exit command"""
+        try:
+            cleanup()
+        except:
+            pass
         write_registry(self.settings, self, True)
         delete_session_registry(self.session_id)
+
         # exiting the application. Shorthand: x q.
         return True
 
@@ -864,6 +871,7 @@ def api_remote(
         MAGIC_PROMPT = magic_prompt
     else:
         magic_prompt = MAGIC_PROMPT
+
     if api_context["workspace"] is None:
         api_context["workspace"] = magic_prompt.settings["workspace"]
     else:
@@ -1008,12 +1016,13 @@ def cmd_line():
                 # The cmdloop parameter controls the startup screen, it overrides self.intro.
                 command_line.cmdloop(splash(command_line.settings["context"], command_line, startup=True))
                 lets_exit = True
-            except KeyboardInterrupt:
-                command_line.postloop()
-                if confirm_prompt("Are you sure you wish to exit?", default=True):
-                    from openad.gui.gui_launcher import gui_shutdown
 
-                    gui_shutdown(command_line, ignore_warning=True)
+            except KeyboardInterrupt:
+
+                command_line.postloop()
+
+                if confirm_prompt("Are you sure you wish to exit?", default=True):
+                    # from openad.gui.gui_launcher import gui_shutdown
                     empty_trash(command_line)
                     lets_exit = True
                     command_line.do_exit("dummy do not remove")
@@ -1023,5 +1032,10 @@ def cmd_line():
                 output_error(msg("err_invalid_cmd", err), command_line)
 
 
+def cleanup():
+    gui_shutdown(ignore_warning=True)
+
+
+atexit.register(cleanup)
 if __name__ == "__main__":
     cmd_line()

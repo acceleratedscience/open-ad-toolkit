@@ -196,10 +196,14 @@ def is_port_open(host, port):
 # This is used by the flask app launcher, we want to
 # avoid a situation where multiple apps are trying to
 # run on the same port.
-def next_avail_port(port=8024, host="localhost"):
-    # Alt hosts:
-    # 127.0.0.1
-    # 0.0.0.0 - This breaks navigator.clipboard click-to-copy functionality
+def next_avail_port(port=8024, host="127.0.0.1"):
+    # Not 127.0.0.1
+    # - - -
+    # In the context of interface binding, the address 127.0. 0.1
+    # means that the server only listens to the loopback interface.
+    # On the other hand, binding our server to the 0.0. 0.0 interface
+    # means we want to accept traffic from all of the available interfaces.
+
     while not is_port_open(host, port):
         # print("port unavailable: ", port)
         port += 1
