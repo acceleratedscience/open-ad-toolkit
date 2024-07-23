@@ -1,1 +1,0 @@
-See /src/utils/rdkit for implementation details.

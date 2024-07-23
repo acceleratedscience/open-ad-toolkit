@@ -78,12 +78,15 @@ def gui_init(cmd_pointer=None, path=None, data=None, silent=False):
     else:
         template_folder = Path(__file__).resolve().parents[1] / "gui-build-proxy"
         URL_PROXY = True
+    
+    # # For testing:
+    # template_folder = Path(__file__).resolve().parents[1] / "gui-build-proxy"
+    # URL_PROXY = True
 
     # Parse potential data into a URL string.
     query = "?data=" + urllib.parse.quote(json.dumps(data)) if data else ""
 
     # GUI is installed, launch it.
-
     if os.path.exists(template_folder):
         is_installed = template_folder / "index.html"
         if is_installed:
@@ -139,6 +142,10 @@ def _launch(routes={}, path=None, query="", hash="", silent=False):
         template_folder = Path(__file__).resolve().parents[1] / "gui-build-proxy"
         URL_PROXY = True
 
+    # # For testing:
+    # template_folder = Path(__file__).resolve().parents[1] / "gui-build-proxy"
+    # URL_PROXY = True
+
     if not template_folder.exists():
         output_error("The OpenAD GUI folder is missing")
         return
@@ -189,7 +196,8 @@ def _launch(routes={}, path=None, query="", hash="", silent=False):
         func = routes[route]["func"]
         method = routes[route]["method"] if "method" in routes[route] else "GET"
         app.route(route, methods=[method])(func)
-        print(route + " " + str(method) + " " + str(func))
+        # print(route + " " + str(method) + " " + str(func))
+        
         # This is the equivalent of:
         # @app.route('/', methods=['GET'])
         # def home():
@@ -294,12 +302,17 @@ def _open_browser(host, port, path, query, hash, silent=False):
 
         width = "100%"
         height = 700
+        
         if JL_PROXY is False and GLOBAL_SETTINGS["display"] != "notebook":
             URL_PROXY = False
         elif JL_PROXY is False:
             URL_PROXY = False
         else:
             URL_PROXY = True
+
+        # # For testing:
+        # URL_PROXY = True
+
         with warnings.catch_warnings():
             # Disable the warning about the iframe hack.
             warnings.filterwarnings("ignore", category=UserWarning)
@@ -337,9 +350,7 @@ def _open_browser(host, port, path, query, hash, silent=False):
             jl_padding_correction = "width:calc(100% + 20px)" if is_jupyterlab else ""
 
             # Render iframe & buttons
-
             iframe_html = f'{style}{btn_wrap}<iframe src="{url}" width="{width}" height="{height}" style="border:solid 1px #ddd;box-sizing:border-box;{jl_padding_correction}"></iframe>'
-            print(iframe_html)
             display(HTML(iframe_html))
 
     # CLI --> Open browser.
