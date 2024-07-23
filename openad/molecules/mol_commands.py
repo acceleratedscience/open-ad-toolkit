@@ -28,7 +28,7 @@ from openad.molecules.mol_functions import (
     # get_mol_from_cid,
     # canonical_smiles,
     new_molecule,
-    retrieve_mol_from_mymols,
+    retrieve_mol_from_list,
     retrieve_mol,
     get_properties,
     get_identifiers,
