@@ -20,35 +20,37 @@ from pathlib import Path
 from threading import Thread
 import IPython.external
 from werkzeug.serving import make_server
-from flask import Flask, send_from_directory
+from flask import Flask, send_from_directory, Response, Request, jsonify, request, send_file
 from flask_cors import CORS, cross_origin
 from openad.helpers.output_msgs import msg
-from openad.helpers.output import output_text, output_error, output_success, output_warning
+from openad.helpers.output import (
+    output_text,
+    output_error,
+    output_success,
+    output_warning,
+)
 from openad.helpers.general import next_avail_port, confirm_prompt
 from openad.app.global_var_lib import GLOBAL_SETTINGS
+
+
 from openad.gui.gui_routes import fetchRoutes
 import openad.helpers.jupyterlab_settings as jl_settings
 
-
-# Global variable to store the GUI server,
-# so we don't start it multiple times.
-GUI_SERVER = None
-
-# If Jupyter Lab is running inside a container
-# we need to launch the GUI on a proxy URL.
 JL_PROXY = False
+URL_PROXY = False
 try:
-    jl_config = jl_settings.get_jupyter_lab_config()
-    if (
-        jl_config["ServerApp"]["allow_remote_access"] is True
-        and "127.0.0.1" in jl_config["ServerProxy"]["host_allowlist"]
-    ):
+
+    jl = jl_settings.get_jupyter_lab_config()
+
+    if jl["ServerApp"]["allow_remote_access"] is True and "127.0.0.1" in jl["ServerProxy"]["host_allowlist"]:
         JL_PROXY = True
-except Exception:
+        IS_STATIC = "/static"
+except Exception as e:
+
     JL_PROXY = False
 
-# For testing:
-JL_PROXY = True
+
+GUI_SERVER = None
 
 
 def gui_init(cmd_pointer=None, path=None, data=None, silent=False):
@@ -74,10 +76,52 @@ def gui_init(cmd_pointer=None, path=None, data=None, silent=False):
         This is used when restarting the server.
     """
 
+    if JL_PROXY is False and GLOBAL_SETTINGS["display"] != "notebook":
+        template_folder = Path(__file__).resolve().parents[1] / "gui-build"
+    elif JL_PROXY is False:
+        template_folder = Path(__file__).resolve().parents[1] / "gui-build"
+    else:
+        template_folder = Path(__file__).resolve().parents[1] / "gui-build-proxy"
+        URL_PROXY = True
+
+    # # For testing:
+    # template_folder = Path(__file__).resolve().parents[1] / "gui-build-proxy"
+    # URL_PROXY = True
+
     # Parse potential data into a URL string.
     query = "?data=" + urllib.parse.quote(json.dumps(data)) if data else ""
 
-    _launch(routes=fetchRoutes(cmd_pointer), path=path, query=query, silent=silent)
+    # GUI is installed, launch it.
+    if os.path.exists(template_folder):
+        is_installed = template_folder / "index.html"
+        if is_installed:
+            _launch(routes=fetchRoutes(cmd_pointer), path=path, query=query, silent=silent)
+
+    # GUI is not yet installed, suggest installation.
+    else:
+        install_now = confirm_prompt(
+            "The OpenAD GUI (graphical user interface) is not yet installed. Would you like to install it now?"
+        )
+        if install_now:
+            gui_install()
+        else:
+            output_text("You can install the GUI at any time by running <cmd>install gui</cmd>")
+            remind_me = confirm_prompt("Remind you next time?", default=True)
+            if not remind_me:
+                # Create the openad-cli folder with an empty README.txt file inside.
+                try:
+                    Path(template_folder).mkdir(parents=False)
+                    readme = Path(template_folder) / "README.txt"
+                    readme.touch()
+                    readme_text = "You have declined to install the OpenAD GUI.\nYou can install it at any time by running `install gui`.\n- - -\nThe graphical user interface allows you to browse your workspace and visualize your datasets and molecules."  # Partly repeated. Move to msgs()
+                    readme.write_text(readme_text)
+                except BaseException as err:
+                    output_error(
+                        [
+                            "Something went wrong while creating the openad-gui folder.",
+                            err,
+                        ]
+                    )
 
 
 def gui_install():
@@ -100,16 +144,31 @@ def _launch(routes={}, path=None, query="", hash="", silent=False):
         return
 
     # Initialize Flask app.
-    if JL_PROXY is True:
-        template_folder = Path(__file__).resolve().parents[1] / "gui-build-proxy"
-    else:
+    if JL_PROXY is False and GLOBAL_SETTINGS["display"] != "notebook":
         template_folder = Path(__file__).resolve().parents[1] / "gui-build"
+    elif JL_PROXY is False:
+        template_folder = Path(__file__).resolve().parents[1] / "gui-build"
+    else:
+        template_folder = Path(__file__).resolve().parents[1] / "gui-build-proxy"
+        URL_PROXY = True
+
+    # template_folder = Path(__file__).resolve().parents[1] / "gui-build"
+    # template_folder = Path(__file__).resolve().parents[1] / "gui-build"
+    # print(template_folder)
+    # # For testing:
+    # template_folder = Path(__file__).resolve().parents[1] / "gui-build-proxy"
+    # URL_PROXY = True
 
     if not template_folder.exists():
         output_error("The OpenAD GUI folder is missing")
         return
     app = Flask("OpenAD", template_folder=template_folder)
-    CORS(app, allow_headers="*", resources={r"/api/*": {"origins": "*"}})  # Enable CORS for all routes
+    CORS(
+        app,
+        allow_headers="*",
+        origins="*",
+        resources={r"/api/*": {"origins": "*"}, r"/assets/*": {"origins": "*"}, r"/rdkit/*": {"origins": "*"}},
+    )  # Enable CORS for all routes
 
     # Make asset files available (CSS/JS).
     #   @app.route("/static/assets/<path>")
@@ -126,6 +185,7 @@ def _launch(routes={}, path=None, query="", hash="", silent=False):
     #        return jsonify(headers), 200
 
     @app.route("/assets/<path>")
+    @cross_origin()
     def assets(path):
         return send_from_directory(template_folder / "assets", f"{path}")
 
@@ -134,6 +194,7 @@ def _launch(routes={}, path=None, query="", hash="", silent=False):
     #       return send_from_directory(template_folder / "rdkit", f"{path}")
 
     @app.route("/rdkit/<path>")
+    @cross_origin()
     def rdkit(path):
         return send_from_directory(template_folder / "rdkit", f"{path}")
 
@@ -167,7 +228,7 @@ def _launch(routes={}, path=None, query="", hash="", silent=False):
 
     @app.route("/", methods=["GET"])
     @app.route("/<path:path>")
-    # @cross_origin()
+    @cross_origin()
     def serve(path=""):
         if path != "" and (template_folder / path).exists():
             return send_from_directory(template_folder, path)
@@ -237,7 +298,12 @@ class ServerThread(Thread):
         self.join()  # Close thread
         self.active = False
         prefix = f"<red>{html.unescape('&empty;')}</red> "
-        output_success([f"{prefix}OpenAD GUI shutdown complete", f"{prefix}{self.host}:{self.port}"])
+        output_success(
+            [
+                f"{prefix}OpenAD GUI shutdown complete",
+                f"{prefix}{self.host}:{self.port}",
+            ]
+        )
 
 
 def _open_browser(host, port, path, query, hash, silent=False):
@@ -262,6 +328,16 @@ def _open_browser(host, port, path, query, hash, silent=False):
         width = "100%"
         height = 700
 
+        if JL_PROXY is False and GLOBAL_SETTINGS["display"] != "notebook":
+            URL_PROXY = False
+        elif JL_PROXY is False:
+            URL_PROXY = False
+        else:
+            URL_PROXY = True
+
+        # # For testing:
+        # URL_PROXY = True
+
         with warnings.catch_warnings():
             # Disable the warning about the iframe hack.
             warnings.filterwarnings("ignore", category=UserWarning)
@@ -275,11 +351,13 @@ def _open_browser(host, port, path, query, hash, silent=False):
                 #{id} a:hover {{ color: #0f62fe }}
             </style>
             """
-            if JL_PROXY is True:
+            if URL_PROXY:
+                url2 = f"http://127.0.0.1:8888/proxy/{port}{module_path}{query}{hash}"
                 url = f"/../proxy/{port}{module_path}{query}{hash}"
             else:
                 url = f"http://{host}:{port}{module_path}{query}{hash}"
 
+            # print(url)
             reload_icn = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 14C10.1867 14 11.3467 13.6481 12.3334 12.9888C13.3201 12.3295 14.0892 11.3925 14.5433 10.2961C14.9974 9.19975 15.1162 7.99335 14.8847 6.82946C14.6532 5.66558 14.0818 4.59648 13.2426 3.75736C12.4035 2.91825 11.3344 2.3468 10.1705 2.11529C9.00666 1.88378 7.80026 2.0026 6.7039 2.45673C5.60754 2.91085 4.67047 3.67989 4.01118 4.66658C3.35189 5.65328 3 6.81331 3 8V11.1L1.2 9.3L0.5 10L3.5 13L6.5 10L5.8 9.3L4 11.1V8C4 7.0111 4.29324 6.0444 4.84265 5.22215C5.39206 4.39991 6.17295 3.75904 7.08658 3.38061C8.00021 3.00217 9.00555 2.90315 9.97545 3.09608C10.9454 3.289 11.8363 3.76521 12.5355 4.46447C13.2348 5.16373 13.711 6.05465 13.9039 7.02455C14.0969 7.99446 13.9978 8.99979 13.6194 9.91342C13.241 10.8271 12.6001 11.6079 11.7779 12.1574C10.9556 12.7068 9.98891 13 9 13V14Z" fill="currentColor"/></svg>'
             launch_icn = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M13 14H3C2.73489 13.9996 2.48075 13.8942 2.29329 13.7067C2.10583 13.5193 2.00036 13.2651 2 13V3C2.00036 2.73489 2.10583 2.48075 2.29329 2.29329C2.48075 2.10583 2.73489 2.00036 3 2H8V3H3V13H13V8H14V13C13.9996 13.2651 13.8942 13.5193 13.7067 13.7067C13.5193 13.8942 13.2651 13.9996 13 14Z" fill="currentColor"/><path d="M10 1V2H13.293L9 6.293L9.707 7L14 2.707V6H15V1H10Z" fill="currentColor"/></svg>'
             reload_btn = f"<a href=\"#\" onclick=\"event.preventDefault(); document.querySelector('#{id} + iframe').src=document.querySelector('#{id} + iframe').src;\">{reload_icn}</a>"
@@ -298,7 +376,7 @@ def _open_browser(host, port, path, query, hash, silent=False):
             jl_padding_correction = "width:calc(100% + 20px)" if is_jupyterlab else ""
 
             # Render iframe & buttons
-            iframe_html = f'{style}{btn_wrap}<iframe src="{url}" width="{width}" height="{height}" style="border:solid 1px #ddd;box-sizing:border-box;{jl_padding_correction}"></iframe>'
+            iframe_html = f'{style}{btn_wrap}<iframe src="{url}" crossorigin="anonymous" width="{width}" height="{height}" style="border:solid 1px #ddd;box-sizing:border-box;{jl_padding_correction}"></iframe>'
             display(HTML(iframe_html))
 
     # CLI --> Open browser.
