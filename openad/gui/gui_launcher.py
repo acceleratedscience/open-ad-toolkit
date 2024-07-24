@@ -20,35 +20,34 @@ from pathlib import Path
 from threading import Thread
 import IPython.external
 from werkzeug.serving import make_server
-from flask import Flask, send_from_directory
+from flask import Flask, send_from_directory, Response, Request, jsonify, request, send_file
 from flask_cors import CORS, cross_origin
 from openad.helpers.output_msgs import msg
-from openad.helpers.output import output_text, output_error, output_success, output_warning
+from openad.helpers.output import (
+    output_text,
+    output_error,
+    output_success,
+    output_warning,
+)
 from openad.helpers.general import next_avail_port, confirm_prompt
 from openad.app.global_var_lib import GLOBAL_SETTINGS
+
+
 from openad.gui.gui_routes import fetchRoutes
 import openad.helpers.jupyterlab_settings as jl_settings
 
-
-# Global variable to store the GUI server,
-# so we don't start it multiple times.
 GUI_SERVER = None
 
-# If Jupyter Lab is running inside a container
-# we need to launch the GUI on a proxy URL.
 JL_PROXY = False
+URL_PROXY = False
+FORCE_PROXY = False  # Set this to True to force the use of the proxy for testing.
 try:
-    jl_config = jl_settings.get_jupyter_lab_config()
-    if (
-        jl_config["ServerApp"]["allow_remote_access"] is True
-        and "127.0.0.1" in jl_config["ServerProxy"]["host_allowlist"]
-    ):
+    jl = jl_settings.get_jupyter_lab_config()
+    if jl["ServerApp"]["allow_remote_access"] is True and "127.0.0.1" in jl["ServerProxy"]["host_allowlist"]:
         JL_PROXY = True
-except Exception:
+        IS_STATIC = "/static"
+except Exception as e:
     JL_PROXY = False
-
-# For testing:
-JL_PROXY = True
 
 
 def gui_init(cmd_pointer=None, path=None, data=None, silent=False):
@@ -77,6 +76,7 @@ def gui_init(cmd_pointer=None, path=None, data=None, silent=False):
     # Parse potential data into a URL string.
     query = "?data=" + urllib.parse.quote(json.dumps(data)) if data else ""
 
+    # Launch the GUI.
     _launch(routes=fetchRoutes(cmd_pointer), path=path, query=query, silent=silent)
 
 
@@ -100,42 +100,31 @@ def _launch(routes={}, path=None, query="", hash="", silent=False):
         return
 
     # Initialize Flask app.
-    if JL_PROXY is True:
+    if FORCE_PROXY:
         template_folder = Path(__file__).resolve().parents[1] / "gui-build-proxy"
-    else:
+    elif JL_PROXY is False and GLOBAL_SETTINGS["display"] != "notebook":
         template_folder = Path(__file__).resolve().parents[1] / "gui-build"
+    elif JL_PROXY is False:
+        template_folder = Path(__file__).resolve().parents[1] / "gui-build"
+    else:
+        template_folder = Path(__file__).resolve().parents[1] / "gui-build-proxy"
 
     if not template_folder.exists():
         output_error("The OpenAD GUI folder is missing")
         return
     app = Flask("OpenAD", template_folder=template_folder)
-    CORS(app, allow_headers="*", resources={r"/api/*": {"origins": "*"}})  # Enable CORS for all routes
+    CORS(
+        app,
+        allow_headers="*",
+        origins="*",
+        resources={r"/api/*": {"origins": "*"}, r"/assets/*": {"origins": "*"}, r"/rdkit/*": {"origins": "*"}},
+    )  # Enable CORS for all routes
 
     # Make asset files available (CSS/JS).
-    #   @app.route("/static/assets/<path>")
-    #   def static_assets(path):
-    #       return send_from_directory(template_folder / "assets", f"{path}")
-    # @app.before_request
-    # def before_request():
-    #   headers = {
-    #         "Access-Control-Allow-Origin": "*",
-    #        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-    #        "Access-Control-Allow-Headers": "Content-Type",
-    #    }
-    #    if request.method.lower() == "options":
-    #        return jsonify(headers), 200
-
     @app.route("/assets/<path>")
+    @cross_origin()
     def assets(path):
         return send_from_directory(template_folder / "assets", f"{path}")
-
-    #   @app.route("/static/rdkit/<path>")
-    #   def static_rdkit(path):
-    #       return send_from_directory(template_folder / "rdkit", f"{path}")
-
-    @app.route("/rdkit/<path>")
-    def rdkit(path):
-        return send_from_directory(template_folder / "rdkit", f"{path}")
 
     # Shutdown path.
     @app.route("/shutdown", methods=["GET"])
@@ -155,7 +144,6 @@ def _launch(routes={}, path=None, query="", hash="", silent=False):
         func = routes[route]["func"]
         method = routes[route]["method"] if "method" in routes[route] else "GET"
         app.route(route, methods=[method])(func)
-        # print(route + " " + str(method) + " " + str(func))
 
         # This is the equivalent of:
         # @app.route('/', methods=['GET'])
@@ -164,10 +152,9 @@ def _launch(routes={}, path=None, query="", hash="", silent=False):
 
     # Serve all other paths by pointing to index.html.
     # Vue router takes care of the rest.
-
     @app.route("/", methods=["GET"])
     @app.route("/<path:path>")
-    # @cross_origin()
+    @cross_origin()
     def serve(path=""):
         if path != "" and (template_folder / path).exists():
             return send_from_directory(template_folder, path)
@@ -177,7 +164,6 @@ def _launch(routes={}, path=None, query="", hash="", silent=False):
     host, port = next_avail_port()
 
     # Launch the UI
-
     _open_browser(host, port, path, query, hash, silent)
 
     # Remove Flask startup message.
@@ -200,7 +186,6 @@ def _launch(routes={}, path=None, query="", hash="", silent=False):
     # But unfortunately Flask's built-in server doesn't provide an option
     # to shut it down programatically from another thread, so instead
     # we use Werkzeug's more advanced WSGI server.
-
     GUI_SERVER = ServerThread(app, host, port)
     GUI_SERVER.start()
 
@@ -232,12 +217,16 @@ class ServerThread(Thread):
         # 1. Quitting the application (Ctrl+C) -> gui_shutdown() via main.py
         # 2. By command `exit gui` or `relaunch gui` -> gui_shutdown() via main_lib.py
         # 3. By browsing to the /shutdown path -> @app.route("/shutdown", methods=["GET"]) in this file
-
         self.srv.shutdown()  # Shutdown server
         self.join()  # Close thread
         self.active = False
         prefix = f"<red>{html.unescape('&empty;')}</red> "
-        output_success([f"{prefix}OpenAD GUI shutdown complete", f"{prefix}{self.host}:{self.port}"])
+        output_success(
+            [
+                f"{prefix}OpenAD GUI shutdown complete",
+                f"{prefix}{self.host}:{self.port}",
+            ]
+        )
 
 
 def _open_browser(host, port, path, query, hash, silent=False):
@@ -262,6 +251,15 @@ def _open_browser(host, port, path, query, hash, silent=False):
         width = "100%"
         height = 700
 
+        if FORCE_PROXY:
+            URL_PROXY = True
+        elif JL_PROXY is False and GLOBAL_SETTINGS["display"] != "notebook":
+            URL_PROXY = False
+        elif JL_PROXY is False:
+            URL_PROXY = False
+        else:
+            URL_PROXY = True
+
         with warnings.catch_warnings():
             # Disable the warning about the iframe hack.
             warnings.filterwarnings("ignore", category=UserWarning)
@@ -275,8 +273,8 @@ def _open_browser(host, port, path, query, hash, silent=False):
                 #{id} a:hover {{ color: #0f62fe }}
             </style>
             """
-            if JL_PROXY is True:
-                url = f"/../proxy/{port}{module_path}{query}{hash}"
+            if URL_PROXY:
+                url = f"/proxy/{port}{module_path}{query}{hash}"
             else:
                 url = f"http://{host}:{port}{module_path}{query}{hash}"
 
@@ -298,7 +296,7 @@ def _open_browser(host, port, path, query, hash, silent=False):
             jl_padding_correction = "width:calc(100% + 20px)" if is_jupyterlab else ""
 
             # Render iframe & buttons
-            iframe_html = f'{style}{btn_wrap}<iframe src="{url}" width="{width}" height="{height}" style="border:solid 1px #ddd;box-sizing:border-box;{jl_padding_correction}"></iframe>'
+            iframe_html = f'{style}{btn_wrap}<iframe src="{url}" crossorigin="anonymous" width="{width}" height="{height}" style="border:solid 1px #ddd;box-sizing:border-box;{jl_padding_correction}"></iframe>'
             display(HTML(iframe_html))
 
     # CLI --> Open browser.
