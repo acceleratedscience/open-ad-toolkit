@@ -732,7 +732,7 @@ def mymols_add(cmd_pointer, openad_mol, force=False, suppress=False):
 
     # Fail - already in list.
     if retrieve_mol_from_list(cmd_pointer, openad_mol["properties"]["canonical_smiles"]) is not None:
-        output_error("Molecule already in list", return_val=False)
+        output_error("Molecule already in list: " + openad_mol["properties"]["canonical_smiles"], return_val=False)
         return True
 
     # Name
