@@ -1,0 +1,1 @@
+import{d as o,M as t,i as s,j as n,x as r,k as d,v as l,F as i}from"./index-M2pymOVI.js";const c=o({__name:"Sandbox",setup(u){const a=t();return(m,e)=>(s(),n(i,null,[r("button",{onClick:e[0]||(e[0]=p=>d(a).display("ModalSaveFile",{path:"my_dir/sub_dir/subsub_dir",filename:"Foobar",ext:"sdf"}))},"Save file"),l("  ")],64))}});export{c as default};
