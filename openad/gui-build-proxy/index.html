@@ -1,14 +1,22 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 	<head>
+		<script>
+			;(function () {
+				const base = document.createElement('base')
+				const port = window.location.pathname.match(/\/proxy\/(\d{4})/)?.[1] ?? 8024
+				base.href = `/proxy/${port}/`
+				document.head.insertBefore(base, document.head.firstChild)
+			})()
+		</script>
+		<!-- <base href="/proxy/8027/" /> -->
 		<meta charset="UTF-8" />
-		<link rel="icon" href="/proxy/8024/favicon.ico" />
+		<link rel="icon" href="favicon.ico" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<!-- <script src="/dynamic-port.js"></script> -->
-		<script src="/proxy/8024/rdkit/RDKit_minimal.js"></script>
+		<script src="rdkit/RDKit_minimal.js"></script>
 		<title>OpenAD GUI</title>
-		<script type="module" crossorigin src="/proxy/8024/assets/index-BFWnBRz2.js"></script>
-		<link rel="stylesheet" crossorigin href="/proxy/8024/assets/index-BDrKJWmb.css">
+		<script type="module" crossorigin src="assets/index-DTawXaqZ.js"></script>
+		<link rel="stylesheet" crossorigin href="assets/index-DCgpRfgT.css" />
 	</head>
 	<body>
 		<div id="app"></div>

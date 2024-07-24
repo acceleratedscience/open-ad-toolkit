@@ -30,6 +30,25 @@ p, ul, ol {
 }
 
 
+
+/**
+ * Command instructions
+ */
+
+pre.cmd {
+    color: #eec;
+    background: #444;
+    padding: 20px;
+    margin: 0;
+    border-radius: 3px;
+}
+
+
+
+/**
+ * Page Banner
+ */
+
 .banner {
     font-family: "IBM Plex Sans";
     width: 100%;
