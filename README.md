@@ -46,7 +46,6 @@ For updating to 0.4.0 or above first remove toolkits `remove toolkit DS4SD` and 
 
 > **Whats New ?**
 -  `%Openadd` has been added to the magic commands to provide pure data type results for data returning commands
-- Upgraded IBM BAM model support for latest IBm generative AI embeddings and Langchain
 - Upgraded skypilot to 0.6.0 
 - Support for deploying in OpenSHift AI / Open Data hub workbench or podman/docker image `https://github.com/acceleratedscience/openad_workbench`
 - Support for Application API
