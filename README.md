@@ -42,7 +42,7 @@ The goal of openAD is to provide a common language for scientists to interact wi
 
 ---
 > **Pre-install Note:** 
-For updating to 0.3.0 or above first remove toolkits `remove toolkit DS4SD` and `remove toolkit RXN` prior to updating
+For updating to 0.4.0 or above first remove toolkits `remove toolkit DS4SD` and `remove toolkit RXN` prior to updating
 
 > **Whats New ?**
 -  `%Openadd` has been added to the magic commands to provide pure data type results for data returning commands
@@ -56,6 +56,7 @@ For updating to 0.3.0 or above first remove toolkits `remove toolkit DS4SD` and 
      - GT4SD Property Services `git@github.com:acceleratedscience/property_inference_service.git`
      - GT4SD MoleR Generation `git@github.com:acceleratedscience/moler_inference_service.git`
      - GT4SD Molformer `git@github.com:acceleratedscience/molformer_inference_service.git`
+
     Pre-Requisite is that you have a AWS Account and can launch your own EC2 Instances Or someone else can launch them for you and you can catalog a Remote Service via URL.
 
         **Example:**
