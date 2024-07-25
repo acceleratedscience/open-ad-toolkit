@@ -345,7 +345,7 @@ def service_grammar_add(statements: list, help: list, service_catalog: dict):
             except Exception as e:
                 output_error(e)
 
-            parameter_help = "<h2>Parameters:</h2>"
+            parameter_help = "<h2>Parameters:</h2>\n   <warning>--Note: Parameters should be entered for <cmd> USING Clause </cmd> in the order they are below. </warning>\n"
             num_params = 0
             for parameter, description in dict(schema["parameters"]).items():
                 num_params += 1
