@@ -164,7 +164,6 @@ def batch_pubchem(cmd_pointer, dataframe):
     dict_list = dataframe.to_dict("records")
 
     for i, a_mol in enumerate(dict_list):
-
         try:
             Name_Flag = False
             if "name" in a_mol:
