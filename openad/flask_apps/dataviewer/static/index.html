@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Data Viewer</title>
+
+		<!-- General flask app css/js -->
+		<link rel="stylesheet" href="static/css/carbon.css" />
+		<link rel="stylesheet" href="static/css/main.css" />
+		<script type="text/javascript" src="static/js/carbon.js"></script>
+
+		<!-- Tabulator -->
+		<link href="app/static/tabulator/css/tabulator_simple.min.css" rel="stylesheet" />
+		<script type="text/javascript" src="app/static/tabulator/js/tabulator.min.js"></script>
+		<script src="app/static/js/libs/moment.min.js"></script>
+		<script src="app/static/js/libs/luxon.min.js"></script>
+
+		<!--
+			App-specific css/js - plus bottom of page
+			- - -
+			Note: we're using two date libraries with overlapping functionality.
+			- Moment is best suited to figure out the date format from a string (used to parse the data)
+			- Luxon is used by Tabulator for date sorting
+		-->
+		<script type="text/javascript" src="app/static/js/table.js"></script>
+		<script type="text/javascript" src="app/static/js/context-menus.js"></script>
+		<link rel="stylesheet" href="app/static/css/dataviewer-main.css" />
+		<link rel="stylesheet" href="app/static/css/tabulator_ibm_theme.css" />
+	</head>
+	<body>
+		<!-- Buttons left -->
+		<div id="cloak"></div>
+		<div id="btn-wrap-left">
+			<button id="btn-edit" class="secondary">Edit</button>
+			<button id="btn-submit">Submit</button>
+			<button id="btn-cancel" class="tertiary">Cancel</button>
+			<button id="btn-done" class="secondary">Done</button>
+			<button id="btn-deselect" class="secondary">Deselect</button>
+			<label class="ibm-dropdown" id="dd-selection-actions-wrap">
+				<div class="ibm-dd-display"></div>
+				<select id="dd-selection-actions">
+					<option value="" selected disabled>- Actions -</option>
+					<option value="delete">Delete</option>
+					<option value="keep">Keep</option>
+					<option value="copy">Copy</option>
+					<option value="download">Download</option>
+				</select>
+			</label>
+		</div>
+
+		<!-- Buttons right -->
+		<div id="btn-wrap-right">
+			<button id="btn-options" class="tertiary">Options</button>
+			<label class="ibm-dropdown" id="dd-actions-wrap">
+				<div class="display">...</div>
+				<select id="dd-actions">
+					<option value="" selected hidden>-</option>
+					<option value="copy">Copy data</option>
+					<option value="download">Download csv</option>
+				</select>
+			</label>
+
+			<!-- Display options -->
+			<div id="options" class="hide">
+				<h3 class="title">Options</h3>
+				<label class="ibm-dropdown">
+					<div class="ibm-label-txt">Truncate text</div>
+					<div class="ibm-dd-display"></div>
+					<select id="dd-opt-select-truncation">
+						<option value="0">Never</option>
+						<option value="3" selected>3 lines</option>
+						<option value="1">1 line</option>
+					</select>
+				</label>
+				<!-- Trash -->
+				<!-- <label class="ibm-dropdown">
+					<div class="ibm-label-txt">Add index column</div>
+					<div class="ibm-dd-display"></div>
+					<select id="opt-add-index-col">
+						<option value="1">Yes</option>
+						<option value="0">No</option>
+					</select>
+				</label> -->
+				<label class="ibm-dropdown">
+					<div class="ibm-label-txt">Export index column</div>
+					<div class="ibm-dd-display"></div>
+					<select id="opt-export-index-col">
+						<option value="0" selected>No</option>
+						<option value="1">Yes</option>
+					</select>
+				</label>
+				<div class="btn-wrap">
+					<button class="btn-apply secondary">Apply</button>
+					<button class="btn-cancel tertiary">Cancel</button>
+				</div>
+			</div>
+		</div>
+
+		<!-- Table -->
+		<div id="table-wrap">
+			<div id="table" class="trunc-3" data="{{data}}"></div>
+			<div id="reset-links">
+				<a href="#" class="reset-col-width">Reset columns</a>
+				<a href="#" class="reset-row-width">Reset rows</a>
+			</div>
+		</div>
+
+		<script type="text/javascript" src="app/static/js/dataviewer-main.js"></script>
+	</body>
+</html>

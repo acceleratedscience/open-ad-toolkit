@@ -5,6 +5,7 @@ import base64
 import string
 import hashlib
 from openad.app.global_var_lib import GLOBAL_SETTINGS
+from time import sleep
 
 
 def generate_smiles_hash(smiles_string):
@@ -81,7 +82,6 @@ class rxn_helper:
 
         except Exception as e:
             projects = {}
-
         projects[project_name] = project_id
 
         try:
@@ -236,7 +236,6 @@ class rxn_helper:
                 if retries > 1:
                     sleep(3)
                 retries = retries + 1
-                import sys
 
                 # sys.stdout = open(os.devnull, "w")
                 # sys.stderr = open(os.devnull, "w")
@@ -245,10 +244,11 @@ class rxn_helper:
                     rxn4chemistry_wrapper = cmd_pointer.login_settings["client"][
                         cmd_pointer.login_settings["toolkits"].index("RXN")
                     ]
+                    sleep(3)
+
                     x = rxn4chemistry_wrapper.create_project(cmd_pointer.settings["workspace"])
-                    # print(x)
+
                     if len(x) == 0:
-                        # print("continuing")
                         continue
                     else:
                         self.append_project(
@@ -256,14 +256,10 @@ class rxn_helper:
                         )
                     # print('here')
                 except BaseException as e:
-                    # result=False
-                    # sys.stdout = sys.__stdout__
-                    # sys.stderr = sys.__stderr__
+                    print(e)
                     raise BaseException("Unable to create project :" + str(e))
                 try:
-                    from time import sleep
-
-                    sleep(2)
+                    sleep(3)
                     result = self.set_current_project(cmd_pointer, cmd_pointer.settings["workspace"])
                     # print(cmd_pointer.settings['workspace'])
                     # print(result)
@@ -337,11 +333,10 @@ class rxn_helper:
         source_list = []
         result = False
         retries = 0
-        from time import sleep
 
         while result == False:
             try:
-                x = rxn4chemistry_wrapper.list_all_projects()["response"]["payload"]["content"]
+                x = rxn4chemistry_wrapper.list_all_projects(size=100)["response"]["payload"]["content"]
                 # print(x)
                 result = True
             except BaseException as e:

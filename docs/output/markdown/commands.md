@@ -30,7 +30,7 @@ To update it, see openad/docs/generate_docs.py
   - [Search Collections](#search-collections)
   - [Collections](#collections)
 - [RXN](#rxn)
-  - [General](#general)
+  - [General](#general-1)
   - [Retrosynthesis](#retrosynthesis)
   - [Prediction](#prediction)
 - [ST4SD](#st4sd)
@@ -77,8 +77,8 @@ Lists all your workspaces. <br><br>
 
 ### Molecules
 
-`add molecule <name> | <smiles> | <inchi> | <inchikey> | <cid> [ as '<name>' ] [ basic ] [force ]`{: .cmd }
-This command is how you add a molecule to a current working list of molecules in memory. When adding a molecule by name, this name will become the molecule's identifying string.  <br> 
+`add molecule <name> | <smiles> | <inchi> | <inchikey> | <cid> [ as '<name>' ] [ basic ] [ force ]`{: .cmd }
+This command is how you add a molecule to a current working list of molecules in memory. When adding a molecule by name, this name will become the molecule's identifying string. <br>
 
 It will take any molecules identifier from the following categories: <br> 
     -`smiles ` <br> 

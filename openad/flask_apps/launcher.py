@@ -1,24 +1,50 @@
 import os
 import socket
 import webbrowser
+import warnings
+from IPython.display import HTML, display
+from IPython.display import IFrame as display_iframe
 from flask import Flask, send_from_directory
 from openad.app.global_var_lib import _repo_dir
 from openad.helpers.output import output_text, output_error
 from openad.helpers.output_msgs import msg
 from openad.helpers.general import next_avail_port
 from openad.app.global_var_lib import GLOBAL_SETTINGS
+import openad.helpers.jupyterlab_settings as jl_settings
 
 
 def launch(cmd_pointer=None, routes=None, app_name="", query="", hash=""):
     if not routes:
         output_error(msg("err_routes_required"))
         return
+    JL_PROXY = False
+    IS_STATIC = ""
+    try:
+        jl = jl_settings.get_jupyter_lab_config()
 
+        if jl["ServerApp"]["allow_remote_access"] is True and "127.0.0.1" in jl["ServerProxy"]["host_allowlist"]:
+            JL_PROXY = True
+            IS_STATIC = "/static"
+    except Exception as e:
+        JL_PROXY = False
+        IS_STATIC = ""
+
+    print(IS_STATIC)
     # Initialize Flask app.
     template_folder = os.path.dirname(os.path.abspath(__file__))
     app = Flask("OpenAD", template_folder=template_folder)
 
     # Make main CSS files available.
+
+    @app.route(f"{IS_STATIC}/css/<path>")
+    def static_css(path):
+        return send_from_directory(_repo_dir + "/../flask_apps/_css", f"{path}")
+
+    # Make main JS files available.
+    @app.route(f"{IS_STATIC}/js/<path>")
+    def static_js(path):
+        return send_from_directory(_repo_dir + "/../flask_apps/_js", f"{path}")
+
     @app.route("/css/<path>")
     def css(path):
         return send_from_directory(_repo_dir + "/../flask_apps/_css", f"{path}")
@@ -33,7 +59,11 @@ def launch(cmd_pointer=None, routes=None, app_name="", query="", hash=""):
 
     @app.route("/app/<path:subpath>")
     def app_dir(subpath):
-        return send_from_directory(f"{flask_dir}/{app_name}", f"{subpath}")
+        if GLOBAL_SETTINGS["display"] != "notebook":
+            suffix = ""
+        else:
+            suffix = IS_STATIC
+        return send_from_directory(f"{flask_dir}/{app_name}{suffix}", f"{subpath}")
 
     # Unpack routes.
     for route in routes:
@@ -47,7 +77,7 @@ def launch(cmd_pointer=None, routes=None, app_name="", query="", hash=""):
         #     return render_template('/home.html')
 
     # Determine port and host.
-    port, host = next_avail_port()
+    host, port = next_avail_port()
 
     # Launch the UI
     if GLOBAL_SETTINGS["display"] == "notebook":
@@ -61,9 +91,6 @@ def launch(cmd_pointer=None, routes=None, app_name="", query="", hash=""):
         #   from IPython.display import IFrame, display
         #   iframe = IFrame(src=f'http://{host}:{port}', width='100%', height=700)
         #   display(iframe)
-
-        import warnings
-        from IPython.display import HTML, display
 
         width = "100%"
         height = 700

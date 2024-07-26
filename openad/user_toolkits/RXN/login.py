@@ -67,6 +67,9 @@ def login(cmd_pointer):
         except Exception as e:  # pylint: disable=broad-exception-caught
             output_error(msg("err_login", "RXN", "Unable to connect to RXN Server"), return_val=False)
             output_error(msg("err_login", "RXN", f"system error {e}"), return_val=False)
+            output_error(
+                msg("if Persists,try removing RXN toolkit and restarting kernel or application./n Then add RXN again")
+            )
             return False, None
 
         if name != cmd_pointer.settings["workspace"]:
@@ -80,6 +83,10 @@ def login(cmd_pointer):
     except BaseException:
         return False, None
     x = cmd_pointer.login_settings["toolkits"].index("RXN")
+    # fix for defaults when automating rxn cred application
+    if config_file["host"].strip() == "None":
+        config_file["host"] = ""
+
     try:
         client = RXN4ChemistryWrapper(api_key=config_file["auth"]["api_key"], base_url=config_file["host"])
         email = client.current_user()["response"]["payload"]["email"]

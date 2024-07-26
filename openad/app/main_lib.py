@@ -11,6 +11,7 @@ import pandas as pd
 
 # Flask
 from openad.flask_apps import launcher
+from openad.gui.gui_launcher import gui_init
 from openad.flask_apps.dataviewer.routes import fetchRoutesDataViewer
 from openad.openad_model_plugin.openad_model_toolkit import openad_model_requestor
 from openad.openad_model_plugin.catalog_model_services import (
@@ -30,14 +31,15 @@ from openad.openad_model_plugin.catalog_model_services import (
 )
 
 # molecules
+from openad.molecules.mol_functions import df_has_molecules
 from openad.molecules.mol_batch_files import load_batch_molecules, merge_molecule_property_data
-
 from openad.molecules.mol_commands import (
     display_molecule,
     display_property_sources,
     add_molecule,
     remove_molecule,
     list_molecules,
+    show_molecules,
     save_molecules,
     load_molecules,
     list_molsets,
@@ -48,7 +50,9 @@ from openad.molecules.mol_commands import (
     clear_workset,
     export_molecule_set,
     show_mol,
-    show_molsgrid,
+    show_molset,
+    show_molset_df,
+    show_molsgrid_DEPRECATED,  # TRASH
     merge_molecules,
 )
 
@@ -57,7 +61,7 @@ from openad.molecules.molecule_cache import attach_all_results, clear_results
 import openad.app.login_manager as login_manager
 
 # Core
-from openad.core.lang_file_system import import_file, export_file, copy_file, remove_file, list_files
+from openad.core.lang_file_system import import_file, export_file, copy_file, remove_file, open_file, list_files
 from openad.core.lang_sessions_and_registry import (
     clear_sessions,
     write_registry,
@@ -84,6 +88,9 @@ from openad.toolkit.toolkit_main import load_toolkit
 from openad.toolkit.toolkit_main import execute_tookit
 from openad.toolkit.toolkit_main import load_toolkit_description
 from openad.llm_assist.llm_interface import how_do_i, set_llm, clear_llm_auth
+
+# GUI
+from openad.gui.gui_commands import install_gui, launch_gui, restart_gui, quit_gui
 
 # Global variables
 from openad.app.global_var_lib import _meta_dir
@@ -187,6 +194,7 @@ def lang_parse(cmd_pointer, parser):
     elif parser.getName() == "list_auth_services":
         return list_auth_services(cmd_pointer, parser)
 
+    # @later -- move out all logic from here.
     # Language Model How To
     elif parser.getName() == "how_do_i":
         result = how_do_i(cmd_pointer, parser)
@@ -245,6 +253,8 @@ def lang_parse(cmd_pointer, parser):
         return remove_molecule(cmd_pointer, parser)
     elif parser.getName() == "list_molecules":
         return list_molecules(cmd_pointer, parser)
+    elif parser.getName() == "show_molecules":
+        return show_molecules(cmd_pointer, parser)
     elif parser.getName() == "save_molecule-set":
         return save_molecules(cmd_pointer, parser)
     elif parser.getName() == "load_molecule-set":
@@ -272,11 +282,15 @@ def lang_parse(cmd_pointer, parser):
     elif parser.getName() == "export_molecules":
         return export_molecule_set(cmd_pointer, parser)
     elif parser.getName() == "show_molsgrid":
-        return show_molsgrid(cmd_pointer, parser)
+        return show_molsgrid_DEPRECATED(cmd_pointer, parser)
     elif parser.getName() == "show_molsgrid_df":
-        return show_molsgrid(cmd_pointer, parser)
+        return show_molsgrid_DEPRECATED(cmd_pointer, parser)
     elif parser.getName() == "show_mol":
         return show_mol(cmd_pointer, parser)
+    elif parser.getName() == "show_molset":
+        return show_molset(cmd_pointer, parser)
+    elif parser.getName() == "show_molset_df":
+        return show_molset_df(cmd_pointer, parser)
 
     # File system commands
     elif parser.getName() == "list_files":
@@ -289,6 +303,8 @@ def lang_parse(cmd_pointer, parser):
         return copy_file(cmd_pointer, parser)
     elif parser.getName() == "remove_file":
         return remove_file(cmd_pointer, parser)
+    elif parser.getName() == "open_file":
+        return open_file(cmd_pointer, parser)
 
     # General commands
     elif parser.getName() == "welcome":
@@ -311,10 +327,22 @@ def lang_parse(cmd_pointer, parser):
         return display_data__display(cmd_pointer, parser)
     elif parser.getName() == "display_data__as_dataframe":
         return display_data__as_dataframe(cmd_pointer, parser)
+    elif parser.getName() == "show_data":
+        return show_data(cmd_pointer, parser)
     elif parser.getName() == "clear_sessions":
         return clear_sessions(cmd_pointer, parser)
     elif parser.getName() == "edit_config":
         return edit_config(cmd_pointer, parser)
+
+    # GUI commands
+    elif parser.getName() == "install_gui":
+        return install_gui(cmd_pointer, parser)
+    elif parser.getName() == "launch_gui":
+        return launch_gui(cmd_pointer, parser)
+    elif parser.getName() == "restart_gui":
+        return restart_gui(cmd_pointer, parser)
+    elif parser.getName() == "quit_gui":
+        return quit_gui(cmd_pointer, parser)
 
     # Help commands
     elif parser.getName() == "intro":
@@ -609,6 +637,8 @@ def display_data(cmd_pointer, parser):
             # From csv file.
             try:
                 df = pd.read_csv(workspace_path + file_path)
+                df = df.fillna("")  # Fill NaN with empty string
+
                 return output_table(df)
             except FileNotFoundError:
                 return output_error(msg("err_file_doesnt_exist", file_path))
@@ -660,19 +690,28 @@ def display_data__save(cmd_pointer, parser):
 def display_data__open(
     cmd_pointer, parser, edit_mode=False
 ):  # pylint: disable=unused-argument # generic pass through used or unused
-    # Preserve memory for further follow-up commands.
     """open display data"""
+    # Preserve memory for further follow-up commands.
     MEMORY.preserve()
 
-    data = MEMORY.get()
-    if data is None:
+    df = MEMORY.get()
+    if df is None:
         return output_error(msg("memory_empty", "display"), pad=1)
 
+    # If there's molecules in the dataframe, open the result in the molset viewer.
+
+    if df_has_molecules(df) and "as_data" not in parser:
+        gui_init(cmd_pointer, "result")
+        return
+
+    # Once the dataviewer is integrated, this will all be handled by the results page.
+    # but until then, when no molecules are detected we spin up the legacy flask dataviewer.
+
     # Load routes and launch browser UI.
-    data = data.to_json(orient="records")
-    routes = fetchRoutesDataViewer(data)
+    df = df.to_json(orient="records")
+    routes = fetchRoutesDataViewer(df)
     a_hash = "#edit" if edit_mode else ""
-    launcher.launch(cmd_pointer, routes, "dataviewer", hash=a_hash)
+    return launcher.launch(cmd_pointer, routes, "dataviewer", hash=a_hash)
 
 
 # --> Open data in browser UI.
@@ -723,6 +762,21 @@ def display_data__as_dataframe(
         return data
     else:
         return None
+
+
+def show_data(cmd_pointer, parser):
+    """
+    Show data in GUI.
+    """
+
+    file_path = parser["file_path"]
+    filename = file_path.split("/")[-1]
+
+    # Allow for no extension.
+    if len(filename.split(".")) == 1:
+        file_path = file_path + ".csv"
+
+    gui_init(cmd_pointer, "~/" + file_path)
 
 
 # Edit a JSON config file.

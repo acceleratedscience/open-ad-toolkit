@@ -326,12 +326,41 @@ def add_remote_service_from_endpoint(cmd_pointer, parser) -> bool:
 
 def catalog_add_model_service(cmd_pointer, parser) -> bool:
     """Add model service repo to catalog"""
+
     service_name = parser.as_dict()["service_name"]
     service_path = os.path.expanduser(parser.as_dict()["path"])
     logger.debug(f"catalog model service | {service_name=} {service_path=}")
+    params = {}
+    if "params" in parser.as_dict():
+        for i in parser.as_dict()["params"]:
+            params[i[0]] = i[1]
+
+    if "auth_group" in params.keys() and "authorization" in params.keys():
+        output_error(
+            f"It is not permitted to define auth_group and authroization in the same catalog statement ",
+            return_val=False,
+        )
+        return False
+
+    if "auth_group" in params.keys():
+        auth_group = params["auth_group"]
+        lookup_table = load_lookup_table()
+        if auth_group not in lookup_table["auth_table"]:
+            output_error(
+                f"auth_group {auth_group} not in auth table, please add the authgroup and recatalog the service {service_name} ",
+                return_val=False,
+            )
+            return False
+    else:
+        auth_group = None
+
     if "remote" in parser:
         # run this code and exit
-        return add_remote_service_from_endpoint(cmd_pointer, parser)
+        output = add_remote_service_from_endpoint(cmd_pointer, parser)
+        if auth_group is not None:
+            updated_lookup_table = update_lookup_table(auth_group=auth_group, service=service_name)
+        output_success(f"Service {service_name} added to catalog", return_val=False)
+        return output
     # check if service exists
     with Dispatcher() as service:
         if service_name in service.list():
@@ -355,7 +384,9 @@ def catalog_add_model_service(cmd_pointer, parser) -> bool:
     with Dispatcher() as service:
         service.add_service(service_name, config)
         # spinner.succeed(f"service {service_name} added to catalog")
-        output_success(f"service {service_name} added to catalog", return_val=False)
+        output_success(f"Service {service_name} added to catalog", return_val=False)
+    # If auth group in parameters apply authgroup
+
     return True
 
 
@@ -389,10 +420,11 @@ def uncatalog_model_service(cmd_pointer, parser) -> bool:
                 spinner.fail(f"failed to remove service: {str(e)}")
                 # output_error(f"failed to remove service: {str(e)}", return_val=False)
                 return False
-        output_success(f"service {service_name} removed from catalog", return_val=False)
+        output_success(f"Service {service_name} removed from catalog", return_val=False)
     # remove service from authentication lookup table
     if get_service_api_key(service_name):
         remove_service_group(service_name)
+
     return True
 
 
@@ -575,6 +607,10 @@ def service_catalog_grammar(statements: list, help: list):
     fr_om = py.CaselessKeyword("from")
     _list = py.CaselessKeyword("list")
     quoted_string = py.QuotedString("'", escQuote="\\")
+
+    auth_group = quoted_string | py.Word(py.alphanums + "_")
+    service_name = quoted_string | py.Word(py.alphanums + "_")
+
     a_s = py.CaselessKeyword("as")
     describe = py.CaselessKeyword("describe")
     remote = py.CaselessKeyword("remote")
@@ -586,7 +622,7 @@ def service_catalog_grammar(statements: list, help: list):
     to = py.CaselessKeyword("to")
 
     # catalog service
-    using_keyword = py.Literal("USING").suppress()
+    using_keyword = py.CaselessKeyword("USING").suppress()
     quoted_identifier = py.QuotedString("'", escChar="\\", unquoteResults=True)
     parameter = py.Word(py.alphas, py.alphanums + "-_") | quoted_identifier
     value = py.Word(py.alphanums + "-_") | quoted_identifier
@@ -606,7 +642,7 @@ def service_catalog_grammar(statements: list, help: list):
     )
 
     statements.append(
-        py.Forward(model + auth + add + group + quoted_string("auth_group") + _with + quoted_string("api_key"))(
+        py.Forward(model + auth + add + group + auth_group("auth_group") + _with + quoted_string("api_key"))(
             "add_service_auth_group"
         )
     )
@@ -614,46 +650,44 @@ def service_catalog_grammar(statements: list, help: list):
         help_dict_create(
             name="model auth add group",
             category="Model",
-            command="model auth add group '<auth_group>' with '<api_key>'",
+            command="model auth add group '<auth_group>'|<auth_group> with '<api_key>'",
             description="add an authentication group for model services to use",
         )
     )
 
-    statements.append(
-        py.Forward(model + auth + remove + group + quoted_string("auth_group"))("remove_service_auth_group")
-    )
+    statements.append(py.Forward(model + auth + remove + group + auth_group("auth_group"))("remove_service_auth_group"))
     help.append(
         help_dict_create(
             name="model auth remove group",
             category="Model",
-            command="model auth remove group '<auth_group>'",
+            command="model auth remove group '<auth_group>' | <auth_group>",
             description="remove an authentication group",
         )
     )
 
     statements.append(
-        py.Forward(
-            model + auth + add + service + quoted_string("service_name") + to + group + quoted_string("auth_group")
-        )("attach_service_auth_group")
+        py.Forward(model + auth + add + service + service_name("service_name") + to + group + auth_group("auth_group"))(
+            "attach_service_auth_group"
+        )
     )
     help.append(
         help_dict_create(
             name="model auth add service",
             category="Model",
-            command="model auth add service '<service_name>' to group '<auth_group>'",
-            description="attach an authentication group to a model service",
+            command="model auth add service '<service_name>'|,service_name> to group '<auth_group>'|<auth_group>",
+            description="Attach an authentication group to a model service",
         )
     )
 
     statements.append(
-        py.Forward(model + auth + remove + service + quoted_string("service_name"))("detach_service_auth_group")
+        py.Forward(model + auth + remove + service + service_name("service_name"))("detach_service_auth_group")
     )
     help.append(
         help_dict_create(
             name="model auth remove service",
             category="Model",
-            command="model auth remove service '<service_name>'",
-            description="detatch an authentication group from a model service",
+            command="model auth remove service '<service_name>'|<service_name>",
+            description="Detatch an authentication group from a model service",
         )
     )
 
@@ -663,15 +697,11 @@ def service_catalog_grammar(statements: list, help: list):
             name="model service status",
             category="Model",
             command="model service status",
-            description="get the status of currently cataloged services",
+            description="Get the status of currently cataloged services",
         )
     )
 
-    statements.append(
-        py.Forward(model + service + describe + (quoted_string | py.Word(py.alphanums + "_"))("service_name"))(
-            "model_service_config"
-        )
-    )
+    statements.append(py.Forward(model + service + describe + (service_name)("service_name"))("model_service_config"))
     help.append(
         help_dict_create(
             name="model service describe",
@@ -691,11 +721,7 @@ def service_catalog_grammar(statements: list, help: list):
         )
     )
 
-    statements.append(
-        py.Forward(uncatalog + model + service + (quoted_string | py.Word(py.alphanums + "_"))("service_name"))(
-            "uncatalog_model_service"
-        )
-    )
+    statements.append(py.Forward(uncatalog + model + service + service_name("service_name"))("uncatalog_model_service"))
     help.append(
         help_dict_create(
             name="uncatalog model service",
@@ -722,26 +748,48 @@ def service_catalog_grammar(statements: list, help: list):
         help_dict_create(
             name="catalog Model service",
             category="Model",
-            command="catalog model service from (remote) '<path or github>' as  '<service_name>'|<service_name>   USING (<parameter>=<value> <parameter>=<value>)",
+            command="catalog model service from (remote) '<path> or <github> or <service_url>' as  '<service_name>'|<service_name>   USING (<parameter>=<value> <parameter>=<value>)",
             description="""catalog a model service from a path or github or remotely from an existing OpenAD service.
 (USING) optional headers parameters for communication with service backend.
+If you are cataloging a service using a model defined in a directory, provide the absolute <cmd> <path> </cmd> of that directory in quotes.
+
+The following options require the <cmd>remote</cmd> option be declared.
+
+If you are cataloging a service using a model defined in github repository, provide the absolute <cmd> <github> </cmd> of that github directory quotes.
+
+If you are cataloging a remote service on a ip address and port provide the remote services ipaddress and port in quoted string e.g. <cmd>'0.0.0.0:8080'</cmd>
+
+<cmd>service_name</cmd>: this is the name of the service as you will define it for your usage. e.g <cmd>prop</cmd> short for properties. 
+
+USING Parameters:
+
+If using a hosted service the following parameters must be supplied:
+-<cmd>Inference-Service</cmd>: this is the name of the inference service that is hosted, it is a required parameter if cataloging a remote service.
+An authorization parameter is always required if cataloging a hosted service, either Auhtorisation group (<cmd>auth_group</cmd>) or Authorisation bearer_token/api_key (<cmd>Authorization</cmd>):
+-<cmd>auth_group</cmd>: this is the name of an authorization group which contains the api_key linked to the service access. This can only be used if <cmd>Authorization</cmd> is not also defined.
+OR
+-<cmd>Authorization</cmd>: this parameter is designed to be used when a <cmd>auth_group</cmd> is not defined.
 
 Example:
 
+Skypilot Deployment
 -<cmd>catalog model service from 'git@github.com:acceleratedscience/generation_inference_service.git' as 'gen'</cmd>
 
-or to catalog a remote service shared with you:
+Service using a authentication group 
+-<cmd>catalog model service from remote '<service_url>' as  molf  USING (Inference-Service=molformer  )</cmd>
+<cmd> model auth add service 'molf' to group 'default'</cmd>
+
+Single Authorisation Service
+-<cmd>openad catalog model service from remote '<service_URL>' as 'gen' USING (Inference-Service=generation Authorization='<api_key>')</cmd>
+
+Catalog a remote service shared with you:
 -<cmd>catalog model service from remote 'http://54.235.3.243:30001' as gen</cmd>""",
         )
     )
 
     statements.append(
         py.Forward(
-            model
-            + service
-            + up
-            + (quoted_string | py.Word(py.alphanums + "_"))("service_name")
-            + py.Optional(py.CaselessKeyword("NO_GPU")("no_gpu"))
+            model + service + up + service_name("service_name") + py.Optional(py.CaselessKeyword("NO_GPU")("no_gpu"))
         )("service_up")
     )
     help.append(
@@ -749,7 +797,7 @@ or to catalog a remote service shared with you:
             name="Model up",
             category="Model",
             command="model service up '<service_name>'|<service_name> [no_gpu]}",
-            description="""launches a cataloged model service.
+            description="""launches a cataloged model service when it was cataloged as a self managed service from a directory or github repository.
 If you do not want to launch a service with GPU you should specify <cmd>no_gpu</cmd> at the end of the command.
 Examples:
 
@@ -767,7 +815,7 @@ Examples:
             + service
             + local
             + up
-            + (quoted_string | py.Word(py.alphanums + "_"))("service_name")
+            + service_name("service_name")
             + py.Optional(py.CaselessKeyword("NO_GPU")("no_gpu"))
         )("local_service_up")
     )
@@ -776,7 +824,7 @@ Examples:
             name="Model local up",
             category="Model",
             command="model service local up '<service_name>'|<service_name> ",
-            description="""launch a model service locally.
+            description="""Launches a model service locally.
 
             Example:
               <cmd> model service local up gen</cmd>
@@ -785,11 +833,7 @@ Examples:
         )
     )
 
-    statements.append(
-        py.Forward(model + service + down + (quoted_string | py.Word(py.alphanums + "_"))("service_name"))(
-            "service_down"
-        )
-    )
+    statements.append(py.Forward(model + service + down + service_name("service_name"))("service_down"))
     help.append(
         help_dict_create(
             name="Model down",

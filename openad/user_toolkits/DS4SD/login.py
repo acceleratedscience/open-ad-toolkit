@@ -1,4 +1,5 @@
 """Login Library for the Deepsearch Plugin"""
+
 import os
 import datetime
 from datetime import datetime, timezone
@@ -68,7 +69,7 @@ def login(cmd_pointer):
     except BaseException:
         return False, None
 
-    if cred_config["host"].strip() == "":
+    if cred_config["host"].strip() == "" or cred_config["host"].strip() == "None":
         cred_config["host"] = DEFAULT_URL
     if uri_valid(cred_config["host"]) is False:
         output_error("Invalid url, try again", return_val=False)

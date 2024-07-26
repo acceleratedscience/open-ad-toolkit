@@ -1,4 +1,5 @@
 """Populates Examples Directory"""
+
 import os
 import shutil
 from openad.app.global_var_lib import _repo_dir

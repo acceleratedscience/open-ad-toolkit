@@ -4,6 +4,7 @@ import mols2grid
 import signal
 import os
 import pandas
+from openad.molecules.mol_functions import normalize_mol_df
 from openad.helpers.output import output_text, output_error, output_warning, output_success, output_table
 from openad.helpers.output_msgs import msg
 from openad.helpers.general import parse_path_tree, confirm_prompt
@@ -64,7 +65,7 @@ def fetchRoutesMolsGrid(cmd_pointer, parser):
 
                     mol_frame = cmd_pointer.api_variables[parser.as_dict()["in_dataframe"]]
 
-                    mol_frame = _normalize_mol_df(mol_frame, cmd_pointer)
+                    mol_frame = normalize_mol_df(mol_frame)
 
                     the_mols2grid = mols2grid.MolGrid(mol_frame, name=name, smiles_col="SMILES", **m2g_params_init)
                 except BaseException as err:
@@ -87,7 +88,7 @@ def fetchRoutesMolsGrid(cmd_pointer, parser):
                     name = origin_file.split("/")[-1]
                     SDFFile = workspace_path + origin_file
                     mol_frame = pandas.read_csv(SDFFile)
-                    mol_frame = _normalize_mol_df(mol_frame, cmd_pointer)
+                    mol_frame = normalize_mol_df(mol_frame)
                     the_mols2grid = mols2grid.MolGrid(mol_frame, name=name, **m2g_params_init)
                 except BaseException as err:
                     output_error(msg("err_load_csv", err), return_val=False)
@@ -226,6 +227,7 @@ def fetchRoutesMolsGrid(cmd_pointer, parser):
                     for index, row in filtered_df.iterrows():
                         if "ROMol" not in filtered_df.columns:
                             filtered_df["ROMol"] = None
+                        # pylint: disable=no-member
                         filtered_df.at[index, "ROMol"] = rdkit.Chem.MolFromSmiles(row["SMILES"])
 
                     PandasTools.WriteSDF(
@@ -282,65 +284,6 @@ def fetchRoutesMolsGrid(cmd_pointer, parser):
         }
 
         return routes, the_mols2grid
-
-
-def _normalize_mol_df(mol_df: pandas.DataFrame, cmd_pointer):
-    has_name = False
-    contains_name = None
-
-    for i in mol_df.columns:
-        # Find the name column.
-
-        if str(i.upper()) == "NAME":
-            has_name = True
-        if contains_name is None and "NAME" in str(i.upper()):
-            contains_name = i
-
-        # Normalize any columns we'll be referring to later.
-        if str(i.upper()) == "SMILES":
-            mol_df.rename(columns={i: "SMILES"}, inplace=True)
-        if str(i.upper()) == "ROMOL":
-            mol_df.rename(columns={i: "ROMol"}, inplace=True)
-        if str(i.upper()) == "IMG":
-            mol_df.rename(columns={i: "IMG"}, inplace=True)
-
-    # Normalize name column.
-    if has_name == False and contains_name is not None:
-        mol_df.rename(columns={contains_name: "NAME"}, inplace=True)
-
-    # Add names when missing.
-    try:
-        if "NAME" not in mol_df.columns:
-            output_warning(msg("no_m2g_name_column"))
-            spinner.start("Downloading names")
-            mol_df["NAME"] = "unknown"
-            for i in mol_df.itertuples():
-                # print(_smiles_to_iupac('CCC(COC(=O)CS)(C(=O)C(=O)CS)C(=O)C(=O)CS'))
-                mol_df.loc[i.Index, "NAME"] = _smiles_to_iupac(mol_df.loc[i.Index, "SMILES"])
-            spinner.succeed("Names downloaded")
-            spinner.start()
-            spinner.stop()
-    except BaseException as err:
-        spinner.fail("There was an issue loading the molecule names.")
-        spinner.start()
-        spinner.stop()
-        print(err)
-
-    return mol_df
-
-
-def _smiles_to_iupac(smiles):
-    import pubchempy
-
-    if smiles in mol_name_cache:
-        return mol_name_cache[smiles]
-    try:
-        compounds = pubchempy.get_compounds(smiles, namespace="smiles")
-        match = compounds[0]
-        mol_name_cache[smiles] = str(match)
-    except BaseException:
-        match = "unknown"
-    return str(match)
 
 
 def _compile_default_m2g_params(mol_frame):

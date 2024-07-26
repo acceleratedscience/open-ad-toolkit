@@ -321,7 +321,6 @@ def service_grammar_add(statements: list, help: list, service_catalog: dict):
                     + f'("{schema["service_name"]}@{schema["service_type"]}")'
                 )
             except:
-                print(2)
                 output_error("error for schema")
                 output_error(schema)
                 continue
@@ -346,7 +345,7 @@ def service_grammar_add(statements: list, help: list, service_catalog: dict):
             except Exception as e:
                 output_error(e)
 
-            parameter_help = "<h2>Parameters:</h2>"
+            parameter_help = "<h2>Parameters:</h2>\n   <warning>--Note: Parameters should be entered for <cmd> USING Clause </cmd> in the order they are below. </warning>\n"
             num_params = 0
             for parameter, description in dict(schema["parameters"]).items():
                 num_params += 1
@@ -656,7 +655,7 @@ def request_generate(request_input):
             "property_type": property_types,
             "subjects": subjects,
         },
-        "api_key": "api-dthgwrhrthrtrth",
+        "api_key": "reserved for federated APIs",
     }
     if Sample_Size is not None:
         template["sample_size"] = Sample_Size

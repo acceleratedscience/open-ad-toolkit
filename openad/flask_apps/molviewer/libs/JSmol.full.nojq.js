@@ -365,7 +365,7 @@
 // BH 3/4/2014 8:40:15 PM adds Jmol.Cache for JSV/Jmol sharing files
 // BH 2/10/2014 10:07:14 AM added Info.z and Info.zIndexBase
 // BH 2/9/2014 9:56:06 PM updated JSmolCore.js with option to extend Viewer with code PRIOR to loading Viewer classes
-// BH 2/6/2014 8:46:25 AM disabled Jmol._tracker for localhost and 127.x.x.x 
+// BH 2/6/2014 8:46:25 AM disabled Jmol._tracker for 0.0.0.0 and 127.x.x.x 
 // BH 1/29/2014 8:02:23 AM Jmol.View and Info.viewSet
 // BH 1/21/2014 12:06:59 PM adding Jmol.Info.cacheFiles (applet, true/false) and applet._cacheFiles and Jmol._fileCache
 // BH 1/13/2014 2:12:38 PM adding "http://www.nmrdb.org/tools/jmol/predict.php":"%URL", to _DirectDatabaseCalls
@@ -548,7 +548,7 @@ Jmol = (function(document) {
 	if (j._isFile) // ensure no attempt to read XML in local request:
 	  $.ajaxSetup({ mimeType: "text/plain" });
 	j._ajaxTestSite = j._httpProto + "google.com";
-	var isLocal = (j._isFile || ref.indexOf("http://localhost") == 0 || ref.indexOf("http://127.") == 0);
+	var isLocal = (j._isFile || ref.indexOf("http://127.0.0.1") == 0 || ref.indexOf("http://127.") == 0);
 	j._tracker = (!isLocal && 'https://chemapps.stolaf.edu/jmol/JmolTracker.php?id=UA-45940799-1');
 	
 	j._isChrome = (navigator.userAgent.toLowerCase().indexOf("chrome") >= 0);

@@ -1,6 +1,7 @@
 import openad.app.main  # we import entire main library to help retain state
 from pandas import DataFrame
 from pandas.io.formats.style import Styler
+import atexit
 
 context_cache = {"workspace": None, "toolkit": None}
 
@@ -41,3 +42,11 @@ def strip_leading_blanks(input):
             X = str(x).replace("   ", "  ")
         output = output + x + "\n"
     return output
+
+
+def cleanup():
+    print("killing magic")
+    openad.app.main.MAGIC_PROMPT.do_exit("exit magic")
+
+
+atexit.register(cleanup)

@@ -10,14 +10,16 @@ from datetime import datetime
 # Expand user path: ~/ --> ../
 from pathlib import PosixPath
 
+# Workers
+from openad.workers.file_system import fs_get_workspace_files
+
 # Helpers
 from openad.helpers.general import confirm_prompt
-from openad.helpers.output import output_text, output_error, output_success, output_table
+from openad.helpers.output import output_text, output_error, output_success, output_table, strip_tags
 from openad.helpers.output_msgs import msg
 
 
 # Globals
-
 from openad.app.global_var_lib import _date_format
 
 
@@ -26,60 +28,47 @@ from openad.app.global_var_lib import _date_format
 
 
 def list_files(cmd_pointer, parser):
-    """List all Files in a Workspace"""
-    workspace_path = cmd_pointer.workspace_path(cmd_pointer.settings["workspace"])
+    import pprint
 
-    files = []
+    path = parser["path"] if "path" in parser else ""
+    data = fs_get_workspace_files(cmd_pointer, path)
+    space = [""] if data["dirs"] else []
+    files = data["dirs"] + space + data["files"]
+    # pprint.pprint(files)
+    table = []
     table_headers = ("File Name", "Size", "Last Edited")
+    for file in files:
+        # Insert space
+        if not file:
+            table.append(("-", "-", "-"))
+            continue
 
-    # Directory from which we're reading files.
-    path = workspace_path
+        filetype = file["_meta"]["fileType"]
+        filename = file["filename"] + ("/" if filetype == "dir" else "")
+        size = file["_meta"]["size"] if "size" in file["_meta"] else None
+        timestamp = file["_meta"]["timeEdited"] if "timeEdited" in file["_meta"] else None
 
-    # Get list of all files only in the given directory.
-    def fun(x):
-        return os.path.isfile(os.path.join(path, x))
-
-    files_list = filter(fun, os.listdir(path))
-
-    # Create a list of tuples with file info: (filename, size, time)
-    files_data = [
-        (os.path.basename(f), os.stat(os.path.join(path, f)).st_size, os.stat(os.path.join(path, f)).st_atime)
-        for f in files_list
-    ]
-
-    # Check if there are any non-hidden files in the workspace.
-    non_hidden_files = False
-    for file in files_data:
-        if not file[0].startswith("."):
-            non_hidden_files = True
-            break
-
-    # Display message when no files are found.
-    # len(files_data) == 1
-    if not non_hidden_files:
-        workspace_name = cmd_pointer.settings["workspace"].upper()
-        return output_text(msg("no_workspace_files", workspace_name), pad=1)
-
-    # Assemble table data.
-    for name, size, timestamp in sorted(files_data, key=lambda x: x[1], reverse=True):
-        if name.startswith("."):
+        if filename.startswith("."):
             # For now we're jumping over hidden files, though
             # I would like to add an option to display them.
             # Probably `list all files` - moenen
             continue
 
-        if size < (1024 * 1024) / 10:
-            size = f"{round(size / 1024, 2)} kB"
-        else:
-            size = f"{round(size / (1024 * 1024), 2)} MB"
-        timestamp = datetime.fromtimestamp(timestamp)
-        timestamp = timestamp.strftime(_date_format)
-        result = [name, size, timestamp]
-        files.append(result)
+        if size:
+            if size < (1024 * 1024) / 10:
+                size = f"{round(size / 1024, 2)} kB"
+            else:
+                size = f"{round(size / (1024 * 1024), 2)} MB"
 
-    # Display/return table.
+        if timestamp:
+            timestamp = datetime.fromtimestamp(timestamp / 1000)
+            timestamp = timestamp.strftime(_date_format)
 
-    return output_table(files, is_data=False, headers=table_headers)
+        result = (filename, size, timestamp)
+        table.append(result)
+
+    # return "OK"
+    return output_table(table, is_data=False, headers=table_headers, colalign=("left", "right", "left"))
 
 
 # External path to workspace path
@@ -205,3 +194,13 @@ def remove_file(cmd_pointer, parser):
     except Exception as err:
         # Failure
         return output_error(msg("err_delete", err))
+
+
+def open_file(cmd_pointer, parser):
+    from openad.gui.gui_launcher import gui_init
+
+    print("FILE:", type(parser["file"]))
+    print(parser["file"])
+
+    path = "~/" + parser["file"]
+    gui_init(cmd_pointer, path)

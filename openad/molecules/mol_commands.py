@@ -6,6 +6,7 @@ import os
 import shutil
 import re
 import json
+import urllib.parse
 import pandas as pd
 from rdkit import Chem
 from rdkit.Chem import AllChem
@@ -19,19 +20,24 @@ from openad.helpers.format_columns import single_value_columns, name_and_value_c
 
 # Molecule functions
 from openad.molecules.mol_functions import (
-    get_mol_from_formula,
-    get_mol_from_inchi,
-    get_mol_from_inchikey,
-    get_mol_from_name,
-    get_mol_from_smiles,
-    get_mol_from_cid,
+    # get_mol_from_formula,
+    # get_mol_from_inchi,
+    # get_mol_from_inchikey,
+    # get_mol_from_name,
+    # get_mol_from_smiles,
+    # get_mol_from_cid,
+    # canonical_smiles,
+    new_molecule,
+    retrieve_mol_from_list,
+    retrieve_mol,
     get_properties,
     get_identifiers,
-    canonical_smiles,
-    new_molecule,
-    mol2svg,
-    mol2sdf,
+    find_mol_in_list,
+    mol_from_identifier,
+    mymols_add,
+    mymols_remove,
     MOL_PROPERTIES,
+    normalize_mol_df,
 )
 
 # Globals
@@ -182,70 +188,48 @@ def export_molecule(cmd_pointer, inp):
     return True
 
 
-def add_molecule(cmd_pointer, inp, force=False, suppress=False):
-    """adds a molecule to the working set"""
+def add_molecule(cmd_pointer, inp):
+    """
+    Adds a molecule to your molecules working set (my-mols).
+    """
 
-    basic = False
+    identifier = inp.as_dict()["molecule_identifier"]
 
-    if isinstance(inp, dict):
-        molecule_identifier = inp["molecule_identifier"]
-        if "name" in inp:
-            molecule_name = inp["name"]
-        else:
-            molecule_name = molecule_identifier
-
+    if "basic" in inp.as_dict():
+        basic = True
     else:
-        if "basic" in inp.as_dict():
-            basic = True
-        molecule_identifier = inp.as_dict()["molecule_identifier"]
-        if "name" in inp.as_dict():
-            molecule_name = inp.as_dict()["name"]
-        else:
-            molecule_name = molecule_identifier
-        if "force" in inp.as_dict():
-            force = True
+        basic = False
 
-    if basic is True:
-        mol = new_molecule(molecule_identifier, molecule_name)
-
+    if "name" in inp.as_dict():
+        mol_name = inp.as_dict()["name"]
     else:
-        if (
-            cmd_pointer.last_external_molecule is not None
-            and is_molecule(cmd_pointer.last_external_molecule, molecule_identifier) is not None
-        ):
-            mol = cmd_pointer.last_external_molecule
+        mol_name = identifier
 
-        else:
-            mol = retrieve_mol(molecule_identifier)
-            if mol is None:
-                mol = new_molecule(molecule_identifier, molecule_identifier)
-    if mol is None:
-        output_error("Unable to identify molecule", return_val=False)
-        if basic is True:
-            output_error("You may only use a valid smiles string", return_val=False)
-        return True
-    if mol["name"] != mol["properties"]["canonical_smiles"]:
-        identifier = mol["name"] + "   " + mol["properties"]["canonical_smiles"]
+    if "force" in inp.as_dict():
+        force = True
     else:
-        identifier = mol["name"]
+        force = False
 
-    if retrieve_mol_from_list(cmd_pointer, mol["properties"]["canonical_smiles"]) is not None:
-        output_error("Molecule already in list", return_val=False)
-        return True
+    # Create molecule dict.
+    openad_mol = mol_from_identifier(cmd_pointer, identifier, mol_name=mol_name, basic=basic)
 
-    if force is False:
-        if confirm_prompt("Are you source you wish to add " + identifier + " to your working list ?"):
-            cmd_pointer.molecule_list.append(mol.copy())
-            output_success(f"Molecule {identifier} was added", return_val=False)
-            return True
+    # Add it to the working set.
+    mymols_add(cmd_pointer, openad_mol, force=force)
 
-        output_error(f"Molecule was {identifier} not added", return_val=False)
-        return False
 
-    cmd_pointer.molecule_list.append(mol.copy())
-    if suppress == False:
-        output_success(f"Molecule {identifier} was added", return_val=False)
-    return True
+def remove_molecule(cmd_pointer, inp):
+    """
+    Removes a molecule from your molecules working set (my-mols).
+    """
+
+    if "force" in inp.as_dict():
+        force = True
+    else:
+        force = False
+
+    molecule_identifier = inp.as_dict()["molecule_identifier"]
+    mol = retrieve_mol_from_list(cmd_pointer, molecule_identifier)
+    mymols_remove(cmd_pointer, mol, force=force)
 
 
 # def create_molecule(cmd_pointer, inp):
@@ -254,7 +238,7 @@ def add_molecule(cmd_pointer, inp, force=False, suppress=False):
 #     molecule_identifier = inp.as_dict()["smiles"]
 #     molecule_name = inp.as_dict()["name"]
 
-#     mol = new_molecule(molecule_name, molecule_identifier)
+#     mol = new_molecule(molecule_name, name=molecule_identifier)
 
 #     identifier = mol["name"] + "   " + mol["properties"]["canonical_smiles"]
 
@@ -277,29 +261,6 @@ def clear_workset(cmd_pointer, inp):
         cmd_pointer.molecule_list.clear()
 
 
-def remove_molecule(cmd_pointer, inp):
-    """Removes a Molecule from the working List"""
-    molecule_identifier = inp.as_dict()["molecule_identifier"]
-    mol = retrieve_mol_from_list(cmd_pointer, molecule_identifier)
-
-    if mol is not None:
-        identifier = mol["name"] + "   " + mol["properties"]["canonical_smiles"]
-
-        if confirm_prompt("Are you wish to Remove " + identifier + " from your working list ?"):
-            i = 0
-            while (
-                cmd_pointer.molecule_list[i]["properties"]["canonical_smiles"] != mol["properties"]["canonical_smiles"]
-            ):
-                i = i + 1
-
-            cmd_pointer.molecule_list.pop(i)
-            output_success("Molecule was removed", return_val=False)
-        return True
-
-    output_error("No molecule found", return_val=False)
-    return True
-
-
 def list_molecules(cmd_pointer, inp):
     """lists all molecules in the working set"""
     display_list = pd.DataFrame()
@@ -315,40 +276,48 @@ def list_molecules(cmd_pointer, inp):
         #    return output_table(display_list)
 
     else:
-        return output_text("No molecules in list")
+        return output_warning("Your molecules working set is empty")
 
 
-def retrieve_mol_from_list(cmd_pointer, molecule):
-    """retrieves a molecule from the working list"""
+def show_molecules(cmd_pointer, inp):
+    """Display your working set in the browser or iframe"""
+    from openad.gui.gui_launcher import gui_init
 
-    for mol in cmd_pointer.molecule_list:
-        m = is_molecule(mol, molecule)
-
-        if m is not None:
-            return m.copy()
-
-    return None
+    gui_init(cmd_pointer, "my-mols")
 
 
 def rename_mol_in_list(cmd_pointer, inp):
-    """renames a molecule in the working list"""
-    if retrieve_mol_from_list(cmd_pointer, inp.as_dict()["new_name"]) is not None:
+    """
+    Renames a molecule in your working molecule list.
+    """
+    if retrieve_mol_from_list(cmd_pointer, inp.as_dict()["new_name"], ignore_synonyms=True) is not None:
         output_error("A molecule in your working set already contains the new name", return_val=False)
         return False
 
-    for mol in cmd_pointer.molecule_list:
-        m = is_molecule(mol, inp.as_dict()["molecule_identifier"])
-        if m is not None:
-            m["name"] = inp.as_dict()["new_name"]
-            output_success("Molecule successfully renamed", return_val=False)
-            return True
+    identifier = inp.as_dict()["molecule_identifier"]
+    openad_mol = find_mol_in_list(identifier, cmd_pointer.molecule_list)
+    if openad_mol is not None:
+        openad_mol["name"] = inp.as_dict()["new_name"]
+        output_success("Molecule successfully renamed", return_val=False)
+        return True
 
-    for mol in cmd_pointer.molecule_list:
-        m = is_molecule_synonym(mol, inp.as_dict()["molecule_identifier"])
-        if m is not None:
-            m["name"] = inp.as_dict()["new_name"]
-            output_success("molecule successfully renamed", return_val=False)
-            return True
+    # TRASH
+    # @refactored
+    # for mol in cmd_pointer.molecule_list:
+    #     m = is_molecule(mol, inp.as_dict()["molecule_identifier"])
+    #     if m is not None:
+    #         m["name"] = inp.as_dict()["new_name"]
+    #         output_success("Molecule successfully renamed", return_val=False)
+    #         return True
+
+    # TRASH
+    # This is not integrated into mol_functions --> find_mol_in_list
+    # for mol in cmd_pointer.molecule_list:
+    #     m = is_molecule_synonym(mol, inp.as_dict()["molecule_identifier"])
+    #     if m is not None:
+    #         m["name"] = inp.as_dict()["new_name"]
+    #         output_success("molecule successfully renamed", return_val=False)
+    #         return True
 
     output_error("Molecule was not renamed, no molecule found", return_val=False)
 
@@ -418,69 +387,46 @@ def moleculelist_to_data_frame(molecule_set):
     return pd.DataFrame(molecule_list)
 
 
-def is_molecule(mol, molecule):
-    """determines if a given molecule identifier is actually a valid molecule"""
-
-    if molecule.upper() == mol["name"].upper():
-        return mol
-    try:
-        if int(molecule) == int(mol["properties"]["cid"]):
-            return mol
-    except:
-        pass
-    if molecule == mol["properties"]["inchi"]:
-        return mol
-    if molecule == mol["properties"]["inchikey"]:
-        return mol
-    if (
-        mol["properties"]["isomeric_smiles"] is not None
-        and molecule.upper() == mol["properties"]["isomeric_smiles"].upper()
-    ):
-        return mol
-    if molecule == mol["properties"]["canonical_smiles"]:
-        return mol
-    try:
-        if canonical_smiles(molecule) == canonical_smiles(mol["properties"]["canonical_smiles"]):
-            return mol
-
-    except:
-        pass
-    return None
-
-
-def is_molecule_synonym(mol, molecule):
-    """determines if a molecule is mentioned in the synonym property of a molecule"""
-    if mol["synonyms"] is not None and "Synonym" in mol["synonyms"]:
-        for syn in mol["synonyms"]["Synonym"]:
-            if molecule.upper() == syn.upper():
-                return mol
-
-    return None
+# TRASH
+# @refactored
+# Moved to mol_functions --> find_mol_in_list (includes the loop)
+# def is_molecule(mol, molecule):
+#     """determines if a given molecule identifier is actually a valid molecule"""
+#     if molecule.upper() == mol["name"].upper():
+#         return mol
+#     try:
+#         if int(molecule) == int(mol["properties"]["cid"]):
+#             return mol
+#     except:
+#         pass
+#     if molecule == mol["properties"]["inchi"]:
+#         return mol
+#     if molecule == mol["properties"]["inchikey"]:
+#         return mol
+#     if (
+#         mol["properties"]["isomeric_smiles"] is not None
+#         and molecule.upper() == mol["properties"]["isomeric_smiles"].upper()
+#     ):
+#         return mol
+#     try:
+#         if canonical_smiles(molecule) == canonical_smiles(mol["properties"]["canonical_smiles"]):
+#             return mol
+#     except:
+#         pass
+#     return None
 
 
-def retrieve_mol(molecule):
-    """gets molecule from pubchem"""
+# TRASH
+# @refactored
+# This is not integrated into mol_functions --> find_mol_in_list
+# def is_molecule_synonym(mol, molecule):
+#     """determines if a molecule is mentioned in the synonym property of a molecule"""
+#     if mol["synonyms"] is not None and "Synonym" in mol["synonyms"]:
+#         for syn in mol["synonyms"]["Synonym"]:
+#             if molecule.upper() == syn.upper():
+#                 return mol
 
-    success, mol, comp = get_mol_from_name(molecule)
-    if success:
-        return mol
-    success, mol, comp = get_mol_from_inchi(molecule)
-    if success:
-        return mol
-    success, mol, comp = get_mol_from_smiles(molecule)
-    if success:
-        return mol
-    # commented out until getting no time outs from pubchem
-    # success, mol, comp = get_mol_from_formula(molecule)
-    # if success:
-    #    return mol
-    success, mol, comp = get_mol_from_inchikey(molecule)
-    if success:
-        return mol
-    success, mol, comp = get_mol_from_cid(molecule)
-    if success:
-        return mol
-    return None
+#     return None
 
 
 def format_identifers(mol):
@@ -590,10 +536,6 @@ def _create_workspace_dir_if_nonexistent(cmd_pointer, dir_name):
     return cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/" + dir_name
 
 
-def merge_molecule_property_data(cmd_pointer, inp):
-    """merges data into the molecule list"""
-
-
 def load_molecules(cmd_pointer, inp):
     """loads a molecule set into the working list"""
     if "molecule-set_name" not in inp:
@@ -701,53 +643,38 @@ def get_property(cmd_pointer, inp):
             return None
 
 
-# Launch molecule viewer.
+# Launch molecule viewer and display molecule.
 def show_mol(cmd_pointer, inp):
+    from openad.gui.gui_launcher import gui_init
+
     molecule_identifier = inp.as_dict()["molecule_identifier"]
+    path = "mol/" + urllib.parse.quote(molecule_identifier, safe="")
+    gui_init(cmd_pointer, path)
 
-    # Try loading the molecule from your working set.
-    mol = retrieve_mol_from_list(cmd_pointer, molecule_identifier)
 
-    # Try generating a basic molecule from RDKit.
-    # Only works with InChI or SMILES as molecule_identifier.
-    if mol is None:
-        mol = new_molecule(molecule_identifier)
+# Launch molset viewer and display a molecule set file.
+def show_molset(cmd_pointer, inp):
+    from openad.gui.gui_launcher import gui_init
 
-    # Fetch the molecule from PubChem,
-    # The molecule_identifier is probably its name, CID or InChIKey.
-    if mol is None:
-        mol = retrieve_mol(molecule_identifier)
+    molset_file = inp.as_dict()["molset_file"]
 
-    if mol is None:
-        output_error("Molecule identifier not recognized", return_val=False)
-        return
+    path = "~/" + urllib.parse.quote(molset_file, safe="")
+    gui_init(cmd_pointer, path)
 
-    # Render SVG and SDF
-    mol_rdkit = Chem.MolFromInchi(mol["properties"]["inchi"])
-    if mol_rdkit:
-        mol_svg = mol2svg(mol_rdkit)
-        mol_sdf = mol2sdf(mol_rdkit)
-    else:
-        mol_svg, mol_sdf = None, None
 
-    # Load routes and launch browser UI.
-    routes = fetchRoutesMolViewer(cmd_pointer, mol, mol_sdf, mol_svg)
+# Launch molset viewer and display a molecule set dataframe.
+def show_molset_df(cmd_pointer, inp):
+    from openad.gui.gui_launcher import gui_init
 
-    # # Enrich molecule with RDKit.
-    # # This will then be loaded with an AJAX request from the browser.
-    # print(mol)
-    # mol.name = "ABC"
+    # molset_dataframe = cmd_pointer.api_variables[inp.as_dict()["in_dataframe"]]
+    df_name = inp.as_dict()["in_dataframe"]
 
-    if GLOBAL_SETTINGS["display"] == "notebook":
-        # Jupyter
-        launcher.launch(cmd_pointer, routes, "molviewer")
-    else:
-        # CLI
-        launcher.launch(cmd_pointer, routes, "molviewer")
+    path = "dataframe/" + df_name
+    gui_init(cmd_pointer, path)
 
 
 # Launch molecule grid.
-def show_molsgrid(cmd_pointer, inp):
+def show_molsgrid_DEPRECATED(cmd_pointer, inp):
     # Load routes and launch browser UI.
     routes, the_mols2grid = fetchRoutesMolsGrid(cmd_pointer, inp)
 

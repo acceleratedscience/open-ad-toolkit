@@ -23,12 +23,15 @@ for (var i=0; i< urls.length; i++) {
 
 -->
 
+
 # OpenAD Beta
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/openad)](https://pypi.org/project/openad/)
 [![PyPI version](https://img.shields.io/pypi/v/openad)](https://pypi.org/project/openad/)
 [![License MIT](https://img.shields.io/github/license/acceleratedscience/open-ad-toolkit)](https://opensource.org/licenses/MIT)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Docs](https://img.shields.io/badge/website-live-brightgreen)](https://acceleratedscience.github.io/openad-docs/)
+
+
 
 **Open Accelerated Discovery Client**<br>
 [Documentation](https://acceleratedscience.github.io/openad-docs/)
@@ -39,17 +42,20 @@ The goal of openAD is to provide a common language for scientists to interact wi
 
 ---
 > **Pre-install Note:** 
-For updating to 0.3.0 or above first remove toolkits `remove toolkit DS4SD` and `remove toolkit RXN` prior to updating
+For updating to 0.4.0 or above first remove toolkits `remove toolkit DS4SD` and `remove toolkit RXN` prior to updating
 
 > **Whats New ?**
 -  `%Openadd` has been added to the magic commands to provide pure data type results for data returning commands
-- Upgraded IBM BAM model support for latest IBm generative AI embeddings and Langchain 
+- Upgraded skypilot to 0.6.0 
+- Support for deploying in OpenSHift AI / Open Data hub workbench or podman/docker image `https://github.com/acceleratedscience/openad_workbench`
+- Support for Application API
 - Property and Data Set Generation Services
    We support the following Model Services
      - GT4SD Generation Services  `git@github.com:acceleratedscience/generation_inference_service.git`
      - GT4SD Property Services `git@github.com:acceleratedscience/property_inference_service.git`
      - GT4SD MoleR Generation `git@github.com:acceleratedscience/moler_inference_service.git`
      - GT4SD Molformer `git@github.com:acceleratedscience/molformer_inference_service.git`
+
     Pre-Requisite is that you have a AWS Account and can launch your own EC2 Instances Or someone else can launch them for you and you can catalog a Remote Service via URL.
 
         **Example:**

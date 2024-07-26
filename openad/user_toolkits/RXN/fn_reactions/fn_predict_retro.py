@@ -11,7 +11,7 @@ from rdkit.Chem import AllChem
 from time import sleep
 from openad.app.global_var_lib import GLOBAL_SETTINGS
 from openad.molecules.molecule_cache import create_analysis_record, save_result
-from openad.molecules.mol_functions import canonical_smiles, valid_smiles
+from openad.molecules.mol_functions import canonicalize, valid_smiles
 from openad.helpers.general import load_tk_module
 
 
@@ -91,7 +91,7 @@ def predict_retro(inputs: dict, cmd_pointer):
         output_error(" Invalid Smiles Supplied.", return_val=False)
         return False
     else:
-        product_smiles = canonical_smiles(product_smiles)
+        product_smiles = canonicalize(product_smiles)
 
     if len(product_smiles.split(".")) > 1:
         output_error(
