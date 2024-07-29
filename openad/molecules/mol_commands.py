@@ -175,7 +175,7 @@ def export_molecule(cmd_pointer, inp):
         mol = retrieve_mol(molecule_identifier)
         if mol is not None:
             cmd_pointer.last_external_molecule = mol
-    if mol is not None and ("as_file" in inp.as_dict() or GLOBAL_SETTINGS["display"] != "notebook"):
+    if mol is not None and ("as_file" in inp.as_dict() or GLOBAL_SETTINGS["display"] not in ["api", "notebook"]):
         json_file = open(
             cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/" + mol["name"] + ".json",
             "w",
@@ -183,7 +183,7 @@ def export_molecule(cmd_pointer, inp):
         )
         json.dump(mol, json_file)
         output_success("File " + mol["name"] + ".json saved to the current workspace", return_val=False)
-    elif mol is not None and GLOBAL_SETTINGS["display"] == "notebook":
+    elif mol is not None and GLOBAL_SETTINGS["display"] in ["api", "notebook"]:
         return mol.copy()
     return True
 
