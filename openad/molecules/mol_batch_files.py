@@ -14,6 +14,7 @@ from openad.molecules.mol_functions import (
 from openad.app.global_var_lib import GLOBAL_SETTINGS
 from openad.helpers.output import output_error, output_warning, output_success, output_text
 from openad.helpers.output_msgs import msg
+from openad.helpers.spinner import Spinner
 
 mol_name_cache = {}
 
@@ -149,15 +150,7 @@ def batch_pubchem(cmd_pointer, dataframe):
     else:
         from halo import Halo  # pylint: disable=import-outside-toplevel
 
-    class Spinner(Halo):
-        "contextual spinner"
-
-        def __init__(self):
-            # Alternative spinners:
-            # simpleDotsScrolling, interval=100
-            super().__init__(spinner="dots", color="white")
-
-    batch_spinner = Spinner()
+    batch_spinner = Spinner(GLOBAL_SETTINGS["VERBOSE"])
 
     batch_spinner.start("loading molecules from PubChem")
 

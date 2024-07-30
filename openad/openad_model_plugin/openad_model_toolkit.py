@@ -11,7 +11,7 @@ import pandas as pd
 # from openad.core.help import help_dict_create
 import requests
 from openad.helpers.output import output_error, output_success, output_text, output_warning
-from openad.helpers.spinner import spinner
+from openad.helpers.spinner import Spinner
 from openad.openad_model_plugin.catalog_model_services import get_service_requester, help_dict_create
 from openad.openad_model_plugin.auth_services import get_service_api_key
 from openad.openad_model_plugin.catalog_model_services import Dispatcher
@@ -713,8 +713,8 @@ def openad_model_requestor(cmd_pointer, parser):
     #     return output_error(
     #         "No Service Cataloged or service not up. \n Check Service Status <cmd>model service status</cmd> "
     #     )
-    if GLOBAL_SETTINGS["display"] != "api":
-        spinner.start("Executing Request Against Server")
+    spinner = Spinner(GLOBAL_SETTINGS["VERBOSE"])
+    spinner.start("Executing Request Against Server")
 
     with Dispatcher as servicer:
         service_status = servicer.get_short_status(service_name)
@@ -728,9 +728,9 @@ def openad_model_requestor(cmd_pointer, parser):
         spinner.stop()
         output_error(str(e))
         return output_error("Error: \n Server not reachable at " + str(service_status.get("url")))
-    if GLOBAL_SETTINGS["display"] != "api":
-        spinner.succeed("Request Returned")
-        spinner.stop()
+
+    spinner.succeed("Request Returned")
+    spinner.stop()
     try:
         response_result = response.json()
         try:
@@ -769,9 +769,9 @@ def openad_model_requestor(cmd_pointer, parser):
 
     except Exception as e:
         run_error = "HTTP Request Error:\n"
-        if GLOBAL_SETTINGS["display"] != "api":
-            spinner.fail("Request Failed")
-            spinner.stop()
+
+        spinner.fail("Request Failed")
+        spinner.stop()
         return output_error(run_error + "\n" + str(e))
 
     return result

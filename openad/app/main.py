@@ -870,6 +870,7 @@ def api_remote(
         magic_prompt = RUNCMD()
         MAGIC_PROMPT = magic_prompt
         initial_invocation = True
+
     else:
         magic_prompt = MAGIC_PROMPT
 
@@ -935,7 +936,9 @@ def api_remote(
             readline.write_history_file(magic_prompt.histfile)
 
             result = magic_prompt.default(inp)
+
             api_context["workspace"] = magic_prompt.settings["workspace"]
+
             api_context["toolkit"] = magic_prompt.settings["context"]
             if result is not True and result is not False:
                 return result
