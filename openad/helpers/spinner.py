@@ -24,6 +24,7 @@ class Spinner(Halo):
         self.verbose = verbose
         # Alternative spinners:
         # simpleDotsScrolling, interval=100
+
         if self.verbose is True:
             super().__init__(spinner="triangle", color="white", interval=700)
 
