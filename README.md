@@ -40,57 +40,10 @@ The goal of openAD is to provide a common language for scientists to interact wi
 
 ---
 
-> **Pre-install Note:**
-> For updating to 0.4.0 or above first remove toolkits `remove toolkit DS4SD` and `remove toolkit RXN` prior to updating
+> **Note:**
+> For updating to 0.4.0 or above, first remove the RXN and DS4SD toolkits by runnning `remove toolkit DS4SD` and `remove toolkit RXN` prior to updating.
 
-> **Whats New ?**
-
--   `%Openadd` has been added to the magic commands to provide pure data type results for data returning commands
--   Upgraded skypilot to 0.6.0
--   Support for deploying in OpenSHift AI / Open Data hub workbench or podman/docker image `https://github.com/acceleratedscience/openad_workbench`
--   Support for Application API
--   Property and Data Set Generation Services
-    We support the following Model Services
-
-    -   GT4SD Generation Services `git@github.com:acceleratedscience/generation_inference_service.git`
-    -   GT4SD Property Services `git@github.com:acceleratedscience/property_inference_service.git`
-    -   GT4SD MoleR Generation `git@github.com:acceleratedscience/moler_inference_service.git`
-    -   GT4SD Molformer `git@github.com:acceleratedscience/molformer_inference_service.git`
-
-    Pre-Requisite is that you have a AWS Account and can launch your own EC2 Instances Or someone else can launch them for you and you can catalog a Remote Service via URL.
-
-          **Example:**
-
-          `catalog model service from 'git@github.com:acceleratedscience/property_inference_service.git' as prop`
-
-          To start the service `model service up prop`
-
-          `model service status` # wait until service is ready
-
-           Once the service is `Ready` you can run the following commands to test:
-
-           `prop get molecule property [qed,esol] for [ C(C(C1C(=C(C(=O)O1)O)O)O)O ,[H-] ]`
-
-           `prop get molecule property esol for C(C(C1C(=C(C(=O)O1)O)O)O)O`
-
-          Examples are supplied in the Sample Notebooks, see below how to install.
-
-          To shut down the service `model service down prop`
-
-          Available commands for managing model services...
-
-          ```
-          model service status
-          model service config '<service_name>'|<service_name>
-          model catalog list
-          uncatalog model service '<service_name>'|<service_name>
-          catalog model service from (remote) '<path or github>' as  '<service_name>'|<service_name>
-          model service up '<service_name>'|<service_name> [no_gpu]
-          model service local up '<service_name>'|<service_name>
-          model service down '<service_name>'|<service_name>
-          ```
-
-**Note: uninstall all toolkits before installing the new version**
+[See what's new](#whats-new)
 
 ## Quick Install <!-- omit from toc -->
 
@@ -146,6 +99,53 @@ If you get an error when running `init_magic`, you may first need to setup the d
 <!-- tocstop -->
 
 <br>
+
+# What's New?
+
+-   `%Openadd` has been added to the magic commands to provide pure data type results for data returning commands
+-   Upgraded skypilot to 0.6.0
+-   Support for deploying in OpenSHift AI / Open Data hub workbench or podman/docker image `https://github.com/acceleratedscience/openad_workbench`
+-   Support for Application API
+-   Property and Data Set Generation Services
+    We support the following Model Services
+
+    -   GT4SD Generation Services `git@github.com:acceleratedscience/generation_inference_service.git`
+    -   GT4SD Property Services `git@github.com:acceleratedscience/property_inference_service.git`
+    -   GT4SD MoleR Generation `git@github.com:acceleratedscience/moler_inference_service.git`
+    -   GT4SD Molformer `git@github.com:acceleratedscience/molformer_inference_service.git`
+
+    Pre-Requisite is that you have a AWS Account and can launch your own EC2 Instances Or someone else can launch them for you and you can catalog a Remote Service via URL.
+
+          **Example:**
+
+          `catalog model service from 'git@github.com:acceleratedscience/property_inference_service.git' as prop`
+
+          To start the service `model service up prop`
+
+          `model service status` # wait until service is ready
+
+           Once the service is `Ready` you can run the following commands to test:
+
+           `prop get molecule property [qed,esol] for [ C(C(C1C(=C(C(=O)O1)O)O)O)O ,[H-] ]`
+
+           `prop get molecule property esol for C(C(C1C(=C(C(=O)O1)O)O)O)O`
+
+          Examples are supplied in the Sample Notebooks, see below how to install.
+
+          To shut down the service `model service down prop`
+
+          Available commands for managing model services...
+
+          ```
+          model service status
+          model service config '<service_name>'|<service_name>
+          model catalog list
+          uncatalog model service '<service_name>'|<service_name>
+          catalog model service from (remote) '<path or github>' as  '<service_name>'|<service_name>
+          model service up '<service_name>'|<service_name> [no_gpu]
+          model service local up '<service_name>'|<service_name>
+          model service down '<service_name>'|<service_name>
+          ```
 
 # Installation
 
@@ -302,7 +302,7 @@ Before you can interact with the toolkits, you'll need to register with each ind
     - Once logged in, click the Toolkit/API icon in the top right hand corner, then open the HTTP section
     - Click the "Generate new API key" button<br>
       <br>
-        <!-- ![Landing](assets/ds4sd-api-key.png) -->
+          <!-- ![Landing](assets/ds4sd-api-key.png) -->
         <a href="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/ds4sd-api-key.png" target="_blank"><img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/ds4sd-api-key.png" /></a>
 
 1. Once inside the OpenAD client, you'll be prompted to authenticate when activating the Deep Search (DS4SD) toolkit. When running `set context ds4sd` :
@@ -327,7 +327,7 @@ Before you can interact with the toolkits, you'll need to register with each ind
     - Sign up for an RXN account at [rxn.app.accelerate.science](https://rxn.app.accelerate.science)
     - Obtain your API key by clicking the user profile icon in the top right hand corner and select "My profile".<br>
       <br>
-        <!-- ![Landing](assets/rxn-api-key.png) -->
+          <!-- ![Landing](assets/rxn-api-key.png) -->
         <a href="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/rxn-api-key.png" target="_blank"><img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/rxn-api-key.png" /></a>
 
 1. When setting the context to RXN using `set context rxn` you'll be prompted to create a new auth configuration file:
@@ -446,8 +446,7 @@ If you have any questions in the meantime, please [reach out]({% link about.md %
 
         git clone https://github.com/acceleratedscience/open-ad-toolkit.git
 
-    > **Note:** To download a specific branch, you can run instead:<br>
-    > `git clone -b <branch_name> https://github.com/acceleratedscience/open-ad-toolkit.git`
+    > **Note:** To download a specific branch, you can run instead:<br> > `git clone -b <branch_name> https://github.com/acceleratedscience/open-ad-toolkit.git`
 
 1.  **Step 2: Launch the setup wizard**
 
@@ -478,8 +477,7 @@ If you have any questions in the meantime, please [reach out]({% link about.md %
 
         git clone https://github.com/acceleratedscience/open-ad-toolkit.git
 
-    > **Note:** To download a specific branch, you can run instead:<br>
-    > `git clone -b <branch_name> https://github.com/acceleratedscience/open-ad-toolkit.git`
+    > **Note:** To download a specific branch, you can run instead:<br> > `git clone -b <branch_name> https://github.com/acceleratedscience/open-ad-toolkit.git`
 
 1.  **Step 2: Install the requirements**
 
