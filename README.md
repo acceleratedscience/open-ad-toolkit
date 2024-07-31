@@ -116,17 +116,17 @@ If you get an error when running `init_magic`, you may first need to setup the d
 
     **Example:**
 
-    1. Install a service
+    -   Install a service
 
-        catalog model service from 'git@github.com:acceleratedscience/property_inference_service.git' as prop
+             catalog model service from 'git@github.com:acceleratedscience/property_inference_service.git' as prop
 
-    1. Start the service
+    -   Start the service
 
-        model service up prop
+             model service up prop
 
-    1. Wait until the service is ready
+    -   Wait until the service is ready
 
-        model service status
+             model service status
 
     Once the service is `Ready` you can run the following commands to test:
 
@@ -310,8 +310,8 @@ Before you can interact with the toolkits, you'll need to register with each ind
     - Once logged in, click the Toolkit/API icon in the top right hand corner, then open the HTTP section
     - Click the "Generate new API key" button<br>
       <br>
-      <!-- ![Landing](assets/ds4sd-api-key.png) -->
-      <a href="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/ds4sd-api-key.png" target="_blank"><img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/ds4sd-api-key.png" /></a>
+          <!-- ![Landing](assets/ds4sd-api-key.png) -->
+        <a href="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/ds4sd-api-key.png" target="_blank"><img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/ds4sd-api-key.png" /></a>
 
 1. Once inside the OpenAD client, you'll be prompted to authenticate when activating the Deep Search (DS4SD) toolkit. When running `set context ds4sd` :
 
@@ -335,8 +335,8 @@ Before you can interact with the toolkits, you'll need to register with each ind
     - Sign up for an RXN account at [rxn.app.accelerate.science](https://rxn.app.accelerate.science)
     - Obtain your API key by clicking the user profile icon in the top right hand corner and select "My profile".<br>
       <br>
-      <!-- ![Landing](assets/rxn-api-key.png) -->
-      <a href="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/rxn-api-key.png" target="_blank"><img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/rxn-api-key.png" /></a>
+          <!-- ![Landing](assets/rxn-api-key.png) -->
+        <a href="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/rxn-api-key.png" target="_blank"><img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/rxn-api-key.png" /></a>
 
 1. When setting the context to RXN using `set context rxn` you'll be prompted to create a new auth configuration file:
 
