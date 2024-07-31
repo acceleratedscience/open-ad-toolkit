@@ -39,8 +39,6 @@ OpenAD is an open-source framework developed by IBM Research, aggregating a numb
 
 The goal of openAD is to provide a common language for scientists to interact with a multitude of of molecular tools to simplify the triage process and drastically accelerate your development timelines.
 
----
-
 ### Before You Start <!-- omit from toc -->
 
 -   OpenAD is available for Linux and MacOS
@@ -103,12 +101,11 @@ If you get an error when running `init_magic`, you may first need to setup the d
 
 # What's New?
 
--   `%Openadd` has been added to the magic commands to provide pure data type results for data returning commands
--   Upgraded skypilot to 0.6.0
--   Support for deploying in OpenSHift AI / Open Data hub workbench or podman/docker image `https://github.com/acceleratedscience/openad_workbench`
--   Support for Application API
--   Property and Data Set Generation Services
-    We support the following Model Services
+-   `%Openadd` has been added to the magic commands for commands that return data.
+-   Upgraded SkyPilot to 0.6.0
+-   Support for deploying in OpenShift AI/Open Data hub workbench or Podman/Docker image. [See the workbench repo](https://github.com/acceleratedscience/openad_workbench).
+-   Support for application API
+-   New property and dataset generation services.<br>We currently support the following model services:
 
     -   GT4SD Generation Services `git@github.com:acceleratedscience/generation_inference_service.git`
     -   GT4SD Property Services `git@github.com:acceleratedscience/property_inference_service.git`
@@ -117,36 +114,36 @@ If you get an error when running `init_magic`, you may first need to setup the d
 
     Pre-Requisite is that you have a AWS Account and can launch your own EC2 Instances Or someone else can launch them for you and you can catalog a Remote Service via URL.
 
-          **Example:**
+    **Example:**
 
-          `catalog model service from 'git@github.com:acceleratedscience/property_inference_service.git' as prop`
+    `catalog model service from 'git@github.com:acceleratedscience/property_inference_service.git' as prop`
 
-          To start the service `model service up prop`
+    Starting the service: `model service up prop`
 
-          `model service status` # wait until service is ready
+    `model service status` # wait until service is ready
 
-           Once the service is `Ready` you can run the following commands to test:
+    Once the service is `Ready` you can run the following commands to test:
 
-           `prop get molecule property [qed,esol] for [ C(C(C1C(=C(C(=O)O1)O)O)O)O ,[H-] ]`
+    `prop get molecule property [qed,esol] for [ C(C(C1C(=C(C(=O)O1)O)O)O)O ,[H-] ]`
 
-           `prop get molecule property esol for C(C(C1C(=C(C(=O)O1)O)O)O)O`
+    `prop get molecule property esol for C(C(C1C(=C(C(=O)O1)O)O)O)O`
 
-          Examples are supplied in the Sample Notebooks, see below how to install.
+    Examples are supplied in the Sample Notebooks, see below how to install.
 
-          To shut down the service `model service down prop`
+    To shut down the service `model service down prop`
 
-          Available commands for managing model services...
+    Available commands for managing model services...
 
-          ```
-          model service status
-          model service config '<service_name>'|<service_name>
-          model catalog list
-          uncatalog model service '<service_name>'|<service_name>
-          catalog model service from (remote) '<path or github>' as  '<service_name>'|<service_name>
-          model service up '<service_name>'|<service_name> [no_gpu]
-          model service local up '<service_name>'|<service_name>
-          model service down '<service_name>'|<service_name>
-          ```
+    ```
+    model service status
+    model service config '<service_name>'|<service_name>
+    model catalog list
+    uncatalog model service '<service_name>'|<service_name>
+    catalog model service from (remote) '<path or github>' as  '<service_name>'|<service_name>
+    model service up '<service_name>'|<service_name> [no_gpu]
+    model service local up '<service_name>'|<service_name>
+    model service down '<service_name>'|<service_name>
+    ```
 
 # Installation
 
