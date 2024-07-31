@@ -33,6 +33,7 @@ for (var i=0; i< urls.length; i++) {
 
 **Open Accelerated Discovery Client**<br>
 [Documentation](https://acceleratedscience.github.io/openad-docs/)
+[See what's new](#whats-new)
 
 OpenAD is an open-source framework developed by IBM Research, aggregating a number of molecular science toolkits into a single API that can be accessed by command line, a Jupyter Notebook and (soon) an API.
 
@@ -40,10 +41,14 @@ The goal of openAD is to provide a common language for scientists to interact wi
 
 ---
 
-> **Note:**
-> For updating to 0.4.0 or above, first remove the RXN and DS4SD toolkits by runnning `remove toolkit DS4SD` and `remove toolkit RXN` prior to updating.
+### Before You Start <!-- omit from toc -->
 
-[See what's new](#whats-new)
+-   OpenAD is available for Linux and MacOS
+-   We support Windows 11 via WSL 2 (ubuntu 22.04) - see [Installing on Windows](#installing-on-windows)
+-   When not installing into a virtual environment on MacOS, you may need to use `python3` and `pip3` instead of `python` and `pip` respectively
+-   When updating to 0.4.0 or above, first remove all toolkits by runnning `list toolkits` and then `remove toolkit <toolkit_name>`.
+
+<br>
 
 ## Quick Install <!-- omit from toc -->
 
@@ -66,11 +71,7 @@ If you get an error when running `init_magic`, you may first need to setup the d
 
 ---
 
-### Before You Start <!-- omit from toc -->
-
--   OpenAD is available for Linux and MacOS
--   We support Windows 11 via WSL 2 (ubuntu 22.04) - see [Installing on Windows](#installing-on-windows)
--   When not installing into a virtual environment on MacOS, you may need to use `python3` and `pip3` instead of `python` and `pip` respectively<br>
+<br>
 
 ## Table of Contents <!-- omit from toc -->
 
@@ -149,7 +150,11 @@ If you get an error when running `init_magic`, you may first need to setup the d
 
 # Installation
 
-> **Note:** Contributors should skip to [Installation for Development](#installation-for-development)<br> > **Note:** Linux users may want to check the [Linux Notes](#linux-notes)<br> > **Note:** If you prefer using poetry and you know what you're doing, you can skip the instructions below and run `poetry add openad` instead.
+> **Note:** Contributors should skip to [Installation for Development](#installation-for-development)
+
+> **Note:** Linux users may want to check the [Linux Notes](#linux-notes)
+
+> **Note:** If you prefer using poetry and you know what you're doing, you can skip the instructions below and run `poetry add openad` instead.
 
 1.  **Step 0: Before you start**<br>
     Ensure you're running Python 3.10 or 3.11. There's multiple ways of updating Python, we'll use pyenv.
@@ -302,8 +307,8 @@ Before you can interact with the toolkits, you'll need to register with each ind
     - Once logged in, click the Toolkit/API icon in the top right hand corner, then open the HTTP section
     - Click the "Generate new API key" button<br>
       <br>
-          <!-- ![Landing](assets/ds4sd-api-key.png) -->
-        <a href="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/ds4sd-api-key.png" target="_blank"><img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/ds4sd-api-key.png" /></a>
+      <!-- ![Landing](assets/ds4sd-api-key.png) -->
+      <a href="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/ds4sd-api-key.png" target="_blank"><img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/ds4sd-api-key.png" /></a>
 
 1. Once inside the OpenAD client, you'll be prompted to authenticate when activating the Deep Search (DS4SD) toolkit. When running `set context ds4sd` :
 
@@ -327,8 +332,8 @@ Before you can interact with the toolkits, you'll need to register with each ind
     - Sign up for an RXN account at [rxn.app.accelerate.science](https://rxn.app.accelerate.science)
     - Obtain your API key by clicking the user profile icon in the top right hand corner and select "My profile".<br>
       <br>
-          <!-- ![Landing](assets/rxn-api-key.png) -->
-        <a href="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/rxn-api-key.png" target="_blank"><img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/rxn-api-key.png" /></a>
+      <!-- ![Landing](assets/rxn-api-key.png) -->
+      <a href="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/rxn-api-key.png" target="_blank"><img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/rxn-api-key.png" /></a>
 
 1. When setting the context to RXN using `set context rxn` you'll be prompted to create a new auth configuration file:
 
