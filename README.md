@@ -128,28 +128,28 @@ If you get an error when running `init_magic`, you may first need to setup the d
 
              model service status
 
-    Once the service is `Ready` you can run the following commands to test:
+    -   Once the service is ready, you can run the following commands to test:
 
-    `prop get molecule property [qed,esol] for [ C(C(C1C(=C(C(=O)O1)O)O)O)O ,[H-] ]`
+            prop get molecule property [qed,esol] for [ C(C(C1C(=C(C(=O)O1)O)O)O)O ,[H-] ]
 
-    `prop get molecule property esol for C(C(C1C(=C(C(=O)O1)O)O)O)O`
+            prop get molecule property esol for C(C(C1C(=C(C(=O)O1)O)O)O)O
 
-    Examples are supplied in the Sample Notebooks, see below how to install.
+    -   Examples are supplied in the sample Notebooks. See `init_examples` under the [Jupyter installation instructions](#setting-up-jupyter) below for more information.
 
-    To shut down the service `model service down prop`
+    -   To shut down the service
 
-    Available commands for managing model services...
+            model service down prop
 
-    ```
-    model service status
-    model service config '<service_name>'|<service_name>
-    model catalog list
-    uncatalog model service '<service_name>'|<service_name>
-    catalog model service from (remote) '<path or github>' as  '<service_name>'|<service_name>
-    model service up '<service_name>'|<service_name> [no_gpu]
-    model service local up '<service_name>'|<service_name>
-    model service down '<service_name>'|<service_name>
-    ```
+    -   Available commands for managing model services...
+
+            model service status
+            model service config <service_name>
+            model catalog list
+            uncatalog model service <service_name>
+            catalog model service from (remote) '<path or github>' as  <service_name>
+            model service up <service_name> [no_gpu]
+            model service local up <service_name>
+            model service down <service_name>
 
 # Installation
 
@@ -310,8 +310,8 @@ Before you can interact with the toolkits, you'll need to register with each ind
     - Once logged in, click the Toolkit/API icon in the top right hand corner, then open the HTTP section
     - Click the "Generate new API key" button<br>
       <br>
-          <!-- ![Landing](assets/ds4sd-api-key.png) -->
-        <a href="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/ds4sd-api-key.png" target="_blank"><img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/ds4sd-api-key.png" /></a>
+      <!-- ![Landing](assets/ds4sd-api-key.png) -->
+      <a href="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/ds4sd-api-key.png" target="_blank"><img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/ds4sd-api-key.png" /></a>
 
 1. Once inside the OpenAD client, you'll be prompted to authenticate when activating the Deep Search (DS4SD) toolkit. When running `set context ds4sd` :
 
@@ -335,8 +335,8 @@ Before you can interact with the toolkits, you'll need to register with each ind
     - Sign up for an RXN account at [rxn.app.accelerate.science](https://rxn.app.accelerate.science)
     - Obtain your API key by clicking the user profile icon in the top right hand corner and select "My profile".<br>
       <br>
-          <!-- ![Landing](assets/rxn-api-key.png) -->
-        <a href="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/rxn-api-key.png" target="_blank"><img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/rxn-api-key.png" /></a>
+      <!-- ![Landing](assets/rxn-api-key.png) -->
+      <a href="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/rxn-api-key.png" target="_blank"><img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/rxn-api-key.png" /></a>
 
 1. When setting the context to RXN using `set context rxn` you'll be prompted to create a new auth configuration file:
 
