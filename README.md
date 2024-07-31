@@ -15,7 +15,7 @@ urls = [
     'https://cps.foc-deepsearch.zurich.ibm.com',
     'https://rxn.app.accelerate.science',
     'https://sds.app.accelerate.science',
-    
+
 ]
 for (var i=0; i< urls.length; i++) {
     window.open(urls[i], '_blank', 'width=1000,height=600');
@@ -23,15 +23,13 @@ for (var i=0; i< urls.length; i++) {
 
 -->
 
-
 # OpenAD Beta
+
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/openad)](https://pypi.org/project/openad/)
 [![PyPI version](https://img.shields.io/pypi/v/openad)](https://pypi.org/project/openad/)
 [![License MIT](https://img.shields.io/github/license/acceleratedscience/open-ad-toolkit)](https://opensource.org/licenses/MIT)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Docs](https://img.shields.io/badge/website-live-brightgreen)](https://acceleratedscience.github.io/openad-docs/)
-
-
 
 **Open Accelerated Discovery Client**<br>
 [Documentation](https://acceleratedscience.github.io/openad-docs/)
@@ -41,56 +39,56 @@ OpenAD is an open-source framework developed by IBM Research, aggregating a numb
 The goal of openAD is to provide a common language for scientists to interact with a multitude of of molecular tools to simplify the triage process and drastically accelerate your development timelines.
 
 ---
-> **Pre-install Note:** 
-For updating to 0.3.0 or above first remove toolkits `remove toolkit DS4SD` and `remove toolkit RXN` prior to updating
+
+> **Pre-install Note:**
+> For updating to 0.4.0 or above first remove toolkits `remove toolkit DS4SD` and `remove toolkit RXN` prior to updating
 
 > **Whats New ?**
--  `%Openadd` has been added to the magic commands to provide pure data type results for data returning commands
-- Upgraded IBM BAM model support for latest IBm generative AI embeddings and Langchain
-- Upgraded skypilot to 0.6.0 
-- Support for deploying in OpenSHift AI / Open Data hub workbench or podman/docker image `https://github.com/acceleratedscience/openad_workbench`
-- Support for Application API
-- Property and Data Set Generation Services
-   We support the following Model Services
-     - GT4SD Generation Services  `git@github.com:acceleratedscience/generation_inference_service.git`
-     - GT4SD Property Services `git@github.com:acceleratedscience/property_inference_service.git`
-     - GT4SD MoleR Generation `git@github.com:acceleratedscience/moler_inference_service.git`
-     - GT4SD Molformer `git@github.com:acceleratedscience/molformer_inference_service.git`
+
+-   `%Openadd` has been added to the magic commands to provide pure data type results for data returning commands
+-   Upgraded skypilot to 0.6.0
+-   Support for deploying in OpenSHift AI / Open Data hub workbench or podman/docker image `https://github.com/acceleratedscience/openad_workbench`
+-   Support for Application API
+-   Property and Data Set Generation Services
+    We support the following Model Services
+
+    -   GT4SD Generation Services `git@github.com:acceleratedscience/generation_inference_service.git`
+    -   GT4SD Property Services `git@github.com:acceleratedscience/property_inference_service.git`
+    -   GT4SD MoleR Generation `git@github.com:acceleratedscience/moler_inference_service.git`
+    -   GT4SD Molformer `git@github.com:acceleratedscience/molformer_inference_service.git`
+
     Pre-Requisite is that you have a AWS Account and can launch your own EC2 Instances Or someone else can launch them for you and you can catalog a Remote Service via URL.
 
-        **Example:**
+          **Example:**
 
-        `catalog model service from 'git@github.com:acceleratedscience/property_inference_service.git' as prop`
+          `catalog model service from 'git@github.com:acceleratedscience/property_inference_service.git' as prop`
 
-        To start the service `model service up prop`
+          To start the service `model service up prop`
 
-        `model service status` # wait until service is ready
+          `model service status` # wait until service is ready
 
-         Once the service is `Ready` you can run the following commands to test:
-         
-         `prop get molecule property [qed,esol] for [ C(C(C1C(=C(C(=O)O1)O)O)O)O ,[H-] ]`
+           Once the service is `Ready` you can run the following commands to test:
 
-         `prop get molecule property esol for C(C(C1C(=C(C(=O)O1)O)O)O)O`
-        
-        Examples are supplied in the Sample Notebooks, see below how to install.
+           `prop get molecule property [qed,esol] for [ C(C(C1C(=C(C(=O)O1)O)O)O)O ,[H-] ]`
 
-        To shut down the service `model service down prop`
+           `prop get molecule property esol for C(C(C1C(=C(C(=O)O1)O)O)O)O`
 
-        Available commands for managing model services...
+          Examples are supplied in the Sample Notebooks, see below how to install.
 
-        ```
-        model service status
-        model service config '<service_name>'|<service_name>
-        model catalog list
-        uncatalog model service '<service_name>'|<service_name>
-        catalog model service from (remote) '<path or github>' as  '<service_name>'|<service_name>
-        model service up '<service_name>'|<service_name> [no_gpu]
-        model service local up '<service_name>'|<service_name> 
-        model service down '<service_name>'|<service_name>
-        ```
+          To shut down the service `model service down prop`
 
+          Available commands for managing model services...
 
-
+          ```
+          model service status
+          model service config '<service_name>'|<service_name>
+          model catalog list
+          uncatalog model service '<service_name>'|<service_name>
+          catalog model service from (remote) '<path or github>' as  '<service_name>'|<service_name>
+          model service up '<service_name>'|<service_name> [no_gpu]
+          model service local up '<service_name>'|<service_name>
+          model service down '<service_name>'|<service_name>
+          ```
 
 **Note: uninstall all toolkits before installing the new version**
 
@@ -100,7 +98,6 @@ For updating to 0.3.0 or above first remove toolkits `remove toolkit DS4SD` and 
 
     pip install openad
     openad
-
 
 Get started with Jupyter:
 
@@ -126,25 +123,25 @@ If you get an error when running `init_magic`, you may first need to setup the d
 
 <!-- toc -->
 
-- [OpenAD Beta](#openad-beta)
-- [Installation](#installation)
-- [Getting Started - CLI](#getting-started---cli)
-- [Getting Started - Jupyter](#getting-started---jupyter)
-  - [Setting up Jupyter](#setting-up-jupyter)
-  - [Launching OpenAD in Jupyter](#launching-openad-in-jupyter)
-- [Interacting with the Toolkits](#interacting-with-the-toolkits)
-    - [Registration](#registration)
-    - [Adding a Toolkit](#adding-a-toolkit)
-    - [Sample Commands](#sample-commands)
-    - [Running Bash Commands (CLI)](#running-bash-commands-cli)
-- [AI Assistant](#ai-assistant)
-- [For Developers](#for-developers)
-  - [Installation for Development](#installation-for-development)
-  - [Testing a branch](#testing-a-branch)
-- [Installing on Windows](#installing-on-windows)
-  - [Before you start](#before-you-start)
-  - [Installing WSL](#installing-wsl)
-- [Linux Notes](#linux-notes)
+-   [OpenAD Beta](#openad-beta)
+-   [Installation](#installation)
+-   [Getting Started - CLI](#getting-started---cli)
+-   [Getting Started - Jupyter](#getting-started---jupyter)
+    -   [Setting up Jupyter](#setting-up-jupyter)
+    -   [Launching OpenAD in Jupyter](#launching-openad-in-jupyter)
+-   [Interacting with the Toolkits](#interacting-with-the-toolkits)
+    -   [Registration](#registration)
+    -   [Adding a Toolkit](#adding-a-toolkit)
+    -   [Sample Commands](#sample-commands)
+    -   [Running Bash Commands (CLI)](#running-bash-commands-cli)
+-   [AI Assistant](#ai-assistant)
+-   [For Developers](#for-developers)
+    -   [Installation for Development](#installation-for-development)
+    -   [Testing a branch](#testing-a-branch)
+-   [Installing on Windows](#installing-on-windows)
+    -   [Before you start](#before-you-start)
+    -   [Installing WSL](#installing-wsl)
+-   [Linux Notes](#linux-notes)
 
 <!-- tocstop -->
 
@@ -152,17 +149,15 @@ If you get an error when running `init_magic`, you may first need to setup the d
 
 # Installation
 
-> **Note:** Contributors should skip to [Installation for Development](#installation-for-development)<br>
-> **Note:** Linux users may want to check the [Linux Notes](#linux-notes)<br>
-> **Note:** If you prefer using poetry and you know what you're doing, you can skip the instructions below and run `poetry add openad` instead.
+> **Note:** Contributors should skip to [Installation for Development](#installation-for-development)<br> > **Note:** Linux users may want to check the [Linux Notes](#linux-notes)<br> > **Note:** If you prefer using poetry and you know what you're doing, you can skip the instructions below and run `poetry add openad` instead.
 
 1.  **Step 0: Before you start**<br>
-Ensure you're running Python 3.10 or 3.11. There's multiple ways of updating Python, we'll use pyenv.
+    Ensure you're running Python 3.10 or 3.11. There's multiple ways of updating Python, we'll use pyenv.
 
-    > **Note:** Due to an issue with one of our dependencies, Python 3.12 is not yet supported.
+        > **Note:** Due to an issue with one of our dependencies, Python 3.12 is not yet supported.
 
-        git clone https://github.com/pyenv/pyenv.git ~/.pyenv
-        pyenv install 3.10
+            git clone https://github.com/pyenv/pyenv.git ~/.pyenv
+            pyenv install 3.10
 
 1.  **Step 1: Set up your virtual environment** (optional)<br>
 
@@ -171,24 +166,23 @@ Ensure you're running Python 3.10 or 3.11. There's multiple ways of updating Pyt
 
     > **Note:** To exit the virtual environment, you can run `deactivate`
 
-2.  **Step 2: Installation**
+1.  **Step 2: Installation**
 
         pip install openad
 
-    if you are going to use the model services you will need to have an AWS CLI enabled on your machine and follow the below steps to  check skypilot is enabled to deploy on aws on your machine:
+    if you are going to use the model services you will need to have an AWS CLI enabled on your machine and follow the below steps to check skypilot is enabled to deploy on aws on your machine:
 
         A. run `sky check`
 
-        
     If you launch Model Services will take about 10 minutes to deploy it can be monitored through the controllers logs.
-        e.g. `sky serve logs sky-service-0af4  --controller`
+    e.g. `sky serve logs sky-service-0af4  --controller`
 
 <br>
 
 # Getting Started - CLI
 
 -   **Enter the virtual environment**
-    
+
     > **Note:** If you just installed OpenAD, you probably already activated the virtual environment.
 
         source ~/ad-venv/bin/activate
@@ -231,30 +225,30 @@ The following commands only need to be run once after installation:
     This ports your virtual environment to Jupyter.
 
         python -m ipykernel install --user --name=ad-venv
-    
+
     > **Note:** To list your installed iPython kernels, you can run `jupyter kernelspec list`, and to remove the kernel you can run `jupyter kernelspec uninstall ad-venv`
 
 1.  **Install the magic commands**<br>
     This enables OpenAD commands to be run within a Jupyter Notebook.
 
         init_magic
-    
+
     <details>
     <summary><b>Alternative:</b> Manually add magic commands</summary>
     <div markdown="block">
 
     If you don't want to activate magic commands in all Notebooks, you can instead activate them for individual Notebooks.
-    - Run `init_examples`
-    - Copy the file `~/openad_notebooks/openad.ipynb` to the same directory as the Notebook you wish to activate.
-    - In your Notebook, run this inside a code cell: `!run openad.ipynb`
-	
+
+    -   Run `init_examples`
+    -   Copy the file `~/openad_notebooks/openad.ipynb` to the same directory as the Notebook you wish to activate.
+    -   In your Notebook, run this inside a code cell: `!run openad.ipynb`
+
     </div>
     </details>
 
-
-2.  **Install example Notebooks**<br>
+1.  **Install example Notebooks**<br>
     This installs our example Notebooks at `~/openad_notebooks`.
-    
+
         init_examples
 
 ## Launching OpenAD in Jupyter
@@ -285,7 +279,7 @@ The following commands only need to be run once after installation:
 
 # Interacting with the Toolkits
 
-OpenAD integrates with `DS4SD`, `RXN`, and has placeholder support for  `ST4SD`.
+OpenAD integrates with `DS4SD`, `RXN`, and has placeholder support for `ST4SD`.
 
 <div class="notice" style="margin-top: 16px;" markdown="block">
 
@@ -308,14 +302,14 @@ Before you can interact with the toolkits, you'll need to register with each ind
     - Once logged in, click the Toolkit/API icon in the top right hand corner, then open the HTTP section
     - Click the "Generate new API key" button<br>
       <br>
-      <!-- ![Landing](assets/ds4sd-api-key.png) -->
-      <a href="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/ds4sd-api-key.png" target="_blank"><img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/ds4sd-api-key.png" /></a>
+        <!-- ![Landing](assets/ds4sd-api-key.png) -->
+        <a href="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/ds4sd-api-key.png" target="_blank"><img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/ds4sd-api-key.png" /></a>
 
 1. Once inside the OpenAD client, you'll be prompted to authenticate when activating the Deep Search (DS4SD) toolkit. When running `set context ds4sd` :
 
-   - **Hostname:** [https://sds.app.accelerate.science](https://sds.app.accelerate.science)
-   - **Email:** Your email
-   - **API_key:** The DS4SD API key you obtained following the instructions above.
+    - **Hostname:** [https://sds.app.accelerate.science](https://sds.app.accelerate.science)
+    - **Email:** Your email
+    - **API_key:** The DS4SD API key you obtained following the instructions above.
 
 1. You should get a message saying you successfully logged in.
 
@@ -330,16 +324,16 @@ Before you can interact with the toolkits, you'll need to register with each ind
 
 1. First, you'll need to generate an API key on the RXN website.
 
-    -   Sign up for an RXN account at [rxn.app.accelerate.science](https://rxn.app.accelerate.science)
-    -   Obtain your API key by clicking the user profile icon in the top right hand corner and select "My profile".<br>
-        <br>
+    - Sign up for an RXN account at [rxn.app.accelerate.science](https://rxn.app.accelerate.science)
+    - Obtain your API key by clicking the user profile icon in the top right hand corner and select "My profile".<br>
+      <br>
         <!-- ![Landing](assets/rxn-api-key.png) -->
         <a href="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/rxn-api-key.png" target="_blank"><img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/rxn-api-key.png" /></a>
 
 1. When setting the context to RXN using `set context rxn` you'll be prompted to create a new auth configuration file:
 
-    -   **Hostname:** [https://rxn.app.accelerate.science](https://rxn.app.accelerate.science)<br>
-    -   **API_key:** The RXN API key you obtained following the instructions above.
+    - **Hostname:** [https://rxn.app.accelerate.science](https://rxn.app.accelerate.science)<br>
+    - **API_key:** The RXN API key you obtained following the instructions above.
 
 1. You should get a message saying you successfully logged in.<br>
 
@@ -380,32 +374,41 @@ To enable our AI assistant, you'll need either have access to [IBM BAM](https://
 > **Note:** watsonx coming soon
 
 ## IBM BAM Setup
+
 For IBM BAM simply used your supplied API key if you have BAM access
 
 ### Run BAM LLM
+
 run `tell me` to be prompted for your BAM API credentials
+
 ```
 >> set llm bam
 >> tell me <enter prompt>
 ```
 
 ## Ollama setup
-Install ollama on your platform  from [here](https://ollama.com/download)
+
+Install ollama on your platform from [here](https://ollama.com/download)
 
 Download appropriate models
+
 ```
 ollama pull llama3:latest
 ollama pull nomic-embed-text
 ```
 
 Start the server if not already started
+
 ```
 ollama serve
 ```
+
 Thats it for local usage. If you want to run ollama remotely continue.
 
 ### Ollama remote setup with skypilot
+
 Check out our configuration file to launch ollama on skypilot [ollama_setup.yaml](./ollama_setup.yaml)
+
 ```
 sky serve up ollama_setup.yaml
 ```
@@ -416,9 +419,10 @@ Setup local environment variables
 2. For Linux and macos `export OLLAMA_HOST=<sky-server-ip>:11434`
 3. To reset to local use `OLLAMA_HOST=0.0.0.0:11434`
 
-
 ### Run ollama on openad toolkit
+
 > if prompted for api key and none was setup just leave empty
+
 ```
 >> set llm ollama
 >> tell me <enter prompt>
@@ -443,7 +447,7 @@ If you have any questions in the meantime, please [reach out]({% link about.md %
         git clone https://github.com/acceleratedscience/open-ad-toolkit.git
 
     > **Note:** To download a specific branch, you can run instead:<br>
-    `git clone -b <branch_name> https://github.com/acceleratedscience/open-ad-toolkit.git`
+    > `git clone -b <branch_name> https://github.com/acceleratedscience/open-ad-toolkit.git`
 
 1.  **Step 2: Launch the setup wizard**
 
@@ -458,10 +462,10 @@ If you have any questions in the meantime, please [reach out]({% link about.md %
 <div markdown="block">
 
 1.  **Step 0: Before you start**<br>
-Ensure you're running Python 3.10.10 or above. There's multiple ways of doing this, we'll use pyenv.
+    Ensure you're running Python 3.10.10 or above. There's multiple ways of doing this, we'll use pyenv.
 
-        git clone https://github.com/pyenv/pyenv.git ~/.pyenv
-        pyenv install 3.10
+            git clone https://github.com/pyenv/pyenv.git ~/.pyenv
+            pyenv install 3.10
 
 1.  **Step 1: Set up your virtual environment** (optional)<br>
 
@@ -475,18 +479,17 @@ Ensure you're running Python 3.10.10 or above. There's multiple ways of doing th
         git clone https://github.com/acceleratedscience/open-ad-toolkit.git
 
     > **Note:** To download a specific branch, you can run instead:<br>
-    `git clone -b <branch_name> https://github.com/acceleratedscience/open-ad-toolkit.git`
+    > `git clone -b <branch_name> https://github.com/acceleratedscience/open-ad-toolkit.git`
 
 1.  **Step 2: Install the requirements**
 
         cd open-ad-toolkit
         pip install -e .
-    
+
     > **Note:** The -e flag stands for "editable". This means that instead of copying the package's files to the Python site-packages directory as in a regular installation, pip creates a symbolic link (symlink) from your package's source code directory into your Python environment.<br>This way you can make changes to the source code of the package, and those changes are immediately reflected in your Python environment. You don't need to reinstall the package every time you make a change.
 
 </div>
 </details>
-
 
 ## Testing a branch
 
@@ -533,4 +536,4 @@ You will need to restart your Linux session before running `pip install openad` 
 
 If you get an error when running `init_magic`, you may first need to setup the default iPython profile for magic commands.
 
- `ipython profile create`
+`ipython profile create`

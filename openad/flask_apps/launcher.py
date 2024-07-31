@@ -20,7 +20,6 @@ def launch(cmd_pointer=None, routes=None, app_name="", query="", hash=""):
     JL_PROXY = False
     IS_STATIC = ""
     try:
-
         jl = jl_settings.get_jupyter_lab_config()
 
         if jl["ServerApp"]["allow_remote_access"] is True and "127.0.0.1" in jl["ServerProxy"]["host_allowlist"]:

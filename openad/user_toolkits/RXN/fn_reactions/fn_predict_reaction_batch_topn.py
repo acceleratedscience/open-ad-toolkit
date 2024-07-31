@@ -13,6 +13,7 @@ from openad.app.global_var_lib import GLOBAL_SETTINGS
 from openad.helpers.output import output_text, output_warning, output_error, output_table
 from openad.helpers.output_msgs import msg
 from openad.helpers.general import load_tk_module
+from openad.helpers.spinner import Spinner
 
 
 def get_reaction_from_smiles(
@@ -31,19 +32,6 @@ def predict_reaction_batch_topn(inputs: dict, cmd_pointer):
     rxn_helper.sync_up_workspace_name(cmd_pointer)
     rxn_helper.get_current_project(cmd_pointer)
     top_n = 5
-
-    if GLOBAL_SETTINGS["display"] == "notebook":
-        from halo import HaloNotebook as Halo  # pylint: disable=import-outside-toplevel
-    else:
-        from halo import Halo  # pylint: disable=import-outside-toplevel
-
-    class Spinner(Halo):
-        """alternate spinner"""
-
-        def __init__(self):
-            # Alternative spinners:
-            # simpleDotsScrolling, interval=100
-            super().__init__(spinner="dots", color="white")
 
     val = "val"
     if "topn" in inputs:
@@ -154,7 +142,7 @@ def predict_reaction_batch_topn(inputs: dict, cmd_pointer):
     if len(new_from_list) > 0:
         val = "val"
         from_list = new_from_list
-        newspin = Spinner()
+        newspin = Spinner(GLOBAL_SETTINGS["VERBOSE"])
         retries = 0
         status = False
         rxn4chemistry_wrapper = cmd_pointer.login_settings["client"][
