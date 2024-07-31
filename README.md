@@ -132,6 +132,7 @@ If you get an error when running `init_magic`, you may first need to setup the d
 
             prop get molecule property [qed,esol] for [ C(C(C1C(=C(C(=O)O1)O)O)O)O ,[H-] ]
 
+            <br>
 
             prop get molecule property esol for C(C(C1C(=C(C(=O)O1)O)O)O)O
 
