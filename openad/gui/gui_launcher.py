@@ -273,7 +273,7 @@ def _open_browser(host, port, path, query, hash, silent=False):
                 #{id} a:hover {{ color: #0f62fe }}
             </style>
             """
-            prefix = os.environ.get("NB_PREFIX2")
+            prefix = os.environ.get("NB_PREFIX")
             if prefix is None:
                 prefix = ""
             if URL_PROXY:
