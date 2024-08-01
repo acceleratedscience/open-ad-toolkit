@@ -119,9 +119,12 @@ def _launch(routes={}, path=None, query="", hash="", silent=False):
         origins="*",
         resources={r"/api/*": {"origins": "*"}, r"/assets/*": {"origins": "*"}, r"/rdkit/*": {"origins": "*"}},
     )  # Enable CORS for all routes
+    prefix = os.environ.get("NB_PREFIX")
+    if prefix is None:
+        prefix = "/"
 
     # Make asset files available (CSS/JS).
-    @app.route("/assets/<path>")
+    @app.route(prefix + "assets/<path>")
     @cross_origin()
     def assets(path):
         return send_from_directory(template_folder / "assets", f"{path}")
@@ -143,7 +146,6 @@ def _launch(routes={}, path=None, query="", hash="", silent=False):
     for route in routes:
         func = routes[route]["func"]
         method = routes[route]["method"] if "method" in routes[route] else "GET"
-        print(route)
         app.route(route, methods=[method])(func)
 
         # This is the equivalent of:
