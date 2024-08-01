@@ -1,11 +1,24 @@
 import os
 from jupyter_core import paths
 
+try:
+    import jupyterlab_server.config as jls
+except:
+    pass
+
 
 def get_jupyter_lab_config():
     """pulls the jupyter lab settings as dictionary"""
     # Get the path to the Jupyter server configuration directory
-    config_dir = paths.jupyter_config_dir()
+    config_dir = ""
+    try:
+        config_dir = jls.jupyter_config_dir()
+    except:
+        try:
+            config_dir = paths.jupyter_config_dir()
+        except:
+            config_dir = ""
+
     # Define the configuration file path
 
     config_file = os.path.join(config_dir, "jupyter_lab_config.py")

@@ -153,7 +153,10 @@ def predict_reaction_batch_topn(inputs: dict, cmd_pointer):
 
         while status is False:
             try:
-                newspin.text = "Processing Prediction"
+
+                if retries == 0:
+                    newspin.info("Processing Prediction")
+                    print(1)
                 sleep(2)
                 predict_rection_batch_response = rxn4chemistry_wrapper.predict_reaction_batch_topn(
                     precursors_lists=new_from_list,
@@ -172,10 +175,16 @@ def predict_reaction_batch_topn(inputs: dict, cmd_pointer):
         retries = 0
         while "predictions" not in x:
             try:
-                newspin.text = "Processing Prediction"
+
+                if retries == 0:
+                    # newspin.info("Processing Prediction")
+                    print(2)
+
                 x = rxn4chemistry_wrapper.get_predict_reaction_batch_topn_results(
                     predict_rection_batch_response["task_id"]
                 )
+                print(x)
+                print(predict_rection_batch_response["task_id"])
                 if "predictions" not in x:
                     sleep(3)
             except Exception as e:  # pylint: disable=broad-exception-caught
@@ -210,4 +219,8 @@ def predict_reaction_batch_topn(inputs: dict, cmd_pointer):
                     return_val=False,
                 )
         output_text(" ", return_val=False)
-    return True
+
+    if not GLOBAL_SETTINGS["VERBOSE"]:
+        return x
+    else:
+        return True
