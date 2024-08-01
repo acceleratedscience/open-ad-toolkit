@@ -231,7 +231,10 @@ class ServerThread(Thread):
 
 def _open_browser(host, port, path, query, hash, silent=False):
     headless = "/headless" if GLOBAL_SETTINGS["display"] == "notebook" else ""
-    module_path = f"{headless}/{path}" if path else ""
+    prefix = os.environ.get("NB_PREFIX")
+    if prefix is None:
+        prefix = ""
+    module_path = f"{prefix}{headless}/{path}" if path else ""
 
     # Jupyter --> Render iframe.
     if GLOBAL_SETTINGS["display"] == "notebook":
