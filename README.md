@@ -138,7 +138,7 @@ If you get an error when running `init_magic`, you may first need to setup the d
         prop get molecule property esol for C(C(C1C(=C(C(=O)O1)O)O)O)O
         ```
 
-    -   Examples are supplied in the sample Notebooks. See `init_examples` under the [Jupyter installation instructions](#setting-up-jupyter) below for more information.
+    -   Examples are supplied in the sample Notebooks.<br>See `init_examples` under the [Jupyter installation instructions](#setting-up-jupyter) below for more information.
 
     -   To shut down the service
 
@@ -150,7 +150,7 @@ If you get an error when running `init_magic`, you may first need to setup the d
             model service config <service_name>
             model catalog list
             uncatalog model service <service_name>
-            catalog model service from (remote) '<path or github>' as  <service_name>
+            catalog model service from (remote) '<path or github>' as <service_name>
             model service up <service_name> [no_gpu]
             model service local up <service_name>
             model service down <service_name>
@@ -166,10 +166,10 @@ If you get an error when running `init_magic`, you may first need to setup the d
 1.  **Step 0: Before you start**<br>
     Ensure you're running Python 3.10 or 3.11. There's multiple ways of updating Python, we'll use pyenv.
 
-        > **Note:** Due to an issue with one of our dependencies, Python 3.12 is not yet supported.
+    > **Note:** Due to an issue with one of our dependencies, Python 3.12 is not yet supported.
 
-            git clone https://github.com/pyenv/pyenv.git ~/.pyenv
-            pyenv install 3.10
+        git clone https://github.com/pyenv/pyenv.git ~/.pyenv
+        pyenv install 3.10
 
 1.  **Step 1: Set up your virtual environment** (optional)<br>
 
@@ -182,7 +182,7 @@ If you get an error when running `init_magic`, you may first need to setup the d
 
         pip install openad
 
-    if you are going to use the model services you will need to have an AWS CLI enabled on your machine and follow the below steps to check skypilot is enabled to deploy on aws on your machine:
+    If you are going to use the model services you will need to have an AWS CLI enabled on your machine and follow the below steps to check skypilot is enabled to deploy on aws on your machine:
 
         A. run `sky check`
 
@@ -270,17 +270,15 @@ The following commands only need to be run once after installation:
 
         jupyter lab ~/openad_notebooks/Table_of_Contents.ipynb
 
-2.  **Select the kernel**<br>
+1.  **Select the kernel**<br>
     Make sure to select the "ad-venv" iPython kernel. You can do this under _Kernel > Change Kernel_, or in the latest versions of Jupyter by clicking the kernel name in the top right hand corner. If you don't see your iPython kernel, make sure you followed the Jupyter Setup instructions listed above.
 
-<figure>
-    <a href="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/jupyter-notebook-kernel.png" target="_blank"><img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/jupyter-notebook-kernel.png"></a>
-    <figcaption align="center" style="font-size:0.9em;opacity:.6;margin-top:-30px;margin-bottom:50px"><i>Jupyter Notebook</i></figcaption>
-</figure>
-<figure>
-    <a href="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/jupyter-lab-kernel.png" target="_blank"><img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/jupyter-lab-kernel.png"></a>
-    <figcaption align="center" style="font-size:0.9em;opacity:.6;margin-top:-30px;margin-bottom:50px"><i>Jupyter Lab</i></figcaption>
-</figure>
+    <figure>
+        <a href="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/jupyter-notebook-kernel.png" target="_blank"><img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/jupyter-notebook-kernel.png"></a>
+    </figure>
+    <figure>
+        <a href="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/jupyter-lab-kernel.png" target="_blank"><img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/jupyter-lab-kernel.png"></a>
+    </figure>
 
 1.  **Magic Commands**<br>
     Magic commands let you run terminal commands from within Jupyter. They are invoked by the `%openad` prefix. All OpenAD CLI commands can be accessed like this. For example:<br>
@@ -314,8 +312,8 @@ Before you can interact with the toolkits, you'll need to register with each ind
     - Once logged in, click the Toolkit/API icon in the top right hand corner, then open the HTTP section
     - Click the "Generate new API key" button<br>
       <br>
-      <!-- ![Landing](assets/ds4sd-api-key.png) -->
-      <a href="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/ds4sd-api-key.png" target="_blank"><img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/ds4sd-api-key.png" /></a>
+          <!-- ![Landing](assets/ds4sd-api-key.png) -->
+        <a href="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/ds4sd-api-key.png" target="_blank"><img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/ds4sd-api-key.png" /></a>
 
 1. Once inside the OpenAD client, you'll be prompted to authenticate when activating the Deep Search (DS4SD) toolkit. When running `set context ds4sd` :
 
@@ -339,8 +337,8 @@ Before you can interact with the toolkits, you'll need to register with each ind
     - Sign up for an RXN account at [rxn.app.accelerate.science](https://rxn.app.accelerate.science)
     - Obtain your API key by clicking the user profile icon in the top right hand corner and select "My profile".<br>
       <br>
-      <!-- ![Landing](assets/rxn-api-key.png) -->
-      <a href="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/rxn-api-key.png" target="_blank"><img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/rxn-api-key.png" /></a>
+          <!-- ![Landing](assets/rxn-api-key.png) -->
+        <a href="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/rxn-api-key.png" target="_blank"><img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/rxn-api-key.png" /></a>
 
 1. When setting the context to RXN using `set context rxn` you'll be prompted to create a new auth configuration file:
 
