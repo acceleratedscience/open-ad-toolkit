@@ -299,6 +299,7 @@ def _open_browser(host, port, path, query, hash, silent=False):
             jl_padding_correction = "width:calc(100% + 20px)" if is_jupyterlab else ""
 
             # Render iframe & buttons
+            print(url)
             iframe_html = f'{style}{btn_wrap}<iframe src="{url}" crossorigin="anonymous" width="{width}" height="{height}" style="border:solid 1px #ddd;box-sizing:border-box;{jl_padding_correction}"></iframe>'
             display(HTML(iframe_html))
 
