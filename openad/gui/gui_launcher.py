@@ -143,6 +143,7 @@ def _launch(routes={}, path=None, query="", hash="", silent=False):
     for route in routes:
         func = routes[route]["func"]
         method = routes[route]["method"] if "method" in routes[route] else "GET"
+        print(route)
         app.route(route, methods=[method])(func)
 
         # This is the equivalent of:
