@@ -33,12 +33,15 @@ for (var i=0; i< urls.length; i++) {
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Docs](https://img.shields.io/badge/website-live-brightgreen)](https://acceleratedscience.github.io/openad-docs/)
 
-**Open Accelerated Discovery Client**<br>
-[Documentation](https://acceleratedscience.github.io/openad-docs/) / [See what's new](#whats-new)
+<br>
+
+### Open Accelerated Discovery Client
 
 OpenAD is an open-source framework developed by IBM Research, aggregating a number of molecular science toolkits into a single API that can be accessed by command line, a Jupyter Notebook and (soon) an API.
 
-The goal of openAD is to provide a common language for scientists to interact with a multitude of of molecular tools to simplify the triage process and drastically accelerate your development timelines.
+The goal of OpenAD is to provide a common language for scientists to interact with a multitude of of molecular tools to simplify the triage process and drastically accelerate your development timelines.
+
+[Documentation](https://acceleratedscience.github.io/openad-docs/) &nbsp; [See what's new](#whats-new)
 
 <br>
 
@@ -79,6 +82,7 @@ If you get an error when running `init_magic`, you may first need to setup the d
 <!-- toc -->
 
 - [OpenAD Beta](#openad-beta)
+    - [Open Accelerated Discovery Client](#open-accelerated-discovery-client)
 - [What's New?](#whats-new)
 - [Installation](#installation)
 - [Getting Started - CLI](#getting-started---cli)
@@ -321,8 +325,8 @@ Before you can interact with the toolkits, you'll need to register with each ind
     - Once logged in, click the Toolkit/API icon in the top right hand corner, then open the HTTP section
     - Click the "Generate new API key" button<br>
       <br>
-      <!-- ![Landing](assets/ds4sd-api-key.png) -->
-      <a href="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/ds4sd-api-key.png" target="_blank"><img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/ds4sd-api-key.png" /></a>
+          <!-- ![Landing](assets/ds4sd-api-key.png) -->
+        <a href="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/ds4sd-api-key.png" target="_blank"><img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/ds4sd-api-key.png" /></a>
 
 1. Once inside the OpenAD client, you'll be prompted to authenticate when activating the Deep Search (DS4SD) toolkit. When running `set context ds4sd` :
 
@@ -346,8 +350,8 @@ Before you can interact with the toolkits, you'll need to register with each ind
     - Sign up for an RXN account at [rxn.app.accelerate.science](https://rxn.app.accelerate.science)
     - Obtain your API key by clicking the user profile icon in the top right hand corner and select "My profile".<br>
       <br>
-      <!-- ![Landing](assets/rxn-api-key.png) -->
-      <a href="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/rxn-api-key.png" target="_blank"><img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/rxn-api-key.png" /></a>
+          <!-- ![Landing](assets/rxn-api-key.png) -->
+        <a href="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/rxn-api-key.png" target="_blank"><img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/rxn-api-key.png" /></a>
 
 1. When setting the context to RXN using `set context rxn` you'll be prompted to create a new auth configuration file:
 
