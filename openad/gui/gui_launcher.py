@@ -281,7 +281,7 @@ def _open_browser(host, port, path, query, hash, silent=False):
                 url = f"{prefix}/proxy/{port}{module_path}{query}{hash}"
             else:
                 url = f"http://{host}:{port}{module_path}{query}{hash}"
-            print(url)
+
             reload_icn = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 14C10.1867 14 11.3467 13.6481 12.3334 12.9888C13.3201 12.3295 14.0892 11.3925 14.5433 10.2961C14.9974 9.19975 15.1162 7.99335 14.8847 6.82946C14.6532 5.66558 14.0818 4.59648 13.2426 3.75736C12.4035 2.91825 11.3344 2.3468 10.1705 2.11529C9.00666 1.88378 7.80026 2.0026 6.7039 2.45673C5.60754 2.91085 4.67047 3.67989 4.01118 4.66658C3.35189 5.65328 3 6.81331 3 8V11.1L1.2 9.3L0.5 10L3.5 13L6.5 10L5.8 9.3L4 11.1V8C4 7.0111 4.29324 6.0444 4.84265 5.22215C5.39206 4.39991 6.17295 3.75904 7.08658 3.38061C8.00021 3.00217 9.00555 2.90315 9.97545 3.09608C10.9454 3.289 11.8363 3.76521 12.5355 4.46447C13.2348 5.16373 13.711 6.05465 13.9039 7.02455C14.0969 7.99446 13.9978 8.99979 13.6194 9.91342C13.241 10.8271 12.6001 11.6079 11.7779 12.1574C10.9556 12.7068 9.98891 13 9 13V14Z" fill="currentColor"/></svg>'
             launch_icn = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M13 14H3C2.73489 13.9996 2.48075 13.8942 2.29329 13.7067C2.10583 13.5193 2.00036 13.2651 2 13V3C2.00036 2.73489 2.10583 2.48075 2.29329 2.29329C2.48075 2.10583 2.73489 2.00036 3 2H8V3H3V13H13V8H14V13C13.9996 13.2651 13.8942 13.5193 13.7067 13.7067C13.5193 13.8942 13.2651 13.9996 13 14Z" fill="currentColor"/><path d="M10 1V2H13.293L9 6.293L9.707 7L14 2.707V6H15V1H10Z" fill="currentColor"/></svg>'
             reload_btn = f"<a href=\"#\" onclick=\"event.preventDefault(); document.querySelector('#{id} + iframe').src=document.querySelector('#{id} + iframe').src;\">{reload_icn}</a>"
@@ -300,7 +300,7 @@ def _open_browser(host, port, path, query, hash, silent=False):
             jl_padding_correction = "width:calc(100% + 20px)" if is_jupyterlab else ""
 
             # Render iframe & buttons
-            print(url)
+
             iframe_html = f'{style}{btn_wrap}<iframe src="{url}" crossorigin="anonymous" width="{width}" height="{height}" style="border:solid 1px #ddd;box-sizing:border-box;{jl_padding_correction}"></iframe>'
             display(HTML(iframe_html))
 

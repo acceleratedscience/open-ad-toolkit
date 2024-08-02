@@ -29,7 +29,6 @@ def launch(cmd_pointer=None, routes=None, app_name="", query="", hash=""):
         JL_PROXY = False
         IS_STATIC = ""
 
-    print(IS_STATIC)
     # Initialize Flask app.
     template_folder = os.path.dirname(os.path.abspath(__file__))
     app = Flask("OpenAD", template_folder=template_folder)
