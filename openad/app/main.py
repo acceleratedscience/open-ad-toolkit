@@ -882,6 +882,7 @@ def api_remote(
     print(1)
     if api_context["toolkit"] is None and initial_invocation is not True:
         api_context["toolkit"] = magic_prompt.settings["context"]
+        print(magic_prompt.settings["context"])
         print(2)
 
     else:
@@ -943,8 +944,7 @@ def api_remote(
             result = magic_prompt.default(inp)
 
             api_context["workspace"] = magic_prompt.settings["workspace"]
-
-            api_context["toolkit"] = magic_prompt.settings["context"]
+            print(magic_prompt.settings["context"])
             if result is not True and result is not False:
                 return result
 
