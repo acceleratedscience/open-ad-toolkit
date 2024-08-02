@@ -23,6 +23,8 @@ for (var i=0; i< urls.length; i++) {
 
 -->
 
+<a name="openad-beta"></a>
+
 # OpenAD Beta
 
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/openad)](https://pypi.org/project/openad/)
@@ -38,6 +40,8 @@ for (var i=0; i< urls.length; i++) {
 OpenAD is an open-source framework developed by IBM Research, aggregating a number of molecular science toolkits into a single API that can be accessed by command line, a Jupyter Notebook and (soon) an API.
 
 The goal of openAD is to provide a common language for scientists to interact with a multitude of of molecular tools to simplify the triage process and drastically accelerate your development timelines.
+
+<br>
 
 ### Before You Start <!-- omit from toc -->
 
@@ -75,27 +79,36 @@ If you get an error when running `init_magic`, you may first need to setup the d
 
 <!-- toc -->
 
--   [OpenAD Beta](#openad-beta)
--   [Installation](#installation)
--   [Getting Started - CLI](#getting-started---cli)
--   [Getting Started - Jupyter](#getting-started---jupyter)
-    -   [Setting up Jupyter](#setting-up-jupyter)
-    -   [Launching OpenAD in Jupyter](#launching-openad-in-jupyter)
--   [Interacting with the Toolkits](#interacting-with-the-toolkits)
-    -   [Registration](#registration)
-    -   [Adding a Toolkit](#adding-a-toolkit)
-    -   [Sample Commands](#sample-commands)
-    -   [Running Bash Commands (CLI)](#running-bash-commands-cli)
--   [AI Assistant](#ai-assistant)
--   [For Developers](#for-developers)
-    -   [Installation for Development](#installation-for-development)
-    -   [Testing a branch](#testing-a-branch)
--   [Installing on Windows](#installing-on-windows)
-    -   [Before you start](#before-you-start)
-    -   [Installing WSL](#installing-wsl)
--   [Linux Notes](#linux-notes)
+- [OpenAD Beta](#openad-beta)
+- [What's New?](#whats-new)
+- [Installation](#installation)
+- [Getting Started - CLI](#getting-started---cli)
+- [Getting Started - Jupyter](#getting-started---jupyter)
+  - [Setting up Jupyter](#setting-up-jupyter)
+  - [Launching OpenAD in Jupyter](#launching-openad-in-jupyter)
+- [Interacting with the Toolkits](#interacting-with-the-toolkits)
+    - [Registration](#registration)
+    - [Adding a Toolkit](#adding-a-toolkit)
+    - [Sample Commands](#sample-commands)
+    - [Running Bash Commands (CLI)](#running-bash-commands-cli)
+- [AI Assistant](#ai-assistant)
+  - [IBM BAM Setup](#ibm-bam-setup)
+  - [Ollama Setup](#ollama-setup)
+    - [Ollama Remote Setup with SkyPilot](#ollama-remote-setup-with-skypilot)
+    - [Run Ollama](#run-ollama)
+- [For Developers](#for-developers)
+  - [Installation for Development](#installation-for-development)
+  - [Testing a branch](#testing-a-branch)
+- [Installing on Windows](#installing-on-windows)
+  - [Before You Start](#before-you-start)
+  - [Installing WSL](#installing-wsl)
+- [Linux Notes](#linux-notes)
 
 <!-- tocstop -->
+
+<br>
+
+---
 
 <br>
 
@@ -309,8 +322,8 @@ Before you can interact with the toolkits, you'll need to register with each ind
     - Once logged in, click the Toolkit/API icon in the top right hand corner, then open the HTTP section
     - Click the "Generate new API key" button<br>
       <br>
-        <!-- ![Landing](assets/ds4sd-api-key.png) -->
-        <a href="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/ds4sd-api-key.png" target="_blank"><img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/ds4sd-api-key.png" /></a>
+      <!-- ![Landing](assets/ds4sd-api-key.png) -->
+      <a href="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/ds4sd-api-key.png" target="_blank"><img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/ds4sd-api-key.png" /></a>
 
 1. Once inside the OpenAD client, you'll be prompted to authenticate when activating the Deep Search (DS4SD) toolkit. When running `set context ds4sd` :
 
@@ -334,8 +347,8 @@ Before you can interact with the toolkits, you'll need to register with each ind
     - Sign up for an RXN account at [rxn.app.accelerate.science](https://rxn.app.accelerate.science)
     - Obtain your API key by clicking the user profile icon in the top right hand corner and select "My profile".<br>
       <br>
-        <!-- ![Landing](assets/rxn-api-key.png) -->
-        <a href="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/rxn-api-key.png" target="_blank"><img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/rxn-api-key.png" /></a>
+      <!-- ![Landing](assets/rxn-api-key.png) -->
+      <a href="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/rxn-api-key.png" target="_blank"><img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/rxn-api-key.png" /></a>
 
 1. When setting the context to RXN using `set context rxn` you'll be prompted to create a new auth configuration file:
 
@@ -498,7 +511,7 @@ To do a regular install from a particular branch, you can run:
 
 In order to run OpenAD on Windows 11, you will need to install the Ubuntu WSL package ("Windows Subsystem for Linux").
 
-## Before you start
+## Before You Start
 
 -   **Verify Windows version**<br>
     To check if you are running Windows 11 or later, press `Win` + `R`, type "winver", and press `Enter`. A window will open showing your Windows version.
