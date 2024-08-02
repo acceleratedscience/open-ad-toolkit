@@ -873,7 +873,8 @@ def api_remote(
 
     else:
         magic_prompt = MAGIC_PROMPT
-
+    print("API--------------")
+    print(api_context["context"])
     if api_context["workspace"] is None:
         api_context["workspace"] = magic_prompt.settings["workspace"]
     else:
