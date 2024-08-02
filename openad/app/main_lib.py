@@ -502,7 +502,7 @@ def set_context_by_name(cmd_pointer, toolkit_name, reset=False, suppress_splash=
         old_cmd_pointer_context = cmd_pointer.settings["context"]
         old_toolkit_current = cmd_pointer.toolkit_current
         load_ok, toolkit_current = load_toolkit(toolkit_name)
-        print("setting context")
+        print("setting context " + str(toolkit_name))
         if load_ok:
             cmd_pointer.settings["context"] = toolkit_name
             print("pointer set -toolkit" + str(toolkit_current))
