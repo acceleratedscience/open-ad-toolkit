@@ -879,12 +879,17 @@ def api_remote(
     else:
         x = {"Workspace_Name": api_context["workspace"]}
         set_workspace(magic_prompt, x)
-
+    print(1)
     if api_context["toolkit"] is None and initial_invocation is not True:
         api_context["toolkit"] = magic_prompt.settings["context"]
+        print(2)
+
     else:
+        print(3)
         x = {"toolkit_name": api_context["toolkit"]}
+        print(4)
         if api_context["toolkit"] is None:
+            print(5)
             unset_context(magic_prompt, None)
         else:
             set_context(magic_prompt, x)
