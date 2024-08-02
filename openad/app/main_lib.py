@@ -505,7 +505,7 @@ def set_context_by_name(cmd_pointer, toolkit_name, reset=False, suppress_splash=
         print("setting context")
         if load_ok:
             cmd_pointer.settings["context"] = toolkit_name
-            print("pointer set")
+            print("pointer set -toolkit" + toolkit_current)
             cmd_pointer.toolkit_current = toolkit_current
             refresh_prompt(cmd_pointer.settings)
             write_registry(cmd_pointer.settings, cmd_pointer)
