@@ -477,7 +477,7 @@ def list_all_toolkits(cmd_pointer, parser):  # pylint: disable=unused-argument #
 # and the toolkit commands of the toolkit currently in context.
 def set_context(cmd_pointer, parser):
     """Sets current toolkit context"""
-
+    print("in set")
     reset = False
     if "reset" in parser:
         reset = True
