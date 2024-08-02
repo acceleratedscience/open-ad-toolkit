@@ -944,6 +944,7 @@ def api_remote(
             result = magic_prompt.default(inp)
 
             api_context["workspace"] = magic_prompt.settings["workspace"]
+            api_context["context"] = magic_prompt.settings["context"]
             print(magic_prompt.settings["context"])
             if result is not True and result is not False:
                 return result
