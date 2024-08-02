@@ -24,7 +24,7 @@ def launch(cmd_pointer=None, routes=None, app_name="", query="", hash=""):
 
         if jl["ServerApp"]["allow_remote_access"] is True and "127.0.0.1" in jl["ServerProxy"]["host_allowlist"]:
             JL_PROXY = True
-            IS_STATIC = ""
+            IS_STATIC = "/static"
     except Exception as e:
         JL_PROXY = False
         IS_STATIC = ""
