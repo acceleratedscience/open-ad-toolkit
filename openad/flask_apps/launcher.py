@@ -96,6 +96,8 @@ def launch(cmd_pointer=None, routes=None, app_name="", query="", hash=""):
         height = 700
 
         prefix = os.environ.get("NB_PREFIX")
+        if prefix is None:
+            prefix = ""
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=UserWarning)
             if JL_PROXY == True:
