@@ -242,7 +242,7 @@ def clear_llm_auth(cmd_pointer, parser):  # pylint: disable=unused-argument
 def get_api_key(llm_name, cmd_pointer):
     """get the nominated API key for the LLM"""
     if llm_name.upper() == "OLLAMA":
-        return ""
+        return {"host": "None", "auth": {"username": "None", "api_key": "None"}, "verify_ssl": "false"}
     api_config = load_credentials(f"{cmd_pointer.home_dir}/{llm_name.lower()}_api.cred")
     if api_config is None:
         output_warning(
