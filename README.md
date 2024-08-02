@@ -182,7 +182,7 @@ If you get an error when running `init_magic`, you may first need to setup the d
 
         pip install openad
 
-    If you are going to use the model services you will need to have an AWS CLI enabled on your machine and follow the below steps to check skypilot is enabled to deploy on aws on your machine:
+    If you are going to use the model services you will need to have an AWS CLI enabled on your machine and follow the below steps to check SkyPilot is enabled to deploy on aws on your machine:
 
         A. run `sky check`
 
@@ -291,7 +291,8 @@ The following commands only need to be run once after installation:
 
 OpenAD integrates with `DS4SD`, `RXN`, and has placeholder support for `ST4SD`.
 
-[!IMPORTANT] When running commands from Jupyter, prepend them with `%openad`
+> [!IMPORTANT]
+> When running commands from Jupyter, prepend them with `%openad`
 
 ### Registration
 
@@ -308,8 +309,8 @@ Before you can interact with the toolkits, you'll need to register with each ind
     - Once logged in, click the Toolkit/API icon in the top right hand corner, then open the HTTP section
     - Click the "Generate new API key" button<br>
       <br>
-      <!-- ![Landing](assets/ds4sd-api-key.png) -->
-      <a href="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/ds4sd-api-key.png" target="_blank"><img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/ds4sd-api-key.png" /></a>
+        <!-- ![Landing](assets/ds4sd-api-key.png) -->
+        <a href="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/ds4sd-api-key.png" target="_blank"><img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/ds4sd-api-key.png" /></a>
 
 1. Once inside the OpenAD client, you'll be prompted to authenticate when activating the Deep Search (DS4SD) toolkit. When running `set context ds4sd` :
 
@@ -333,8 +334,8 @@ Before you can interact with the toolkits, you'll need to register with each ind
     - Sign up for an RXN account at [rxn.app.accelerate.science](https://rxn.app.accelerate.science)
     - Obtain your API key by clicking the user profile icon in the top right hand corner and select "My profile".<br>
       <br>
-      <!-- ![Landing](assets/rxn-api-key.png) -->
-      <a href="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/rxn-api-key.png" target="_blank"><img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/rxn-api-key.png" /></a>
+        <!-- ![Landing](assets/rxn-api-key.png) -->
+        <a href="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/rxn-api-key.png" target="_blank"><img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/rxn-api-key.png" /></a>
 
 1. When setting the context to RXN using `set context rxn` you'll be prompted to create a new auth configuration file:
 
@@ -373,66 +374,58 @@ To run a command in bash mode, prepend it with `openad` and make sure to escape 
 
 # AI Assistant
 
-To enable our AI assistant, you'll need either have access to [IBM BAM](https://bam.res.ibm.com/auth/signin) or to use a free open source LLM use [ollama](ollama.com).
+To enable our AI assistant, you'll either need access to [IBM BAM](https://bam.res.ibm.com/auth/signin) or use the free open source LLM [Ollama](https://ollama.com).
 
-**Note:** Ollama will requires a 8gb GPU
+> **Note:** Ollama requires an 8GB GPU
 
-> **Note:** watsonx coming soon
+> **Note:** Support for WatsonX is coming soon
+
+<br>
 
 ## IBM BAM Setup
 
-For IBM BAM simply used your supplied API key if you have BAM access
+To use IBM BAM if you have access to it, simply provide your API key when prompted.
 
-### Run BAM LLM
+    >> set llm bam
+    >> tell me <enter prompt>
 
-run `tell me` to be prompted for your BAM API credentials
+<br>
 
-```
->> set llm bam
->> tell me <enter prompt>
-```
+## Ollama Setup
 
-## Ollama setup
+1.  Install [Ollama](https://ollama.com/download) onto your platform.
 
-Install ollama on your platform from [here](https://ollama.com/download)
+1.  Download the appropriate models.
 
-Download appropriate models
+        ollama pull llama3:latest
+        ollama pull nomic-embed-text
 
-```
-ollama pull llama3:latest
-ollama pull nomic-embed-text
-```
+1.  Start the server if not already started.
 
-Start the server if not already started
+        ollama serve
 
-```
-ollama serve
-```
+That's it for local usage. If you want to run Ollama remotely, continue below.
 
-Thats it for local usage. If you want to run ollama remotely continue.
+### Ollama Remote Setup with SkyPilot
 
-### Ollama remote setup with skypilot
+1.  Check out our configuration file to launch ollama on SkyPilot:
 
-Check out our configuration file to launch ollama on skypilot [ollama_setup.yaml](./ollama_setup.yaml)
+    [ollama_setup.yaml](./ollama_setup.yaml)
 
-```
-sky serve up ollama_setup.yaml
-```
+        sky serve up ollama_setup.yaml
 
-Setup local environment variables
+1.  Set up local environment variables
 
-1. For windows `setx OLLAMA_HOST=<sky-server-ip>:11434`
-2. For Linux and macos `export OLLAMA_HOST=<sky-server-ip>:11434`
-3. To reset to local use `OLLAMA_HOST=0.0.0.0:11434`
+    1.  For windows `setx OLLAMA_HOST=<sky-server-ip>:11434`
+    1.  For Linux and macOS `export OLLAMA_HOST=<sky-server-ip>:11434`
+    1.  To reset to local use `OLLAMA_HOST=0.0.0.0:11434`
 
 ### Run ollama on openad toolkit
 
-> if prompted for api key and none was setup just leave empty
+> **Note:** If prompted for an API key and none was setup, just leave the input empty.
 
-```
->> set llm ollama
->> tell me <enter prompt>
-```
+    >> set llm ollama
+    >> tell me <enter prompt>
 
 <br>
 
