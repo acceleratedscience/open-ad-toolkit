@@ -477,7 +477,7 @@ def list_all_toolkits(cmd_pointer, parser):  # pylint: disable=unused-argument #
 # and the toolkit commands of the toolkit currently in context.
 def set_context(cmd_pointer, parser):
     """Sets current toolkit context"""
-    print("in set")
+
     reset = False
     if "reset" in parser:
         reset = True
@@ -502,10 +502,10 @@ def set_context_by_name(cmd_pointer, toolkit_name, reset=False, suppress_splash=
         old_cmd_pointer_context = cmd_pointer.settings["context"]
         old_toolkit_current = cmd_pointer.toolkit_current
         load_ok, toolkit_current = load_toolkit(toolkit_name)
-        print("setting context " + str(toolkit_name))
+
         if load_ok:
             cmd_pointer.settings["context"] = toolkit_name
-            print("pointer set -toolkit" + str(toolkit_current))
+
             cmd_pointer.toolkit_current = toolkit_current
             refresh_prompt(cmd_pointer.settings)
             write_registry(cmd_pointer.settings, cmd_pointer)
