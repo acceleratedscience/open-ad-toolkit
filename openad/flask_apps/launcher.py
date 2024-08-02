@@ -97,7 +97,10 @@ def launch(cmd_pointer=None, routes=None, app_name="", query="", hash=""):
 
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=UserWarning)
-            iframe_html = f'<iframe src="http://{host}:{port}{query}{hash}" width="{width}" height="{height}" style="border: solid 1px #ddd;"></iframe>'
+            if JL_PROXY == True:
+                iframe_html = f'<iframe src="/proxy/{port}{query}{hash}" width="{width}" height="{height}" style="border: solid 1px #ddd;"></iframe>'
+            else:
+                iframe_html = f'<iframe src="http://{host}:{port}{query}{hash}" width="{width}" height="{height}" style="border: solid 1px #ddd;"></iframe>'
             display(HTML(iframe_html))
     else:
         # CLI --> Open browser.
