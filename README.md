@@ -97,6 +97,7 @@ If you get an error when running `init_magic`, you may first need to setup the d
   - [Ollama Setup](#ollama-setup)
     - [Ollama Remote Setup with SkyPilot](#ollama-remote-setup-with-skypilot)
     - [Run Ollama](#run-ollama)
+- [Model Services](#model-services)
 - [For Developers](#for-developers)
   - [Installation for Development](#installation-for-development)
   - [Testing a branch](#testing-a-branch)
@@ -195,13 +196,6 @@ If you get an error when running `init_magic`, you may first need to setup the d
 1.  **Step 2: Installation**
 
         pip install openad
-
-    If you are going to use the model services you will need to have an AWS CLI enabled on your machine and follow the below steps to check SkyPilot is enabled to deploy on aws on your machine:
-
-        A. run `sky check`
-
-    If you launch Model Services will take about 10 minutes to deploy it can be monitored through the controllers logs.
-    e.g. `sky serve logs sky-service-0af4  --controller`
 
 <br>
 
@@ -438,6 +432,18 @@ That's it for local usage. If you want to run Ollama remotely, continue below.
 
     set llm ollama
     tell me <enter prompt>
+
+<br>
+
+# Model Services
+
+To use the model services you'll need to have the AWS CLI installed to check if SkyPilot is enabled to deploy to AWS from your machine:
+
+    sky check
+
+Laumnching any model service will take about 10 minutes to deploy. This can be monitored using the controller logs, e.g.:
+
+    sky serve logs sky-service-0af4  --controller
 
 <br>
 
