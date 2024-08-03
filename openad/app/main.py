@@ -1029,6 +1029,7 @@ def cmd_line():
                 lets_exit = True
 
             except KeyboardInterrupt:
+
                 command_line.postloop()
 
                 if confirm_prompt("Are you sure you wish to exit?", default=True):

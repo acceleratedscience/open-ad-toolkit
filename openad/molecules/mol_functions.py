@@ -234,7 +234,6 @@ def retrieve_mol(molecule):
     success, mol, comp = get_mol_from_name(molecule)
     if success:
         return mol
-
     success, mol, comp = get_mol_from_inchi(molecule)
     if success:
         return mol
