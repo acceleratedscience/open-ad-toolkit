@@ -81,7 +81,6 @@ If you get an error when running `init_magic`, you may first need to setup the d
 
 <!-- toc -->
 
-- [What's New?](#whats-new)
 - [Installation](#installation)
 - [Getting Started - CLI](#getting-started---cli)
 - [Getting Started - Jupyter](#getting-started---jupyter)
@@ -114,7 +113,11 @@ If you get an error when running `init_magic`, you may first need to setup the d
 
 <br>
 
-# What's New?
+## What's New? <!-- omit from toc -->
+
+<details>
+<summary>See what's new in OpenAD</summary>
+<div markdown="block">
 
 -   `%Openadd` has been added to the magic commands for commands that return data.
 -   Upgraded SkyPilot to 0.6.0
@@ -169,6 +172,9 @@ If you get an error when running `init_magic`, you may first need to setup the d
             model service up <service_name> [no_gpu]
             model service local up <service_name>
             model service down <service_name>
+
+</div>
+</details>
 
 <br>
 
@@ -321,7 +327,7 @@ Before you can interact with the toolkits, you'll need to register with each ind
     - Once logged in, click the Toolkit/API icon in the top right hand corner, then open the HTTP section
     - Click the "Generate new API key" button<br>
       <br>
-          <!-- ![Landing](assets/ds4sd-api-key.png) -->
+        <!-- ![Landing](assets/ds4sd-api-key.png) -->
         <a href="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/ds4sd-api-key.png" target="_blank"><img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/ds4sd-api-key.png" /></a>
 
 1. Once inside the OpenAD client, you'll be prompted to authenticate when activating the Deep Search (DS4SD) toolkit. When running `set context ds4sd` :
@@ -346,7 +352,7 @@ Before you can interact with the toolkits, you'll need to register with each ind
     - Sign up for an RXN account at [rxn.app.accelerate.science](https://rxn.app.accelerate.science)
     - Obtain your API key by clicking the user profile icon in the top right hand corner and select "My profile".<br>
       <br>
-          <!-- ![Landing](assets/rxn-api-key.png) -->
+        <!-- ![Landing](assets/rxn-api-key.png) -->
         <a href="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/rxn-api-key.png" target="_blank"><img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/rxn-api-key.png" /></a>
 
 1. When setting the context to RXN using `set context rxn` you'll be prompted to create a new auth configuration file:
