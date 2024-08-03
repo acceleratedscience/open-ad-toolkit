@@ -13,6 +13,7 @@ from openad.app.global_var_lib import GLOBAL_SETTINGS
 from openad.molecules.molecule_cache import create_analysis_record, save_result
 from openad.molecules.mol_functions import canonicalize, valid_smiles
 from openad.helpers.general import load_tk_module
+from openad.helpers.spinner import Spinner
 
 
 def get_reaction_from_smiles(reaction_smiles: str) -> Chem.rdChemReactions.ChemicalReaction:
@@ -62,15 +63,6 @@ def predict_retro(inputs: dict, cmd_pointer):
         from halo import HaloNotebook as Halo  # pylint: disable=import-outside-toplevel
     else:
         from halo import Halo  # pylint: disable=import-outside-toplevel
-
-    class Spinner(Halo):
-        "contextual spinner"
-
-        def __init__(self):
-            # Alternative spinners:
-            # simpleDotsScrolling, interval=100
-            super().__init__(spinner="dots", color="white")
-            # super().__init__(spinner="moon")
 
     val = "val"
     availability_pricing_threshold = 0
@@ -153,15 +145,17 @@ def predict_retro(inputs: dict, cmd_pointer):
 
     # Prepare the data query
     print("\n")
-    newspin = Spinner()
+    newspin = Spinner(GLOBAL_SETTINGS["VERBOSE"])
     newspin.start("Starting Retrosynthesis")
     try:
         retries = 0
         status = False
         predict_retro_response = None
+
         while retries < 10 and status is False:
             try:
-                newspin.text = "Submitting Retrosynthesis "
+                if retries == 0:
+                    newspin.info("Submitting Retrosynthesis ")
                 predict_retro_response = rxn4chemistry_wrapper.predict_automatic_retrosynthesis(
                     product_smiles,
                     availability_pricing_threshold=availability_pricing_threshold,
@@ -180,6 +174,9 @@ def predict_retro(inputs: dict, cmd_pointer):
                 sleep(2)
                 retries = retries + 1
                 if retries >= 10:
+                    newspin.fail("Unable to Process")
+                    newspin.start()
+                    newspin.stop()
                     raise Exception(
                         "Server unresponsive: Unable to submit for processing after 10 retires" + str(e)
                     ) from e  # pylint: disable=broad-exception-raised
@@ -194,10 +191,12 @@ def predict_retro(inputs: dict, cmd_pointer):
             return predict_retro_response["response"]["payload"]["errorMessage"]
 
         status = "NEW"
-
+        previous_status = status
         while status != "SUCCESS":
             try:
-                newspin.text = "Processing Retrosynthesis :" + status
+                if status != previous_status:
+                    newspin.info("Processing Retrosynthesis :" + status)
+                    previous_status = status
 
                 predict_automatic_retrosynthesis_results = (
                     rxn4chemistry_wrapper.get_predict_automatic_retrosynthesis_results(
@@ -220,8 +219,8 @@ def predict_retro(inputs: dict, cmd_pointer):
             except Exception as e:  # pylint: disable=broad-exception-caught
                 retries = retries + 1
                 sleep(15)
-
-                newspin.text = "Processing Retrosynthesis: Waiting"
+                status = "Waiting"
+                newspin.info("Processing Retrosynthesis: Waiting")
                 if retries > 20:
                     raise Exception(
                         "Server unresponsive: Unable to complete processing for prediction id:'"
@@ -263,7 +262,7 @@ def predict_retro(inputs: dict, cmd_pointer):
                 "",
                 return_val=False,
             )
-            if num_results < 4:
+            if num_results < 4 or GLOBAL_SETTINGS["VERBOSE"] == False:
                 results[str(index)] = {"confidence": tree["confidence"], "reactions": []}
 
             output_text(
@@ -275,7 +274,7 @@ def predict_retro(inputs: dict, cmd_pointer):
             )
 
             for reaction in collect_reactions_from_retrosynthesis(tree):
-                if num_results < 4:
+                if num_results < 4 or GLOBAL_SETTINGS["VERBOSE"] == False:
                     results[str(index)]["reactions"].append(reactions_text[i])
                 output_text("<green> Reaction: </green>" + reactions_text[i], return_val=False)
                 i = i + 1
@@ -295,4 +294,8 @@ def predict_retro(inputs: dict, cmd_pointer):
         )
         return False
     i = 0
-    return True
+
+    if GLOBAL_SETTINGS["VERBOSE"] == False:
+        return results
+    else:
+        return True

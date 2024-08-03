@@ -12,7 +12,6 @@ import openad.helpers.jupyterlab_settings as jl_settings
 JL_PROXY = False
 IS_STATIC = ""
 try:
-
     jl = jl_settings.get_jupyter_lab_config()
 
     if (

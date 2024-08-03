@@ -864,11 +864,13 @@ def api_remote(
     arguments = inp.split()
     inp = ""  # reset input after splitting into arguments
     a_space = ""  # reset a_space
-
+    initial_invocation = False
     # setup for notebook mode
     if MAGIC_PROMPT is None:
         magic_prompt = RUNCMD()
         MAGIC_PROMPT = magic_prompt
+        initial_invocation = True
+
     else:
         magic_prompt = MAGIC_PROMPT
 
@@ -878,11 +880,14 @@ def api_remote(
         x = {"Workspace_Name": api_context["workspace"]}
         set_workspace(magic_prompt, x)
 
-    if api_context["toolkit"] is None:
+    if api_context["toolkit"] is None and initial_invocation is not True:
         api_context["toolkit"] = magic_prompt.settings["context"]
     else:
         x = {"toolkit_name": api_context["toolkit"]}
-        set_context(magic_prompt, x)
+        if api_context["toolkit"] is None:
+            unset_context(magic_prompt, None)
+        else:
+            set_context(magic_prompt, x)
 
     magic_prompt.api_variables = api_var_list
     # We now manage history. The history sometimes gets corrupted through no fault of ours.
@@ -931,7 +936,9 @@ def api_remote(
             readline.write_history_file(magic_prompt.histfile)
 
             result = magic_prompt.default(inp)
+
             api_context["workspace"] = magic_prompt.settings["workspace"]
+
             api_context["toolkit"] = magic_prompt.settings["context"]
             if result is not True and result is not False:
                 return result

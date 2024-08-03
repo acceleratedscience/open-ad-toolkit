@@ -228,15 +228,13 @@ def retrieve_mol_from_list(cmd_pointer, identifier, ignore_synonyms=False):
 # TODO: very convoluted way to call _get_mol()
 def retrieve_mol(molecule):
     """Fetch molecule from PubChem"""
+    success, mol, comp = get_mol_from_smiles(molecule)
+    if success:
+        return mol
     success, mol, comp = get_mol_from_name(molecule)
     if success:
         return mol
-
     success, mol, comp = get_mol_from_inchi(molecule)
-    if success:
-        return mol
-
-    success, mol, comp = get_mol_from_smiles(molecule)
     if success:
         return mol
 
@@ -310,6 +308,7 @@ def _get_mol(mol_id, mol_id_type):
 
         else:
             compounds = pcy.get_compounds(mol_id, mol_id_type)
+
             if len(compounds) == 0:
                 return False, None, None
             else:

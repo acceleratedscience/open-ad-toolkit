@@ -40,7 +40,6 @@ class ResultApi:
 
         # Memory has dataframe
         elif isinstance(mem_data, pd.DataFrame):
-
             # Dataframe has molecules -> load as molset.
             if df_has_molecules(mem_data):
                 molset = dataframe2molset(mem_data)

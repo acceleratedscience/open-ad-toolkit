@@ -495,7 +495,6 @@ def set_context_by_name(cmd_pointer, toolkit_name, reset=False, suppress_splash=
     # Toolkit doesn't exist.
     if toolkit_name.upper() not in cmd_pointer.settings["toolkits"]:
         return output_error(msg("fail_toolkit_not_installed", toolkit_name), nowrap=True)
-
     else:
         old_cmd_pointer_context = cmd_pointer.settings["context"]
         old_toolkit_current = cmd_pointer.toolkit_current
@@ -532,7 +531,6 @@ def set_context_by_name(cmd_pointer, toolkit_name, reset=False, suppress_splash=
                     return output_text(splash(toolkit_name, cmd_pointer), nowrap=True)
                 else:
                     return output_success(msg("success_login", toolkit_name, expiry_datetime), return_val=False)
-
         else:
             # Failed to load the toolkit
             cmd_pointer.settings["context"] = old_cmd_pointer_context

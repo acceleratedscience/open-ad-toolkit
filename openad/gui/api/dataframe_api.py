@@ -36,10 +36,8 @@ class DataframeApi:
         if self.cmd_pointer.api_variables:
             df = self.cmd_pointer.api_variables.get(df_name)
             if df is not None and not df.empty:
-
                 # Dataframe has molecules -> load as molset.
                 if df_has_molecules(df):
-
                     # Turn dataframe into molset.
                     molset = dataframe2molset(df)
 
