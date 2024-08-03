@@ -23,7 +23,11 @@ h2 {
     font-size: 2em !important;
     color: var(--dark-blue);
 }
-h3 {
+h1 + h3,
+h1 + h2,
+h2 + h3,
+h2 + h4 {
+    margin-top: 20px !important;
 }
 p, ul, ol {
     max-width: 1400px;
