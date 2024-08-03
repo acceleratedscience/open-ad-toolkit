@@ -40,7 +40,7 @@ GUI_SERVER = None
 
 JL_PROXY = False
 URL_PROXY = False
-FORCE_PROXY = True  # Set this to True to force the use of the proxy for testing.
+FORCE_PROXY = False  # Set this to True to force the use of the proxy for testing.
 try:
     jl = jl_settings.get_jupyter_lab_config()
     if jl["ServerApp"]["allow_remote_access"] is True and "127.0.0.1" in jl["ServerProxy"]["host_allowlist"]:
