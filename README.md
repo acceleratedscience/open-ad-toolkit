@@ -170,6 +170,8 @@ If you get an error when running `init_magic`, you may first need to setup the d
             model service local up <service_name>
             model service down <service_name>
 
+<br>
+
 # Installation
 
 > **Note:** Contributors should skip to [Installation for Development](#installation-for-development)
@@ -271,6 +273,8 @@ The following commands only need to be run once after installation:
 
         init_examples
 
+<br>
+
 ## Launching OpenAD in Jupyter
 
 1.  **Open any Notebook**<br>
@@ -317,8 +321,8 @@ Before you can interact with the toolkits, you'll need to register with each ind
     - Once logged in, click the Toolkit/API icon in the top right hand corner, then open the HTTP section
     - Click the "Generate new API key" button<br>
       <br>
-      <!-- ![Landing](assets/ds4sd-api-key.png) -->
-      <a href="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/ds4sd-api-key.png" target="_blank"><img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/ds4sd-api-key.png" /></a>
+          <!-- ![Landing](assets/ds4sd-api-key.png) -->
+        <a href="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/ds4sd-api-key.png" target="_blank"><img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/ds4sd-api-key.png" /></a>
 
 1. Once inside the OpenAD client, you'll be prompted to authenticate when activating the Deep Search (DS4SD) toolkit. When running `set context ds4sd` :
 
@@ -342,8 +346,8 @@ Before you can interact with the toolkits, you'll need to register with each ind
     - Sign up for an RXN account at [rxn.app.accelerate.science](https://rxn.app.accelerate.science)
     - Obtain your API key by clicking the user profile icon in the top right hand corner and select "My profile".<br>
       <br>
-      <!-- ![Landing](assets/rxn-api-key.png) -->
-      <a href="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/rxn-api-key.png" target="_blank"><img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/rxn-api-key.png" /></a>
+          <!-- ![Landing](assets/rxn-api-key.png) -->
+        <a href="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/rxn-api-key.png" target="_blank"><img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/rxn-api-key.png" /></a>
 
 1. When setting the context to RXN using `set context rxn` you'll be prompted to create a new auth configuration file:
 
@@ -453,6 +457,8 @@ OpenAD is fully open source and we encourage contributions. We plan to provide d
 
 If you have any questions in the meantime, please [reach out]({% link about.md %}).
 
+<br>
+
 ## Installation for Development
 
 <details>
@@ -506,6 +512,8 @@ If you have any questions in the meantime, please [reach out]({% link about.md %
 </div>
 </details>
 
+<br>
+
 ## Testing a branch
 
 To do a regular install from a particular branch, you can run:
@@ -518,6 +526,8 @@ To do a regular install from a particular branch, you can run:
 
 In order to run OpenAD on Windows 11, you will need to install the Ubuntu WSL package ("Windows Subsystem for Linux").
 
+<br>
+
 ## Before You Start
 
 -   **Verify Windows version**<br>
@@ -525,6 +535,8 @@ In order to run OpenAD on Windows 11, you will need to install the Ubuntu WSL pa
 
 -   **Verify WSL**<br>
     To check if you already have WSL installed, run `wsl -l -v` into the terminal. To see more information about your current version of Ubuntu, run `lsb_release -a`
+
+<br>
 
 ## Installing WSL
 
@@ -551,4 +563,4 @@ You will need to restart your Linux session before running `pip install openad` 
 
 If you get an error when running `init_magic`, you may first need to setup the default iPython profile for magic commands.
 
-`ipython profile create`
+    ipython profile create
