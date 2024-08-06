@@ -133,7 +133,7 @@ def mol_grammar_add(statements, grammar_help):
         help_dict_create(
             name="add molecule",
             category="Molecules Working Set",
-            command="add molecule <name> | <smiles> | <inchi> | <inchikey> | <cid> [ as '<name>' ] [ basic ] [ force ]",
+            command="add mol|molecule <name> | <smiles> | <inchi> | <inchikey> | <cid> [ as '<name>' ] [ basic ] [ force ]",
             description=f"""
 This command is how you add a molecule to a current working list of molecules in memory. When adding a molecule by name, this name will become the molecule's identifying string. 
 
@@ -330,7 +330,7 @@ Examples
         help_dict_create(
             name="remove molecule",
             category="Molecules Working Set",
-            command="remove molecule <name> | <smiles> | <inchi> | <inchikey> | <cid> [ force ]",
+            command="remove mol|molecule <name> | <smiles> | <inchi> | <inchikey> | <cid> [ force ]",
             description="""
 Remove a molecule from the current working list based on a given molecule identifier.
 
@@ -374,7 +374,7 @@ Examples:
         help_dict_create(
             name="show molecules",
             category="Molecules Working Set",
-            command="show molecules",
+            command="show mols|molecules",
             description="Display the current working list of molecules in the GUI.",
         )
     )
