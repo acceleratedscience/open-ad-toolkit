@@ -37,7 +37,12 @@ def launch(cmd_pointer=None, routes=None, app_name="", query="", hash=""):
         app,
         allow_headers="*",
         origins="*",
-        resources={r"/api/*": {"origins": "*"}, r"/assets/*": {"origins": "*"}, r"/rdkit/*": {"origins": "*"}},
+        resources={
+            r"/api/*": {"origins": "*"},
+            r"/js/*": {"origins": "*"},
+            r"/assets/*": {"origins": "*"},
+            r"/app/*": {"origins": "*"},
+        },
     )
 
     # Make main CSS files available.
