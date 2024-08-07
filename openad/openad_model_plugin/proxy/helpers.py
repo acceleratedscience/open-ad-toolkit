@@ -16,12 +16,14 @@ def jwt_decode(bearer_token) -> Dict[str, Any]:
 
     Args:
         bearer_token (str): bearer token for proxy header
-    
+
     Returns:
         Dict[str, Any]: JWT decoded information including expiry, and available services, etc.
     """
     try:
-        decoded_token: dict = jwt.decode(bearer_token, options={"verify_at_hash": False, "verify_signature": False}, verify=False)
+        decoded_token: dict = jwt.decode(
+            bearer_token, options={"verify_at_hash": False, "verify_signature": False}, verify=False
+        )
         # Convert expiry time to a human-readable format and update dict
         decoded_token["exp_formatted"] = time.strftime("%a %b %e, %G  at %R", time.localtime(decoded_token["exp"]))
     except Exception as e:

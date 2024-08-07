@@ -261,7 +261,7 @@ class ModelService(Dispatcher):
                 ret_status["message"] = "Unauthorized"
             if response.status_code == 404:
                 ret_status["message"] = "/health Not Found"
-            if ret_status["jwt_info"] and ( int(ret_status["jwt_info"].get("exp", 0)) - time.time()) <= 0 :
+            if ret_status["jwt_info"] and (int(ret_status["jwt_info"].get("exp", 0)) - time.time()) <= 0:
                 ret_status["message"] = "API EXPIRED"
             ret_status["is_remote"] = True
         # use local service data
