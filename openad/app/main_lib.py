@@ -79,7 +79,7 @@ from openad.core.lang_workspaces import (
     set_workspace,
     get_workspace,
 )
-from openad.core.lang_runs import display_run, exec_run, save_run, list_runs
+from openad.core.lang_runs import display_run, exec_run, save_run, list_runs, remove_run
 from openad.core.lang_dev import flask_example
 from openad.core.grammar import create_statements
 
@@ -237,6 +237,8 @@ def lang_parse(cmd_pointer, parser):
             return False
     elif parser.getName() == "list_runs":
         return list_runs(cmd_pointer, parser)
+    elif parser.getName() == "remove_run":
+        return remove_run(cmd_pointer, parser)
     elif parser.getName() == "display_run":
         return display_run(cmd_pointer, parser)
     elif parser.getName() == "exec_run":
