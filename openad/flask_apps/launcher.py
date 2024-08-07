@@ -86,7 +86,9 @@ def launch(cmd_pointer=None, routes=None, app_name="", query="", hash=""):
     for route in routes:
         func = routes[route]["func"]
         method = routes[route]["method"] if "method" in routes[route] else "GET"
-        app.route(route, methods=[method])(func)
+        cross_origin()(app.route(route, methods=[method])(func))
+
+        # app.route(route, methods=[method])(func)
 
         # This is the equivalent of:
         # @app.route('/', methods=['GET'])
