@@ -33,6 +33,7 @@ def launch(cmd_pointer=None, routes=None, app_name="", query="", hash=""):
     # Initialize Flask app.
     template_folder = os.path.dirname(os.path.abspath(__file__))
     app = Flask("OpenAD", template_folder=template_folder)
+    app.config["WTF_CSRF_ENABLED"] = False
     CORS(
         app,
         allow_headers="*",
