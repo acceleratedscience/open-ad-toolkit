@@ -35,7 +35,7 @@ for (var i=0; i< urls.length; i++) {
 
 <br>
 
-<span style="font-size: 1.5em">OpenAD is an open-source framework for molecular and materials discovery developed by IBM Research.</span>
+#### OpenAD is an open-source framework for molecular and materials discovery developed by IBM Research.
 
 The OpenAD client is accessible from a command line interface, Jupyter Notebooks and an API. It provides unified access to a variety of tools and AI models for literature knowledge extraction, synthesis prediction (forward and retro-), generative methods and property inference. You can train models on your own data as well as visualize and filter candidate molecules.
 
