@@ -1,11 +1,13 @@
 import datetime
 import json
 import os
+import time
 from typing import Any, Dict
 
 import requests
 from openad.helpers.output import output_error, output_warning
 from openad.openad_model_plugin.auth_services import get_service_api_key
+from openad.openad_model_plugin.proxy.helpers import jwt_decode
 from openad.openad_model_plugin.utils import LruCache, get_logger
 from servicing import Dispatcher, UserProvidedConfig
 from typing_extensions import Self
@@ -241,12 +243,14 @@ class ModelService(Dispatcher):
         status = self.status(name)
         extra_data = self.load_extra_data(name)
         # init default status data
-        ret_status = {"is_remote": False, "url": "", "up": False, "message": None}
+        ret_status = {"is_remote": False, "url": "", "up": False, "message": None, "jwt_info": {}}
         # alternative data exists
         if extra_data and extra_data.get("remote_endpoint"):
             # use remote service data
             ret_status["url"] = extra_data.get("remote_endpoint")
-            headers = {"Authorization": f"Bearer {get_service_api_key(name)}"}
+            bearer_token = get_service_api_key(name)
+            ret_status["jwt_info"] = jwt_decode(bearer_token)
+            headers = {"Authorization": f"Bearer {bearer_token}"}
             headers.update(extra_data.get("params", {}))  # add params from USING grammer
             # ret_status["up"] = self.check_service_up(url, headers=headers, verify=False)
             response = self.service_request(name, path="/health", timeout=2, verify=False)
@@ -257,6 +261,8 @@ class ModelService(Dispatcher):
                 ret_status["message"] = "Unauthorized"
             if response.status_code == 404:
                 ret_status["message"] = "/health Not Found"
+            if ret_status["jwt_info"] and ( int(ret_status["jwt_info"].get("exp", 0)) - time.time()) <= 0 :
+                ret_status["message"] = "API EXPIRED"
             ret_status["is_remote"] = True
         # use local service data
         if status.get("url"):
