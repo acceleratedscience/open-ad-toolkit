@@ -18,6 +18,7 @@ def launch(cmd_pointer=None, routes=None, app_name="", query="", hash=""):
         output_error(msg("err_routes_required"))
         return
     JL_PROXY = False
+    FORCE_PROXY = False  # Set this to True to force the use of the proxy for testing (Jupyter only)
     IS_STATIC = ""
     try:
         jl = jl_settings.get_jupyter_lab_config()
@@ -99,7 +100,7 @@ def launch(cmd_pointer=None, routes=None, app_name="", query="", hash=""):
             prefix = ""
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=UserWarning)
-            if JL_PROXY == True:
+            if FORCE_PROXY == True or JL_PROXY == True:
                 iframe_html = f'<iframe src="{prefix}/proxy/{port}/{query}{hash}" width="{width}" height="{height}" style="border: solid 1px #ddd;"></iframe>'
             else:
                 iframe_html = f'<iframe src="http://{host}:{port}{query}{hash}" width="{width}" height="{height}" style="border: solid 1px #ddd;"></iframe>'
