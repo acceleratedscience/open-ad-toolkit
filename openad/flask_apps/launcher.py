@@ -5,6 +5,7 @@ import warnings
 from IPython.display import HTML, display
 from IPython.display import IFrame as display_iframe
 from flask import Flask, send_from_directory
+from flask_cors import CORS, cross_origin
 from openad.app.global_var_lib import _repo_dir
 from openad.helpers.output import output_text, output_error
 from openad.helpers.output_msgs import msg
@@ -33,24 +34,40 @@ def launch(cmd_pointer=None, routes=None, app_name="", query="", hash=""):
     # Initialize Flask app.
     template_folder = os.path.dirname(os.path.abspath(__file__))
     app = Flask("OpenAD", template_folder=template_folder)
+    app.config["WTF_CSRF_ENABLED"] = False
+    CORS(
+        app,
+        allow_headers="*",
+        origins="*",
+        resources={
+            r"/api/*": {"origins": "*"},
+            r"/js/*": {"origins": "*"},
+            r"/assets/*": {"origins": "*"},
+            r"/app/*": {"origins": "*"},
+        },
+    )
 
     # Make main CSS files available.
 
     @app.route(f"{IS_STATIC}/css/<path>")
+    @cross_origin()
     def static_css(path):
         return send_from_directory(_repo_dir + "/../flask_apps/_css", f"{path}")
 
     # Make main JS files available.
     @app.route(f"{IS_STATIC}/js/<path>")
+    @cross_origin()
     def static_js(path):
         return send_from_directory(_repo_dir + "/../flask_apps/_js", f"{path}")
 
     @app.route("/css/<path>")
+    @cross_origin()
     def css(path):
         return send_from_directory(_repo_dir + "/../flask_apps/_css", f"{path}")
 
     # Make main JS files available.
     @app.route("/js/<path>")
+    @cross_origin()
     def js(path):
         return send_from_directory(_repo_dir + "/../flask_apps/_js", f"{path}")
 
@@ -58,6 +75,7 @@ def launch(cmd_pointer=None, routes=None, app_name="", query="", hash=""):
     flask_dir = os.path.dirname(os.path.abspath(__file__))
 
     @app.route("/app/<path:subpath>")
+    @cross_origin()
     def app_dir(subpath):
         if GLOBAL_SETTINGS["display"] != "notebook":
             suffix = ""
@@ -69,7 +87,9 @@ def launch(cmd_pointer=None, routes=None, app_name="", query="", hash=""):
     for route in routes:
         func = routes[route]["func"]
         method = routes[route]["method"] if "method" in routes[route] else "GET"
-        app.route(route, methods=[method])(func)
+        cross_origin()(app.route(route, methods=[method])(func))
+
+        # app.route(route, methods=[method])(func)
 
         # This is the equivalent of:
         # @app.route('/', methods=['GET'])

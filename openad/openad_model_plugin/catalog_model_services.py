@@ -153,7 +153,7 @@ def model_service_status(cmd_pointer, parser):
     """get all services status"""
     logger.debug("listing model status")
     # get list of directory names for the catalog models
-    models = {"Service": [], "Status": [], "Endpoint": [], "Type": []}
+    models = {"Service": [], "Status": [], "Endpoint": [], "Host": [], "API expires": []}
     with Dispatcher(update_status=True) as service:
         # get all the services then order by name and if url exists
         all_services: list = service.list()
@@ -178,9 +178,12 @@ def model_service_status(cmd_pointer, parser):
                     else:
                         status = "DOWN"
                     if res.get("is_remote"):
-                        models["Type"].append("remote")
+                        models["Host"].append("remote")
+                        proxy_info: dict = res.get("jwt_info")
+                        models["API expires"].append(proxy_info.get("exp_formatted", "No Info"))
                     else:
-                        models["Type"].append("local")
+                        models["Host"].append("local")
+                        models["API expires"].append("")
                     models["Service"].append(name)
                     models["Status"].append(status)
                     models["Endpoint"].append(res.get("url"))

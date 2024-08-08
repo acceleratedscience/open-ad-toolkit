@@ -53,6 +53,18 @@ def save_run(cmd_pointer, parser):
     return output_success(msg("success_run_save"))
 
 
+def remove_run(cmd_pointer, parser):
+    run_name = parser.as_dict()["run_name"]
+    run_file_path = (
+        cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/_runs/" + run_name + ".run"
+    )
+    if os.path.exists(run_file_path):
+        os.remove(run_file_path)
+        output_text(f"run {run_name} removed", pad=1)
+    else:
+        output_text(f"run {run_name} does not exist", pad=1)
+
+
 # executes a run file.
 def exec_run(cmd_pointer, parser):
     """executes a run"""
@@ -94,7 +106,7 @@ def exec_run(cmd_pointer, parser):
 # Display the contents of a Run.
 def display_run(cmd_pointer, parser):
     """displays the commands in a run"""
-    table_headers = (f'<soft>Run:</soft> {parser.as_dict()["run_name"]}',)  # NOT Sure why we mess things up with
+    table_headers = (f'Run: {parser.as_dict()["run_name"]}',)  # NOT Sure why we mess things up with
     run_name = parser.as_dict()["run_name"]
 
     # Create _runs directory if it does not exist yet.
@@ -129,7 +141,7 @@ def display_run(cmd_pointer, parser):
             )
         )
 
-    table_headers = [f"<soft>Run:</soft> {run_name}"]
+    table_headers = [f"Run: {run_name}"]
 
     # Display/return table.
     return output_table(commands, is_data=False, headers=table_headers)
