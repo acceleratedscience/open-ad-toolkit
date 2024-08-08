@@ -12,8 +12,8 @@ When regenerating the docs, the text files in the `/source` folder are used to u
 
 -   The OpenAD description at the top of the main [README.md](/) in this repository
 -   The markdown files for the [openad-docs] repository (which are copied over automatically if the repo is found)
--   The intro text that is displayed when running the `intro` command (see [/openad/helpers/output_content.py](/openad/helpers/output_content.py))
--   The informational paragraphs that are displayed when running the `? workspace`, `? tookit`, `? context` and `? run` commands
+-   The intro text that is displayed when running the `intro` command (see [output_content.py](/openad/helpers/output_content.py))
+-   The informational paragraphs that are displayed when running the `? workspace`, `? tookit`, `? context` and `? run` commands (see 'output_content' in [main.py](/openad/app/main.py))
 
 ### How it works
 
