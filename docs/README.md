@@ -20,7 +20,7 @@ When regenerating the docs, the text files in the `/source` folder are used to u
 -   The `/source` folder is the "single source of truth" and contains a number of text files with descriptions for OpenAD and some of its core concepts.
 -   The `/input` folder contains the markdown templates that are used to generate the markdown pages for the [openad-docs] repository
 -   The `/output` folder contains all the files that are exported by the script:
-    -   **/markdown** The markdown files for the [openad-docs] repository:
+    -   **/markdown**<br>The markdown files for the [openad-docs] repository:
         -   [markdown/base-concepts.md](output/markdown/base-concepts.md)
         -   [markdown/commands.mdtext](output/markdown/commands.md)
         -   [markdown/index.md](output/markdown/index.md)
