@@ -22,11 +22,11 @@ When regenerating the docs, the text files in the `/source` folder are used to u
 -   The `/output` folder contains all the files that are exported by the script:
     -   **/markdown**<br>The markdown files for the [openad-docs] repository:
         -   [markdown/base-concepts.md](output/markdown/base-concepts.md)
-        -   [markdown/commands.mdtext](output/markdown/commands.md)
+        -   [markdown/commands.md](output/markdown/commands.md)
         -   [markdown/index.md](output/markdown/index.md)
         -   [markdown/installation.md](output/markdown/installation.md)
     -   **/csv**
-        -   [csv/commands.csv](output/csv/commands.csv) - A CSV file with all available commands that is not used anywhere but comes in handy to have a clean overview of available commands:
+        -   [csv/commands.csv](output/csv/commands.csv) - A CSV file with all available commands that is not used anywhere but comes in handy to have a clean overview of available commands
 
 In addition to this, the script will also update the `llm_description.txt` for each individual plugin with the correct commands, used for LLM training.
 
