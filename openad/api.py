@@ -57,7 +57,6 @@ class OpenadAPI:
         return result
 
     def help_as_markdown(self, command):
-
         x = self.main_app.RUNCMD().do_help(command, display_info=False, jup_return_format=True)
         return x
 
@@ -192,5 +191,4 @@ def _toc_link(title, level=0):
 
 
 if __name__ == "__main__":
-
     myclass = OpenadAPI("class1")

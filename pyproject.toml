@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "openad"
-version = "0.4.3"
+version = "0.4.4"
 description = "Open Accelerated Discovery Client "
 authors = ["Phil Downey <phil.downey1@ibm.com>"]
 readme = "README.md"
@@ -24,6 +24,9 @@ classifiers = [
 line-length=120
 
 [tool.poetry.dependencies]
+# temproary due to build issue in container
+orjson = "3.10.3"
+
 python = ">=3.10,<3.12"
 blessed = "^1.20.0"
 flask = "3.0.0"
