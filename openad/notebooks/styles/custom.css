@@ -4,11 +4,12 @@
 body {
     --ibm-blue: #0f62fe;
     --dark-blue: #2756ad;
+    --path-red: #cf1a4d;
 }
 
 h1,h2,h3,h4,p {
     font-family: "IBM Plex Sans";
-    color: rgba(0,0,0,.7);
+    color: rgba(0,0,0,.7) !important;
 }
 h1,h2 {
     margin: 60px 0 10px 0 !important;
@@ -17,29 +18,73 @@ h3,h4 {
     margin: 40px 0 10px 0 !important;
 }
 h1 {
-    font-size: 2.5em !important;
+    font-size: 2.8em !important;
+    font-weight: 300 !important;
 }
 h2 {
-    font-size: 2em !important;
-    color: var(--dark-blue);
+    font-size: 2.2em !important;
+    color: var(--dark-blue) !important;
 }
 h3 {
+    font-size: 1.5em !important;
+    font-weight: 600 !important;
+/*     font-style: italic !important; */
+}
+h4 {
+    font-size: 1.2em !important;
+    text-decoration: underline;
+    text-decoration-color: rgba(0,0,0,.2);
+    text-underline-offset: 2px;
+}
+h1 + h2,
+h1 + h3,
+h1 + h4,
+h2 + h3,
+h2 + h4,
+h3 + h4 {
+    margin-top: 30px !important;
+}
+/* h1:first-child,
+h2:first-child {
+    margin-top: 40px !important;
+} */
+/* h3:first-child,
+h4:first-child {
+    margin-top: 20px !important;
+} */
+span + h3 {
+    margin-top: 20px !important;
+    color: red !important;
 }
 p, ul, ol {
-    max-width: 1400px;
+    max-width: 700px !important;
 }
 
 
+/**
+ * Paths
+ */
+
+span.path {
+    color: var(--path-red);
+    font-style: italic;
+    padding: 0 5px;
+}
 
 /**
  * Command instructions
  */
 
-pre.cmd {
-    color: #eec;
-    background: #444;
-    padding: 20px;
-    margin: 0;
+pre {
+    margin: 0 !important;
+}
+pre.cmd,
+pre code {
+    display: block;
+    color: #eec !important;
+    background-color: #444 !important;
+    padding: 20px !important;
+    margin: 10px 0 !important;
     border-radius: 3px;
 }
 

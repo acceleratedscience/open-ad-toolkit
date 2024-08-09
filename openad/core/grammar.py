@@ -457,6 +457,20 @@ grammar_help.append(
     )
 )
 
+
+# Remove run
+statements.append(Forward(remove + run("run") + Word(alphas, alphanums + "_")("run_name"))("remove_run"))
+grammar_help.append(
+    help_dict_create(
+        name="remove run",
+        category="Runs",
+        command="remove run <run_name>",
+        description="remove a run.",
+        note=NOTE_RUNS,
+    )
+)
+
+
 # Save run
 statements.append(Forward(save + run("run") + a_s + Word(alphas, alphanums + "_")("run_name"))("save_run"))
 grammar_help.append(

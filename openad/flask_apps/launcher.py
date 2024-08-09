@@ -5,6 +5,7 @@ import warnings
 from IPython.display import HTML, display
 from IPython.display import IFrame as display_iframe
 from flask import Flask, send_from_directory
+from flask_cors import CORS, cross_origin
 from openad.app.global_var_lib import _repo_dir
 from openad.helpers.output import output_text, output_error
 from openad.helpers.output_msgs import msg
@@ -18,6 +19,7 @@ def launch(cmd_pointer=None, routes=None, app_name="", query="", hash=""):
         output_error(msg("err_routes_required"))
         return
     JL_PROXY = False
+    FORCE_PROXY = False  # Set this to True to force the use of the proxy for testing (Jupyter only)
     IS_STATIC = ""
     try:
         jl = jl_settings.get_jupyter_lab_config()
@@ -29,28 +31,43 @@ def launch(cmd_pointer=None, routes=None, app_name="", query="", hash=""):
         JL_PROXY = False
         IS_STATIC = ""
 
-    print(IS_STATIC)
     # Initialize Flask app.
     template_folder = os.path.dirname(os.path.abspath(__file__))
     app = Flask("OpenAD", template_folder=template_folder)
+    app.config["WTF_CSRF_ENABLED"] = False
+    CORS(
+        app,
+        allow_headers="*",
+        origins="*",
+        resources={
+            r"/api/*": {"origins": "*"},
+            r"/js/*": {"origins": "*"},
+            r"/assets/*": {"origins": "*"},
+            r"/app/*": {"origins": "*"},
+        },
+    )
 
     # Make main CSS files available.
 
     @app.route(f"{IS_STATIC}/css/<path>")
+    @cross_origin()
     def static_css(path):
         return send_from_directory(_repo_dir + "/../flask_apps/_css", f"{path}")
 
     # Make main JS files available.
     @app.route(f"{IS_STATIC}/js/<path>")
+    @cross_origin()
     def static_js(path):
         return send_from_directory(_repo_dir + "/../flask_apps/_js", f"{path}")
 
     @app.route("/css/<path>")
+    @cross_origin()
     def css(path):
         return send_from_directory(_repo_dir + "/../flask_apps/_css", f"{path}")
 
     # Make main JS files available.
     @app.route("/js/<path>")
+    @cross_origin()
     def js(path):
         return send_from_directory(_repo_dir + "/../flask_apps/_js", f"{path}")
 
@@ -58,6 +75,7 @@ def launch(cmd_pointer=None, routes=None, app_name="", query="", hash=""):
     flask_dir = os.path.dirname(os.path.abspath(__file__))
 
     @app.route("/app/<path:subpath>")
+    @cross_origin()
     def app_dir(subpath):
         if GLOBAL_SETTINGS["display"] != "notebook":
             suffix = ""
@@ -69,7 +87,9 @@ def launch(cmd_pointer=None, routes=None, app_name="", query="", hash=""):
     for route in routes:
         func = routes[route]["func"]
         method = routes[route]["method"] if "method" in routes[route] else "GET"
-        app.route(route, methods=[method])(func)
+        cross_origin()(app.route(route, methods=[method])(func))
+
+        # app.route(route, methods=[method])(func)
 
         # This is the equivalent of:
         # @app.route('/', methods=['GET'])
@@ -95,9 +115,15 @@ def launch(cmd_pointer=None, routes=None, app_name="", query="", hash=""):
         width = "100%"
         height = 700
 
+        prefix = os.environ.get("NB_PREFIX")
+        if prefix is None:
+            prefix = ""
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=UserWarning)
-            iframe_html = f'<iframe src="http://{host}:{port}{query}{hash}" width="{width}" height="{height}" style="border: solid 1px #ddd;"></iframe>'
+            if FORCE_PROXY == True or JL_PROXY == True:
+                iframe_html = f'<iframe src="{prefix}/proxy/{port}/{query}{hash}" width="{width}" height="{height}" style="border: solid 1px #ddd;"></iframe>'
+            else:
+                iframe_html = f'<iframe src="http://{host}:{port}{query}{hash}" width="{width}" height="{height}" style="border: solid 1px #ddd;"></iframe>'
             display(HTML(iframe_html))
     else:
         # CLI --> Open browser.

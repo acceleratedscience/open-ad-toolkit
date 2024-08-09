@@ -8,12 +8,11 @@ nav_order: 2
 
 DO NOT EDIT
 -----------
-This file auto-generated from the main OpenAD README.md
-To update it, edit the main README.md and then regenerate this file.
-For instructions, see openad/docs/generate_docs.py
+This file auto-generated.
+To update it, consult instructions:
+https://github.com/acceleratedscience/open-ad-toolkit/tree/main/docs
 
 -->
-
 
 ## Quick Install 
 
@@ -36,44 +35,52 @@ If you get an error when running `init_magic`, you may first need to setup the d
 
 ---
 
-### Before You Start 
-
--   OpenAD is available for Linux and MacOS
--   We support Windows 11 via WSL 2 (ubuntu 22.04) - see [Installing on Windows](#installing-on-windows)
--   When not installing into a virtual environment on MacOS, you may need to use `python3` and `pip3` instead of `python` and `pip` respectively<br>
+<br>
 
 ## Table of Contents 
 
-- [OpenAD Beta](#openad-beta)
-- [Installation](#installation)
-- [Getting Started - CLI](#getting-started---cli)
-- [Getting Started - Jupyter](#getting-started---jupyter)
-  - [Setting up Jupyter](#setting-up-jupyter)
-  - [Launching OpenAD in Jupyter](#launching-openad-in-jupyter)
-- [Interacting with the Toolkits](#interacting-with-the-toolkits)
-    - [Registration](#registration)
-    - [Adding a Toolkit](#adding-a-toolkit)
-    - [Sample Commands](#sample-commands)
-    - [Running Bash Commands (CLI)](#running-bash-commands-cli)
-- [AI Assistant](#ai-assistant)
-- [For Developers](#for-developers)
-  - [Installation for Development](#installation-for-development)
-  - [Testing a branch](#testing-a-branch)
-- [Installing on Windows](#installing-on-windows)
-  - [Before you start](#before-you-start)
-  - [Installing WSL](#installing-wsl)
-- [Linux Notes](#linux-notes)
+-   [Installation](#installation)
+-   [Getting Started - CLI](#getting-started---cli)
+-   [Getting Started - Jupyter](#getting-started---jupyter)
+    -   [Setting up Jupyter](#setting-up-jupyter)
+    -   [Launching OpenAD in Jupyter](#launching-openad-in-jupyter)
+-   [Interacting with the Toolkits](#interacting-with-the-toolkits)
+    -   [Registration](#registration)
+    -   [Adding a Toolkit](#adding-a-toolkit)
+    -   [Sample Commands](#sample-commands)
+    -   [Running Bash Commands (CLI)](#running-bash-commands-cli)
+-   [AI Assistant](#ai-assistant)
+    -   [IBM BAM Setup](#ibm-bam-setup)
+    -   [Ollama Setup](#ollama-setup)
+        -   [Ollama Remote Setup with SkyPilot](#ollama-remote-setup-with-skypilot)
+        -   [Run Ollama](#run-ollama)
+-   [Model Services](#model-services)
+-   [For Developers](#for-developers)
+    -   [Installation for Development](#installation-for-development)
+    -   [Testing a branch](#testing-a-branch)
+-   [Installing on Windows](#installing-on-windows)
+    -   [Before You Start](#before-you-start)
+    -   [Installing WSL](#installing-wsl)
+-   [Linux Notes](#linux-notes)
 
 <br>
 
+---
+
+<br>
+
+<a name="installation"></a>
+
 # Installation
 
-> **Note:** Contributors should skip to [Installation for Development](#installation-for-development)<br>
-> **Note:** Linux users may want to check the [Linux Notes](#linux-notes)<br>
+> **Note:** Contributors should skip to [Installation for Development](#installation-for-development)
+
+> **Note:** Linux users may want to check the [Linux Notes](#linux-notes)
+
 > **Note:** If you prefer using poetry and you know what you're doing, you can skip the instructions below and run `poetry add openad` instead.
 
 1.  **Step 0: Before you start**<br>
-Ensure you're running Python 3.10 or 3.11. There's multiple ways of updating Python, we'll use pyenv.
+    Ensure you're running Python 3.10 or 3.11. There's multiple ways of updating Python, we'll use pyenv.
 
     > **Note:** Due to an issue with one of our dependencies, Python 3.12 is not yet supported.
 
@@ -87,16 +94,9 @@ Ensure you're running Python 3.10 or 3.11. There's multiple ways of updating Pyt
 
     > **Note:** To exit the virtual environment, you can run `deactivate`
 
-2.  **Step 2: Installation**
+1.  **Step 2: Installation**
 
         pip install openad
-
-    if you are going to use the model services you will need to have an AWS CLI enabled on your machine and follow the below steps to  check skypilot is enabled to deploy on aws on your machine:
-
-        A. run `sky check`
-
-    If you launch Model Services will take about 10 minutes to deploy it can be monitored through the controllers logs.
-        e.g. `sky serve logs sky-service-0af4  --controller`
 
 <br>
 
@@ -156,17 +156,20 @@ The following commands only need to be run once after installation:
     <div markdown="block">
 
     If you don't want to activate magic commands in all Notebooks, you can instead activate them for individual Notebooks.
-    - Run `init_examples`
-    - Copy the file `~/openad_notebooks/openad.ipynb` to the same directory as the Notebook you wish to activate.
-    - In your Notebook, run this inside a code cell: `!run openad.ipynb`
+
+    -   Run `init_examples`
+    -   Copy the file `~/openad_notebooks/openad.ipynb` to the same directory as the Notebook you wish to activate.
+    -   In your Notebook, run this inside a code cell: `!run openad.ipynb`
 
     </div>
     </details>
 
-2.  **Install example Notebooks**<br>
+1.  **Install example Notebooks**<br>
     This installs our example Notebooks at `~/openad_notebooks`.
 
         init_examples
+
+<br>
 
 ## Launching OpenAD in Jupyter
 
@@ -175,17 +178,15 @@ The following commands only need to be run once after installation:
 
         jupyter lab ~/openad_notebooks/Table_of_Contents.ipynb
 
-2.  **Select the kernel**<br>
+1.  **Select the kernel**<br>
     Make sure to select the "ad-venv" iPython kernel. You can do this under _Kernel > Change Kernel_, or in the latest versions of Jupyter by clicking the kernel name in the top right hand corner. If you don't see your iPython kernel, make sure you followed the Jupyter Setup instructions listed above.
 
-<figure>
-    <a href="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/jupyter-notebook-kernel.png" target="_blank"><img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/jupyter-notebook-kernel.png"></a>
-    <figcaption align="center" style="font-size:0.9em;opacity:.6;margin-top:-30px;margin-bottom:50px"><i>Jupyter Notebook</i></figcaption>
-</figure>
-<figure>
-    <a href="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/jupyter-lab-kernel.png" target="_blank"><img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/jupyter-lab-kernel.png"></a>
-    <figcaption align="center" style="font-size:0.9em;opacity:.6;margin-top:-30px;margin-bottom:50px"><i>Jupyter Lab</i></figcaption>
-</figure>
+    <figure>
+        <a href="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/jupyter-notebook-kernel.png" target="_blank"><img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/jupyter-notebook-kernel.png"></a>
+    </figure>
+    <figure>
+        <a href="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/jupyter-lab-kernel.png" target="_blank"><img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/jupyter-lab-kernel.png"></a>
+    </figure>
 
 1.  **Magic Commands**<br>
     Magic commands let you run terminal commands from within Jupyter. They are invoked by the `%openad` prefix. All OpenAD CLI commands can be accessed like this. For example:<br>
@@ -196,13 +197,10 @@ The following commands only need to be run once after installation:
 
 # Interacting with the Toolkits
 
-OpenAD integrates with `DS4SD`, `RXN`, and has placeholder support for  `ST4SD`.
+OpenAD integrates with `DS4SD`, `RXN`, and has placeholder support for `ST4SD`.
 
-<div class="notice" style="margin-top: 16px;" markdown="block">
-
-**&#x26A0; Reminder:** when running commands from Jupyter, prepend them with `%openad`
-
-</div>
+> [!IMPORTANT]
+> When running commands from Jupyter, prepend them with `%openad`
 
 ### Registration
 
@@ -220,13 +218,13 @@ Before you can interact with the toolkits, you'll need to register with each ind
     - Click the "Generate new API key" button<br>
       <br>
 
-      <a href="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/ds4sd-api-key.png" target="_blank"><img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/ds4sd-api-key.png" /></a>
+        <a href="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/ds4sd-api-key.png" target="_blank"><img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/ds4sd-api-key.png" /></a>
 
 1. Once inside the OpenAD client, you'll be prompted to authenticate when activating the Deep Search (DS4SD) toolkit. When running `set context ds4sd` :
 
-   - **Hostname:** [https://sds.app.accelerate.science](https://sds.app.accelerate.science)
-   - **Email:** Your email
-   - **API_key:** The DS4SD API key you obtained following the instructions above.
+    - **Hostname:** [https://sds.app.accelerate.science](https://sds.app.accelerate.science)
+    - **Email:** Your email
+    - **API_key:** The DS4SD API key you obtained following the instructions above.
 
 1. You should get a message saying you successfully logged in.
 
@@ -241,16 +239,16 @@ Before you can interact with the toolkits, you'll need to register with each ind
 
 1. First, you'll need to generate an API key on the RXN website.
 
-    -   Sign up for an RXN account at [rxn.app.accelerate.science](https://rxn.app.accelerate.science)
-    -   Obtain your API key by clicking the user profile icon in the top right hand corner and select "My profile".<br>
-        <br>
+    - Sign up for an RXN account at [rxn.app.accelerate.science](https://rxn.app.accelerate.science)
+    - Obtain your API key by clicking the user profile icon in the top right hand corner and select "My profile".<br>
+      <br>
 
         <a href="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/rxn-api-key.png" target="_blank"><img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/rxn-api-key.png" /></a>
 
 1. When setting the context to RXN using `set context rxn` you'll be prompted to create a new auth configuration file:
 
-    -   **Hostname:** [https://rxn.app.accelerate.science](https://rxn.app.accelerate.science)<br>
-    -   **API_key:** The RXN API key you obtained following the instructions above.
+    - **Hostname:** [https://rxn.app.accelerate.science](https://rxn.app.accelerate.science)<br>
+    - **API_key:** The RXN API key you obtained following the instructions above.
 
 1. You should get a message saying you successfully logged in.<br>
 
@@ -284,55 +282,68 @@ To run a command in bash mode, prepend it with `openad` and make sure to escape 
 
 # AI Assistant
 
-To enable our AI assistant, you'll need either have access to [IBM BAM](https://bam.res.ibm.com/auth/signin) or to use a free open source LLM use [ollama](ollama.com).
+To enable our AI assistant, you'll either need access to [IBM BAM](https://bam.res.ibm.com/auth/signin) or use the free open source LLM [Ollama](https://ollama.com).
 
-**Note:** Ollama will requires a 8gb GPU
+> **Note:** Ollama requires an 8GB GPU
 
-> **Note:** watsonx coming soon
+> **Note:** Support for WatsonX is coming soon
+
+<br>
 
 ## IBM BAM Setup
-For IBM BAM simply used your supplied API key if you have BAM access
 
-### Run BAM LLM
-run `tell me` to be prompted for your BAM API credentials
-```
->> set llm bam
->> tell me <enter prompt>
-```
+To use IBM BAM if you have access to it, simply provide your API key when prompted.
 
-## Ollama setup
-Install ollama on your platform  from [here](https://ollama.com/download)
+    set llm bam
+    tell me <enter prompt>
 
-Download appropriate models
-```
-ollama pull llama3:latest
-ollama pull nomic-embed-text
-```
+<br>
 
-Start the server if not already started
-```
-ollama serve
-```
-Thats it for local usage. If you want to run ollama remotely continue.
+## Ollama Setup
 
-### Ollama remote setup with skypilot
-Check out our configuration file to launch ollama on skypilot [ollama_setup.yaml](./ollama_setup.yaml)
-```
-sky serve up ollama_setup.yaml
-```
+1.  Install [Ollama](https://ollama.com/download) onto your platform.
 
-Setup local environment variables
+1.  Download the appropriate models.
 
-1. For windows `setx OLLAMA_HOST=<sky-server-ip>:11434`
-2. For Linux and macos `export OLLAMA_HOST=<sky-server-ip>:11434`
-3. To reset to local use `OLLAMA_HOST=0.0.0.0:11434`
+        ollama pull llama3:latest
+        ollama pull nomic-embed-text
 
-### Run ollama on openad toolkit
-> if prompted for api key and none was setup just leave empty
-```
->> set llm ollama
->> tell me <enter prompt>
-```
+1.  Start the server if not already started.
+
+        ollama serve
+
+That's it for local usage. If you want to run Ollama remotely, continue below.
+
+### Ollama Remote Setup with SkyPilot
+
+1.  Check out our configuration file to launch ollama on SkyPilot: [ollama_setup.yaml](./openad/ollama_setup.yaml)
+
+        sky serve up ollama_setup.yaml
+
+1.  Set up local environment variables
+
+    -   For windows `setx OLLAMA_HOST=<sky-server-ip>:11434`
+    -   For Linux and macOS `export OLLAMA_HOST=<sky-server-ip>:11434`
+    -   To reset to local use `OLLAMA_HOST=0.0.0.0:11434`
+
+### Run Ollama
+
+> **Note:** If prompted for an API key and none was setup, just leave the input empty.
+
+    set llm ollama
+    tell me <enter prompt>
+
+<br>
+
+# Model Services
+
+To use the model services you'll need to have the AWS CLI installed to check if SkyPilot is enabled to deploy to AWS from your machine:
+
+    sky check
+
+Launching any model service will take about 10 minutes to deploy. This can be monitored using the controller logs, e.g.:
+
+    sky serve logs sky-service-0af4 --controller
 
 <br>
 
@@ -341,6 +352,8 @@ Setup local environment variables
 OpenAD is fully open source and we encourage contributions. We plan to provide documentation on how to integrate your own toolkits in the future.
 
 If you have any questions in the meantime, please [reach out]({% link about.md %}).
+
+<br>
 
 ## Installation for Development
 
@@ -352,8 +365,7 @@ If you have any questions in the meantime, please [reach out]({% link about.md %
 
         git clone https://github.com/acceleratedscience/open-ad-toolkit.git
 
-    > **Note:** To download a specific branch, you can run instead:<br>
-    `git clone -b <branch_name> https://github.com/acceleratedscience/open-ad-toolkit.git`
+    > **Note:** To download a specific branch, you can run instead:<br> > `git clone -b <branch_name> https://github.com/acceleratedscience/open-ad-toolkit.git`
 
 1.  **Step 2: Launch the setup wizard**
 
@@ -368,10 +380,10 @@ If you have any questions in the meantime, please [reach out]({% link about.md %
 <div markdown="block">
 
 1.  **Step 0: Before you start**<br>
-Ensure you're running Python 3.10.10 or above. There's multiple ways of doing this, we'll use pyenv.
+    Ensure you're running Python 3.10.10 or above. There's multiple ways of doing this, we'll use pyenv.
 
-        git clone https://github.com/pyenv/pyenv.git ~/.pyenv
-        pyenv install 3.10
+            git clone https://github.com/pyenv/pyenv.git ~/.pyenv
+            pyenv install 3.10
 
 1.  **Step 1: Set up your virtual environment** (optional)<br>
 
@@ -384,8 +396,7 @@ Ensure you're running Python 3.10.10 or above. There's multiple ways of doing th
 
         git clone https://github.com/acceleratedscience/open-ad-toolkit.git
 
-    > **Note:** To download a specific branch, you can run instead:<br>
-    `git clone -b <branch_name> https://github.com/acceleratedscience/open-ad-toolkit.git`
+    > **Note:** To download a specific branch, you can run instead:<br> > `git clone -b <branch_name> https://github.com/acceleratedscience/open-ad-toolkit.git`
 
 1.  **Step 2: Install the requirements**
 
@@ -396,6 +407,8 @@ Ensure you're running Python 3.10.10 or above. There's multiple ways of doing th
 
 </div>
 </details>
+
+<br>
 
 ## Testing a branch
 
@@ -409,13 +422,17 @@ To do a regular install from a particular branch, you can run:
 
 In order to run OpenAD on Windows 11, you will need to install the Ubuntu WSL package ("Windows Subsystem for Linux").
 
-## Before you start
+<br>
+
+## Before You Start
 
 -   **Verify Windows version**<br>
     To check if you are running Windows 11 or later, press `Win` + `R`, type "winver", and press `Enter`. A window will open showing your Windows version.
 
 -   **Verify WSL**<br>
     To check if you already have WSL installed, run `wsl -l -v` into the terminal. To see more information about your current version of Ubuntu, run `lsb_release -a`
+
+<br>
 
 ## Installing WSL
 
@@ -442,4 +459,4 @@ You will need to restart your Linux session before running `pip install openad` 
 
 If you get an error when running `init_magic`, you may first need to setup the default iPython profile for magic commands.
 
- `ipython profile create`
+    ipython profile create

@@ -13,6 +13,7 @@ from openad.app.global_var_lib import GLOBAL_SETTINGS
 from openad.helpers.output import output_text, output_warning, output_error, output_table
 from openad.helpers.output_msgs import msg
 from openad.helpers.general import load_tk_module
+from openad.helpers.spinner import Spinner
 
 
 def get_reaction_from_smiles(
@@ -31,19 +32,6 @@ def predict_reaction_batch_topn(inputs: dict, cmd_pointer):
     rxn_helper.sync_up_workspace_name(cmd_pointer)
     rxn_helper.get_current_project(cmd_pointer)
     top_n = 5
-
-    if GLOBAL_SETTINGS["display"] == "notebook":
-        from halo import HaloNotebook as Halo  # pylint: disable=import-outside-toplevel
-    else:
-        from halo import Halo  # pylint: disable=import-outside-toplevel
-
-    class Spinner(Halo):
-        """alternate spinner"""
-
-        def __init__(self):
-            # Alternative spinners:
-            # simpleDotsScrolling, interval=100
-            super().__init__(spinner="dots", color="white")
 
     val = "val"
     if "topn" in inputs:
@@ -154,7 +142,7 @@ def predict_reaction_batch_topn(inputs: dict, cmd_pointer):
     if len(new_from_list) > 0:
         val = "val"
         from_list = new_from_list
-        newspin = Spinner()
+        newspin = Spinner(GLOBAL_SETTINGS["VERBOSE"])
         retries = 0
         status = False
         rxn4chemistry_wrapper = cmd_pointer.login_settings["client"][
@@ -165,7 +153,9 @@ def predict_reaction_batch_topn(inputs: dict, cmd_pointer):
 
         while status is False:
             try:
-                newspin.text = "Processing Prediction"
+                if retries == 0:
+                    newspin.info("Processing Prediction")
+                    print(1)
                 sleep(2)
                 predict_rection_batch_response = rxn4chemistry_wrapper.predict_reaction_batch_topn(
                     precursors_lists=new_from_list,
@@ -184,10 +174,15 @@ def predict_reaction_batch_topn(inputs: dict, cmd_pointer):
         retries = 0
         while "predictions" not in x:
             try:
-                newspin.text = "Processing Prediction"
+                if retries == 0:
+                    # newspin.info("Processing Prediction")
+                    print(2)
+
                 x = rxn4chemistry_wrapper.get_predict_reaction_batch_topn_results(
                     predict_rection_batch_response["task_id"]
                 )
+                print(x)
+                print(predict_rection_batch_response["task_id"])
                 if "predictions" not in x:
                     sleep(3)
             except Exception as e:  # pylint: disable=broad-exception-caught
@@ -222,4 +217,8 @@ def predict_reaction_batch_topn(inputs: dict, cmd_pointer):
                     return_val=False,
                 )
         output_text(" ", return_val=False)
-    return True
+
+    if not GLOBAL_SETTINGS["VERBOSE"]:
+        return x
+    else:
+        return True
