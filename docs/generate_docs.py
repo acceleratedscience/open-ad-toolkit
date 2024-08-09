@@ -514,8 +514,10 @@ def _compile_commands(cmds_organized):
 ############################################################
 
 if __name__ == "__main__":
-    # Render files
+    # Update main README.md
     update_readme_md("README.md")
+
+    # Render markdown files for documentation website
     render_index_md("index.md")
     render_installation_md("installation.md")
     render_base_concepts_md("base-concepts.md")
