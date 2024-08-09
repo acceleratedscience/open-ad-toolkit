@@ -11,7 +11,7 @@
 
 ## What does this service do?
 
-This service offered by Accelerated Discovery at IBM enable researchers to run model inference as a service (MIaaS). Public models are available to use by all by connecting to our service with an api key. Private models can also be hosted by our service to enable users to run inference without setting up machine learning models locally.
+This service offered by Accelerated Discovery at IBM enables researchers to run model inference as a service (MIaaS). Public models are available to use by all by connecting to our service with an api key. Private models can also be hosted by our service to enable users to run inference without setting up machine learning models locally.
 
 Our service helps users:
 - Eliminate the need to run inference locally
@@ -41,7 +41,7 @@ OpenAD:DEFAULT >> catalog model service from remote 'https://open.accelerator.ca
 
 Lets break this command down
 - `catalog model service from remote` *command in openad that processes the connection*
-- `https://open.accelerator.cafe` *URL endpoint for inference*
+- `https://open.accelerator.cafe/proxy` *URL endpoint for inference*
 - `'molformer'` *name you want to give this service (could be anything you want)*
 - `USING (Inference-Service=molformer)` *select the model you want to interface with (check your dashboard for available models)*
 
@@ -61,7 +61,7 @@ Service    Status     Endpoint                             Host    Token Expires
 molformer  Connected  https://open.accelerator.cafe/proxy  remote  Wed Sep  11, 2030
 ```
 
-Take a look at the model
+Take a peak at the whats available in the model
 ```shell
 OpenAD:DEFAULT >>  molformer ?
 
