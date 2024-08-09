@@ -18,8 +18,8 @@ import pyperclip
 root_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 if str(root_dir) not in sys.path:
     sys.path.append(root_dir)
-for path in sys.path:
-    print("*", path)
+# for path in sys.path:
+#     print("*", path)
 
 from copy_docs import copy_docs  # This resolves when running the script directly
 from openad.app.main import RUNCMD as cmd_pointer
