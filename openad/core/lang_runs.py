@@ -106,7 +106,6 @@ def exec_run(cmd_pointer, parser):
 # Display the contents of a Run.
 def display_run(cmd_pointer, parser):
     """displays the commands in a run"""
-    table_headers = (f'Run: {parser.as_dict()["run_name"]}',)  # NOT Sure why we mess things up with
     run_name = parser.as_dict()["run_name"]
 
     # Create _runs directory if it does not exist yet.
@@ -141,7 +140,7 @@ def display_run(cmd_pointer, parser):
             )
         )
 
-    table_headers = [f"Run: {run_name}"]
+    table_headers = [output_text(f"<soft>Run:</soft> {run_name}", return_val=True)]
 
     # Display/return table.
     return output_table(commands, is_data=False, headers=table_headers)

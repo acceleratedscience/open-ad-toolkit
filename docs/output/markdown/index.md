@@ -29,6 +29,6 @@ https://github.com/acceleratedscience/open-ad-toolkit/tree/main/docs
 
 OpenAD is an open-source framework for molecular and materials discovery developed by IBM Research.
 
-The OpenAD client is accessible from a command line interface, Jupyter Notebook and an API. It provides unified access to a variety of tools and AI models for literature knowledge extraction, synthesis prediction (forward and retro-), generative methods and property inference. You can train models on your own data as well as visualize and filter candidate molecules.
+The OpenAD client is accessible from a command line interface, Jupyter Notebook and an API. It provides unified access to a variety of tools and AI models for literature knowledge extraction, forward and retrosynthesis prediction, generative methods and property inference. You can train models on your own data as well as visualize and filter candidate molecules.
 
 [Homepage](https://accelerate.science/projects/openad)

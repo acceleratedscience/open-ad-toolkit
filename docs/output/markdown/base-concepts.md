@@ -18,9 +18,9 @@ https://github.com/acceleratedscience/open-ad-toolkit/tree/main/docs
 
 ## Workspaces
 
-A workspace represents a directory where all of your files, settings and runs are stored. All operations run within a workspace and each workspace comes with its own command history. This allows you to work on unrelated projects without them contaminating eachother.
+Your workspace represents an isolated environment where your molecules, molecule sets and other files related to your research are stored.
 
-A default workspace is created on startup, and you can create as many additional workspaces needed. They can live in the designated workspaces directory, or anywhere else on your file system if that's preferred.
+You can have as many workspaces as needed, allowing you to work on multiple isolated projects. Each workspace has its own command history and corresponds with a directory stored in ~/openad/workspaces. OpenAD comes loaded with a default workspace called 'default'.
 
 To see how to work with workspaces:
 
@@ -28,11 +28,13 @@ To see how to work with workspaces:
 
 ## Plugins
 
-Toolkits are highly specialized applications that OpenAD interfaces with. By interacting with the toolkits through OpenAD, you can bypass a lot of complexity and different inconsistent APIs.
+The OpenAD client is an interface to interact with a variety of molecular tools and AI models, which are exposed through plugins. Thanks to a unified language, accessing these tools through OpenAD lets you bypass a lot of complexity.
 
-The available tookits for the OpenAD beta are **DS4SD** (DeepSearch) and **RXN** with support for **ST4SD** and **GT4SD** coming soon. For more information about the individual toolkits, click [here]({% link index.md %}#toolkits).
+OpenAD comes preloaded with a number of plugins for literature knowledge extraction (DS4SD), forward and retrosynthesis prediction (RXN) as well as generative methods and property inference (GT4SD).
 
-In the future, we hope to expand our toolkit offering with other opensource tools and users will be able to create and customize their own.
+You can create your own plugins, and the publicly available plugins will soon include a much larger variety of open-source tools.
+
+Note: Plugins are currently referred to as "toolkits" by the commands, however this language will be updated soon.
 
 To see how to work with plugins:
 
@@ -40,7 +42,7 @@ To see how to work with plugins:
 
 ## Context
 
-After installing a toolkit, in order to interact with it you first need to set the context to that toolkit. This will make all commands for this toolkit available.
+In order to interact with any plugin, you first need to set the context to that plugin. This will make all commands for the plugin available.
 
 To see how to switch contexts:
 
@@ -48,7 +50,7 @@ To see how to switch contexts:
 
 ## Runs
 
-When working in the terminal, you can record a series of consecutive commands we call runs. They can be replayed at any given time later, removing a lot of the repetitive work.
+A run is a prerecorded chain of commands that can be reused to automate certain workflows and avoid unnecessary repetition.
 
 To see how to work with runs:
 
