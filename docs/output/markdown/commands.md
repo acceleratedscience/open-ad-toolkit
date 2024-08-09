@@ -9,7 +9,8 @@ nav_order: 4
 DO NOT EDIT
 -----------
 This file auto-generated.
-To update it, see openad/docs/generate_docs.py
+To update it, consult instructions:
+https://github.com/acceleratedscience/open-ad-toolkit/tree/main/docs
 
 -->
 
@@ -17,10 +18,13 @@ To update it, see openad/docs/generate_docs.py
 - [OpenAD](#openad)
   - [General](#general)
   - [Workspaces](#workspaces)
+  - [Molecules Working Set](#molecules-working-set)
   - [Molecules](#molecules)
+  - [Molecule-sets](#molecule-sets)
   - [Utility](#utility)
   - [Toolkits](#toolkits)
   - [Runs](#runs)
+  - [GUI](#gui)
   - [LLM](#llm)
   - [File System](#file-system)
   - [Help](#help)
@@ -30,10 +34,11 @@ To update it, see openad/docs/generate_docs.py
   - [Search Collections](#search-collections)
   - [Collections](#collections)
 - [RXN](#rxn)
-  - [General](#general-1)
+  - [General](#general)
   - [Retrosynthesis](#retrosynthesis)
   - [Prediction](#prediction)
 - [ST4SD](#st4sd)
+
 
 ## OpenAD
 
@@ -75,10 +80,10 @@ Lists all your workspaces. <br><br>
 
 <br>
 
-### Molecules
+### Molecules Working Set
 
-`add molecule <name> | <smiles> | <inchi> | <inchikey> | <cid> [ as '<name>' ] [ basic ] [ force ]`{: .cmd }
-This command is how you add a molecule to a current working list of molecules in memory. When adding a molecule by name, this name will become the molecule's identifying string. <br>
+`add mol|molecule <name> | <smiles> | <inchi> | <inchikey> | <cid> [ as '<name>' ] [ basic ] [ force ]`{: .cmd }
+This command is how you add a molecule to a current working list of molecules in memory. When adding a molecule by name, this name will become the molecule's identifying string.  <br> 
 
 It will take any molecules identifier from the following categories: <br> 
     -`smiles ` <br> 
@@ -137,35 +142,6 @@ or with single quotes <br>
 - Add a molecule by SMILES nd set its name to "mymol" and not prepopulate values from pubchem: <br> 
 `add mol CC(=O)OC1=CC=CC=C1C(=O)O as 'mymol' basic ` <br><br>
 
-`display molecule <name> | <smiles> | <inchi> | <inchikey> | <cid>`{: .cmd }
-This command will display a molecule's identifiers, propoerties, synonyms and any Analysis results it has been enriched with. <br> 
-if the molecule exists in the current molecule workling list in memory the molecule will be retrieved from there if not pubchem will be checked to see if the molecule and its information is avialable there. <br> 
-
-You can use the 'mol' shorthand instead of 'molecule'. <br> 
-
-If the requested molecule exists in your current working list, that version will be used. <br> 
-
-You can specify any molecule by SMILES or InChI, and PubChem classified molecules also by name, InChIKey or their PubChem CID.  <br> 
- A molecule identifier can be in single quotes or defined with unquoted text. If you have spaces in your molecule identifier e.g. a name, then you must user a single quoted string <br> 
-
-If you use the name of a molecule, the tool will do a caseless search of the names and synonyms first in current working list, then on pubchem. <br> 
-
-Examples: <br> 
-- Display a molecule by name: <br> 
-`display molecule Aspirin` <br> 
-
-- Display a molecule by SMILES: <br> 
-`display molecule CC(=O)OC1=CC=CC=C1C(=O)O` <br> 
-
-- Display a molecule by InChI: <br> 
-`display mol InChI=1S/C9H8O4/c1-6(10)13-8-5-3-2-4-7(8)9(11)12/h2-5H,1H3,(H,11,12)` <br> 
-
-- Display a molecule by InChIKey string: <br> 
-`display mol BSYNRYMUTXBXSQ-UHFFFAOYSA-N` <br> 
-
-- Display a molecule by CID: <br> 
-`display mol 2244` <br><br>
-
 `display sources <name> | <smiles> | <inchi> | <inchikey> | <cid>`{: .cmd }
 Display the sources of a molecule's properties, attributing back to how they were calculated or sourced. <br> 
 
@@ -199,7 +175,7 @@ Examples <br>
 - `export molecule aspirin` <br> 
 - `export molecule aspirin as file` <br><br>
 
-`remove molecule <name> | <smiles> | <inchi> | <inchikey> | <cid>`{: .cmd }
+`remove mol|molecule <name> | <smiles> | <inchi> | <inchikey> | <cid> [ force ]`{: .cmd }
 Remove a molecule from the current working list based on a given molecule identifier. <br> 
 
 {MOL_SHORTHAND} <br> 
@@ -223,27 +199,8 @@ Examples: <br>
 `list molecules`{: .cmd }
 List all molecules in the current working list. <br><br>
 
-`save molecule-set as <molecule_set_name>`{: .cmd }
-Save the current molecule workking list to a molecule-set in your workspace. <br> 
-
-Example: <br> 
-`save molset as my_working_set` <br><br>
-
-`load molecule-set|molset <molecule-set_name>`{: .cmd }
-Loads a molecule-set from your workspace, and replaces your current list of molecules with the molecules from the given  molecule-set. <br> 
-Example: <br> 
-`load molset my_working_set` <br><br>
-
-`merge molecule-set|molset <molecule-set_name> [merge only] [append only]`{: .cmd }
-This command merges a molecule-set from your workspace into cour current working list of molecules in memory, and updates properties/Analysis in existing molecules or appends new molecules to the working list. <br> 
-
-Options: <br> 
-    - ` merge only` Only merges with existing molecules in list <br> 
-    - ` append only` Only append molecules not in list <br> 
-`merge molset my_working_set` <br><br>
-
-`list molecule-sets`{: .cmd }
-List all molecule sets in your workspace. <br><br>
+`show mols|molecules`{: .cmd }
+Display the current working list of molecules in the GUI. <br><br>
 
 `enrich molecules with analysis`{: .cmd }
 This command Enriches every molecule in your current working list of molecules with the analysis results. This assumes that molecules in the current working list was the input or result for the analysis. <br> 
@@ -261,6 +218,59 @@ this command clears the cache of analysis results for your current workspace. <b
 
 `clear molecules`{: .cmd }
 This command clears the working list of molecules. <br><br>
+
+`load molecules using file '<csv_or_sdf_filename>' [ merge with pubchem ] [append]`{: .cmd }
+This command Loads molecules from a CSV or SDF file into the molecule working list.  <br> 
+
+            Options: <br> 
+             - you can add `merge with pubchem` to the command to fill in missing properties of the molecule. <br> 
+             - you can append to the existing working set using the command <cmd> append </append>  <br><br>
+
+`load molecules using dataframe <dataframe> [ merge with pubchem ] [append]`{: .cmd }
+"             <br> 
+This command Load molecules into the molecule working list from a dataframe.  <br> 
+
+            Options: <br> 
+             - you can add `merge with pubchem` to the command to fill in missing properties of the molecule. NOTE:  this will slow the process down <br> 
+             - you can append to the existing working set using the command <cmd> append </append>  <br><br>
+
+`export molecules [ as <csv_filename> ]`{: .cmd }
+This command exports the molecules in the current working list of molecules. <br> 
+
+When run inside a Notebook, this will return a dataframe. When run from the command line, the molecules will be saved to your workspace as a CSV file named "result_#.csv". The rows will be numbered with the highest number representing the latest molecule that was added. <br><br>
+
+<br>
+
+### Molecules
+
+`display molecule <name> | <smiles> | <inchi> | <inchikey> | <cid>`{: .cmd }
+This command will display a molecule's identifiers, propoerties, synonyms and any Analysis results it has been enriched with. <br> 
+if the molecule exists in the current molecule workling list in memory the molecule will be retrieved from there if not pubchem will be checked to see if the molecule and its information is avialable there. <br> 
+
+You can use the 'mol' shorthand instead of 'molecule'. <br> 
+
+If the requested molecule exists in your current working list, that version will be used. <br> 
+
+You can specify any molecule by SMILES or InChI, and PubChem classified molecules also by name, InChIKey or their PubChem CID.  <br> 
+ A molecule identifier can be in single quotes or defined with unquoted text. If you have spaces in your molecule identifier e.g. a name, then you must user a single quoted string <br> 
+
+If you use the name of a molecule, the tool will do a caseless search of the names and synonyms first in current working list, then on pubchem. <br> 
+
+Examples: <br> 
+- Display a molecule by name: <br> 
+`display molecule Aspirin` <br> 
+
+- Display a molecule by SMILES: <br> 
+`display molecule CC(=O)OC1=CC=CC=C1C(=O)O` <br> 
+
+- Display a molecule by InChI: <br> 
+`display mol InChI=1S/C9H8O4/c1-6(10)13-8-5-3-2-4-7(8)9(11)12/h2-5H,1H3,(H,11,12)` <br> 
+
+- Display a molecule by InChIKey string: <br> 
+`display mol BSYNRYMUTXBXSQ-UHFFFAOYSA-N` <br> 
+
+- Display a molecule by CID: <br> 
+`display mol 2244` <br><br>
 
 `@(<name> | <smiles> | <inchi> | <inchikey> | <cid>)>><molecule_property_name>`{: .cmd }
 This command request the given property of a molecule, it will first try and retrieve the provided molecule from your working list of molecules, if it is not there it will will try and retrieve the molecule from pubchem. <br> 
@@ -286,43 +296,57 @@ Examples of how to retrieve the value of a molecules property: <br>
 
 Available properties: `atom_stereo_count`, `bond_stereo_count`, `canonical_smiles`, `charge`, `cid`, `complexity`, `conformer_count_3d`, `conformer_id_3d`, `conformer_model_rmsd_3d`, `conformer_rmsd_3d`, `coordinate_type`, `covalent_unit_count`, `defined_atom_stereo_count`, `defined_bond_stereo_count`, `effective_rotor_count_3d`, `exact_mass`, `feature_acceptor_count_3d`, `feature_anion_count_3d`, `feature_cation_count_3d`, `feature_count_3d`, `feature_donor_count_3d`, `feature_hydrophobe_count_3d`, `feature_ring_count_3d`, `h_bond_acceptor_count`, `h_bond_donor_count`, `heavy_atom_count`, `inchi`, `inchikey`, `isomeric_smiles`, `isotope_atom_count`, `iupac_name`, `mmff94_energy_3d`, `mmff94_partial_charges_3d`, `molecular_formula`, `molecular_weight`, `molecular_weight_exact`, `monoisotopic_mass`, `multipoles_3d`, `multipoles_3d`, `pharmacophore_features_3d`, `pharmacophore_features_3d`, `rotatable_bond_count`, `sol`, `sol_classification`, `tpsa`, `undefined_atom_stereo_count`, `undefined_bond_stereo_count`, `volume_3d`, `x_steric_quadrupole_3d`, `xlogp`, `y_steric_quadrupole_3d`, `z_steric_quadrupole_3d` <br><br>
 
-`load molecules using file '<csv_or_sdf_filename>' [ merge with pubchem ]`{: .cmd }
-This command Loads molecules from a CSV or SDF file into the molecule working list. Optionally you can add `merge with pubchem` to the command to fill in missing properties of the molecule. <br><br>
-
-`export molecules [ as <csv_filename> ]`{: .cmd }
-This command exports the molecules in the current working list of molecules. <br> 
-
-When run inside a Notebook, this will return a dataframe. When run from the command line, the molecules will be saved to your workspace as a CSV file named "result_#.csv". The rows will be numbered with the highest number representing the latest molecule that was added. <br><br>
-
-`show molecule <name> | <smiles> | <inchi> | <inchikey> | <cid>`{: .cmd }
-Inspect a molecule in the browser. <br> 
+`show mol|molecule <name> | <smiles> | <inchi> | <inchikey> | <cid>`{: .cmd }
+Inspect a molecule in the browser. If a molecule is not in the current Molecule Working set it will pull the result from Pubchem. <br> 
 
 {MOL_SHORTHAND} <br> 
 
 When you show a molecule by SMILES or InChI, we can display it immediately. When you show a molecule by name, InChIKey or PubChem CID, we need to first retrieve it from PubChem, which can take a few seconds. <br> 
 
-Examples of how to show a molecule and its proerties in the molecule viewer: <br> 
+Examples: <br> 
 - `show mol aspirin` <br> 
 - `show mol CC(=O)OC1=CC=CC=C1C(=O)O` <br> 
 - `show mol InChI=1S/C9H8O4/c1-6(10)13-8-5-3-2-4-7(8)9(11)12/h2-5H,1H3,(H,11,12)` <br> 
 - `show mol 2244` <br><br>
 
-`show molecules using ( file '<mols_file>' | dataframe <dataframe> ) [ save as '<sdf_or_csv_file>' | as molsobject ]`{: .cmd }
-Launch the molecule viewer to examine and select molecules from a SMILES sdf/csv dataset. <br> 
+<br>
 
-    Examples of how to show molecules in mols2grid: <br> 
-    - `show molecules using file 'base_molecules.sdf' as molsobject` <br> 
-    - `show molecules using dataframe my_dataframe save as 'selection.sdf'` <br><br>
+### Molecule-sets
+
+`save molecule-set as <molecule_set_name>`{: .cmd }
+Save the current molecule workking list to a molecule-set in your workspace. <br> 
+
+Example: <br> 
+`save molset as my_working_set` <br><br>
+
+`load molecule-set|molset <molecule-set_name>`{: .cmd }
+Loads a molecule-set from your workspace, and replaces your current list of molecules with the molecules from the given  molecule-set. <br> 
+Example: <br> 
+`load molset my_working_set` <br><br>
+
+`merge molecule-set|molset <molecule-set_name> [merge only] [append only]`{: .cmd }
+This command merges a molecule-set from your workspace into cour current working list of molecules in memory, and updates properties/Analysis in existing molecules or appends new molecules to the working list. <br> 
+
+Options: <br> 
+    - ` merge only` Only merges with existing molecules in list <br> 
+    - ` append only` Only append molecules not in list <br> 
+`merge molset my_working_set` <br><br>
+
+`list molecule-sets`{: .cmd }
+List all molecule sets in your workspace. <br><br>
+
+`show molset|molecule-set '<molset_or_sdf_or_smi_path>' | using dataframe <dataframe>`{: .cmd }
+Launch the molset viewer to visualize your molecule dataset. <br> 
+
+Examples: <br> 
+- `show molset 'neurotransmitters.mol.json'` <br> 
+- `show molset 'neurotransmitters.sdf'` <br> 
+- `show molset 'neurotransmitters.smi'` <br> 
+- `show molset my_dataframe` <br><br>
 
 <br>
 
 ### Utility
-
-`load molecules using dataframe <dataframe> [ merge with pubchem ]`{: .cmd }
-"             <br> 
-This command Load molecules into the molecule working list from a dataframe.  <br> 
-
-If the ` merge with pubchem`  clause is used then loaded molecules will have properties that are not in the source file filled in using pubchem requests, this will slow the process down <br><br>
 
 `merge molecules data using dataframe <dataframe> [ merge with pubchem ]`{: .cmd }
 "             <br> 
@@ -335,16 +359,20 @@ Display data from a csv file. <br><br>
 Save table data to csv file. <br><br>
 
 `-> result open`{: .cmd }
-Explore table data in the browser. <br><br>
+Explore table data in the browser. <br> 
+        if you append `-d` to the end of the command `result open -d` display will result to data viewer. <br><br>
 
 `-> result edit`{: .cmd }
-Edit table data in the browser. <br><br>
+Edit table data in the browser. <br> 
+        if you append `-d` to the end of the command `result open -d` display will result to data viewer. <br><br>
 
 `-> result copy`{: .cmd }
 Copy table data to clipboard, formatted for spreadheet. <br><br>
 
 `-> result display`{: .cmd }
-Display the result in the CLI. <br><br>
+Display the result in the CLI. <br> 
+
+        if you append `-d` to the end of the command `result open -d` display will result to data viewer. <br><br>
 
 `-> result as dataframe`{: .cmd }
 Return the result as dataframe (only for Jupyter Notebook) <br><br>
@@ -401,6 +429,9 @@ Exit your toolkit context. You will no longer have access to toolkit-specific fu
 `create run`{: .cmd }
 Start recording a run. <br><br>
 
+`remove run <run_name>`{: .cmd }
+remove a run. <br><br>
+
 `save run as <run_name>`{: .cmd }
 Stop recording a run and save it. <br><br>
 
@@ -412,6 +443,24 @@ List all runs saved in the current workspace. <br><br>
 
 `display run <run_name>`{: .cmd }
 Display the commands stored in a certain run. <br><br>
+
+<br>
+
+### GUI
+
+`install gui`{: .cmd }
+Install the OpenAD GUI (graphical user interface). <br> 
+
+The graphical user interface allows you to browse your workspace and visualize your datasets and molecules. <br><br>
+
+`launch gui`{: .cmd }
+Launch the OpenAD GUI (graphical user interface). <br><br>
+
+`restart gui`{: .cmd }
+Terminate and then restart the GUI server. <br><br>
+
+`quit gui`{: .cmd }
+Terminate the GUI server. <br><br>
 
 <br>
 
@@ -430,8 +479,8 @@ Clear the language model's authentication file. <br><br>
 
 ### File System
 
-`list files`{: .cmd }
-List all files in your current workspace. <br><br>
+`list files [ path ]`{: .cmd }
+List al directories and files in your current workspace. <br><br>
 
 `import from '<external_source_file>' to '<workspace_file>'`{: .cmd }
 Import a file from outside OpenAD into your current workspace. <br><br>
@@ -444,6 +493,13 @@ Export a file from your current workspace to another workspace. <br><br>
 
 `remove '<filename>'`{: .cmd }
 Remove a file from your current workspace. <br><br>
+
+`open '<filename>'`{: .cmd }
+Open a file or dataframe in an iframe  <br> 
+
+Examples: <br> 
+- `open 'base_molecules.sdf'` <br> 
+- `open my_dataframe` <br><br>
 
 <br>
 
@@ -471,20 +527,20 @@ List all available commands. <br><br>
 `model auth list`{: .cmd }
 show authentication group mapping <br><br>
 
-`model auth add group '<auth_group>' with '<api_key>'`{: .cmd }
+`model auth add group '<auth_group>'|<auth_group> with '<api_key>'`{: .cmd }
 add an authentication group for model services to use <br><br>
 
-`model auth remove group '<auth_group>'`{: .cmd }
+`model auth remove group '<auth_group>' | <auth_group>`{: .cmd }
 remove an authentication group <br><br>
 
-`model auth add service '<service_name>' to group '<auth_group>'`{: .cmd }
-attach an authentication group to a model service <br><br>
+`model auth add service '<service_name>'|,service_name> to group '<auth_group>'|<auth_group>`{: .cmd }
+Attach an authentication group to a model service <br><br>
 
-`model auth remove service '<service_name>'`{: .cmd }
-detatch an authentication group from a model service <br><br>
+`model auth remove service '<service_name>'|<service_name>`{: .cmd }
+Detatch an authentication group from a model service <br><br>
 
 `model service status`{: .cmd }
-get the status of currently cataloged services <br><br>
+Get the status of currently cataloged services <br><br>
 
 `model service describe '<service_name>'|<service_name>`{: .cmd }
 get the configuration of a service <br><br>
@@ -498,19 +554,45 @@ uncatalog a model service  <br>
  Example:  <br> 
 `uncatalog model service 'gen'` <br><br>
 
-`catalog model service from (remote) '<path or github>' as  '<service_name>'|<service_name>   USING (<parameter>=<value> <parameter>=<value>)`{: .cmd }
+`catalog model service from (remote) '<path> or <github> or <service_url>' as  '<service_name>'|<service_name>   USING (<parameter>=<value> <parameter>=<value>)`{: .cmd }
 catalog a model service from a path or github or remotely from an existing OpenAD service. <br> 
 (USING) optional headers parameters for communication with service backend. <br> 
+If you are cataloging a service using a model defined in a directory, provide the absolute ` <path> ` of that directory in quotes. <br> 
+
+The following options require the `remote` option be declared. <br> 
+
+If you are cataloging a service using a model defined in github repository, provide the absolute ` <github> ` of that github directory quotes. <br> 
+
+If you are cataloging a remote service on a ip address and port provide the remote services ipaddress and port in quoted string e.g. `'0.0.0.0:8080'` <br> 
+
+`service_name`: this is the name of the service as you will define it for your usage. e.g `prop` short for properties.  <br> 
+
+USING Parameters: <br> 
+
+If using a hosted service the following parameters must be supplied: <br> 
+-`Inference-Service`: this is the name of the inference service that is hosted, it is a required parameter if cataloging a remote service. <br> 
+An authorization parameter is always required if cataloging a hosted service, either Auhtorisation group (`auth_group`) or Authorisation bearer_token/api_key (`Authorization`): <br> 
+-`auth_group`: this is the name of an authorization group which contains the api_key linked to the service access. This can only be used if `Authorization` is not also defined. <br> 
+OR <br> 
+-`Authorization`: this parameter is designed to be used when a `auth_group` is not defined. <br> 
 
 Example: <br> 
 
+Skypilot Deployment <br> 
 -`catalog model service from 'git@github.com:acceleratedscience/generation_inference_service.git' as 'gen'` <br> 
 
-or to catalog a remote service shared with you: <br> 
+Service using a authentication group  <br> 
+-`catalog model service from remote '<service_url>' as  molf  USING (Inference-Service=molformer  )` <br> 
+` model auth add service 'molf' to group 'default'` <br> 
+
+Single Authorisation Service <br> 
+-`openad catalog model service from remote '<service_URL>' as 'gen' USING (Inference-Service=generation Authorization='<api_key>')` <br> 
+
+Catalog a remote service shared with you: <br> 
 -`catalog model service from remote 'http://54.235.3.243:30001' as gen` <br><br>
 
 `model service up '<service_name>'|<service_name> [no_gpu]}`{: .cmd }
-launches a cataloged model service. <br> 
+launches a cataloged model service when it was cataloged as a self managed service from a directory or github repository. <br> 
 If you do not want to launch a service with GPU you should specify `no_gpu` at the end of the command. <br> 
 Examples: <br> 
 
@@ -521,7 +603,7 @@ Examples: <br>
 -`model service up gen no_gpu` <br><br>
 
 `model service local up '<service_name>'|<service_name>`{: .cmd }
-launch a model service locally. <br> 
+Launches a model service locally. <br> 
 
             Example: <br> 
               ` model service local up gen` <br><br>
@@ -697,6 +779,8 @@ Lists all RXN AI models currently available. <br><br>
 `predict retrosynthesis '<smiles>' [ using (option1=<value> option2=<value>) ]`{: .cmd }
 Perform a retrosynthesis route prediction on a molecule. <br> 
 
+  > **Note:** The `using` clause requires all enclosed parameters to be defined in the same order as listed below. <br> 
+
 Optional Parameters that can be specified in the `using` clause: <br> 
 - `availability_pricing_threshold=<int>` Maximum price in USD per g/ml of compounds. Default: no threshold. <br> 
 - `available_smiles='<smiles>.<smiles>.<smiles>'` List of molecules available as precursors, delimited with a period. <br> 
@@ -708,6 +792,7 @@ Optional Parameters that can be specified in the `using` clause: <br>
 - `nbeams=<int>` The maximum number of beams exploring the hypertree. The default is 10. <br> 
 - `pruning_steps=<int>` The number of steps to prune a hypertree. The default is 2. <br> 
 - `ai_model='<model_name>'` What model to use. Use the command `list rxn models` to list all available models. The default is '2020-07-01'. <br> 
+
 
 Example: <br> 
 `predict retrosynthesis 'BrCCc1cccc2c(Br)c3ccccc3cc12' using (max_steps=3)` <br><br>
@@ -771,3 +856,4 @@ Examples: <br>
 <summary>See commands</summary>
 
 </details>
+
