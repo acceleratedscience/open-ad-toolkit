@@ -1,24 +1,9 @@
 """
-This script generates the commands.md and installation.md files
-for the just-the-docs documentation, and updates the llm_description.txt
-per toolkit, used to train the LLM.
+Generate documentation files for the OpenAD Toolkit.
+For more information, consult the README.md file in the docs folder.
 
-- commands.md --> Generated from the command help
-- installation.md --> Adapted from the main README.md
-- llm_description.txt --> Updated commands
+python3 docs/generate_docs.py
 
-To generate:
-
-    python3 docs/generate_docs.py
-
-Output:
-    
-    docs/output/markdown/commands.md
-    docs/output/markdown/installation.md
-    docs/output/csv/commands.csv
-    openad/user_toolkits/<toolkit_name>/llm_description.txt
-
-After being regenerated, copy the markdown files over to the documentation repo.
 """
 
 ############################################################
@@ -29,12 +14,14 @@ import re
 import sys
 import pyperclip
 
-# Add the parent directory to the sys.path
-sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
-# for path in sys.path:
-#     print("*", path)
+# Add the root directory to the sys.path
+root_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+if str(root_dir) not in sys.path:
+    sys.path.append(root_dir)
+for path in sys.path:
+    print("*", path)
 
-from copy_docs import copy_docs
+from copy_docs import copy_docs  # This resolves when running the script directly
 from openad.app.main import RUNCMD as cmd_pointer
 from openad.app.global_var_lib import _all_toolkits
 from openad.toolkit.toolkit_main import load_toolkit

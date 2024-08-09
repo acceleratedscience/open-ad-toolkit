@@ -224,7 +224,18 @@ This command Loads molecules from a CSV or SDF file into the molecule working li
 
             Options: <br> 
              - you can add `merge with pubchem` to the command to fill in missing properties of the molecule. <br> 
-             - you can append to the existing working set using the command <cmd> append </append>  <br><br>
+             - you can append to the existing working set using the command <cmd> append </append>  <br> 
+
+             and example data set is as follows <br> 
+
+    cid      SMILES                                                                 chemical_name                    molecular weight    xlogp3     <br> 
+--------   ---------------------------------------------------------------------  --------------------------------  ------------------  --------   <br> 
+  114481  C(=O)(C(C(F)(F)F)(OC(C(C(F)(F)F)(F)F)(F)F)F)O                          propanoic acid                     330.05              3.6     <br> 
+   67821  C(=O)(C(C(C(C(C(C(C(C(F)(F)F)(F)F)(F)F)(F)F)(F)F)(F)F)(F)F)(F)F)O      Perfluorononanoic acid             464.08              5.6      <br> 
+    9554  C(=O)(C(C(C(C(C(C(C(F)(F)F)(F)F)(F)F)(F)F)(F)F)(F)F)(F)F)O             Perfluorooctanoic acid             414.07              4.9     <br> 
+   74483  C(C(C(C(C(F)(F)S(=O)(=O)O)(F)F)(F)F)(F)F)(C(C(C(F)(F)F)(F)F)(F)F)(F)F  Perfluorooctane sulfonic acid      500.13               5      <br> 
+   67734  C(C(C(C(F)(F)S(=O)(=O)O)(F)F)(F)F)(C(C(F)(F)F)(F)F)(F)F                Perfluorohexanesulphonic acid      400.12              3.7      <br> 
+16760155  C(C(C(C(F)(F)S(=O)(=O)[O-])(F)F)(F)F)(C(C(F)(F)F)(F)F)(F)F                                                399.11              3.6  <br><br>
 
 `load molecules using dataframe <dataframe> [ merge with pubchem ] [append]`{: .cmd }
 "             <br> 
@@ -232,7 +243,19 @@ This command Load molecules into the molecule working list from a dataframe.  <b
 
             Options: <br> 
              - you can add `merge with pubchem` to the command to fill in missing properties of the molecule. NOTE:  this will slow the process down <br> 
-             - you can append to the existing working set using the command <cmd> append </append>  <br><br>
+             - you can append to the existing working set using the command <cmd> append </append>  <br> 
+
+            an example data set that is compatible is as follows <br> 
+
+
+    cid      SMILES                                                                 chemical_name                    molecular weight    xlogp3     <br> 
+--------   ---------------------------------------------------------------------  --------------------------------  ------------------  --------   <br> 
+  114481  C(=O)(C(C(F)(F)F)(OC(C(C(F)(F)F)(F)F)(F)F)F)O                          propanoic acid                     330.05              3.6     <br> 
+   67821  C(=O)(C(C(C(C(C(C(C(C(F)(F)F)(F)F)(F)F)(F)F)(F)F)(F)F)(F)F)(F)F)O      Perfluorononanoic acid             464.08              5.6      <br> 
+    9554  C(=O)(C(C(C(C(C(C(C(F)(F)F)(F)F)(F)F)(F)F)(F)F)(F)F)(F)F)O             Perfluorooctanoic acid             414.07              4.9     <br> 
+   74483  C(C(C(C(C(F)(F)S(=O)(=O)O)(F)F)(F)F)(F)F)(C(C(C(F)(F)F)(F)F)(F)F)(F)F  Perfluorooctane sulfonic acid      500.13               5      <br> 
+   67734  C(C(C(C(F)(F)S(=O)(=O)O)(F)F)(F)F)(C(C(F)(F)F)(F)F)(F)F                Perfluorohexanesulphonic acid      400.12              3.7      <br> 
+16760155  C(C(C(C(F)(F)S(=O)(=O)[O-])(F)F)(F)F)(C(C(F)(F)F)(F)F)(F)F                                                399.11              3.6  <br><br>
 
 `export molecules [ as <csv_filename> ]`{: .cmd }
 This command exports the molecules in the current working list of molecules. <br> 
@@ -349,8 +372,38 @@ Examples: <br>
 ### Utility
 
 `merge molecules data using dataframe <dataframe> [ merge with pubchem ]`{: .cmd }
-"             <br> 
-This command merges molecules into the molecule working list from a dataframe.  <br><br>
+This command merges molecules into the molecule working list from a dataframe.  <br> 
+
+It takes files with the columns named:  <br> 
+
+`subject or <cmd>smiles`: molecules similes string <br> 
+`property` : the property generation name <br> 
+`result` : the value of the property <br> 
+
+Sample input file <br> 
+
+subject                                                               property                        result <br> 
+--------------------------------------------------------------------  -------------------------  ----------- <br> 
+O=C(N)C(F)(OC(F)(F)C(F)(F)C(F)(F)F)C(F)(F)F                           molecular_weight               329.065 <br> 
+O=C(O)C(F)(NC(F)(F)C(F)(F)C(F)(F)F)C(F)(F)F                           molecular_weight               329.065 <br> 
+O=C(O)C(F)(OC(F)(F)C(F)(F)C)CF                                        molecular_weight               240.099 <br> 
+O=C(O)C(F)(OC(O)(F)C(F)(F)C(F)(F)F)C(F)(F)F                           molecular_weight               328.058 <br> 
+O=C(O)C(F)(OC(Cl)(F)C(F)(F)C(F)(F)F)C(F)(F)F                          molecular_weight               346.504 <br> 
+O=C(O)C(F)(OC(F)(F)C(F)(O)C(F)(F)F)C(F)(F)F                           molecular_weight               328.058 <br> 
+O=C(O)C(F)(OC(F)(O)C(F)(F)C(F)(F)F)C(F)(F)F                           molecular_weight               328.058 <br> 
+O=C(O)C(F)(OC(F)(F)C(F)(Br)C(F)(F)F)C(F)(F)F                          molecular_weight               390.955 <br> 
+O=C(O)C(F)OC(O)(F)C(F)(F)C(F)(F)F                                     molecular_weight               260.061 <br> 
+
+
+Example Command: <br> 
+
+merge molecules from a data frame called `new_props` <br> 
+
+- ` merge molecules data using dataframe new_props` <br> 
+
+to perform the same load and merge with pubchem data simply add the ` merge with pubchem ` clause to the end of the command  <br> 
+
+- ` merge molecules data using dataframe new_props merge with pubchem`  <br><br>
 
 `display data '<filename.csv>'`{: .cmd }
 Display data from a csv file. <br><br>
