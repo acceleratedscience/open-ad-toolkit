@@ -45,7 +45,7 @@ from openad.helpers.output_msgs import msg
 from openad.helpers.general import refresh_prompt
 from openad.helpers.splash import splash
 from openad.helpers.files import empty_trash
-from openad.helpers.output_content import info_workspaces, info_toolkits, info_runs, info_context
+from openad.helpers.output_content import about_workspace, about_plugin, about_run, about_context
 
 # Globals
 from openad.app.global_var_lib import _repo_dir
@@ -284,13 +284,13 @@ class RUNCMD(Cmd):
         # Display info text about important key concepts.
         if display_info and ("return_val" not in kwargs or not kwargs["return_val"]):
             if inp.lower() == "workspace" or inp.lower() == "workspaces":
-                output_text("<h1>About Workspaces</h1>\n" + info_workspaces, edge=True, pad=1, return_val=False)
+                output_text("<h1>About Workspaces</h1>\n" + about_workspace, edge=True, pad=1, return_val=False)
             elif inp.lower() == "toolkit" or inp.lower() == "toolkits":
-                output_text("<h1>About Toolkits</h1>\n" + info_toolkits, edge=True, pad=1, return_val=False)
+                output_text("<h1>About Toolkits</h1>\n" + about_plugin, edge=True, pad=1, return_val=False)
             elif inp.lower() == "run" or inp.lower() == "runs":
-                output_text("<h1>About Runs</h1>\n" + info_runs, edge=True, pad=1, return_val=False)
+                output_text("<h1>About Runs</h1>\n" + about_run, edge=True, pad=1, return_val=False)
             elif inp.lower() == "context" or inp.lower() == "contexts":
-                output_text("<h1>About Context</h1>\n" + info_context, edge=True, pad=1, return_val=False)
+                output_text("<h1>About Context</h1>\n" + about_context, edge=True, pad=1, return_val=False)
 
         # `<toolkit_name> ?` --> Display all toolkkit commands.
         if inp.upper() in _all_toolkits + ["DEMO"]:  # DEMO is omitted from _all_toolkits
@@ -882,8 +882,10 @@ def api_remote(
 
     if api_context["toolkit"] is None and initial_invocation is not True:
         api_context["toolkit"] = magic_prompt.settings["context"]
+
     else:
         x = {"toolkit_name": api_context["toolkit"]}
+
         if api_context["toolkit"] is None:
             unset_context(magic_prompt, None)
         else:
@@ -938,8 +940,8 @@ def api_remote(
             result = magic_prompt.default(inp)
 
             api_context["workspace"] = magic_prompt.settings["workspace"]
-
             api_context["toolkit"] = magic_prompt.settings["context"]
+
             if result is not True and result is not False:
                 return result
 
@@ -1025,7 +1027,6 @@ def cmd_line():
                 lets_exit = True
 
             except KeyboardInterrupt:
-
                 command_line.postloop()
 
                 if confirm_prompt("Are you sure you wish to exit?", default=True):

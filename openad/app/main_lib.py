@@ -79,7 +79,7 @@ from openad.core.lang_workspaces import (
     set_workspace,
     get_workspace,
 )
-from openad.core.lang_runs import display_run, exec_run, save_run, list_runs
+from openad.core.lang_runs import display_run, exec_run, save_run, list_runs, remove_run
 from openad.core.lang_dev import flask_example
 from openad.core.grammar import create_statements
 
@@ -237,6 +237,8 @@ def lang_parse(cmd_pointer, parser):
             return False
     elif parser.getName() == "list_runs":
         return list_runs(cmd_pointer, parser)
+    elif parser.getName() == "remove_run":
+        return remove_run(cmd_pointer, parser)
     elif parser.getName() == "display_run":
         return display_run(cmd_pointer, parser)
     elif parser.getName() == "exec_run":
@@ -493,8 +495,10 @@ def set_context_by_name(cmd_pointer, toolkit_name, reset=False, suppress_splash=
     toolkit_current = None
 
     # Toolkit doesn't exist.
+
     if toolkit_name.upper() not in cmd_pointer.settings["toolkits"]:
         return output_error(msg("fail_toolkit_not_installed", toolkit_name), nowrap=True)
+
     else:
         old_cmd_pointer_context = cmd_pointer.settings["context"]
         old_toolkit_current = cmd_pointer.toolkit_current
@@ -502,6 +506,7 @@ def set_context_by_name(cmd_pointer, toolkit_name, reset=False, suppress_splash=
 
         if load_ok:
             cmd_pointer.settings["context"] = toolkit_name
+
             cmd_pointer.toolkit_current = toolkit_current
             refresh_prompt(cmd_pointer.settings)
             write_registry(cmd_pointer.settings, cmd_pointer)

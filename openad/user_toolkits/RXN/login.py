@@ -73,7 +73,10 @@ def login(cmd_pointer):
             return False, None
 
         if name != cmd_pointer.settings["workspace"]:
-            rxn_helper.sync_up_workspace_name(cmd_pointer)
+            try:
+                rxn_helper.sync_up_workspace_name(cmd_pointer)
+            except:
+                return False, None
         now = datetime.timestamp(now)
         return True, None  # No expiry on RXN Handles
 
@@ -98,7 +101,11 @@ def login(cmd_pointer):
             )
         cmd_pointer.login_settings["toolkits_api"][x] = config_file["auth"]["api_key"]
         cmd_pointer.login_settings["client"][x] = client
-        rxn_helper.sync_up_workspace_name(cmd_pointer, reset=True)
+        try:
+            rxn_helper.sync_up_workspace_name(cmd_pointer)
+        except:
+            return False, None
+
         return True, None
     except Exception as e:  # pylint: disable=broad-exception-caught
         return False, None

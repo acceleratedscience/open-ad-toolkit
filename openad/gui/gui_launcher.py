@@ -40,7 +40,7 @@ GUI_SERVER = None
 
 JL_PROXY = False
 URL_PROXY = False
-FORCE_PROXY = False  # Set this to True to force the use of the proxy for testing.
+FORCE_PROXY = False  # Set this to True to force the use of the proxy for testing (Jupyter only)
 try:
     jl = jl_settings.get_jupyter_lab_config()
     if jl["ServerApp"]["allow_remote_access"] is True and "127.0.0.1" in jl["ServerProxy"]["host_allowlist"]:
@@ -231,6 +231,7 @@ class ServerThread(Thread):
 
 def _open_browser(host, port, path, query, hash, silent=False):
     headless = "/headless" if GLOBAL_SETTINGS["display"] == "notebook" else ""
+
     module_path = f"{headless}/{path}" if path else ""
 
     # Jupyter --> Render iframe.
@@ -273,8 +274,11 @@ def _open_browser(host, port, path, query, hash, silent=False):
                 #{id} a:hover {{ color: #0f62fe }}
             </style>
             """
+            prefix = os.environ.get("NB_PREFIX")
+            if prefix is None:
+                prefix = ""
             if URL_PROXY:
-                url = f"/proxy/{port}{module_path}{query}{hash}"
+                url = f"{prefix}/proxy/{port}{module_path}{query}{hash}"
             else:
                 url = f"http://{host}:{port}{module_path}{query}{hash}"
 
@@ -296,6 +300,7 @@ def _open_browser(host, port, path, query, hash, silent=False):
             jl_padding_correction = "width:calc(100% + 20px)" if is_jupyterlab else ""
 
             # Render iframe & buttons
+
             iframe_html = f'{style}{btn_wrap}<iframe src="{url}" crossorigin="anonymous" width="{width}" height="{height}" style="border:solid 1px #ddd;box-sizing:border-box;{jl_padding_correction}"></iframe>'
             display(HTML(iframe_html))
 

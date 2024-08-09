@@ -627,13 +627,13 @@ function submitData() {
 	var xhr = new XMLHttpRequest()
 
 	// Define the request method and URL.
-	xhr.open('POST', '/submit', true)
+	xhr.open('POST', 'submit', true)
 
 	// Set up a callback function to handle the response.
 	xhr.onload = function () {
 		if (xhr.status === 200) {
 			// Success
-			window.location.href = `/success` // ?data=${data}
+			window.location.href = `success` // ?data=${data}
 		} else {
 			// Error
 			alert('Submit request failed with status code ' + xhr.status)

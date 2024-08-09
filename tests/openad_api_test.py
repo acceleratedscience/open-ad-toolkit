@@ -2,6 +2,7 @@ from openad import OpenadAPI
 
 
 if __name__ == "__main__":
+    from openad import OpenadAPI
 
     myclass2 = OpenadAPI("class2")
 
@@ -52,6 +53,9 @@ if __name__ == "__main__":
 
     # print(myclass2.request("export molecule CCO"))
 
+    from openad import OpenadAPI
+
+    myclass2 = OpenadAPI("class2")
     myclass2.request("set context DS4SD")
 
     df = myclass2.request("search collection 'PubChem' for 'PFOA OR PFOS OR PFHxS OR PFNA OR HFPO-DA'")
@@ -117,22 +121,22 @@ if __name__ == "__main__":
         "sas",
         "esol",
     ]
-    print(1)
+    
     new_props = myclass2.request(" prop get molecule property {properties_all} for {patented_molecules} ")
-    print(2)
+    
     for x in patented_molecules:
         myclass2.request(f" add molecule {x} Force")
-    print(3)
+  
     myclass2.request(" merge molecules data using dataframe new_props", new_props=new_props)
-    print(4)
+
     myclass2.request("enrich molecules with analysis")
-    print(5)"""
+   
     myclass2.request(" set context rxn ")
-    print(6)
+  
     print(
         myclass2.request(" predict retrosynthesis  'O=C(O)C(F)(F)C(F)(F)C(F)(F)C(F)(F)C(F)(F)C(F)(F)C(F)(F)C(F)(F)F' ")
     )
-
+"""
     df = myclass2.request(
         "bmfm generate with BmfmAntibodiesGenerator data sample 5 using ( algorithm_type=generation protein_id=5Nmv heavy_chain_id=H  with_properties=True  )"
     )

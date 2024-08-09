@@ -147,7 +147,8 @@ def predict_reaction_batch(inputs: dict, cmd_pointer):
         status = False
         while status == False:
             try:
-                newspin.text = "Processing Prediction"
+                if retries == 0:
+                    newspin.info("Processing Prediction")
 
                 predict_reaction_batch_response = rxn4chemistry_wrapper.predict_reaction_batch(from_list)
                 sleep(2)
@@ -214,4 +215,7 @@ def predict_reaction_batch(inputs: dict, cmd_pointer):
                 display(get_reaction_from_smiles(reaction_prediction["smiles"]))
 
     output_text(" ", return_val=False)
-    return True
+    if not GLOBAL_SETTINGS["VERBOSE"]:
+        return reaction_predictions["predictions"]
+    else:
+        return True
