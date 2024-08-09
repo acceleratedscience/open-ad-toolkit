@@ -2,11 +2,11 @@
 
 ⚠️**Current Available Public Models. Under Construction** ⚠️
 
-| Molformer | Moler | Properties | Generation |
-| --------  | -------- | -------- | -------- |
-| regression| 
-| multitask classification| 
-| classifciation| 
+| Molformer                 | Moler         | Properties| Generation|
+| --------                  | --------      | --------  | --------  |
+| regression                |               |           |           |
+| multitask classification  |               |           |           |
+| classifciation            |               |           |           |
 
 
 ## What does this service do?
