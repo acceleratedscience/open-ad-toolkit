@@ -884,11 +884,9 @@ def api_remote(
         api_context["toolkit"] = magic_prompt.settings["context"]
 
     else:
-
         x = {"toolkit_name": api_context["toolkit"]}
 
         if api_context["toolkit"] is None:
-
             unset_context(magic_prompt, None)
         else:
             set_context(magic_prompt, x)
@@ -1029,7 +1027,6 @@ def cmd_line():
                 lets_exit = True
 
             except KeyboardInterrupt:
-
                 command_line.postloop()
 
                 if confirm_prompt("Are you sure you wish to exit?", default=True):

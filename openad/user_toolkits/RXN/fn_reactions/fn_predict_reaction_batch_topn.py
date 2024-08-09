@@ -153,7 +153,6 @@ def predict_reaction_batch_topn(inputs: dict, cmd_pointer):
 
         while status is False:
             try:
-
                 if retries == 0:
                     newspin.info("Processing Prediction")
                     print(1)
@@ -175,7 +174,6 @@ def predict_reaction_batch_topn(inputs: dict, cmd_pointer):
         retries = 0
         while "predictions" not in x:
             try:
-
                 if retries == 0:
                     # newspin.info("Processing Prediction")
                     print(2)

@@ -78,7 +78,6 @@ def merge_molecule_property_data(cmd_pointer, inp):
             output_warning("unable to canonicalise:" + row[SMILES])
             continue
         if merge_mol is None:
-
             merge_mol = new_molecule(smiles, name=row[SMILES])
 
             update_flag = False
@@ -88,7 +87,6 @@ def merge_molecule_property_data(cmd_pointer, inp):
         # else duplicate
         # a_mol = {"SMILES": row[SMILES], row[prop]: row[val]}
         if merge_mol is not None:
-
             merge_mol = merge_molecule_properties(row, merge_mol)
             # print("updated: " + str(a_mol))
             if update_flag is False:

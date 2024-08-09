@@ -497,7 +497,6 @@ def set_context_by_name(cmd_pointer, toolkit_name, reset=False, suppress_splash=
     # Toolkit doesn't exist.
 
     if toolkit_name.upper() not in cmd_pointer.settings["toolkits"]:
-
         return output_error(msg("fail_toolkit_not_installed", toolkit_name), nowrap=True)
 
     else:
