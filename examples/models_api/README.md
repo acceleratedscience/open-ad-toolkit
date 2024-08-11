@@ -23,9 +23,9 @@ Our service helps users:
 ## Getting Started
 
 ### Create Account
-To run inference with our models via the api you first need to create an account [here](https://open.accelerator.cafe/)
+To run inference with our models via the api you first need to create an account [[here](https://open.accelerator.cafe/)](https://open.accelerator.cafe/)
 
-If you have any issues or inquiries please reach out to us via [email](mailto:phil.downey1@ibm.com)
+If you have any issues or inquiries please reach out to us via [phil.downey1@ibm.com](mailto:phil.downey1@ibm.com)
 
 ### Generate token
 Upon account creation you will have access to the default publicly available groups. Now you need to get your access token to use the service. Once generated copy and proceed.
