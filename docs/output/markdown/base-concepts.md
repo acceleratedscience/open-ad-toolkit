@@ -20,7 +20,7 @@ https://github.com/acceleratedscience/open-ad-toolkit/tree/main/docs
 
 Your workspace represents an isolated environment where your molecules, molecule sets and other files related to your research are stored.
 
-You can have as many workspaces as needed, allowing you to work on multiple isolated projects. Each workspace has its own command history and corresponds with a directory stored in ~/openad/workspaces. OpenAD comes loaded with a default workspace called 'default'.
+Each workspace has its own command history and corresponds with a directory stored in ~/openad/workspaces, allowing you to work on multiple isolated projects at once. OpenAD comes loaded with a default workspace called 'default', and you can create as many additional workspaces as needed.
 
 To see how to work with workspaces:
 
@@ -28,7 +28,7 @@ To see how to work with workspaces:
 
 ## Plugins
 
-The OpenAD client is an interface to interact with a variety of molecular tools and AI models, which are exposed through plugins. Thanks to a unified language, accessing these tools through OpenAD lets you bypass a lot of complexity.
+Plugins are the way molecular tools and AI models are made available to the OpenAD client. Thanks to a unified language, accessing these tools through OpenAD lets you bypass a lot of complexity.
 
 OpenAD comes preloaded with a number of plugins for literature knowledge extraction (DS4SD), forward and retrosynthesis prediction (RXN) as well as generative methods and property inference (GT4SD).
 
@@ -42,7 +42,7 @@ To see how to work with plugins:
 
 ## Context
 
-In order to interact with any plugin, you first need to set the context to that plugin. This will make all commands for the plugin available.
+Your context defines what plugin you are currently working with. It ensures you are logged onto the a plugin's corresponding system and all the related functionality is loaded.
 
 To see how to switch contexts:
 
