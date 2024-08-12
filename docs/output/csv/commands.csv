@@ -6,26 +6,27 @@ get workspace [ <workspace_name> ];Workspaces
 create workspace <workspace_name> [ description('<description>') on path '<path>' ];Workspaces
 remove workspace <workspace_name> ;Workspaces
 list workspaces;Workspaces
-add molecule <name> | <smiles> | <inchi> | <inchikey> | <cid> [ as '<name>' ] [ basic ] [ force ];Molecules
+add mol|molecule <name> | <smiles> | <inchi> | <inchikey> | <cid> [ as '<name>' ] [ basic ] [ force ];Molecules Working Set
+display sources <name> | <smiles> | <inchi> | <inchikey> | <cid>;Molecules Working Set
+rename molecule <molecule_identifer_string> as <molecule_name>;Molecules Working Set
+export molecule <name> | <smiles> | <inchi> | <inchikey> | <cid> [ as file ];Molecules Working Set
+remove mol|molecule <name> | <smiles> | <inchi> | <inchikey> | <cid> [ force ];Molecules Working Set
+list molecules;Molecules Working Set
+show mols|molecules;Molecules Working Set
+enrich molecules with analysis;Molecules Working Set
+clear analysis cache;Molecules Working Set
+clear molecules;Molecules Working Set
+load molecules using file '<csv_or_sdf_filename>' [ merge with pubchem ] [append];Molecules Working Set
+load molecules using dataframe <dataframe> [ merge with pubchem ] [append];Molecules Working Set
+export molecules [ as <csv_filename> ];Molecules Working Set
 display molecule <name> | <smiles> | <inchi> | <inchikey> | <cid>;Molecules
-display sources <name> | <smiles> | <inchi> | <inchikey> | <cid>;Molecules
-rename molecule <molecule_identifer_string> as <molecule_name>;Molecules
-export molecule <name> | <smiles> | <inchi> | <inchikey> | <cid> [ as file ];Molecules
-remove molecule <name> | <smiles> | <inchi> | <inchikey> | <cid>;Molecules
-list molecules;Molecules
-save molecule-set as <molecule_set_name>;Molecules
-load molecule-set|molset <molecule-set_name>;Molecules
-merge molecule-set|molset <molecule-set_name> [merge only] [append only];Molecules
-list molecule-sets;Molecules
-enrich molecules with analysis;Molecules
-clear analysis cache;Molecules
-clear molecules;Molecules
 @(<name> | <smiles> | <inchi> | <inchikey> | <cid>)>><molecule_property_name>;Molecules
-load molecules using file '<csv_or_sdf_filename>' [ merge with pubchem ];Molecules
-export molecules [ as <csv_filename> ];Molecules
-show molecule <name> | <smiles> | <inchi> | <inchikey> | <cid>;Molecules
-show molecules using ( file '<mols_file>' | dataframe <dataframe> ) [ save as '<sdf_or_csv_file>' | as molsobject ];Molecules
-load molecules using dataframe <dataframe> [ merge with pubchem ];Utility
+show mol|molecule <name> | <smiles> | <inchi> | <inchikey> | <cid>;Molecules
+save molecule-set as <molecule_set_name>;Molecule-sets
+load molecule-set|molset <molecule-set_name>;Molecule-sets
+merge molecule-set|molset <molecule-set_name> [merge only] [append only];Molecule-sets
+list molecule-sets;Molecule-sets
+show molset|molecule-set '<molset_or_sdf_or_smi_path>' | using dataframe <dataframe>;Molecule-sets
 merge molecules data using dataframe <dataframe> [ merge with pubchem ];Utility
 display data '<filename.csv>';Utility
   -> result save [as '<filename.csv>'];Utility
@@ -48,33 +49,39 @@ set context <toolkit_name> [ reset ];Toolkits
 get context;Toolkits
 unset context;Toolkits
 create run;Runs
+remove run <run_name>;Runs
 save run as <run_name>;Runs
 run <run_name>;Runs
 list runs;Runs
 display run <run_name>;Runs
+install gui;GUI
+launch gui;GUI
+restart gui;GUI
+quit gui;GUI
 tell me <how to do xyz>;LLM
 set llm  <language_model_name>;LLM
 clear llm auth;LLM
-list files;File System
+list files [ path ];File System
 import from '<external_source_file>' to '<workspace_file>';File System
 export from '<workspace_file>' to '<external_file>';File System
 copy file '<workspace_file>' to '<other_workspace_name>';File System
 remove '<filename>';File System
+open '<filename>';File System
 intro;Help
 docs;Help
 ?;Help
 ? ...<soft>   --> List all commands containing "..."</soft>;Help
 ... ?<soft>   --> List all commands starting with "..."</soft>;Help
 model auth list;Model
-model auth add group '<auth_group>' with '<api_key>';Model
-model auth remove group '<auth_group>';Model
-model auth add service '<service_name>' to group '<auth_group>';Model
-model auth remove service '<service_name>';Model
+model auth add group '<auth_group>'|<auth_group> with '<api_key>';Model
+model auth remove group '<auth_group>' | <auth_group>;Model
+model auth add service '<service_name>'|,service_name> to group '<auth_group>'|<auth_group>;Model
+model auth remove service '<service_name>'|<service_name>;Model
 model service status;Model
 model service describe '<service_name>'|<service_name>;Model
 model catalog list;Model
 uncatalog model service '<service_name>'|<service_name>;Model
-catalog model service from (remote) '<path or github>' as  '<service_name>'|<service_name>   USING (<parameter>=<value> <parameter>=<value>);Model
+catalog model service from (remote) '<path> or <github> or <service_url>' as  '<service_name>'|<service_name>   USING (<parameter>=<value> <parameter>=<value>);Model
 model service up '<service_name>'|<service_name> [no_gpu]};Model
 model service local up '<service_name>'|<service_name> ;Model
 model service down '<service_name>'|<service_name>;Model

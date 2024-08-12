@@ -11,10 +11,11 @@ import pandas as pd
 # from openad.core.help import help_dict_create
 import requests
 from openad.helpers.output import output_error, output_success, output_text, output_warning
-from openad.helpers.spinner import spinner
+from openad.helpers.spinner import Spinner
 from openad.openad_model_plugin.catalog_model_services import get_service_requester, help_dict_create
 from openad.openad_model_plugin.auth_services import get_service_api_key
 from openad.openad_model_plugin.catalog_model_services import Dispatcher
+from openad.app.global_var_lib import GLOBAL_SETTINGS
 from pyparsing import (  # replaceWith,; Combine,; pyparsing_test,; ParseException,
     CaselessKeyword,
     CharsNotIn,
@@ -712,7 +713,7 @@ def openad_model_requestor(cmd_pointer, parser):
     #     return output_error(
     #         "No Service Cataloged or service not up. \n Check Service Status <cmd>model service status</cmd> "
     #     )
-
+    spinner = Spinner(GLOBAL_SETTINGS["VERBOSE"])
     spinner.start("Executing Request Against Server")
 
     with Dispatcher as servicer:
@@ -768,6 +769,7 @@ def openad_model_requestor(cmd_pointer, parser):
 
     except Exception as e:
         run_error = "HTTP Request Error:\n"
+
         spinner.fail("Request Failed")
         spinner.stop()
         return output_error(run_error + "\n" + str(e))

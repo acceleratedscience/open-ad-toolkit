@@ -41,6 +41,7 @@ GLOBAL_SETTINGS = {
     # - notebook: set in main.py -> api_remote()
     # - api: not yet used
     # - web: not yet used
+    "VERBOSE": True,
     "display": None,
     "MODEL_SERVICES": None,
 }

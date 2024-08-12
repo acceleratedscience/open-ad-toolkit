@@ -45,7 +45,7 @@ from openad.helpers.output_msgs import msg
 from openad.helpers.general import refresh_prompt
 from openad.helpers.splash import splash
 from openad.helpers.files import empty_trash
-from openad.helpers.output_content import info_workspaces, info_toolkits, info_runs, info_context
+from openad.helpers.output_content import about_workspace, about_plugin, about_run, about_context
 
 # Globals
 from openad.app.global_var_lib import _repo_dir
@@ -284,13 +284,13 @@ class RUNCMD(Cmd):
         # Display info text about important key concepts.
         if display_info and ("return_val" not in kwargs or not kwargs["return_val"]):
             if inp.lower() == "workspace" or inp.lower() == "workspaces":
-                output_text("<h1>About Workspaces</h1>\n" + info_workspaces, edge=True, pad=1, return_val=False)
+                output_text("<h1>About Workspaces</h1>\n" + about_workspace, edge=True, pad=1, return_val=False)
             elif inp.lower() == "toolkit" or inp.lower() == "toolkits":
-                output_text("<h1>About Toolkits</h1>\n" + info_toolkits, edge=True, pad=1, return_val=False)
+                output_text("<h1>About Toolkits</h1>\n" + about_plugin, edge=True, pad=1, return_val=False)
             elif inp.lower() == "run" or inp.lower() == "runs":
-                output_text("<h1>About Runs</h1>\n" + info_runs, edge=True, pad=1, return_val=False)
+                output_text("<h1>About Runs</h1>\n" + about_run, edge=True, pad=1, return_val=False)
             elif inp.lower() == "context" or inp.lower() == "contexts":
-                output_text("<h1>About Context</h1>\n" + info_context, edge=True, pad=1, return_val=False)
+                output_text("<h1>About Context</h1>\n" + about_context, edge=True, pad=1, return_val=False)
 
         # `<toolkit_name> ?` --> Display all toolkkit commands.
         if inp.upper() in _all_toolkits + ["DEMO"]:  # DEMO is omitted from _all_toolkits
@@ -864,11 +864,13 @@ def api_remote(
     arguments = inp.split()
     inp = ""  # reset input after splitting into arguments
     a_space = ""  # reset a_space
-
+    initial_invocation = False
     # setup for notebook mode
     if MAGIC_PROMPT is None:
         magic_prompt = RUNCMD()
         MAGIC_PROMPT = magic_prompt
+        initial_invocation = True
+
     else:
         magic_prompt = MAGIC_PROMPT
 
@@ -878,11 +880,16 @@ def api_remote(
         x = {"Workspace_Name": api_context["workspace"]}
         set_workspace(magic_prompt, x)
 
-    if api_context["toolkit"] is None:
+    if api_context["toolkit"] is None and initial_invocation is not True:
         api_context["toolkit"] = magic_prompt.settings["context"]
+
     else:
         x = {"toolkit_name": api_context["toolkit"]}
-        set_context(magic_prompt, x)
+
+        if api_context["toolkit"] is None:
+            unset_context(magic_prompt, None)
+        else:
+            set_context(magic_prompt, x)
 
     magic_prompt.api_variables = api_var_list
     # We now manage history. The history sometimes gets corrupted through no fault of ours.
@@ -931,8 +938,10 @@ def api_remote(
             readline.write_history_file(magic_prompt.histfile)
 
             result = magic_prompt.default(inp)
+
             api_context["workspace"] = magic_prompt.settings["workspace"]
             api_context["toolkit"] = magic_prompt.settings["context"]
+
             if result is not True and result is not False:
                 return result
 

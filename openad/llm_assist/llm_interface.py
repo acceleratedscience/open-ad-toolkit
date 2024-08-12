@@ -16,7 +16,7 @@ from openad.helpers.credentials import load_credentials
 
 from openad.helpers.credentials import write_credentials, get_credentials
 from openad.app.global_var_lib import GLOBAL_SETTINGS
-
+from openad.helpers.spinner import Spinner
 
 # Constants
 TRAINING_LLM_DIR = "/prompt_train/"
@@ -128,15 +128,7 @@ def how_do_i(cmd_pointer, parser):
     else:
         from halo import Halo  # pylint: disable=import-outside-toplevel
 
-    class Spinner(Halo):
-        """custom spinner"""
-
-        def __init__(self):
-            # Alternative spinners:
-            # simpleDotsScrolling, interval=100
-            super().__init__(spinner="dots", color="white")
-
-    newspin = Spinner()
+    newspin = Spinner(GLOBAL_SETTINGS["VERBOSE"])
     newspin.start("Processing Request ")
     # Now we are asking the prompt a Question
 
@@ -252,7 +244,7 @@ def get_api_key(llm_name, cmd_pointer):
     api_config = load_credentials(f"{cmd_pointer.home_dir}/{llm_name.lower()}_api.cred")
     if api_config is None:
         output_warning(
-            f"No Stored LLM Credentials for LLM Service {llm_name.upper()}:\n please enter your API key",
+            f"No Stored LLM Credentials for LLM Service {llm_name.upper()}:\n please enter your API key.\n If using OLLAMA no key required just hit enter",
             return_val=False,
         )
         api_config = {"host": "None", "auth": {"username": "None", "api_key": "None"}, "verify_ssl": "false"}

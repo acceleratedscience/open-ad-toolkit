@@ -12,6 +12,7 @@ from openad.app.global_var_lib import GLOBAL_SETTINGS
 from openad.helpers.output import output_text, output_error, output_warning, output_table
 from openad.helpers.output_msgs import msg
 from openad.helpers.general import load_tk_module
+from openad.helpers.spinner import Spinner
 
 
 def get_reaction_from_smiles(reaction_smiles: str) -> Chem.rdChemReactions.ChemicalReaction:
@@ -22,11 +23,6 @@ def get_reaction_from_smiles(reaction_smiles: str) -> Chem.rdChemReactions.Chemi
 def predict_reaction_batch(inputs: dict, cmd_pointer):
     """Predicts Reactions in Batch from a list of Reaction Smiles Strings"""
 
-    if GLOBAL_SETTINGS["display"] == "notebook":
-        from halo import HaloNotebook as Halo  # pylint: disable=import-outside-toplevel
-    else:
-        from halo import Halo  # pylint: disable=import-outside-toplevel
-
     # Load module from toolkit folder
     rxn_helper = load_tk_module(cmd_pointer, "RXN", "rxn_include", "rxn_helper")()
 
@@ -34,14 +30,6 @@ def predict_reaction_batch(inputs: dict, cmd_pointer):
     rxn_helper.get_current_project(cmd_pointer)
     if GLOBAL_SETTINGS["display"] == "notebook":
         from IPython.display import display
-
-    class Spinner(Halo):
-        """custom spinner"""
-
-        def __init__(self):
-            # Alternative spinners:
-            # simpleDotsScrolling, interval=100
-            super().__init__(spinner="dots", color="white")
 
     ###################################################################################################
     # getting our input source for the reactions
@@ -86,7 +74,7 @@ def predict_reaction_batch(inputs: dict, cmd_pointer):
         except Exception:  # pylint: disable=broad-exception-caught
             output_error("Could not load valid list from file column 'reactions' ", return_val=False)
             return True
-    newspin = Spinner()
+    newspin = Spinner(GLOBAL_SETTINGS["VERBOSE"])
 
     ### setting up default values... note to put into json metdata file in future
 
@@ -159,7 +147,8 @@ def predict_reaction_batch(inputs: dict, cmd_pointer):
         status = False
         while status == False:
             try:
-                newspin.text = "Processing Prediction"
+                if retries == 0:
+                    newspin.info("Processing Prediction")
 
                 predict_reaction_batch_response = rxn4chemistry_wrapper.predict_reaction_batch(from_list)
                 sleep(2)
@@ -226,4 +215,7 @@ def predict_reaction_batch(inputs: dict, cmd_pointer):
                 display(get_reaction_from_smiles(reaction_prediction["smiles"]))
 
     output_text(" ", return_val=False)
-    return True
+    if not GLOBAL_SETTINGS["VERBOSE"]:
+        return reaction_predictions["predictions"]
+    else:
+        return True

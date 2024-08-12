@@ -1,0 +1,1 @@
+In order to interact with any plugin, you first need to set the context to that plugin. This will make all commands for the plugin available.

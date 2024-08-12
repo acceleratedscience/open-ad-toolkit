@@ -34,7 +34,8 @@ def init():
         styles2 = f"""
         <style>
         .banner::after {{
-            background: red url({data_uri}) center center no-repeat;
+            background: url({data_uri}) center center no-repeat;
+            background-size: cover;
         }}
         </style>
         """

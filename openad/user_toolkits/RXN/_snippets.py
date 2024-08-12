@@ -5,7 +5,9 @@
 REACTION_NOTATION = """
 Reactions are defined by combining two SMILES strings delimited by a period. For example: <cmd>'BrBr.c1ccc2cc3ccccc3cc2c1'</cmd>
 """
-
+NOTE_USING_CLAUSE = """
+<bold>Note:</bold> The <cmd>using</cmd> clause requires all enclosed parameters to be defined in the same order as listed below.
+"""
 USING_CLAUSE_OPTIONS = """
 Optional Parameters that can be specified in the <cmd>using</cmd> clause:
 """

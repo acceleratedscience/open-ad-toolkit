@@ -10,10 +10,12 @@ from openad.molecules.mol_functions import (
     mol_from_identifier,
     mymols_add,
     normalize_mol_df,
+    canonicalize,
 )
 from openad.app.global_var_lib import GLOBAL_SETTINGS
 from openad.helpers.output import output_error, output_warning, output_success, output_text
 from openad.helpers.output_msgs import msg
+from openad.helpers.spinner import Spinner
 
 mol_name_cache = {}
 
@@ -62,15 +64,22 @@ def merge_molecule_property_data(cmd_pointer, inp):
         output_error("No  'result' or 'value' column found ", return_val=False)
         return True
 
-    mol_dataframe = mol_dataframe.pivot_table(index=SMILES, columns=[prop], values=val)
+    mol_dataframe = mol_dataframe.pivot_table(index=SMILES, columns=[prop], values=val, aggfunc="first")
 
     mol_dataframe = mol_dataframe.reset_index()
     for row in mol_dataframe.to_dict("records"):
         update_flag = True
         merge_mol = None
-        merge_mol = retrieve_mol_from_list(cmd_pointer, row[SMILES])
+        try:
+            smiles = canonicalize(row[SMILES])
+
+            merge_mol = retrieve_mol_from_list(cmd_pointer, smiles)
+        except:
+            output_warning("unable to canonicalise:" + row[SMILES])
+            continue
         if merge_mol is None:
-            merge_mol = new_molecule(row[SMILES], row[SMILES])
+            merge_mol = new_molecule(smiles, name=row[SMILES])
+
             update_flag = False
         else:
             update_flag = True
@@ -149,15 +158,7 @@ def batch_pubchem(cmd_pointer, dataframe):
     else:
         from halo import Halo  # pylint: disable=import-outside-toplevel
 
-    class Spinner(Halo):
-        "contextual spinner"
-
-        def __init__(self):
-            # Alternative spinners:
-            # simpleDotsScrolling, interval=100
-            super().__init__(spinner="dots", color="white")
-
-    batch_spinner = Spinner()
+    batch_spinner = Spinner(GLOBAL_SETTINGS["VERBOSE"])
 
     batch_spinner.start("loading molecules from PubChem")
 

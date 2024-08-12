@@ -1,33 +1,27 @@
+"""
+Generate documentation files for the OpenAD Toolkit.
+For more information, consult the README.md file in the docs folder.
+
+python3 docs/generate_docs.py
+
+"""
+
 ############################################################
 # region - setup
 
-"""
-This script generates the commands.md and installation.md files
-for the just-the-docs documentation, and updates the llm_description.txt
-per toolkit, used to train the LLM.
-
-- commands.md --> Generated from the command help
-- installation.md --> Adapted from the main README.md
-- llm_description.txt --> Updated commands
-
-To generate:
-
-    python3 docs/generate_docs.py
-
-Output:
-    
-    docs/output/markdown/commands.md
-    docs/output/markdown/installation.md
-    docs/output/csv/commands.csv
-    openad/user_toolkits/<toolkit_name>/llm_description.txt
-
-After being regenerated, copy the markdown files over to the documentation repo.
-"""
-
 import os
 import re
+import sys
 import pyperclip
 
+# Add the root directory to the sys.path
+root_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+if str(root_dir) not in sys.path:
+    sys.path.append(root_dir)
+# for path in sys.path:
+#     print("*", path)
+
+from copy_docs import copy_docs  # This resolves when running the script directly
 from openad.app.main import RUNCMD as cmd_pointer
 from openad.app.global_var_lib import _all_toolkits
 from openad.toolkit.toolkit_main import load_toolkit
@@ -38,55 +32,177 @@ from openad.helpers.files import open_file, write_file
 
 # Get the repo path, this python file's parent folder.
 REPO_PATH = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-FLAG_SUCCESS = f"<on_green> Success </on_green>"
-FLAG_ERROR = f"<on_red> Failed </on_red>"
+FLAG_SUCCESS = f"<on_green> SUCCESS </on_green>"
+FLAG_ERROR = f"<on_red> FAILED </on_red>"
+DO_NOT_EDIT = (
+    "<!--\n\n"
+    "DO NOT EDIT\n"
+    "-----------\n"
+    "This file auto-generated.\n"
+    "To update it, consult instructions:\n"
+    "https://github.com/acceleratedscience/open-ad-toolkit/tree/main/docs\n\n"
+    "-->"
+)
 
 # endregion
 
 ############################################################
-# region - commands.csv
+# region - index.md
 
 
-# Loop through all commands and export them to a CSV file.
-# This is not used for anything in particular, other than
-# to have a list of all commands in a file which can be annotated.
-def render_commands_csv(filename, delimiter=";"):
-    output_text("<h1>Generating <yellow>commands.csv</yellow> from help</h1>", pad_top=1)
-    output = [["Command", "Category"]]
+# Loop through all commands and export them to a markdown file
+# that is ready to be included in the just-the-docs documentation.
+def render_index_md(filename):
+    output_text("<h1>Generating <yellow>index.md</yellow></h1>", pad_top=2)
 
-    # Parse main commands
-    cmds_main = cmd_pointer.current_help.help_current
-    cmds_organized = _organize(cmds_main)
+    # Read index.md input content
+    index_md, err_msg = open_file("docs/input/index.md", return_err=True)
+    if not index_md:
+        output_text(FLAG_ERROR, pad_top=1)
+        output_error(err_msg)
+        return
 
-    # Parse tookit commands
-    for toolkit_name in _all_toolkits:
-        success, toolkit = load_toolkit(toolkit_name, from_repo=True)
-        if success:
-            toolkit_cmds = toolkit.methods_help
-            toolkit_cmds_organized = _organize(toolkit_cmds)
-            cmds_organized.update(toolkit_cmds_organized)
+    # Read description file input content
+    description_txt, err_msg = open_file("docs/source/description.txt", return_err=True)
+    if not description_txt:
+        output_text(FLAG_ERROR, pad_top=1)
+        output_error(err_msg)
+        return
 
-    # Add a row per command.
-    for category, cmds in cmds_organized.items():
-        for cmd in cmds:
-            output.append([cmd[0], category])
+    # Insert DO NOT EDIT comment
+    index_md = re.sub(r"{{DO_NOT_EDIT}}", DO_NOT_EDIT, index_md, flags=re.DOTALL)
 
-    # Convert to CSV string
-    output_str = "\n".join([f"{delimiter}".join(row) for row in output])
+    # Insert description
+    index_md = re.sub(r"{{DESCRIPTION}}", description_txt, index_md, flags=re.DOTALL)
 
-    # Convert to clipboard CSV string
-    output_clipboard = "\n".join([f"\t".join(row) for row in output])
-    pyperclip.copy(output_clipboard)
-
-    # Write to file
-    success, err_msg = write_file(f"{REPO_PATH}/docs/output/csv/{filename}", output_str, return_err=True)
+    # Write to output file
+    success, err_msg = write_file(f"docs/output/markdown/{filename}", index_md, return_err=True)
     if success:
         output_text(FLAG_SUCCESS)
-        output_text(f"<soft>Exported to</soft> <reset>/docs/output/csv/{filename}</reset>")
+        output_text(f"<soft>Exported to</soft> <reset>/docs/output/markdown/{filename}</reset>")
     else:
         output_text(FLAG_ERROR)
         output_error(err_msg, pad=0)
-    output_success(msg("csv_to_clipboard"), pad=0)
+
+
+# endregion
+
+############################################################
+# region - installation.md
+
+
+# Adapt the README.md to be repurposed as
+# instalation page for just-the-docs.
+def render_installation_md(filename):
+    output_text("<h1>Generating <yellow>installation.md</yellow> based off of README.md</h1>", pad_top=2)
+
+    # Read installation.md input content
+    installation_md, err_msg = open_file("docs/input/installation.md", return_err=True)
+    if not installation_md:
+        output_text(FLAG_ERROR, pad_top=1)
+        output_error(err_msg)
+        return
+
+    # Read README.md content
+    readme, err_msg = open_file("README.md", return_err=True)
+    if not readme:
+        output_text(FLAG_ERROR, pad_top=1)
+        output_error(err_msg)
+        return
+
+    # Remove all comments.
+    readme = re.sub(r"<!--.*?-->", "", readme, flags=re.DOTALL)
+
+    # Remove whitespaces from empty lines
+    # and superfloous linebreaks.
+    readme = re.sub(r"\n\s*\n", "\n\n", readme)
+
+    # Trim space from start and end of file.
+    readme = readme.strip()
+
+    # Remove header
+    splitter = "## Quick Install"
+    readme = splitter + readme.split(splitter)[1]
+
+    # Insert DO NOT EDIT comment
+    installation_md = re.sub(r"{{DO_NOT_EDIT}}", DO_NOT_EDIT, installation_md, flags=re.DOTALL)
+
+    # Insert description
+    installation_md = re.sub(r"{{INSTALLATION}}", readme, installation_md, flags=re.DOTALL)
+
+    # Write to file
+    success, err_msg = write_file(f"{REPO_PATH}/docs/output/markdown/{filename}", installation_md, return_err=True)
+    if success:
+        output_text(FLAG_SUCCESS)
+        output_text(f"<soft>Exported to</soft> <reset>/docs/output/markdown/{filename}</reset>")
+    else:
+        output_text(FLAG_ERROR)
+        output_error(err_msg, pad=0)
+
+
+# endregion
+
+############################################################
+# region - base-concepts.md
+
+
+# Adapt the README.md to be repurposed as
+# instalation page for just-the-docs.
+def render_base_concepts_md(filename):
+    output_text("<h1>Generating <yellow>base-concepts.md</yellow></h1>", pad_top=2)
+
+    # Read base-concepts.md input content
+    base_concepts_md, err_msg = open_file("docs/input/base-concepts.md", return_err=True)
+    if not base_concepts_md:
+        output_text(FLAG_ERROR, pad_top=1)
+        output_error(err_msg)
+        return
+
+    # Read about_workspace.txt content
+    about_workspace, err_msg = open_file("docs/source/about_workspace.txt", return_err=True)
+    if not about_workspace:
+        output_text(FLAG_ERROR, pad_top=1)
+        output_error(err_msg)
+        return
+
+    # Read about_workspace.txt content
+    about_plugin, err_msg = open_file("docs/source/about_plugin.txt", return_err=True)
+    if not about_plugin:
+        output_text(FLAG_ERROR, pad_top=1)
+        output_error(err_msg)
+        return
+
+    # Read about_workspace.txt content
+    about_context, err_msg = open_file("docs/source/about_context.txt", return_err=True)
+    if not about_context:
+        output_text(FLAG_ERROR, pad_top=1)
+        output_error(err_msg)
+        return
+
+    # Read about_workspace.txt content
+    about_run, err_msg = open_file("docs/source/about_run.txt", return_err=True)
+    if not about_run:
+        output_text(FLAG_ERROR, pad_top=1)
+        output_error(err_msg)
+        return
+
+    # Insert DO NOT EDIT comment
+    base_concepts_md = re.sub(r"{{DO_NOT_EDIT}}", DO_NOT_EDIT, base_concepts_md, flags=re.DOTALL)
+
+    # Insert descriptions
+    base_concepts_md = re.sub(r"{{ABOUT_WORKSPACE}}", about_workspace, base_concepts_md, flags=re.DOTALL)
+    base_concepts_md = re.sub(r"{{ABOUT_PLUGIN}}", about_plugin, base_concepts_md, flags=re.DOTALL)
+    base_concepts_md = re.sub(r"{{ABOUT_CONTEXT}}", about_context, base_concepts_md, flags=re.DOTALL)
+    base_concepts_md = re.sub(r"{{ABOUT_RUN}}", about_run, base_concepts_md, flags=re.DOTALL)
+
+    # Write to file
+    success, err_msg = write_file(f"{REPO_PATH}/docs/output/markdown/{filename}", base_concepts_md, return_err=True)
+    if success:
+        output_text(FLAG_SUCCESS)
+        output_text(f"<soft>Exported to</soft> <reset>/docs/output/markdown/{filename}</reset>")
+    else:
+        output_text(FLAG_ERROR)
+        output_error(err_msg, pad=0)
 
 
 # endregion
@@ -98,58 +214,55 @@ def render_commands_csv(filename, delimiter=";"):
 # Loop through all commands and export them to a markdown file
 # that is ready to be included in the just-the-docs documentation.
 def render_commands_md(filename):
-    output_text("<h1>Generating <yellow>commands.md</yellow> from help</h1>", pad_top=4)
+    output_text("<h1>Generating <yellow>commands.md</yellow> from help</h1>", pad_top=2)
 
-    output = []  # Markdown
     toc = []  # Table of content
-
-    # Just-the-docs markdown context
-    jtd_identifier = (
-        "---",
-        "title: Commands",
-        "layout: home",
-        "nav_order: 4",
-        "---",
-    )
-    output.append("\n".join(jtd_identifier) + "\n")
-
-    # Intro comment
-    comment = (
-        "DO NOT EDIT",
-        "-----------",
-        "This file auto-generated.",
-        "To update it, see openad/docs/generate_docs.py",
-    )
-    comment = "\n".join(comment)
-    output.append(f"<!--\n\n{comment}\n\n-->" + "\n")
+    commands = []  # Markdown
 
     # Parse main commands
-    output.append(f"## OpenAD\n")
+    commands.append(f"## OpenAD\n")
     toc.append(_toc_link("OpenAD"))
     cmds = cmd_pointer.current_help.help_current
     cmds_organized = _organize(cmds)
-    _compile_section(output, toc, cmds_organized)
+    _compile_section(commands, toc, cmds_organized)
 
     # Parse tookit commands
     for toolkit_name in _all_toolkits:
-        output.append(f"## {toolkit_name}\n\n")
+        commands.append(f"## {toolkit_name}\n\n")
         toc.append(_toc_link(toolkit_name))
         success, toolkit = load_toolkit(toolkit_name, from_repo=True)
         if success:
             toolkit_cmds = toolkit.methods_help
             toolkit_cmds_organized = _organize(toolkit_cmds)
-            _compile_section(output, toc, toolkit_cmds_organized)
+            _compile_section(commands, toc, toolkit_cmds_organized)
 
-    # Write output to file to this python file's parent folder
+    # Compile table of contents
     toc = "### Table of Contents\n" + "\n".join(toc) + "\n"
-    output = output[:2] + [toc] + output[2:]
-    output = "\n".join(output)
+
+    # Compile commands
+    commands = "\n".join(commands)
+
+    # Read commands.md input content
+    commands_md, err_msg = open_file("docs/input/commands.md", return_err=True)
+    if not commands_md:
+        output_text(FLAG_ERROR, pad_top=1)
+        output_error(err_msg)
+        return
+
+    # Insert DO NOT EDIT comment
+    commands_md = re.sub(r"{{DO_NOT_EDIT}}", DO_NOT_EDIT, commands_md, flags=re.DOTALL)
+
+    # Insert table of contents
+    commands_md = re.sub(r"{{TOC}}", toc, commands_md, flags=re.DOTALL)
+
+    # Insert commands
+    commands_md = re.sub(r"{{COMMANDS}}", commands, commands_md, flags=re.DOTALL)
 
     # Write to file
-    success, err_msg = write_file(f"{REPO_PATH}/docs/output/markdown/{filename}", output, return_err=True)
+    success, err_msg = write_file(f"{REPO_PATH}/docs/output/markdown/{filename}", commands_md, return_err=True)
     if success:
         output_text(FLAG_SUCCESS)
-        output_text(f"<soft>Exported to</soft> <reset>/output/markdown/{filename}</reset>")
+        output_text(f"<soft>Exported to</soft> <reset>/docs/output/markdown/{filename}</reset>")
     else:
         output_text(FLAG_ERROR)
         output_error(err_msg, pad=0)
@@ -225,60 +338,49 @@ def _toc_link(title, level=0):
 # endregion
 
 ############################################################
-# region - installation.md
+# region - commands.csv
 
 
-# Adapt the README.md to be repurposed as
-# instalation page for just-the-docs.
-def render_installation_md(filename):
-    output_text("<h1>Generating <yellow>installation.md</yellow> based off of README.md</h1>", pad_top=4)
+# Loop through all commands and export them to a CSV file.
+# This is not used for anything in particular, other than
+# to have a list of all commands in a file which can be annotated.
+def render_commands_csv(filename, delimiter=";"):
+    output_text("<h1>Generating <yellow>commands.csv</yellow> from help</h1>", pad_top=2)
+    output = [["Command", "Category"]]
 
-    # Open README.md
-    readme, err_msg = open_file("README.md", return_err=True)
-    if not readme:
-        output_text(FLAG_ERROR, pad_top=1)
-        output_error(err_msg)
-        return
+    # Parse main commands
+    cmds_main = cmd_pointer.current_help.help_current
+    cmds_organized = _organize(cmds_main)
 
-    # Remove all comments.
-    readme = re.sub(r"<!--.*?-->", "", readme, flags=re.DOTALL)
+    # Parse tookit commands
+    for toolkit_name in _all_toolkits:
+        success, toolkit = load_toolkit(toolkit_name, from_repo=True)
+        if success:
+            toolkit_cmds = toolkit.methods_help
+            toolkit_cmds_organized = _organize(toolkit_cmds)
+            cmds_organized.update(toolkit_cmds_organized)
 
-    # Remove whitespaces from empty lines
-    # and superfloous linebreaks.
-    readme = re.sub(r"\n\s*\n", "\n\n", readme)
+    # Add a row per command.
+    for category, cmds in cmds_organized.items():
+        for cmd in cmds:
+            output.append([cmd[0], category])
 
-    # Trim space from start and end of file.
-    readme = readme.strip()
+    # Convert to CSV string
+    output_str = "\n".join([f"{delimiter}".join(row) for row in output])
 
-    # Remove header and replace with just-the-docs
-    # page identifier, plus add intro comment.
-    splitter = "## Quick Install"
-    jtd_identifier = (
-        "---",
-        "title: Installation",
-        "layout: home",
-        "nav_order: 2",
-        "---",
-    )
-    comment = (
-        "DO NOT EDIT",
-        "-----------",
-        "This file auto-generated from the main OpenAD README.md",
-        "To update it, edit the main README.md and then regenerate this file.",
-        "For instructions, see openad/docs/generate_docs.py",
-    )
-    comment = "\n".join(comment)
-    comment = f"<!--\n\n{comment}\n\n-->" + "\n"
-    readme = "\n".join(jtd_identifier) + "\n\n" + comment + "\n\n" + splitter + readme.split(splitter)[1]
+    # Convert to clipboard CSV string
+    output_clipboard = "\n".join([f"\t".join(row) for row in output])
+    pyperclip.copy(output_clipboard)
 
     # Write to file
-    success, err_msg = write_file(f"{REPO_PATH}/docs/output/markdown/{filename}", readme, return_err=True)
+    success, err_msg = write_file(f"{REPO_PATH}/docs/output/csv/{filename}", output_str, return_err=True)
     if success:
         output_text(FLAG_SUCCESS)
-        output_text(f"<soft>Exported to</soft> <reset>/docs/output/markdown/{filename}</reset>")
+        output_text(f"<soft>Exported to</soft> <reset>/docs/output/csv/{filename}</reset>")
     else:
         output_text(FLAG_ERROR)
         output_error(err_msg, pad=0)
+    output_success(msg("csv_to_clipboard"), pad=0)
 
 
 # endregion
@@ -346,6 +448,8 @@ def render_description_txt(filename):
             output_text(flag_toolkit + FLAG_ERROR)
             output_error(err_msg, pad_btm=1)
 
+    output_text("", pad_btm=2)
+
 
 # Compile all commands for a single toolkit's llm_description.txt.
 def _compile_commands(cmds_organized):
@@ -361,7 +465,6 @@ def _compile_commands(cmds_organized):
             cmd_description = cmd_description.replace("<br>", "")
             cmd_description = cmd_description.splitlines()
             cmd_description = "\n\t\t".join([line.strip() for line in cmd_description])
-            # output.append(f"\n\t\tAbout this command:\n\t\t{cmd_description}\n")
         output.append("")
 
     return output
@@ -372,7 +475,13 @@ def _compile_commands(cmds_organized):
 ############################################################
 
 if __name__ == "__main__":
-    render_commands_csv("commands.csv")
-    render_commands_md("commands.md")
+    # Render files
+    render_index_md("index.md")
     render_installation_md("installation.md")
+    render_base_concepts_md("base-concepts.md")
+    render_commands_md("commands.md")
+    render_commands_csv("commands.csv")
     render_description_txt("llm_description.txt")
+
+    # Copy markdown files into the documentation repo
+    copy_docs(["index.md", "installation.md", "base-concepts.md", "commands.md"])
