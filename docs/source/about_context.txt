@@ -1,1 +1,1 @@
-In order to interact with any plugin, you first need to set the context to that plugin. This will make all commands for the plugin available.
+Your context defines what plugin you are currently working with. It ensures you are logged onto the a plugin's corresponding system and all the related functionality is loaded.
