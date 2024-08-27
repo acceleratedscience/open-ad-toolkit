@@ -47,6 +47,45 @@ DO_NOT_EDIT = (
 # endregion
 
 ############################################################
+# region - README.md
+
+
+# Replace the description in the main README.md file.
+def update_readme_md(filename):
+    output_text("<h1>Updating <yellow>README.md</yellow> with OpenAD description</h1>", pad_top=2)
+
+    # Read README.md input content
+    readme_md, err_msg = open_file("README.md", return_err=True)
+    if not readme_md:
+        output_text(FLAG_ERROR, pad_top=1)
+        output_error(err_msg)
+        return
+
+    # Read description file input content
+    description_txt, err_msg = open_file("docs/source/description.txt", return_err=True)
+    if not description_txt:
+        output_text(FLAG_ERROR, pad_top=1)
+        output_error(err_msg)
+        return
+
+    # Insert description
+    readme_md_1 = readme_md.split("<!-- description -->")[0]
+    readme_md_2 = readme_md.split("<!-- /description -->")[1]
+    readme_md = readme_md_1 + "<!-- description -->\n\n" + description_txt + "\n\n<!-- /description -->" + readme_md_2
+
+    # Write to output file
+    success, err_msg = write_file(filename, readme_md, return_err=True)
+    if success:
+        output_text(FLAG_SUCCESS)
+        output_text(f"<soft>Updated</soft> <reset>{filename}</reset>")
+    else:
+        output_text(FLAG_ERROR)
+        output_error(err_msg, pad=0)
+
+
+# endregion
+
+############################################################
 # region - index.md
 
 
@@ -475,7 +514,10 @@ def _compile_commands(cmds_organized):
 ############################################################
 
 if __name__ == "__main__":
-    # Render files
+    # Update main README.md
+    update_readme_md("README.md")
+
+    # Render markdown files for documentation website
     render_index_md("index.md")
     render_installation_md("installation.md")
     render_base_concepts_md("base-concepts.md")

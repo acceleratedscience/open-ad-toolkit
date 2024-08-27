@@ -1,4 +1,4 @@
-The OpenAD client is an interface to interact with a variety of molecular tools and AI models, which are exposed through plugins. Thanks to a unified language, accessing these tools through OpenAD lets you bypass a lot of complexity.
+Plugins are the way molecular tools and AI models are made available to the OpenAD client. Thanks to a unified language, accessing these tools through OpenAD lets you bypass a lot of complexity.
 
 OpenAD comes preloaded with a number of plugins for literature knowledge extraction (DS4SD), forward and retrosynthesis prediction (RXN) as well as generative methods and property inference (GT4SD).
 

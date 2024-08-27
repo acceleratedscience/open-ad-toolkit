@@ -67,7 +67,9 @@ class MoleculesApi:
             response.status = "No identifier provided."
             return response
 
-        mol = retrieve_mol(identifier)
+        mol = retrieve_mol_from_list(self.cmd_pointer, identifier)
+        if mol is None:
+            mol = retrieve_mol(identifier)
 
         # Fail
         if not mol:
