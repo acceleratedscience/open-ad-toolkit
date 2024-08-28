@@ -3,24 +3,24 @@ from openad.molecules.mol_functions import MOL_PROPERTIES as m_props
 from openad.helpers.general import is_notebook_mode
 
 from pyparsing import (
-    Word,
-    delimitedList,
-    alphas,
     alphanums,
-    OneOrMore,
-    ZeroOrMore,
-    CharsNotIn,
-    Forward,
+    alphas,
     CaselessKeyword,
-    MatchFirst,
-    Keyword,
-    QuotedString,
-    ParserElement,
-    Suppress,
-    Optional,
-    Group,
+    CharsNotIn,
     Combine,
+    delimitedList,
+    Forward,
+    Group,
+    Keyword,
+    MatchFirst,
     nums,
+    OneOrMore,
+    Optional,
+    ParserElement,
+    QuotedString,
+    Suppress,
+    Word,
+    ZeroOrMore,
     # Literal,
     # replaceWith,
     # Combine,
@@ -29,61 +29,62 @@ from pyparsing import (
 )
 
 (
-    get,
-    lister,
-    description,
-    using,
-    create,
-    s_et,
-    unset,
-    workspace,
-    workspaces,
-    context,
-    jobs,
-    e_xec,
-    a_s,
-    optimize,
-    w_ith,
-    toolkits,
-    toolkit,
-    GPU,
-    experiment,
     add,
-    run,
-    save,
-    runs,
-    show,
-    file,
-    d_isplay,
-    history,
+    append,
+    a_s,
+    basic,
+    context,
+    create,
+    create,
     data,
-    remove,
-    result,
+    description,
+    d_isplay,
+    e_xec,
+    experiment,
+    export,
+    file,
+    force,
+    formula,
     f_rom,
+    get,
+    GPU,
+    history,
     inchi,
     inchikey,
-    smiles,
-    formula,
-    name,
+    jobs,
     l_ast,
+    l_ist,
     load,
-    results,
-    export,
-    create,
-    rename,
     merge,
-    pubchem,
-    sources,
-    basic,
-    force,
-    append,
+    name,
     only,
+    optimize,
+    protein,
+    pubchem,
+    remove,
+    rename,
+    result,
+    results,
+    run,
+    runs,
+    save,
+    s_et,
+    show,
+    smiles,
+    sources,
+    toolkit,
+    toolkits,
+    unset,
     upsert,
+    using,
+    w_ith,
+    workspace,
+    workspaces,
 ) = map(
     CaselessKeyword,
-    "get list description using create set unset workspace workspaces context jobs exec\
-          as optimize with toolkits toolkit gpu experiment add run save runs show \
-              file display history data remove result from inchi inchikey smiles formula name last load results export create rename merge pubchem sources basic force append only upsert".split(),
+    "add append as basic context create create data description display exec experiment export file force formula from get \
+    gpu history inchi inchikey jobs last list load merge name only optimize protein pubchem remove rename result results \
+    run runs save set show smiles sources toolkit toolkits unset upsert using with workspace workspaces".split(),
 )
 _mol = ["molecule", "mol"]
 _mols = ["molecules", "mols"]
@@ -103,6 +104,7 @@ molecule_sets = MatchFirst(map(CaselessKeyword, _molsets))
 molecule_identifier = Word(
     alphas, alphanums + "_" + "[" + "]" + "(" + ")" + "=" + "," + "-" + "+" + "/" + "#" + "@" + "." + "*" + ";"
 ) | Word(nums)
+protein_identifier = Word(alphas + "-", "*")
 
 
 desc = QuotedString("'", escQuote="\\")
@@ -357,7 +359,7 @@ Examples:
 
     # ---
     # List molecules
-    statements.append(Forward(lister + molecules)("list_molecules"))
+    statements.append(Forward(l_ist + molecules)("list_molecules"))
     grammar_help.append(
         help_dict_create(
             name="list molecules",
@@ -445,7 +447,7 @@ Options:
 
     # ---
     # List molecule set
-    statements.append(Forward(lister + molecule_sets)("list_molecule-sets"))
+    statements.append(Forward(l_ist + molecule_sets)("list_molecule-sets"))
     grammar_help.append(
         help_dict_create(
             name="list molecule-sets",
@@ -703,7 +705,7 @@ When run inside a Notebook, this will return a dataframe. When run from the comm
             category="Molecules",
             command="show mol|molecule <name> | <smiles> | <inchi> | <inchikey> | <cid>",
             description="""
-        Inspect a molecule in the browser. If a molecule is not in the current Molecule Working set it will pull the result from Pubchem.
+Inspect a molecule in the browser. If a molecule is not in the current Molecule Working set it will pull the result from Pubchem.
 
 {MOL_SHORTHAND}
 

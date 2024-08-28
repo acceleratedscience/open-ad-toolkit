@@ -7,8 +7,10 @@ They can be accessed on: http://0.0.0.0:8024/api/v1/<endpoint>
 from openad.gui.api.general_api import GeneralApi
 from openad.gui.api.file_system_api import FileSystemApi
 from openad.gui.api.molecules_api import MoleculesApi
+from openad.gui.api.protein_api import ProteinApi
 from openad.gui.api.result_api import ResultApi
 from openad.gui.api.dataframe_api import DataframeApi
+
 
 # fmt: off
 def fetchRoutes(cmd_pointer):
@@ -18,6 +20,7 @@ def fetchRoutes(cmd_pointer):
     general_api = GeneralApi(cmd_pointer)
     file_system_api = FileSystemApi(cmd_pointer)
     molecules_api = MoleculesApi(cmd_pointer)
+    protein_api = ProteinApi(cmd_pointer)
     result_api = ResultApi(cmd_pointer)
     dataframe_api = DataframeApi(cmd_pointer)
 
@@ -74,6 +77,10 @@ def fetchRoutes(cmd_pointer):
         f"{api_v1}/save-molset-as-csv": {"func": molecules_api.save_molset_as_csv, "method": "POST"},
         f"{api_v1}/save-molset-as-smiles": {"func": molecules_api.save_molset_as_smiles, "method": "POST"},
         f"{api_v1}/replace-mol-in-molset": {"func": molecules_api.replace_mol_in_molset, "method": "POST"},
+        #
+        #
+        # Proteins
+        f"{api_v1}/get-prot-data": {"func": protein_api.get_prot_data, "method": "POST"},
         #
         #
         # Result
