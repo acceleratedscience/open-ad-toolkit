@@ -361,11 +361,10 @@ def sdf_path2molset(sdf_path):
         return None, err
 
 
-def mdl_path2molset(mdl_path):
+def mdl_path2mol(mdl_path):
     """
     Takes the content of a .mol file and returns a molset dictionary.
     """
-    from openad.molecules.mol_functions import OPENAD_MOL_DICT
 
     # try:
     mol_rdkit = Chem.MolFromMolFile(mdl_path)  # pylint: disable=no-member

@@ -10,9 +10,48 @@ Entrez.tool = "IBM Research - OpenAD"
 Entrez.email = "phil.downey1@ibm.com"  # Email required by NCBI
 # Entrez.api_key = ""  # Allows 10 queries/s instead of 3 queries/s - See https://tinyurl.com/ncbi-api-key
 
+# Template of a macromolecule
+OPENAD_MMOL_DICT = {
+    "header": {
+        # Identification
+        "idcode": "",
+        "name": "",
+        # Publication
+        "head": "",
+        "author": "",
+        "release_date": "",
+        "deposition_date": "",
+        "keywords": "",
+        "journal": "",
+        "journal_reference": "",
+        # Context
+        "resolution": 0,
+        "source": {},
+        "structure_method": "",
+        "structure_reference": [],
+        "has_missing_residues": False,
+        "missing_residues": [],
+        "biomoltrans": [],
+        "compound": {},
+    },
+    # 3D model information (can be more than one)
+    "models": [],
+}
+
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+
 
 # Eg. SATVSEINSETDFVAKNDQFIALTKDTTAHIQSNSLQSVEELHSSTINGVKFEEYLKSQIATIGENLVVRRFATLKAGANGVVNGYIHTNGRVGVVIAAACDSAEVASKSRDLLRQICMH
-def get_protein1(identifier):
+def get_protein(identifier):
     "Retrieve protein by its identifier"
 
     # For now FASTA is the only identifier type.

@@ -2,7 +2,8 @@ import os
 from openad.helpers.files import open_file, file_stats
 from openad.molecules.mol_functions import create_molset_cache_file, get_molset_mols
 from openad.gui.api.molecules_api import create_molset_response
-from openad.molecules.mol_transformers import smiles_path2molset, sdf_path2molset, mdl_path2molset
+from openad.molecules.mol_transformers import smiles_path2molset, sdf_path2molset, mdl_path2mol
+from openad.macromolecules.mmol_transformers import pdb_path2mol
 
 
 def fs_get_workspace_files(cmd_pointer, path=""):
@@ -180,7 +181,7 @@ def fs_attach_file_data(cmd_pointer, file_obj, query=None):
     file_type = file_obj["_meta"]["fileType"]
     ext = file_obj["_meta"]["ext"]
 
-    # Molset --> Load molset object with first page data
+    # Molset files --> Load molset object with first page data
     if file_type in ["molset", "sdf", "smi"]:
         # Step 1: Load or assemble the molset.
         # - - -
@@ -220,9 +221,16 @@ def fs_attach_file_data(cmd_pointer, file_obj, query=None):
         else:
             data = None
 
-    # Molecule .mol files --> convert to molecule JSON
-    elif file_type == "mdl":
-        data, err_code = mdl_path2molset(path_absolute)
+    # Molecule files --> convert to molecule JSON
+    elif file_type in ["mdl", "pdb"]:
+
+        # From MOL file
+        if ext == "mdl":
+            data, err_code = mdl_path2mol(path_absolute)
+
+        # From PDB file
+        if ext == "pdb":
+            data, err_code = pdb_path2mol(path_absolute)
 
     # Everything else --> Load file content
     else:
@@ -279,9 +287,13 @@ def _get_file_type(ext, ext2):
 
     Any changes here should also be reflected in the FileType TypeScript type.
     """
-    # Single molecule files
+    # Single small molecule files
     if ext in ["mol"]:  # Future support: "molecule", "pdb", "cif", "xyz", "mol2", "mmcif", "cml", "inchi"
         return "mdl"
+
+    # Protein data bank files
+    if ext in ["pdb"]:
+        return "pdb"
 
     # Molecule set files
     if ext in ["smi"]:
