@@ -11,7 +11,8 @@ Entrez.email = "phil.downey1@ibm.com"  # Email required by NCBI
 # Entrez.api_key = ""  # Allows 10 queries/s instead of 3 queries/s - See https://tinyurl.com/ncbi-api-key
 
 # Template of a macromolecule
-OPENAD_MMOL_DICT = {
+OPENAD_PROTEIN_DICT = {
+    "mmol_type": "protein",
     "header": {
         # Identification
         "idcode": "",
@@ -34,8 +35,9 @@ OPENAD_MMOL_DICT = {
         "biomoltrans": [],
         "compound": {},
     },
-    # 3D model information (can be more than one)
-    "models": [],
+    # PDB file content as string
+    # which is used to generate the 3D view.
+    "pdb": "",
 }
 
 #

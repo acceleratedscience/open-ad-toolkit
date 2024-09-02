@@ -3,7 +3,7 @@ from openad.helpers.files import open_file, file_stats
 from openad.molecules.mol_functions import create_molset_cache_file, get_molset_mols
 from openad.gui.api.molecules_api import create_molset_response
 from openad.molecules.mol_transformers import smiles_path2molset, sdf_path2molset, mdl_path2mol
-from openad.macromolecules.mmol_transformers import pdb_path2mol
+from openad.macromolecules.mmol_transformers import pdb_path2prot
 
 
 def fs_get_workspace_files(cmd_pointer, path=""):
@@ -230,7 +230,7 @@ def fs_attach_file_data(cmd_pointer, file_obj, query=None):
 
         # From PDB file
         if ext == "pdb":
-            data, err_code = pdb_path2mol(path_absolute)
+            data, err_code = pdb_path2prot(path_absolute)
 
     # Everything else --> Load file content
     else:
