@@ -26,7 +26,7 @@ from openad.helpers.json_decimal_encoder import DecimalEncoder
 # The base for our molecule dictionary.
 OPENAD_MOL_DICT = {
     "name": None,
-    "synonyms": {},
+    "synonyms": [],
     "properties": {},
     "property_sources": {},
     "sources": {},

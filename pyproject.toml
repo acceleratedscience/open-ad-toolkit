@@ -86,6 +86,7 @@ asyncio = "^3.4.3"
 ijson = "^3.2.3"
 biopython = "^1.84"
 
+gemmi = "^0.6.6"
 [tool.poetry.scripts]
 openad = "openad.app.main:cmd_line"
 init_magic = "openad.app.init_magic:init_magic"

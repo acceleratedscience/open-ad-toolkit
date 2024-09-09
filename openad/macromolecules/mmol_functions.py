@@ -1,3 +1,4 @@
+import copy
 import requests
 from Bio import Entrez
 from Bio.Blast import NCBIWWW, NCBIXML
@@ -10,10 +11,24 @@ Entrez.tool = "IBM Research - OpenAD"
 Entrez.email = "phil.downey1@ibm.com"  # Email required by NCBI
 # Entrez.api_key = ""  # Allows 10 queries/s instead of 3 queries/s - See https://tinyurl.com/ncbi-api-key
 
-# Template of a macromolecule
+META_DICT = {
+    "notes": "",
+    "labels:": [],
+}
+
+OPENAD_MMOL_DICT = {
+    "molType": "",  # protein (later: dna, rna, ligand, etc.)
+    "data": {},
+    "data3D": "",
+    "data3DFormat": "",  # pdb, cif, etc – Format3D type in openad-gui/src/types.ts
+    "meta": copy.deepcopy(META_DICT),  # Additional data added by user
+}
+
+
+# Template of a protein
 OPENAD_PROTEIN_DICT = {
-    "mmol_type": "protein",
-    "header": {
+    "mol_type": "protein",
+    "attributes": {
         # Identification
         "idcode": "",
         "name": "",
@@ -35,10 +50,12 @@ OPENAD_PROTEIN_DICT = {
         "biomoltrans": [],
         "compound": {},
     },
-    # PDB file content as string
-    # which is used to generate the 3D view.
-    "pdb": "",
+    # PDB/CIF file content as string.
+    # Used to generate the 3D view.
+    "pdb_data": "",
+    "cif_data": "",
 }
+
 
 #
 #

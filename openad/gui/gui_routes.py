@@ -56,10 +56,10 @@ def fetchRoutes(cmd_pointer):
         f"{api_v1}/enrich-mol": {"func": molecules_api.enrich_mol, "method": "POST"},
         #
         f"{api_v1}/save-mol-as-json": {"func": molecules_api.save_mol_as_json, "method": "POST"},
-        f"{api_v1}/save-mol-as-sdf": {"func": molecules_api.save_mol_as_sdf, "method": "POST"},
-        f"{api_v1}/save-mol-as-csv": {"func": molecules_api.save_mol_as_csv, "method": "POST"},
-        f"{api_v1}/save-mol-as-mdl": {"func": molecules_api.save_mol_as_mdl, "method": "POST"},
-        f"{api_v1}/save-mol-as-smiles": {"func": molecules_api.save_mol_as_smiles, "method": "POST"},
+        f"{api_v1}/save-mol-as-sdf": {"func": molecules_api.save_smol_as_sdf, "method": "POST"},
+        f"{api_v1}/save-mol-as-csv": {"func": molecules_api.save_smol_as_csv, "method": "POST"},
+        f"{api_v1}/save-mol-as-mdl": {"func": molecules_api.save_smol_as_mdl, "method": "POST"},
+        f"{api_v1}/save-mol-as-smiles": {"func": molecules_api.save_smol_as_smiles, "method": "POST"},
         #
         #
         # Molecules - Molsets
@@ -79,8 +79,11 @@ def fetchRoutes(cmd_pointer):
         f"{api_v1}/replace-mol-in-molset": {"func": molecules_api.replace_mol_in_molset, "method": "POST"},
         #
         #
-        # Proteins
-        f"{api_v1}/get-prot-data": {"func": protein_api.get_prot_data, "method": "POST"},
+        # Macromolecules
+        f"{api_v1}/get-prot-data": {"func": protein_api.get_prot_data, "method": "POST"}, # TEMP
+        f"{api_v1}/save-mmol-as-mmol-json": {"func": molecules_api.save_mmol_as_mmol_json, "method": "POST"},
+        f"{api_v1}/save-mmol-as-pdb": {"func": molecules_api.save_mmol_as_pdb, "method": "POST"},
+        f"{api_v1}/save-mmol-as-cif": {"func": molecules_api.save_mmol_as_cif, "method": "POST"},
         #
         #
         # Result

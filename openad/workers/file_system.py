@@ -3,7 +3,7 @@ from openad.helpers.files import open_file, file_stats
 from openad.molecules.mol_functions import create_molset_cache_file, get_molset_mols
 from openad.gui.api.molecules_api import create_molset_response
 from openad.molecules.mol_transformers import smiles_path2molset, sdf_path2molset, mdl_path2mol
-from openad.macromolecules.mmol_transformers import pdb_path2prot
+from openad.macromolecules.mmol_transformers import pdb_path2mmol, cif_path2mmol
 
 
 def fs_get_workspace_files(cmd_pointer, path=""):
@@ -222,7 +222,7 @@ def fs_attach_file_data(cmd_pointer, file_obj, query=None):
             data = None
 
     # Molecule files --> convert to molecule JSON
-    elif file_type in ["mdl", "pdb"]:
+    elif file_type in ["mdl", "pdb", "cif"]:
 
         # From MOL file
         if ext == "mdl":
@@ -230,7 +230,11 @@ def fs_attach_file_data(cmd_pointer, file_obj, query=None):
 
         # From PDB file
         if ext == "pdb":
-            data, err_code = pdb_path2prot(path_absolute)
+            data, err_code = pdb_path2mmol(path_absolute)
+
+        # From CIF file
+        if ext == "cif":
+            data, err_code = cif_path2mmol(path_absolute)
 
     # Everything else --> Load file content
     else:
@@ -287,13 +291,15 @@ def _get_file_type(ext, ext2):
 
     Any changes here should also be reflected in the FileType TypeScript type.
     """
-    # Single small molecule files
+    # Small molecule files
     if ext in ["mol"]:  # Future support: "molecule", "pdb", "cif", "xyz", "mol2", "mmcif", "cml", "inchi"
         return "mdl"
 
-    # Protein data bank files
+    # Macromolecule files
     if ext in ["pdb"]:
         return "pdb"
+    if ext in ["cif"]:
+        return "cif"
 
     # Molecule set files
     if ext in ["smi"]:
@@ -301,9 +307,11 @@ def _get_file_type(ext, ext2):
 
     # JSON files --> parse secondary extension
     elif ext in ["json", "cjson"]:
-        # Molecule
+        # Small molecule
         if ext2 == "mol":
             return "mol"
+        if ext2 == "mmol":
+            return "mmol"
         # Molecule set
         elif ext2 == "molset":
             return "molset"

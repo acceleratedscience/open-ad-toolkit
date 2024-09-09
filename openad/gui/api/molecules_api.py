@@ -34,6 +34,8 @@ from openad.molecules.mol_transformers import (
     dataframe2molset,
 )
 
+from openad.macromolecules.mmol_transformers import mmol2pdb, mmol2cif
+
 
 from openad.helpers.files import open_file
 from openad.helpers.output import output_error, output_table
@@ -50,7 +52,7 @@ class MoleculesApi:
         self.cmd_pointer = cmd_pointer
 
     # -----------------------------
-    # Molecules
+    # Small molecules
     # -----------------------------
 
     def get_mol_data(self):
@@ -219,9 +221,9 @@ class MoleculesApi:
         """
         data = json.loads(request.data) if request.data else {}
         new_file = data["newFile"] if "newFile" in data else ""
-        return self._save_mol(new_file=new_file)
+        return self._save_mol(new_file=new_file, format_as="mol_json")
 
-    def save_mol_as_sdf(self):
+    def save_smol_as_sdf(self):
         """
         Save new .sdf file to a specified destination path.
         """
@@ -229,7 +231,7 @@ class MoleculesApi:
         new_file = data["newFile"] if "newFile" in data else ""
         return self._save_mol(new_file=new_file, format_as="sdf")
 
-    def save_mol_as_csv(self):
+    def save_smol_as_csv(self):
         """
         Save new .csv file to a specified destination path.
         """
@@ -237,7 +239,7 @@ class MoleculesApi:
         new_file = data["newFile"] if "newFile" in data else ""
         return self._save_mol(new_file=new_file, format_as="csv")
 
-    def save_mol_as_mdl(self):
+    def save_smol_as_mdl(self):
         """
         Save new .mol file to a specified destination path.
         """
@@ -245,7 +247,7 @@ class MoleculesApi:
         new_file = data["newFile"] if "newFile" in data else ""
         return self._save_mol(new_file=new_file, format_as="mdl")
 
-    def save_mol_as_smiles(self):
+    def save_smol_as_smiles(self):
         """
         Save new .smi file to a specified destination path.
         """
@@ -253,7 +255,39 @@ class MoleculesApi:
         new_file = data["newFile"] if "newFile" in data else ""
         return self._save_mol(new_file=new_file, format_as="smiles")
 
-    def _save_mol(self, new_file, format_as="mol_json"):
+    # -----------------------------
+    # Macromolecules
+    # -----------------------------
+
+    def save_mmol_as_mmol_json(self):
+        """
+        Save new .pdb.json file to a specified destination path.
+        """
+        data = json.loads(request.data) if request.data else {}
+        new_file = data["newFile"] if "newFile" in data else ""
+        return self._save_mol(new_file=new_file, format_as="mmol_json")
+
+    def save_mmol_as_pdb(self):
+        """
+        Save new .pdb file to a specified destination path.
+        """
+        data = json.loads(request.data) if request.data else {}
+        new_file = data["newFile"] if "newFile" in data else ""
+        return self._save_mol(new_file=new_file, format_as="pdb")
+
+    def save_mmol_as_cif(self):
+        """
+        Save new .cif file to a specified destination path.
+        """
+        data = json.loads(request.data) if request.data else {}
+        new_file = data["newFile"] if "newFile" in data else ""
+        return self._save_mol(new_file=new_file, format_as="cif")
+
+    # -----------------------------
+    # Molecules shared
+    # -----------------------------
+
+    def _save_mol(self, new_file, format_as):
         """
         Save a molecule to a file, in the specified format.
         """
@@ -284,6 +318,10 @@ class MoleculesApi:
                     return f"_save_mol() -> File not found: {file_path}", 404
 
         try:
+            # -----------------------------
+            # Small molecules
+            # -----------------------------
+
             # Save as .mol.json file.
             if format_as == "mol_json":
                 # Write to file
@@ -311,6 +349,23 @@ class MoleculesApi:
                 smiles = get_best_available_smiles(mol)
                 with open(file_path, "w", encoding="utf-8") as f:
                     f.write(smiles)
+
+            # -----------------------------
+            # Mecromolecules
+            # -----------------------------
+
+            # Save as .mmol.json file.
+            elif format_as == "mmol_json":
+                with open(file_path, "w", encoding="utf-8") as f:
+                    json.dump(mol, f, ensure_ascii=False, indent=4, cls=DecimalEncoder)
+
+            # Save as .cif file.
+            elif format_as == "cif":
+                mmol2cif(mol, path=file_path)
+
+            # Save as .pdb file.
+            elif format_as == "pdb":
+                mmol2pdb(mol, path=file_path)
 
         # In case the requested file path does not exist.
         # This could only happen if the user changes the folder structure outside
