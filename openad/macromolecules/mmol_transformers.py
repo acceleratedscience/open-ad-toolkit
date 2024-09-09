@@ -1,8 +1,7 @@
 import copy
 import gemmi
 from Bio.PDB import PDBParser, MMCIFParser
-
-from openad.macromolecules.mmol_functions import OPENAD_PROTEIN_DICT, OPENAD_MMOL_DICT
+from openad.helpers.data_formats import OPENAD_PROTEIN_DICT, OPENAD_MMOL_DICT
 
 
 def mmol2cif(mmol_dict, path=None):

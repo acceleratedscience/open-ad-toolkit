@@ -22,18 +22,8 @@ from openad.helpers.files import open_file
 from openad.helpers.general import confirm_prompt
 from openad.helpers.spinner import spinner
 from openad.helpers.json_decimal_encoder import DecimalEncoder
+from openad.helpers.data_formats import OPENAD_MOL_DICT
 
-# The base for our molecule dictionary.
-OPENAD_MOL_DICT = {
-    "name": None,
-    "synonyms": [],
-    "properties": {},
-    "property_sources": {},
-    "sources": {},
-    "commments": {},
-    "analysis": [],
-    "enriched": False,
-}
 MOL_NAME_INDEX = "name"
 MOL_SMILES_INDEX = "smiles"
 MOL_INCHI_INDEX = "inchi"
@@ -326,23 +316,35 @@ def _get_mol(mol_id, mol_id_type):
             openad_mol["properties"] = mol_pcy
             openad_mol["sources"]["pubchem"] = mol_pcy
 
+            # Loop through PubChem properties and update our own property_sources
+            # when PubChem has its own 3rd party source for a property.
+            # - - -
+            # For example when looping up Dopamine, the default property_sources["iupac_name"]
+            # value {"source": "pubchem"} will be replaced with:
+            # { 'label': 'IUPAC Name', 'name': 'Preferred', 'datatype': 1, 'version': '2.7.0',
+            #   'software': 'Lexichem TK', 'source': 'OpenEye Scientific Software', 'release': '2021.10.14'}
             for x in MOL_PROPERTIES:
                 openad_mol["property_sources"][x] = {"source": "pubchem"}
-
-                for key, value in PROPERTY_SOURCES.items():
-                    if value == x:
-                        if len(key.split("-")) > 0:
+                for prop_name, prop_name_key in PROPERTY_SOURCES.items():
+                    if prop_name_key == x:
+                        if len(prop_name.split("-")) > 0:
                             for y in openad_mol["sources"]["pubchem"]["record"]["props"]:
                                 if "label" not in y["urn"]:
                                     pass
-                                elif y["urn"]["label"] == key.split("-")[0] and "name" not in y["urn"]:
+                                elif y["urn"]["label"] == prop_name.split("-")[0] and "name" not in y["urn"]:
                                     openad_mol["property_sources"][x] = y["urn"]
-                                elif y["urn"]["label"] == key.split("-")[0] and y["urn"]["name"] == key.split("-")[1]:
+                                elif (
+                                    y["urn"]["label"] == prop_name.split("-")[0]
+                                    and y["urn"]["name"] == prop_name.split("-")[1]
+                                ):
                                     openad_mol["property_sources"][x] = y["urn"]
+
             names = pcy.get_synonyms(openad_mol["name"], "name")
             if len(names) > 0:
                 openad_mol["synonyms"] = names[0]
             openad_mol["enriched"] = True
+
+            print("\n\n- - - -\n\n", openad_mol)
 
             return True, openad_mol, mol_pcy
     except Exception as e:
