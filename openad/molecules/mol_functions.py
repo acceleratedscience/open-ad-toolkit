@@ -475,10 +475,11 @@ def molformat_v2_to_v1(mol):
     """
     if mol is None:
         return None
-    mol_v1 = copy.deepcopy(OPENAD_MOL_DICT)
+
+    mol_v1 = {}
     mol_v1["name"] = copy.deepcopy(mol.get("identifiers").get("name"))
     mol_v1["properties"] = {**mol.get("identifiers"), **mol.get("properties")}
-    mol_v1["synonyms"]["Synonym"] = copy.deepcopy(mol.get("synonyms"))
+    mol_v1["synonyms"] = {"Synonym": copy.deepcopy(mol.get("synonyms"))}
     mol_v1["analysis"] = copy.deepcopy(mol.get("analysis"))
     mol_v1["property_sources"] = copy.deepcopy(mol.get("property_sources"))
     mol_v1["enriched"] = copy.deepcopy(mol.get("enriched"))
@@ -983,7 +984,11 @@ def merge_mols(openad_mol_1, openad_mol_2):
         # If the property is a list, merge it.
         elif isinstance(value, list):
             if key in openad_mol_1:
-                openad_mol_1[key].extend(value)
+                # Temporary fix for synonyms, which are stored in a nested list in v1 dict.
+                if key == "synonyms" and "Synonym" in openad_mol_1[key]:
+                    openad_mol_1[key]["Synonym"].extend(value)
+                else:
+                    openad_mol_1[key].extend(value)
             else:
                 openad_mol_1[key] = value
 

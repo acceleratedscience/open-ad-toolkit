@@ -181,7 +181,10 @@ class MoleculesApi:
         """
 
         data = json.loads(request.data) if request.data else {}
-        openad_mol = data["mol"] if "mol" in data else ""
+        openad_mol_v2 = data["mol"] if "mol" in data else ""
+
+        # Translate molecule dict.
+        openad_mol = molformat_v2_to_v1(openad_mol_v2)
 
         # Get best available identifier.
         _, identifier = get_best_available_identifier(openad_mol)
