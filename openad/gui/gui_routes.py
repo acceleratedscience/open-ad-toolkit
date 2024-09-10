@@ -7,7 +7,6 @@ They can be accessed on: http://0.0.0.0:8024/api/v1/<endpoint>
 from openad.gui.api.general_api import GeneralApi
 from openad.gui.api.file_system_api import FileSystemApi
 from openad.gui.api.molecules_api import MoleculesApi
-from openad.gui.api.protein_api import ProteinApi
 from openad.gui.api.result_api import ResultApi
 from openad.gui.api.dataframe_api import DataframeApi
 
@@ -20,7 +19,6 @@ def fetchRoutes(cmd_pointer):
     general_api = GeneralApi(cmd_pointer)
     file_system_api = FileSystemApi(cmd_pointer)
     molecules_api = MoleculesApi(cmd_pointer)
-    protein_api = ProteinApi(cmd_pointer)
     result_api = ResultApi(cmd_pointer)
     dataframe_api = DataframeApi(cmd_pointer)
 
@@ -80,7 +78,7 @@ def fetchRoutes(cmd_pointer):
         #
         #
         # Macromolecules
-        f"{api_v1}/get-prot-data": {"func": protein_api.get_prot_data, "method": "POST"}, # TEMP
+        f"{api_v1}/get-mmol-data": {"func": molecules_api.get_mmol_data, "method": "POST"},
         f"{api_v1}/save-mmol-as-mmol-json": {"func": molecules_api.save_mmol_as_mmol_json, "method": "POST"},
         f"{api_v1}/save-mmol-as-pdb": {"func": molecules_api.save_mmol_as_pdb, "method": "POST"},
         f"{api_v1}/save-mmol-as-cif": {"func": molecules_api.save_mmol_as_cif, "method": "POST"},

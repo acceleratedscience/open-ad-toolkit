@@ -34,7 +34,8 @@ from openad.molecules.mol_transformers import (
     dataframe2molset,
 )
 
-from openad.macromolecules.mmol_transformers import mmol2pdb, mmol2cif
+from openad.macromolecules.mmol_functions import mmol_from_identifier
+from openad.macromolecules.mmol_transformers import mmol2pdb, mmol2cif, cif2moll
 
 
 from openad.helpers.files import open_file
@@ -76,7 +77,7 @@ class MoleculesApi:
         # Fail
         if not mol:
             response = Response(None, status=500)
-            response.status = f"No molecule found with provided identifier '{identifier}'"
+            response.status = f"No small molecule found with provided identifier '{identifier}'"
             return response
 
         # Success
@@ -248,6 +249,35 @@ class MoleculesApi:
     # -----------------------------
     # Macromolecules
     # -----------------------------
+
+    def get_mmol_data(self):
+        """
+        Get macromolecule data.
+        Used when requesting a macromolecule by its identifier.
+        """
+
+        data = json.loads(request.data) if request.data else {}
+        identifier = data["identifier"] if "identifier" in data else ""
+
+        if not identifier:
+            response = Response(None, status=500)
+            response.status = "No identifier provided."
+            return response
+
+        success, cif_data = mmol_from_identifier(identifier)
+
+        # Fail
+        if not success:
+            response = Response(None, status=500)
+            response.status = f"No macromolecule found with provided identifier '{identifier}'"
+            return response
+
+        # Success
+        else:
+            mmol = cif2moll(cif_data)
+            return mmol, 200
+
+    ##
 
     def save_mmol_as_mmol_json(self):
         """

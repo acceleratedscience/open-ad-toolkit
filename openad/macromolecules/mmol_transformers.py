@@ -2,6 +2,7 @@ import copy
 import gemmi
 from Bio.PDB import PDBParser, MMCIFParser
 from openad.helpers.data_formats import OPENAD_MMOL_DICT
+from openad.macromolecules.mmol_functions import parse_cif_block
 
 
 def mmol2cif(mmol_dict, path=None):
@@ -59,23 +60,23 @@ def cif_path2mmol(cif_path):
     Used for opening a CIF file in the GUI.
     """
 
-    mmol_dict = copy.deepcopy(OPENAD_MMOL_DICT)
-
     # Parse the PDB file
-    parser = MMCIFParser(QUIET=True)
-    structure = parser.get_structure("molecule", cif_path)
-    data = structure.header
+    cif_doc = gemmi.cif.read_file(cif_path)
+    cif_block = cif_doc.sole_block()
+    data = parse_cif_block(cif_block)
 
-    # Load the CIF file content
+    # Read the CIF file content
     with open(cif_path, "r", encoding="utf-8") as f:
         cif_data = f.read()
 
-    # Fill in the data
+    # Create the moll object
+    mmol_dict = copy.deepcopy(OPENAD_MMOL_DICT)
     mmol_dict["molType"] = "protein"
     mmol_dict["data"] = data
     mmol_dict["data3D"] = cif_data
     mmol_dict["data3DFormat"] = "cif"
 
+    # Return the moll object
     return mmol_dict, None
 
 
@@ -84,8 +85,6 @@ def pdb_path2mmol(pdb_path):
     Takes the content of a .pdb file and returns a macromolecule dictionary.
     Used for opening a PDB file in the GUI.
     """
-
-    mmol_dict = copy.deepcopy(OPENAD_MMOL_DICT)
 
     # Parse the PDB file
     parser = PDBParser(QUIET=True)
@@ -96,7 +95,8 @@ def pdb_path2mmol(pdb_path):
     with open(pdb_path, "r", encoding="utf-8") as f:
         sdf_data = f.read()
 
-    # Fill in the data
+    # Create the moll object
+    mmol_dict = copy.deepcopy(OPENAD_MMOL_DICT)
     mmol_dict["molType"] = "protein"
     mmol_dict["data"] = data
     mmol_dict["data3D"] = sdf_data
@@ -104,6 +104,7 @@ def pdb_path2mmol(pdb_path):
 
     # _print_all_available_pdb_data(structure, parser)
 
+    # Return the moll object
     return mmol_dict, None
 
 
@@ -169,16 +170,37 @@ def cif2pdb(cif_data=None, cif_path=None, dest_path=None):
 
     # Write the PDB to disk
     if dest_path:
-        # structure = gemmi.make_structure(cif_doc)
-        # cif_doc.write_file(dest_path)
-
         structure.write_pdb(dest_path)
-        # cif_doc = structure.make_mmcif_document()
-        # cif_doc.write_file(dest_path)
 
     # Return the PDB data as a string
     else:
         return structure.make_pdb_string()
+
+
+def cif2moll(cif_data):
+    """
+    Convert CIF data to a Moll object.
+    """
+
+    # Error handling
+    if not cif_data:
+        print("cif2moll() - No cif_data provided")
+        return None
+
+    # Parse the CIF string
+    cif_doc = gemmi.cif.read_string(cif_data)
+    cif_block = cif_doc.sole_block()
+    data = parse_cif_block(cif_block)
+
+    # Create the moll object
+    mmol_dict = copy.deepcopy(OPENAD_MMOL_DICT)
+    mmol_dict["molType"] = "protein"
+    mmol_dict["data"] = data
+    mmol_dict["data3D"] = cif_data
+    mmol_dict["data3DFormat"] = "cif"
+
+    # Return the moll object
+    return mmol_dict
 
 
 #

@@ -7,6 +7,36 @@ from Bio.SeqUtils.ProtParam import ProteinAnalysis
 from openad.helpers.general import encode_uri_component
 
 
+def mmol_from_identifier(identifier):
+    """
+    Fetch a macromolecule from an identifier.
+
+    Parameters:
+        identifier: str
+            FASTA or PDB id.
+
+    Returns:
+        success: bool
+            Whether the request was successful.
+        mmol_data: dict
+            The macromolecule data.
+    """
+
+    # Try fetching the mmol by its PDB ID.
+    if len(identifier) == 4:
+        success, cif_data = fetch_pdb_file(identifier)
+
+    # Try fetching the mmol by a FASTA sequence.
+    if not success:
+        success, cif_data = search_fasta_sequence(identifier)
+
+    # Fail
+    if not success:
+        return False, "Failed to retrieve macromolecule data."
+
+    return True, cif_data
+
+
 def search_fasta_sequence(fasta_string, sequence_type="protein", return_first=True):
     """
     Search the RCSB PDB for a given FASTA sequence.
@@ -126,9 +156,34 @@ def ncbi_search(identifier):
     return protein_data
 
 
+def parse_cif_block(cif_block):
+    """
+    Parse a gemmi CIF block into a dictionary.
+
+    Parameters:
+        cif_block: a gemmi CIF block.
+
+    Returns:
+        data: dict
+            The parsed CIF dictionary
+    """
+
+    data = {}
+    for item in cif_block:
+        if item.pair is not None:
+            cat = item.pair[0].split(".")[0].lstrip("_")
+            key = item.pair[0].split(".")[1]
+            if cat not in data:
+                data[cat] = {}
+            data[cat][key] = item.pair[1]
+
+    return data
+
+
+# fmt: off
 # For testing
 if __name__ == "__main__":
-    # x, y = search_fasta_sequence("MTEYKLVVVGAGGVGKSALTIQLIQNHFVDEYDPTIEDSYRKQVVIDGETCLLDILDTAGQEEYSAMRDQYMRTGEGFLCVFAI") # Positive result
+    # x, y = search_fasta_sequence("IINVKTSLKTIIKNALDKIQX") # Positive result
     # x, y = search_fasta_sequence("MSKGEELFTTYQDKDTAGHKHYGSHQYAERVGGMPEYMFTQVTGDRCDNAQYNGVLYQWDAMKKYGGERQGIVQLKPGTFGAVK") # No results
     # print(x, y)
     # ncbi_search("P0A9Q1")
