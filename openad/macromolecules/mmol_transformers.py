@@ -1,7 +1,7 @@
 import copy
 import gemmi
 from Bio.PDB import PDBParser, MMCIFParser
-from openad.helpers.data_formats import OPENAD_PROTEIN_DICT, OPENAD_MMOL_DICT
+from openad.helpers.data_formats import OPENAD_MMOL_DICT
 
 
 def mmol2cif(mmol_dict, path=None):
@@ -59,7 +59,7 @@ def cif_path2mmol(cif_path):
     Used for opening a CIF file in the GUI.
     """
 
-    mmol_dict = copy.deepcopy(OPENAD_PROTEIN_DICT)
+    mmol_dict = copy.deepcopy(OPENAD_MMOL_DICT)
 
     # Parse the PDB file
     parser = MMCIFParser(QUIET=True)

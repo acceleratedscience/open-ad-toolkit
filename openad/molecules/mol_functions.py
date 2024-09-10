@@ -344,8 +344,6 @@ def _get_mol(mol_id, mol_id_type):
                 openad_mol["synonyms"] = names[0]
             openad_mol["enriched"] = True
 
-            print("\n\n- - - -\n\n", openad_mol)
-
             return True, openad_mol, mol_pcy
     except Exception as e:
         print(e)

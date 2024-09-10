@@ -2,19 +2,20 @@
 
 import os
 import glob
+import copy
 import time
 import pickle
-
-from openad.molecules.mol_functions import canonicalize
 from rdkit import Chem
+from openad.molecules.mol_functions import canonicalize
+from openad.helpers.data_formats import ANALYSIS_RECORD
 
-analysis_record = {"smiles": None, "toolkit": None, "function": None, "parameters": {}, "results": {}}
+
 CACHE_DIR = "/_result_cache/"
 
 
 def create_analysis_record(smiles, toolkit, function, parameters, results):
     """creates an analysis record for a molecule"""
-    record = analysis_record.copy()
+    record = copy.deepcopy(ANALYSIS_RECORD)
     record["smiles"] = smiles
     record["toolkit"] = toolkit
     record["function"] = function
