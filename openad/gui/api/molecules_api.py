@@ -216,41 +216,31 @@ class MoleculesApi:
         """
         Save new .mol.json file to a specified destination path.
         """
-        data = json.loads(request.data) if request.data else {}
-        new_file = data["newFile"] if "newFile" in data else ""
-        return self._save_mol(new_file=new_file, format_as="mol_json")
+        return self._save_mol("mol_json")
 
     def save_smol_as_sdf(self):
         """
         Save new .sdf file to a specified destination path.
         """
-        data = json.loads(request.data) if request.data else {}
-        new_file = data["newFile"] if "newFile" in data else ""
-        return self._save_mol(new_file=new_file, format_as="sdf")
+        return self._save_mol("sdf")
 
     def save_smol_as_csv(self):
         """
         Save new .csv file to a specified destination path.
         """
-        data = json.loads(request.data) if request.data else {}
-        new_file = data["newFile"] if "newFile" in data else ""
-        return self._save_mol(new_file=new_file, format_as="csv")
+        return self._save_mol("csv")
 
     def save_smol_as_mdl(self):
         """
         Save new .mol file to a specified destination path.
         """
-        data = json.loads(request.data) if request.data else {}
-        new_file = data["newFile"] if "newFile" in data else ""
-        return self._save_mol(new_file=new_file, format_as="mdl")
+        return self._save_mol("mdl")
 
     def save_smol_as_smiles(self):
         """
         Save new .smi file to a specified destination path.
         """
-        data = json.loads(request.data) if request.data else {}
-        new_file = data["newFile"] if "newFile" in data else ""
-        return self._save_mol(new_file=new_file, format_as="smiles")
+        return self._save_mol("smiles")
 
     # -----------------------------
     # Macromolecules
@@ -260,41 +250,36 @@ class MoleculesApi:
         """
         Save new .pdb.json file to a specified destination path.
         """
-        data = json.loads(request.data) if request.data else {}
-        new_file = data["newFile"] if "newFile" in data else ""
-        return self._save_mol(new_file=new_file, format_as="mmol_json")
+        return self._save_mol("mmol_json")
 
     def save_mmol_as_pdb(self):
         """
         Save new .pdb file to a specified destination path.
         """
-        data = json.loads(request.data) if request.data else {}
-        new_file = data["newFile"] if "newFile" in data else ""
-        return self._save_mol(new_file=new_file, format_as="pdb")
+        return self._save_mol("pdb")
 
     def save_mmol_as_cif(self):
         """
         Save new .cif file to a specified destination path.
         """
-        data = json.loads(request.data) if request.data else {}
-        new_file = data["newFile"] if "newFile" in data else ""
-        return self._save_mol(new_file=new_file, format_as="cif")
+        return self._save_mol("cif")
 
     # -----------------------------
     # Molecules shared
     # -----------------------------
 
-    def _save_mol(self, new_file, format_as):
+    def _save_mol(self, format_as):
         """
         Save a molecule to a file, in the specified format.
         """
+
         # Note: the new_file parameter is always true for now, but later on
         # when we let users add comments etc, we'll want to be able to update
         # existing files.
-
         data = json.loads(request.data) if request.data else {}
-        path = unquote(data["path"]) if "path" in data else ""
-        mol = data["mol"] if "mol" in data else ""
+        new_file = data["newFile"] if "newFile" in data else False
+        path = unquote(data["path"]) if "path" in data else None
+        mol = data["mol"] if "mol" in data else None
 
         if not path:
             return f"save_new_mol() -> Parameter 'path' missing", 500

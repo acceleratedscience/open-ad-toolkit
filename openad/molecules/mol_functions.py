@@ -314,7 +314,6 @@ def _get_mol(mol_id, mol_id_type):
             else:
                 openad_mol["name"] = mol_pcy["iupac_name"]
             openad_mol["properties"] = mol_pcy
-            openad_mol["sources"]["pubchem"] = mol_pcy
 
             # Loop through PubChem properties and update our own property_sources
             # when PubChem has its own 3rd party source for a property.
@@ -328,7 +327,7 @@ def _get_mol(mol_id, mol_id_type):
                 for prop_name, prop_name_key in PROPERTY_SOURCES.items():
                     if prop_name_key == x:
                         if len(prop_name.split("-")) > 0:
-                            for y in openad_mol["sources"]["pubchem"]["record"]["props"]:
+                            for y in mol_pcy["record"]["props"]:
                                 if "label" not in y["urn"]:
                                     pass
                                 elif y["urn"]["label"] == prop_name.split("-")[0] and "name" not in y["urn"]:

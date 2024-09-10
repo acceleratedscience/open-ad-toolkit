@@ -55,11 +55,10 @@ OPENAD_MMOL_DICT = {
     "molType": "",
     # Key value pairs with whatever data is available.
     "data": {},
-    # Usually CIF data that can be fed to the Miew 3D viewer,
-    # however this can support any other format supported by Miew.
+    # Usually CIF or PDB data that can be fed to the Miew 3D viewer.
     "data3D": "",
     # This tells Miew how to interpret the data3D field.
-    # Usually this would be cif, but can also be pdb, xyz, etc
+    # Other than "cif" or "pdb", this can also be xyz, etc.
     # Please refer to the Format3D type in the openad-gui repository:
     # https://github.com/acceleratedscience/openad-gui/blob/main/src/types/index.ts
     "data3DFormat": "",
