@@ -257,6 +257,13 @@ def load_tk_module(cmd_pointer, toolkit_name, lib_name, func_name=None):
         return module
 
 
+# Python equivalent of JavaScript's encodeURIComponent
+def encode_uri_component(string):
+    from urllib.parse import quote
+
+    return quote(string.encode("utf-8"), safe="~()*!.'")
+
+
 #
 #
 #

@@ -188,7 +188,7 @@ def cif2pdb(cif_data=None, cif_path=None, dest_path=None):
 
 
 # Development only
-# Reveal additional PDB data to extract - currently not used.
+# Reveal additional PDB data we can extract, maybe for later use.
 def _print_all_available_pdb_data(structure, parser):
     struct_id = structure.id
     level = structure.level
