@@ -1,9 +1,8 @@
+import re
 import json
 import requests
 from Bio import Entrez
-from Bio.Blast import NCBIWWW, NCBIXML
-from Bio.Seq import Seq
-from Bio.SeqUtils.ProtParam import ProteinAnalysis
+from collections import OrderedDict
 from openad.helpers.general import encode_uri_component
 
 
@@ -21,6 +20,8 @@ def mmol_from_identifier(identifier):
         mmol_data: dict
             The macromolecule data.
     """
+
+    success = False
 
     # Try fetching the mmol by its PDB ID.
     if len(identifier) == 4:
@@ -118,6 +119,90 @@ def fetch_pdb_file(pdb_id, file_format="cif"):
     return True, file_data
 
 
+def parse_cif_block(cif_block):
+    """
+    Parse a gemmi CIF block into a dictionary.
+
+    Parameters:
+        cif_block: a gemmi CIF block.
+
+    Returns:
+        data: dict
+            The parsed CIF dictionary
+    """
+
+    data = {}
+    for item in cif_block:
+
+        # Pairs
+        if item.pair is not None:
+            # Category title
+            title = item.pair[0].split(".")[0].lstrip("_").lstrip("pdbx_")
+
+            # Key
+            key = item.pair[0].split(".")[1]
+            if title not in data:
+                data[title] = {}
+
+            # Value
+            val = item.pair[1]
+            data[title][key] = val
+
+        # Loops (aka table data)
+        elif item.loop is not None:
+            # Table title
+            # Removing pdbx_ prefix so sorting doesn't get messed up
+            title = item.loop.tags[0].split(".")[0].lstrip("_").lstrip("pdbx_")
+
+            # Ignore tables with machine data
+            if title in [
+                "entity_poly_seq",
+                "pdbx_poly_seq_scheme",
+                "struct_ref_seq_dif",
+                "struct_conf",
+                "struct_mon_prot_cis",
+                "struct_sheet_range",
+                "pdbx_struct_sheet_hbond",
+                "pdbx_validate_close_contact",
+                "pdbx_validate_torsion",
+                "chem_comp_atom",
+                "chem_comp_bond",
+                "atom_site",
+                "atom_site_anisotrop",
+                "struct_conn",
+                "pdbx_nonpoly_scheme",
+                "pdbx_branch_scheme",
+                "pdbx_audit_revision_item",
+            ]:
+                continue
+
+            cols = item.loop.width()
+            table = []
+            for i, val in enumerate(item.loop.values):
+                idx = i % cols
+                # Key
+                key = item.loop.tags[idx].split(".")[1]
+
+                # Value
+                val = item.loop.values[i]
+
+                # Assemble the table row
+                if idx == 0:
+                    table.append({})
+                table[-1][key] = val
+
+                # # Print for debugging
+                # if idx == cols - 1:
+                #     print(table[-1])
+            data[title] = table
+
+    # Sort keys
+    data = OrderedDict(sorted(data.items()))
+
+    return data
+
+
+# Unused
 def ncbi_search(identifier):
     """
     Search the NCBI database.
@@ -154,30 +239,6 @@ def ncbi_search(identifier):
     print("protein_data", protein_data)
 
     return protein_data
-
-
-def parse_cif_block(cif_block):
-    """
-    Parse a gemmi CIF block into a dictionary.
-
-    Parameters:
-        cif_block: a gemmi CIF block.
-
-    Returns:
-        data: dict
-            The parsed CIF dictionary
-    """
-
-    data = {}
-    for item in cif_block:
-        if item.pair is not None:
-            cat = item.pair[0].split(".")[0].lstrip("_")
-            key = item.pair[0].split(".")[1]
-            if cat not in data:
-                data[cat] = {}
-            data[cat][key] = item.pair[1]
-
-    return data
 
 
 # fmt: off

@@ -35,7 +35,7 @@ from openad.molecules.mol_transformers import (
 )
 
 from openad.macromolecules.mmol_functions import mmol_from_identifier
-from openad.macromolecules.mmol_transformers import mmol2pdb, mmol2cif, cif2moll
+from openad.macromolecules.mmol_transformers import mmol2pdb, mmol2cif, cif2mmol
 
 
 from openad.helpers.files import open_file
@@ -274,7 +274,7 @@ class MoleculesApi:
 
         # Success
         else:
-            mmol = cif2moll(cif_data)
+            mmol = cif2mmol(cif_data)
             return mmol, 200
 
     ##

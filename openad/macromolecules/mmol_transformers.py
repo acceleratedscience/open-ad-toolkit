@@ -54,58 +54,58 @@ def mmol2pdb(mmol_dict, path=None):
     return pdb_data
 
 
-def cif_path2mmol(cif_path):
-    """
-    Takes the content of a .cif file and returns a macromolecule dictionary.
-    Used for opening a CIF file in the GUI.
-    """
+# def cif_path2mmol(cif_path):
+#     """
+#     Takes the content of a .cif file and returns a macromolecule dictionary.
+#     Used for opening a CIF file in the GUI.
+#     """
 
-    # Parse the PDB file
-    cif_doc = gemmi.cif.read_file(cif_path)
-    cif_block = cif_doc.sole_block()
-    data = parse_cif_block(cif_block)
+#     # Parse the CIF file
+#     cif_doc = gemmi.cif.read_file(cif_path)
+#     cif_block = cif_doc.sole_block()
+#     data = parse_cif_block(cif_block)
 
-    # Read the CIF file content
-    with open(cif_path, "r", encoding="utf-8") as f:
-        cif_data = f.read()
+#     # Read the CIF file content
+#     with open(cif_path, "r", encoding="utf-8") as f:
+#         cif_data = f.read()
 
-    # Create the moll object
-    mmol_dict = copy.deepcopy(OPENAD_MMOL_DICT)
-    mmol_dict["molType"] = "protein"
-    mmol_dict["data"] = data
-    mmol_dict["data3D"] = cif_data
-    mmol_dict["data3DFormat"] = "cif"
+#     # Create the moll object
+#     mmol_dict = copy.deepcopy(OPENAD_MMOL_DICT)
+#     mmol_dict["molType"] = "protein"
+#     mmol_dict["data"] = data
+#     mmol_dict["data3D"] = cif_data
+#     mmol_dict["data3DFormat"] = "cif"
 
-    # Return the moll object
-    return mmol_dict, None
+#     # Return the moll object
+#     return mmol_dict, None
 
 
-def pdb_path2mmol(pdb_path):
-    """
-    Takes the content of a .pdb file and returns a macromolecule dictionary.
-    Used for opening a PDB file in the GUI.
-    """
+# def pdb_path2mmol(pdb_path):
+#     """
+#     Takes the content of a .pdb file and returns a macromolecule dictionary.
+#     Used for opening a PDB file in the GUI.
+#     """
 
-    # Parse the PDB file
-    parser = PDBParser(QUIET=True)
-    structure = parser.get_structure("molecule", pdb_path)
-    data = structure.header
+#     # Parse the PDB file
+#     parser = PDBParser(QUIET=True)
+#     structure = parser.get_structure("molecule", pdb_path)
+#     data = structure.header
 
-    # Read the PDB file content
-    with open(pdb_path, "r", encoding="utf-8") as f:
-        sdf_data = f.read()
+#     # Read the PDB file content
+#     with open(pdb_path, "r", encoding="utf-8") as f:
+#         sdf_data = f.read()
 
-    # Create the moll object
-    mmol_dict = copy.deepcopy(OPENAD_MMOL_DICT)
-    mmol_dict["molType"] = "protein"
-    mmol_dict["data"] = data
-    mmol_dict["data3D"] = sdf_data
-    mmol_dict["data3DFormat"] = "pdb"
+#     # Create the moll object
+#     mmol_dict = copy.deepcopy(OPENAD_MMOL_DICT)
+#     mmol_dict["molType"] = "protein"
+#     mmol_dict["data"] = data
+#     mmol_dict["data3D"] = sdf_data
+#     mmol_dict["data3DFormat"] = "pdb"
 
-    # _print_all_available_pdb_data(structure, parser)
+#     # _print_all_available_pdb_data(structure, parser)
 
-    # Return the moll object
-    return mmol_dict, None
+#     # Return the moll object
+#     return mmol_dict, None
 
 
 def pdb2cif(pdb_data=None, pdb_path=None, dest_path=None):
@@ -165,7 +165,7 @@ def cif2pdb(cif_data=None, cif_path=None, dest_path=None):
 
     # Error handling
     else:
-        print("cif2pdb() - No cif_path or cif_data provided")
+        print("cif2pdb() - No cif_data or cif_path provided")
         return None
 
     # Write the PDB to disk
@@ -177,18 +177,32 @@ def cif2pdb(cif_data=None, cif_path=None, dest_path=None):
         return structure.make_pdb_string()
 
 
-def cif2moll(cif_data):
+def cif2mmol(cif_data=None, cif_path=None):
     """
-    Convert CIF data to a Moll object.
-    """
+    Convert CIF data or file to a Moll object.
 
-    # Error handling
-    if not cif_data:
-        print("cif2moll() - No cif_data provided")
-        return None
+    Used for:
+    - Opening a CIF file in the GUI (cif_path).
+    - Opening downloaded CIF data in the GUI (cif_data).
+    """
 
     # Parse the CIF string
-    cif_doc = gemmi.cif.read_string(cif_data)
+    if cif_data:
+        cif_doc = gemmi.cif.read_string(cif_data)
+
+    # Load the CIF file
+    elif cif_path:
+        cif_doc = gemmi.cif.read_file(cif_path)
+        # Read the CIF file content
+        with open(cif_path, "r", encoding="utf-8") as f:
+            cif_data = f.read()
+
+    # Error handling
+    else:
+        print("cif2moll() - No cif_data or cif_path provided")
+        return None
+
+    # Parse the CIF data
     cif_block = cif_doc.sole_block()
     data = parse_cif_block(cif_block)
 
@@ -198,6 +212,54 @@ def cif2moll(cif_data):
     mmol_dict["data"] = data
     mmol_dict["data3D"] = cif_data
     mmol_dict["data3DFormat"] = "cif"
+
+    # Return the moll object
+    return mmol_dict
+
+
+def pdb2mmol(pdb_data=None, pdb_path=None):
+    """
+    Convert PDB data or file to a Moll object.
+
+    Used for:
+    - Opening a PDB file in the GUI (pdb_path).
+    - Opening downloaded PDB data in the GUI (pdb_data) **
+
+    ** Not used because we use the CIF format when downloading
+    """
+
+    # Parse the PDB string
+    if pdb_data:
+        struct = gemmi.read_pdb_string(pdb_data)
+
+    # Load the PDB file
+    elif pdb_path:
+        struct = gemmi.read_pdb(pdb_path)
+        # Read the PDB file content
+        with open(pdb_path, "r", encoding="utf-8") as f:
+            pdb_data = f.read()
+
+    # Error handling
+    else:
+        print("pdb2moll() - No pdb_data or pdb_path provided")
+        return None
+
+    # Parse the PDB data as CIF
+    cif_doc = struct.make_mmcif_document()
+    cif_block = cif_doc.sole_block()
+    data = parse_cif_block(cif_block)
+
+    # TEMP
+    parser = PDBParser(QUIET=True)
+    bio_struct = parser.get_structure("molecule", pdb_path)
+
+    # Create the moll object
+    mmol_dict = copy.deepcopy(OPENAD_MMOL_DICT)
+    mmol_dict["molType"] = "protein"
+    mmol_dict["data"] = data
+    mmol_dict["header"] = bio_struct.header  # temp
+    mmol_dict["data3D"] = pdb_data
+    mmol_dict["data3DFormat"] = "pdb"
 
     # Return the moll object
     return mmol_dict
