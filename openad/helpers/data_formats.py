@@ -48,10 +48,9 @@ ANALYSIS_RECORD = {
 
 # Template for a macromolecule dictionary.
 OPENAD_MMOL_DICT = {
-    # The molType determines what kind of data
-    # is expected in the data dictionary.
-    # Currently only "protein" is supported, but
-    # in the future we may add "dna", "rna", etc.
+    # The molType determines what kind of data is expected in
+    # the data dictionary. Currently this will always be "mmoll",
+    # but in the future we may differentiate between protein, dna, rna, etc.
     "molType": "",
     # Key value pairs with whatever data is available.
     "data": {},

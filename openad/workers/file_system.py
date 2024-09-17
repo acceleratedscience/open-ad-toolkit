@@ -197,6 +197,7 @@ def fs_attach_file_data(cmd_pointer, file_obj, query=None):
         # From SDF file
         elif ext == "sdf":
             molset, err_code = sdf_path2molset(path_absolute)
+            print("err_code", err_code)
 
         if molset:
             # Step 2: Store a working copy of the molset in the cache.

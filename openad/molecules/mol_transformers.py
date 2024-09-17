@@ -8,7 +8,11 @@ import pandas as pd
 from rdkit import Chem
 
 from openad.helpers.files import open_file
-from openad.molecules.mol_functions import new_molecule, molformat_v2, get_best_available_smiles
+from openad.molecules.mol_functions import (
+    new_molecule,
+    molformat_v2,
+    get_best_available_smiles,
+)
 
 
 def mol2svg(mol_rdkit, highlight=None):
@@ -347,12 +351,7 @@ def sdf_path2molset(sdf_path):
         mols_rdkit = Chem.SDMolSupplier(sdf_path)  # pylint: disable=no-member
         molset = []
         for i, mol_rdkit in enumerate(mols_rdkit):
-            mol_dict = copy.deepcopy(OPENAD_MOL_DICT)
-            mol_dict["properties"] = {
-                # prop: _try_parse_json(mol_rdkit.GetProp(prop)) for prop in mol_rdkit.GetPropNames()
-                prop: mol_rdkit.GetProp(prop)
-                for prop in mol_rdkit.GetPropNames()
-            }
+            mol_dict = new_molecule(mol_rdkit=mol_rdkit)
             mol_dict = molformat_v2(mol_dict)
             mol_dict["index"] = i + 1
             molset.append(mol_dict)

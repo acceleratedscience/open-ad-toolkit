@@ -137,7 +137,7 @@ def parse_cif_block(cif_block):
         # Pairs
         if item.pair is not None:
             # Category title
-            title = item.pair[0].split(".")[0].lstrip("_").lstrip("pdbx_")
+            title = item.pair[0].split(".")[0].lstrip("_")  # .removeprefix("pdbx_")
 
             # Key
             key = item.pair[0].split(".")[1]
@@ -151,8 +151,7 @@ def parse_cif_block(cif_block):
         # Loops (aka table data)
         elif item.loop is not None:
             # Table title
-            # Removing pdbx_ prefix so sorting doesn't get messed up
-            title = item.loop.tags[0].split(".")[0].lstrip("_").lstrip("pdbx_")
+            title = item.loop.tags[0].split(".")[0].lstrip("_")  # .removeprefix("pdbx_")
 
             # Ignore tables with machine data
             if title in [
@@ -197,7 +196,8 @@ def parse_cif_block(cif_block):
             data[title] = table
 
     # Sort keys
-    data = OrderedDict(sorted(data.items()))
+    sorted_data = {key: data[key] for key in sorted(data, key=str.lower)}
+    data = sorted_data
 
     return data
 

@@ -71,7 +71,7 @@ def mmol2pdb(mmol_dict, path=None):
 
 #     # Create the moll object
 #     mmol_dict = copy.deepcopy(OPENAD_MMOL_DICT)
-#     mmol_dict["molType"] = "protein"
+#     mmol_dict["molType"] = "mmol"
 #     mmol_dict["data"] = data
 #     mmol_dict["data3D"] = cif_data
 #     mmol_dict["data3DFormat"] = "cif"
@@ -97,7 +97,7 @@ def mmol2pdb(mmol_dict, path=None):
 
 #     # Create the moll object
 #     mmol_dict = copy.deepcopy(OPENAD_MMOL_DICT)
-#     mmol_dict["molType"] = "protein"
+#     mmol_dict["molType"] = "mmol"
 #     mmol_dict["data"] = data
 #     mmol_dict["data3D"] = sdf_data
 #     mmol_dict["data3DFormat"] = "pdb"
@@ -208,7 +208,7 @@ def cif2mmol(cif_data=None, cif_path=None):
 
     # Create the moll object
     mmol_dict = copy.deepcopy(OPENAD_MMOL_DICT)
-    mmol_dict["molType"] = "protein"
+    mmol_dict["molType"] = "mmol"
     mmol_dict["data"] = data
     mmol_dict["data3D"] = cif_data
     mmol_dict["data3DFormat"] = "cif"
@@ -255,7 +255,7 @@ def pdb2mmol(pdb_data=None, pdb_path=None):
 
     # Create the moll object
     mmol_dict = copy.deepcopy(OPENAD_MMOL_DICT)
-    mmol_dict["molType"] = "protein"
+    mmol_dict["molType"] = "mmoll"
     mmol_dict["data"] = data
     mmol_dict["header"] = bio_struct.header  # temp
     mmol_dict["data3D"] = pdb_data

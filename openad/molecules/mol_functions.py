@@ -440,12 +440,21 @@ def molformat_v2(mol):
     mol_v2 = {}
     mol_v2["identifiers"] = get_identifiers(mol)
     mol_v2["properties"] = copy.deepcopy(mol.get("properties"))
+
+    # For cases like an SDF or CSV where everything is just stored flat.
+    # @later - is this really the case? SDF doesn't store synonyms...
+    if "Synonym" in mol.get("synonyms", {}):
+        mol_v2["synonyms"] = copy.deepcopy(mol.get("synonyms", {}).get("Synonym", []))
+
     # For the messy double-level synonyms key in v1 format.
-    mol_v2["synonyms"] = copy.deepcopy(mol.get("synonyms", {}).get("Synonym", []))
-    # For other cases like an SDF or CSV where everything is just stored flat.
-    if not mol_v2["synonyms"] and "synonyms" in mol_v2["properties"]:
+    elif "synonyms" in mol_v2["properties"]:
         mol_v2["synonyms"] = str(mol_v2["properties"]["synonyms"]).split("\n")
         del mol_v2["properties"]["synonyms"]
+
+    # For other cases
+    else:
+        mol_v2["synonyms"] = copy.deepcopy(mol.get("synonyms", {}))
+
     mol_v2["analysis"] = copy.deepcopy(mol.get("analysis"))
     mol_v2["property_sources"] = copy.deepcopy(mol.get("property_sources"))
     mol_v2["enriched"] = copy.deepcopy(mol.get("enriched"))
@@ -467,6 +476,32 @@ def molformat_v2(mol):
             del mol_v2["properties"][prop]
 
     return mol_v2
+
+
+# # This will replace molformat_v2 when we get rid of molformat_v1
+# def sep_identifiers_from_properties(mol):
+#     """
+#     Separate molecules identifiers from properties.
+
+#     This is used when reading SDF or CSV format, where all
+#     identifiers are stored as properties.
+
+#     Parameters:
+#     -----------
+#     mol: dict
+#         The molecule object to modify.
+#     """
+
+#     # Move all identifiers to the identifiers key.
+#     mol["identifiers"] = get_identifiers(mol)
+
+#     # Remove identifiers from properties.
+#     # Create a lowercase version of the properties dictionary
+#     # so we can scan for properties in a case-insensitive way.
+#     molIdfrs = {k.lower(): v for k, v in mol["identifiers"].items()}
+#     for prop in list(mol["properties"]):
+#         if prop.lower() in molIdfrs:
+#             del mol["properties"][prop]
 
 
 def molformat_v2_to_v1(mol):

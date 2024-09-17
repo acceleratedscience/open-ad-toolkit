@@ -311,6 +311,7 @@ class MoleculesApi:
         # existing files.
         data = json.loads(request.data) if request.data else {}
         new_file = data["newFile"] if "newFile" in data else False
+        force = data["force"] if "force" in data else False
         path = unquote(data["path"]) if "path" in data else None
         mol = data["mol"] if "mol" in data else None
 
@@ -326,11 +327,13 @@ class MoleculesApi:
         # Throw error when detination file (does not) exist(s).
         if path:
             if new_file:
-                if os.path.exists(file_path):
-                    return f"_save_mol() -> File already exists: {file_path}", 403
+                if os.path.exists(file_path) and not force:
+                    print(f"_save_mol() -> File already exists: {file_path}")
+                    return f"A file with this name already exists.", 409
             else:
                 if not os.path.exists(file_path):
-                    return f"_save_mol() -> File not found: {file_path}", 404
+                    print(f"_save_mol() -> Destination not found: {file_path}")
+                    return f"The file you're trying to save is not found.", 404
 
         try:
             # -----------------------------
@@ -386,7 +389,14 @@ class MoleculesApi:
         # This could only happen if the user changes the folder structure outside
         # of the GUI then tries to save a file without refreshing the browser.
         except FileNotFoundError as err:
-            return f"_save_mol() -> FileNotFoundError: {err}", 404
+            print(f"_save_mol() -> FileNotFoundError: {err} / path: {file_path}")
+            return f"The selected destination does not exist.", 404
+        except PermissionError:
+            print(f"_save_mol() -> PermissionError: {err} / path: {file_path}")
+            return f"Access denied", 405
+        except Exception as err:
+            print(f"_save_mol() -> Exception: {err} / path: {file_path}")
+            return f"The selected destination does not exist.", 400
 
         return "ok", 200
 
