@@ -43,21 +43,21 @@ def fetchRoutes(cmd_pointer):
         f"{api_v1}/delete-file": {"func": file_system_api.delete_file, "method": "POST"},
         #
         #
-        # Molecules - Mols
-        f"{api_v1}/get-mol-data": {"func": molecules_api.get_mol_data, "method": "POST"},
-        f"{api_v1}/get-mol-viz-data": {"func": molecules_api.get_mol_viz_data, "method": "POST"},
-        f"{api_v1}/get-mol-data-from-molset": {"func": molecules_api.get_mol_data_from_molset, "method": "POST"},
+        # Molecules - Small molecules
+        f"{api_v1}/get-smol-data": {"func": molecules_api.get_smol_data, "method": "POST"},
+        f"{api_v1}/get-smol-viz-data": {"func": molecules_api.get_smol_viz_data, "method": "POST"},
+        f"{api_v1}/get-mol-data-from-molset": {"func": molecules_api.get_mol_data_from_molset, "method": "POST"}, # Smol, may support mmol later
         #
-        f"{api_v1}/add-mol-to-mymols": {"func": molecules_api.add_mol_to_list, "method": "POST"},
-        f"{api_v1}/remove-mol-from-mymols": {"func": molecules_api.remove_mol_from_list, "method": "POST"},
-        f"{api_v1}/check-mol-in-mymols": {"func": molecules_api.check_mol_in_list, "method": "POST"},
-        f"{api_v1}/enrich-mol": {"func": molecules_api.enrich_mol, "method": "POST"},
+        f"{api_v1}/add-mol-to-mymols": {"func": molecules_api.add_mol_to_list, "method": "POST"}, # Smol, may support mmol later
+        f"{api_v1}/remove-mol-from-mymols": {"func": molecules_api.remove_mol_from_list, "method": "POST"}, # Smol, may support mmol later
+        f"{api_v1}/check-mol-in-mymols": {"func": molecules_api.check_mol_in_list, "method": "POST"}, # Smol, may support mmol later
+        f"{api_v1}/enrich-smol": {"func": molecules_api.enrich_smol, "method": "POST"},
         #
-        f"{api_v1}/save-mol-as-json": {"func": molecules_api.save_mol_as_json, "method": "POST"},
-        f"{api_v1}/save-mol-as-sdf": {"func": molecules_api.save_smol_as_sdf, "method": "POST"},
-        f"{api_v1}/save-mol-as-csv": {"func": molecules_api.save_smol_as_csv, "method": "POST"},
-        f"{api_v1}/save-mol-as-mdl": {"func": molecules_api.save_smol_as_mdl, "method": "POST"},
-        f"{api_v1}/save-mol-as-smiles": {"func": molecules_api.save_smol_as_smiles, "method": "POST"},
+        f"{api_v1}/save-smol-as-json": {"func": molecules_api.save_smol_as_json, "method": "POST"},
+        f"{api_v1}/save-smol-as-sdf": {"func": molecules_api.save_smol_as_sdf, "method": "POST"},
+        f"{api_v1}/save-smol-as-csv": {"func": molecules_api.save_smol_as_csv, "method": "POST"},
+        f"{api_v1}/save-smol-as-mdl": {"func": molecules_api.save_smol_as_mdl, "method": "POST"},
+        f"{api_v1}/save-smol-as-smiles": {"func": molecules_api.save_smol_as_smiles, "method": "POST"},
         #
         #
         # Molecules - Molsets
@@ -74,10 +74,10 @@ def fetchRoutes(cmd_pointer):
         f"{api_v1}/save-molset-as-sdf": {"func": molecules_api.save_molset_as_sdf, "method": "POST"},
         f"{api_v1}/save-molset-as-csv": {"func": molecules_api.save_molset_as_csv, "method": "POST"},
         f"{api_v1}/save-molset-as-smiles": {"func": molecules_api.save_molset_as_smiles, "method": "POST"},
-        f"{api_v1}/replace-mol-in-molset": {"func": molecules_api.replace_mol_in_molset, "method": "POST"},
+        f"{api_v1}/replace-mol-in-molset": {"func": molecules_api.replace_mol_in_molset, "method": "POST"}, # Smol, may support mmol later
         #
         #
-        # Macromolecules
+        # Molecules - Macromolecules
         f"{api_v1}/get-mmol-data": {"func": molecules_api.get_mmol_data, "method": "POST"},
         f"{api_v1}/save-mmol-as-mmol-json": {"func": molecules_api.save_mmol_as_mmol_json, "method": "POST"},
         f"{api_v1}/save-mmol-as-pdb": {"func": molecules_api.save_mmol_as_pdb, "method": "POST"},

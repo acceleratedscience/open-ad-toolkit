@@ -27,7 +27,7 @@ from openad.molecules.mol_functions import (
 )
 from openad.molecules.mol_transformers import (
     mol2svg,
-    mol2mdl,
+    smol2mdl,
     molset2dataframe,
     write_dataframe2sdf,
     write_dataframe2csv,
@@ -56,7 +56,7 @@ class MoleculesApi:
     # Small molecules
     # -----------------------------
 
-    def get_mol_data(self):
+    def get_smol_data(self):
         """
         Get molecule data, plus SDF and SVG.
         Used when requesting a molecule by its identifier.
@@ -85,7 +85,7 @@ class MoleculesApi:
             mol = molformat_v2(mol)
             return mol, 200
 
-    def get_mol_viz_data(self):
+    def get_smol_viz_data(self):
         """
         Get a molecule's SVG and SDF data, used to render 2D and 3D visualizations.
         Used when opening a .smol.json file.
@@ -102,7 +102,7 @@ class MoleculesApi:
             mol_rdkit = Chem.MolFromSmiles(inchi_or_smiles)  # pylint: disable=no-member
         if mol_rdkit:
             svg = mol2svg(mol_rdkit)
-            mdl = mol2mdl(mol_rdkit)
+            mdl = smol2mdl(mol_rdkit)
         else:
             svg, mdl = None, None
 
@@ -195,7 +195,7 @@ class MoleculesApi:
 
         return {"status": success}, 200
 
-    def enrich_mol(self):
+    def enrich_smol(self):
         """
         Enrich a molecule with RDKit data.
         """
@@ -216,7 +216,7 @@ class MoleculesApi:
 
     ##
 
-    def save_mol_as_json(self):
+    def save_smol_as_json(self):
         """
         Save new .smol.json file to a specified destination path.
         """
@@ -313,12 +313,13 @@ class MoleculesApi:
         new_file = data["newFile"] if "newFile" in data else False
         force = data["force"] if "force" in data else False
         path = unquote(data["path"]) if "path" in data else None
-        mol = data["mol"] if "mol" in data else None
+        smol = data["smol"] if "smol" in data else None
+        mmol = data["mmol"] if "mmol" in data else None
 
         if not path:
             return f"save_new_mol() -> Parameter 'path' missing", 500
-        if not mol:
-            return f"save_new_mol() -> Parameter 'mol' missing", 500
+        if not smol:
+            return f"save_new_mol() -> Parameter 'smol' missing", 500
 
         # Compile path
         workspace_path = self.cmd_pointer.workspace_path()
@@ -344,27 +345,27 @@ class MoleculesApi:
             if format_as == "mol_json":
                 # Write to file
                 with open(file_path, "w", encoding="utf-8") as f:
-                    json.dump(mol, f, ensure_ascii=False, indent=4, cls=DecimalEncoder)
+                    json.dump(smol, f, ensure_ascii=False, indent=4, cls=DecimalEncoder)
 
             # Save as .sdf file.
             elif format_as == "sdf":
-                df = molset2dataframe([mol])
+                df = molset2dataframe([smol])
                 write_dataframe2sdf(df, file_path)
 
             # Save as .csv file.
             elif format_as == "csv":
-                df = molset2dataframe([mol])
+                df = molset2dataframe([smol])
                 write_dataframe2csv(df, file_path)
 
             # Save as .mol file.
             elif format_as == "mdl":
-                mdl = mol2mdl(inchi_or_smiles=mol["identifiers"].get("inchi"))
+                mdl = smol2mdl(inchi_or_smiles=smol["identifiers"].get("inchi"))
                 with open(file_path, "w", encoding="utf-8") as f:
                     f.write(mdl)
 
             # Save as .smi file.
             elif format_as == "smiles":
-                smiles = get_best_available_smiles(mol)
+                smiles = get_best_available_smiles(smol)
                 with open(file_path, "w", encoding="utf-8") as f:
                     f.write(smiles)
 
@@ -375,15 +376,15 @@ class MoleculesApi:
             # Save as .mmol.json file.
             elif format_as == "mmol_json":
                 with open(file_path, "w", encoding="utf-8") as f:
-                    json.dump(mol, f, ensure_ascii=False, indent=4, cls=DecimalEncoder)
+                    json.dump(mmol, f, ensure_ascii=False, indent=4, cls=DecimalEncoder)
 
             # Save as .cif file.
             elif format_as == "cif":
-                mmol2cif(mol, path=file_path)
+                mmol2cif(mmol, path=file_path)
 
             # Save as .pdb file.
             elif format_as == "pdb":
-                mmol2pdb(mol, path=file_path)
+                mmol2pdb(mmol, path=file_path)
 
         # In case the requested file path does not exist.
         # This could only happen if the user changes the folder structure outside

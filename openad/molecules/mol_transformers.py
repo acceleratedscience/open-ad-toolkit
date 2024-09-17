@@ -41,7 +41,7 @@ def mol2svg(mol_rdkit, highlight=None):
     return mol_drawer.GetDrawingText()
 
 
-def mol2mdl(mol_rdkit=None, inchi_or_smiles=None):
+def smol2mdl(mol_rdkit=None, inchi_or_smiles=None):
     """
     Takes an RDKit molecule object OR an InChI/SMILES identifier and returns MDL data.
 
