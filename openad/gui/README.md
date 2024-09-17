@@ -20,7 +20,7 @@ Any command that requires the GUI will start the server, which will then keep on
 
 1. File browser
 1. Molecule viewer
-2. Molecule set viewer
+1. Molecule set viewer
 1. Data viewer (to be implemented)
 1. "My molecules" working set
 1. Results
@@ -34,16 +34,16 @@ Any command that requires the GUI will start the server, which will then keep on
 
 The file browser lets us open our own proprietary file formats:
 
-- **.mol.json** --> Individual molecule files
-- **.molset.json** --> Sets of molecule files
+-   **.smol.json** --> Individual molecule files
+-   **.molset.json** --> Sets of molecule files
 
 As well as a number of commonly used file formats:
 
-- **.mol**
-- **.sdf**
-- **.smi**
-- **.json**
-- **.csv**
+-   **.mol**
+-   **.sdf**
+-   **.smi**
+-   **.json**
+-   **.csv**
 
 Files can easily be opened in your default system app, which is the default for any unsupported file formats.
 
@@ -56,8 +56,8 @@ Files can easily be opened in your default system app, which is the default for 
 
 </details>
 
-|![File Browser](readme/file-browser.png)|
-|---|
+| ![File Browser](readme/file-browser.png) |
+| ---------------------------------------- |
 
 <br>
 
@@ -81,8 +81,8 @@ Example: `show mol dopamine`
 
 </details>
 
-|![Molecule Viewer](readme/molecule-viewer.png)|
-|---|
+| ![Molecule Viewer](readme/molecule-viewer.png) |
+| ---------------------------------------------- |
 
 <br>
 
@@ -110,8 +110,8 @@ Example: `show molset 'my_mols.molset.json'`
 
 </details>
 
-|![Molset Viewer](readme/molset-viewer.png)|
-|---|
+| ![Molset Viewer](readme/molset-viewer.png) |
+| ------------------------------------------ |
 
 <br>
 
@@ -133,14 +133,10 @@ The data viewer lets you review, sort and triage data from a CSV file or a dataf
 
 Example: `display data 'demo/my-data.csv'` + `result open`
 
-
-
 </details>
 
-
-|![Data Viewer](readme/data-viewer.png)|
-|---|
-
+| ![Data Viewer](readme/data-viewer.png) |
+| -------------------------------------- |
 
 <br>
 
@@ -149,10 +145,9 @@ Example: `display data 'demo/my-data.csv'` + `result open`
 <details>
 <summary>About</summary>
 
-Your working set of molecules(*) is a molset that lives in memory and is meant as a bucket for gathering candidates from various processesses and sources, before storing them into a new file and processing them further.
+Your working set of molecules(\*) is a molset that lives in memory and is meant as a bucket for gathering candidates from various processesses and sources, before storing them into a new file and processing them further.
 
-\(*) Currently the working set is called "mymols", but this name may change.
-
+\(\*) Currently the working set is called "mymols", but this name may change.
 
 <span style="color: #d00">Note: loading and merging molecule sets is still using a different architecture which is not compatible with the GUI.</span>
 
@@ -165,8 +160,8 @@ Your working set of molecules(*) is a molset that lives in memory and is meant a
 
 </details>
 
-|![My Molecules](readme/my-mols.png)|
-|---|
+| ![My Molecules](readme/my-mols.png) |
+| ----------------------------------- |
 
 <br>
 

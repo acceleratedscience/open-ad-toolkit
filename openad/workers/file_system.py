@@ -311,9 +311,11 @@ def _get_file_type(ext, ext2):
     # JSON files --> parse secondary extension
     elif ext in ["json", "cjson"]:
         # Small molecule
-        if ext2 == "mol":
-            return "mol"
-        if ext2 == "mmol":
+        if ext2 == "smol":
+            return "smol"
+        elif ext2 == "mol":  # backward compatibility for mol.json files
+            return "smol"
+        elif ext2 == "mmol":
             return "mmol"
         # Molecule set
         elif ext2 == "molset":

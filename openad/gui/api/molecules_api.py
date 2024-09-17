@@ -88,7 +88,7 @@ class MoleculesApi:
     def get_mol_viz_data(self):
         """
         Get a molecule's SVG and SDF data, used to render 2D and 3D visualizations.
-        Used when opening a .mol.json file.
+        Used when opening a .smol.json file.
         """
 
         data = json.loads(request.data) if request.data else {}
@@ -218,7 +218,7 @@ class MoleculesApi:
 
     def save_mol_as_json(self):
         """
-        Save new .mol.json file to a specified destination path.
+        Save new .smol.json file to a specified destination path.
         """
         return self._save_mol("mol_json")
 
@@ -340,7 +340,7 @@ class MoleculesApi:
             # Small molecules
             # -----------------------------
 
-            # Save as .mol.json file.
+            # Save as .smol.json file.
             if format_as == "mol_json":
                 # Write to file
                 with open(file_path, "w", encoding="utf-8") as f:
