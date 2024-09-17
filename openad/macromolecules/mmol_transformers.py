@@ -1,6 +1,5 @@
 import copy
 import gemmi
-from Bio.PDB import PDBParser, MMCIFParser
 from openad.helpers.data_formats import OPENAD_MMOL_DICT
 from openad.macromolecules.mmol_functions import parse_cif_block
 
@@ -249,15 +248,10 @@ def pdb2mmol(pdb_data=None, pdb_path=None):
     cif_block = cif_doc.sole_block()
     data = parse_cif_block(cif_block)
 
-    # TEMP
-    parser = PDBParser(QUIET=True)
-    bio_struct = parser.get_structure("molecule", pdb_path)
-
     # Create the moll object
     mmol_dict = copy.deepcopy(OPENAD_MMOL_DICT)
     mmol_dict["molType"] = "mmoll"
     mmol_dict["data"] = data
-    mmol_dict["header"] = bio_struct.header  # temp
     mmol_dict["data3D"] = pdb_data
     mmol_dict["data3DFormat"] = "pdb"
 
