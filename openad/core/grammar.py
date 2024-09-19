@@ -37,8 +37,8 @@ from pyparsing import (
 # Main
 from openad.core.help import help_dict_create
 import openad.toolkit.toolkit_main as toolkit_main  # Not using "from" to avoid circular import.
-from openad.molecules.mol_grammar import mol_grammar_add
-from openad.macromolecules.mmol_grammar import prot_grammar_add
+from openad.smols.smol_grammar import mol_grammar_add
+from openad.mmols.mmol_grammar import prot_grammar_add
 
 
 # Helpers

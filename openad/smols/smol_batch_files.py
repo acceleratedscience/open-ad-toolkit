@@ -2,7 +2,7 @@
 
 import pandas
 from rdkit.Chem import PandasTools
-from openad.molecules.mol_functions import (
+from openad.smols.smol_functions import (
     retrieve_mol_from_list,
     merge_molecule_properties,
     valid_smiles,

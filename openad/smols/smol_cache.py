@@ -6,7 +6,7 @@ import copy
 import time
 import pickle
 from rdkit import Chem
-from openad.molecules.mol_functions import canonicalize
+from openad.smols.smol_functions import canonicalize
 from openad.helpers.data_formats import ANALYSIS_RECORD
 
 

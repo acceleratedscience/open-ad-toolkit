@@ -19,7 +19,7 @@ from openad.helpers.format_columns import single_value_columns, name_and_value_c
 
 
 # Molecule functions
-from openad.molecules.mol_functions import (
+from openad.smols.smol_functions import (
     # get_mol_from_formula,
     # get_mol_from_inchi,
     # get_mol_from_inchikey,
@@ -58,7 +58,7 @@ class bold_style:
     END = "</b>"
 
 
-# from openad.molecules.rdkit_draw import print_mol_ascii
+# from openad.smols.rdkit_draw import print_mol_ascii
 
 
 def display_molecule(cmd_pointer, inp):

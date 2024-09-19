@@ -1,10 +1,10 @@
 import json
 from flask import render_template, request
-from openad.molecules.mol_api import get_molecule_data
+from openad.smols.smol_api import get_molecule_data
 
 
 def fetchRoutesMolViewer(cmd_pointer, mol, mol_sdf, mol_svg):
-    from openad.molecules.mol_functions import molformat_v2
+    from openad.smols.smol_functions import molformat_v2
 
     mol = molformat_v2(mol)
     mol_json = json.dumps(mol, indent="\t")

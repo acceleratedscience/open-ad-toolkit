@@ -1,5 +1,5 @@
 from openad.core.help import help_dict_create
-from openad.molecules.mol_functions import MOL_PROPERTIES as m_props
+from openad.smols.smol_functions import MOL_PROPERTIES as m_props
 from openad.helpers.general import is_notebook_mode
 
 from pyparsing import (

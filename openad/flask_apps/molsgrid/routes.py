@@ -4,7 +4,7 @@ import mols2grid
 import signal
 import os
 import pandas
-from openad.molecules.mol_functions import normalize_mol_df
+from openad.smols.smol_functions import normalize_mol_df
 from openad.helpers.output import output_text, output_error, output_warning, output_success, output_table
 from openad.helpers.output_msgs import msg
 from openad.helpers.general import parse_path_tree, confirm_prompt

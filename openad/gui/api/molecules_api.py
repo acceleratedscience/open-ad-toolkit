@@ -9,7 +9,7 @@ from urllib.parse import unquote
 from rdkit import Chem
 from flask import Response, request
 
-from openad.molecules.mol_functions import (
+from openad.smols.smol_functions import (
     retrieve_mol,
     df_has_molecules,
     molformat_v2,
@@ -25,8 +25,8 @@ from openad.molecules.mol_functions import (
     get_best_available_smiles,
     merge_mols,
 )
-from openad.molecules.mol_transformers import (
-    mol2svg,
+from openad.smols.smol_transformers import (
+    smol2svg,
     smol2mdl,
     molset2dataframe,
     write_dataframe2sdf,
@@ -34,8 +34,8 @@ from openad.molecules.mol_transformers import (
     dataframe2molset,
 )
 
-from openad.macromolecules.mmol_functions import mmol_from_identifier
-from openad.macromolecules.mmol_transformers import mmol2pdb, mmol2cif, cif2mmol
+from openad.mmols.mmol_functions import mmol_from_identifier
+from openad.mmols.mmol_transformers import mmol2pdb, mmol2cif, cif2mmol
 
 
 from openad.helpers.files import open_file
@@ -101,7 +101,7 @@ class MoleculesApi:
         if not mol_rdkit:
             mol_rdkit = Chem.MolFromSmiles(inchi_or_smiles)  # pylint: disable=no-member
         if mol_rdkit:
-            svg = mol2svg(mol_rdkit)
+            svg = smol2svg(mol_rdkit)
             mdl = smol2mdl(mol_rdkit)
         else:
             svg, mdl = None, None
@@ -318,8 +318,8 @@ class MoleculesApi:
 
         if not path:
             return f"save_new_mol() -> Parameter 'path' missing", 500
-        if not smol:
-            return f"save_new_mol() -> Parameter 'smol' missing", 500
+        if not smol and not mmol:
+            return f"save_new_mol() -> Parameter 'smol' or 'mmol' missing", 500
 
         # Compile path
         workspace_path = self.cmd_pointer.workspace_path()

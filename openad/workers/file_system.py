@@ -1,9 +1,9 @@
 import os
 from openad.helpers.files import open_file, file_stats
-from openad.molecules.mol_functions import create_molset_cache_file, get_molset_mols
+from openad.smols.smol_functions import create_molset_cache_file, get_molset_mols
 from openad.gui.api.molecules_api import create_molset_response
-from openad.molecules.mol_transformers import smiles_path2molset, sdf_path2molset, mdl_path2mol
-from openad.macromolecules.mmol_transformers import cif2mmol, pdb2mmol
+from openad.smols.smol_transformers import smiles_path2molset, sdf_path2molset, mdl_path2smol
+from openad.mmols.mmol_transformers import cif2mmol, pdb2mmol
 
 
 def fs_get_workspace_files(cmd_pointer, path=""):
@@ -197,7 +197,6 @@ def fs_attach_file_data(cmd_pointer, file_obj, query=None):
         # From SDF file
         elif ext == "sdf":
             molset, err_code = sdf_path2molset(path_absolute)
-            print("err_code", err_code)
 
         if molset:
             # Step 2: Store a working copy of the molset in the cache.
@@ -227,7 +226,7 @@ def fs_attach_file_data(cmd_pointer, file_obj, query=None):
 
         # From MOL file
         if ext == "mdl":
-            data, err_code = mdl_path2mol(path_absolute)
+            data, err_code = mdl_path2smol(path_absolute)
 
         # From PDB file
         if ext == "pdb":

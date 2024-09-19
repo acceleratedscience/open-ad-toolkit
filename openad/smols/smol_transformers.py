@@ -8,14 +8,14 @@ import pandas as pd
 from rdkit import Chem
 
 from openad.helpers.files import open_file
-from openad.molecules.mol_functions import (
+from openad.smols.smol_functions import (
     new_molecule,
     molformat_v2,
     get_best_available_smiles,
 )
 
 
-def mol2svg(mol_rdkit, highlight=None):
+def smol2svg(mol_rdkit, highlight=None):
     """
     Takes an RDKit molecule object and returns an SVG string.
 
@@ -74,7 +74,7 @@ def smol2mdl(mol_rdkit=None, inchi_or_smiles=None):
 
 
 # Not used, for testing
-def mol2xyz(mol_rdkit):
+def smol2xyz(mol_rdkit):
     """
     Takes an RDKit molecule object and returns it as XYZ data.
     """
@@ -83,7 +83,7 @@ def mol2xyz(mol_rdkit):
 
 
 # Not used, for testing
-def mol2pdb(mol_rdkit):
+def smol2pdb(mol_rdkit):
     """
     Takes an RDKit molecule object and returns it as PDB data.
     """
@@ -327,7 +327,7 @@ def sdf_path2molset(sdf_path):
     """
     Takes the content of an .sdf file and returns a molset dictionary.
     """
-    from openad.molecules.mol_functions import OPENAD_MOL_DICT
+    from openad.smols.smol_functions import OPENAD_MOL_DICT
     import ast
 
     # This lets us parse all the properties back to their original types,
@@ -360,9 +360,9 @@ def sdf_path2molset(sdf_path):
         return None, err
 
 
-def mdl_path2mol(mdl_path):
+def mdl_path2smol(mdl_path):
     """
-    Takes the content of a .mol file and returns a molset dictionary.
+    Takes the content of a .mol file and returns a small molecule dictionary.
     """
 
     # try:

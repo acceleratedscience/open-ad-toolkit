@@ -5,7 +5,7 @@
 """ Perform Predict Reaction on a Reaction String"""
 from time import sleep
 import importlib.util as ilu
-from openad.molecules.molecule_cache import create_analysis_record, save_result
+from openad.smols.smol_cache import create_analysis_record, save_result
 import pandas as pd
 from rdkit import Chem
 from rdkit.Chem import AllChem

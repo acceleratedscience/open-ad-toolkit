@@ -6,9 +6,9 @@ import numpy as np
 import pandas as pd
 from deepsearch.chemistry.queries.molecules import PatentsWithMoleculesQuery
 from deepsearch.chemistry.queries.molecules import MolId, MolIdType
-from openad.molecules.molecule_cache import create_analysis_record, save_result
-from openad.molecules.mol_functions import canonicalize, valid_smiles, valid_inchi
-from openad.molecules.mol_commands import property_retrieve
+from openad.smols.smol_cache import create_analysis_record, save_result
+from openad.smols.smol_functions import canonicalize, valid_smiles, valid_inchi
+from openad.smols.smol_commands import property_retrieve
 from openad.helpers.output import output_text, output_success, output_warning, output_error, output_table
 from openad.helpers.output_msgs import msg
 from openad.helpers.general import load_tk_module

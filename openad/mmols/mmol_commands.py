@@ -20,7 +20,7 @@ from openad.helpers.output_msgs import msg
 from openad.helpers.format_columns import single_value_columns, name_and_value_columns
 
 # Protein functions
-# from openad.macromolecules.mmol_functions import show_protein
+# from openad.mmols.mmol_functions import show_protein
 
 
 def show_protein(cmd_pointer, inp):

@@ -7,7 +7,7 @@ def get_molecule_data(cmd_pointer, molecule_identifier):
     Used to enrich the molecule data from the molecule viewer Flask app.
     """
 
-    from openad.molecules.mol_commands import retrieve_mol, retrieve_mol_from_list
+    from openad.smols.smol_commands import retrieve_mol, retrieve_mol_from_list
 
     mol = retrieve_mol_from_list(cmd_pointer, molecule_identifier)
 

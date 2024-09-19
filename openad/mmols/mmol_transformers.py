@@ -1,7 +1,7 @@
 import copy
 import gemmi
 from openad.helpers.data_formats import OPENAD_MMOL_DICT
-from openad.macromolecules.mmol_functions import parse_cif_block
+from openad.mmols.mmol_functions import parse_cif_block
 
 
 def mmol2cif(mmol_dict, path=None):
