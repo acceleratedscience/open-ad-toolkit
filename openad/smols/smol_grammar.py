@@ -116,7 +116,7 @@ WORKING_SET_PRIORITY = "If the requested molecule exists in your current working
 USING_NAME = "If you use the name of a molecule, the tool will do a caseless search of the names and synonyms first in current working list, then on pubchem."
 
 
-def mol_grammar_add(statements, grammar_help):
+def smol_grammar_add(statements, grammar_help):
     """defines the grammar available for managing molecules"""
 
     # ---
@@ -206,7 +206,7 @@ or with single quotes
     grammar_help.append(
         help_dict_create(
             name="display molecule",
-            category="Molecules",
+            category="Small Molecules",
             command="display molecule <name> | <smiles> | <inchi> | <inchikey> | <cid>",
             description=f"""
 This command will display a molecule's identifiers, propoerties, synonyms and any Analysis results it has been enriched with.
@@ -276,7 +276,7 @@ Display the sources of a molecule's properties, attributing back to how they wer
             name="rename molecule",
             category="Molecules Working Set",
             command="rename molecule <molecule_identifer_string> as <molecule_name>",
-            description="""
+            description=f"""
 Rename a molecule in the current working list.
 
 {MOL_SHORTHAND}
@@ -333,7 +333,7 @@ Examples
             name="remove molecule",
             category="Molecules Working Set",
             command="remove mol|molecule <name> | <smiles> | <inchi> | <inchikey> | <cid> [ force ]",
-            description="""
+            description=f"""
 Remove a molecule from the current working list based on a given molecule identifier.
 
 {MOL_SHORTHAND}
@@ -465,17 +465,24 @@ Options:
             name="enrich molecules",
             category="Molecules Working Set",
             command="enrich molecules with analysis",
-            description="""This command Enriches every molecule in your current working list of molecules with the analysis results. This assumes that molecules in the current working list was the input or result for the analysis.
+            description="""
+Enrich the molecules in your working set with the results of the last performed analysis.
+This assumes that your molecule working set contains either the input molecule or any of the result molecules from the analysis.
 
-            This command currently covers results from the following Analysis commands:
-            - RXN Toolkit <cmd>predict Reaction</cmd>
-            - RXN Toolkit <cmd>predict retrosynthesis </cmd>
-            - DS4SD Toolkit <cmd>search for patents containing molecule</cmd>
-            - DS4SD Toolkit <cmd>search for similiar molecules</cmd>
+Currently supported analysis commands:
 
-            See the Deep Search toolkit  and RXN toolkit help for further assistance on these commands. 
-              
-              """,
+RXN:
+- <cmd>predict reaction</cmd>
+- <cmd>predict retrosynthesis </cmd>
+
+DS4SD:
+- <cmd>search for patents containing molecule</cmd>
+- <cmd>search for similiar molecules</cmd>
+
+Please refer to the DS4SD and RXN toolkits for further assistance on these commands. For example:
+<cmd>set context rxn</cmd>
+<cmd>predict reaction ?</cmd>
+""",
         )
     )
 
@@ -513,7 +520,7 @@ Options:
     grammar_help.append(
         help_dict_create(
             name="@<molecule>",
-            category="Molecules",
+            category="Small Molecules",
             command="@(<name> | <smiles> | <inchi> | <inchikey> | <cid>)>><molecule_property_name>",
             description=f"""
 This command request the given property of a molecule, it will first try and retrieve the provided molecule from your working list of molecules, if it is not there it will will try and retrieve the molecule from pubchem.
@@ -702,9 +709,9 @@ When run inside a Notebook, this will return a dataframe. When run from the comm
     grammar_help.append(
         help_dict_create(
             name="show molecule",
-            category="Molecules",
+            category="Small Molecules",
             command="show mol|molecule <name> | <smiles> | <inchi> | <inchikey> | <cid>",
-            description="""
+            description=f"""
 Inspect a molecule in the browser. If a molecule is not in the current Molecule Working set it will pull the result from Pubchem.
 
 {MOL_SHORTHAND}
@@ -784,7 +791,7 @@ Examples:
     # grammar_help.append(
     #     help_dict_create(
     #         name="show molecules",
-    #         category="Molecules",
+    #         category="Small Molecules",
     #         command="show molecules using ( file '<mols_file>' | dataframe <dataframe> ) [ save as '<sdf_or_csv_file>' | as molsobject ]",
     #         description=f"""Launch the molecule viewer { 'in your browser ' if is_notebook_mode() else '' }to examine and select molecules from a SMILES sdf/csv dataset.
     # { 'if you are working from a notebook, the <cmd> as mols object </cmd> clause allows you to display the mols2grid object and use the <cmd>.get_selection()</cmd>  method to retrieve selected molecules ' if is_notebook_mode() else '' }

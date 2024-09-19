@@ -7,13 +7,13 @@ from rdkit import Chem
 import pandas as pd
 from deepsearch.chemistry.queries.molecules import MoleculeQuery
 from deepsearch.chemistry.queries.molecules import MolQueryType
-from openad.smols.molecule_cache import create_analysis_record, save_result
-from openad.smols.mol_functions import valid_smiles
+from openad.smols.smol_cache import create_analysis_record, save_result
+from openad.smols.smol_functions import valid_smiles
 from openad.app.global_var_lib import GLOBAL_SETTINGS
 from openad.helpers.output import output_text, output_success, output_error, output_table
 from openad.helpers.output_msgs import msg
 from openad.helpers.general import load_tk_module
-from openad.smols.mol_functions import canonicalize
+from openad.smols.smol_functions import canonicalize
 
 
 def search_similar_molecules(inputs: dict, cmd_pointer):

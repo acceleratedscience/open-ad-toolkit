@@ -9,7 +9,7 @@ _META_DICT = {
 }
 
 # Template for a small molecule dictionary.
-OPENAD_MOL_DICT = {
+OPENAD_SMOL_DICT = {
     # The main name of this molecule.
     "name": None,
     # Alternative names this molecule is know by.

@@ -10,8 +10,8 @@ from rdkit import Chem
 from rdkit.Chem import AllChem
 from time import sleep
 from openad.app.global_var_lib import GLOBAL_SETTINGS
-from openad.smols.molecule_cache import create_analysis_record, save_result
-from openad.smols.mol_functions import canonicalize, valid_smiles
+from openad.smols.smol_cache import create_analysis_record, save_result
+from openad.smols.smol_functions import canonicalize, valid_smiles
 from openad.helpers.general import load_tk_module
 from openad.helpers.spinner import Spinner
 

@@ -15,17 +15,26 @@ from openad.smols.smol_functions import (
 )
 
 
-def smol2svg(mol_rdkit, highlight=None):
+def smol2svg(inchi_or_smiles, highlight=None):
     """
     Takes an RDKit molecule object and returns an SVG string.
 
     Parameters
     ----------
-    mol_rdkit: RDKit molecule object
-        An RDKit molecule object.
+    inchi_or_smiles: str
+        Source option B: An InChI or SMILES identifier.
     highlight: str
         A SMARTS string to highlight a substructure in the molecule.
     """
+
+    if not inchi_or_smiles:
+        raise ValueError("Please provide inchi_or_smiles.")
+
+    # Generate RDKit molecule object.
+    mol_rdkit = Chem.MolFromInchi(inchi_or_smiles)
+    if not mol_rdkit:
+        mol_rdkit = Chem.MolFromSmiles(inchi_or_smiles)  # pylint: disable=no-member
+
     if highlight:
         substructure = Chem.MolFromSmarts(highlight)  # pylint: disable=no-member
         matches = mol_rdkit.GetSubstructMatches(substructure)
@@ -41,7 +50,7 @@ def smol2svg(mol_rdkit, highlight=None):
     return mol_drawer.GetDrawingText()
 
 
-def smol2mdl(mol_rdkit=None, inchi_or_smiles=None):
+def smol2mdl(smol=None, inchi_or_smiles=None, path=None):
     """
     Takes an RDKit molecule object OR an InChI/SMILES identifier and returns MDL data.
 
@@ -53,14 +62,23 @@ def smol2mdl(mol_rdkit=None, inchi_or_smiles=None):
 
     Parameters
     ----------
-    mol_rdkit: RDKit molecule object
-        Source option A: An RDKit molecule object.
+    smol: dict
+        Source option A: An OpenAD small molecule dictionary (see OPENAD_SMOL_DICT).
     inchi_or_smiles: str
         Source option B: An InChI or SMILES identifier.
+    path: str
+        When path is defined, the MDL file will be written to disk at the specified location.
     """
 
+    if not smol and not inchi_or_smiles:
+        raise ValueError("Please provide smol or inchi_or_smiles.")
+
+    inchi_or_smiles = smol["identifiers"]["inchi"] if smol else inchi_or_smiles
+
+    # Generate RDKit molecule object.
+    mol_rdkit = Chem.MolFromInchi(inchi_or_smiles)
     if not mol_rdkit:
-        mol_rdkit = Chem.MolFromInchi(inchi_or_smiles)
+        mol_rdkit = Chem.MolFromSmiles(inchi_or_smiles)  # pylint: disable=no-member
 
     # Add hydrogen atoms, which are displayed as spikes in the 3D viz.
     mol_rdkit = Chem.AddHs(mol_rdkit)  # pylint: disable=no-member
@@ -69,8 +87,38 @@ def smol2mdl(mol_rdkit=None, inchi_or_smiles=None):
     Chem.rdDistGeom.EmbedMolecule(mol_rdkit)  # pylint: disable=no-member
 
     # Generate MDL data.
-    mol_mdl = Chem.MolToMolBlock(mol_rdkit)  # pylint: disable=no-member
-    return mol_mdl
+    mol_mdl = Chem.MolToMolBlock(mol_rdkit)
+
+    # Write to disk
+    if path:
+        # Add smol properties
+        if smol:
+            for key, val in smol["properties"].items():
+                val_print = "" if val is None else f"{val}"
+                mol_rdkit.SetProp(key, val_print)
+            mol_rdkit.SetProp("synonyms", f"{smol['synonyms']}")
+
+        # # Print all properties - for debugging
+        # props = mol_rdkit.GetPropsAsDict()
+        # for key in props:
+        #     print(">", key, props[key])
+
+        # Write mdl to disk.
+        with Chem.SDWriter(path) as writer:
+            writer.write(mol_rdkit)
+
+    # Return data
+    else:
+        # # We don't need the properties when returning data,
+        # because this is only used for visualization. But for
+        # the record, this is how we can add the properties:
+        # if smol:
+        #     props = smol["properties"].items()
+        #     props_str = "\n" + "\n".join([f">  <{key}>\n{value}\n" for key, value in props])
+        #     props_str = props_str + "\n" + f"<synonyms>\n{smol["synonyms"]}\n"
+        #     mol_mdl += f"\n{props_str}\n$$$$\n"
+
+        return mol_mdl
 
 
 # Not used, for testing
@@ -326,8 +374,10 @@ def smiles_path2molset(path_absolute):
 def sdf_path2molset(sdf_path):
     """
     Takes the content of an .sdf file and returns a molset dictionary.
+
+    Used to open SDF files.
     """
-    from openad.smols.smol_functions import OPENAD_MOL_DICT
+    from openad.smols.smol_functions import OPENAD_SMOL_DICT
     import ast
 
     # This lets us parse all the properties back to their original types,
@@ -363,12 +413,18 @@ def sdf_path2molset(sdf_path):
 def mdl_path2smol(mdl_path):
     """
     Takes the content of a .mol file and returns a small molecule dictionary.
+
+    Used to open MDL (.mol) files.
     """
 
-    # try:
-    mol_rdkit = Chem.MolFromMolFile(mdl_path)  # pylint: disable=no-member
+    # Read MDL data
+    supplier = Chem.SDMolSupplier(mdl_path)
+    mol_rdkit = next(supplier)
+
+    if mol_rdkit is None:
+        return None, "unknown"
+
+    # Translate into OpenAD smol dict
     mol_dict = new_molecule(mol_rdkit=mol_rdkit)
     mol_dict = molformat_v2(mol_dict)
     return mol_dict, None
-    # except Exception as err:
-    #     return None, err

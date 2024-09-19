@@ -3,6 +3,7 @@ Molecule management functions
 """
 
 import os
+import ast
 import time
 import json
 import copy
@@ -22,7 +23,7 @@ from openad.helpers.files import open_file
 from openad.helpers.general import confirm_prompt
 from openad.helpers.spinner import spinner
 from openad.helpers.json_decimal_encoder import DecimalEncoder
-from openad.helpers.data_formats import OPENAD_MOL_DICT
+from openad.helpers.data_formats import OPENAD_SMOL_DICT
 
 MOL_NAME_INDEX = "name"
 MOL_SMILES_INDEX = "smiles"
@@ -306,7 +307,7 @@ def _get_mol(mol_id, mol_id_type):
             if cid is None:
                 return False, None, None
         mol_pcy = pcy.Compound.from_cid(cid).to_dict()
-        openad_mol = copy.deepcopy(OPENAD_MOL_DICT)
+        openad_mol = copy.deepcopy(OPENAD_SMOL_DICT)
 
         if mol_pcy:
             if mol_id_type == MOL_NAME_INDEX:
@@ -441,20 +442,34 @@ def molformat_v2(mol):
     mol_v2["identifiers"] = get_identifiers(mol)
     mol_v2["properties"] = copy.deepcopy(mol.get("properties"))
 
-    # For cases like an SDF or CSV where everything is just stored flat.
-    # @later - is this really the case? SDF doesn't store synonyms...
-    if "Synonym" in mol.get("synonyms", {}):
-        mol_v2["synonyms"] = copy.deepcopy(mol.get("synonyms", {}).get("Synonym", []))
-
     # For the messy double-level synonyms key in v1 format.
+    if "Synonym" in mol.get("synonyms", {}):
+        synonyms = copy.deepcopy(mol.get("synonyms", {}).get("Synonym", []))
+
+    # For cases like an SDF or CSV where everything is just stored flat.
     elif "synonyms" in mol_v2["properties"]:
-        mol_v2["synonyms"] = str(mol_v2["properties"]["synonyms"]).split("\n")
+        synonyms = mol_v2["properties"]["synonyms"]
         del mol_v2["properties"]["synonyms"]
 
-    # For other cases
+    # For other cases, usually when no synonyms are present
+    # like when creating a fresh molecule from an identifier.
     else:
-        mol_v2["synonyms"] = copy.deepcopy(mol.get("synonyms", {}))
+        synonyms = copy.deepcopy(mol.get("synonyms", []))
 
+    # Synonyms may be stored as a string array (mdl/sdf), or a string with linebreaks (csv).
+    # print("\n\n* synonyms BEFORE", type(synonyms), "\n", synonyms)
+    if isinstance(synonyms, str):
+        try:
+            synonyms = ast.literal_eval(synonyms)
+        except (ValueError, SyntaxError):
+            synonyms = synonyms.split("\n") if "\n" in synonyms else [synonyms]
+    # print("\n\n* synonyms AFTER", type(synonyms), "\n", synonyms)
+
+    # Find name if it's missing.
+    if not mol_v2["identifiers"]["name"]:
+        mol_v2["identifiers"]["name"] = synonyms[0] if synonyms else None
+
+    mol_v2["synonyms"] = synonyms
     mol_v2["analysis"] = copy.deepcopy(mol.get("analysis"))
     mol_v2["property_sources"] = copy.deepcopy(mol.get("property_sources"))
     mol_v2["enriched"] = copy.deepcopy(mol.get("enriched"))
@@ -550,7 +565,7 @@ def new_molecule(inchi_or_smiles: str = None, mol_rdkit: Mol = None, name: str =
         Optional name for the molecule.
     """
 
-    mol = copy.deepcopy(OPENAD_MOL_DICT)
+    mol = copy.deepcopy(OPENAD_SMOL_DICT)
     date_time = datetime.fromtimestamp(time.time())
     str_date_time = date_time.strftime("%d-%m-%Y, %H:%M:%S")
 
@@ -567,10 +582,11 @@ def new_molecule(inchi_or_smiles: str = None, mol_rdkit: Mol = None, name: str =
         except Exception:  # pylint: disable=broad-exception-caught
             return None
 
-    # This is creating a bunch of unnecessary empty fields... marked for deletion
-    # # Create empty property fields
-    # for prop in MOL_PROPERTIES:
-    #     mol["properties"][prop] = None
+    # Parse properties
+    props = mol_rdkit.GetPropsAsDict()
+    for key in props:
+        mol["properties"][key] = props[key]
+        mol["property_sources"][key] = {"source": "file"}
 
     # Store identifiers
     mol["name"] = name

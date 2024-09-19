@@ -95,16 +95,15 @@ class MoleculesApi:
         inchi_or_smiles = data["inchi_or_smiles"] if "inchi_or_smiles" in data else None
 
         if not inchi_or_smiles:
-            return "get_mol_viz_data() -> Invalid inchi_or_smiles", 500
+            output_error("get_mol_viz_data() -> Missing inchi_or_smiles")
+            return "Missing inchi_or_smiles", 500
 
-        mol_rdkit = Chem.MolFromInchi(inchi_or_smiles)
-        if not mol_rdkit:
-            mol_rdkit = Chem.MolFromSmiles(inchi_or_smiles)  # pylint: disable=no-member
-        if mol_rdkit:
-            svg = smol2svg(mol_rdkit)
-            mdl = smol2mdl(mol_rdkit)
-        else:
-            svg, mdl = None, None
+        svg = smol2svg(inchi_or_smiles=inchi_or_smiles)
+        mdl = smol2mdl(inchi_or_smiles=inchi_or_smiles)
+
+        if not svg and not mdl:
+            output_error("get_mol_viz_data() -> Failed to generate SVG/MDL from '{inchi_or_smiles}'.")
+            return f"Failed to generate visualisation data from '{inchi_or_smiles}'.", 500
 
         return {"mdl": mdl, "svg": svg}, 200
 
@@ -359,9 +358,7 @@ class MoleculesApi:
 
             # Save as .mol file.
             elif format_as == "mdl":
-                mdl = smol2mdl(inchi_or_smiles=smol["identifiers"].get("inchi"))
-                with open(file_path, "w", encoding="utf-8") as f:
-                    f.write(mdl)
+                smol2mdl(smol, path=file_path)
 
             # Save as .smi file.
             elif format_as == "smiles":

@@ -648,7 +648,7 @@ def show_mol(cmd_pointer, inp):
     from openad.gui.gui_launcher import gui_init
 
     molecule_identifier = inp.as_dict()["molecule_identifier"]
-    path = "mol/" + urllib.parse.quote(molecule_identifier, safe="")
+    path = "smol/" + urllib.parse.quote(molecule_identifier, safe="")
     gui_init(cmd_pointer, path)
 
 

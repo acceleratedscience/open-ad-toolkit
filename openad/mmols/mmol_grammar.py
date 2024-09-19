@@ -23,34 +23,35 @@ from pyparsing import (
     ZeroOrMore,
 )
 
-(protein, show) = map(
+(add, show) = map(
     CaselessKeyword,
-    "protein show".split(),
+    "add show".split(),
 )
-protein_identifier = Word(alphas + "-" + "*")
+
+_mmol = ["macromolecule", "macromol", "mmol", "protein", "prot"]
+mmol = MatchFirst(map(CaselessKeyword, _mmol))
+mmol_identifier = Word(alphas + "-" + "*")
 desc = QuotedString("'", escQuote="\\")
 
 
-def prot_grammar_add(statements, grammar_help):
+def mmol_grammar_add(statements, grammar_help):
     """
-    Defines the grammar available for managing proteins.
+    Defines the grammar available for managing macromolecules.
     """
 
     # ---
     # Show individual protein in browser.
-    statements.append(
-        Forward(show("show") + protein + (protein_identifier | desc)("protein_identifier"))("show_protein")
-    )
+    statements.append(Forward(show("show") + mmol + (mmol_identifier | desc)("mmol_identifier"))("show_mmol"))
     grammar_help.append(
         help_dict_create(
-            name="show protein",
-            category="Proteins",
-            command="show protein <fasta>",
+            name="show macromolecule",
+            category="Macromolecules",
+            command="show mmol|protein <fasta> | <pdb_id>",
             description="""
-Inspect a protein in the browser.
+Inspect a macromolecule in the browser.
 
 Examples:
-- <cmd>show protein MAAVLLFLLVPGAGLAMRLLGLLLVGLPV</cmd>
+- <cmd>show mmol 2g64</cmd>
 """,
         )
     )

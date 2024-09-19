@@ -23,9 +23,9 @@ from openad.helpers.format_columns import single_value_columns, name_and_value_c
 # from openad.mmols.mmol_functions import show_protein
 
 
-def show_protein(cmd_pointer, inp):
+def show_mmol(cmd_pointer, inp):
     from openad.gui.gui_launcher import gui_init
 
-    protein_identifier = inp.as_dict()["protein_identifier"]
-    path = "prot/" + urllib.parse.quote(protein_identifier, safe="")
+    mmol_identifier = inp.as_dict()["mmol_identifier"]
+    path = "mmol/" + urllib.parse.quote(mmol_identifier, safe="")
     gui_init(cmd_pointer, path)

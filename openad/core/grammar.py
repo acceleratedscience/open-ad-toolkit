@@ -37,8 +37,8 @@ from pyparsing import (
 # Main
 from openad.core.help import help_dict_create
 import openad.toolkit.toolkit_main as toolkit_main  # Not using "from" to avoid circular import.
-from openad.smols.smol_grammar import mol_grammar_add
-from openad.mmols.mmol_grammar import prot_grammar_add
+from openad.smols.smol_grammar import smol_grammar_add
+from openad.mmols.mmol_grammar import mmol_grammar_add
 
 
 # Helpers
@@ -159,10 +159,10 @@ grammar_help = []  # Help text
 
 
 # Add molecule grammar
-mol_grammar_add(statements=statements, grammar_help=grammar_help)
+smol_grammar_add(statements=statements, grammar_help=grammar_help)
 
 # Add protein grammar
-prot_grammar_add(statements=statements, grammar_help=grammar_help)
+mmol_grammar_add(statements=statements, grammar_help=grammar_help)
 
 # TODO: Organize all other grammar also by individual files
 

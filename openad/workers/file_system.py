@@ -223,9 +223,8 @@ def fs_attach_file_data(cmd_pointer, file_obj, query=None):
 
     # Molecule files --> convert to molecule JSON
     elif file_type in ["mdl", "pdb", "cif"]:
-
         # From MOL file
-        if ext == "mdl":
+        if ext == "mol":
             data, err_code = mdl_path2smol(path_absolute)
 
         # From PDB file
