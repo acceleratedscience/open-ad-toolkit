@@ -28,7 +28,7 @@ show mol|molecule <name> ?
 
 ...will display:
 
-```
+```text
 show mol|molecule <name> | <smiles> | <inchi> | <inchikey> | <cid>
 |    ------------------------------------------------------------------
 |
