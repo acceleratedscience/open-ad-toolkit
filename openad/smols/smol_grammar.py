@@ -389,7 +389,7 @@ Examples:
     grammar_help.append(
         help_dict_create(
             name="save molecule-set",
-            category="Molecule-sets",
+            category="Molecule Sets",
             command="save molecule-set as <molecule_set_name>",
             description="""
 Save the current molecule workking list to a molecule-set in your workspace.
@@ -408,7 +408,7 @@ Example:
     grammar_help.append(
         help_dict_create(
             name="load molecule-set",
-            category="Molecule-sets",
+            category="Molecule Sets",
             command="load molecule-set|molset <molecule-set_name>",
             description="""
 Loads a molecule-set from your workspace, and replaces your current list of molecules with the molecules from the given  molecule-set.
@@ -431,7 +431,7 @@ Example:
     grammar_help.append(
         help_dict_create(
             name="merge molecule-set",
-            category="Molecule-sets",
+            category="Molecule Sets",
             command="merge molecule-set|molset <molecule-set_name> [merge only] [append only]",
             description="""
 This command merges a molecule-set from your workspace into cour current working list of molecules in memory, and updates properties/Analysis in existing molecules or appends new molecules to the working list.
@@ -451,7 +451,7 @@ Options:
     grammar_help.append(
         help_dict_create(
             name="list molecule-sets",
-            category="Molecule-sets",
+            category="Molecule Sets",
             command="list molecule-sets",
             description="List all molecule sets in your workspace.",
         )
@@ -742,7 +742,7 @@ Examples:
     grammar_help.append(
         help_dict_create(
             name="show molset",
-            category="Molecule-sets",
+            category="Molecule Sets",
             command="show molset|molecule-set '<molset_or_sdf_or_smi_path>' | using dataframe <dataframe>",
             description=f"""
 Launch the molset viewer { 'in your browser ' if is_notebook_mode() else '' }to visualize your molecule dataset.
