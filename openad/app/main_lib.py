@@ -52,7 +52,6 @@ from openad.smols.smol_commands import (
     show_mol,
     show_molset,
     show_molset_df,
-    show_molsgrid_DEPRECATED,  # TRASH
     merge_molecules,
 )
 from openad.mmols.mmol_commands import show_mmol
@@ -284,10 +283,6 @@ def lang_parse(cmd_pointer, parser):
         return merge_molecule_property_data(cmd_pointer, parser)
     elif parser.getName() == "export_molecules":
         return export_molecule_set(cmd_pointer, parser)
-    elif parser.getName() == "show_molsgrid":
-        return show_molsgrid_DEPRECATED(cmd_pointer, parser)
-    elif parser.getName() == "show_molsgrid_df":
-        return show_molsgrid_DEPRECATED(cmd_pointer, parser)
     elif parser.getName() == "show_mol":
         return show_mol(cmd_pointer, parser)
     elif parser.getName() == "show_molset":

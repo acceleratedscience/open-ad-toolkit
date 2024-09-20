@@ -677,17 +677,6 @@ def show_molset_df(cmd_pointer, inp):
     gui_init(cmd_pointer, path)
 
 
-# Launch molecule grid.
-def show_molsgrid_DEPRECATED(cmd_pointer, inp):
-    # Load routes and launch browser UI.
-    routes, the_mols2grid = fetchRoutesMolsGrid(cmd_pointer, inp)
-
-    if GLOBAL_SETTINGS["display"] == "notebook":
-        return the_mols2grid
-    else:
-        launcher.launch(cmd_pointer, routes, "molsgrid")
-
-
 def _load_molecules(location):
     """Loads molecules from  a given file"""
     if not os.path.exists(os.path.expanduser(location)):
