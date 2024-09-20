@@ -1,4 +1,4 @@
-# Working with Molecules
+# Working with molecules
 
 ## Introduction
 
@@ -10,11 +10,13 @@ If you are working with Jupyter Notebook, you can access the CLI using Magic Com
 %openad show mol dopamine
 ```
 
-To install the OpenAD Magic Commands in Jupyter, check [Launching OpenAD in Jupyter](../#launching-openad-in-jupyter) in the main readme file.
+To get started with the OpenAD Magic Commands in Jupyter, please consult [Launching OpenAD in Jupyter](../#launching-openad-in-jupyter).
 
 In our examples we'll be using the CLI from within a terminal.
 
-## Available Molecule Commands
+<br>
+
+## Available molecule commands
 
 To see all available commands, run `?` and look for the ones listed under `Small Molecules`, `Macromolecules`, `Molecule Sets` and `Molecules Working Set`. To see the documentation for each individual command, you can consult the [online documentation](https://acceleratedscience.github.io/openad-docs/) or simply paste (the first part of) a command in your terminal followed by a `?`.
 
@@ -26,7 +28,7 @@ show mol|molecule <name> ?
 
 ...will display:
 
-```sh
+```
 show mol|molecule <name> | <smiles> | <inchi> | <inchikey> | <cid>
 |    ------------------------------------------------------------------
 |
@@ -46,15 +48,15 @@ show mol|molecule <name> | <smiles> | <inchi> | <inchikey> | <cid>
 
 <br>
 
-## Visualizing & Storing Small Molecules
+## Visualizing & storing small molecules
 
-To see details about a small molecule like dopamine for example, simply run:
+To see details about a small molecule like for example dopamine, simply run:
 
 ```sh
 show molecule dopamine
 ```
 
-This will launch the GUI. From there you can add the molecule to your working set or store it in your workspace.
+This will launch the GUI. From there you can choose to add the molecule to your working set or store it in your workspace.
 
 To see what files exist in your workspace, you can either run:
 
@@ -72,10 +74,14 @@ Our molecule viewer can open any `SDF`, `MOL` and `SMI` file, however we recomme
 
 <br>
 
-## Visualizing & Storing Macromolecules
+## Visualizing & storing macromolecules
 
 To see details about a macromolecule, simply run:
 
 ```sh
-show molecule dopamine
+show mmol '2g64'
 ```
+
+This will launch the GUI where can choose to store the molecule in your workspace.
+
+> **Note:** For the time being, you can't store macromolecules into your molecules working set, nor can you add them to a molset.
