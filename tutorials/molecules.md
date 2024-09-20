@@ -29,7 +29,7 @@ show mol|molecule <name> ?
 ...will display:
 
 ```text
-show mol|molecule <name> | <smiles> | <inchi> | <inchikey> | <cid>
+|    show mol|molecule <name> | <smiles> | <inchi> | <inchikey> | <cid>
 |    ------------------------------------------------------------------
 |
 |    Inspect a molecule in the browser. If a molecule is not in the current Molecule Working set it will pull the result from Pubchem.
@@ -50,7 +50,7 @@ show mol|molecule <name> | <smiles> | <inchi> | <inchikey> | <cid>
 
 ## Visualizing & storing small molecules
 
-To see details about a small molecule like for example dopamine, simply run:
+To see details about a small molecule like eg. dopamine, you can run:
 
 ```sh
 show molecule dopamine
@@ -76,7 +76,7 @@ Our molecule viewer can open any `SDF`, `MOL` and `SMI` file, however we recomme
 
 ## Visualizing & storing macromolecules
 
-To see details about a macromolecule, simply run:
+To see details about a macromolecule like eg. [2g64](https://www.rcsb.org/structure/2g64), you can run:
 
 ```sh
 show mmol '2g64'
