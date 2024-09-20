@@ -64,6 +64,8 @@ class bold_style:
 def display_molecule(cmd_pointer, inp):
     """displays a molecule and its properties"""
     molecule_identifier = inp.as_dict()["molecule_identifier"]
+
+    print(22, molecule_identifier)
     if GLOBAL_SETTINGS["display"] == "notebook":
         global CLI_WIDTH
         CLI_WIDTH = 100
@@ -85,7 +87,7 @@ def display_molecule(cmd_pointer, inp):
         mol = retrieve_mol(molecule_identifier)
 
         if mol is None:
-            mol = new_molecule(molecule_identifier, molecule_identifier)
+            mol = new_molecule(molecule_identifier)
 
         if mol is None:
             output_error("Error: Not a valid Molecule", return_val=False)
@@ -211,10 +213,12 @@ def add_molecule(cmd_pointer, inp):
         force = False
 
     # Create molecule dict.
+    print(601)
     openad_mol = mol_from_identifier(cmd_pointer, identifier, mol_name=mol_name, basic=basic)
-
+    print(602)
     # Add it to the working set.
     mymols_add(cmd_pointer, openad_mol, force=force)
+    print(603)
 
 
 def remove_molecule(cmd_pointer, inp):

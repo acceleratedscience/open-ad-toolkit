@@ -200,7 +200,7 @@ class MoleculesApi:
         """
 
         data = json.loads(request.data) if request.data else {}
-        openad_mol_v2 = data["mol"] if "mol" in data else ""
+        openad_mol_v2 = data["smol"] if "smol" in data else ""
 
         # Get best available identifier.
         _, identifier = get_best_available_identifier(openad_mol_v2)

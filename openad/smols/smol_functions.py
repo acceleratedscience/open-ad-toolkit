@@ -568,7 +568,6 @@ def new_molecule(inchi_or_smiles: str = None, mol_rdkit: Mol = None, name: str =
     mol = copy.deepcopy(OPENAD_SMOL_DICT)
     date_time = datetime.fromtimestamp(time.time())
     str_date_time = date_time.strftime("%d-%m-%Y, %H:%M:%S")
-
     # Create RDKit molecule object
     if mol_rdkit is None:
         try:
@@ -884,7 +883,11 @@ def find_mol_in_list(identifier, molset, ignore_synonyms=False):
         if not identifiers_dict:
             output_error("find_mol_in_list(): Invalid molset input", return_val=False)
             return None
-        synonyms = openad_mol.get("synonyms", {}).get("Synonym") or openad_mol.get("synonyms", [])
+        synonyms = (
+            openad_mol.get("synonyms", {}).get("Synonym")
+            if "Synonym" in openad_mol.get("synonyms", {})
+            else openad_mol.get("synonyms", [])
+        )
 
         # Name match v1
         if identifier.upper() == (openad_mol.get("name", "") or "").upper():
@@ -986,7 +989,6 @@ def get_best_available_smiles(openad_mol):  # v1 or v2 molecule object
     """
     Get the best available SMILES string from a molecule.
     """
-
     identifiers_dict = openad_mol.get("identifiers")  # For v2 molecule objects.
     if not identifiers_dict:
         identifiers_dict = openad_mol.get("properties")  # For v1 molecule objects.

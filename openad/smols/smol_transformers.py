@@ -8,6 +8,7 @@ import pandas as pd
 from rdkit import Chem
 
 from openad.helpers.files import open_file
+from openad.helpers.output import output_error
 from openad.smols.smol_functions import (
     new_molecule,
     molformat_v2,
@@ -254,7 +255,6 @@ def molset2dataframe(molset, remove_invalid_mols=False):
     for i, mol in enumerate(molset):
         # Create RDKit molecule object (ROMol)
         if mol["identifiers"].get("inchi"):
-            print("!")
             mol_rdkit = Chem.MolFromInchi(mol["identifiers"]["inchi"])
         else:
             smiles = get_best_available_smiles(mol)
@@ -263,7 +263,7 @@ def molset2dataframe(molset, remove_invalid_mols=False):
 
         # Store mols that failed to parse.
         if not mol_rdkit:
-            print("Failed to parse:", i, smiles)  # Keep this
+            output_error("Failed to parse:", i, smiles)  # Keep this
             invalid.append(i)
             continue
 
