@@ -1,22 +1,5 @@
 # Working with Molecules
 
-<svg fill="none" viewBox="0 0 600 300" width="600" height="300" xmlns="http://www.w3.org/2000/svg">
-  <foreignObject width="100%" height="100%">
-    <div xmlns="http://www.w3.org/1999/xhtml">
-      <style>
-        h1 {
-            color: red
-        }
-      </style>
-
-      <div class="container">
-        <h1>Hi there</h1>
-      </div>
-    </div>
-
-  </foreignObject>
-</svg>
-
 ## Introduction
 
 Working with molecules in OpenAD happens via the commands line interface (CLI) and the graphical user interface (GUI). The two interfaces serve different purposes and are meant to work together.
