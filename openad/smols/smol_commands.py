@@ -209,12 +209,9 @@ def add_molecule(cmd_pointer, inp):
         force = False
 
     # Create molecule dict.
-    print(601)
     openad_mol = mol_from_identifier(cmd_pointer, identifier, mol_name=mol_name, basic=basic)
-    print(602)
     # Add it to the working set.
     mymols_add(cmd_pointer, openad_mol, force=force)
-    print(603)
 
 
 def remove_molecule(cmd_pointer, inp):
