@@ -43,10 +43,6 @@ from openad.smols.smol_functions import (
 # Globals
 from openad.app.global_var_lib import GLOBAL_SETTINGS
 
-# Flask
-from openad.flask_apps import launcher
-from openad.flask_apps.molviewer.routes import fetchRoutesMolViewer
-from openad.flask_apps.molsgrid.routes import fetchRoutesMolsGrid
 
 CLI_WIDTH = min(shutil.get_terminal_size().columns, 150)
 
