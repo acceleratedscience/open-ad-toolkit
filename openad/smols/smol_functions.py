@@ -883,6 +883,7 @@ def find_mol_in_list(identifier, molset, ignore_synonyms=False):
         if not identifiers_dict:
             output_error("find_mol_in_list(): Invalid molset input", return_val=False)
             return None
+
         synonyms = (
             openad_mol.get("synonyms", {}).get("Synonym")
             if "Synonym" in openad_mol.get("synonyms", {})
@@ -894,7 +895,7 @@ def find_mol_in_list(identifier, molset, ignore_synonyms=False):
             return openad_mol
 
         # Name match v2 format
-        if identifier.upper() == identifiers_dict.get("name", "").upper():
+        if identifier.upper() == (identifiers_dict.get("name", "") or "").upper():
             return openad_mol
 
         # CID match
@@ -929,7 +930,6 @@ def find_mol_in_list(identifier, molset, ignore_synonyms=False):
         # Synonym match
         if not ignore_synonyms:
             for syn in synonyms:
-                # print(syn, identifier)
                 if identifier.upper() == syn.upper():
                     return openad_mol
 
