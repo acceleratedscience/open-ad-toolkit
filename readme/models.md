@@ -167,7 +167,33 @@ OpenAD lets you easily deploy different models to generate and manipulate molecu
     </div>
     </details>
 
+<br>
+
 ### Installing a service
+
+1.  Install any service by its url (see [available models](#available-models) on top), for example the property inference service:
+
+        catalog model service from 'git@github.com:acceleratedscience/property_inference_service.git' as prop
+
+1.  Start the service
+
+        model service up prop
+
+1.  Wait until the service is ready
+
+        model service status
+
+1.  Shutting down the service
+
+        model service down prop
+
+1.  Other available commands for managing model services:
+
+        model service config <service_name>
+        model service up <service_name> [ no_gpu ]
+        model service local up <service_name>
+        model catalog list
+        uncatalog model service <service_name>
 
 [AWS Dashboard]: https://console.aws.amazon.com
 [IAM Dashboard]: https://console.aws.amazon.com/iam
