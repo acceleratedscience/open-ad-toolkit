@@ -72,7 +72,7 @@ OpenAD lets you easily deploy different models to generate and manipulate molecu
 
 ### Requirements
 
-1. <details><summary>AWS account</summary>
+1.  <details><summary>AWS account</summary>
 
     <div markdown="block">
 
@@ -83,7 +83,7 @@ OpenAD lets you easily deploy different models to generate and manipulate molecu
     </div>
     </details>
 
-1. <details><summary>AWS user with correct permissions</summary>
+1.  <details><summary>AWS user with correct permissions</summary>
 
     <div markdown="block">
 
@@ -105,7 +105,7 @@ OpenAD lets you easily deploy different models to generate and manipulate molecu
     </div>
     </details>
 
-1. <details><summary>AWS Access key</summary>
+1.  <details><summary>AWS Access key</summary>
 
     <div markdown="block">
 
@@ -120,7 +120,7 @@ OpenAD lets you easily deploy different models to generate and manipulate molecu
     </div>
     </details>
 
-1. <details><summary>Conda</summary>
+1.  <details><summary>Conda</summary>
 
     <div markdown="block">
 
@@ -128,25 +128,25 @@ OpenAD lets you easily deploy different models to generate and manipulate molecu
 
     > **Note:** Conda provides [multiple installers](https://conda.io/projects/conda/en/latest/user-guide/install/index.html). If you're just starting out, we recommend you go with Miniconda.
 
-    - Install [Miniconda](https://docs.anaconda.com/miniconda/#quick-command-line-install) using the quick command line install
+    -   Install [Miniconda](https://docs.anaconda.com/miniconda/#quick-command-line-install) using the quick command line install
 
         > **Note:** After the installation, the installation script will ask you if you wish to activate Conda on start. You may not want to do this. If you choose to disable this, you can activate conda at any time like this:
 
-        - Go to the miniconda installation folder, this is propbably
+        -   Go to the miniconda installation folder, this is propbably
 
-            cd ~/miniconda3
+                  cd ~/miniconda3
 
-        - Activate the conda environment
+        -   Activate the conda environment
 
-            source ./bin/activate
+                  source ./bin/activate
 
-    - After installing miniconda or an alternative, make sure to open a _new_ terminal window to access Conda functionality
-    - To verify that conda is installed, run `conda --version`
+    -   After installing miniconda or an alternative, make sure to open a _new_ terminal window to access Conda functionality
+    -   To verify that conda is installed, run `conda --version`
 
     </div>
     </details>
 
-1. <details><summary>SkyPilot</summary>
+1.  <details><summary>SkyPilot</summary>
 
     <div markdown="block">
 
@@ -157,7 +157,7 @@ OpenAD lets you easily deploy different models to generate and manipulate molecu
     </div>
     </details>
 
-1. <details><summary>AWS command line tool</summary>
+1.  <details><summary>AWS command line tool</summary>
 
     <div markdown="block">
 
