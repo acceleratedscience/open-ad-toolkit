@@ -126,10 +126,20 @@ OpenAD lets you easily deploy different models to generate and manipulate molecu
 
     Conda is a powerful command line tool for package and environment management. It is a prerequisite to work with SkyPilot.
 
-    Note: Conda provides [multiple installers](https://conda.io/projects/conda/en/latest/user-guide/install/index.html). If you're just starting out, we recommend you go with Miniconda.
+    > **Note:** Conda provides [multiple installers](https://conda.io/projects/conda/en/latest/user-guide/install/index.html). If you're just starting out, we recommend you go with Miniconda.
 
     - Install [Miniconda](https://docs.anaconda.com/miniconda/#quick-command-line-install) using the quick command line install
-        > Note: A
+
+        > **Note:** After the installation, the installation script will ask you if you wish to activate Conda on start. You may not want to do this. If you choose to disable this, you can activate conda at any time like this:
+
+        - Go to the miniconda installation folder, this is propbably
+
+            cd ~/miniconda3
+
+        - Activate the conda environment
+
+            source ./bin/activate
+
     - After installing miniconda or an alternative, make sure to open a _new_ terminal window to access Conda functionality
     - To verify that conda is installed, run `conda --version`
 
