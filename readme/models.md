@@ -4,7 +4,9 @@ OpenAD lets you easily deploy different models to generate and manipulate your m
 
 ## Available Models
 
--   <details><summary>GT4SD Generation Services</summary> - Hello
+<!--  -->
+
+-   <details><summary>GT4SD - Generation inference</summary>
 
     <br>
     <div markdown="block">
@@ -18,34 +20,50 @@ OpenAD lets you easily deploy different models to generate and manipulate your m
     </div>
     </details>
 
--   <details>
-    <summary>
-    GT4SD Generation Services
+<!--  -->
 
-        git@github.com:acceleratedscience/generation_inference_service.git
+-   <details><summary>GT4SD - Property inference</summary>
 
-    </summary>
+    <br>
     <div markdown="block">
 
-    **About:**
-    blablabla
+        git@github.com:acceleratedscience/property_inference_service.git
+
+    [GitHub](https://github.com/acceleratedscience/property_inference_service.git)
+
+    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus non tellus vel arcu porttitor tincidunt. Curabitur efficitur sodales efficitur. Ut id dui ut mi sodales tempor non nec erat. Pellentesque consectetur, nibh quis tempor luctus, quam lacus sagittis libero, id viverra lectus est id ligula. Nam sem ex, molestie a arcu finibus, dapibus eleifend felis. Interdum et malesuada fames ac ante ipsum primis in faucibus. Sed laoreet elit vestibulum porta viverra.
 
     </div>
     </details>
 
--   GT4SD Generation Services
+<!--  -->
 
-        git@github.com:acceleratedscience/generation_inference_service.git
+-   <details><summary>GT4SD - MoleR inference</summary>
 
-    <details>
-    <summary><b>About</b></summary>
+    <br>
     <div markdown="block">
 
-    blablabla
+        git@github.com:acceleratedscience/moler_inference_service.git
+
+    [GitHub](https://github.com/acceleratedscience/moler_inference_service.git)
+
+    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus non tellus vel arcu porttitor tincidunt. Curabitur efficitur sodales efficitur. Ut id dui ut mi sodales tempor non nec erat. Pellentesque consectetur, nibh quis tempor luctus, quam lacus sagittis libero, id viverra lectus est id ligula. Nam sem ex, molestie a arcu finibus, dapibus eleifend felis. Interdum et malesuada fames ac ante ipsum primis in faucibus. Sed laoreet elit vestibulum porta viverra.
 
     </div>
     </details>
 
--   GT4SD Property Services git@github.com:acceleratedscience/property_inference_service.git
--   GT4SD MoleR Generation git@github.com:acceleratedscience/moler_inference_service.git
--   GT4SD Molformer git@github.com:acceleratedscience/molformer_inference_service.git
+<!--  -->
+
+-   <details><summary>GT4SD - MoleR inference</summary>
+
+    <br>
+    <div markdown="block">
+
+        git@github.com:acceleratedscience/molformer_inference_service.git
+
+    [GitHub](https://github.com/acceleratedscience/molformer_inference_service.git)
+
+    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus non tellus vel arcu porttitor tincidunt. Curabitur efficitur sodales efficitur. Ut id dui ut mi sodales tempor non nec erat. Pellentesque consectetur, nibh quis tempor luctus, quam lacus sagittis libero, id viverra lectus est id ligula. Nam sem ex, molestie a arcu finibus, dapibus eleifend felis. Interdum et malesuada fames ac ante ipsum primis in faucibus. Sed laoreet elit vestibulum porta viverra.
+
+    </div>
+    </details>
