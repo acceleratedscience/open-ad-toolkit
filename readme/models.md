@@ -72,9 +72,7 @@ OpenAD lets you easily deploy different models to generate and manipulate molecu
 
 <br>
 
-## Installation
-
-### Requirements
+## Installation Requirements
 
 1.  <details><summary>AWS account</summary>
 
@@ -169,7 +167,7 @@ OpenAD lets you easily deploy different models to generate and manipulate molecu
 
 <br>
 
-### Installing a service
+## Installation
 
 1.  Install any service by its url (see [available models](#available-models) on top), for example the property inference service:
 
