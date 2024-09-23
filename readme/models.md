@@ -89,14 +89,14 @@ OpenAD lets you easily deploy different models to generate and manipulate molecu
 
     Starting from your [AWS dashboard]:
 
-    -   Search for "IAM" in the search bar
-    -   From your [IAM dashboard], click "[Users]" in the lefthand sidebar
-    -   Click the "Create user" button in the top right hand corner
-    -   Leave the "Provide user access to the AWS Management Console" box unchecked
-    -   Up next on the "Set Permissions" screen, select the third option: "Attach policies directly"
-    -   In the box below click the "Create policy" button
+    -   Search for _"IAM"_ in the search bar
+    -   From your [IAM dashboard], click _"[Users]"_ in the lefthand sidebar
+    -   Click the _"Create user"_ button in the top right hand corner
+    -   Leave the _"Provide user access to the AWS Management Console"_ box unchecked
+    -   Up next on the _"Set Permissions"_ screen, select the third option: _"Attach policies directly"_
+    -   In the box below click the _"Create policy"_ button
     -   Create a new policy with minimal permissions for Skypilot, following thye [Skypilot instructions](https://skypilot.readthedocs.io/en/latest/cloud-setup/cloud-permissions/aws.html)
-    -   On the next screen, search for the policy you just created, which would be called "minimal-skypilot-policy" per the instructions
+    -   On the next screen, search for the policy you just created, which would be called `minimal-skypilot-policy` per the instructions
     -   Finish the process to attach the policy to your user
 
     </div>
@@ -108,41 +108,15 @@ OpenAD lets you easily deploy different models to generate and manipulate molecu
 
     Starting from the [IAM dashboard]:
 
-    -   Click "Users" in the lefthand sidebar
+    -   Click _"[Users]"_ in the lefthand sidebar
     -   Click on the user you created in the previous step
-    -   Click "create access key" on the right side of the summary on top
-    -   Select the first option, "Command Line Interface (CLI)" as use case
+    -   Click _"Create access key"_ on the right side of the summary on top
+    -   Select the first option, _"Command Line Interface (CLI)"_ as use case
     -   Finish the process to create the access key\
     -   Store the secret access key in your password manager, as you will not be able to access it after creation
 
     </div>
     </details>
-
-<!-- 1.  <details><summary>Conda</summary>
-
-    <div markdown="block">
-
-    Conda is a powerful command line tool for package and environment management. It is a prerequisite to work with SkyPilot.
-
-    > **Note:** Conda provides [multiple installers](https://conda.io/projects/conda/en/latest/user-guide/install/index.html). If you're just starting out, we recommend you go with Miniconda.
-
-    -   Install [Miniconda](https://docs.anaconda.com/miniconda/#quick-command-line-install) using the quick command line install
-
-        > **Note:** After the installation, the installation script will ask you if you wish to activate Conda on startup. You may not want to do this. If you choose to disable this, you can activate conda at any time like this:
-
-        -   Go to the miniconda installation folder, this is propbably
-
-                  cd ~/miniconda3
-
-        -   Activate the conda environment
-
-                  source ./bin/activate
-
-    -   After installing miniconda or an alternative, make sure to open a _new_ terminal window to access Conda functionality
-    -   To verify that conda is installed, run `conda --version`
-
-    </div>
-    </details> -->
 
 1.  <details><summary>AWS command line tool</summary>
 
@@ -161,12 +135,12 @@ OpenAD lets you easily deploy different models to generate and manipulate molecu
             aws configure
 
         -   Your user's access key can be found in your [IAM dashboard] > [Users], however the secret access key should have been stored in your password manager or elsewhere.
-        -   The fields "Default region name" and "Default output format" can be left blank
+        -   The fields _"Default region name"_ and _"Default output format"_ can be left blank
 
     </div>
     </details>
 
-2.  <details><summary>SkyPilot</summary>
+1.  <details><summary>SkyPilot</summary>
 
     <div markdown="block">
 
