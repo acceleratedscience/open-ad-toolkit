@@ -85,14 +85,12 @@ OpenAD lets you easily deploy different models to generate and manipulate molecu
 
 1.  <details><summary>AWS user with correct permissions</summary>
 
-    <br>
-
     <div markdown="block">
 
     Starting from your [AWS dashboard]:
 
     -   Search for "IAM" in the search bar
-    -   From your IAM dashboard, click "Users" in the lefthand sidebar
+    -   From your [IAM dashboard], click "[Users]" in the lefthand sidebar
     -   Click the "Create user" button in the top right hand corner
     -   Leave the "Provide user access to the AWS Management Console" box unchecked
     -   Up next on the "Set Permissions" screen, select the third option: "Attach policies directly"
@@ -152,7 +150,7 @@ OpenAD lets you easily deploy different models to generate and manipulate molecu
 
     Starting from a terminal window:
 
-    -   Install awscli
+    -   Install `awscli`
 
             python -m pip install awscli
 
@@ -162,7 +160,7 @@ OpenAD lets you easily deploy different models to generate and manipulate molecu
 
             aws configure
 
-        -   Your user's access key can be found in your [IAM dashboard] > [Users](https://console.aws.amazon.com/iam/home#/users), however the secret access key should have been stored in your password manager or elsewhere.
+        -   Your user's access key can be found in your [IAM dashboard] > [Users], however the secret access key should have been stored in your password manager or elsewhere.
         -   The fields "Default region name" and "Default output format" can be left blank
 
     </div>
@@ -193,3 +191,5 @@ OpenAD lets you easily deploy different models to generate and manipulate molecu
 
 [AWS Dashboard]: https://console.aws.amazon.com
 [IAM Dashboard]: https://console.aws.amazon.com/iam
+
+[Users](https://console.aws.amazon.com/iam/home#/users)
