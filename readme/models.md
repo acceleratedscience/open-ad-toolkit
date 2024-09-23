@@ -85,6 +85,8 @@ OpenAD lets you easily deploy different models to generate and manipulate molecu
 
 1.  <details><summary>AWS user with correct permissions</summary>
 
+    <br>
+
     <div markdown="block">
 
     Starting from your [AWS dashboard]:
