@@ -4,10 +4,11 @@ OpenAD lets you easily deploy different models to generate and manipulate your m
 
 ## Available Models
 
--   <details markdown="block">
+-   <details>
     <summary>GT4SD Generation Services</summary>
     <div markdown="block">
     Address: `git@github.com:acceleratedscience/generation_inference_service.git`
+
     About: blablabla
     </div>
     </details>
