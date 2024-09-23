@@ -76,9 +76,9 @@ OpenAD lets you easily deploy different models to generate and manipulate molecu
 
     <div markdown="block">
 
-    - Head to [aws.com](https://aws.com/)
-    - Click the **[Create an AWS Account]** button in the top right corner
-    - Follow instructions, including setting up a root user
+    -   Head to [aws.com](https://aws.com/)
+    -   Click the **[Create an AWS Account]** button in the top right corner
+    -   Follow instructions, including setting up a root user
 
     </div>
     </details>
@@ -87,20 +87,17 @@ OpenAD lets you easily deploy different models to generate and manipulate molecu
 
     <div markdown="block">
 
-    Starting from your AWS dashboard:
+    Starting from your [AWS dashboard]:
 
-    - Search for "IAM" in the search bar
-    - From your IAM dashboard, click "Users" in the lefthand sidebar
-    - Click the "Create user" button in the top right hand corner
-    - Leave the "Provide user access to the AWS Management Console" box unchecked
-    - Up next on the "Set Permissions" screen, select the third option: "Attach policies directly"
-    - In the box below click the "Create policy" button
-    - Create a new policy with minimal permissions for Skypilot, following thye [Skypilot instructions](https://skypilot.readthedocs.io/en/latest/cloud-setup/cloud-permissions/aws.html)
-    - On the next screen, search for the policy you just created, which would be called "minimal-skypilot-policy" per the instructions
-    - Finish the process to attach the policy to your user
-
-    - Go to user detail, click "create access key" in summary
-    - Select CLI first option
+    -   Search for "IAM" in the search bar
+    -   From your IAM dashboard, click "Users" in the lefthand sidebar
+    -   Click the "Create user" button in the top right hand corner
+    -   Leave the "Provide user access to the AWS Management Console" box unchecked
+    -   Up next on the "Set Permissions" screen, select the third option: "Attach policies directly"
+    -   In the box below click the "Create policy" button
+    -   Create a new policy with minimal permissions for Skypilot, following thye [Skypilot instructions](https://skypilot.readthedocs.io/en/latest/cloud-setup/cloud-permissions/aws.html)
+    -   On the next screen, search for the policy you just created, which would be called "minimal-skypilot-policy" per the instructions
+    -   Finish the process to attach the policy to your user
 
     </div>
     </details>
@@ -109,18 +106,19 @@ OpenAD lets you easily deploy different models to generate and manipulate molecu
 
     <div markdown="block">
 
-    Starting from the IAM dashboard:
+    Starting from the [IAM dashboard]:
 
-    - Click "Users" in the lefthand sidebar
-    - Click on the user you created in the previous step
-    - Click "create access key" on the right side of the summary on top
-    - Select the first option, "Command Line Interface (CLI)" as use case
-    - Finish the process to create the access key
+    -   Click "Users" in the lefthand sidebar
+    -   Click on the user you created in the previous step
+    -   Click "create access key" on the right side of the summary on top
+    -   Select the first option, "Command Line Interface (CLI)" as use case
+    -   Finish the process to create the access key\
+    -   Store the secret access key in your password manager, as you will not be able to access it after creation
 
     </div>
     </details>
 
-1.  <details><summary>Conda</summary>
+<!-- 1.  <details><summary>Conda</summary>
 
     <div markdown="block">
 
@@ -130,7 +128,7 @@ OpenAD lets you easily deploy different models to generate and manipulate molecu
 
     -   Install [Miniconda](https://docs.anaconda.com/miniconda/#quick-command-line-install) using the quick command line install
 
-        > **Note:** After the installation, the installation script will ask you if you wish to activate Conda on start. You may not want to do this. If you choose to disable this, you can activate conda at any time like this:
+        > **Note:** After the installation, the installation script will ask you if you wish to activate Conda on startup. You may not want to do this. If you choose to disable this, you can activate conda at any time like this:
 
         -   Go to the miniconda installation folder, this is propbably
 
@@ -144,27 +142,52 @@ OpenAD lets you easily deploy different models to generate and manipulate molecu
     -   To verify that conda is installed, run `conda --version`
 
     </div>
-    </details>
-
-1.  <details><summary>SkyPilot</summary>
-
-    <div markdown="block">
-
-    SkyPilot is a framework for running AI and batch workloads on any infrastructure. We're using AWS.
-
-    - https://skypilot.readthedocs.io/en/latest/getting-started/installation.html
-
-    </div>
-    </details>
+    </details> -->
 
 1.  <details><summary>AWS command line tool</summary>
 
     <div markdown="block">
 
-    In a terminal window type:
+    Starting from a terminal window:
 
-    - `python -m pip install awscli`
-    - For more nuanced instructions, please refer to [pypi](https://pypi.org/project/awscli/#getting-started)
+    -   Install awscli
+
+            python -m pip install awscli
+
+        > **Note:** For more nuanced instructions, please refer to [pypi](https://pypi.org/project/awscli/#getting-started)
+
+    -   Add the credentials for the AWS user you set up in step 3.
+
+            aws configure
+
+        -   Your user's access key can be found in your [IAM dashboard] > [Users](https://console.aws.amazon.com/iam/home#/users), however the secret access key should have been stored in your password manager or elsewhere.
+        -   The fields "Default region name" and "Default output format" can be left blank
 
     </div>
     </details>
+
+2.  <details><summary>SkyPilot</summary>
+
+    <div markdown="block">
+
+    [SkyPilot](https://skypilot.readthedocs.io/en/latest/getting-started/installation.html) is a framework for running AI and batch workloads on any infrastructure. We're using AWS.
+
+    Starting from a terminal window:
+
+    -   If you are running OpenAD in a virtual environment, make sure your virtual environment is activated. If you followed the [default installation instructions](../#installation), you should be able to run:
+
+            source ~/ad-venv/bin/activate
+
+    -   Install Skypilot for AWS
+
+            pip install "skypilot[aws]"
+
+    -   After installation, verify if you have cloud accecc
+
+            sky check
+
+    </div>
+    </details>
+
+[AWS Dashboard]: https://console.aws.amazon.com
+[IAM Dashboard]: https://console.aws.amazon.com/iam
