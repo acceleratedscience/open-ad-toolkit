@@ -191,5 +191,4 @@ OpenAD lets you easily deploy different models to generate and manipulate molecu
 
 [AWS Dashboard]: https://console.aws.amazon.com
 [IAM Dashboard]: https://console.aws.amazon.com/iam
-
-[Users](https://console.aws.amazon.com/iam/home#/users)
+[Users]: https://console.aws.amazon.com/iam/home#/users
