@@ -77,13 +77,13 @@ OpenAD lets you easily deploy different models to generate and manipulate molecu
     <div markdown="block">
 
     -   Head to [aws.com](https://aws.com/)
-    -   Click the **[Create an AWS Account]** button in the top right corner
+    -   Click the _[Create an AWS Account]_ button in the top right corner
     -   Follow instructions, including setting up a root user
 
     </div>
     </details>
 
-1.  <details><summary>AWS user with correct permissions</summary>
+2.  <details><summary>AWS user with correct permissions</summary>
 
     <div markdown="block">
 
@@ -91,10 +91,10 @@ OpenAD lets you easily deploy different models to generate and manipulate molecu
 
     -   Search for _"IAM"_ in the search bar
     -   From your [IAM dashboard], click _"[Users]"_ in the lefthand sidebar
-    -   Click the _"Create user"_ button in the top right hand corner
+    -   Click the _[Create user]_ button in the top right hand corner
     -   Leave the _"Provide user access to the AWS Management Console"_ box unchecked
     -   Up next on the _"Set Permissions"_ screen, select the third option: _"Attach policies directly"_
-    -   In the box below click the _"Create policy"_ button
+    -   In the box below click the _[Create policy]_ button
     -   Create a new policy with minimal permissions for Skypilot, following thye [Skypilot instructions](https://skypilot.readthedocs.io/en/latest/cloud-setup/cloud-permissions/aws.html)
     -   On the next screen, search for the policy you just created, which would be called `minimal-skypilot-policy` per the instructions
     -   Finish the process to attach the policy to your user
@@ -102,7 +102,7 @@ OpenAD lets you easily deploy different models to generate and manipulate molecu
     </div>
     </details>
 
-1.  <details><summary>AWS Access key</summary>
+3.  <details><summary>AWS Access key</summary>
 
     <div markdown="block">
 
@@ -118,7 +118,7 @@ OpenAD lets you easily deploy different models to generate and manipulate molecu
     </div>
     </details>
 
-1.  <details><summary>AWS command line tool</summary>
+4.  <details><summary>AWS command line tool</summary>
 
     <div markdown="block">
 
@@ -140,7 +140,7 @@ OpenAD lets you easily deploy different models to generate and manipulate molecu
     </div>
     </details>
 
-1.  <details><summary>SkyPilot</summary>
+5.  <details><summary>SkyPilot</summary>
 
     <div markdown="block">
 
