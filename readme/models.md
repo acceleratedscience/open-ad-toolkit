@@ -2,6 +2,8 @@
 
 OpenAD lets you easily deploy different models to generate and manipulate molecule data sets.
 
+<br>
+
 ## Available Models
 
 <!--  -->
@@ -68,6 +70,8 @@ OpenAD lets you easily deploy different models to generate and manipulate molecu
     </div>
     </details>
 
+<br>
+
 ## Installation
 
 ### Requirements
@@ -94,7 +98,7 @@ OpenAD lets you easily deploy different models to generate and manipulate molecu
     -   Click the _[Create user]_ button in the top right hand corner
     -   Leave the _"Provide user access to the AWS Management Console"_ box unchecked
     -   Up next on the _"Set Permissions"_ screen, select the third option: _"Attach policies directly"_
-    -   In the box below click the _[Create policy]_ button
+    -   In the box below, click the _[Create policy]_ button
     -   Create a new policy with minimal permissions for Skypilot, following thye [Skypilot instructions](https://skypilot.readthedocs.io/en/latest/cloud-setup/cloud-permissions/aws.html)
     -   On the next screen, search for the policy you just created, which would be called `minimal-skypilot-policy` per the instructions
     -   Finish the process to attach the policy to your user
@@ -112,7 +116,7 @@ OpenAD lets you easily deploy different models to generate and manipulate molecu
     -   Click on the user you created in the previous step
     -   Click _"Create access key"_ on the right side of the summary on top
     -   Select the first option, _"Command Line Interface (CLI)"_ as use case
-    -   Finish the process to create the access key\
+    -   Finish the process to create the access key
     -   Store the secret access key in your password manager, as you will not be able to access it after creation
 
     </div>
@@ -156,12 +160,14 @@ OpenAD lets you easily deploy different models to generate and manipulate molecu
 
             pip install "skypilot[aws]"
 
-    -   After installation, verify if you have cloud accecc
+    -   After installation, verify if you have cloud access
 
             sky check
 
     </div>
     </details>
+
+### Installing a service
 
 [AWS Dashboard]: https://console.aws.amazon.com
 [IAM Dashboard]: https://console.aws.amazon.com/iam
