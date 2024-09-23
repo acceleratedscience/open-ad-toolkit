@@ -8,7 +8,8 @@ OpenAD lets you easily deploy different models to generate and manipulate your m
     <summary>
     GT4SD Generation Services
 
-    `git@github.com:acceleratedscience/generation_inference_service.git`
+        git@github.com:acceleratedscience/generation_inference_service.git
+
     </summary>
     <div markdown="block">
 
