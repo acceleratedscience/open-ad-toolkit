@@ -56,7 +56,7 @@ OpenAD lets you easily deploy different models to generate and manipulate molecu
 
 <!--  -->
 
--   <details><summary>GT4SD - MoleR inference</summary>
+-   <details><summary>GT4SD - Molformer inference</summary>
 
     <br>
     <div markdown="block">

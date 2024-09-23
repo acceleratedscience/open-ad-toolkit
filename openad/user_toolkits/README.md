@@ -9,6 +9,7 @@
 - @future We should have a command update toolkit
 - @future archiving of a toolkit should happen on the moment of `remove toolkit` instead of at moment of `add toolkit`.
 -->
+
 > **WARNING:** This documentation page is still under construction. It is incomplete and may have incorrect information.
 
 ---
@@ -18,24 +19,24 @@
 Integrating your own workflows into OpenAD is relatively straightforward.
 
 ### Table of Contents <!-- omit from toc -->
-- [Setup](#setup)
-  - [metadata.json](#metadatajson)
-  - [login.py](#loginpy)
-- [Adding Commands](#adding-commands)
-  - [1. Command File - fn\_hello\_world.json](#1-command-file---fn_hello_worldjson)
-  - [2. Function file - fn\_hello\_world.py](#2-function-file---fn_hello_worldpy)
-  - [3. Description file - fn\_hello\_world.txt](#3-description-file---fn_hello_worldtxt)
-- [Publishing a Toolkit](#publishing-a-toolkit)
-  - [description.txt](#descriptiontxt)
-  - [oneline\_desc.txt](#oneline_desctxt)
-  - [Submitting](#submitting)
+
+-   [Setup](#setup)
+    -   [metadata.json](#metadatajson)
+    -   [login.py](#loginpy)
+-   [Adding Commands](#adding-commands)
+    -   [1. Command File - fn_hello_world.json](#1-command-file---fn_hello_worldjson)
+    -   [2. Function file - fn_hello_world.py](#2-function-file---fn_hello_worldpy)
+    -   [3. Description file - fn_hello_world.txt](#3-description-file---fn_hello_worldtxt)
+-   [Publishing a Toolkit](#publishing-a-toolkit)
+    -   [description.txt](#descriptiontxt)
+    -   [oneline_desc.txt](#oneline_desctxt)
+    -   [Submitting](#submitting)
 
 <br><br>
 
 ## Setup
 
 The toolkit architecture depends on a few basic files to work. You can copy the [DEMO](./DEMO) toolkit directory to hit the ground running.
-
 
 1. [`metadata.json`](#metadatajson)
 2. [`login.py`](#loginpy) (optional)
@@ -77,15 +78,16 @@ The [`login.py`](./DEMO/login.py) template takes care of success and error handl
 Each command is contained in two (or three) files. Their filename structure should follow the pattern `fn_\<fn_name\>.<ext>`.
 
 We'll document the "hello world" example from our demo toolkit.
+
 1. [**The command file (JSON)**](#1-command-file---fn_hello_worldjson)<br>
-Contains the command structure and help parameters.<br>
-`fn_hello_world.json`
+   Contains the command structure and help parameters.<br>
+   `fn_hello_world.json`
 1. [**The function file (Python)**](#2-function-file---fn_hello_worldpy)<br>
-Contains the command function to be executed.<br>
-`fn_hello_world.py`
+   Contains the command function to be executed.<br>
+   `fn_hello_world.py`
 1. [**The description file (text)**](#3-description-file---fn_hello_worldtxt) (optional)<br>
-May contain a more elaborate command description, when a field in the JSON command file is not enough.<br>
-`fn_hello_world.txt`
+   May contain a more elaborate command description, when a field in the JSON command file is not enough.<br>
+   `fn_hello_world.txt`
 
 Per function, these three files should be stored in the same directory. However the total of all your functions can be organized into a directory structure as desired. We will scan your entire toolkit directory tree and parse any command files we find.
 
@@ -101,7 +103,7 @@ Our example `fn_hello_world.json` file structure looks as follows:
 
     {
         "fplugin": "demo",
-        "command": "hello world", 
+        "command": "hello world",
         "subject": "hello world",
         "exec_type": "standard_statement",
         "exec_cmd": "hello world",
@@ -144,7 +146,7 @@ Our example `fn_hello_world.json` file structure looks as follows:
     -   `command`
         The structure of the command as it will be displayed in the list of commands, or when a user requests help about this particular command. See [Command Documentation](#command-documentation) below for guidance about notation.
     -   `description`<br>
-        A description of what the command does. If your command description is going to be longer than one or two lines, we recommand to set this value to an empty string ("") and store the description in a separate text file. See [3. Description file - func\_hello\_world.txt](#3-description-file---fn_hello_worldtxt)
+        A description of what the command does. If your command description is going to be longer than one or two lines, we recommand to set this value to an empty string ("") and store the description in a separate text file. See [3. Description file - func_hello_world.txt](#3-description-file---fn_hello_worldtxt)
     -   `url`<br>
         A link to online documentation for this command.
 -   `library`<br>
@@ -157,9 +159,10 @@ Our example `fn_hello_world.json` file structure looks as follows:
 <summary><b>Command Clauses</b></summary>
 
 These are common built-in command patterns that represent certain behaviors. Together with the `command` parameter of your JSON file, they define the structure of your command.
+
 -   `SAVE_AS`<br>
     This (always optional) clause is meant for functions that output data, and should cause the output of your command function to be saved to disk instead of being displayed.
-    
+
     -   **JSON notation:** `"SAVE_AS": {}`
     -   **Function access:** `if "save_as" in inputs:`
     -   **Command notation:** `hello world [ save as '<filename.txt>' ]`
@@ -170,24 +173,28 @@ These are common built-in command patterns that represent certain behaviors. Tog
     -   **JSON notation:** `"ESTIMATE_ONLY": {}`
     -   **Function access:** `if "estimate_only" in inputs:`
     -   **Command notation:** `hello world [ estimate only ]`
+
 -   `RETURN_AS_DATA`<br>
     This (always optional) clause is meant for functions that return styled data, and should remove any styling from your data so it can be consumed by endpoints where the styling is not welcome.
 
     -   **JSON notation:** `"RETURN_AS_DATA": {}`
     -   **Function access:** `if "return_as_data" in inputs:`
     -   **Command notation:** `hello world [ return as data ]`
+
 -   `SINGLE_PARM`<br>
     This clause denotes a single variable in the command.
-    
+
     -   **JSON notation:** `"SINGLE_PARM": { "foo": "desc" }`<!-- @future desc should be renamed to quoted_str -->
     -   **Function access:** `if "foo" in inputs:`
     -   **Command notation:** `hello world '<foo>'`
+
 -   `IN_CLAUSE`<br><!-- @future needs to be made uppercase + rename to MULTI_PARM, as it is the same as SINGLE_PARM but for handling multiple parameters -->
     To clause is used to inject one or more parameters in the middle of a command. It should be combined with the \<IN_CLAUSE\> tag inside the command field, eg. `hello <in_clause> world`
 
     -   **JSON notation:** `"in_clause": { "foo": "str", bar: "desc" },`<!-- @future desc should be renamed to quoted_str -->
     -   **Function access:** `if "foo" in inputs:`
     -   **Command notation:** `hello <foo> '<bar>' world`
+
 -   `SHOW`<br>
     This (always optional) clause is meant for functions that may return different types or formats of data, and should be used to specify what kind of data to return.
 
@@ -197,8 +204,9 @@ These are common built-in command patterns that represent certain behaviors. Tog
         if "show_data" in inputs:
             for option in inputs["show_data"]:
                 if option == "foo":
-        ```     
+        ```
     -   **Command notation:** `hello world show (foo | bar)`
+
 -   `USING`<br>
     This clause is meant to pass a number of custom, optional variables to your function.
 
@@ -217,8 +225,9 @@ These are common built-in command patterns that represent certain behaviors. Tog
             foo = inputs["page_size"][val]
         ```
     -   **Command notation:** `hello world using (foo=<str> bar='<str>' page_size=<int>)`
+
 -   `FROM`<br><!-- @future needs to be made uppercase -->
-     This clause is meant for functions that allow for different input types, where it indicates the provided input type. Only "dataframe", "file" and "list" are supported as input types.
+    This clause is meant for functions that allow for different input types, where it indicates the provided input type. Only "dataframe", "file" and "list" are supported as input types.
 
     -   **JSON notation:** `"FROM": ["dataframe", "file", "list"]`
     -   **Function access:**
@@ -234,20 +243,24 @@ These are common built-in command patterns that represent certain behaviors. Tog
         ```
         <!-- @future simplify this -->
     -   **Command notation:** `hello world from dataframe <dataframe_name> | file '<filename.csv>' | list ['<string>','<string>']`
+
 -   `USE_SAVED`<br><!-- @future needs to be made uppercase -->
     This clause is meant for functions that use cacheing, where it indicates that a cached result can be used instead of re-running the function.
 
-    -   **JSON notation:** `"USE_SAVED": "True"` <!-- @future instead of True this should be {} to be consistent with other clauses like USE_SAVED (or vice versa) -->
-    -   **Function access:** `if "use_saved" in inputs:`
-    -   **Command notation:** `hello world [ use_saved ]`<!-- @future shouldn't use underscore to be consistent with `save as` etc -->
-<!-- @future this is currently not used, can be added to documentation whenever we do.
+        -   **JSON notation:** `"USE_SAVED": "True"` <!-- @future instead of True this should be {} to be consistent with other clauses like USE_SAVED (or vice versa) -->
+        -   **Function access:** `if "use_saved" in inputs:`
+        -   **Command notation:** `hello world [ use_saved ]`<!-- @future shouldn't use underscore to be consistent with `save as` etc -->
+
+    <!-- @future this is currently not used, can be added to documentation whenever we do.
+
 -   `ASYNC`<br>
     TBD for later
 
-    -   **JSON notation:** `"ASYNC": "both"` `"ASYNC": "only"`
-    -   **Function access:** `TBD (do_async/async)`
-    -   **Command notation:** `TBD`
--->
+        -   **JSON notation:** `"ASYNC": "both"` `"ASYNC": "only"`
+        -   **Function access:** `TBD (do_async/async)`
+        -   **Command notation:** `TBD`
+
+    -->
 
 </details>
 
@@ -257,7 +270,7 @@ These are common built-in command patterns that represent certain behaviors. Tog
 -   Optional clauses should be encapsulated in square brackets padded with a space.
 
         hello world [ repeat 2 ]
-    
+
 -   Variable names should be displayed with angle brackets and underscores instead of spaces. When a variable is to be quoted, make sure to include the quotation marks in the command.
 
         hello [ <audience_name> ]
@@ -272,9 +285,9 @@ These are common built-in command patterns that represent certain behaviors. Tog
         hello world [ save as <filename.txt> ]
         hello world [ save as <csv_or_sdf_filename> ]
 
-- When describing lists, make sure to notate them without spaces between the square brackets, to avoid confusion with optional clauses. Also make it clear what is supposed to go in the list. Use ellipsis to indicate whether the length of the list can be infinite.
+-   When describing lists, make sure to notate them without spaces between the square brackets, to avoid confusion with optional clauses. Also make it clear what is supposed to go in the list. Use ellipsis to indicate whether the length of the list can be infinite.
 
-        hello ['<first_name>','<first_name>',...]
+          hello ['<first_name>','<first_name>',...]
 
 </details>
 
@@ -283,8 +296,9 @@ These are common built-in command patterns that represent certain behaviors. Tog
 ### 2. Function file - fn_hello_world.py
 
 This file contains your command function which get executes when running the command. It gets passed two parameters:
-- `inputs` A dictionary containing all information relating to the command that was run.
-- `cmd_pointer` An instance of the [RUNCMD class](../app/main.py), which is a subclass of the [`Cmd`](https://docs.python.org/3/library/cmd.html) library class.
+
+-   `inputs` A dictionary containing all information relating to the command that was run.
+-   `cmd_pointer` An instance of the [RUNCMD class](../app/main.py), which is a subclass of the [`Cmd`](https://docs.python.org/3/library/cmd.html) library class.
 
 Our example `fn_hello_world.py` file structure looks as follows:
 
@@ -323,6 +337,7 @@ If you think your toolkit can provide value for the OpenAD community, we encoura
 Your toolkit can also be made available through other channels, so people can download it elsewhere and install it by running `add toolkit <toolkit_name> from <toolkit_path>`.
 
 For either scenario to work smoothly, two more files are required:
+
 1. [`description.txt`](descriptiontxt)
 2. [`oneline_desc.txt`](oneline_desctxt)
 
