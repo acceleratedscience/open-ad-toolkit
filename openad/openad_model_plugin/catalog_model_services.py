@@ -28,6 +28,10 @@ from pandas import DataFrame
 from tabulate import tabulate
 from tomlkit import parse
 
+MODEL_SERVICE_QUOTES = (
+    "<soft>Note: The name of the service can be in quotes if it contains spaces or special characters.<soft/>"
+)
+
 logger = get_logger(__name__, color=bcolors.OKCYAN + bcolors.UNDERLINE)
 
 
@@ -677,7 +681,7 @@ def service_catalog_grammar(statements: list, help: list):
         help_dict_create(
             name="model auth add service",
             category="Model",
-            command="model auth add service '<service_name>'|,service_name> to group '<auth_group>'|<auth_group>",
+            command="model auth add service <service_name> to group '<auth_group>'|<auth_group>",
             description="Attach an authentication group to a model service",
         )
     )
@@ -689,7 +693,7 @@ def service_catalog_grammar(statements: list, help: list):
         help_dict_create(
             name="model auth remove service",
             category="Model",
-            command="model auth remove service '<service_name>'|<service_name>",
+            command="model auth remove service <service_name>",
             description="Detatch an authentication group from a model service",
         )
     )
@@ -709,7 +713,7 @@ def service_catalog_grammar(statements: list, help: list):
         help_dict_create(
             name="model service describe",
             category="Model",
-            command="model service describe '<service_name>'|<service_name>",
+            command="model service describe <service_name>",
             description="get the configuration of a service",
         )
     )
@@ -729,7 +733,7 @@ def service_catalog_grammar(statements: list, help: list):
         help_dict_create(
             name="uncatalog model service",
             category="Model",
-            command="uncatalog model service '<service_name>'|<service_name>",
+            command="uncatalog model service <service_name>",
             description="uncatalog a model service \n\n Example: \n<cmd>uncatalog model service 'gen'</cmd>",
         )
     )
@@ -751,8 +755,9 @@ def service_catalog_grammar(statements: list, help: list):
         help_dict_create(
             name="catalog Model service",
             category="Model",
-            command="catalog model service from (remote) '<path> or <github> or <service_url>' as  '<service_name>'|<service_name>   USING (<parameter>=<value> <parameter>=<value>)",
-            description="""catalog a model service from a path or github or remotely from an existing OpenAD service.
+            command="catalog model service from (remote) '<path>' | '<github>' | '<service_url>' as  <service_name>   USING (<parameter>=<value> <parameter>=<value>)",
+            description="""
+Catalog a model service from a path or github or remotely from an existing OpenAD service.
 (USING) optional headers parameters for communication with service backend.
 If you are cataloging a service using a model defined in a directory, provide the absolute <cmd> <path> </cmd> of that directory in quotes.
 
@@ -799,16 +804,15 @@ Catalog a remote service shared with you:
         help_dict_create(
             name="Model up",
             category="Model",
-            command="model service up '<service_name>'|<service_name> [no_gpu]}",
-            description="""launches a cataloged model service when it was cataloged as a self managed service from a directory or github repository.
+            command="model service up <service_name> [no_gpu]}",
+            description="""
+Launches a cataloged model service when it was cataloged as a self-managed service from a directory or github repository.
 If you do not want to launch a service with GPU you should specify <cmd>no_gpu</cmd> at the end of the command.
+
 Examples:
-
--<cmd>model service up gen</cmd>
-
--<cmd>model service up 'gen'</cmd>
-
--<cmd>model service up gen no_gpu</cmd>""",
+- <cmd>model service up gen</cmd>
+- <cmd>model service up 'gen'</cmd>
+- <cmd>model service up gen no_gpu</cmd>""",
         )
     )
 
@@ -826,13 +830,13 @@ Examples:
         help_dict_create(
             name="Model local up",
             category="Model",
-            command="model service local up '<service_name>'|<service_name> ",
-            description="""Launches a model service locally.
+            command="model service local up <service_name> ",
+            description="""
+Launches a model service locally.
 
-            Example:
-              <cmd> model service local up gen</cmd>
-
-             """,
+Example:
+<cmd>model service local up gen</cmd>
+""",
         )
     )
 
@@ -841,7 +845,13 @@ Examples:
         help_dict_create(
             name="Model down",
             category="Model",
-            command="model service down '<service_name>'|<service_name>",
-            description="Bring down a model service  \n Examples: \n\n<cmd>model service down gen</cmd> \n\n<cmd>model service down 'gen'</cmd> ",
+            command="model service down <service_name>",
+            description="""
+Bring down a model service
+
+Examples:
+- <cmd>model service down gen</cmd>
+- <cmd>model service down 'gen'</cmd>
+""",
         )
     )

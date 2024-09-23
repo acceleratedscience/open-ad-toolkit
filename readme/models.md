@@ -185,13 +185,9 @@ OpenAD lets you easily deploy different models to generate and manipulate molecu
 
         model service down prop
 
-1.  Other available commands for managing model services:
+1.  To see all available model commands, pull up the general help and look towards the bottom of the command list.
 
-        model service config <service_name>
-        model service up <service_name> [ no_gpu ]
-        model service local up <service_name>
-        model catalog list
-        uncatalog model service <service_name>
+        ?
 
 [AWS Dashboard]: https://console.aws.amazon.com
 [IAM Dashboard]: https://console.aws.amazon.com/iam
