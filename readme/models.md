@@ -173,15 +173,15 @@ OpenAD lets you easily deploy different models to generate and manipulate molecu
 
         catalog model service from 'git@github.com:acceleratedscience/property_inference_service.git' as prop
 
-1.  Start the service
+1.  Start the service – this can take multiple minutes
 
         model service up prop
 
-1.  Wait until the service is ready
+1.  Check if the service is ready
 
         model service status
 
-1.  Shutting down the service
+1.  Shut down the service
 
         model service down prop
 
