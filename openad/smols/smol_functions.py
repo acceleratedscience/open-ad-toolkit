@@ -292,9 +292,15 @@ def _get_pubchem_compound(identifier, identifier_type):
             return smol
 
     except Exception as err:  # pylint: disable=broad-exception-caught
-        output_error(
-            ["Error in _get_pubchem_compound()", f"identifier: {identifier}\nidentifier_type: {identifier_type}"]
-        )
+        # output_error(
+        #     [
+        #         "Error _get_pubchem_compound()",
+        #         f"identifier: {identifier}",
+        #         f"identifier_type: {identifier_type}",
+        #         f"Error: {err}",
+        #     ]
+        # )
+        pass
 
     return None
 
