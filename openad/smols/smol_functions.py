@@ -25,6 +25,9 @@ from openad.helpers.spinner import spinner
 from openad.helpers.json_decimal_encoder import DecimalEncoder
 from openad.helpers.data_formats import OPENAD_SMOL_DICT
 
+# Suppress RDKit logs
+rdBase.BlockLogs()  # pylint: disable=c-extension-no-member
+
 MOL_NAME_INDEX = "name"
 MOL_SMILES_INDEX = "smiles"
 MOL_INCHI_INDEX = "inchi"
@@ -77,62 +80,62 @@ PROPERTY_SOURCES = {
 }
 MOL_PROPERTIES = sorted(
     [
-        "cid",
-        "molecular_formula",
-        "molecular_weight",
-        "molecular_weight_exact",
-        "canonical_smiles",
-        "isomeric_smiles",
-        "inchi",
-        "inchikey",
-        "iupac_name",
-        "xlogp",
-        "exact_mass",
-        "monoisotopic_mass",
-        "multipoles_3d",
-        "tpsa",
-        "complexity",
-        "charge",
-        "h_bond_donor_count",
-        "h_bond_acceptor_count",
-        "rotatable_bond_count",
-        "heavy_atom_count",
-        "isotope_atom_count",
         "atom_stereo_count",
-        "defined_atom_stereo_count",
-        "undefined_atom_stereo_count",
         "bond_stereo_count",
-        "defined_bond_stereo_count",
-        "undefined_bond_stereo_count",
-        "covalent_unit_count",
-        "volume_3d",
-        "conformer_rmsd_3d",
+        "canonical_smiles",
+        "charge",
+        "cid",
+        "complexity",
+        "conformer_count_3d",
+        "conformer_id_3d",
         "conformer_model_rmsd_3d",
-        "x_steric_quadrupole_3d",
-        "y_steric_quadrupole_3d",
-        "z_steric_quadrupole_3d",
-        "feature_count_3d",
+        "conformer_rmsd_3d",
+        "coordinate_type",
+        "covalent_unit_count",
+        "defined_atom_stereo_count",
+        "defined_bond_stereo_count",
+        "effective_rotor_count_3d",
+        "exact_mass",
         "feature_acceptor_count_3d",
-        "feature_donor_count_3d",
         "feature_anion_count_3d",
         "feature_cation_count_3d",
-        "feature_ring_count_3d",
+        "feature_count_3d",
+        "feature_donor_count_3d",
         "feature_hydrophobe_count_3d",
-        "effective_rotor_count_3d",
-        "conformer_count_3d",
-        "pharmacophore_features_3d",
-        "conformer_id_3d",
-        "coordinate_type",
+        "feature_ring_count_3d",
+        "h_bond_acceptor_count",
+        "h_bond_donor_count",
+        "heavy_atom_count",
+        "inchi",
+        "inchikey",
+        "isomeric_smiles",
+        "isotope_atom_count",
+        "iupac_name",
         "mmff94_energy_3d",
         "mmff94_partial_charges_3d",
+        "molecular_formula",
+        "molecular_weight_exact",
+        "molecular_weight",
+        "monoisotopic_mass",
+        "multipoles_3d",
         "multipoles_3d",
         "pharmacophore_features_3d",
+        "pharmacophore_features_3d",
+        "rotatable_bond_count",
         "sol_classification",
         "sol",
+        "tpsa",
+        "undefined_atom_stereo_count",
+        "undefined_bond_stereo_count",
+        "volume_3d",
+        "x_steric_quadrupole_3d",
+        "xlogp",
+        "y_steric_quadrupole_3d",
+        "z_steric_quadrupole_3d",
     ]
 )
 
-blocker = rdBase.BlockLogs()  # pylint: disable=c-extension-no-member
+
 mol_name_cache = {}
 
 
@@ -158,7 +161,6 @@ def merge_molecule_properties(molecule_dict, mol):
 def valid_smiles(input_molecule) -> bool:
     """Check if an string is valid SMILES definition."""
 
-    # blocker = rdBase.BlockLogs()  # pylint: disable=c-extension-no-member
     try:
         m = Chem.MolFromSmiles(input_molecule, sanitize=False)  # pylint: disable=no-member
     except Exception:  # pylint: disable=broad-exception-caught
@@ -176,7 +178,6 @@ def valid_smiles(input_molecule) -> bool:
 def valid_inchi(input_molecule) -> bool:
     """Check if a string is valid InChI molecule."""
 
-    # blocker = rdBase.BlockLogs()  # pylint: disable=c-extension-no-member
     try:
         m = Chem.inchi.InchiToInchiKey(input_molecule)
     except Exception:  # pylint: disable=broad-exception-caught
