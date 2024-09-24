@@ -7,12 +7,12 @@ def get_molecule_data(cmd_pointer, molecule_identifier):
     Used to enrich the molecule data from the molecule viewer Flask app.
     """
 
-    from openad.smols.smol_commands import retrieve_mol, retrieve_mol_from_list
+    from openad.smols.smol_commands import get_smol_from_pubchem, get_smol_from_mws
 
-    mol = retrieve_mol_from_list(cmd_pointer, molecule_identifier)
+    mol = get_smol_from_mws(cmd_pointer, molecule_identifier)
 
     if mol is None:
-        mol = retrieve_mol(molecule_identifier)
+        mol = get_smol_from_pubchem(molecule_identifier)
     if mol is not None:
         cmd_pointer.last_external_molecule = mol.copy()
         return mol

@@ -10,7 +10,7 @@ from rdkit import Chem
 from openad.helpers.files import open_file
 from openad.helpers.output import output_error
 from openad.smols.smol_functions import (
-    new_molecule,
+    new_smol_from_rdkit,
     molformat_v2,
     get_best_available_smiles,
 )
@@ -88,7 +88,7 @@ def smol2mdl(smol=None, inchi_or_smiles=None, path=None):
     Chem.rdDistGeom.EmbedMolecule(mol_rdkit)  # pylint: disable=no-member
 
     # Generate MDL data.
-    mol_mdl = Chem.MolToMolBlock(mol_rdkit)
+    mol_mdl = Chem.MolToMolBlock(mol_rdkit)  # pylint: disable=no-member
 
     # Write to disk
     if path:
@@ -105,7 +105,7 @@ def smol2mdl(smol=None, inchi_or_smiles=None, path=None):
         #     print(">", key, props[key])
 
         # Write mdl to disk.
-        with Chem.SDWriter(path) as writer:
+        with Chem.SDWriter(path) as writer:  # pylint: disable=no-member
             writer.write(mol_rdkit)
 
     # Return data
@@ -213,7 +213,7 @@ def dataframe2molset(df):
     # Convert the molecules to SDF format
     molset = []
     for i, row in df.iterrows():
-        mol_dict = new_molecule(row[identifier])
+        mol_dict = new_smol_from_rdkit(row[identifier])
 
         if mol_dict is not None:
             # Add all other dataframe columns as properties to the SDF data,
@@ -356,7 +356,7 @@ def smiles_path2molset(path_absolute):
     smiles_list = [smiles.split(" ")[0] for smiles in smiles_list if smiles]
     molset = []
     for i, smiles in enumerate(smiles_list):
-        mol = new_molecule(smiles)
+        mol = new_smol_from_rdkit(smiles)
         if mol:
             mol = molformat_v2(mol)
         else:
@@ -401,7 +401,7 @@ def sdf_path2molset(sdf_path):
         mols_rdkit = Chem.SDMolSupplier(sdf_path)  # pylint: disable=no-member
         molset = []
         for i, mol_rdkit in enumerate(mols_rdkit):
-            mol_dict = new_molecule(mol_rdkit=mol_rdkit)
+            mol_dict = new_smol_from_rdkit(mol_rdkit=mol_rdkit)
             mol_dict = molformat_v2(mol_dict)
             mol_dict["index"] = i + 1
             molset.append(mol_dict)
@@ -418,13 +418,13 @@ def mdl_path2smol(mdl_path):
     """
 
     # Read MDL data
-    supplier = Chem.SDMolSupplier(mdl_path)
+    supplier = Chem.SDMolSupplier(mdl_path)  # pylint: disable=no-member
     mol_rdkit = next(supplier)
 
     if mol_rdkit is None:
         return None, "unknown"
 
     # Translate into OpenAD smol dict
-    mol_dict = new_molecule(mol_rdkit=mol_rdkit)
+    mol_dict = new_smol_from_rdkit(mol_rdkit=mol_rdkit)
     mol_dict = molformat_v2(mol_dict)
     return mol_dict, None

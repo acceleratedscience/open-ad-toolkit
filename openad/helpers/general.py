@@ -1,9 +1,10 @@
 import os
 import re
 import sys
-import json
+import time
 import getpass
 import readline
+from datetime import datetime
 from IPython.display import clear_output
 from openad.helpers.output import output_text, output_error
 from openad.helpers.output_msgs import msg
@@ -26,9 +27,9 @@ def refresh_prompt(settings):
 def is_notebook_mode():
     """Return True if we are running inside a Jupyter Notebook or Jupyter Lab."""
     try:
-        get_ipython()  # pylint disable=undefined-variable
+        get_ipython()  # pylint: disable=undefined-variable
         return True
-    except BaseException:  # pylint disable=broad-exception-caught
+    except Exception:  # pylint: disable=broad-exception-caught
         return False
 
 
@@ -97,7 +98,7 @@ def other_sessions_exist(cmd_pointer):
     file_list = os.listdir(os.path.dirname(_meta_registry_session))
     try:
         file_list.remove("registry.pkl" + cmd_pointer.session_id)
-    except BaseException:
+    except Exception:  # pylint: disable=broad-exception-caught
         pass
 
     if len(file_list) > 0:
@@ -221,7 +222,7 @@ def load_module_from_path(module_name, file_path):
         sys.modules[module_name] = module
         spec.loader.exec_module(module)
         return module
-    except BaseException as err:
+    except Exception as err:
         # Silent fail - only enable this for debugging
         # output_error(f"load_module_from_path('{module_name}', {file_path})\n<soft>{err}</soft>")
         return None
@@ -262,6 +263,26 @@ def encode_uri_component(string):
     from urllib.parse import quote
 
     return quote(string.encode("utf-8"), safe="~()*!.'")
+
+
+# Prettify a timestamp
+def pretty_date(timestamp=None, style="log"):
+    # If no timestamp provided, use the current time
+    if not timestamp:
+        timestamp = time.time()
+
+    # Choose the output format
+    fmt = None
+    if style == "log":
+        fmt = "%d-%m-%Y, %H:%M:%S"  # 07-01-2024, 15:12:45
+    elif style == "pretty":
+        fmt = "%b %d, %Y at %H:%M"  # Jan 7, 2024 at 15:12
+    else:
+        output_error("Invalid style for pretty_date()")
+
+    # Parse date/time string
+    date_time = datetime.fromtimestamp(timestamp)
+    return date_time.strftime(fmt)
 
 
 #

@@ -3,11 +3,11 @@
 import pandas
 from rdkit.Chem import PandasTools
 from openad.smols.smol_functions import (
-    retrieve_mol_from_list,
+    find_smol,
+    get_smol_from_mws,
     merge_molecule_properties,
     valid_smiles,
-    new_molecule,
-    mol_from_identifier,
+    new_smol_from_rdkit,
     mymols_add,
     normalize_mol_df,
     canonicalize,
@@ -73,12 +73,12 @@ def merge_molecule_property_data(cmd_pointer, inp):
         try:
             smiles = canonicalize(row[SMILES])
 
-            merge_mol = retrieve_mol_from_list(cmd_pointer, smiles)
+            merge_mol = get_smol_from_mws(cmd_pointer, smiles)
         except:
             output_warning("unable to canonicalise:" + row[SMILES])
             continue
         if merge_mol is None:
-            merge_mol = new_molecule(smiles, name=row[SMILES])
+            merge_mol = new_smol_from_rdkit(smiles, name=row[SMILES])
 
             update_flag = False
         else:
@@ -178,7 +178,7 @@ def batch_pubchem(cmd_pointer, dataframe):
             else:
                 name = None
             if name is not None:
-                merge_mol = retrieve_mol_from_list(cmd_pointer, name)
+                merge_mol = get_smol_from_mws(cmd_pointer, name)
                 if merge_mol is not None:
                     Name_Flag = True
             batch_spinner.text = f"Loading: {a_mol['SMILES']}"
@@ -196,8 +196,7 @@ def batch_pubchem(cmd_pointer, dataframe):
             # add_molecule(cmd_pointer, {"molecule_identifier": a_mol["SMILES"]}, force=True, suppress=True)
 
             # Create molecule dict.
-
-            openad_mol = mol_from_identifier(cmd_pointer, a_mol["SMILES"])
+            openad_mol = find_smol(cmd_pointer, a_mol["SMILES"])  # @@TODO: to be tested
 
             # Add it to the working set.
             mymols_add(cmd_pointer, openad_mol, force=True, suppress=True)
@@ -233,18 +232,18 @@ def shred_merge_add_df_mols(dataframe, cmd_pointer):
         if name == "":
             name = None
         if name is not None:
-            merge_mol = retrieve_mol_from_list(cmd_pointer, name)
+            merge_mol = get_smol_from_mws(cmd_pointer, name)
             if merge_mol is not None:
                 Name_Flag = True
         if not valid_smiles(a_mol["SMILES"]):
             err_msg = f"#{i} - <error>Invalid SMILES, molecule discarded:</error> <yellow>{a_mol['SMILES']}</yellow>"
             output_text(err_msg, return_val=False)
             continue
-        merge_mol = retrieve_mol_from_list(cmd_pointer, a_mol["SMILES"])
+        merge_mol = get_smol_from_mws(cmd_pointer, a_mol["SMILES"])
         if Name_Flag is True and merge_mol is None:
             # output_error("There is already a molecule by the name, adding  increment to the name  " + name, return_val=False)
             i = 1
-            while retrieve_mol_from_list(cmd_pointer, name + "-" + str(i)) is not None:
+            while get_smol_from_mws(cmd_pointer, name + "-" + str(i)) is not None:
                 i = i + 1
             name = name + "-" + str(i)
 
@@ -254,7 +253,7 @@ def shred_merge_add_df_mols(dataframe, cmd_pointer):
         if merge_mol is None:
             if name is None:
                 name = a_mol["SMILES"]
-            merge_mol = new_molecule(a_mol["SMILES"], name=name)
+            merge_mol = new_smol_from_rdkit(a_mol["SMILES"], name=name)
         if merge_mol is not None:
             merge_mol = merge_molecule_properties(a_mol, merge_mol)
         else:

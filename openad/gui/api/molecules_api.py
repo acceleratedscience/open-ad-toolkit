@@ -10,17 +10,18 @@ from rdkit import Chem
 from flask import Response, request
 
 from openad.smols.smol_functions import (
-    retrieve_mol,
+    get_smol_from_pubchem,
     df_has_molecules,
     molformat_v2,
     molformat_v2_to_v1,
     create_molset_cache_file,
     assemble_cache_path,
     read_molset_from_cache,
-    mol_from_identifier,
+    find_smol,
+    get_smol_from_pubchem,
     mymols_add,
     mymols_remove,
-    retrieve_mol_from_list,
+    get_smol_from_mws,
     get_best_available_identifier,
     get_best_available_smiles,
     merge_mols,
@@ -70,9 +71,9 @@ class MoleculesApi:
             response.status = "No identifier provided."
             return response
 
-        mol = retrieve_mol_from_list(self.cmd_pointer, identifier)
+        mol = get_smol_from_mws(self.cmd_pointer, identifier)
         if mol is None:
-            mol = retrieve_mol(identifier)
+            mol = get_smol_from_pubchem(identifier)
 
         # Fail
         if not mol:
@@ -147,7 +148,7 @@ class MoleculesApi:
         _, identifier = get_best_available_identifier(openad_mol)
 
         # Enrich molecule withg RDKit data.
-        openad_mol_enriched = mol_from_identifier(self.cmd_pointer, identifier, basic=True)
+        openad_mol_enriched = find_smol(self.cmd_pointer, identifier, basic=True)
         if openad_mol_enriched:
             openad_mol = merge_mols(openad_mol, openad_mol_enriched)
 
@@ -190,13 +191,13 @@ class MoleculesApi:
         _, identifier = get_best_available_identifier(openad_mol)
 
         # Check if it's in the working set.
-        success = bool(retrieve_mol_from_list(self.cmd_pointer, identifier))
+        success = bool(get_smol_from_mws(self.cmd_pointer, identifier))
 
         return {"status": success}, 200
 
     def enrich_smol(self):
         """
-        Enrich a molecule with RDKit data.
+        Enrich a molecule with PubChem data.
         """
 
         data = json.loads(request.data) if request.data else {}
@@ -205,8 +206,8 @@ class MoleculesApi:
         # Get best available identifier.
         _, identifier = get_best_available_identifier(openad_mol_v2)
 
-        # Enrich molecule withg RDKit data.
-        openad_mol_enriched = mol_from_identifier(self.cmd_pointer, identifier, basic=False)
+        # Enrich molecule withg PubChem data.
+        openad_mol_enriched = get_smol_from_pubchem(identifier)
         if openad_mol_enriched:
             openad_mol_enriched_v2 = molformat_v2(openad_mol_enriched)
             openad_mol_v2 = merge_mols(openad_mol_v2, openad_mol_enriched_v2)
