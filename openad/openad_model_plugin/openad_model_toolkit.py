@@ -12,7 +12,8 @@ import pandas as pd
 import requests
 from openad.helpers.output import output_error, output_success, output_text, output_warning
 from openad.helpers.spinner import Spinner
-from openad.openad_model_plugin.catalog_model_services import get_service_requester, help_dict_create
+from openad.core.help import help_dict_create
+from openad.openad_model_plugin.catalog_model_services import get_service_requester
 from openad.openad_model_plugin.auth_services import get_service_api_key
 from openad.openad_model_plugin.catalog_model_services import Dispatcher
 from openad.app.global_var_lib import GLOBAL_SETTINGS
@@ -411,7 +412,7 @@ def service_grammar_add(statements: list, help: list, service_catalog: dict):
             if "generator_type" in schema:
                 category = schema["generator_type"]["algorithm_type"]
             else:
-                category = "Model-" + schema["sub_category"]
+                category = "model-" + schema["sub_category"]
 
             # if command has no parameters simply remove the USING Clause
             if num_params == 0:
@@ -421,7 +422,7 @@ def service_grammar_add(statements: list, help: list, service_catalog: dict):
             help.append(
                 help_dict_create(
                     name=schema["service_type"],
-                    category=service + "->" + category,
+                    category=service + " -> " + category,
                     parent=None,
                     command=command_str + save_as_clause_help,
                     description=target_description

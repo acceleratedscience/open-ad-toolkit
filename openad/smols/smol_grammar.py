@@ -109,6 +109,7 @@ protein_identifier = Word(alphas + "-", "*")
 
 desc = QuotedString("'", escQuote="\\")
 
+# Repeated description sections
 MOL_SHORTHAND = "You can use the 'mol' shorthand instead of 'molecule'."
 MOLSET_SHORTHAND = "You can use the 'molset' shorthand instead of 'molecule-set'."
 SPECIFY_MOL = "You can specify any molecule by SMILES or InChI, and PubChem classified molecules also by name, InChIKey or their PubChem CID. \n A molecule identifier can be in single quotes or defined with unquoted text. If you have spaces in your molecule identifier e.g. a name, then you must user a single quoted string"

@@ -39,15 +39,14 @@ from openad.core.help import help_dict_create
 import openad.toolkit.toolkit_main as toolkit_main  # Not using "from" to avoid circular import.
 from openad.smols.smol_grammar import smol_grammar_add
 from openad.mmols.mmol_grammar import mmol_grammar_add
-
+from openad.openad_model_plugin.catalog_model_services import get_cataloged_service_defs
+from openad.openad_model_plugin.model_service_grammar import model_service_grammar_add
 
 # Helpers
 from openad.helpers.general import is_notebook_mode
 from openad.helpers.output import output_error
 from openad.helpers.output_msgs import msg
 from openad.openad_model_plugin.openad_model_toolkit import service_grammar_add
-
-from openad.openad_model_plugin.catalog_model_services import get_cataloged_service_defs, service_catalog_grammar
 
 
 # Global variables
@@ -163,6 +162,18 @@ smol_grammar_add(statements=statements, grammar_help=grammar_help)
 
 # Add protein grammar
 mmol_grammar_add(statements=statements, grammar_help=grammar_help)
+
+# Add model service grammar
+model_service_grammar_add(statements=statements, help=grammar_help)
+
+# ??
+"""try:
+    service_catalog = get_cataloged_service_defs()
+    service_grammar_add(statements=statements, help=grammar_help, service_catalog=service_catalog)
+except Exception as e:
+    print(e)
+    pass
+"""
 
 # TODO: Organize all other grammar also by individual files
 
@@ -935,14 +946,6 @@ grammar_help.append(
         description="",
     )
 )
-service_catalog_grammar(statements=statements, help=grammar_help)
-"""try:
-    service_catalog = get_cataloged_service_defs()
-    service_grammar_add(statements=statements, help=grammar_help, service_catalog=service_catalog)
-except Exception as e:
-    print(e)
-    pass
-"""
 
 # endregion
 
