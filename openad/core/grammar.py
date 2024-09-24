@@ -164,7 +164,7 @@ smol_grammar_add(statements=statements, grammar_help=grammar_help)
 mmol_grammar_add(statements=statements, grammar_help=grammar_help)
 
 # Add model service grammar
-model_service_grammar_add(statements=statements, help=grammar_help)
+# model_service_grammar_add(statements=statements, help=grammar_help) # This is added at the bottom, so it's displayed above the individual model commands.
 
 # ??
 """try:
@@ -946,6 +946,14 @@ grammar_help.append(
         description="",
     )
 )
+
+# endregion
+
+##########################################################################
+# region - Models
+##########################################################################
+
+model_service_grammar_add(statements=statements, help=grammar_help)
 
 # endregion
 
