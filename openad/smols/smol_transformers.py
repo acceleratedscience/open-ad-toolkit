@@ -11,8 +11,6 @@ from openad.helpers.files import open_file
 from openad.helpers.output import output_error
 from openad.smols.smol_functions import (
     new_smol,
-    molformat_v2,
-    _sep_identifiers_from_properties,
     get_best_available_smiles,
 )
 
@@ -222,9 +220,6 @@ def dataframe2molset(df):
             for col in df.columns:
                 mol_dict["properties"][col] = str(row[col])
 
-            # Separate identifiers
-            mol_dict = _sep_identifiers_from_properties(mol_dict)
-
             # Add index
             mol_dict["index"] = i + 1
 
@@ -358,9 +353,7 @@ def smiles_path2molset(path_absolute):
     molset = []
     for i, smiles in enumerate(smiles_list):
         mol = new_smol(smiles)
-        if mol:
-            mol = _sep_identifiers_from_properties(mol)
-        else:
+        if not mol:
             mol = {
                 "identifiers": {"canonical_smiles": smiles},
                 "properties": {},
@@ -403,7 +396,6 @@ def sdf_path2molset(sdf_path):
         molset = []
         for i, mol_rdkit in enumerate(mols_rdkit):
             mol_dict = new_smol(mol_rdkit=mol_rdkit)
-            mol_dict = _sep_identifiers_from_properties(mol_dict)
             mol_dict["index"] = i + 1
             molset.append(mol_dict)
         return molset, None
@@ -427,5 +419,4 @@ def mdl_path2smol(mdl_path):
 
     # Translate into OpenAD smol dict
     mol_dict = new_smol(mol_rdkit=mol_rdkit)
-    mol_dict = _sep_identifiers_from_properties(mol_dict)
     return mol_dict, None

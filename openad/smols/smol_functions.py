@@ -321,7 +321,7 @@ def _get_pubchem_compound(identifier: str, identifier_type: str) -> dict | None:
     return None
 
 
-def _add_pcy_data(smol, mol_pcy, identifier, identifier_type):
+def _add_pcy_data(smol, smol_pcy, identifier, identifier_type):
     """
     Add PubChem molecule data to the OpenAD molecule dict.
 
@@ -337,18 +337,22 @@ def _add_pcy_data(smol, mol_pcy, identifier, identifier_type):
         The type of identifier to search for (see PCY_IDFR).
     """
 
+    smol["enriched"] = True
+
+    # Add synonyms
+    synonyms = pcy.get_synonyms(smol_pcy["iupac_name"], "name")
+    smol["synonyms"] = synonyms[0].get("Synonym") if synonyms and len(synonyms) > 0 else []
+
     # Add name
     if identifier_type == PCY_IDFR["name"]:
         smol["name"] = identifier
+    elif len(smol.get("synonyms", [])) > 1:
+        smol["name"] = smol["synonyms"][0]
     else:
-        smol["name"] = mol_pcy["iupac_name"]
-    smol["properties"] = mol_pcy
+        smol["name"] = smol_pcy["iupac_name"]
 
-    # Add synonyms
-    synonyms = pcy.get_synonyms(smol["name"], "name")
-    if len(synonyms) > 0:
-        smol["synonyms"] = synonyms[0]
-    smol["enriched"] = True
+    # Add properties
+    smol["properties"] = smol_pcy
 
     # Add canonical smiles
     if identifier_type == PCY_IDFR["smiles"]:
@@ -368,7 +372,7 @@ def _add_pcy_data(smol, mol_pcy, identifier, identifier_type):
         for prop_name, prop_name_key in MOL_PROPERTY_SOURCES.items():
             if prop_name_key == x:
                 if len(prop_name.split("-")) > 0:
-                    for y in mol_pcy["record"]["props"]:
+                    for y in smol_pcy["record"]["props"]:
                         if "label" not in y["urn"]:
                             pass
                         elif y["urn"]["label"] == prop_name.split("-", maxsplit=1)[0] and "name" not in y["urn"]:
@@ -492,9 +496,13 @@ def new_smol(inchi_or_smiles: str = None, mol_rdkit: Mol = None, name: str = Non
         smol["properties"][key] = props[key]
         smol["property_sources"][key] = prop_src
 
+    # Figure out the best name
+    if name is None:
+        name = smol["properties"].get("name", None)
+
     # fmt: off
     # Store identifiers
-    smol["identifiers"]["name"] = name
+    smol["name"] = name
     smol["identifiers"]["inchi"] = Chem.MolToInchi(mol_rdkit)
     smol["identifiers"]["inchikey"] = Chem.inchi.InchiToInchiKey(smol["properties"]["inchi"])
     smol["identifiers"]["canonical_smiles"] = Chem.MolToSmiles(mol_rdkit)  # pylint: disable=no-member
@@ -631,6 +639,31 @@ def valid_inchi(inchi: str) -> bool:
 # region - Utility
 
 
+def flatten_smol(smol: dict) -> dict:
+    """
+    Flatten identifiers, properties, name and synonyms onto
+    the root of the molecule dictionary, so the molecule can
+    be displayed in a table.
+
+    Parameters
+    ----------
+    smol: dict
+        The OpenAD small molecule dictionary to flatten.
+
+    Returns
+    -------
+    dict
+        The flattened molecule dictionary.
+    """
+    if smol is None:
+        return None
+
+    smol_flat = {**smol.get("identifiers"), **smol.get("properties")}
+    smol_flat["name"] = smol.get("name", None)
+    smol_flat["synonyms"] = "\n".join(smol.get("synonyms", []))
+    return smol_flat
+
+
 def canonicalize(smiles: str) -> str | None:
     """
     Turn any SMILES into its canonical equivalent per RDKit.
@@ -739,7 +772,10 @@ def get_best_available_identifier(smol: dict) -> tuple:
         The identifier type and the identifier string.
     """
 
-    identifiers_dict = smol.get("identifiers")
+    identifiers_dict = smol.get("identifiers", {})
+    if not identifiers_dict:
+        print(3333)
+        return None, None
 
     # InChI
     inchi = identifiers_dict.get("inchi")
@@ -1099,12 +1135,6 @@ def mws_remove(cmd_pointer: object, smol: dict, force: bool = False, suppress: b
 
 # endregion
 
-############################################################
-# region - XXX
-
-
-# endregion
-
 
 # @@TODO: update merge_molecule command to use this function.
 def merge_mols(openad_mol_1, openad_mol_2):
@@ -1199,90 +1229,91 @@ def merge_molecule_REPLACE(merge_mol, mol):
 # region - DEPRECATED
 
 
-def molformat_v2(mol):
-    """
-    Create a slightly modified "v2" OpenAD molecule data format,
-    where identifiers are stored separately from properties. This
-    is how the GUI consumes molecules, and should be used elsewhere
-    in the application going forward as well. Please read comment
-    above new_molecule() for more information.
-    - - -
-    What it does:
-     1. Separate identifiers from properties.
-     2. Flatten the mol["synonyms"]["Synonym"] to mol["synonyms"]
-    """
-    if mol is None:
-        return None
-    mol_v2 = {}
-    mol_v2["identifiers"] = _get_identifiers(mol)
-    mol_v2["properties"] = deepcopy(mol.get("properties"))
+# def molformat_v2(mol):
+#     """
+#     Create a slightly modified "v2" OpenAD molecule data format,
+#     where identifiers are stored separately from properties. This
+#     is how the GUI consumes molecules, and should be used elsewhere
+#     in the application going forward as well. Please read comment
+#     above new_molecule() for more information.
+#     - - -
+#     What it does:
+#      1. Separate identifiers from properties.
+#      2. Flatten the mol["synonyms"]["Synonym"] to mol["synonyms"]
+#     """
+#     if mol is None:
+#         return None
+#     mol_v2 = {}
+#     mol_v2["identifiers"] = _get_identifiers(mol)
+#     mol_v2["properties"] = deepcopy(mol.get("properties"))
 
-    # For the messy double-level synonyms key in v1 format.
-    if "Synonym" in mol.get("synonyms", {}):
-        synonyms = deepcopy(mol.get("synonyms", {}).get("Synonym", []))
+#     # For the messy double-level synonyms key in v1 format.
+#     if "Synonym" in mol.get("synonyms", {}):
+#         synonyms = deepcopy(mol.get("synonyms", {}).get("Synonym", []))
 
-    # For cases like an SDF or CSV where everything is just stored flat.
-    elif "synonyms" in mol_v2["properties"]:
-        synonyms = mol_v2["properties"]["synonyms"]
-        del mol_v2["properties"]["synonyms"]
+#     # For cases like an SDF or CSV where everything is just stored flat.
+#     elif "synonyms" in mol_v2["properties"]:
+#         synonyms = mol_v2["properties"]["synonyms"]
+#         del mol_v2["properties"]["synonyms"]
 
-    # For other cases, usually when no synonyms are present
-    # like when creating a fresh molecule from an identifier.
-    else:
-        synonyms = deepcopy(mol.get("synonyms", []))
+#     # For other cases, usually when no synonyms are present
+#     # like when creating a fresh molecule from an identifier.
+#     else:
+#         synonyms = deepcopy(mol.get("synonyms", []))
 
-    # Synonyms may be stored as a string array (mdl/sdf), or a string with linebreaks (csv).
-    # print("\n\n* synonyms BEFORE", type(synonyms), "\n", synonyms)
-    if isinstance(synonyms, str):
-        try:
-            synonyms = ast.literal_eval(synonyms)
-        except (ValueError, SyntaxError):
-            synonyms = synonyms.split("\n") if "\n" in synonyms else [synonyms]
-    # print("\n\n* synonyms AFTER", type(synonyms), "\n", synonyms)
+#     # Synonyms may be stored as a string array (mdl/sdf), or a string with linebreaks (csv).
+#     # print("\n\n* synonyms BEFORE", type(synonyms), "\n", synonyms)
+#     if isinstance(synonyms, str):
+#         try:
+#             synonyms = ast.literal_eval(synonyms)
+#         except (ValueError, SyntaxError):
+#             synonyms = synonyms.split("\n") if "\n" in synonyms else [synonyms]
+#     # print("\n\n* synonyms AFTER", type(synonyms), "\n", synonyms)
 
-    # Find name if it's missing.
-    if not mol_v2["identifiers"]["name"]:
-        mol_v2["identifiers"]["name"] = synonyms[0] if synonyms else None
+#     # Find name if it's missing.
+#     if not mol_v2["identifiers"]["name"]:
+#         mol_v2["identifiers"]["name"] = synonyms[0] if synonyms else None
 
-    mol_v2["synonyms"] = synonyms
-    mol_v2["analysis"] = deepcopy(mol.get("analysis"))
-    mol_v2["property_sources"] = deepcopy(mol.get("property_sources"))
-    mol_v2["enriched"] = deepcopy(mol.get("enriched"))
+#     mol_v2["synonyms"] = synonyms
+#     mol_v2["analysis"] = deepcopy(mol.get("analysis"))
+#     mol_v2["property_sources"] = deepcopy(mol.get("property_sources"))
+#     mol_v2["enriched"] = deepcopy(mol.get("enriched"))
 
-    # # This removes all properties that are not in MOL_PROPERTIES
-    # # I'm not sure what the benefit is. This shouldn't be limited.
-    # mol_organized["properties"] = get_human_properties(mol)
+#     # # This removes all properties that are not in MOL_PROPERTIES
+#     # # I'm not sure what the benefit is. This shouldn't be limited.
+#     # mol_organized["properties"] = get_human_properties(mol)
 
-    # if "DS_URL" in mol_organized["properties"]:
-    #     mol_organized["properties"]["DS_URL"] = ""
+#     # if "DS_URL" in mol_organized["properties"]:
+#     #     mol_organized["properties"]["DS_URL"] = ""
 
-    # Remove identifiers from properties.
-    # - - -
-    # Create a lowercase version of the properties dictionary
-    # so we can scan for properties in a case-insensitive way.
-    molIdfrs = {k.lower(): v for k, v in mol_v2["identifiers"].items()}
-    for prop in list(mol_v2["properties"]):
-        if prop.lower() in molIdfrs:
-            del mol_v2["properties"][prop]
+#     # Remove identifiers from properties.
+#     # - - -
+#     # Create a lowercase version of the properties dictionary
+#     # so we can scan for properties in a case-insensitive way.
+#     molIdfrs = {k.lower(): v for k, v in mol_v2["identifiers"].items()}
+#     for prop in list(mol_v2["properties"]):
+#         if prop.lower() in molIdfrs:
+#             del mol_v2["properties"][prop]
 
-    return mol_v2
+#     return mol_v2
 
 
-def molformat_v2_to_v1(mol):
-    """
-    Convert the v2 OpenAD molecule object format back to the old v1 format.
-    """
-    if mol is None:
-        return None
+# # Previous version of flatten_smol()
+# def molformat_v2_to_v1(mol):
+#     """
+#     Convert the v2 OpenAD molecule object format back to the old v1 format.
+#     """
+#     if mol is None:
+#         return None
 
-    mol_v1 = {}
-    mol_v1["name"] = deepcopy(mol.get("identifiers").get("name"))
-    mol_v1["properties"] = {**mol.get("identifiers"), **mol.get("properties")}
-    mol_v1["synonyms"] = {"Synonym": deepcopy(mol.get("synonyms"))}
-    mol_v1["analysis"] = deepcopy(mol.get("analysis"))
-    mol_v1["property_sources"] = deepcopy(mol.get("property_sources"))
-    mol_v1["enriched"] = deepcopy(mol.get("enriched"))
-    return mol_v1
+#     mol_v1 = {}
+#     mol_v1["name"] = deepcopy(mol.get("identifiers").get("name"))
+#     mol_v1["properties"] = {**mol.get("identifiers"), **mol.get("properties")}
+#     mol_v1["synonyms"] = {"Synonym": deepcopy(mol.get("synonyms"))}
+#     mol_v1["analysis"] = deepcopy(mol.get("analysis"))
+#     mol_v1["property_sources"] = deepcopy(mol.get("property_sources"))
+#     mol_v1["enriched"] = deepcopy(mol.get("enriched"))
+#     return mol_v1
 
 
 # Unused. This adds an indice when it's missing, but there's no usecase

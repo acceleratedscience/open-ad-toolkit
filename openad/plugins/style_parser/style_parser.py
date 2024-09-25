@@ -145,7 +145,7 @@ def style(
                 width = width - (tabs * 4)
             elif edge:
                 width = width - 5
-        except BaseException:
+        except Exception:
             width = 60
 
     if text is None:

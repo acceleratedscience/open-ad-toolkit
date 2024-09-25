@@ -17,7 +17,7 @@ from rdkit.Chem import AllChem
 from openad.helpers.general import confirm_prompt
 from openad.helpers.output import output_text, output_table, output_warning, output_error, output_success
 from openad.helpers.output_msgs import msg
-from openad.helpers.format_columns import single_value_columns, name_and_value_columns
+from openad.helpers.format_columns import single_value_columns, key_val_columns
 
 # Protein functions
 # from openad.mmols.mmol_functions import show_protein

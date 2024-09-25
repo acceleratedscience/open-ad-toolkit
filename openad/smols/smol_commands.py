@@ -15,7 +15,7 @@ from rdkit.Chem import AllChem
 from openad.helpers.general import confirm_prompt
 from openad.helpers.output import output_text, output_table, output_warning, output_error, output_success
 from openad.helpers.output_msgs import msg
-from openad.helpers.format_columns import single_value_columns, name_and_value_columns
+from openad.helpers.format_columns import single_value_columns, key_val_columns
 
 
 # Molecule functions
@@ -37,7 +37,8 @@ from openad.smols.smol_functions import (
 from openad.app.global_var_lib import GLOBAL_SETTINGS
 
 
-CLI_WIDTH = min(shutil.get_terminal_size().columns, 150)
+CLI_WIDTH = shutil.get_terminal_size().columns
+PRINT_WIDTH = min(CLI_WIDTH, 150)
 
 
 class bold_style:
@@ -56,8 +57,8 @@ def display_molecule(cmd_pointer, inp):
 
     # print(22, molecule_identifier)
     if GLOBAL_SETTINGS["display"] == "notebook":
-        global CLI_WIDTH
-        CLI_WIDTH = 100
+        global PRINT_WIDTH
+        PRINT_WIDTH = 100
 
     mol = get_smol_from_mws(cmd_pointer, molecule_identifier)
 
@@ -116,7 +117,7 @@ def display_molecule(cmd_pointer, inp):
         print_string = print_string.replace("\n", "<br>")
         display(HTML("<pre>" + print_string + "</pre>"))
     else:
-        output_text(print_string, edge=True)
+        output_text(print_string, edge=True, width=PRINT_WIDTH)
 
     return True
 
@@ -124,8 +125,8 @@ def display_molecule(cmd_pointer, inp):
 def display_property_sources(cmd_pointer, inp):
     """displays a molecule properties sources"""
     if GLOBAL_SETTINGS["display"] == "notebook":
-        global CLI_WIDTH
-        CLI_WIDTH = 100
+        global PRINT_WIDTH
+        PRINT_WIDTH = 100
     molecule_identifier = inp.as_dict()["molecule_identifier"]
 
     mol = get_smol_from_mws(cmd_pointer, molecule_identifier)
@@ -419,20 +420,23 @@ def moleculelist_to_data_frame(molecule_set):
 #     return None
 
 
-def format_identifers(mol):
-    """formats the identifiers for display"""
-    id_string = "\n<yellow>Name:</yellow> {} \n".format(mol["name"])
+def format_identifers(smol):
+    """
+    Format the identifiers for display.
+    """
 
-    identifiers = _get_identifiers(mol)
-    id_string = id_string + name_and_value_columns(
+    output = f"\n<h1>{smol['name']}</h1>"
+
+    identifiers = smol.get("identifiers", {})
+    output = output + key_val_columns(
         identifiers,
-        cli_width=CLI_WIDTH,
-        display_width=40,
-        exclusions=["toolkit", "function"],
+        cli_width=PRINT_WIDTH,
+        print_width=40,
+        ignore_keys=["toolkit", "function"],
     )
 
-    id_string = re.sub(r"<(.*?:)> ", r"<success>\1</success>", id_string)
-    return id_string
+    output = re.sub(r"<(.*?:)> ", r"<success>\1</success>", output)
+    return output
 
 
 def format_sources(mol):
@@ -443,38 +447,38 @@ def format_sources(mol):
         if mol_property not in mol["properties"] or mol["properties"][mol_property] is None:
             continue
         sources_string = sources_string + "\n\n<yellow>Property:</yellow> {} \n".format(mol_property)
-        sources_string = sources_string + name_and_value_columns(source, cli_width=CLI_WIDTH, display_width=30)
+        sources_string = sources_string + key_val_columns(source, cli_width=PRINT_WIDTH, print_width=30)
 
     sources = re.sub(r"<(.*?:)> ", r"<success>\1</success>", sources_string)
     return sources
 
 
-def format_synonyms(mol):
-    """formats synonyms for display"""
-    synonyms_string = "\n<yellow>Synonyms:</yellow>\n"
-    if "Synonym" in mol["synonyms"]:
-        synonyms = mol["synonyms"]["Synonym"]
-    else:
-        synonyms = []
-    all_synonyms = True
-    new_synonyms = []
-    for synonym in synonyms:
-        if len(synonym) > 30:
-            all_synonyms = False
-            continue
-        if len(str(synonym).strip()) == 0:
-            continue
-        new_synonyms.append(synonym)
+def format_synonyms(smol):
+    """
+    Format synonyms for display.
+    """
 
-    synonyms_string = synonyms_string + single_value_columns(new_synonyms, CLI_WIDTH, 30)
-    name = mol["name"]
-    if all_synonyms is False:
-        synonyms_string = (
-            synonyms_string
-            + f"\n\n<soft>This list is truncated. To view all synonyms, run <cmd>@{name}>>synonyms</cmd></soft>\n"
+    # Truncate list of synonyms
+    truncate = 30
+    synonyms = smol.get("synonyms", [])
+    synonym_count = len(synonyms)
+    synonyms = synonyms[:truncate]
+    is_truncated = synonym_count > len(synonyms)
+
+    # Title
+    output = "\n<h1>Synonyms:</h1>"
+
+    # Truncation note
+    if is_truncated:
+        output = (
+            output
+            + f"\n<soft>This list is truncated. To view all synonyms, run <cmd>@{smol['name']}>>synonyms</cmd></soft>\n"
         )
-    synonyms_string = re.sub(r"<(.*?:)> ", r"<success>\1</success>", synonyms_string)
-    return synonyms_string
+
+    # Values
+    output = output + single_value_columns(synonyms, PRINT_WIDTH, is_truncated=is_truncated)
+
+    return output
 
 
 def format_properties(mol):
@@ -484,11 +488,11 @@ def format_properties(mol):
     if GLOBAL_SETTINGS["display"] == "terminal" and "DS_URL" in properties:
         del properties["DS_URL"]
 
-    properites_string = properties_string + name_and_value_columns(
+    properites_string = properties_string + key_val_columns(
         properties,
-        cli_width=CLI_WIDTH,
-        display_width=40,
-        exclusions=["name", "canonical_smiles", "inchi", "inchikey", "cid", "isomeric_smiles"],
+        cli_width=PRINT_WIDTH,
+        print_width=40,
+        ignore_keys=["name", "canonical_smiles", "inchi", "inchikey", "cid", "isomeric_smiles"],
     )
     properties_string = re.sub(r"<(.*?:)> ", r"<success>\1</success>", properites_string)
     return properties_string
@@ -512,8 +516,8 @@ def format_analysis(mol):
             + item["function"]
             + "\n"
         )
-        id_string = id_string + name_and_value_columns(
-            item, cli_width=CLI_WIDTH, display_width=50, exclusions=["toolkit", "function"], indent="    "
+        id_string = id_string + key_val_columns(
+            item, cli_width=PRINT_WIDTH, print_width=50, ignore_keys=["toolkit", "function"], indent="    "
         )
     id_string = re.sub(r"<(.*?:)> ", r"<success>\1</success> ", id_string) + "\n"
     return id_string
