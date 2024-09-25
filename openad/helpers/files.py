@@ -238,7 +238,7 @@ def write_file(file_path, data, return_err=False):
         err_msg = msg("err_decode", file_path)
     except IOError as err:
         err_msg = msg("err_io", file_path, err.strerror)
-    except BaseException as err:
+    except Exception as err:
         err_msg = msg("err_unknown", err)
 
     # Return error

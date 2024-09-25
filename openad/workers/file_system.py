@@ -1,8 +1,9 @@
 import os
 from openad.helpers.files import open_file, file_stats
-from openad.molecules.mol_functions import create_molset_cache_file, get_molset_mols
+from openad.smols.smol_functions import create_molset_cache_file, get_molset_mols
 from openad.gui.api.molecules_api import create_molset_response
-from openad.molecules.mol_transformers import smiles_path2molset, sdf_path2molset, mdl_path2molset
+from openad.smols.smol_transformers import smiles_path2molset, sdf_path2molset, mdl_path2smol
+from openad.mmols.mmol_transformers import cif2mmol, pdb2mmol
 
 
 def fs_get_workspace_files(cmd_pointer, path=""):
@@ -180,7 +181,7 @@ def fs_attach_file_data(cmd_pointer, file_obj, query=None):
     file_type = file_obj["_meta"]["fileType"]
     ext = file_obj["_meta"]["ext"]
 
-    # Molset --> Load molset object with first page data
+    # Molset files --> Load molset object with first page data
     if file_type in ["molset", "sdf", "smi"]:
         # Step 1: Load or assemble the molset.
         # - - -
@@ -220,9 +221,21 @@ def fs_attach_file_data(cmd_pointer, file_obj, query=None):
         else:
             data = None
 
-    # Molecule .mol files --> convert to molecule JSON
-    elif file_type == "mdl":
-        data, err_code = mdl_path2molset(path_absolute)
+    # Molecule files --> convert to molecule JSON
+    elif file_type in ["mdl", "pdb", "cif"]:
+        # From MOL file
+        if ext == "mol":
+            data, err_code = mdl_path2smol(path_absolute)
+
+        # From PDB file
+        if ext == "pdb":
+            data = pdb2mmol(pdb_path=path_absolute)
+            err_code = None
+
+        # From CIF file
+        if ext == "cif":
+            data = cif2mmol(cif_path=path_absolute)
+            err_code = None
 
     # Everything else --> Load file content
     else:
@@ -279,9 +292,15 @@ def _get_file_type(ext, ext2):
 
     Any changes here should also be reflected in the FileType TypeScript type.
     """
-    # Single molecule files
+    # Small molecule files
     if ext in ["mol"]:  # Future support: "molecule", "pdb", "cif", "xyz", "mol2", "mmcif", "cml", "inchi"
         return "mdl"
+
+    # Macromolecule files
+    if ext in ["pdb"]:
+        return "pdb"
+    if ext in ["cif"]:
+        return "cif"
 
     # Molecule set files
     if ext in ["smi"]:
@@ -289,9 +308,13 @@ def _get_file_type(ext, ext2):
 
     # JSON files --> parse secondary extension
     elif ext in ["json", "cjson"]:
-        # Molecule
-        if ext2 == "mol":
-            return "mol"
+        # Small molecule
+        if ext2 == "smol":
+            return "smol"
+        elif ext2 == "mol":  # backward compatibility for mol.json files
+            return "smol"
+        elif ext2 == "mmol":
+            return "mmol"
         # Molecule set
         elif ext2 == "molset":
             return "molset"

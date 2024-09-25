@@ -9,7 +9,7 @@ from urllib.parse import unquote
 from rdkit import Chem
 from flask import Response, request
 
-from openad.molecules.mol_functions import (
+from openad.smols.smol_functions import (
     retrieve_mol,
     df_has_molecules,
     molformat_v2,
@@ -25,14 +25,17 @@ from openad.molecules.mol_functions import (
     get_best_available_smiles,
     merge_mols,
 )
-from openad.molecules.mol_transformers import (
-    mol2svg,
-    mol2mdl,
+from openad.smols.smol_transformers import (
+    smol2svg,
+    smol2mdl,
     molset2dataframe,
     write_dataframe2sdf,
     write_dataframe2csv,
     dataframe2molset,
 )
+
+from openad.mmols.mmol_functions import mmol_from_identifier
+from openad.mmols.mmol_transformers import mmol2pdb, mmol2cif, cif2mmol
 
 
 from openad.helpers.files import open_file
@@ -50,10 +53,10 @@ class MoleculesApi:
         self.cmd_pointer = cmd_pointer
 
     # -----------------------------
-    # Molecules
+    # Small molecules
     # -----------------------------
 
-    def get_mol_data(self):
+    def get_smol_data(self):
         """
         Get molecule data, plus SDF and SVG.
         Used when requesting a molecule by its identifier.
@@ -74,7 +77,7 @@ class MoleculesApi:
         # Fail
         if not mol:
             response = Response(None, status=500)
-            response.status = f"No molecule found with provided identifier '{identifier}'"
+            response.status = f"No small molecule found with provided identifier '{identifier}'"
             return response
 
         # Success
@@ -82,26 +85,25 @@ class MoleculesApi:
             mol = molformat_v2(mol)
             return mol, 200
 
-    def get_mol_viz_data(self):
+    def get_smol_viz_data(self):
         """
         Get a molecule's SVG and SDF data, used to render 2D and 3D visualizations.
-        Used when opening a .mol.json file.
+        Used when opening a .smol.json file.
         """
 
         data = json.loads(request.data) if request.data else {}
         inchi_or_smiles = data["inchi_or_smiles"] if "inchi_or_smiles" in data else None
 
         if not inchi_or_smiles:
-            return "get_mol_viz_data() -> Invalid inchi_or_smiles", 500
+            output_error("get_mol_viz_data() -> Missing inchi_or_smiles")
+            return "Missing inchi_or_smiles", 500
 
-        mol_rdkit = Chem.MolFromInchi(inchi_or_smiles)
-        if not mol_rdkit:
-            mol_rdkit = Chem.MolFromSmiles(inchi_or_smiles)  # pylint: disable=no-member
-        if mol_rdkit:
-            svg = mol2svg(mol_rdkit)
-            mdl = mol2mdl(mol_rdkit)
-        else:
-            svg, mdl = None, None
+        svg = smol2svg(inchi_or_smiles=inchi_or_smiles)
+        mdl = smol2mdl(inchi_or_smiles=inchi_or_smiles)
+
+        if not svg and not mdl:
+            output_error("get_mol_viz_data() -> Failed to generate SVG/MDL from '{inchi_or_smiles}'.")
+            return f"Failed to generate visualisation data from '{inchi_or_smiles}'.", 500
 
         return {"mdl": mdl, "svg": svg}, 200
 
@@ -192,13 +194,13 @@ class MoleculesApi:
 
         return {"status": success}, 200
 
-    def enrich_mol(self):
+    def enrich_smol(self):
         """
         Enrich a molecule with RDKit data.
         """
 
         data = json.loads(request.data) if request.data else {}
-        openad_mol_v2 = data["mol"] if "mol" in data else ""
+        openad_mol_v2 = data["smol"] if "smol" in data else ""
 
         # Get best available identifier.
         _, identifier = get_best_available_identifier(openad_mol_v2)
@@ -213,62 +215,110 @@ class MoleculesApi:
 
     ##
 
-    def save_mol_as_json(self):
+    def save_smol_as_json(self):
         """
-        Save new .mol.json file to a specified destination path.
+        Save new .smol.json file to a specified destination path.
         """
-        data = json.loads(request.data) if request.data else {}
-        new_file = data["newFile"] if "newFile" in data else ""
-        return self._save_mol(new_file=new_file)
+        return self._save_mol("mol_json")
 
-    def save_mol_as_sdf(self):
+    def save_smol_as_sdf(self):
         """
         Save new .sdf file to a specified destination path.
         """
-        data = json.loads(request.data) if request.data else {}
-        new_file = data["newFile"] if "newFile" in data else ""
-        return self._save_mol(new_file=new_file, format_as="sdf")
+        return self._save_mol("sdf")
 
-    def save_mol_as_csv(self):
+    def save_smol_as_csv(self):
         """
         Save new .csv file to a specified destination path.
         """
-        data = json.loads(request.data) if request.data else {}
-        new_file = data["newFile"] if "newFile" in data else ""
-        return self._save_mol(new_file=new_file, format_as="csv")
+        return self._save_mol("csv")
 
-    def save_mol_as_mdl(self):
+    def save_smol_as_mdl(self):
         """
         Save new .mol file to a specified destination path.
         """
-        data = json.loads(request.data) if request.data else {}
-        new_file = data["newFile"] if "newFile" in data else ""
-        return self._save_mol(new_file=new_file, format_as="mdl")
+        return self._save_mol("mdl")
 
-    def save_mol_as_smiles(self):
+    def save_smol_as_smiles(self):
         """
         Save new .smi file to a specified destination path.
         """
-        data = json.loads(request.data) if request.data else {}
-        new_file = data["newFile"] if "newFile" in data else ""
-        return self._save_mol(new_file=new_file, format_as="smiles")
+        return self._save_mol("smiles")
 
-    def _save_mol(self, new_file, format_as="mol_json"):
+    # -----------------------------
+    # Macromolecules
+    # -----------------------------
+
+    def get_mmol_data(self):
+        """
+        Get macromolecule data.
+        Used when requesting a macromolecule by its identifier.
+        """
+
+        data = json.loads(request.data) if request.data else {}
+        identifier = data["identifier"] if "identifier" in data else ""
+
+        if not identifier:
+            response = Response(None, status=500)
+            response.status = "No identifier provided."
+            return response
+
+        success, cif_data = mmol_from_identifier(identifier)
+
+        # Fail
+        if not success:
+            response = Response(None, status=500)
+            response.status = f"No macromolecule found with provided identifier '{identifier}'"
+            return response
+
+        # Success
+        else:
+            mmol = cif2mmol(cif_data)
+            return mmol, 200
+
+    ##
+
+    def save_mmol_as_mmol_json(self):
+        """
+        Save new .pdb.json file to a specified destination path.
+        """
+        return self._save_mol("mmol_json")
+
+    def save_mmol_as_pdb(self):
+        """
+        Save new .pdb file to a specified destination path.
+        """
+        return self._save_mol("pdb")
+
+    def save_mmol_as_cif(self):
+        """
+        Save new .cif file to a specified destination path.
+        """
+        return self._save_mol("cif")
+
+    # -----------------------------
+    # Molecules shared
+    # -----------------------------
+
+    def _save_mol(self, format_as):
         """
         Save a molecule to a file, in the specified format.
         """
+
         # Note: the new_file parameter is always true for now, but later on
         # when we let users add comments etc, we'll want to be able to update
         # existing files.
-
         data = json.loads(request.data) if request.data else {}
-        path = unquote(data["path"]) if "path" in data else ""
-        mol = data["mol"] if "mol" in data else ""
+        new_file = data["newFile"] if "newFile" in data else False
+        force = data["force"] if "force" in data else False
+        path = unquote(data["path"]) if "path" in data else None
+        smol = data["smol"] if "smol" in data else None
+        mmol = data["mmol"] if "mmol" in data else None
 
         if not path:
             return f"save_new_mol() -> Parameter 'path' missing", 500
-        if not mol:
-            return f"save_new_mol() -> Parameter 'mol' missing", 500
+        if not smol and not mmol:
+            return f"save_new_mol() -> Parameter 'smol' or 'mmol' missing", 500
 
         # Compile path
         workspace_path = self.cmd_pointer.workspace_path()
@@ -277,46 +327,74 @@ class MoleculesApi:
         # Throw error when detination file (does not) exist(s).
         if path:
             if new_file:
-                if os.path.exists(file_path):
-                    return f"_save_mol() -> File already exists: {file_path}", 403
+                if os.path.exists(file_path) and not force:
+                    print(f"_save_mol() -> File already exists: {file_path}")
+                    return f"A file with this name already exists.", 409
             else:
                 if not os.path.exists(file_path):
-                    return f"_save_mol() -> File not found: {file_path}", 404
+                    print(f"_save_mol() -> Destination not found: {file_path}")
+                    return f"The file you're trying to save is not found.", 404
 
         try:
-            # Save as .mol.json file.
+            # -----------------------------
+            # Small molecules
+            # -----------------------------
+
+            # Save as .smol.json file.
             if format_as == "mol_json":
                 # Write to file
                 with open(file_path, "w", encoding="utf-8") as f:
-                    json.dump(mol, f, ensure_ascii=False, indent=4, cls=DecimalEncoder)
+                    json.dump(smol, f, ensure_ascii=False, indent=4, cls=DecimalEncoder)
 
             # Save as .sdf file.
             elif format_as == "sdf":
-                df = molset2dataframe([mol])
+                df = molset2dataframe([smol])
                 write_dataframe2sdf(df, file_path)
 
             # Save as .csv file.
             elif format_as == "csv":
-                df = molset2dataframe([mol])
+                df = molset2dataframe([smol])
                 write_dataframe2csv(df, file_path)
 
             # Save as .mol file.
             elif format_as == "mdl":
-                mdl = mol2mdl(inchi_or_smiles=mol["identifiers"].get("inchi"))
-                with open(file_path, "w", encoding="utf-8") as f:
-                    f.write(mdl)
+                smol2mdl(smol, path=file_path)
 
             # Save as .smi file.
             elif format_as == "smiles":
-                smiles = get_best_available_smiles(mol)
+                smiles = get_best_available_smiles(smol)
                 with open(file_path, "w", encoding="utf-8") as f:
                     f.write(smiles)
+
+            # -----------------------------
+            # Mecromolecules
+            # -----------------------------
+
+            # Save as .mmol.json file.
+            elif format_as == "mmol_json":
+                with open(file_path, "w", encoding="utf-8") as f:
+                    json.dump(mmol, f, ensure_ascii=False, indent=4, cls=DecimalEncoder)
+
+            # Save as .cif file.
+            elif format_as == "cif":
+                mmol2cif(mmol, path=file_path)
+
+            # Save as .pdb file.
+            elif format_as == "pdb":
+                mmol2pdb(mmol, path=file_path)
 
         # In case the requested file path does not exist.
         # This could only happen if the user changes the folder structure outside
         # of the GUI then tries to save a file without refreshing the browser.
         except FileNotFoundError as err:
-            return f"_save_mol() -> FileNotFoundError: {err}", 404
+            print(f"_save_mol() -> FileNotFoundError: {err} / path: {file_path}")
+            return f"The selected destination does not exist.", 404
+        except PermissionError:
+            print(f"_save_mol() -> PermissionError: {err} / path: {file_path}")
+            return f"Access denied", 405
+        except Exception as err:
+            print(f"_save_mol() -> Exception: {err} / path: {file_path}")
+            return f"The selected destination does not exist.", 400
 
         return "ok", 200
 

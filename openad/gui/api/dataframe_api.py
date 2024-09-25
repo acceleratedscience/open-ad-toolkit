@@ -5,14 +5,14 @@ from flask import jsonify, request
 from openad.helpers.files import open_file
 from openad.helpers.output import output_table
 
-from openad.molecules.mol_functions import (
+from openad.smols.smol_functions import (
     df_has_molecules,
     molformat_v2_to_v1,
     create_molset_cache_file,
     assemble_cache_path,
     read_molset_from_cache,
 )
-from openad.molecules.mol_transformers import dataframe2molset
+from openad.smols.smol_transformers import dataframe2molset
 from openad.gui.api.molecules_api import create_molset_response
 
 

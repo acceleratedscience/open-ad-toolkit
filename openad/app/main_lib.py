@@ -31,9 +31,9 @@ from openad.openad_model_plugin.catalog_model_services import (
 )
 
 # molecules
-from openad.molecules.mol_functions import df_has_molecules
-from openad.molecules.mol_batch_files import load_batch_molecules, merge_molecule_property_data
-from openad.molecules.mol_commands import (
+from openad.smols.smol_functions import df_has_molecules
+from openad.smols.smol_batch_files import load_batch_molecules, merge_molecule_property_data
+from openad.smols.smol_commands import (
     display_molecule,
     display_property_sources,
     add_molecule,
@@ -52,11 +52,11 @@ from openad.molecules.mol_commands import (
     show_mol,
     show_molset,
     show_molset_df,
-    show_molsgrid_DEPRECATED,  # TRASH
     merge_molecules,
 )
+from openad.mmols.mmol_commands import show_mmol
 
-from openad.molecules.molecule_cache import attach_all_results, clear_results
+from openad.smols.smol_cache import attach_all_results, clear_results
 
 import openad.app.login_manager as login_manager
 
@@ -283,16 +283,16 @@ def lang_parse(cmd_pointer, parser):
         return merge_molecule_property_data(cmd_pointer, parser)
     elif parser.getName() == "export_molecules":
         return export_molecule_set(cmd_pointer, parser)
-    elif parser.getName() == "show_molsgrid":
-        return show_molsgrid_DEPRECATED(cmd_pointer, parser)
-    elif parser.getName() == "show_molsgrid_df":
-        return show_molsgrid_DEPRECATED(cmd_pointer, parser)
     elif parser.getName() == "show_mol":
         return show_mol(cmd_pointer, parser)
     elif parser.getName() == "show_molset":
         return show_molset(cmd_pointer, parser)
     elif parser.getName() == "show_molset_df":
         return show_molset_df(cmd_pointer, parser)
+
+    # Macromolecules
+    elif parser.getName() == "show_mmol":
+        return show_mmol(cmd_pointer, parser)
 
     # File system commands
     elif parser.getName() == "list_files":
