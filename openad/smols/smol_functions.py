@@ -58,7 +58,20 @@ MOL_PROPERTY_SOURCES = {
     "Molecular Formula": "molecular_formula",
     "Topological-Polar Surface Area": "tpsa",
 }
-MOL_PROPERTIES = sorted(
+
+# Molecule properties with machine data which we omit
+# when displaying the molecule properties in the CLI
+SMOL_PROPS_IGNORE = [
+    "atoms",
+    "bonds",
+    "cactvs_fingerprint",
+    "elements",
+    "fingerprint",
+    "record",
+]
+
+# @@Todo: retire thsi in favor of SMOL_PROPS_IGNORE?
+SMOL_PROPERTIES = sorted(
     [
         "atom_stereo_count",
         "bond_stereo_count",
@@ -139,10 +152,10 @@ INPUT_MAPPINGS = {
 mol_name_cache = {}
 
 ############################################################
-# region - Lookup
+# region - Lookup / creation
 
 
-def find_smol(cmd_pointer: object, identifier: str, name: str = None, basic: bool = False):
+def find_smol(cmd_pointer: object, identifier: str, name: str = None, basic: bool = False) -> dict | None:
     """
     Find a molecule across the available resources.
     First we check our working set, then PubChem, then RDKit.
@@ -178,7 +191,7 @@ def find_smol(cmd_pointer: object, identifier: str, name: str = None, basic: boo
 
     # Try creating molecule object with RDKit.
     if not smol:
-        smol = new_smol_from_rdkit(identifier, name=name)
+        smol = new_smol(identifier, name=name)
 
     # Fail - invalid.
     if not smol:
@@ -189,7 +202,7 @@ def find_smol(cmd_pointer: object, identifier: str, name: str = None, basic: boo
     return smol
 
 
-def get_smol_from_mws(cmd_pointer: object, identifier: str, ignore_synonyms: bool = False) -> dict:
+def get_smol_from_mws(cmd_pointer: object, identifier: str, ignore_synonyms: bool = False) -> dict | None:
     """
     Retrieve a molecule from the molecule working set.
 
@@ -215,7 +228,7 @@ def get_smol_from_mws(cmd_pointer: object, identifier: str, ignore_synonyms: boo
     return None
 
 
-def get_smol_from_memory(cmd_pointer: object, identifier: str) -> dict:
+def get_smol_from_memory(cmd_pointer: object, identifier: str) -> dict | None:
     """
     Retrieve a molecule from memory.
 
@@ -233,7 +246,7 @@ def get_smol_from_memory(cmd_pointer: object, identifier: str) -> dict:
     return None
 
 
-def get_smol_from_pubchem(identifier):
+def get_smol_from_pubchem(identifier: str) -> dict | None:
     """
     Fetch small molecule from PubChem.
 
@@ -242,8 +255,6 @@ def get_smol_from_pubchem(identifier):
     identifier: str
         The small molecule identifier to search for.
         Valid inputs: InChI, SMILES, InChIKey, name, CID.
-    basic: bool
-        If True, create a basic smol dict with RDKit (no API calls).
     """
 
     smol = _get_pubchem_compound(identifier, PCY_IDFR["inchi"])
@@ -259,10 +270,14 @@ def get_smol_from_pubchem(identifier):
     # if not smol:
     #     smol = _get_pubchem_compound(identifier, PCY_IDFR["formula"])
 
-    return smol
+    if smol:
+        return _sep_identifiers_from_properties(smol)
+
+    return None
 
 
-def _get_pubchem_compound(identifier, identifier_type):
+# region--local
+def _get_pubchem_compound(identifier: str, identifier_type: str) -> dict | None:
     """
     Fetch small molecule from PubChem based on an identifier.
 
@@ -291,16 +306,17 @@ def _get_pubchem_compound(identifier, identifier_type):
             smol = _add_pcy_data(smol, mol_pcy, identifier, identifier_type)
             return smol
 
-    except Exception as err:  # pylint: disable=broad-exception-caught
+    except Exception:  # pylint: disable=broad-exception-caught
+        pass
+
+        # # Keep here for debugging
         # output_error(
         #     [
         #         "Error _get_pubchem_compound()",
         #         f"identifier: {identifier}",
         #         f"identifier_type: {identifier_type}",
-        #         f"Error: {err}",
         #     ]
         # )
-        pass
 
     return None
 
@@ -337,7 +353,7 @@ def _add_pcy_data(smol, mol_pcy, identifier, identifier_type):
     # Add canonical smiles
     if identifier_type == PCY_IDFR["smiles"]:
         # fmt: off
-        smol["properties"]["canonical_smiles"] = Chem.MolToSmiles(Chem.MolFromSmiles(identifier))  # pylint: disable=no-member
+        smol["properties"]["canonical_smiles"] = canonicalize(identifier)  # pylint: disable=no-member
         # fmt: on
 
     # Loop through PubChem properties and update our own property_sources
@@ -347,7 +363,7 @@ def _add_pcy_data(smol, mol_pcy, identifier, identifier_type):
     # - Before: {"source": "pubchem"}
     # - After: { 'label': 'IUPAC Name', 'name': 'Preferred', 'datatype': 1, 'version': '2.7.0',
     #            'software': 'Lexichem TK', 'source': 'OpenEye Scientific Software', 'release': '2021.10.14'}
-    for x in MOL_PROPERTIES:
+    for x in SMOL_PROPERTIES:
         smol["property_sources"][x] = {"source": "PubChem"}
         for prop_name, prop_name_key in MOL_PROPERTY_SOURCES.items():
             if prop_name_key == x:
@@ -366,6 +382,64 @@ def _add_pcy_data(smol, mol_pcy, identifier, identifier_type):
     return smol
 
 
+def _sep_identifiers_from_properties(smol: dict) -> dict:
+    """
+    Separate molecules identifiers from properties.
+
+    This is the final step when processing external molecule data
+    from a file like MDL, SDF, CSV, etc. or from an API call, so
+    a molecule is in the correct OpenAD format.
+
+    Parameters:
+    -----------
+    smol: dict
+        The molecule object to modify.
+    """
+
+    # Move all identifiers to the identifiers key.
+    smol["identifiers"] = _get_identifiers(smol)
+
+    # Remove identifiers from properties.
+    # Create a lowercase version of the properties dictionary
+    # so we can scan for properties in a case-insensitive way.
+    molIdfrs = {k.lower(): v for k, v in smol["identifiers"].items()}
+    for prop in list(smol["properties"]):
+        if prop.lower() in molIdfrs:
+            del smol["properties"][prop]
+
+    return smol
+
+
+def _get_identifiers(smol: dict) -> dict:
+    """
+    Pull the identifiers from a molecule.
+    """
+
+    # In case this smol has the identifiers already separated.
+    if smol.get("identifiers"):
+        return smol["identifiers"]
+
+    identifier_dict = {}
+
+    # Create a lowercase version of the properties dictionary
+    # so we can scan for properties in a case-insensitive way.
+    smolProps = {k.lower(): v for k, v in smol["properties"].items()}
+
+    identifier_dict["name"] = smolProps.get("name")
+    identifier_dict["inchi"] = smolProps.get("inchi")
+    identifier_dict["inchikey"] = smolProps.get("inchikey")
+    identifier_dict["canonical_smiles"] = smolProps.get("canonical_smiles")
+    identifier_dict["isomeric_smiles"] = smolProps.get("isomeric_smiles")
+    identifier_dict["smiles"] = smolProps.get("smiles")
+    identifier_dict["molecular_formula"] = smolProps.get("molecular_formula")
+    identifier_dict["cid"] = smolProps.get("cid")
+
+    return identifier_dict
+
+
+# endregion
+
+
 # Takes any identifier and creates a minimal molecule object
 # on the fly using RDKit, without relying on PubChem or API calls.
 # - - -
@@ -381,7 +455,7 @@ def _add_pcy_data(smol, mol_pcy, identifier, identifier_type):
 # - - -
 # It is recommended to start using the new format elsewhere in new code,
 # so we'll have less to refactor once we switch to the new format.
-def new_smol_from_rdkit(inchi_or_smiles: str = None, mol_rdkit: Mol = None, name: str = None):
+def new_smol(inchi_or_smiles: str = None, mol_rdkit: Mol = None, name: str = None):
     """
     Create a basic molecule object without relying on API calls.
 
@@ -397,6 +471,7 @@ def new_smol_from_rdkit(inchi_or_smiles: str = None, mol_rdkit: Mol = None, name
 
     smol = deepcopy(OPENAD_SMOL_DICT)
     timestamp = pretty_date()
+    prop_src = {"source": "RDKit", "date": timestamp}
 
     # Create RDKit molecule object
     if mol_rdkit is None:
@@ -415,29 +490,26 @@ def new_smol_from_rdkit(inchi_or_smiles: str = None, mol_rdkit: Mol = None, name
     props = mol_rdkit.GetPropsAsDict()
     for key in props:
         smol["properties"][key] = props[key]
-        smol["property_sources"][key] = {"source": "RDKit", "date": timestamp}
-
-    # Store identifiers
-    smol["name"] = name
+        smol["property_sources"][key] = prop_src
 
     # fmt: off
-    smol["properties"]["inchi"] = Chem.MolToInchi(mol_rdkit)  # Alt: Chem.rdinchi.MolToInchi(mol_rdkit)[0]
-    smol["property_sources"]["inchi"] = {"source": "RDKit", "date": timestamp}
-
-    smol["properties"]["inchikey"] = Chem.inchi.InchiToInchiKey(smol["properties"]["inchi"])
-    smol["property_sources"]["inchikey"] = {"source": "RDKit", "date": timestamp}
-
-    smol["properties"]["canonical_smiles"] = Chem.MolToSmiles(mol_rdkit)  # pylint: disable=no-member
-    smol["property_sources"]["canonical_smiles"] = {"source": "RDKit", "date": timestamp}
-
-    smol["properties"]["isomeric_smiles"] = Chem.MolToSmiles(mol_rdkit, isomericSmiles=True)  # pylint: disable=no-member
-    smol["property_sources"]["isomeric_smiles"] = {"source": "RDKit", "date": timestamp}
-
-    smol["properties"]["molecular_formula"] = Chem.rdMolDescriptors.CalcMolFormula(mol_rdkit) # pylint: disable=no-member
-    smol["property_sources"]["molecular_formula"] = {"source": "RDKit", "date": timestamp}
-
+    # Store identifiers
+    smol["identifiers"]["name"] = name
+    smol["identifiers"]["inchi"] = Chem.MolToInchi(mol_rdkit)
+    smol["identifiers"]["inchikey"] = Chem.inchi.InchiToInchiKey(smol["properties"]["inchi"])
+    smol["identifiers"]["canonical_smiles"] = Chem.MolToSmiles(mol_rdkit)  # pylint: disable=no-member
+    smol["identifiers"]["isomeric_smiles"] = Chem.MolToSmiles(mol_rdkit, isomericSmiles=True)  # pylint: disable=no-member
+    smol["identifiers"]["molecular_formula"] = Chem.rdMolDescriptors.CalcMolFormula(mol_rdkit) # pylint: disable=c-extension-no-member
     smol["properties"]["molecular_weight"] = MolWt(mol_rdkit)
-    smol["property_sources"]["molecular_weight"] = {"source": "RDKit", "date": timestamp}
+    
+    # Store property sources
+    smol["property_sources"]["name"] = prop_src
+    smol["property_sources"]["inchi"] = prop_src
+    smol["property_sources"]["inchikey"] = prop_src
+    smol["property_sources"]["canonical_smiles"] = prop_src
+    smol["property_sources"]["isomeric_smiles"] = prop_src
+    smol["property_sources"]["molecular_formula"] = prop_src
+    smol["property_sources"]["molecular_weight"] = prop_src
 
     # Disabled this for consistency, because molecular_weight_exact is not included in PubChem data.
     # See: pcy.Compound.from_cid(cid).to_dict()
@@ -451,9 +523,12 @@ def new_smol_from_rdkit(inchi_or_smiles: str = None, mol_rdkit: Mol = None, name
     return smol
 
 
-def get_properties(smol: dict) -> dict:
+def get_human_properties(smol: dict) -> dict:
     """
-    Pulls properties from a molecule.
+    Pull subset of properties from a molecule,
+    ignoring all the data meant for machines.
+
+    Used to display a molecules's properties in the CLI.
 
     Parameters
     ----------
@@ -468,61 +543,12 @@ def get_properties(smol: dict) -> dict:
 
     props = {}
     for prop in smol["properties"]:
-        if prop in MOL_PROPERTIES:
+        if prop not in SMOL_PROPS_IGNORE:
             props[prop] = smol["properties"][prop]
-        else:
-            output_error(f"MISSING: {prop}")
     return props
 
 
-def get_identifiers(mol):
-    """pulls the identifiers from a molecule"""
-    identifier_dict = {}
-
-    # Create a lowercase version of the properties dictionary
-    # so we can scan for properties in a case-insensitive way.
-    molProps = {k.lower(): v for k, v in mol["properties"].items()}
-
-    # SDF files will have 'name' as a property, while our old mol format has it as a main key.
-    identifier_dict["name"] = mol.get("name") or molProps.get("name")
-    identifier_dict["inchi"] = molProps.get("inchi")
-    identifier_dict["inchikey"] = molProps.get("inchikey")
-    identifier_dict["canonical_smiles"] = molProps.get("canonical_smiles")
-    identifier_dict["isomeric_smiles"] = molProps.get("isomeric_smiles")
-    identifier_dict["molecular_formula"] = molProps.get("molecular_formula")
-    identifier_dict["cid"] = molProps.get("cid")
-
-    # We don't use the unspecified "smiles" property,
-    # but when parsing an SDF file, this may be a key.
-    identifier_dict["smiles"] = molProps.get("smiles")
-
-    return identifier_dict
-
-
-def read_molset_from_cache(cmd_pointer, cache_id):
-    """
-    Read a cached molset file from disk.
-
-    Parameters
-    ----------
-    cmd_pointer: object
-        The command pointer object, used to fetch the workspace path.
-    cache_id: str
-        The cache ID of the molset file.
-    """
-
-    # Read file from cache.
-    cache_path = assemble_cache_path(cmd_pointer, "molset", cache_id)
-    molset, err_code = get_molset_mols(cache_path)
-
-    # Return error
-    if err_code:
-        raise ValueError(f"Failed to read molset {cache_id} from cache")
-    else:
-        return molset
-
-
-def get_molset_mols(path_absolute):
+def get_molset_mols(path_absolute: str):
     """
     Return the list of molecules from a molset file,
     with an index added to each molecule.
@@ -532,8 +558,14 @@ def get_molset_mols(path_absolute):
     path_absolute: str
         The absolute path to the molset file.
 
-    Returns: data, err_code
+    Returns
+    -------
+    molset
+        The list of molecules.
+    err_code
+        The open_file error code if an error occurred.
     """
+
     # Read file contents
     molset, err_code = open_file(path_absolute, return_err="code")
 
@@ -595,8 +627,11 @@ def valid_inchi(inchi: str) -> bool:
 
 # endregion
 
+############################################################
+# region - Utility
 
-def canonicalize(smiles: str) -> str:
+
+def canonicalize(smiles: str) -> str | None:
     """
     Turn any SMILES into its canonical equivalent per RDKit.
 
@@ -605,311 +640,23 @@ def canonicalize(smiles: str) -> str:
     smiles: str
         The SMILES string to canonicalize
     """
+    if not smiles:
+        return None
 
     return Chem.MolToSmiles(Chem.MolFromSmiles(smiles), isomericSmiles=True)  # pylint: disable=no-member
 
 
-def molformat_v2(mol):
-    """
-    Create a slightly modified "v2" OpenAD molecule data format,
-    where identifiers are stored separately from properties. This
-    is how the GUI consumes molecules, and should be used elsewhere
-    in the application going forward as well. Please read comment
-    above new_molecule() for more information.
-    - - -
-    What it does:
-     1. Separate identifiers from properties.
-     2. Flatten the mol["synonyms"]["Synonym"] to mol["synonyms"]
-    """
-    if mol is None:
-        return None
-    mol_v2 = {}
-    mol_v2["identifiers"] = get_identifiers(mol)
-    mol_v2["properties"] = deepcopy(mol.get("properties"))
-
-    # For the messy double-level synonyms key in v1 format.
-    if "Synonym" in mol.get("synonyms", {}):
-        synonyms = deepcopy(mol.get("synonyms", {}).get("Synonym", []))
-
-    # For cases like an SDF or CSV where everything is just stored flat.
-    elif "synonyms" in mol_v2["properties"]:
-        synonyms = mol_v2["properties"]["synonyms"]
-        del mol_v2["properties"]["synonyms"]
-
-    # For other cases, usually when no synonyms are present
-    # like when creating a fresh molecule from an identifier.
-    else:
-        synonyms = deepcopy(mol.get("synonyms", []))
-
-    # Synonyms may be stored as a string array (mdl/sdf), or a string with linebreaks (csv).
-    # print("\n\n* synonyms BEFORE", type(synonyms), "\n", synonyms)
-    if isinstance(synonyms, str):
-        try:
-            synonyms = ast.literal_eval(synonyms)
-        except (ValueError, SyntaxError):
-            synonyms = synonyms.split("\n") if "\n" in synonyms else [synonyms]
-    # print("\n\n* synonyms AFTER", type(synonyms), "\n", synonyms)
-
-    # Find name if it's missing.
-    if not mol_v2["identifiers"]["name"]:
-        mol_v2["identifiers"]["name"] = synonyms[0] if synonyms else None
-
-    mol_v2["synonyms"] = synonyms
-    mol_v2["analysis"] = deepcopy(mol.get("analysis"))
-    mol_v2["property_sources"] = deepcopy(mol.get("property_sources"))
-    mol_v2["enriched"] = deepcopy(mol.get("enriched"))
-
-    # # This removes all properties that are not in MOL_PROPERTIES
-    # # I'm not sure what the benefit is. This shouldn't be limited.
-    # mol_organized["properties"] = get_properties(mol)
-
-    # if "DS_URL" in mol_organized["properties"]:
-    #     mol_organized["properties"]["DS_URL"] = ""
-
-    # Remove identifiers from properties.
-    # - - -
-    # Create a lowercase version of the properties dictionary
-    # so we can scan for properties in a case-insensitive way.
-    molIdfrs = {k.lower(): v for k, v in mol_v2["identifiers"].items()}
-    for prop in list(mol_v2["properties"]):
-        if prop.lower() in molIdfrs:
-            del mol_v2["properties"][prop]
-
-    return mol_v2
-
-
-# # This will replace molformat_v2 when we get rid of molformat_v1
-# def sep_identifiers_from_properties(mol):
-#     """
-#     Separate molecules identifiers from properties.
-
-#     This is used when reading SDF or CSV format, where all
-#     identifiers are stored as properties.
-
-#     Parameters:
-#     -----------
-#     mol: dict
-#         The molecule object to modify.
-#     """
-
-#     # Move all identifiers to the identifiers key.
-#     mol["identifiers"] = get_identifiers(mol)
-
-#     # Remove identifiers from properties.
-#     # Create a lowercase version of the properties dictionary
-#     # so we can scan for properties in a case-insensitive way.
-#     molIdfrs = {k.lower(): v for k, v in mol["identifiers"].items()}
-#     for prop in list(mol["properties"]):
-#         if prop.lower() in molIdfrs:
-#             del mol["properties"][prop]
-
-
-def molformat_v2_to_v1(mol):
-    """
-    Convert the v2 OpenAD molecule object format back to the old v1 format.
-    """
-    if mol is None:
-        return None
-
-    mol_v1 = {}
-    mol_v1["name"] = deepcopy(mol.get("identifiers").get("name"))
-    mol_v1["properties"] = {**mol.get("identifiers"), **mol.get("properties")}
-    mol_v1["synonyms"] = {"Synonym": deepcopy(mol.get("synonyms"))}
-    mol_v1["analysis"] = deepcopy(mol.get("analysis"))
-    mol_v1["property_sources"] = deepcopy(mol.get("property_sources"))
-    mol_v1["enriched"] = deepcopy(mol.get("enriched"))
-    return mol_v1
-
-
-def create_molset_cache_file(cmd_pointer, molset=None, path_absolute=None):
-    """
-    Store molset as a cached file, so we can manipulate it in the GUI.
-
-    Returns cache_id
-    """
-
-    cache_id = str(int(time.time() * 1000))
-    cache_path = assemble_cache_path(cmd_pointer, "molset", cache_id)
-
-    # Creaste the /._openad/wc_cache directory if it doesn't exist.
-    os.makedirs(os.path.dirname(cache_path), exist_ok=True)
-
-    # For JSON files, we can simply copy the original file (fast).
-    if path_absolute:
-        # timeit("copy_file")
-        shutil.copy(path_absolute, cache_path)
-        # timeit("copy_file", True)
-
-        # Add indices to molecules in our working copy,
-        # without blocking the thread.
-        # timeit("index_wc")
-        index_molset_file_async(cache_path)
-        # timeit("index_wc", True)
-
-    # For all other cases, i.e. other file formats or molset data from memory,
-    # we need to write the molset object to disk (slow).
-    else:
-        # timeit("write_cache")
-        with open(cache_path, "w", encoding="utf-8") as f:
-            json.dump(molset, f)
-        # timeit("write_cache", True)
-
-    return cache_id
-
-
-def assemble_cache_path(cmd_pointer, file_type, cache_id):
-    """
-    Compile the file path to a cached working copy of a file.
-
-    Parameters
-    ----------
-    cmd_pointer: object
-        The command pointer object, used to fetch the workspace path.
-    file_type: 'molset'
-        The type of file, used to name the cache file. For now only molset.
-    """
-    workspace_path = cmd_pointer.workspace_path()
-    return f"{workspace_path}/._openad/wc_cache/{file_type}-{cache_id}.json"
-
-
-# Unused. This adds an indice when it's missing, but there's no usecase
-# other than dev-legacy example molsets that are missing an index.
-def index_molset_file_async(path_absolute):
-    """
-    Add an index to each molecule of a molset file,
-    without blocking the main thread.
-
-    This is used to index a cached working copy of a molset
-    right after it's created.
-
-    Parameters
-    ----------
-    cache_path: str
-        The path to the cached working copy of a molset.
-    """
-
-    async def _index_molset_file(cache_path):
-        # Read
-        async with aiofiles.open(cache_path, "r", encoding="utf-8") as f:
-            content = await f.read()
-        molset = json.loads(content)
-        for i, mol in enumerate(molset):
-            mol["index"] = i + 1
-            molset[i] = mol
-        # Write
-        async with aiofiles.open(cache_path, "w", encoding="utf-8") as f:
-            await f.write(json.dumps(molset, ensure_ascii=False, indent=4, cls=DecimalEncoder))
-
-    asyncio.run(_index_molset_file(path_absolute))
-
-
-def df_has_molecules(df):
+def df_has_molecules(df: pandas.DataFrame) -> bool:
     """
     Check if a dataframe has molecules.
     """
-    colsLowercase = [col.lower() for col in df.columns]
-    if "smiles" in colsLowercase:
+
+    cols_lowercase = [col.lower() for col in df.columns]
+    if "smiles" in cols_lowercase:
         return True
-    elif "inchi" in colsLowercase:
+    elif "inchi" in cols_lowercase:
         return True
     else:
-        return False
-
-
-def mymols_add(cmd_pointer, openad_mol, force=False, suppress=False):
-    """
-    Add a molecule to your molecule bookmarks.
-
-    Parameters
-    ----------
-    cmd_pointer: object
-        The command pointer object.
-    openad_mol: dict
-        The OpenAD molecule object to add.
-    force: bool
-        If True, add without confirming.
-    suppress: bool
-        If True, suppress success output.
-    """
-
-    if not openad_mol:
-        output_error("No molecule provided", return_val=False)
-        return False
-
-    # Fail - already in list.
-    if get_smol_from_mws(cmd_pointer, openad_mol["properties"]["canonical_smiles"]) is not None:
-        output_error("Molecule already in list: " + openad_mol["properties"]["canonical_smiles"], return_val=False)
-        return True
-
-    # Name
-    name = openad_mol["name"]
-
-    # Add function
-    def _add_mol():
-        cmd_pointer.molecule_list.append(openad_mol.copy())
-        if suppress is False:
-            output_success(f"Molecule <yellow>{name}</yellow> was added", pad=0, return_val=False)
-        return True
-
-    # Add without confirming.
-    if force:
-        return _add_mol()
-
-    # Confirm before adding.
-    smiles = get_best_available_smiles(openad_mol)
-    smiles_str = f" <reset>{smiles}</reset>" if smiles else ""
-    if confirm_prompt(f"Add molecule <green>{name}</green>{smiles_str} to your molecules working list?"):
-        return _add_mol()
-    else:
-        output_error(f"Molecule <yellow>{name}</yellow> was not added", pad=0, return_val=False)
-        return False
-
-
-def mymols_remove(cmd_pointer, openad_mol, force=False, suppress=False):
-    """
-    Remove a molecule from your molecule bookmarks.
-
-    Parameters
-    ----------
-    cmd_pointer: object
-        The command pointer object.
-    openad_mol: dict
-        The OpenAD molecule object to add.
-    force: bool
-        If True, add without confirming.
-    suppress: bool
-        If True, suppress success output.
-    """
-
-    if not openad_mol:
-        output_error("No molecule provided", return_val=False)
-        return False
-
-    # Name
-    name = openad_mol["name"]
-
-    # Remove function.
-    def _remove_mol():
-        i = 0
-        key, identifier_to_delete = get_best_available_identifier(openad_mol)
-        while cmd_pointer.molecule_list[i]["properties"][key] != identifier_to_delete:
-            i = i + 1
-        cmd_pointer.molecule_list.pop(i)
-        if suppress is False:
-            output_success(f"Molecule <yellow>{name}</yellow> was removed", pad=0, return_val=False)
-        return True
-
-    # Remove without confirming.
-    if force:
-        return _remove_mol()
-
-    # Confirm before removing.
-    smiles = get_best_available_smiles(openad_mol)
-    smiles_str = f" <reset>{smiles}</reset>" if smiles else ""
-    if confirm_prompt(f"Remove molecule <green>{name}</green>{smiles_str} from your molecules working list?"):
-        return _remove_mol()
-    else:
-        output_error(f"Molecule <yellow>{name}</yellow> was not removed", pad=0, return_val=False)
         return False
 
 
@@ -924,7 +671,7 @@ def get_smol_from_list(identifier, molset, ignore_synonyms=False):
         The molecule identifier to search for.
         Valid inputs: InChI, SMILES, InChIKey, name, CID.
     molset: list
-        A list of OpenAD molecule objects.
+        A list of OpenAD small molecule objects.
     ignore_synonyms: bool
         If True, ignore synonyms in the search.
         This is only used when renaming a molecule to one of its synonyms.
@@ -933,33 +680,19 @@ def get_smol_from_list(identifier, molset, ignore_synonyms=False):
     """
 
     for openad_mol in molset:
-        # To support both v1 and v2 formats (see molformat_v2).
-        identifiers_dict = openad_mol.get("identifiers")  # v2
-        if not identifiers_dict:
-            identifiers_dict = openad_mol.get("properties")  # v1
+        identifiers_dict = openad_mol.get("identifiers")
+        synonyms = openad_mol.get("synonyms", [])
         if not identifiers_dict:
             output_error("get_smol_from_list(): Invalid molset input", return_val=False)
             return None
-        synonyms = (
-            openad_mol.get("synonyms", {}).get("Synonym")
-            if "Synonym" in openad_mol.get("synonyms", {})
-            else openad_mol.get("synonyms", [])
-        )
 
-        # Name match v1
-        if identifier.upper() == (openad_mol.get("name", "") or "").upper():
-            return openad_mol
-
-        # Name match v2 format
+        # Name match
         if identifier.upper() == identifiers_dict.get("name", "").upper():
             return openad_mol
 
         # CID match
-        try:
-            if int(identifier) == int(identifiers_dict.get("cid")):
-                return openad_mol
-        except Exception:  # pylint: disable=broad-except
-            pass
+        if int(identifier) == int(identifiers_dict.get("cid", "")):
+            return openad_mol
 
         # InChI match
         if identifier == identifiers_dict.get("inchi"):
@@ -969,16 +702,14 @@ def get_smol_from_list(identifier, molset, ignore_synonyms=False):
         if identifier == identifiers_dict.get("inchikey"):
             return openad_mol
 
-        # SMILES match - isomeric
-        if (
-            identifiers_dict.get("isomeric_smiles") is not None
-            and identifier.upper() == identifiers_dict.get("isomeric_smiles", "").upper()
-        ):
-            return openad_mol
-
-        # SMILES match - canonical
+        # SMILES match
         try:
-            if canonicalize(identifier) == canonicalize(identifiers_dict.get("canonical_smiles")):
+            idfr_canonical = canonicalize(identifier)
+            if idfr_canonical == canonicalize(identifiers_dict.get("canonical_smiles", None)):
+                return openad_mol
+            elif idfr_canonical == canonicalize(identifiers_dict.get("icomeric_smiles", None)):
+                return openad_mol
+            elif idfr_canonical == canonicalize(identifiers_dict.get("smiles", None)):
                 return openad_mol
         except Exception:  # pylint: disable=broad-except
             pass
@@ -986,7 +717,6 @@ def get_smol_from_list(identifier, molset, ignore_synonyms=False):
         # Synonym match
         if not ignore_synonyms:
             for syn in synonyms:
-                # print(syn, identifier)
                 if identifier.upper() == syn.upper():
                     return openad_mol
 
@@ -994,14 +724,22 @@ def get_smol_from_list(identifier, molset, ignore_synonyms=False):
     return None
 
 
-def get_best_available_identifier(openad_mol):  # v1 or v2 molecule object
+def get_best_available_identifier(smol: dict) -> tuple:
     """
     Get whatever identifier is available from a molecule.
+
+    Parameters
+    ----------
+    smol: dict
+        The OpenAD small molecule dictionary.
+
+    Returns
+    -------
+    tuple
+        The identifier type and the identifier string.
     """
 
-    identifiers_dict = openad_mol.get("identifiers")  # For v2 molecule objects.
-    if not identifiers_dict:
-        identifiers_dict = openad_mol.get("properties")  # For v1 molecule objects.
+    identifiers_dict = smol.get("identifiers")
 
     # InChI
     inchi = identifiers_dict.get("inchi")
@@ -1042,13 +780,22 @@ def get_best_available_identifier(openad_mol):  # v1 or v2 molecule object
     return None, None
 
 
-def get_best_available_smiles(openad_mol):  # v1 or v2 molecule object
+def get_best_available_smiles(smol: dict) -> str | None:
     """
     Get the best available SMILES string from a molecule.
+
+    Parameters
+    ----------
+    smol: dict
+        The OpenAD small molecule dictionary.
+
+    Returns
+    -------
+    str
+        The best available SMILES string.
     """
-    identifiers_dict = openad_mol.get("identifiers")  # For v2 molecule objects.
-    if not identifiers_dict:
-        identifiers_dict = openad_mol.get("properties")  # For v1 molecule objects.
+
+    identifiers_dict = smol.get("identifiers")
 
     # Isomeric SMILES
     isomeric_smiles = identifiers_dict.get("isomeric_smiles")
@@ -1069,47 +816,48 @@ def get_best_available_smiles(openad_mol):  # v1 or v2 molecule object
     return None
 
 
-def normalize_mol_df(mol_df: pandas.DataFrame, batch=False):
+def normalize_mol_df(mol_df: pandas.DataFrame, batch: bool = False) -> pandas.DataFrame:
     """
     Normalize the column names of a molecule dataframe
     """
+
     has_name = False
     contains_name = None
 
-    for i in mol_df.columns:
+    for col in mol_df.columns:
         # Find the name column.
-        if str(i.upper()) == "NAME" or str(i.lower()) == "chemical_name":
+        if str(col.upper()) == "NAME" or str(col.lower()) == "chemical_name":
             has_name = True
-        if contains_name is None and "NAME" in str(i.upper()):
-            contains_name = i
-        if contains_name is None and "CHEMICAL_NAME" in str(i.upper()):
-            contains_name = i
+        if contains_name is None and "NAME" in str(col.upper()):
+            contains_name = col
+        if contains_name is None and "CHEMICAL_NAME" in str(col.upper()):
+            contains_name = col
 
         # Normalize any columns we'll be referring to later.
-        if str(i.upper()) == "SMILES":
-            mol_df.rename(columns={i: "SMILES"}, inplace=True)
-        if str(i.upper()) == "ROMOL":
-            mol_df.rename(columns={i: "ROMol"}, inplace=True)
-        if str(i.upper()) == "IMG":
-            mol_df.rename(columns={i: "IMG"}, inplace=True)
-        if i in INPUT_MAPPINGS:
-            mol_df.rename(columns={i: INPUT_MAPPINGS[i]}, inplace=True)
+        if str(col.upper()) == "SMILES":
+            mol_df.rename(columns={col: "SMILES"}, inplace=True)
+        if str(col.upper()) == "ROMOL":
+            mol_df.rename(columns={col: "ROMol"}, inplace=True)
+        if str(col.upper()) == "IMG":
+            mol_df.rename(columns={col: "IMG"}, inplace=True)
+        if col in INPUT_MAPPINGS:
+            mol_df.rename(columns={col: INPUT_MAPPINGS[col]}, inplace=True)
 
     # Normalize name column.
-    if has_name == False and contains_name is not None:
+    if has_name is False and contains_name is not None:
         mol_df.rename(columns={contains_name: "NAME"}, inplace=True)
 
     # Add names when missing.
     try:
         if has_name is False:
-            output_warning(msg("no_m2g_name_column"))
+            output_warning(msg("no_m2g_name_column"))  # @@todo clean
 
             if not batch:
                 spinner.start("Downloading names")
 
             mol_df["NAME"] = "unknown"
-            for i in mol_df.itertuples():
-                mol_df.loc[i.Index, "NAME"] = _smiles_to_iupac(mol_df.loc[i.Index, "SMILES"])
+            for col in mol_df.itertuples():
+                mol_df.loc[col.Index, "NAME"] = _smiles_to_iupac(mol_df.loc[col.Index, "SMILES"])
 
             if not batch:
                 spinner.succeed("Names downloaded")
@@ -1132,17 +880,230 @@ def _smiles_to_iupac(smiles):
     (*) International Union of Pure and Applied Chemistry
     """
 
-    import pubchempy
-
     if smiles in mol_name_cache:
         return mol_name_cache[smiles]
     try:
-        compounds = pubchempy.get_compounds(smiles, namespace="smiles")
+        compounds = pcy.get_compounds(smiles, namespace="smiles")
         match = compounds[0]
         mol_name_cache[smiles] = str(match)
     except Exception:  # pylint: disable=broad-exception-caught
         match = smiles
     return str(match)
+
+
+# endregion
+
+############################################################
+# region - GUI operations
+
+
+def assemble_cache_path(cmd_pointer: object, file_type: str, cache_id: str) -> str:
+    """
+    Compile the file path to a cached working copy of a file.
+
+    Parameters
+    ----------
+    cmd_pointer: object
+        The command pointer object, used to fetch the workspace path.
+    file_type: 'molset'
+        The type of file, used to name the cache file. For now only molset.
+    cache_id: str
+        The cache ID of the file.
+    """
+
+    workspace_path = cmd_pointer.workspace_path()
+    return f"{workspace_path}/._openad/wc_cache/{file_type}-{cache_id}.json"
+
+
+def create_molset_cache_file(cmd_pointer: object, molset: dict = None, path_absolute: str = None) -> str:
+    """
+    Store molset as a cached file so we can manipulate it in the GUI,
+    return its cache_id so we can reference it later.
+
+    Parameters
+    ----------
+    cmd_pointer: object
+        The command pointer object.
+    molset: dict
+        The molset to cache.
+    path_absolute: str
+        The absolute path to the molset file, if it exists.
+
+    Returns
+    -------
+    str
+        The cache ID of the molset file.
+    """
+
+    cache_id = str(int(time.time() * 1000))
+    cache_path = assemble_cache_path(cmd_pointer, "molset", cache_id)
+
+    # Creaste the /._openad/wc_cache directory if it doesn't exist.
+    os.makedirs(os.path.dirname(cache_path), exist_ok=True)
+
+    # For JSON files, we can simply copy the original file (fast).
+    if path_absolute:
+        # timeit("copy_file")
+        shutil.copy(path_absolute, cache_path)
+        # timeit("copy_file", True)
+
+        # Add indices to molecules in our working copy,
+        # without blocking the thread.
+        # timeit("index_wc")
+        index_molset_file_async(cache_path)
+        # timeit("index_wc", True)
+
+    # For all other cases, i.e. other file formats or molset data from memory,
+    # we need to write the molset object to disk (slow).
+    else:
+        # timeit("write_cache")
+        with open(cache_path, "w", encoding="utf-8") as f:
+            json.dump(molset, f)
+        # timeit("write_cache", True)
+
+    return cache_id
+
+
+def read_molset_from_cache(cmd_pointer: object, cache_id: str) -> dict:
+    """
+    Read a cached molset file from disk.
+
+    Parameters
+    ----------
+    cmd_pointer: object
+        The command pointer object, used to fetch the workspace path.
+    cache_id: str
+        The cache ID of the molset file.
+
+    Returns
+    -------
+    dict
+        The molset object.
+    """
+
+    # Read file from cache.
+    cache_path = assemble_cache_path(cmd_pointer, "molset", cache_id)
+    molset, err_code = get_molset_mols(cache_path)
+
+    # Return error
+    if err_code:
+        raise ValueError(f"Failed to read molset {cache_id} from cache")
+    else:
+        return molset
+
+
+# endregion
+
+############################################################
+# region - Molecule working set
+
+# Note: get_smol_from_mws() is listed under Lookup / creation.
+
+
+def mws_add(cmd_pointer: object, smol: dict, force: bool = False, suppress: bool = False):
+    """
+    Add a molecule to your molecule working set.
+
+    Parameters
+    ----------
+    cmd_pointer: object
+        The command pointer object.
+    smol: dict
+        The OpenAD molecule object to add.
+    force: bool
+        If True, add without confirming.
+    suppress: bool
+        If True, suppress success output.
+    """
+
+    if not smol:
+        output_error("No molecule provided", return_val=False)
+        return False
+
+    # Fail - already in list.
+    if get_smol_from_mws(cmd_pointer, smol["properties"]["canonical_smiles"]) is not None:
+        output_error("Molecule already in list: " + smol["properties"]["canonical_smiles"], return_val=False)
+        return True
+
+    # Name
+    name = smol["name"]
+
+    # Add function
+    def _add_mol():
+        cmd_pointer.molecule_list.append(smol.copy())
+        if suppress is False:
+            output_success(f"Molecule <yellow>{name}</yellow> was added", pad=0, return_val=False)
+        return True
+
+    # Add without confirming.
+    if force:
+        return _add_mol()
+
+    # Confirm before adding.
+    smiles = get_best_available_smiles(smol)
+    smiles_str = f" <reset>{smiles}</reset>" if smiles else ""
+    if confirm_prompt(f"Add molecule <green>{name}</green>{smiles_str} to your molecules working list?"):
+        return _add_mol()
+    else:
+        output_error(f"Molecule <yellow>{name}</yellow> was not added", pad=0, return_val=False)
+        return False
+
+
+def mws_remove(cmd_pointer: object, smol: dict, force: bool = False, suppress: bool = False):
+    """
+    Remove a molecule from your molecule working set.
+
+    Parameters
+    ----------
+    cmd_pointer: object
+        The command pointer object.
+    smol: dict
+        The OpenAD molecule object to add.
+    force: bool
+        If True, add without confirming.
+    suppress: bool
+        If True, suppress success output.
+    """
+
+    if not smol:
+        output_error("No molecule provided", return_val=False)
+        return False
+
+    # Name
+    name = smol["name"]
+
+    # Remove function.
+    def _remove_mol():
+        i = 0
+        key, identifier_to_delete = get_best_available_identifier(smol)
+        while cmd_pointer.molecule_list[i]["properties"][key] != identifier_to_delete:
+            i = i + 1
+        cmd_pointer.molecule_list.pop(i)
+        if suppress is False:
+            output_success(f"Molecule <yellow>{name}</yellow> was removed", pad=0, return_val=False)
+        return True
+
+    # Remove without confirming.
+    if force:
+        return _remove_mol()
+
+    # Confirm before removing.
+    smiles = get_best_available_smiles(smol)
+    smiles_str = f" <reset>{smiles}</reset>" if smiles else ""
+    if confirm_prompt(f"Remove molecule <green>{name}</green>{smiles_str} from your molecules working list?"):
+        return _remove_mol()
+    else:
+        output_error(f"Molecule <yellow>{name}</yellow> was not removed", pad=0, return_val=False)
+        return False
+
+
+# endregion
+
+############################################################
+# region - XXX
+
+
+# endregion
 
 
 # @@TODO: update merge_molecule command to use this function.
@@ -1209,8 +1170,8 @@ def merge_molecule_properties(molecule_dict: dict, smol: dict):
     for key in molecule_dict:
         smol["properties"][key] = molecule_dict[key]
         smol["property_sources"][key] = {"source": "unknown", "date": pretty_date()}
-        if key not in MOL_PROPERTIES:
-            MOL_PROPERTIES.append(key)
+        if key not in SMOL_PROPERTIES:
+            SMOL_PROPERTIES.append(key)
 
     return smol
 
@@ -1232,3 +1193,127 @@ def merge_molecule_REPLACE(merge_mol, mol):
     for x in merge_mol["analysis"]:
         if x not in mol["anaylsis"]:
             mol["anaylsis"].append()
+
+
+############################################################
+# region - DEPRECATED
+
+
+def molformat_v2(mol):
+    """
+    Create a slightly modified "v2" OpenAD molecule data format,
+    where identifiers are stored separately from properties. This
+    is how the GUI consumes molecules, and should be used elsewhere
+    in the application going forward as well. Please read comment
+    above new_molecule() for more information.
+    - - -
+    What it does:
+     1. Separate identifiers from properties.
+     2. Flatten the mol["synonyms"]["Synonym"] to mol["synonyms"]
+    """
+    if mol is None:
+        return None
+    mol_v2 = {}
+    mol_v2["identifiers"] = _get_identifiers(mol)
+    mol_v2["properties"] = deepcopy(mol.get("properties"))
+
+    # For the messy double-level synonyms key in v1 format.
+    if "Synonym" in mol.get("synonyms", {}):
+        synonyms = deepcopy(mol.get("synonyms", {}).get("Synonym", []))
+
+    # For cases like an SDF or CSV where everything is just stored flat.
+    elif "synonyms" in mol_v2["properties"]:
+        synonyms = mol_v2["properties"]["synonyms"]
+        del mol_v2["properties"]["synonyms"]
+
+    # For other cases, usually when no synonyms are present
+    # like when creating a fresh molecule from an identifier.
+    else:
+        synonyms = deepcopy(mol.get("synonyms", []))
+
+    # Synonyms may be stored as a string array (mdl/sdf), or a string with linebreaks (csv).
+    # print("\n\n* synonyms BEFORE", type(synonyms), "\n", synonyms)
+    if isinstance(synonyms, str):
+        try:
+            synonyms = ast.literal_eval(synonyms)
+        except (ValueError, SyntaxError):
+            synonyms = synonyms.split("\n") if "\n" in synonyms else [synonyms]
+    # print("\n\n* synonyms AFTER", type(synonyms), "\n", synonyms)
+
+    # Find name if it's missing.
+    if not mol_v2["identifiers"]["name"]:
+        mol_v2["identifiers"]["name"] = synonyms[0] if synonyms else None
+
+    mol_v2["synonyms"] = synonyms
+    mol_v2["analysis"] = deepcopy(mol.get("analysis"))
+    mol_v2["property_sources"] = deepcopy(mol.get("property_sources"))
+    mol_v2["enriched"] = deepcopy(mol.get("enriched"))
+
+    # # This removes all properties that are not in MOL_PROPERTIES
+    # # I'm not sure what the benefit is. This shouldn't be limited.
+    # mol_organized["properties"] = get_human_properties(mol)
+
+    # if "DS_URL" in mol_organized["properties"]:
+    #     mol_organized["properties"]["DS_URL"] = ""
+
+    # Remove identifiers from properties.
+    # - - -
+    # Create a lowercase version of the properties dictionary
+    # so we can scan for properties in a case-insensitive way.
+    molIdfrs = {k.lower(): v for k, v in mol_v2["identifiers"].items()}
+    for prop in list(mol_v2["properties"]):
+        if prop.lower() in molIdfrs:
+            del mol_v2["properties"][prop]
+
+    return mol_v2
+
+
+def molformat_v2_to_v1(mol):
+    """
+    Convert the v2 OpenAD molecule object format back to the old v1 format.
+    """
+    if mol is None:
+        return None
+
+    mol_v1 = {}
+    mol_v1["name"] = deepcopy(mol.get("identifiers").get("name"))
+    mol_v1["properties"] = {**mol.get("identifiers"), **mol.get("properties")}
+    mol_v1["synonyms"] = {"Synonym": deepcopy(mol.get("synonyms"))}
+    mol_v1["analysis"] = deepcopy(mol.get("analysis"))
+    mol_v1["property_sources"] = deepcopy(mol.get("property_sources"))
+    mol_v1["enriched"] = deepcopy(mol.get("enriched"))
+    return mol_v1
+
+
+# Unused. This adds an indice when it's missing, but there's no usecase
+# other than dev-legacy example molsets that are missing an index.
+def index_molset_file_async(path_absolute):
+    """
+    Add an index to each molecule of a molset file,
+    without blocking the main thread.
+
+    This is used to index a cached working copy of a molset
+    right after it's created.
+
+    Parameters
+    ----------
+    cache_path: str
+        The path to the cached working copy of a molset.
+    """
+
+    async def _index_molset_file(cache_path):
+        # Read
+        async with aiofiles.open(cache_path, "r", encoding="utf-8") as f:
+            content = await f.read()
+        molset = json.loads(content)
+        for i, mol in enumerate(molset):
+            mol["index"] = i + 1
+            molset[i] = mol
+        # Write
+        async with aiofiles.open(cache_path, "w", encoding="utf-8") as f:
+            await f.write(json.dumps(molset, ensure_ascii=False, indent=4, cls=DecimalEncoder))
+
+    asyncio.run(_index_molset_file(path_absolute))
+
+
+# endregion

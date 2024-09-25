@@ -12,15 +12,15 @@ from flask import Response, request
 from openad.smols.smol_functions import (
     get_smol_from_pubchem,
     df_has_molecules,
-    molformat_v2,
+    _sep_identifiers_from_properties,
     molformat_v2_to_v1,
     create_molset_cache_file,
     assemble_cache_path,
     read_molset_from_cache,
     find_smol,
     get_smol_from_pubchem,
-    mymols_add,
-    mymols_remove,
+    mws_add,
+    mws_remove,
     get_smol_from_mws,
     get_best_available_identifier,
     get_best_available_smiles,
@@ -71,20 +71,20 @@ class MoleculesApi:
             response.status = "No identifier provided."
             return response
 
-        mol = get_smol_from_mws(self.cmd_pointer, identifier)
-        if mol is None:
-            mol = get_smol_from_pubchem(identifier)
+        smol = get_smol_from_mws(self.cmd_pointer, identifier)
+        if smol is None:
+            smol = get_smol_from_pubchem(identifier)
 
         # Fail
-        if not mol:
+        if not smol:
             response = Response(None, status=500)
             response.status = f"No small molecule found with provided identifier '{identifier}'"
             return response
 
         # Success
         else:
-            mol = molformat_v2(mol)
-            return mol, 200
+            smol = _sep_identifiers_from_properties(smol)
+            return smol, 200
 
     def get_smol_viz_data(self):
         """
@@ -153,7 +153,7 @@ class MoleculesApi:
             openad_mol = merge_mols(openad_mol, openad_mol_enriched)
 
         # Add it to the working set.
-        success = mymols_add(self.cmd_pointer, openad_mol, force=True)
+        success = mws_add(self.cmd_pointer, openad_mol, force=True)
 
         return {"status": success}, 200
 
@@ -172,7 +172,7 @@ class MoleculesApi:
         openad_mol = molformat_v2_to_v1(openad_mol_v2)
 
         # Remove it from the working set.
-        success = mymols_remove(self.cmd_pointer, openad_mol, force=True)
+        success = mws_remove(self.cmd_pointer, openad_mol, force=True)
 
         return {"status": success}, 200
 
@@ -209,7 +209,7 @@ class MoleculesApi:
         # Enrich molecule withg PubChem data.
         openad_mol_enriched = get_smol_from_pubchem(identifier)
         if openad_mol_enriched:
-            openad_mol_enriched_v2 = molformat_v2(openad_mol_enriched)
+            openad_mol_enriched_v2 = _sep_identifiers_from_properties(openad_mol_enriched)
             openad_mol_v2 = merge_mols(openad_mol_v2, openad_mol_enriched_v2)
 
         return openad_mol_v2, 200
@@ -434,7 +434,7 @@ class MoleculesApi:
             # Compile molset.
             molset = []
             for i, mol in enumerate(self.cmd_pointer.molecule_list):
-                mol_dict = molformat_v2(mol)
+                mol_dict = _sep_identifiers_from_properties(mol)
                 mol_dict["index"] = i + 1
                 molset.append(mol_dict)
 

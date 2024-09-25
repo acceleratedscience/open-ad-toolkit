@@ -20,16 +20,16 @@ from openad.helpers.format_columns import single_value_columns, name_and_value_c
 
 # Molecule functions
 from openad.smols.smol_functions import (
-    MOL_PROPERTIES,
+    SMOL_PROPERTIES,
     find_smol,
-    new_smol_from_rdkit,
+    new_smol,
     get_smol_from_mws,
     get_smol_from_pubchem,
-    get_properties,
-    get_identifiers,
+    get_human_properties,
+    _get_identifiers,
     get_smol_from_list,
-    mymols_add,
-    mymols_remove,
+    mws_add,
+    mws_remove,
     merge_molecule_REPLACE,
 )
 
@@ -76,7 +76,7 @@ def display_molecule(cmd_pointer, inp):
         mol = get_smol_from_pubchem(molecule_identifier)
 
         if mol is None:
-            mol = new_smol_from_rdkit(molecule_identifier)
+            mol = new_smol(molecule_identifier)
 
         if mol is None:
             output_error("Error: Not a valid Molecule", return_val=False)
@@ -204,7 +204,7 @@ def add_molecule(cmd_pointer, inp):
     # Create molecule dict.
     openad_mol = find_smol(cmd_pointer, identifier, name, basic)
     # Add it to the working set.
-    mymols_add(cmd_pointer, openad_mol, force=force)
+    mws_add(cmd_pointer, openad_mol, force=force)
 
 
 def remove_molecule(cmd_pointer, inp):
@@ -219,7 +219,7 @@ def remove_molecule(cmd_pointer, inp):
 
     molecule_identifier = inp.as_dict()["molecule_identifier"]
     mol = get_smol_from_mws(cmd_pointer, molecule_identifier)
-    mymols_remove(cmd_pointer, mol, force=force)
+    mws_remove(cmd_pointer, mol, force=force)
 
 
 # def create_molecule(cmd_pointer, inp):
@@ -257,7 +257,7 @@ def list_molecules(cmd_pointer, inp):
 
     if len(cmd_pointer.molecule_list) > 0:
         for mol in cmd_pointer.molecule_list:
-            identifiers = get_identifiers(mol)
+            identifiers = _get_identifiers(mol)
             display_list = pd.concat([display_list, pd.DataFrame([identifiers])])
         return display_list
         # if GLOBAL_SETTINGS["display"] == "notebook":
@@ -423,7 +423,7 @@ def format_identifers(mol):
     """formats the identifiers for display"""
     id_string = "\n<yellow>Name:</yellow> {} \n".format(mol["name"])
 
-    identifiers = get_identifiers(mol)
+    identifiers = _get_identifiers(mol)
     id_string = id_string + name_and_value_columns(
         identifiers,
         cli_width=CLI_WIDTH,
@@ -480,7 +480,7 @@ def format_synonyms(mol):
 def format_properties(mol):
     """formats properties for display"""
     properties_string = "\n<yellow>Properties:</yellow>\n"
-    properties = get_properties(mol)
+    properties = get_human_properties(mol)
     if GLOBAL_SETTINGS["display"] == "terminal" and "DS_URL" in properties:
         del properties["DS_URL"]
 
@@ -539,7 +539,7 @@ def load_molecules(cmd_pointer, inp):
         func_file = open(i, "rb")
         mol = dict(pickle.load(func_file))
         for properties in mol["properties"]:
-            if properties not in MOL_PROPERTIES and properties not in [
+            if properties not in SMOL_PROPERTIES and properties not in [
                 "atoms",
                 "bonds",
                 "record",
@@ -547,7 +547,7 @@ def load_molecules(cmd_pointer, inp):
                 "cactvs_fingerprint",
                 "fingerprint",
             ]:
-                MOL_PROPERTIES.append(properties)
+                SMOL_PROPERTIES.append(properties)
         cmd_pointer.molecule_list.append(mol.copy())
     output_text("<green>Number of molecules loaded</green> = " + str(len(cmd_pointer.molecule_list)), return_val=False)
     return True

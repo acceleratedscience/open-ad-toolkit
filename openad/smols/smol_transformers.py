@@ -10,8 +10,9 @@ from rdkit import Chem
 from openad.helpers.files import open_file
 from openad.helpers.output import output_error
 from openad.smols.smol_functions import (
-    new_smol_from_rdkit,
+    new_smol,
     molformat_v2,
+    _sep_identifiers_from_properties,
     get_best_available_smiles,
 )
 
@@ -213,7 +214,7 @@ def dataframe2molset(df):
     # Convert the molecules to SDF format
     molset = []
     for i, row in df.iterrows():
-        mol_dict = new_smol_from_rdkit(row[identifier])
+        mol_dict = new_smol(row[identifier])
 
         if mol_dict is not None:
             # Add all other dataframe columns as properties to the SDF data,
@@ -222,7 +223,7 @@ def dataframe2molset(df):
                 mol_dict["properties"][col] = str(row[col])
 
             # Separate identifiers
-            mol_dict = molformat_v2(mol_dict)
+            mol_dict = _sep_identifiers_from_properties(mol_dict)
 
             # Add index
             mol_dict["index"] = i + 1
@@ -356,9 +357,9 @@ def smiles_path2molset(path_absolute):
     smiles_list = [smiles.split(" ")[0] for smiles in smiles_list if smiles]
     molset = []
     for i, smiles in enumerate(smiles_list):
-        mol = new_smol_from_rdkit(smiles)
+        mol = new_smol(smiles)
         if mol:
-            mol = molformat_v2(mol)
+            mol = _sep_identifiers_from_properties(mol)
         else:
             mol = {
                 "identifiers": {"canonical_smiles": smiles},
@@ -401,8 +402,8 @@ def sdf_path2molset(sdf_path):
         mols_rdkit = Chem.SDMolSupplier(sdf_path)  # pylint: disable=no-member
         molset = []
         for i, mol_rdkit in enumerate(mols_rdkit):
-            mol_dict = new_smol_from_rdkit(mol_rdkit=mol_rdkit)
-            mol_dict = molformat_v2(mol_dict)
+            mol_dict = new_smol(mol_rdkit=mol_rdkit)
+            mol_dict = _sep_identifiers_from_properties(mol_dict)
             mol_dict["index"] = i + 1
             molset.append(mol_dict)
         return molset, None
@@ -425,6 +426,6 @@ def mdl_path2smol(mdl_path):
         return None, "unknown"
 
     # Translate into OpenAD smol dict
-    mol_dict = new_smol_from_rdkit(mol_rdkit=mol_rdkit)
-    mol_dict = molformat_v2(mol_dict)
+    mol_dict = new_smol(mol_rdkit=mol_rdkit)
+    mol_dict = _sep_identifiers_from_properties(mol_dict)
     return mol_dict, None

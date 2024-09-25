@@ -7,8 +7,8 @@ from openad.smols.smol_functions import (
     get_smol_from_mws,
     merge_molecule_properties,
     valid_smiles,
-    new_smol_from_rdkit,
-    mymols_add,
+    new_smol,
+    mws_add,
     normalize_mol_df,
     canonicalize,
 )
@@ -78,7 +78,7 @@ def merge_molecule_property_data(cmd_pointer, inp):
             output_warning("unable to canonicalise:" + row[SMILES])
             continue
         if merge_mol is None:
-            merge_mol = new_smol_from_rdkit(smiles, name=row[SMILES])
+            merge_mol = new_smol(smiles, name=row[SMILES])
 
             update_flag = False
         else:
@@ -199,7 +199,7 @@ def batch_pubchem(cmd_pointer, dataframe):
             openad_mol = find_smol(cmd_pointer, a_mol["SMILES"])  # @@TODO: to be tested
 
             # Add it to the working set.
-            mymols_add(cmd_pointer, openad_mol, force=True, suppress=True)
+            mws_add(cmd_pointer, openad_mol, force=True, suppress=True)
 
         except Exception as err:
             print(err)
@@ -253,7 +253,7 @@ def shred_merge_add_df_mols(dataframe, cmd_pointer):
         if merge_mol is None:
             if name is None:
                 name = a_mol["SMILES"]
-            merge_mol = new_smol_from_rdkit(a_mol["SMILES"], name=name)
+            merge_mol = new_smol(a_mol["SMILES"], name=name)
         if merge_mol is not None:
             merge_mol = merge_molecule_properties(a_mol, merge_mol)
         else:
