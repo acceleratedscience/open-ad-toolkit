@@ -2,14 +2,14 @@
 
 import os
 import glob
-
+import faiss
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
-from langchain_community.document_loaders import NotebookLoader, pdf
+from langchain_community.document_loaders import NotebookLoader, pdf, JSONLoader, UnstructuredMarkdownLoader
 from langchain_community.vectorstores import FAISS
 from langchain_community.document_loaders import TextLoader, DirectoryLoader
 from langchain.prompts import ChatPromptTemplate
-
+from langchain_text_splitters import MarkdownHeaderTextSplitter, MarkdownTextSplitter
 
 from langchain.schema.output_parser import StrOutputParser
 
@@ -24,6 +24,10 @@ from openad.llm_assist.model_reference import get_tell_me_model
 
 
 from openad.llm_assist.model_reference import get_embeddings_model
+
+
+def len_func(text):
+    return len(text)
 
 
 ## Creds clas for Watson X disabled currently
@@ -66,7 +70,7 @@ class Chatobject:
     chat_history = []
     db_dir = "~/.vector_embed"
     document_folders = ["./"]
-    document_types = ["**/*.txt", "**/*.ipynb", "**/*.run", "**/*.cdoc", "**/*.pdf"]
+    document_types = ["**/*.txt", "**/*.ipynb", "**/*.run", "**/*.cdoc", "**/*.pdf", "**/*.md"]
 
     def __init__(
         self,
@@ -78,7 +82,7 @@ class Chatobject:
         document_types=document_types,
         db_dir_override=None,
         refresh_vector=False,
-        llm_model="nstructlab/granite-7b-lab",
+        llm_model="instructlab/granite-7b-lab",
         llm_service="ollama",
     ):
         self.organisation = organisation
@@ -155,7 +159,7 @@ class Chatobject:
                             try:
                                 documents = loader.load()
                                 text_splitter = RecursiveCharacterTextSplitter(
-                                    chunk_size=400, chunk_overlap=0, separators=[","]
+                                    chunk_size=3000, chunk_overlap=0, separators=[","]
                                 )
                                 # docs.extend(text_splitter.split_documents(documents))
                             except:  # pylint: disable=bare-except
@@ -167,25 +171,70 @@ class Chatobject:
                         loader = DirectoryLoader(i, glob=j, loader_cls=pdf.BasePDFLoader)
                         documents = loader.load()
                         text_splitter = RecursiveCharacterTextSplitter(
-                            chunk_size=2000, chunk_overlap=100, separators=["\@"], keep_separator=False
+                            chunk_size=2000, chunk_overlap=30, separators=["\@"], keep_separator=False
                         )
                         docs.extend(text_splitter.split_documents(documents))
+                    elif j == "**/*.md":
+                        loader = DirectoryLoader(i, glob=j, loader_cls=UnstructuredMarkdownLoader)
+                        # print(i)
+                        try:
+                            # import nltk
+
+                            # nltk.download("punkt")
+                            documents = loader.load()
+                            headers_to_split_on = [("#", "Header 1"), ("##", "Header 2")]
+                            markdown_splitter = MarkdownHeaderTextSplitter(headers_to_split_on=headers_to_split_on)
+
+                            """text_splitter = MarkdownHeaderTextSplitter(
+                                chunk_size=2000, chunk_overlap=100, separators=["\@"], keep_separator=False
+                            )"""
+                            text_splitter = RecursiveCharacterTextSplitter(
+                                chunk_size=3000,
+                                chunk_overlap=30,
+                                separators=["\@"],
+                                length_function=len_func,
+                                keep_separator=False,
+                            )
+                            for doc in documents:
+
+                                # print("-----------------------------------------------------------")
+                                # print(doc.page_content)
+                                docs.extend(
+                                    text_splitter.split_documents(markdown_splitter.split_text(doc.page_content))
+                                )
+                                # print("-----------------------------------------------------------")
+                        except Exception as e:
+                            print(e)
+                        # print(2)
+                    elif j == "**/*.json":
+                        loader = DirectoryLoader(
+                            i,
+                            glob=j,
+                            loader_cls=JSONLoader,
+                            loader_kwargs={"jq_schema": ".", "text_content": False},
+                        )
+                        try:
+                            documents = loader.lazy_load()
+                        except Exception as e:
+                            print(e)
+                        docs.extend(documents)
                     elif j == "**/*.cdoc":
                         loader = DirectoryLoader(i, glob=j, loader_cls=TextLoader)
                         documents = loader.load()
                         text_splitter = RecursiveCharacterTextSplitter(
-                            chunk_size=2000, chunk_overlap=100, separators=["\@"], keep_separator=False
+                            chunk_size=3000, chunk_overlap=100, separators=["\@", "Property:"], keep_separator=False
                         )
                         docs.extend(text_splitter.split_documents(documents))
                     else:
                         loader = DirectoryLoader(i, glob=j, loader_cls=TextLoader)
                         documents = loader.load()
                         text_splitter = RecursiveCharacterTextSplitter(
-                            chunk_size=700, chunk_overlap=100, separators=["\n"]
+                            chunk_size=2000, chunk_overlap=130, separators=["\n"]
                         )
                         docs.extend(text_splitter.split_documents(documents))
 
             main_db = FAISS.from_documents(docs, embeddings)  # pylint: disable=no-member
+
             main_db.save_local(os.path.expanduser(self.db_dir + "/faiss_index"))
 
         except Exception as e:  # pylint: disable=broad-exception-caught
@@ -195,20 +244,35 @@ class Chatobject:
 
     def how_to_search(self, search: str):
         """Executing the Tell Me Function"""
-        retriever = self.db_handle.as_retriever()
+        retriever = self.db_handle.as_retriever(fetch_k=5)
 
         model, template = get_tell_me_model(self.llm_service, self.API_key)
 
         if model is None:
             return "No Answer Could Be Generated, Error Connecting to Model"
         try:
+
+            from langchain_core.runnables import RunnableLambda
+
+            def inspect(state):
+                """Print the state passed between Runnables in a langchain and pass it on"""
+                print(state)
+                return state
+
             prompt = ChatPromptTemplate.from_template(template)
-            chain = {"context": retriever, "question": RunnablePassthrough()} | prompt | model | StrOutputParser()
+            chain = (
+                {"context": retriever, "question": RunnablePassthrough()}
+                | RunnableLambda(inspect)
+                | prompt
+                | model
+                | StrOutputParser()
+            )
 
             question = search
             answers = None
 
             try:
+
                 result = chain.invoke(question)
             except Exception as e:  # pylint: disable=broad-exception-caught
                 return output_error("Unable to Execute Request: " + str(e), return_val=True)

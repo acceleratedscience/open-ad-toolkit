@@ -157,11 +157,14 @@ def _append_matches(match_list, inp, output, match_word=False):
         # Underline matching string
         if match_word:
             # Exact word match --> underline both single and plural instances.
-            command_str = re.sub(rf"(?<!<){inp}(s?)(?![^<>]*?>)", rf"<underline>{inp}\1</underline>", command_str)
+            command_str = re.sub(
+                rf"(?<!<){re.escape(inp)}(s?)(?![^<>]*?>)", rf"<underline>{re.escape(inp)}\1</underline>", command_str
+            )
         else:
             # String match --> only underline the matching string.
-            command_str = re.sub(rf"(?<!<){inp}(?![^<>]*?>)", rf"<underline>{inp}</underline>", command_str)
-
+            command_str = re.sub(
+                rf"(?<!<){re.escape(inp)}(?![^<>]*?>)", rf"<underline>{re.escape(inp)}</underline>", command_str
+            )
         output.append(f"- <cmd>{command_str}</cmd>")
     return output
 

@@ -520,10 +520,10 @@ Please refer to the DS4SD and RXN toolkits for further assistance on these comma
     grammar_help.append(
         help_dict_create(
             name="@<molecule>",
-            category="Small Molecules",
-            command="@(<name> | <smiles> | <inchi> | <inchikey> | <cid>)>><molecule_property_name>",
+            category="Molecules",
+            command="@(<name> | <smiles> | <inchi> | <inchikey> | <cid>)>><property_name>",
             description=f"""
-This command request the given property of a molecule, it will first try and retrieve the provided molecule from your working list of molecules, if it is not there it will will try and retrieve the molecule from pubchem.
+This command retrieves a value for a given property from the molecule working set, it will first try and retrieve the provided molecule from your working list of molecules, if it is not there it will try and retrieve the molecule from pubchem.
 
 The <cmd>@</cmd> symbol should be followed by the molecule's name, SMILES, InChI, InChIKey or CID, then after the <cmd>>></cmd> include one of the properties mentioned below.
 
@@ -534,13 +534,11 @@ E.g. <cmd>@aspirin>>xlogp</cmd>
 {USING_NAME}
 
 Examples of how to retrieve the value of a molecules property:
-- Obtain the molecular weight of the molecule known as Aspirin.
+- Retrieve the molecular weight of the molecule known as Aspirin.
 <cmd>@aspirin>>molecular_weight</cmd>
-
-- Obtain the canonical smiles string for a molecule known as Aspirin.
+- Retrieve the canonical smiles string for a molecule known as Aspirin.
 <cmd>@aspirin>>canonical_smiles</cmd>
-
-- Obtain a molecules xlogp value using a SMILES string.
+- Retrieve a molecules xlogp value using a SMILES string.
 <cmd>@CC(=O)OC1=CC=CC=C1C(=O)O>>xlogp</cmd>
 
 Available properties: <cmd>{'</cmd>, <cmd>'.join(m_props)}</cmd>
@@ -639,14 +637,13 @@ This command Load molecules into the molecule working list from a dataframe.
             + using
             + CaselessKeyword("dataframe")
             + molecule_identifier("in_dataframe")
-            + Optional((merge + w_ith + pubchem))("pubchem_merge")
         )("merge_molecules_data_dataframe")
     )  # From dataframe
     grammar_help.append(
         help_dict_create(
             name="merge molecules data",
             category="Utility",
-            command="merge molecules data using dataframe <dataframe> [ merge with pubchem ]",
+            command="merge molecules data using dataframe <dataframe> ",
             description="""            
 
             
@@ -678,10 +675,7 @@ Example Command:
 merge molecules from a data frame called <cmd>new_props</cmd>
 
 - <cmd> merge molecules data using dataframe new_props</cmd>
-
-to perform the same load and merge with pubchem data simply add the <cmd> merge with pubchem </cmd> clause to the end of the command 
-
-- <cmd> merge molecules data using dataframe new_props merge with pubchem</cmd> """,
+ """,
         )
     )
 

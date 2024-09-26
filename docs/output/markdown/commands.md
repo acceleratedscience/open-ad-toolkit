@@ -830,7 +830,7 @@ Optional Parameters that can be specified in the `using` clause: <br>
 -   `availability_pricing_threshold=<int>` Maximum price in USD per g/ml of compounds. Default: no threshold. <br>
 -   `available_smiles='<smiles>.<smiles>.<smiles>'` List of molecules available as precursors, delimited with a period. <br>
 -   `exclude_smiles='<smiles>.<smiles>.<smiles>'` List of molecules to exlude from the set of precursors, delimited with a period. <br>
--   `exclude_substructures='<smiles>.<smiles>.<smiles>'` List of substructures to excludefrom the set of precursors, delimited with a period. <br>
+-   `exclude_substructures='<smiles>.<smiles>.<smiles>'` List of substructures to exclude from the set of precursors, delimited with a period. <br>
 -   `exclude_target_molecule=<boolean>` Excluded target molecule. The default is True <br>
 -   `fap=<float>` Every retrosynthetic step is evaluated with the FAP, and is only retained when forward confidence is greater than the FAP value. The default is 0.6. <br>
 -   `max_steps=<int>` The maximum number steps in the results. The default is 3. <br>

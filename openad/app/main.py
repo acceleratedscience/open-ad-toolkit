@@ -643,7 +643,7 @@ class RUNCMD(Cmd):
                 # Brutal situation where someone hit clear sessions in another session
                 # , shut down abruptly so as not to kill registry file.
                 output_error(
-                    "Fatal error: the session registry is not avaiable, performing emergency shutdown" + str(e),
+                    "Fatal error: the session registry is not available, performing emergency shutdown" + str(e),
                     return_val=False,
                 )
                 self.do_exit("exit emergency")

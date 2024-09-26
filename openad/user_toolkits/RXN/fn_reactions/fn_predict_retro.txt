@@ -1,12 +1,14 @@
 Perform a retrosynthesis route prediction on a molecule.
 
+RXN was trained on more than 3 million chemical reactions, derived from publicly available patents. Since then, the Molecular Transformer has outperformed all data-driven models, achieving more than 90% accuracy on forward chemical reaction predictions (reactants + reagents to products)
+
 {{NOTE_USING_CLAUSE}}
 
 {{USING_CLAUSE_OPTIONS}}
 - <cmd>availability_pricing_threshold=<int></cmd> Maximum price in USD per g/ml of compounds. Default: no threshold.
 - <cmd>available_smiles='<smiles>.<smiles>.<smiles>'</cmd> List of molecules available as precursors, delimited with a period.
-- <cmd>exclude_smiles='<smiles>.<smiles>.<smiles>'</cmd> List of molecules to exlude from the set of precursors, delimited with a period.
-- <cmd>exclude_substructures='<smiles>.<smiles>.<smiles>'</cmd> List of substructures to excludefrom the set of precursors, delimited with a period.
+- <cmd>exclude_smiles='<smiles>.<smiles>.<smiles>'</cmd> List of molecules to exclude from the set of precursors, delimited with a period.
+- <cmd>exclude_substructures='<smiles>.<smiles>.<smiles>'</cmd> List of substructures to exclude from the set of precursors, delimited with a period.
 - <cmd>exclude_target_molecule=<boolean></cmd> Excluded target molecule. The default is True
 - <cmd>fap=<float></cmd> Every retrosynthetic step is evaluated with the FAP, and is only retained when forward confidence is greater than the FAP value. The default is 0.6.
 - <cmd>max_steps=<int></cmd> The maximum number steps in the results. The default is 3.
@@ -14,6 +16,9 @@ Perform a retrosynthesis route prediction on a molecule.
 - <cmd>pruning_steps=<int></cmd> The number of steps to prune a hypertree. The default is 2.
 - {{USING_AI_MODEL}}
 
+There are different models available for use with this command including: '12class-tokens-2021-05-14', '2019-09-12', '2020-04-24', '2020-07-01', '2020-07-31', 'aizynth-2020-06-11', 'disconnection-aware-2022-06-24', 'enzymatic-2021-04-16', 'enzymatic-2022-05-31', 'sulfonium-2020-10-27'
 
-Example:
+Examples:
 <cmd>predict retrosynthesis 'BrCCc1cccc2c(Br)c3ccccc3cc12' using (max_steps=3)</cmd>
+
+<cmd>predict retrosynthesis  'BrCCc1cccc2c(Br)c3ccccc3cc12' using (max_steps=6 ai_model='12class-tokens-2021-05-14' ) </cmd>

@@ -39,7 +39,7 @@ from pyparsing import (  # replaceWith,; Combine,; pyparsing_test,; ParseExcepti
     oneOf,
 )
 
-# from openad.smols.mol_functions import MOL_PROPERTIES as m_props
+# from openad.molecules.mol_functions import MOL_PROPERTIES as m_props
 # from openad.helpers.general import is_notebook_mode
 
 
@@ -171,6 +171,7 @@ save_as_clause_help = " (save_as '<filename.csv>')"
 service_command_start = {}
 service_command_subject = {}
 service_command_help = {}
+service_command_description = {}
 
 service_command_start["get_molecule_property"] = 'get + CaselessKeyword("molecule") + CaselessKeyword("property")'
 service_command_start["get_crystal_property"] = 'get + CaselessKeyword("crystal") + CaselessKeyword("property")'
@@ -226,16 +227,42 @@ generation_targets = {
 
 
 service_command_help["get_molecule_property"] = (
-    "get molecule property <property> for [<list of SMILES>] | <SMILES>   USING (<parameter>=<value> <parameter>=<value>)"
+    "get molecule property <property> FOR [<list of SMILES>] | <SMILES>   USING (<parameter>=<value> <parameter>=<value>)"
 )
 service_command_help["get_crystal_property"] = (
-    "get crystal property <property> for <directory>   USING (<parameter>=<value> <parameter>=<value>)"
+    "get crystal property <property> FOR <directory>   USING (<parameter>=<value> <parameter>=<value>)"
 )
 service_command_help["get_protein_property"] = (
-    "get protein property <property> for [<list of Proteins>] | <Protein>   USING (<parameter>=<value> <parameter>=<value>)"
+    "get protein property <property> FOR [<list of Proteins>] | <Protein>   USING (<parameter>=<value> <parameter>=<value>)"
 )
 service_command_help["generate_data"] = (
     "generate with <property> data <TARGET> (sample <sample_size>)  USING (<parameter>=<value> <parameter>=<value>) "
+)
+
+service_command_description["get_molecule_property"] = (
+    """
+This command gets (generate/predict) a molecules property for one or molecules specified with a SMILES string in the <cmd>FOR</cmd> clause. SMILES can be provided as a single SMILES string or multiple smiles in a comma seperated list in square brackets e.g. <cmd> FOR [CCO, CC(C)CC1=CC=C(C=C1)C(C)C(=O)O ] </cmd>.
+SMILES strings can be specified with or without single quotes, but when in a list smiles with square brackets should be enclosed in single quotes e.g <cmd>[ 'C([H])([H])([H])[H]' ,CCO ]</cmd>
+This command gets (generate/predict) the following properties <property_list>
+"""
+)
+service_command_description["get_crystal_property"] = (
+    """
+    This command gets (generate/predict) crystal properties
+"""
+)
+service_command_description["get_protein_property"] = (
+    """
+    This command gets (generate/predict) a proteins property for one or protiens specified with a FASTA string in the <cmd>FOR</cmd> clause.
+    FASTA strings can be provided as a single  string or multiple FASTA strings in a comma seperated list in square brackets e.g. <cmd> FOR ['MKYNNRKLSFNPTTVSIAGTLLTVFFLTRLVLSFFSISLFQLVTFQGIFKPYVPDFKNTPSVEFYDLRNYQGNKDGWQQGDRILFCVPLRDASEHLPMFFNHLNTMTYPHNLIDLSFLVSDSSDNTMGVLLSNLQMAQSQQDKSKRFGNIEIYEKDFGQIIGQSFSDRHGFGAQGPRRKLMARARNWLGSVALKPYHSWVYWRDVDVETIPTTIMEDLMHHDKDVIVPNVWRPLPDWLGNIQPYDLNSWKESEGGLQLADSLDEDAVIVEGYPEYATWRPHLAYMRDPNGNPEDEMELDGIGGVSILAKAKVFRTGSHFPAFSFEKHAETEAFGRLSRRMNYNVIGLPHYVIWHIYEPSSDDLKHMAWMAEEEKRKLEEERIREFYNKIWEIGFEDVRDQWNEERDSILKNIDSTLNNKVTVDWSEEGDGSELVDSKGDFVSPNNQQQQQQQQQQQQQQQQQQQQQQLDGNPQGKPLDDNDKNKKKHPKEVPLDFDPDRN','MQYLNFPRMPNIMMFLEVAILCLWVVADASASSAKFGSTTPASAQQSDVELEPINGTLNYRLYAKKGRDDKPWFDGLDSRHIQCVRRARCYPTSNATNTCFGSKLPYELSSLDLTDFHTEKELNDKLNDYYALKHVPKCWAAIQPFLCAVFKPKCEKINGEDMVYLPSYEMCRITMEPCRILYNTTFFPKFLRCNETLFPTKCTNGARGMKFNGTGQCLSPLVPTDTSASYYPGIEGCGVRCKDPLYTDDEHRQIHKLIGWAGSICLLSNLFVVSTFFIDWKNANKYPAVIVFYINLCFLIACVGWLLQFTSGSREDIVCRKDGTLRHSEPTAGENLSCIVIFVLVYYFLTAGMVWFVFLTYAWHWRAMGHVQDRIDKKGSYFHLVAWSLPLVLTITTMAFSEVDGNSIVGICFVGYINHSMRAGLLLGPLCGVILIGGYFITRGMVMLFGLKHFANDIKSTSASNKIHLIIMRMGVCALLTLVFILVAIACHVTEFRHADEWAQSFRQFIICKISSVFEEKSSCRIENRPSVGVLQLHLLCLFSSGIVMSTWCWTPSSIETWKRYIRKKCGKEVVEEVKMPKHKVIAQTWAKRKDFEDKGRLSITLYNTHTDPVGLNFDVNDLNSSETNDISSTWAAYLPQCVKRRMALTGAATGNSSSHGPRKNSLDSEISVSVRHVSVESRRNSVDSQVSVKIAEMKTKVASRSRGKHGGSSSNRRTQRRRDYIAAATGKSSRRRESSTSVESQVIALKKTTYPNASHKVGVFAHHSSKKQHNYTSSMKRRTANAGLDPSILNEFLQKNGDFIFPFLQNQDMSSSSEEDNSRASQKIQDLNVVVKQQEISEDDHDGIKIEELPNSKQVALENFLKNIKKSNESNSNRHSRNSARSQSKKSQKRHLKNPAADLDFRKDCVKYRSNDSLSCSSEELDVALDVGSLLNSSFSGISMGKPHSRNSKTSCDVGIQANPFELVPSYGEDELQQAMRLLNAASRQRTEAANEDFGGTELQGLLGHSHRHQREPTFMSESDKLKMLLLPSK']</cmd>.
+    FASTA strings must be provided in single quotes.
+    This command gets (generate/predict) the following properties <property_list>
+"""
+)
+service_command_description["generate_data"] = (
+    """
+    This function generates a data set based on the following parameters 
+ """
 )
 
 
@@ -259,7 +286,7 @@ def service_grammar_add(statements: list, help: list, service_catalog: dict):
 
             if valid_type is None:
                 valid_type = '( (Word("[")+delimitedList(oneOf(valid_types)|Suppress(Word("\'"))+oneOf(valid_types)+Suppress(Word("\'")),delim=",")("types")+Word("]")) | ( oneOf(valid_types)("type")) ) '
-                help_type = "[ " + ", ".join(list(schema["valid_types"])) + " ] | <valid_type>  "
+                help_type = "[ " + ", ".join(list(schema["valid_types"])) + " ] | <valid_property>  "
             expression = ""
 
             # if parameters  exist for command build parameter grammar
@@ -345,8 +372,7 @@ def service_grammar_add(statements: list, help: list, service_catalog: dict):
                         function_description = function_description.replace("  ", " ")
             except Exception as e:
                 output_error(e)
-
-            parameter_help = "<h2>Parameters:</h2>\n   <warning>--Note: Parameters should be entered for <cmd> USING Clause </cmd> in the order they are below. </warning>\n"
+            parameter_help = ""
             num_params = 0
             for parameter, description in dict(schema["parameters"]).items():
                 num_params += 1
@@ -354,7 +380,24 @@ def service_grammar_add(statements: list, help: list, service_catalog: dict):
                 for key, value in description.items():
                     print_description = print_description + f"- <cmd>{key}</cmd> : {value}\n  "
 
-                parameter_help = parameter_help + f"\n<cmd>{parameter}</cmd> \r {print_description}\n  "
+                parameter_help = parameter_help + f"<cmd>{parameter}</cmd> \r {print_description}\n  "
+            if "generator_type" in schema.keys():
+                key = "generate_data"
+            else:
+                key = schema["service_type"]
+
+            if num_params != 0:
+                parameter_help = (
+                    service_command_description[key].replace("<property_list>", help_type.split("|")[0])
+                    + "<h2>Parameters:</h2>\n   <warning>--Note: Parameters should be entered for <cmd> USING Clause </cmd> in the order they are below. </warning>\n"
+                    + parameter_help
+                )
+            else:
+                parameter_help = (
+                    service_command_description[key].replace("<property_list>", help_type.split("|")[0])
+                    + "<h2>No Parameters</h2>\n"
+                    + parameter_help
+                )
 
             required_parameters = ""
             for i in schema["required_parameters"]:
