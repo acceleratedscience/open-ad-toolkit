@@ -430,8 +430,7 @@ def format_identifers(smol):
     identifiers = smol.get("identifiers", {})
     output = output + key_val_columns(
         identifiers,
-        cli_width=PRINT_WIDTH,
-        print_width=40,
+        print_width=PRINT_WIDTH,
         ignore_keys=["toolkit", "function"],
     )
 
@@ -447,7 +446,7 @@ def format_sources(mol):
         if mol_property not in mol["properties"] or mol["properties"][mol_property] is None:
             continue
         sources_string = sources_string + "\n\n<yellow>Property:</yellow> {} \n".format(mol_property)
-        sources_string = sources_string + key_val_columns(source, cli_width=PRINT_WIDTH, print_width=30)
+        sources_string = sources_string + key_val_columns(source, print_width=PRINT_WIDTH)
 
     sources = re.sub(r"<(.*?:)> ", r"<success>\1</success>", sources_string)
     return sources
@@ -490,8 +489,7 @@ def format_properties(mol):
 
     properites_string = properties_string + key_val_columns(
         properties,
-        cli_width=PRINT_WIDTH,
-        print_width=40,
+        print_width=PRINT_WIDTH,
         ignore_keys=["name", "canonical_smiles", "inchi", "inchikey", "cid", "isomeric_smiles"],
     )
     properties_string = re.sub(r"<(.*?:)> ", r"<success>\1</success>", properites_string)
@@ -517,7 +515,10 @@ def format_analysis(mol):
             + "\n"
         )
         id_string = id_string + key_val_columns(
-            item, cli_width=PRINT_WIDTH, print_width=50, ignore_keys=["toolkit", "function"], indent="    "
+            item,
+            print_width=PRINT_WIDTH,
+            ignore_keys=["toolkit", "function"],
+            indent="    ",
         )
     id_string = re.sub(r"<(.*?:)> ", r"<success>\1</success> ", id_string) + "\n"
     return id_string

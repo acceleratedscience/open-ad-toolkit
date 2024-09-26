@@ -9,16 +9,16 @@ def single_value_columns(values, print_width, col_width=40, is_truncated=False):
     output = ""
     line_nr = 0
 
-    # The number of columns
-    col_count = print_width // col_width
-
     # Remove blank values
     values = [f"{value}" for value in values if value]
+
+    # The number of columns
+    col_count = print_width // col_width
 
     # The length of each column
     col_length = len(values) // col_count
 
-    # Remove enough values so teh total is dividable by column count
+    # Remove enough values so the total is dividable by column count
     values = values[: len(values) - (len(values) % col_count)]
 
     # Truncate the values that are longer than the column width.
@@ -41,81 +41,68 @@ def single_value_columns(values, print_width, col_width=40, is_truncated=False):
     return output
 
 
-def key_val_columns(values, cli_width, print_width: int, col_width=40, ignore_keys=[], indent=""):
+def key_val_columns(dict, print_width: int, col_width=40, ignore_keys=[], indent=""):
     """
     Display a dictionary's values in columns.
     """
 
     output = ""
-    i = 0
+    line_nr = 0
+    gap = 4
 
     # The number of columns
     col_count = print_width // col_width
 
-    col_width = col_width - 4
+    # Remove blank values
+    # for key, val in dict.items():
 
-    for key, val in values.items():
-        if not key or not val:
-            continue
+    # Gap between the columns.
+    col_width = col_width - gap
 
+    items = []
+
+    for key, val in dict.items():
         key_len = len(str(key))
         val_len = len(str(val))
 
-        if key_len + val_len + 2 > col_width:
-            key_val = f"<cyan>{key}</cyan>:\n{val:>{col_width}}"
+        if key_len + val_len + 1 > col_width:
+            spacer_key = "<soft>" + ("." * (col_width - key_len - 1)) + "</soft>"
+            spacer_val = "<soft>" + ("." * (col_width - val_len)) + "</soft>"
+            val = f"{val[:col_width - 3]}..." if val_len > col_width else val
+            key_val_1 = f"<cyan>{key}</cyan>:{spacer_key}"
+            key_val_2 = f"{spacer_val}{val}"
+            items.append(key_val_1 + (" ") * gap)
+            items.append(key_val_2 + (" ") * gap)
+
         else:
             avail_key_width = col_width - val_len - 2
             if key_len > avail_key_width:
                 key = key[: avail_key_width - 5] + "..."
             key_len = len(str(key))
-            key = f"<cyan>{key}: </cyan>"
-            key_val = f"{key}{val:%>{col_width - key_len - 2}}"
+            spacer = "<soft>" + ("." * (col_width - key_len - val_len - 1)) + "</soft>"
+            key_val = f"<cyan>{key}:</cyan>{spacer}{val}"
+            items.append(key_val + (" ") * gap)
 
-            # import re
+    # The length of each column
+    col_length = len(items) // col_count
 
-            # Replace all consecutive % characters with a . then prepend the string with X and append with Z
-            # key_val = re.sub(r"(%+)", r".", key_val)
+    # Reorder the items to the print top to bottom, left to right
+    # instead of left to right top to bottom
+    cols = []
 
-        output = output + key_val + "\n"
+    for i in range(col_count):
+        if i % col_count == 0:
+            cols.append([])
+        cols[i % col_count].append(items[i])
 
-    # for key, val in values.items():
-    #     if key in ignore_keys:
-    #         continue
-    #     if val is None:
-    #         continue
-    #     buffer = print_width
+    print(cols)
 
-    #     # if isinstance(value, dict):
-    #     #     output = (
-    #     #         output
-    #     #         + "\n"
-    #     #         + indent
-    #     #         + f"<{key}:> "
-    #     #         + "\n"
-    #     #         + key_val_columns(value, cli_width, print_width, ignore_keys, indent="  " + indent)
-    #     #     )
-    #     #     continue
-
-    #     # if isinstance(value, list):
-    #     #     output = (
-    #     #         output
-    #     #         + "\n"
-    #     #         + indent
-    #     #         + f"<{key}:> "
-    #     #         + process_list(value, cli_width, print_width, ignore_keys, indent="  " + indent)
-    #     #     )
-    #     #     continue
-
-    #     value_string = f"<{key}:> {val}"
-
-    #     while buffer < len(value_string) - 2:
-    #         buffer = print_width + buffer
-    #     if len(f"{value_string:<{print_width}}") + i < cli_width:
-    #         output = output + indent + f"{value_string:<{buffer}}"
-    #         i = i + len(f"{value_string:<{buffer}}")
-    #     else:
-    #         output = output + "\n" + indent + f"{value_string:<{buffer}}"
-    #         i = len(f"{ value_string:<{buffer}}")
+    # Compile the output
+    for item in items:
+        if line_nr % col_count == 0:
+            output = output + "\n"
+        output = output + item
+        line_nr = line_nr + 1 % col_length
 
     return output
 
