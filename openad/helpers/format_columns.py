@@ -93,7 +93,7 @@ def key_val_columns(dict, print_width: int, col_width=40, ignore_keys=[], indent
     for i in range(col_count):
         if i % col_count == 0:
             cols.append([])
-        cols[i % col_count].append(items[i])
+        cols[cols[-1]].append(items[i])
 
     print(cols)
 
