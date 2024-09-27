@@ -162,9 +162,17 @@ def _append_matches(match_list, inp, output, match_word=False):
             )
         else:
             # String match --> only underline the matching string.
+
             command_str = re.sub(
                 rf"(?<!<){re.escape(inp)}(?![^<>]*?>)", rf"<underline>{re.escape(inp)}</underline>", command_str
             )
+        # Work around for escape character compensation in re
+        command_str = command_str.replace("\ ", " ")
+        command_str = command_str.replace("\[", "[")
+        command_str = command_str.replace("\]", "]")
+        command_str = command_str.replace("\<", "<")
+        command_str = command_str.replace("\>", ">")
+
         output.append(f"- <cmd>{command_str}</cmd>")
     return output
 

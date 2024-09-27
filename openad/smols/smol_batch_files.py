@@ -20,21 +20,24 @@ from openad.helpers.spinner import Spinner
 mol_name_cache = {}
 
 
-def merge_molecule_property_data(cmd_pointer, inp):
+def merge_molecule_property_data(cmd_pointer, inp=None, mol_dataframe=None):
     "merges data where SMILES,Property and Value are in Data Frame or csv"
-    mol_dataframe = None
-    if "force" in inp.as_dict():
-        force = True
-    else:
-        force = False
 
-    if "merge_molecules_data_dataframe" in inp.as_dict():
-        mol_dataframe = cmd_pointer.api_variables[inp.as_dict()["in_dataframe"]]
-    else:
-        mol_dataframe = load_mol_data(inp.as_dict()["moles_file"], cmd_pointer)
+    # if "force" in inp.as_dict():
+    #    force = True
+    # else:
+    #    force = False
+    if mol_dataframe is None and inp is None:
+        return False
+
     if mol_dataframe is None:
-        output_error("Source not Found ", return_val=False)
-        return True
+        if "merge_molecules_data_dataframe" in inp.as_dict():
+            mol_dataframe = cmd_pointer.api_variables[inp.as_dict()["in_dataframe"]]
+        else:
+            mol_dataframe = load_mol_data(inp.as_dict()["moles_file"], cmd_pointer)
+        if mol_dataframe is None:
+            output_error("Source not Found ", return_val=False)
+            return True
 
     if "subject" in mol_dataframe.columns:
         SMILES = "subject"

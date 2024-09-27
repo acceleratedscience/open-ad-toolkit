@@ -94,8 +94,8 @@ Answer the question based only on the following context: {context}  Question: {q
         "embeddings_api": None,
     },
     "OLLAMA": {
-        # "model": "llama3.1:8b",
-        "model": "instructlab/granite-7b-lab:latest",
+        "model": "llama3.1:8b",
+        # "model": "instructlab/granite-7b-lab:latest",
         "url": OLLAMA_HOST,
         "template": """  When responding follow the following rules:
                 - Answer and format like a Technical Documentation writer concisely and to the point
@@ -147,7 +147,7 @@ Answer:""",
         "settings": {
             "temperature": 0.2,
             "decoding_method": "greedy",
-            "max_new_tokens": 2000,
+            "max_new_tokens": 5000,
             "min_new_tokens": 1,
             "top_p": 0.3,
             "top_k": 50,

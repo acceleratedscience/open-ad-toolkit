@@ -52,6 +52,7 @@ The OpenAD client is accessible from a command line interface, Jupyter Notebook 
 <div markdown="block">
 
 -   `%Openadd` has been added to the magic commands for commands that return data.
+-   New Macro Molecule viewer for visualising proteins
 -   Upgraded SkyPilot to 0.6.0
 -   Support for deploying in OpenShift AI/Open Data hub workbench or Podman/Docker image. [See the workbench repo](https://github.com/acceleratedscience/openad_workbench).
 -   Support for application API

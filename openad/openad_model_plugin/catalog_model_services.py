@@ -362,7 +362,7 @@ def catalog_add_model_service(cmd_pointer, parser) -> bool:
         output = add_remote_service_from_endpoint(cmd_pointer, parser)
         if auth_group is not None:
             updated_lookup_table = update_lookup_table(auth_group=auth_group, service=service_name)
-        output_success(f"Service {service_name} added to catalog", return_val=False)
+        output_success(f"Service {service_name} added to catalog for remote service {service_path}", return_val=False)
         return output
     # check if service exists
     with Dispatcher() as service:

@@ -171,7 +171,7 @@ class Chatobject:
                         loader = DirectoryLoader(i, glob=j, loader_cls=pdf.BasePDFLoader)
                         documents = loader.load()
                         text_splitter = RecursiveCharacterTextSplitter(
-                            chunk_size=2000, chunk_overlap=30, separators=["\@"], keep_separator=False
+                            chunk_size=1000, chunk_overlap=30, separators=["\@"], keep_separator=False
                         )
                         docs.extend(text_splitter.split_documents(documents))
                     elif j == "**/*.md":
@@ -222,7 +222,7 @@ class Chatobject:
                         loader = DirectoryLoader(i, glob=j, loader_cls=TextLoader)
                         documents = loader.load()
                         text_splitter = RecursiveCharacterTextSplitter(
-                            chunk_size=3000, chunk_overlap=100, separators=["\@", "Property:"], keep_separator=False
+                            chunk_size=2000, chunk_overlap=100, separators=["\@", "Property:"], keep_separator=False
                         )
                         docs.extend(text_splitter.split_documents(documents))
                     else:
@@ -256,7 +256,7 @@ class Chatobject:
 
             def inspect(state):
                 """Print the state passed between Runnables in a langchain and pass it on"""
-                print(state)
+                # print(state)
                 return state
 
             prompt = ChatPromptTemplate.from_template(template)

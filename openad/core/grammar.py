@@ -1458,13 +1458,15 @@ def output_train_statements(cmd_pointer):
             
             Question: What is the command Syntax for generating a molecules property ?
             Answer: {
-            The format 'GET MOLECULE PROPERTY" command is as follows: Command Syntax: <cmd><model_prefix> GET MOLECULE PROPERTY <molecule property identifer> | [ <list of molecule_property identifers> ] FOR  <smiles_string> | [<list of smiles strings >] USING(<option>=<value>) </cmd>
+            The format 'GET MOLECULE PROPERTY" command is as follows: Command Syntax: <cmd><model_prefix> GET MOLECULE PROPERTY @mols | <molecule property identifer> | [ <list of molecule_property identifers> ] FOR  <smiles_string> | [<list of smiles strings >] USING(<option>=<value>) (merge with mols|molecules) </cmd>
            
             - `<model_prefix>` : Nomimal user defined name provided to a model service when it is cataloged
             - `<molecule_property_identifer>` : valid property idenfitier for the given model service that is to be generated in the request like 'esol','xlogp' AA1R
             - `[<list of molecule property identifer>]` : valid list of property idenfitiers in square brackets and comma separated e.g. [ qes, esol ] for the given model service that is to be generated in the request
+            - `@mols`  specifies the list in the current molecules working set.
             - `<smiles string>` : a string denoting a valid canonical smiles like 'C(C(C1C(=C(C(=O)O1)O)O)O)O' that is either free text or in single quotes.
             - `[ <list of smiles strings> ]` :  a list of strings denoting a valid canonical smiles that is either free text or in single quotes and separated by commas enclided in square brackets
+            The clause `merge with mols` will merge the resulting molecule properties with the memory molecule working set.
             The Using clause is incased in normal brackets () and composed of a space delimited string of valid <options>  and their values  e.g. <option>=<value>
 
             Lists of smiles or properties are contained in square brackets, smiles strings can be in single quoted strings or without quotes, hoever if special characters are in the strings it is best to place them in quotes.
@@ -1483,14 +1485,29 @@ def output_train_statements(cmd_pointer):
             Generate a list of properties FOR a list of smiles strings
             - <cmd>prop GET MOLECULE PROPERTY [qed,esol] FOR [ C(C(C1C(=C(C(=O)O1)O)O)O)O ,[H-] ]</cmd>
 
+            Generate a list of properties FOR the smiles strings in the molecule working set in memory
+            - <cmd>prop GET MOLECULE PROPERTY [qed,esol] FOR @mols </cmd>
+
+            Generate a list of properties FOR the smiles strings in the molecule working set in memory and merge it back into the molecule working set
+            - <cmd>prop GET MOLECULE PROPERTY [qed,esol] FOR @mols merge with mols</cmd>
+
             Generate a single property for a single smiles string
             - <cmd>prop GET MOLECULE PROPERTY esol FOR C(C(C1C(=C(C(=O)O1)O)O)O)O</cmd>
             - <cmd>prop GET MOLECULE PROPERTY qed FOR [H-] </cmd>
             - <cmd>prop GET MOLECULE PROPERTY xlogp FOR [H-] </cmd>
             - <cmd>prop GET MOLECULE PROPERTY lipinski FOR [H-] </cmd>
 
+            Generate a single property for a single smiles string and merge it back into the molecule working set
+            - <cmd>prop GET MOLECULE PROPERTY esol FOR C(C(C1C(=C(C(=O)O1)O)O)O)O merge with mols</cmd> 
+            - <cmd>prop GET MOLECULE PROPERTY qed FOR [H-] merge with mols</cmd> 
+            - <cmd>prop GET MOLECULE PROPERTY xlogp FOR [H-] merge with mols</cmd> 
+            - <cmd>prop GET MOLECULE PROPERTY lipinski FOR [H-] merge with mols</cmd> 
+
             Generate A SINGLE molecules property FOR a list of smiles strings using an additional parameter
             - <cmd>prop GET MOLECULE PROPERTY activity_against_target FOR ['C(C(C1C(=C(C(=O)O1)O)O)O)O','[H-]'] using(target=drd2)</cmd>
+
+            Generate A SINGLE molecules property FOR a list of smiles strings using an additional parameter and merge it back into the molecule working set
+            - <cmd>prop GET MOLECULE PROPERTY activity_against_target FOR ['C(C(C1C(=C(C(=O)O1)O)O)O)O','[H-]'] using(target=drd2) merge with mols</cmd>
             }
             \@
             ***GET PROTEIN PROPERTY***
