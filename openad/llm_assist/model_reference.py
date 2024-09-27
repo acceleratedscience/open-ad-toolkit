@@ -260,7 +260,6 @@ def get_embeddings_model(service: str, api_key: str):
                 "Error: cannot initialise embeddings, check API Key"
             ) from e  # pylint: disable=broad-exception-raised
     elif service == "BAM":
-
         ##if MINI_EMBEDDINGS_MODEL_PRESENT is False:
         ##    return False
         try:

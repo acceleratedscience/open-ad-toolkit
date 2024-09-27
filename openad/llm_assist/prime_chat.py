@@ -196,7 +196,6 @@ class Chatobject:
                                 keep_separator=False,
                             )
                             for doc in documents:
-
                                 # print("-----------------------------------------------------------")
                                 # print(doc.page_content)
                                 docs.extend(
@@ -251,7 +250,6 @@ class Chatobject:
         if model is None:
             return "No Answer Could Be Generated, Error Connecting to Model"
         try:
-
             from langchain_core.runnables import RunnableLambda
 
             def inspect(state):
@@ -272,7 +270,6 @@ class Chatobject:
             answers = None
 
             try:
-
                 result = chain.invoke(question)
             except Exception as e:  # pylint: disable=broad-exception-caught
                 return output_error("Unable to Execute Request: " + str(e), return_val=True)

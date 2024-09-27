@@ -182,25 +182,25 @@ service_command_start["get_crystal_property"] = 'get + CaselessKeyword("crystal"
 service_command_start["get_protein_property"] = 'get + CaselessKeyword("protein") + CaselessKeyword("property")'
 service_command_start["generate_data"] = 'CaselessKeyword("generate") + CaselessKeyword("with")'
 
-service_command_merge["get_molecule_property"] = (
-    '+ Optional((CaselessKeyword("merge with mols")|CaselessKeyword("merge with molecules"))("merge_with_mws"))'
-)
+service_command_merge[
+    "get_molecule_property"
+] = '+ Optional((CaselessKeyword("merge with mols")|CaselessKeyword("merge with molecules"))("merge_with_mws"))'
 service_command_merge["get_crystal_property"] = ""
 service_command_merge["get_protein_property"] = ""
 service_command_merge["generate_data"] = ""
 
-service_command_subject["get_molecule_property"] = (
-    '+CaselessKeyword("for")+(mol_list("mol_list")|(Word("[")+delimitedList(molecule_identifier,delim=",")("molecules")+Word("]")|molecule_identifier("molecule")))'
-)
-service_command_subject["get_protein_property"] = (
-    '+CaselessKeyword("for")+((Word("[")+ delimitedList(molecule_identifier,delim=",")("proteins")+Word("]")|molecule_identifier("protein")))'
-)
-service_command_subject["get_crystal_property"] = (
-    '+CaselessKeyword("for")+((Word("[")+ delimitedList(desc,delim=",")("crystal_files")+Word("]")|desc("crystal_file")("crystal_PATH")))'
-)
-service_command_subject["generate_data"] = (
-    '+CaselessKeyword("data")+<TARGET>Optional(CaselessKeyword("Sample")+Word(nums)("sample_size"))'
-)
+service_command_subject[
+    "get_molecule_property"
+] = '+CaselessKeyword("for")+(mol_list("mol_list")|(Word("[")+delimitedList(molecule_identifier,delim=",")("molecules")+Word("]")|molecule_identifier("molecule")))'
+service_command_subject[
+    "get_protein_property"
+] = '+CaselessKeyword("for")+((Word("[")+ delimitedList(molecule_identifier,delim=",")("proteins")+Word("]")|molecule_identifier("protein")))'
+service_command_subject[
+    "get_crystal_property"
+] = '+CaselessKeyword("for")+((Word("[")+ delimitedList(desc,delim=",")("crystal_files")+Word("]")|desc("crystal_file")("crystal_PATH")))'
+service_command_subject[
+    "generate_data"
+] = '+CaselessKeyword("data")+<TARGET>Optional(CaselessKeyword("Sample")+Word(nums)("sample_size"))'
 
 ###################################################################
 # targets for generate Data
@@ -237,21 +237,22 @@ generation_targets = {
 #         sampling_wrapper={'fraction_to_mask': mask, 'property_goal': {'<esol>': 0.234}}"""
 
 
-service_command_help["get_molecule_property"] = (
-    "get molecule property <property> FOR @mols | [<list of SMILES>] | <SMILES>   USING (<parameter>=<value> <parameter>=<value>) (merge with mols|molecules)"
-)
-service_command_help["get_crystal_property"] = (
-    "get crystal property <property> FOR <directory> USING (<parameter>=<value> <parameter>=<value>)"
-)
-service_command_help["get_protein_property"] = (
-    "get protein property <property> FOR [<list of Proteins>] | <Protein> USING (<parameter>=<value> <parameter>=<value>)"
-)
-service_command_help["generate_data"] = (
-    "generate with <property> data <TARGET> (sample <sample_size>) USING (<parameter>=<value> <parameter>=<value>) "
-)
+service_command_help[
+    "get_molecule_property"
+] = "get molecule property <property> FOR @mols | [<list of SMILES>] | <SMILES>   USING (<parameter>=<value> <parameter>=<value>) (merge with mols|molecules)"
+service_command_help[
+    "get_crystal_property"
+] = "get crystal property <property> FOR <directory> USING (<parameter>=<value> <parameter>=<value>)"
+service_command_help[
+    "get_protein_property"
+] = "get protein property <property> FOR [<list of Proteins>] | <Protein> USING (<parameter>=<value> <parameter>=<value>)"
+service_command_help[
+    "generate_data"
+] = "generate with <property> data <TARGET> (sample <sample_size>) USING (<parameter>=<value> <parameter>=<value>) "
 
-service_command_description["get_molecule_property"] = (
-    """
+service_command_description[
+    "get_molecule_property"
+] = """
 This command gets (generate/predict) a molecules property for one or molecules specified with a SMILES string in the <cmd>FOR</cmd> clause. SMILES can be provided as a single SMILES string or multiple smiles in a comma seperated list in square brackets e.g. <cmd> FOR [CCO, CC(C)CC1=CC=C(C=C1)C(C)C(=O)O ] </cmd>.
 SMILES strings can be specified with or without single quotes, but when in a list smiles with square brackets should be enclosed in single quotes e.g <cmd>[ 'C([H])([H])([H])[H]' ,CCO ]</cmd>
 
@@ -267,25 +268,24 @@ Note: <cmd> @mols </cmd>  specifies the list in the current molecules working se
         <cmd>get molecule property <property> for @mols merge with mols</cmd>
 
 """
-)
-service_command_description["get_crystal_property"] = (
-    """
+service_command_description[
+    "get_crystal_property"
+] = """
 This command gets (generate/predict) crystal properties
 """
-)
-service_command_description["get_protein_property"] = (
-    """
+service_command_description[
+    "get_protein_property"
+] = """
 This command gets (generate/predict) a proteins property for one or protiens specified with a FASTA string in the <cmd>FOR</cmd> clause.
 FASTA strings can be provided as a single  string or multiple FASTA strings in a comma seperated list in square brackets e.g. <cmd> FOR ['MKYNNRKLSFNPTTVSIAGTLLTVFFLTRLVLSFFSISLFQLVTFQGIFKPYVPDFKNTPSVEFYDLRNYQGNKDGWQQGDRILFCVPLRDASEHLPMFFNHLNTMTYPHNLIDLSFLVSDSSDNTMGVLLSNLQMAQSQQDKSKRFGNIEIYEKDFGQIIGQSFSDRHGFGAQGPRRKLMARARNWLGSVALKPYHSWVYWRDVDVETIPTTIMEDLMHHDKDVIVPNVWRPLPDWLGNIQPYDLNSWKESEGGLQLADSLDEDAVIVEGYPEYATWRPHLAYMRDPNGNPEDEMELDGIGGVSILAKAKVFRTGSHFPAFSFEKHAETEAFGRLSRRMNYNVIGLPHYVIWHIYEPSSDDLKHMAWMAEEEKRKLEEERIREFYNKIWEIGFEDVRDQWNEERDSILKNIDSTLNNKVTVDWSEEGDGSELVDSKGDFVSPNNQQQQQQQQQQQQQQQQQQQQQQLDGNPQGKPLDDNDKNKKKHPKEVPLDFDPDRN','MQYLNFPRMPNIMMFLEVAILCLWVVADASASSAKFGSTTPASAQQSDVELEPINGTLNYRLYAKKGRDDKPWFDGLDSRHIQCVRRARCYPTSNATNTCFGSKLPYELSSLDLTDFHTEKELNDKLNDYYALKHVPKCWAAIQPFLCAVFKPKCEKINGEDMVYLPSYEMCRITMEPCRILYNTTFFPKFLRCNETLFPTKCTNGARGMKFNGTGQCLSPLVPTDTSASYYPGIEGCGVRCKDPLYTDDEHRQIHKLIGWAGSICLLSNLFVVSTFFIDWKNANKYPAVIVFYINLCFLIACVGWLLQFTSGSREDIVCRKDGTLRHSEPTAGENLSCIVIFVLVYYFLTAGMVWFVFLTYAWHWRAMGHVQDRIDKKGSYFHLVAWSLPLVLTITTMAFSEVDGNSIVGICFVGYINHSMRAGLLLGPLCGVILIGGYFITRGMVMLFGLKHFANDIKSTSASNKIHLIIMRMGVCALLTLVFILVAIACHVTEFRHADEWAQSFRQFIICKISSVFEEKSSCRIENRPSVGVLQLHLLCLFSSGIVMSTWCWTPSSIETWKRYIRKKCGKEVVEEVKMPKHKVIAQTWAKRKDFEDKGRLSITLYNTHTDPVGLNFDVNDLNSSETNDISSTWAAYLPQCVKRRMALTGAATGNSSSHGPRKNSLDSEISVSVRHVSVESRRNSVDSQVSVKIAEMKTKVASRSRGKHGGSSSNRRTQRRRDYIAAATGKSSRRRESSTSVESQVIALKKTTYPNASHKVGVFAHHSSKKQHNYTSSMKRRTANAGLDPSILNEFLQKNGDFIFPFLQNQDMSSSSEEDNSRASQKIQDLNVVVKQQEISEDDHDGIKIEELPNSKQVALENFLKNIKKSNESNSNRHSRNSARSQSKKSQKRHLKNPAADLDFRKDCVKYRSNDSLSCSSEELDVALDVGSLLNSSFSGISMGKPHSRNSKTSCDVGIQANPFELVPSYGEDELQQAMRLLNAASRQRTEAANEDFGGTELQGLLGHSHRHQREPTFMSESDKLKMLLLPSK']</cmd>.
 FASTA strings must be provided in single quotes.
 This command gets (generate/predict) the following properties <property_list>
 """
-)
-service_command_description["generate_data"] = (
-    """
+service_command_description[
+    "generate_data"
+] = """
     This function generates a data set based on the following parameters 
  """
-)
 
 
 def service_grammar_add(statements: list, help: list, service_catalog: dict):
@@ -704,7 +704,6 @@ def request_generate(cmd_pointer, request_input):
             subjects = request_input.as_dict()["target@list"]
 
     if name.split("@")[1] == "get_molecule_property":
-
         if "mol_list" in request_input.as_dict():
             subjects = mol_list_gen(cmd_pointer)
 
