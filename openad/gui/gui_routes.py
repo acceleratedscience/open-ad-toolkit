@@ -22,7 +22,6 @@ def fetchRoutes(cmd_pointer):
     result_api = ResultApi(cmd_pointer)
     dataframe_api = DataframeApi(cmd_pointer)
 
-
     routes = {
         #
         #
