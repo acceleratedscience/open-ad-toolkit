@@ -46,7 +46,7 @@ def mmol_grammar_add(statements, grammar_help):
         help_dict_create(
             name="show macromolecule",
             category="Macromolecules",
-            command="show mmol|protein <fasta> | <pdb_id>",
+            command="show mmol|protein <fasta> | '<pdb_id>'",
             description="""
 Inspect a macromolecule in the browser.
 

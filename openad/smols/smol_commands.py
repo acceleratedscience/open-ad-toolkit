@@ -415,7 +415,7 @@ def moleculelist_to_data_frame(molecule_set):
 
 # TRASH
 # @refactored
-# This is not integrated into mol_functions --> find_mol_in_list
+# This is now integrated into mol_functions --> find_mol_in_list
 # def is_molecule_synonym(mol, molecule):
 #     """determines if a molecule is mentioned in the synonym property of a molecule"""
 #     if mol["synonyms"] is not None and "Synonym" in mol["synonyms"]:
