@@ -145,7 +145,7 @@ def predict_retro(inputs: dict, cmd_pointer):
 
     # Prepare the data query
     print("\n")
-    newspin = Spinner(GLOBAL_SETTINGS["VERBOSE"])
+    newspin = Spinner(GLOBAL_SETTINGS["verbose"])
     newspin.start("Starting Retrosynthesis")
     try:
         retries = 0
@@ -262,7 +262,7 @@ def predict_retro(inputs: dict, cmd_pointer):
                 "",
                 return_val=False,
             )
-            if num_results < 4 or GLOBAL_SETTINGS["VERBOSE"] == False:
+            if num_results < 4 or GLOBAL_SETTINGS["verbose"] == False:
                 results[str(index)] = {"confidence": tree["confidence"], "reactions": []}
 
             output_text(
@@ -274,7 +274,7 @@ def predict_retro(inputs: dict, cmd_pointer):
             )
 
             for reaction in collect_reactions_from_retrosynthesis(tree):
-                if num_results < 4 or GLOBAL_SETTINGS["VERBOSE"] == False:
+                if num_results < 4 or GLOBAL_SETTINGS["verbose"] == False:
                     results[str(index)]["reactions"].append(reactions_text[i])
                 output_text("<green> Reaction: </green>" + reactions_text[i], return_val=False)
                 i = i + 1
@@ -295,7 +295,7 @@ def predict_retro(inputs: dict, cmd_pointer):
         return False
     i = 0
 
-    if GLOBAL_SETTINGS["VERBOSE"] == False:
+    if GLOBAL_SETTINGS["verbose"] == False:
         return results
     else:
         return True

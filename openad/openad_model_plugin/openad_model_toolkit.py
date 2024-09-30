@@ -713,7 +713,7 @@ def openad_model_requestor(cmd_pointer, parser):
     #     return output_error(
     #         "No Service Cataloged or service not up. \n Check Service Status <cmd>model service status</cmd> "
     #     )
-    spinner = Spinner(GLOBAL_SETTINGS["VERBOSE"])
+    spinner = Spinner(GLOBAL_SETTINGS["verbose"])
     spinner.start("Executing Request Against Server")
 
     with Dispatcher as servicer:

@@ -67,9 +67,7 @@ class MoleculesApi:
             response.status = "No identifier provided."
             return response
 
-        smol = get_smol_from_mws(self.cmd_pointer, identifier)
-        if smol is None:
-            smol = get_smol_from_pubchem(identifier)
+        smol = find_smol(self.cmd_pointer, identifier)
 
         # Fail
         if not smol:

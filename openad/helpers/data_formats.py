@@ -12,6 +12,16 @@ _META_DICT = {
 OPENAD_SMOL_DICT = {
     # The main name of this molecule.
     "name": None,
+    "identifiers": {
+        "name": None,
+        "inchi": None,
+        "inchikey": None,
+        "canonical_smiles": None,
+        "isomeric_smiles": None,
+        "smiles": None,
+        "molecular_formula": None,
+        "cid": None,
+    },
     # Alternative names this molecule is know by.
     "synonyms": [],
     # Available molecular properties.

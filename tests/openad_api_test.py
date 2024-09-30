@@ -5,6 +5,7 @@ if __name__ == "__main__":
     from openad import OpenadAPI
 
     myclass2 = OpenadAPI("class2")
+    # print(myclass2.help_dump())
 
     """print(myclass2.name)
     x = myclass2.request("prop get molecule property lipinski for CCO")

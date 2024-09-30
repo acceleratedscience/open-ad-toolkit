@@ -128,7 +128,7 @@ def how_do_i(cmd_pointer, parser):
     else:
         from halo import Halo  # pylint: disable=import-outside-toplevel
 
-    newspin = Spinner(GLOBAL_SETTINGS["VERBOSE"])
+    newspin = Spinner(GLOBAL_SETTINGS["verbose"])
     newspin.start("Processing Request ")
     # Now we are asking the prompt a Question
 

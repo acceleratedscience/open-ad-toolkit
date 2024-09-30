@@ -1,6 +1,9 @@
-"""Handles commonly used global variables"""
+"""
+Central place for commonly used global variables.
+"""
 
 import os
+import shutil
 from openad.helpers.general import get_toolkits
 from openad.app.memory import Memory
 
@@ -41,8 +44,14 @@ GLOBAL_SETTINGS = {
     # - notebook: set in main.py -> api_remote()
     # - api: not yet used
     # - web: not yet used
-    "VERBOSE": True,
     "display": None,
-    "MODEL_SERVICES": None,
+    #
+    # Setting verbose to false will hide spinners
+    # and some other non-essential output
+    "verbose": True,
+    #
+    # "MODEL_SERVICES": None, # unused, trash?
 }
 MEMORY = Memory()
+CLI_WIDTH = shutil.get_terminal_size().columns
+PRINT_WIDTH = min(CLI_WIDTH, 150)

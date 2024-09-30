@@ -3,6 +3,7 @@ Molecule management functions
 """
 
 import os
+import re
 import ast
 import time
 import json
@@ -19,7 +20,7 @@ from rdkit.Chem.Descriptors import MolWt, ExactMolWt
 
 # OpenAD imports
 from openad.helpers.output_msgs import msg
-from openad.helpers.output import output_error, output_warning, output_success
+from openad.helpers.output import output_error, output_warning, output_success, output_text
 from openad.helpers.files import open_file
 from openad.helpers.general import confirm_prompt, pretty_date
 from openad.helpers.spinner import spinner
@@ -155,7 +156,9 @@ mol_name_cache = {}
 # region - Lookup / creation
 
 
-def find_smol(cmd_pointer: object, identifier: str, name: str = None, basic: bool = False) -> dict | None:
+def find_smol(
+    cmd_pointer: object, identifier: str, name: str = None, basic: bool = False, show_spinner: bool = False
+) -> dict | None:
     """
     Find a molecule across the available resources.
     First we check our working set, then PubChem, then RDKit.
@@ -171,6 +174,8 @@ def find_smol(cmd_pointer: object, identifier: str, name: str = None, basic: boo
         Optional name for the molecule.
     basic: bool
         If True, create a basic molecule dict with RDKit (no API calls).
+    show_spinner: bool
+        If True, show a spinner while searching for the molecule.
 
     Returns
     -------
@@ -187,11 +192,15 @@ def find_smol(cmd_pointer: object, identifier: str, name: str = None, basic: boo
 
     # Look for molecule on PubChem
     if not smol and not basic:
-        smol = get_smol_from_pubchem(identifier)
+        smol = get_smol_from_pubchem(identifier, show_spinner)
 
     # Try creating molecule object with RDKit.
     if not smol:
+        if show_spinner:
+            spinner.start("Creating molecule with RDKit")
         smol = new_smol(identifier, name=name)
+        if show_spinner:
+            spinner.stop()
 
     # Fail - invalid.
     if not smol:
@@ -246,7 +255,7 @@ def get_smol_from_memory(cmd_pointer: object, identifier: str) -> dict | None:
     return None
 
 
-def get_smol_from_pubchem(identifier: str) -> dict | None:
+def get_smol_from_pubchem(identifier: str, show_spinner: bool = False) -> dict | None:
     """
     Fetch small molecule from PubChem.
 
@@ -257,18 +266,50 @@ def get_smol_from_pubchem(identifier: str) -> dict | None:
         Valid inputs: InChI, SMILES, InChIKey, name, CID.
     """
 
-    smol = _get_pubchem_compound(identifier, PCY_IDFR["inchi"])
-    if not smol:
-        smol = _get_pubchem_compound(identifier, PCY_IDFR["smiles"])
-    if not smol:
+    error_msg = "<error>x</error> <soft>{} search on PubChem returned empty</soft>"
+
+    smol = None
+    if identifier.startswith("InChI="):
+        if show_spinner:
+            spinner.start("Searching PubChem for InChI")
+        smol = _get_pubchem_compound(identifier, PCY_IDFR["inchi"])
+        if not smol and show_spinner:
+            spinner.stop()
+            output_text(error_msg.format("InChI"))
+    if not smol and len(identifier) == 27:
+        if show_spinner:
+            spinner.start("Searching PubChem for inchikey")
         smol = _get_pubchem_compound(identifier, PCY_IDFR["inchikey"])
-    if not smol:
-        smol = _get_pubchem_compound(identifier, PCY_IDFR["name"])
-    if not smol:
+        if not smol and show_spinner:
+            spinner.stop()
+            output_text(error_msg.format("inchikey"))
+    if not smol and identifier.isdigit():
+        if show_spinner:
+            spinner.start("Searching PubChem for CID")
         smol = _get_pubchem_compound(identifier, PCY_IDFR["cid"])
+        if not smol and show_spinner:
+            spinner.stop()
+            output_text(error_msg.format("CID"))
+    if not smol and possible_smiles(identifier):
+        if show_spinner:
+            spinner.start("Searching PubChem for SMILES")
+        smol = _get_pubchem_compound(identifier, PCY_IDFR["smiles"])
+        if not smol and show_spinner:
+            spinner.stop()
+            output_text(error_msg.format("SMILES"))
+    if not smol:
+        if show_spinner:
+            spinner.start("Searching PubChem for name")
+        smol = _get_pubchem_compound(identifier, PCY_IDFR["name"])
+        if not smol and show_spinner:
+            spinner.stop()
+            output_text(error_msg.format("name"))
     # # Commented out until getting no time outs from pubchem.
     # if not smol:
     #     smol = _get_pubchem_compound(identifier, PCY_IDFR["formula"])
+
+    if show_spinner:
+        spinner.stop()
 
     if smol:
         return _sep_identifiers_from_properties(smol)
@@ -419,9 +460,13 @@ def _get_identifiers(smol: dict) -> dict:
     Pull the identifiers from a molecule.
     """
 
+    identifier_keys = OPENAD_SMOL_DICT.get("identifiers").keys()
+
     # In case this smol has the identifiers already separated.
     if smol.get("identifiers"):
-        return smol["identifiers"]
+        for key, val in smol.get("identifiers").items():
+            if val:
+                return smol["identifiers"]
 
     identifier_dict = {}
 
@@ -429,14 +474,10 @@ def _get_identifiers(smol: dict) -> dict:
     # so we can scan for properties in a case-insensitive way.
     smolProps = {k.lower(): v for k, v in smol["properties"].items()}
 
-    identifier_dict["name"] = smolProps.get("name")
-    identifier_dict["inchi"] = smolProps.get("inchi")
-    identifier_dict["inchikey"] = smolProps.get("inchikey")
-    identifier_dict["canonical_smiles"] = smolProps.get("canonical_smiles")
-    identifier_dict["isomeric_smiles"] = smolProps.get("isomeric_smiles")
-    identifier_dict["smiles"] = smolProps.get("smiles")
-    identifier_dict["molecular_formula"] = smolProps.get("molecular_formula")
-    identifier_dict["cid"] = smolProps.get("cid")
+    # Separate idenfitiers from properties.
+    for key in identifier_keys:
+        if key in smolProps:
+            identifier_dict[key] = smolProps[key]
 
     return identifier_dict
 
@@ -584,6 +625,18 @@ def get_molset_mols(path_absolute: str):
 
 ############################################################
 # region - Validation
+
+
+def possible_smiles(smiles: str) -> bool:
+    """
+    Verify is a string *could* be a SMILES definition.
+
+    Parameters
+    ----------
+    smiles: str
+        The SMILES string to validate
+    """
+    return bool(re.search(r"[BCNOFPSI](?:[a-df-z0-9#=@+%$:\[\]\(\)\\\/\.\-])*", smiles))
 
 
 def valid_smiles(smiles: str) -> bool:

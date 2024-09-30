@@ -158,7 +158,7 @@ def batch_pubchem(cmd_pointer, dataframe):
     else:
         from halo import Halo  # pylint: disable=import-outside-toplevel
 
-    batch_spinner = Spinner(GLOBAL_SETTINGS["VERBOSE"])
+    batch_spinner = Spinner(GLOBAL_SETTINGS["verbose"])
 
     batch_spinner.start("loading molecules from PubChem")
 
