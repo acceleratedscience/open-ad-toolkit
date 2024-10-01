@@ -34,7 +34,6 @@ To do:
 
 import sys
 import re
-import textwrap
 from collections import deque
 
 # Style tags.
@@ -139,7 +138,7 @@ def style(
         try:
             import shutil
 
-            columns, rows = shutil.get_terminal_size()
+            columns = shutil.get_terminal_size().columns
             width = min(columns - 5, 150)
             if tabs:
                 width = width - (tabs * 4)

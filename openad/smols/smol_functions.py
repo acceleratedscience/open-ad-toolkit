@@ -827,7 +827,6 @@ def get_best_available_identifier(smol: dict) -> tuple:
 
     identifiers_dict = smol.get("identifiers", {})
     if not identifiers_dict:
-        print(3333)
         return None, None
 
     # InChI

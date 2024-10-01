@@ -48,6 +48,25 @@ class AD(Magics):
         """Invokes the Magic command interface for OpenAD"""
         api_variable = {}
         openad.app.main.GLOBAL_SETTINGS["display"] = "notebook"
+        # print(1122)
+
+        # from IPython.display import display, Javascript
+
+        # cell_width = 7
+        # display(
+        #     Javascript(
+        #         """
+        #     (function() {
+        #         var cell = document.querySelector('.code_cell .input');
+        #         var width = cell.offsetWidth;
+        #         var kernel = IPython.notebook.kernel;
+        #         kernel.execute("cell_width = " + width);
+        #     })();
+        # """
+        #     )
+        # )
+        # print(cell_width)
+
         line_list = line.split()
         x = len(line_list)
         i = 1
@@ -61,14 +80,19 @@ class AD(Magics):
                     except:  # pylint: disable=bare-except # We do not care what fails
                         pass
                 i += 1
+        print("--")
         result = openad.app.main.api_remote(line, context_cache, api_variable)
+        print(type(result))
+        print(result)
 
         if isinstance(result, DataFrame):
             result = output_table(result, return_val=True)
         elif isinstance(result, str):
             result = strip_leading_blanks(result)
             result = result.replace("<br>", "\n")
-        return result
+
+        display(result)
+        # return result
 
     @needs_local_scope
     @line_cell_magic
@@ -89,13 +113,12 @@ class AD(Magics):
                     except:  # pylint: disable=bare-except # We do not care what fails
                         pass
                 i += 1
-
         result = openad.app.main.api_remote(line, context_cache, api_variable)
 
         if isinstance(result, Styler):
             result = result.data
-        if isinstance(result, str):
-            display(Markdown(result))
+        # if isinstance(result, str):
+        #     display(Markdown(result))
         return result
 
 

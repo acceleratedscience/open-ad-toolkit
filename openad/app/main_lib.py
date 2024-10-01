@@ -45,7 +45,7 @@ from openad.smols.smol_commands import (
     list_molsets,
     display_molsets,
     export_molecule,
-    get_property,
+    get_smol_prop,
     rename_mol_in_list,
     clear_workset,
     export_molecule_set,
@@ -271,8 +271,8 @@ def lang_parse(cmd_pointer, parser):
         return export_molecule(cmd_pointer, parser)
     elif parser.getName() == "clear_analysis":
         return clear_results(cmd_pointer, parser)
-    elif parser.getName() == "mol_property":
-        return get_property(cmd_pointer, parser)
+    elif parser.getName() == "get_smol_prop":
+        return get_smol_prop(cmd_pointer, parser)
     elif parser.getName() == "rename_molecule":
         return rename_mol_in_list(cmd_pointer, parser)
     elif parser.getName() == "clear_molecules":
@@ -641,7 +641,6 @@ def display_data(cmd_pointer, parser):
             try:
                 df = pd.read_csv(workspace_path + file_path)
                 df = df.fillna("")  # Fill NaN with empty string
-
                 return output_table(df)
             except FileNotFoundError:
                 return output_error(msg("err_file_doesnt_exist", file_path))
@@ -749,9 +748,7 @@ def display_data__display(cmd_pointer, parser):  # pylint: disable=unused-argume
 
 
 # --> Return result as dataframe
-def display_data__as_dataframe(
-    cmd_pointer, parser
-):  # pylint: disable=unused-argument # generic pass through used or unused
+def display_data__as_dataframe(cmd_pointer, parser):  # pylint: disable=unused-argument
     """displays last result set in viewer"""
     # Preserve memory for further follow-up commands.
     MEMORY.preserve()

@@ -514,7 +514,7 @@ Please refer to the DS4SD and RXN toolkits for further assistance on these comma
     # Get molecule property
     statements.append(
         Forward("@" + (molecule_identifier | desc)("molecule_identifier") + ">>" + mol_properties("property"))(
-            "mol_property"
+            "get_smol_prop"
         )
     )
     grammar_help.append(

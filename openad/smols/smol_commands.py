@@ -3,8 +3,6 @@
 import glob
 import pickle
 import os
-import shutil
-import re
 import json
 import urllib.parse
 import pandas as pd
@@ -12,18 +10,17 @@ from rdkit import Chem
 from rdkit.Chem import AllChem
 
 # Helpers
-from openad.app.global_var_lib import PRINT_WIDTH
 from openad.helpers.general import confirm_prompt
 from openad.helpers.output import output_text, output_table, output_warning, output_error, output_success
 from openad.helpers.output_msgs import msg
-from openad.helpers.format_columns import single_value_columns, key_val_columns, pretty_key_val
+from openad.helpers.pretty_data import list_columns, key_val_columns, key_val_full
+from openad.app.global_var_lib import GLOBAL_SETTINGS
 
 
 # Molecule functions
 from openad.smols.smol_functions import (
     SMOL_PROPERTIES,
     find_smol,
-    new_smol,
     get_smol_from_mws,
     get_smol_from_pubchem,
     get_human_properties,
@@ -34,12 +31,12 @@ from openad.smols.smol_functions import (
     merge_molecule_REPLACE,
 )
 
-# Globals
-from openad.app.global_var_lib import GLOBAL_SETTINGS
-
 
 def display_molecule(cmd_pointer, inp):
-    """displays a molecule and its properties"""
+    """
+    Display a molecule's identifiers, synonyms and properties.
+    """
+
     molecule_identifier = inp.as_dict()["molecule_identifier"]
 
     # if GLOBAL_SETTINGS["display"] == "notebook":
@@ -52,15 +49,9 @@ def display_molecule(cmd_pointer, inp):
         return None
 
     if smol is not None:
-        print_string = (
-            _format_identifers(smol)
-            + "\n"
-            + _format_synonyms(smol)
-            + "\n"
-            + _format_properties(smol)
-            + "\n"
-            + _format_analysis(smol)
-        )
+        ouput = format_identifiers(smol) + "\n\n" + format_synonyms(smol) + "\n\n" + format_properties(smol)
+        if "analysis" in smol and smol["analysis"] != []:
+            ouput = ouput + "\n\n" + format_analysis(smol)
 
     if GLOBAL_SETTINGS["display"] == "notebook":
         import py3Dmol
@@ -79,85 +70,88 @@ def display_molecule(cmd_pointer, inp):
         view.zoomTo()
         view.animate({"loop": "forward"})
         view.show()
-        print_string = print_string.replace("<soft>", "<span style=color:#cccccc;white-space=pre>")
-        print_string = print_string.replace("</soft>", "</span>")
-        print_string = print_string.replace("<cyan>", "<span style=color:#00AAAA;white-space=pre>")
-        print_string = print_string.replace("</cyan>", "</span>")
-        print_string = print_string.replace("\n", "<br>")
-        display(HTML("<pre>" + print_string + "</pre>"))
+        ouput = ouput.replace("<soft>", "<span style=color:#cccccc;white-space=pre>")
+        ouput = ouput.replace("</soft>", "</span>")
+        ouput = ouput.replace("<cyan>", "<span style=color:#00AAAA;white-space=pre>")
+        ouput = ouput.replace("</cyan>", "</span>")
+        ouput = ouput.replace("\n", "<br>")
+        display(HTML("<pre>" + ouput + "</pre>"))
 
         # display(output_text(print_string, return_val=True))
     else:
-        output_text(print_string, edge=True, width=PRINT_WIDTH)
+        output_text(ouput, edge=True, pad=1)
 
     return True
 
 
-def _format_identifers(smol):
+def format_identifiers(smol):
     """
     Format the identifiers for display.
     """
 
-    # capitalize the name
-    output = f"\n<h1>{smol['name'].capitalize()}</h1>"
-
+    output = f"<h1>{smol['name'].capitalize()}</h1>"
     identifiers = smol.get("identifiers", {})
-    output = output + pretty_key_val(identifiers, print_width=PRINT_WIDTH - 5)
+    output = output + key_val_full(identifiers, print_width=GLOBAL_SETTINGS["print_width"] - 5)
     return output
 
 
-def _format_synonyms(smol):
+def format_synonyms(smol, truncate=30):
     """
     Format synonyms for display.
     """
 
-    # Truncate list of synonyms
-    truncate = 30
     synonyms = smol.get("synonyms", [])
     synonym_count = len(synonyms)
-    synonyms = synonyms[:truncate]
-    is_truncated = synonym_count > len(synonyms)
+
+    # Truncate list of synonyms
+    if truncate is not None:
+        synonyms = synonyms[:truncate]
+        is_truncated = synonym_count > len(synonyms)
+    else:
+        is_truncated = False
 
     # Title
-    output = "\n<h1>Synonyms:</h1>"
+    output = "<h1>Synonyms:</h1>"
 
     # Truncation note
     if is_truncated:
         output = (
             output
-            + f"\n<soft>This list is truncated. To view all synonyms, run <cmd>@{smol['name']}>>synonyms</cmd></soft>\n"
+            + f"\n<soft>This list is truncated. To view all synonyms, run <cmd>@{smol['name']}>>synonyms</cmd></soft>\n\n"
         )
+    else:
+        output = output + "\n"
 
     # Values
-    output = output + single_value_columns(synonyms, print_width=PRINT_WIDTH - 5, is_truncated=is_truncated)
+    output = output + list_columns(synonyms, print_width=GLOBAL_SETTINGS["print_width"] - 5, is_truncated=is_truncated)
 
     return output
 
 
-def _format_properties(smol):
+def format_properties(smol):
     """
     Format properties for display.
     """
 
-    properties_string = "\n<h1>Properties:</h1>"
+    output = "<h1>Properties:</h1>"
     properties = get_human_properties(smol)
-    properties_string = properties_string + key_val_columns(
-        properties, print_width=PRINT_WIDTH - 5, ignore_keys=["DS_URL"]
+    output = output + key_val_columns(
+        properties, print_width=GLOBAL_SETTINGS["print_width"] - 5, ignore_keys=["DS_URL"]
     )
-    return properties_string
+    return output
 
 
-def _format_analysis(mol):
+def format_analysis(smol):
     """
     Format analysis for display.
     """
 
-    if "analysis" not in mol or mol["analysis"] == []:
+    if "analysis" not in smol or smol["analysis"] == []:
         return ""
 
-    output = "\n<h1>Analysis:</h1>"
+    output = "<h1>Analysis:</h1>"
 
-    for item in mol["analysis"]:
+    for item in smol["analysis"]:
         output = (
             output
             + "\n<cyan>Toolkit: </cyan>"
@@ -166,11 +160,7 @@ def _format_analysis(mol):
             + item["function"]
             + "\n"
         )
-        output = output + key_val_columns(
-            item,
-            print_width=PRINT_WIDTH - 5,
-            indent=4,
-        )
+        output = output + key_val_columns(item, print_width=GLOBAL_SETTINGS["print_width"] - 5, indent=4)
     return output
 
 
@@ -221,7 +211,7 @@ def format_sources(mol):
         if mol_property not in mol["properties"] or mol["properties"][mol_property] is None:
             continue
         output = output + "\n\n<yellow>Property:</yellow> {} \n".format(mol_property)
-        output = output + key_val_columns(source, print_width=PRINT_WIDTH - 5)
+        output = output + key_val_columns(source, print_width=GLOBAL_SETTINGS["print_width"] - 5)
 
     return output
 
@@ -573,33 +563,47 @@ def property_retrieve(molecule_identifier, molecule_property, cmd_pointer):
         return mol["properties"][molecule_property.lower()]
 
 
-def get_property(cmd_pointer, inp):
-    """gets property from a molecule"""
-    molecule_identifier = inp.as_dict()["molecule_identifier"]
-    molecule_property = inp.as_dict()["property"]
-    mol = get_smol_from_mws(cmd_pointer, molecule_identifier)
-    if mol is None:
-        mol = get_smol_from_pubchem(molecule_identifier)
-        if mol is not None:
-            if molecule_property.lower() == "synonyms":
-                if mol["synonyms"] is not None and "Synonym" in mol["synonyms"]:
-                    return mol["synonyms"]["Synonym"]
-            if molecule_property.lower() in mol["properties"]:
-                return mol["properties"][molecule_property.lower()]
-            else:
-                return None
+def get_smol_prop(cmd_pointer, inp):
+    """
+    Get a property from a molecule.
+    """
 
+    result = None
+    molecule_identifier = inp.as_dict()["molecule_identifier"]
+    molecule_property = inp.as_dict()["property"].lower()
+    smol = find_smol(cmd_pointer, molecule_identifier)
+
+    if not smol:
+        return output_error("No molecule found for this identifier")
+
+    # List of synonyms
+    if molecule_property == "synonyms":
+        if len(smol.get("synonyms", [])) > 0:
+            result = smol["synonyms"]
         else:
-            output_error("molecule not available on pubchem", return_val=False)
-            return None
+            return output_error("No synonyms found for this molecule")
+
+    # Property
+    elif molecule_property in smol["properties"]:
+        result = smol["properties"][molecule_property]
+
+    # Identifier
+    elif molecule_property in smol["identifiers"]:
+        result = smol["identifiers"][molecule_property]
+
+    # Fail
     else:
-        if molecule_property.lower() == "synonyms":
-            if mol["synonyms"] is not None and "Synonym" in mol["synonyms"]:
-                return mol["synonyms"]["Synonym"]
-        if molecule_property.lower() in mol["properties"]:
-            return mol["properties"][molecule_property.lower()]
-        else:
-            return None
+        output_error(
+            f"We couldn't find the '<reset>{molecule_property}</reset>' property for the molecule <yellow>{molecule_identifier}</yellow>."
+        )
+
+    # Return
+    if GLOBAL_SETTINGS["display"] == "api":
+        return result
+    if molecule_property == "synonyms":
+        return output_text(list_columns(result), pad=1)
+    else:
+        return output_text(result)
 
 
 # Launch molecule viewer and display molecule.

@@ -1,14 +1,18 @@
-" functions for arranging foxed wifth columns"
+"Pretty print data in columns."
 
 import math
-
-# from openad.app.global_var_lib import PRINT_WIDTH
-PRINT_WIDTH = 150
+from openad.app.global_var_lib import GLOBAL_SETTINGS
 
 
-def single_value_columns(values: list, print_width=PRINT_WIDTH, col_width=40, is_truncated=False, indent=0):
+def list_columns(
+    values: list,
+    print_width: int = GLOBAL_SETTINGS["print_width"],
+    col_width: int = 40,
+    is_truncated: list = False,
+    indent: int = 0,
+):
     """
-    Display columns of single value per line.
+    Display a list of values in columns.
     """
 
     print_width = print_width - indent
@@ -35,7 +39,7 @@ def single_value_columns(values: list, print_width=PRINT_WIDTH, col_width=40, is
 
     # Compile the output
     for val in values:
-        if line_nr % col_count == 0:
+        if line_nr > 0 and line_nr % col_count == 0:
             output = output + "\n"
         output = output + val
         line_nr = line_nr + 1 % col_length
@@ -47,9 +51,15 @@ def single_value_columns(values: list, print_width=PRINT_WIDTH, col_width=40, is
     return output
 
 
-def key_val_columns(items_dict: dict, print_width: int = PRINT_WIDTH, col_width=40, ignore_keys=[], indent=0):
+def key_val_columns(
+    items_dict: dict,
+    print_width: int = GLOBAL_SETTINGS["print_width"],
+    col_width: int = 40,
+    ignore_keys: list = None,
+    indent: int = 0,
+):
     """
-    Display a dictionary's values in columns.
+    Display a dictionary's keys + values in columns.
     """
 
     print_width = print_width - indent
@@ -65,7 +75,8 @@ def key_val_columns(items_dict: dict, print_width: int = PRINT_WIDTH, col_width=
 
     items = []
     for key, val in items_dict.items():
-        if key in ignore_keys:
+        # Ignore keys
+        if ignore_keys and key in ignore_keys:
             continue
 
         key_len = len(str(key))
@@ -112,7 +123,6 @@ def key_val_columns(items_dict: dict, print_width: int = PRINT_WIDTH, col_width=
     j = 0
     while len(items_rearranged) < len(items) and j < 50:
         for col in cols:
-            # print("%\n", len(col), col, "\n\n")
             if j < len(col):
                 items_rearranged.append(col[j])
         i = i + 1
@@ -127,30 +137,38 @@ def key_val_columns(items_dict: dict, print_width: int = PRINT_WIDTH, col_width=
         output = output + item
         line_nr = line_nr + 1 % col_length
 
-    print(output)
-
     return output
 
 
-def pretty_key_val(items_dict: dict, print_width: int = PRINT_WIDTH, ignore_keys=[], indent=0):
+def key_val_full(
+    items_dict: dict,
+    print_width: int = GLOBAL_SETTINGS["print_width"],
+    ignore_keys: list = None,
+    indent: int = 0,
+):
+    """
+    Display a dictionary's keys + values covering the full width.
+    """
+
     items = []
     for key, val in items_dict.items():
+
+        # Ignore keys
+        if ignore_keys and key in ignore_keys:
+            continue
+
         val_len = len(str(val))
+
+        # Gray out blank values and replace with '-'
+        if val != 0 and not val:
+            val = "<soft>-</soft>"
+            val_len = 1
+            key_color = "soft"
+        else:
+            key_color = "cyan"
+
         val = f"{val[:print_width - len(key) - 2 - 3]}..." if val_len > print_width else val
-        key_val = f"{(indent * ' ')}<cyan>{key}:</cyan> {val}"
+        key_val = f"{(indent * ' ')}<{key_color}>{key}:</{key_color}> {val}"
         items.append(key_val)
 
     return "\n" + "\n".join(items)
-
-
-# # Unused ?
-# def process_list(values, cli_width, display_width: int, ignore_keys=[], indent=0):
-#     return_string = ""
-#     for item in values:
-#         if isinstance(item, dict):
-#             return_string = (
-#                 return_string + "\n" + key_val_columns(item, cli_width, display_width, ignore_keys, "  " + indent * " ")
-#             )
-#         else:
-#             return_string = return_string + "\n" + indent * " " + "- " + str(item)
-#     return return_string

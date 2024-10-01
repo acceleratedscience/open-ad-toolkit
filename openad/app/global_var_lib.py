@@ -50,8 +50,9 @@ GLOBAL_SETTINGS = {
     # and some other non-essential output
     "verbose": True,
     #
+    # The width in characters we limit the printed output to.
+    "print_width": min(shutil.get_terminal_size().columns, 150),
+    #
     # "MODEL_SERVICES": None, # unused, trash?
 }
 MEMORY = Memory()
-CLI_WIDTH = shutil.get_terminal_size().columns
-PRINT_WIDTH = min(CLI_WIDTH, 150)
