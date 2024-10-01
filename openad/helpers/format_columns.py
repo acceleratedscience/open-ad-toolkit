@@ -10,7 +10,6 @@ def single_value_columns(values: list, print_width=PRINT_WIDTH, col_width=40, is
     """
     Display columns of single value per line.
     """
-    print(11)
 
     print_width = print_width - indent
     output = ""
@@ -52,7 +51,6 @@ def key_val_columns(items_dict: dict, print_width: int = PRINT_WIDTH, col_width=
     """
     Display a dictionary's values in columns.
     """
-    print(12)
 
     print_width = print_width - indent
     output = ""
@@ -62,7 +60,7 @@ def key_val_columns(items_dict: dict, print_width: int = PRINT_WIDTH, col_width=
     # The number of columns
     col_count = print_width // col_width
 
-    # Gap between the columns.
+    # Gap between the columns
     col_width = col_width - gap
 
     items = []
@@ -73,26 +71,30 @@ def key_val_columns(items_dict: dict, print_width: int = PRINT_WIDTH, col_width=
         key_len = len(str(key))
         val_len = len(str(val))
 
-        # Replace blank values with '-'
+        # Gray out blank values and replace with '-'
         if val != 0 and not val:
-            key = "<soft>" + key + "</soft>"
             val = "<soft>-</soft>"
             val_len = 1
+            key_color = "soft"
+        else:
+            key_color = "cyan"
 
-        if key_len + 2 + val_len > col_width:
+        # Key + value on one line
+        if key_len + 2 + val_len <= col_width:
+            spacer = "<soft>" + ("." * (col_width - key_len - val_len - 1)) + "</soft>"
+            key_val = f"{(indent * ' ')}<{key_color}>{key}:</{key_color}>{spacer}{val}"
+            items.append(key_val + (" ") * gap)
+
+        # Key + value split over two lines,
+        # with possibly truncated value
+        else:
             spacer_key = "<soft>" + ("." * (col_width - key_len - 1)) + "</soft>"
             spacer_val = "<soft>" + ("." * (col_width - val_len)) + "</soft>"
             val = f"{val[:col_width - 3]}..." if val_len > col_width else val
-            key_color = "soft" if val != 0 and not val else "cyan"
             key_val_1 = f"{(indent * ' ')}<{key_color}>{key}</{key_color}>:{spacer_key}"
             key_val_2 = f"{(indent * ' ')}{spacer_val}{val}"
             items.append(key_val_1 + (" ") * gap)
             items.append(key_val_2 + (" ") * gap)
-
-        else:
-            spacer = "<soft>" + ("." * (col_width - key_len - val_len - 1)) + "</soft>"
-            key_val = f"{(indent * ' ')}<cyan>{key}:</cyan>{spacer}{val}"
-            items.append(key_val + (" ") * gap)
 
     # The length of each column
     col_length = math.ceil(len(items) / col_count)
@@ -124,6 +126,8 @@ def key_val_columns(items_dict: dict, print_width: int = PRINT_WIDTH, col_width=
             output = output + "\n"
         output = output + item
         line_nr = line_nr + 1 % col_length
+
+    print(output)
 
     return output
 

@@ -155,7 +155,6 @@ def predict_reaction_batch_topn(inputs: dict, cmd_pointer):
             try:
                 if retries == 0:
                     newspin.info("Processing Prediction")
-                    print(1)
                 sleep(2)
                 predict_rection_batch_response = rxn4chemistry_wrapper.predict_reaction_batch_topn(
                     precursors_lists=new_from_list,

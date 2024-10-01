@@ -42,9 +42,6 @@ def display_molecule(cmd_pointer, inp):
     """displays a molecule and its properties"""
     molecule_identifier = inp.as_dict()["molecule_identifier"]
 
-    print(444)
-
-    # # print(22, molecule_identifier)
     # if GLOBAL_SETTINGS["display"] == "notebook":
     #     global PRINT_WIDTH
     #     PRINT_WIDTH = 100
@@ -100,14 +97,12 @@ def _format_identifers(smol):
     """
     Format the identifiers for display.
     """
-    print(1)
 
     # capitalize the name
     output = f"\n<h1>{smol['name'].capitalize()}</h1>"
 
     identifiers = smol.get("identifiers", {})
     output = output + pretty_key_val(identifiers, print_width=PRINT_WIDTH - 5)
-    print(2)
     return output
 
 
