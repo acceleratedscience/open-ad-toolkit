@@ -11,7 +11,6 @@ _META_DICT = {
 # Template for a small molecule dictionary.
 OPENAD_SMOL_DICT = {
     # The main name of this molecule.
-    "name": None,
     "identifiers": {
         "name": None,
         "inchi": None,

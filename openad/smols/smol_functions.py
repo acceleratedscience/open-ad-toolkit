@@ -13,8 +13,7 @@ import asyncio
 import aiofiles
 import pubchempy as pcy
 from copy import deepcopy
-from datetime import datetime
-from rdkit import Chem, rdBase
+from rdkit import Chem, rdBase, RDLogger
 from rdkit.Chem.rdchem import Mol
 from rdkit.Chem.Descriptors import MolWt, ExactMolWt
 
@@ -22,13 +21,14 @@ from rdkit.Chem.Descriptors import MolWt, ExactMolWt
 from openad.helpers.output_msgs import msg
 from openad.helpers.output import output_error, output_warning, output_success, output_text
 from openad.helpers.files import open_file
-from openad.helpers.general import confirm_prompt, pretty_date
+from openad.helpers.general import confirm_prompt, pretty_date, is_numeric
 from openad.helpers.spinner import spinner
 from openad.helpers.json_decimal_encoder import DecimalEncoder
 from openad.helpers.data_formats import OPENAD_SMOL_DICT
 
 # Suppress RDKit logs
-rdBase.BlockLogs()  # pylint: disable=c-extension-no-member
+# rdBase.BlockLogs()  # pylint: disable=c-extension-no-member
+RDLogger.DisableLog("rdApp.error")  # Added because rdBase.BlockLogs doesn't seem to work anymore (?)
 
 # PubChem accepted molecule identifiers
 PCY_IDFR = {
@@ -283,7 +283,7 @@ def get_smol_from_pubchem(identifier: str, show_spinner: bool = False) -> dict |
         if not smol and show_spinner:
             spinner.stop()
             output_text(error_msg.format("inchikey"))
-    if not smol and identifier.isdigit():
+    if not smol and is_numeric(identifier):
         if show_spinner:
             spinner.start("Searching PubChem for CID")
         smol = _get_pubchem_compound(identifier, PCY_IDFR["cid"])
@@ -386,11 +386,11 @@ def _add_pcy_data(smol, smol_pcy, identifier, identifier_type):
 
     # Add name
     if identifier_type == PCY_IDFR["name"]:
-        smol["name"] = identifier
+        smol["identifiers"]["name"] = identifier
     elif len(smol.get("synonyms", [])) > 1:
-        smol["name"] = smol["synonyms"][0]
+        smol["identifiers"]["name"] = smol["synonyms"][0]
     else:
-        smol["name"] = smol_pcy["iupac_name"]
+        smol["identifiers"]["name"] = smol_pcy["iupac_name"]
 
     # Add properties
     smol["properties"] = smol_pcy
@@ -465,19 +465,19 @@ def _get_identifiers(smol: dict) -> dict:
     # In case this smol has the identifiers already separated.
     if smol.get("identifiers"):
         for key, val in smol.get("identifiers").items():
-            if val:
+            if val and key != "name":
                 return smol["identifiers"]
 
-    identifier_dict = {}
+    identifier_dict = {"name": smol["identifiers"].get("name", None)}
 
     # Create a lowercase version of the properties dictionary
     # so we can scan for properties in a case-insensitive way.
-    smolProps = {k.lower(): v for k, v in smol["properties"].items()}
+    smol_props = {k.lower(): v for k, v in smol["properties"].items()}
 
     # Separate idenfitiers from properties.
     for key in identifier_keys:
-        if key in smolProps:
-            identifier_dict[key] = smolProps[key]
+        if key in smol_props:
+            identifier_dict[key] = smol_props[key]
 
     return identifier_dict
 
@@ -543,7 +543,7 @@ def new_smol(inchi_or_smiles: str = None, mol_rdkit: Mol = None, name: str = Non
 
     # fmt: off
     # Store identifiers
-    smol["name"] = name
+    smol["identifiers"]["name"] = name
     smol["identifiers"]["inchi"] = Chem.MolToInchi(mol_rdkit)
     smol["identifiers"]["inchikey"] = Chem.inchi.InchiToInchiKey(smol["properties"]["inchi"])
     smol["identifiers"]["canonical_smiles"] = Chem.MolToSmiles(mol_rdkit)  # pylint: disable=no-member
@@ -765,6 +765,8 @@ def get_smol_from_list(identifier, molset, ignore_synonyms=False):
 
     """
 
+    identifier = str(identifier).strip()
+
     for openad_mol in molset:
         identifiers_dict = openad_mol.get("identifiers")
         synonyms = openad_mol.get("synonyms", [])
@@ -777,7 +779,7 @@ def get_smol_from_list(identifier, molset, ignore_synonyms=False):
             return openad_mol
 
         # CID match
-        if int(identifier) == int(identifiers_dict.get("cid", "")):
+        if is_numeric(identifier) and int(identifier) == int(identifiers_dict.get("cid", "")):
             return openad_mol
 
         # InChI match
@@ -1109,12 +1111,12 @@ def mws_add(cmd_pointer: object, smol: dict, force: bool = False, suppress: bool
         return False
 
     # Fail - already in list.
-    if get_smol_from_mws(cmd_pointer, smol["properties"]["canonical_smiles"]) is not None:
-        output_error("Molecule already in list: " + smol["properties"]["canonical_smiles"], return_val=False)
+    if get_smol_from_mws(cmd_pointer, smol["identifiers"]["canonical_smiles"]) is not None:
+        output_error("Molecule already in list: " + smol["identifiers"]["canonical_smiles"], return_val=False)
         return True
 
     # Name
-    name = smol["name"]
+    name = smol["identifiers"].get("name", None)
 
     # Add function
     def _add_mol():
@@ -1158,13 +1160,13 @@ def mws_remove(cmd_pointer: object, smol: dict, force: bool = False, suppress: b
         return False
 
     # Name
-    name = smol["name"]
+    name = smol["identifiers"]["name"]
 
     # Remove function.
     def _remove_mol():
         i = 0
         key, identifier_to_delete = get_best_available_identifier(smol)
-        while cmd_pointer.molecule_list[i]["properties"][key] != identifier_to_delete:
+        while cmd_pointer.molecule_list[i]["identifiers"][key] != identifier_to_delete:
             i = i + 1
         cmd_pointer.molecule_list.pop(i)
         if suppress is False:

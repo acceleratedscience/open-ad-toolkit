@@ -53,6 +53,10 @@ GLOBAL_SETTINGS = {
     # The width in characters we limit the printed output to.
     "print_width": min(shutil.get_terminal_size().columns, 150),
     #
+    # Flag that triggers the grammar to be refreshed
+    # after we add new molecule properties.
+    "grammar_refresh": False,
+    #
     # "MODEL_SERVICES": None, # unused, trash?
 }
 MEMORY = Memory()

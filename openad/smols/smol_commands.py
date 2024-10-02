@@ -5,6 +5,7 @@ import pickle
 import os
 import json
 import urllib.parse
+from copy import deepcopy
 import pandas as pd
 from rdkit import Chem
 from rdkit.Chem import AllChem
@@ -217,66 +218,60 @@ def format_sources(mol):
 
 
 def export_molecule(cmd_pointer, inp):
-    """exports a molecule as a dictionary"""
+    """
+    Export a molecule as a smol.json file.
+    """
 
     molecule_identifier = inp.as_dict()["molecule_identifier"]
-    mol = get_smol_from_mws(cmd_pointer, molecule_identifier)
-    if mol is None:
-        mol = get_smol_from_pubchem(molecule_identifier)
-        if mol is not None:
-            cmd_pointer.last_external_molecule = mol
-    if mol is not None and ("as_file" in inp.as_dict() or GLOBAL_SETTINGS["display"] not in ["api", "notebook"]):
+    smol = find_smol(cmd_pointer, molecule_identifier)
+    if smol:
+        cmd_pointer.last_external_molecule = smol
+
+    if "as_file" in inp.as_dict() or GLOBAL_SETTINGS["display"] not in ["api", "notebook"]:
         json_file = open(
-            cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/" + mol["name"] + ".json",
+            cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper())
+            + "/"
+            + smol["identifiers"]["name"]
+            + ".smol.json",
             "w",
             encoding="utf-8",
         )
-        json.dump(mol, json_file)
-        output_success("File " + mol["name"] + ".json saved to the current workspace", return_val=False)
-    elif mol is not None and GLOBAL_SETTINGS["display"] in ["api", "notebook"]:
-        return mol.copy()
+        json.dump(smol, json_file)
+        output_success(
+            "Molecule saved as " + smol["identifiers"]["name"] + ".smol.json to your workspace.", return_val=False
+        )
+    elif GLOBAL_SETTINGS["display"] in ["api", "notebook"]:
+        return deepcopy(smol)
     return True
 
 
 def add_molecule(cmd_pointer, inp):
     """
-    Adds a molecule to your molecules working set (my-mols).
+    Adds a molecule to your molecules working set.
     """
 
     identifier = inp.as_dict()["molecule_identifier"]
-
-    if "basic" in inp.as_dict():
-        basic = True
-    else:
-        basic = False
-
-    if "name" in inp.as_dict():
-        name = inp.as_dict()["name"]
-    else:
-        name = identifier
-
-    if "force" in inp.as_dict():
-        force = True
-    else:
-        force = False
+    basic = "basic" in inp.as_dict()
+    name = "name" in inp.as_dict()
+    force = "force" in inp.as_dict()
 
     # Create molecule dict.
-    openad_mol = find_smol(cmd_pointer, identifier, name, basic)
+    smol = find_smol(cmd_pointer, identifier, name, basic)
+
     # Add it to the working set.
-    mws_add(cmd_pointer, openad_mol, force=force)
+    if smol:
+        mws_add(cmd_pointer, smol, force=force)
 
 
 def remove_molecule(cmd_pointer, inp):
     """
-    Removes a molecule from your molecules working set (my-mols).
+    Removes a molecule from your molecules working set.
     """
 
-    if "force" in inp.as_dict():
-        force = True
-    else:
-        force = False
-
     molecule_identifier = inp.as_dict()["molecule_identifier"]
+    force = "force" in inp.as_dict()
+
+    # Remove molecule from working set.
     mol = get_smol_from_mws(cmd_pointer, molecule_identifier)
     mws_remove(cmd_pointer, mol, force=force)
 
@@ -337,39 +332,23 @@ def show_molecules(cmd_pointer, inp):
 
 def rename_mol_in_list(cmd_pointer, inp):
     """
-    Renames a molecule in your working molecule list.
+    Rename a molecule in your molecule working set.
     """
-    if get_smol_from_mws(cmd_pointer, inp.as_dict()["new_name"], ignore_synonyms=True) is not None:
-        output_error("A molecule in your working set already contains the new name", return_val=False)
-        return False
 
     identifier = inp.as_dict()["molecule_identifier"]
+    new_name = inp.as_dict()["new_name"]
+
+    if get_smol_from_mws(cmd_pointer, new_name, ignore_synonyms=True) is not None:
+        output_error("There already exists a molecule named '{new_name}' in your working set.", return_val=False)
+        return False
+
     openad_mol = get_smol_from_list(identifier, cmd_pointer.molecule_list)
     if openad_mol is not None:
-        openad_mol["name"] = inp.as_dict()["new_name"]
+        openad_mol["identifiers"]["name"] = new_name
         output_success("Molecule successfully renamed", return_val=False)
         return True
 
-    # TRASH
-    # @refactored
-    # for mol in cmd_pointer.molecule_list:
-    #     m = is_molecule(mol, inp.as_dict()["molecule_identifier"])
-    #     if m is not None:
-    #         m["name"] = inp.as_dict()["new_name"]
-    #         output_success("Molecule successfully renamed", return_val=False)
-    #         return True
-
-    # TRASH
-    # This is not integrated into mol_functions --> get_smol_from_list
-    # for mol in cmd_pointer.molecule_list:
-    #     m = is_molecule_synonym(mol, inp.as_dict()["molecule_identifier"])
-    #     if m is not None:
-    #         m["name"] = inp.as_dict()["new_name"]
-    #         output_success("molecule successfully renamed", return_val=False)
-    #         return True
-
-    output_error("Molecule was not renamed, no molecule found", return_val=False)
-
+    output_error("No molecule '{identifier}' was found.", return_val=False)
     return False
 
 

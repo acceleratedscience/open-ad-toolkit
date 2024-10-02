@@ -285,6 +285,15 @@ def pretty_date(timestamp=None, style="log"):
     return date_time.strftime(fmt)
 
 
+# Check if a variable (string or number) is numeric.
+def is_numeric(str_or_nr):
+    try:
+        float(str_or_nr)
+        return True
+    except ValueError:
+        return False
+
+
 #
 #
 #
