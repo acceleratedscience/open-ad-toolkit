@@ -1,14 +1,21 @@
 """
-This file holds all functions that translate between different molecule and molecule set formats.
+Functions to translate between different molecule and molecule set formats.
 """
 
+import ast
 import json
 import pandas as pd
-from rdkit import Chem
+from rdkit import Chem, rdBase, RDLogger
 
 from openad.helpers.files import open_file
 from openad.helpers.output import output_error
 import openad.smols.smol_functions as smol_functions
+
+# RDLogger.DisableLog("rdApp.error")  # Suppress RDKiot errors
+
+
+#
+#
 
 
 def smol2svg(inchi_or_smiles, highlight=None):
@@ -202,13 +209,23 @@ def dataframe2molset(df):
     elif "smiles" in cols_lowercase:
         identifier_index = cols_lowercase.index("smiles")
         identifier = df.columns[identifier_index]
+    elif "canonical_smiles" in cols_lowercase:
+        identifier_index = cols_lowercase.index("canonical_smiles")
+        identifier = df.columns[identifier_index]
+    elif "isomeric_smiles" in cols_lowercase:
+        identifier_index = cols_lowercase.index("isomeric_smiles")
+        identifier = df.columns[identifier_index]
     else:
         return None
 
     # Convert the molecules to SDF format
     molset = []
     for i, row in df.iterrows():
-        mol_dict = smol_functions.new_smol(row[identifier])
+        # Get case insensitive name column
+        name = next((value for key, value in row.items() if key.lower() == "name"), None)
+
+        # Create molecule
+        mol_dict = smol_functions.new_smol(row[identifier], name=name)
 
         if mol_dict is not None:
             # Add all other dataframe columns as properties to the SDF data,
@@ -247,12 +264,12 @@ def molset2dataframe(molset, remove_invalid_mols=False, include_romol=False):
     # Flatten the molset into a list of dictionaries.
     data = []
     invalid = []
-    for i, mol in enumerate(molset):
+    for i, smol in enumerate(molset):
         # Create RDKit molecule object (ROMol)
-        if mol["identifiers"].get("inchi"):
-            mol_rdkit = Chem.MolFromInchi(mol["identifiers"]["inchi"])
+        if smol["identifiers"].get("inchi"):
+            mol_rdkit = Chem.MolFromInchi(smol["identifiers"]["inchi"])
         else:
-            smiles = smol_functions.get_best_available_smiles(mol)
+            smiles = smol_functions.get_best_available_smiles(smol)
             if smiles:
                 mol_rdkit = Chem.MolFromSmiles(smiles)  # pylint: disable=no-member
 
@@ -268,17 +285,21 @@ def molset2dataframe(molset, remove_invalid_mols=False, include_romol=False):
         else:
             row = {}
 
-        # Add all other properties to the row.
-        for key in mol["identifiers"]:
-            if mol["identifiers"][key]:
-                row[key] = mol["identifiers"][key]
-        for key in mol["properties"]:
-            if mol["properties"][key] is None:  # To avoid None values to be stored as "None" string
+        # Add identifiers to the row.
+        for key in smol["identifiers"]:
+            if smol["identifiers"][key]:
+                row[key] = smol["identifiers"][key]
+
+        # Add properties to the row.
+        for key in smol["properties"]:
+            if smol["properties"][key] is None:  # To avoid None values to be stored as "None" string
                 row[key] = ""
             else:
-                row[key] = mol["properties"][key]
-        if mol["synonyms"] and len(mol["synonyms"]) > 0:
-            row["synonyms"] = "\n".join(mol["synonyms"])
+                row[key] = smol["properties"][key]
+
+        # Add synonyms to the row.
+        if smol["synonyms"] and len(smol["synonyms"]) > 0:
+            row["synonyms"] = "\n".join(smol["synonyms"])
         data.append(row)
 
     # Return list of failures unless user has
@@ -288,7 +309,9 @@ def molset2dataframe(molset, remove_invalid_mols=False, include_romol=False):
         raise ValueError(f"Failed to parse {len(invalid)} molecules", invalid_mols)
 
     # Turn data into dataframe
-    return pd.DataFrame(data)
+    df = pd.DataFrame(data)
+    df = df.fillna("")  # Replace NaN with empty string
+    return df
 
 
 def write_dataframe2sdf(df, destination_path):
@@ -373,8 +396,6 @@ def sdf_path2molset(sdf_path):
 
     Used to open SDF files.
     """
-    from openad.smols.smol_functions import OPENAD_SMOL_DICT
-    import ast
 
     # This lets us parse all the properties back to their original types,
     # since SDF stores them all as string. However this is can cause
@@ -383,14 +404,11 @@ def sdf_path2molset(sdf_path):
     # gets converted into a number, which then becomes "Infinite" after parsing.
     def _try_parse_json(value):
         try:
-            print("-->", json.loads(value))
             return json.loads(value)
         except json.JSONDecodeError:
             try:
-                print(">>>", ast.literal_eval(value))
                 return ast.literal_eval(value)
             except (ValueError, SyntaxError):
-                print("xxx", value)
                 return value
 
     try:
@@ -400,6 +418,23 @@ def sdf_path2molset(sdf_path):
             mol_dict = smol_functions.new_smol(mol_rdkit=mol_rdkit)
             mol_dict["index"] = i + 1
             molset.append(mol_dict)
+        return molset, None
+    except Exception as err:
+        return None, err
+
+
+def csv_path2molset(csv_path):
+    """
+    Takes the content of a .csv file and returns a molset dictionary.
+
+    Used to open CSV files.
+    """
+
+    # Read CSV data
+    try:
+        df = pd.read_csv(csv_path)
+        # Convert to molset
+        molset = dataframe2molset(df)
         return molset, None
     except Exception as err:
         return None, err

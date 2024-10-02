@@ -112,6 +112,11 @@ desc = QuotedString("'", escQuote="\\")
 MOL_SHORTHAND = "You can use the 'mol' shorthand instead of 'molecule'."
 MOLS_SHORTHAND = "You can use the 'mols' shorthand instead of 'molecules'."
 MOLSET_SHORTHAND = "You can use the 'molset' shorthand instead of 'molecule-set'."
+SUPPORTED_FILE_FORMATS = """Supported file formats:
+- molset (.molset.json)
+- SDF (.sdf)
+- CSV (.csv)
+- SMILES (.smi)"""
 SPECIFY_MOL = "You can specify any molecule by SMILES or InChI, and PubChem classified molecules also by name, InChIKey or their PubChem CID. \n A molecule identifier can be in single quotes or defined with unquoted text. If you have spaces in your molecule identifier e.g. a name, then you must user a single quoted string"
 WORKING_SET_PRIORITY = "If the requested molecule exists in your current working list, that version will be used."
 USING_NAME = "If you use the name of a molecule, the tool will do a caseless search of the names and synonyms first in current working list, then on pubchem."
@@ -523,8 +528,7 @@ Please refer to the DS4SD and RXN toolkits for further assistance on these comma
             name="@<molecule>",
             category="Small Molecules",
             command="@(<name> | <smiles> | <inchi> | <inchikey> | <cid>)>><molecule_property_name>",
-            description=f"""
-This command request the given property of a molecule, it will first try and retrieve the provided molecule from your working list of molecules, if it is not there it will will try and retrieve the molecule from pubchem.
+            description=f"""This command request the given property of a molecule, it will first try and retrieve the provided molecule from your working list of molecules, if it is not there it will will try and retrieve the molecule from pubchem.
 
 The <cmd>@</cmd> symbol should be followed by the molecule's name, SMILES, InChI, InChIKey or CID, then after the <cmd>>></cmd> include one of the properties mentioned below.
 
@@ -555,37 +559,46 @@ Available properties: <cmd>{'</cmd>, <cmd>'.join(m_props)}</cmd>
         Forward(
             load
             + molecules
-            + using
+            + f_rom
             + file
             + desc("moles_file")
             + Optional((merge + w_ith + pubchem))("pubchem_merge")
             + Optional(CaselessKeyword("append"))("append")
         )("load_molecules_file")
-    )  # From mols file
+    )
+    # DEPRECATED: Backward compatibility
+    statements.append(
+        Forward(
+            load
+            + molecules
+            + using  # <-- changed
+            + file
+            + desc("moles_file")
+            + Optional((merge + w_ith + pubchem))("pubchem_merge")
+            + Optional(CaselessKeyword("append"))("append")
+        )("load_molecules_file-DEPRECATED")
+    )
     grammar_help.append(
         help_dict_create(
             name="load molecules",
             category="Molecules Working Set",
-            command="load molecules using file '<csv_or_sdf_filename>' [ merge with pubchem ] [append]",
-            description="""This command Loads molecules from a CSV or SDF file into the molecule working list. 
-            
-            Options:
-             - you can add <cmd>merge with pubchem</cmd> to the command to fill in missing properties of the molecule.
-             - you can append to the existing working set using the command <cmd> append </append> 
+            command="load molecules from file '<filename.molset.json|sdf|csv|smi>' [ merge with pubchem ] [ append ]",
+            description=f"""Load molecules from a file into your molecule working set.
 
-             and example data set is as follows
+{MOLS_SHORTHAND}
 
-    cid      SMILES                                                                 chemical_name                    molecular weight    xlogp3    
---------   ---------------------------------------------------------------------  --------------------------------  ------------------  --------  
-  114481  C(=O)(C(C(F)(F)F)(OC(C(C(F)(F)F)(F)F)(F)F)F)O                          propanoic acid                     330.05              3.6    
-   67821  C(=O)(C(C(C(C(C(C(C(C(F)(F)F)(F)F)(F)F)(F)F)(F)F)(F)F)(F)F)(F)F)O      Perfluorononanoic acid             464.08              5.6     
-    9554  C(=O)(C(C(C(C(C(C(C(F)(F)F)(F)F)(F)F)(F)F)(F)F)(F)F)(F)F)O             Perfluorooctanoic acid             414.07              4.9    
-   74483  C(C(C(C(C(F)(F)S(=O)(=O)O)(F)F)(F)F)(F)F)(C(C(C(F)(F)F)(F)F)(F)F)(F)F  Perfluorooctane sulfonic acid      500.13               5     
-   67734  C(C(C(C(F)(F)S(=O)(=O)O)(F)F)(F)F)(C(C(F)(F)F)(F)F)(F)F                Perfluorohexanesulphonic acid      400.12              3.7     
-16760155  C(C(C(C(F)(F)S(=O)(=O)[O-])(F)F)(F)F)(C(C(F)(F)F)(F)F)(F)F                                                399.11              3.6 
-             
-             
-             """,
+{SUPPORTED_FILE_FORMATS}
+
+Options:
+- Append <cmd>merge with pubchem</cmd> to enrich the molecule with data from pubchem
+- Append <cmd>append</cmd> to append the molecules to the existing working set instead of overwriting it
+
+Examples:
+- <cmd>load molecules from file 'my_molecules.molset.json'</cmd>
+- <cmd>load mols from file 'my_molecules.sdf'` appen</cmd>
+- <cmd>load molecules from file 'my_molecules.csv'</cmd>
+- <cmd>load mols from file 'my_molecules.smi'` merge with pubche</cmd>
+""",
         )
     )
 
@@ -595,40 +608,45 @@ Available properties: <cmd>{'</cmd>, <cmd>'.join(m_props)}</cmd>
         Forward(
             load
             + molecules
-            + using
+            + f_rom
             + CaselessKeyword("dataframe")
             + molecule_identifier("in_dataframe")
             + Optional((merge + w_ith + pubchem))("pubchem_merge")
             + Optional(CaselessKeyword("append"))("append")
         )("load_molecules_dataframe")
     )
-    # From dataframe
+    # DEPRECATED: Backward compatibility
+    statements.append(
+        Forward(
+            load
+            + molecules
+            + using  # <-- changed
+            + CaselessKeyword("dataframe")
+            + molecule_identifier("in_dataframe")
+            + Optional((merge + w_ith + pubchem))("pubchem_merge")
+            + Optional(CaselessKeyword("append"))("append")
+        )("load_molecules_dataframe-DEPRECATED")
+    )
     grammar_help.append(
         help_dict_create(
             name="load Molecules Working Set",
             category="Molecules Working Set",
-            command="load molecules using dataframe <dataframe> [ merge with pubchem ] [append]",
-            description=""""            
-This command Load molecules into the molecule working list from a dataframe. 
+            command="load molecules from dataframe <dataframe> [ merge with pubchem ] [ append ]",
+            description=f"""Load molecules from a dataframe into your molecule working set.
 
-            Options:
-             - you can add <cmd>merge with pubchem</cmd> to the command to fill in missing properties of the molecule. NOTE:  this will slow the process down
-             - you can append to the existing working set using the command <cmd> append </append> 
-            
-            an example data set that is compatible is as follows
+{MOLS_SHORTHAND}
 
+This command only works when called from a Jupyter Notebook or the API.
 
-    cid      SMILES                                                                 chemical_name                    molecular weight    xlogp3    
---------   ---------------------------------------------------------------------  --------------------------------  ------------------  --------  
-  114481  C(=O)(C(C(F)(F)F)(OC(C(C(F)(F)F)(F)F)(F)F)F)O                          propanoic acid                     330.05              3.6    
-   67821  C(=O)(C(C(C(C(C(C(C(C(F)(F)F)(F)F)(F)F)(F)F)(F)F)(F)F)(F)F)(F)F)O      Perfluorononanoic acid             464.08              5.6     
-    9554  C(=O)(C(C(C(C(C(C(C(F)(F)F)(F)F)(F)F)(F)F)(F)F)(F)F)(F)F)O             Perfluorooctanoic acid             414.07              4.9    
-   74483  C(C(C(C(C(F)(F)S(=O)(=O)O)(F)F)(F)F)(F)F)(C(C(C(F)(F)F)(F)F)(F)F)(F)F  Perfluorooctane sulfonic acid      500.13               5     
-   67734  C(C(C(C(F)(F)S(=O)(=O)O)(F)F)(F)F)(C(C(F)(F)F)(F)F)(F)F                Perfluorohexanesulphonic acid      400.12              3.7     
-16760155  C(C(C(C(F)(F)S(=O)(=O)[O-])(F)F)(F)F)(C(C(F)(F)F)(F)F)(F)F                                                399.11              3.6 
-             
-             
-             """,
+Options:
+- Append <cmd>merge with pubchem</cmd> to enrich the molecule with data from pubchem
+- Append <cmd>append</cmd> to append the molecules to the existing working set instead of overwriting it
+
+Examples:
+- <cmd>load molecules from dataframe my_dataframe</cmd>
+- <cmd>load mols from dataframe my_dataframe append</cmd>
+- <cmd>load mols from dataframe my_dataframe merge with pubchem</cmd>
+""",
         )
     )
 
@@ -688,23 +706,21 @@ to perform the same load and merge with pubchem data simply add the <cmd> merge 
 
     # ---
     # Export molecules
-    statements.append(Forward((export + molecules + Optional(a_s + desc("csv_file_name")))("export_molecules")))
+    statements.append(Forward((export + molecules + Optional(a_s + desc("csv_file_name")))("export_mws")))
     grammar_help.append(
         help_dict_create(
             name="export molecules",
             category="Molecules Working Set",
-            command="export molecules [ as '<filename.json/.csv/.sdf/.smi>' ]",
+            command="export molecules [ as '<filename.molset.json|sdf|csv|smi>' ]",
             description=f"""Export your molecules working set as a dataframe (Jupyter/API) or a file (CLI).
 
 {MOLS_SHORTHAND}
 
 When run inside a Jupyter Notebook or from the API, the <cmd>as <filename></cmd> clause will be ignored and a dataframe will be returned.
 
-When run from the command line, the filename's extension will define what format the molecule are exported as. Supported formats are:
-- molset (.molset.json)
-- CSV (.csv)
-- SDF (.sdf)
-- SMILES (.smi)
+When exporting as a file, the filename's extension will define what format the molecule are exported as.
+
+{SUPPORTED_FILE_FORMATS}
 
 If no filename or extension is provided, the molecules will be saved as molset file.
 """,

@@ -125,7 +125,7 @@ def output_text(message, return_val=None, jup_return_format=None, **kwargs):
             print_s(message, **kwargs)
 
 
-def _output_status(message, status, pad=1, pad_top=None, pad_btm=None, *args, **kwargs):
+def _output_status(message, status, pad=None, pad_top=None, pad_btm=None, *args, **kwargs):
     """
     Assure consistent styling for error/warning/success messages.
 

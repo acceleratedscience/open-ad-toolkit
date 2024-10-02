@@ -32,7 +32,7 @@ from openad.openad_model_plugin.catalog_model_services import (
 
 # molecules
 from openad.smols.smol_functions import df_has_molecules
-from openad.smols.smol_batch_files import load_batch_molecules, merge_molecule_property_data
+from openad.smols.smol_batch_files import load_mols_to_mws, merge_molecule_property_data
 from openad.smols.smol_commands import (
     display_molecule,
     display_property_sources,
@@ -48,7 +48,7 @@ from openad.smols.smol_commands import (
     get_smol_prop,
     rename_mol_in_list,
     clear_workset,
-    export_molecule_set,
+    export_mws,
     show_mol,
     show_molset,
     show_molset_df,
@@ -277,12 +277,21 @@ def lang_parse(cmd_pointer, parser):
         return rename_mol_in_list(cmd_pointer, parser)
     elif parser.getName() == "clear_molecules":
         return clear_workset(cmd_pointer, parser)
+    elif parser.getName() in ["load_molecules_file-DEPRECATED", "load_molecules_dataframe-DEPRECATED"]:
+        output_text(
+            [
+                "<on_red> This command is deprecated </on_red>",
+                "Wrong:   <cmd>load molecules <red>using</red> ...</cmd>",
+                "Correct: <cmd>load molecules <green>from</green> ...</cmd>",
+            ],
+        )
+        return load_mols_to_mws(cmd_pointer, parser)
     elif parser.getName() in ["load_molecules_file", "load_molecules_dataframe"]:
-        return load_batch_molecules(cmd_pointer, parser)
+        return load_mols_to_mws(cmd_pointer, parser)
     elif parser.getName() in ["merge_molecules_data_file", "merge_molecules_data_dataframe"]:
         return merge_molecule_property_data(cmd_pointer, parser)
-    elif parser.getName() == "export_molecules":
-        return export_molecule_set(cmd_pointer, parser)
+    elif parser.getName() == "export_mws":
+        return export_mws(cmd_pointer, parser)
     elif parser.getName() == "show_mol":
         return show_mol(cmd_pointer, parser)
     elif parser.getName() == "show_molset":
@@ -640,13 +649,13 @@ def display_data(cmd_pointer, parser):
             # From csv file.
             try:
                 df = pd.read_csv(workspace_path + file_path)
-                df = df.fillna("")  # Fill NaN with empty string
+                df = df.fillna("")  # Replace NaN with empty string
                 return output_table(df)
             except FileNotFoundError:
                 return output_error(msg("err_file_doesnt_exist", file_path))
             except Exception as err:  # pylint: disable=broad-exception-caught
                 # do not care what exception is, just returning failure
-                return output_error(msg("err_load_csv", err))
+                return output_error(msg("err_load", "CSV", err))
         else:
             # Other file formats --> error.
             return output_error(msg("err_invalid_file_format", "csv"))

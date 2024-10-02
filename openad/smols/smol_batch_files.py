@@ -1,6 +1,7 @@
 """ handles back load and unloading for molecule operations"""
 
 import pandas
+from rdkit import RDLogger
 from rdkit.Chem import PandasTools
 from openad.smols.smol_functions import (
     find_smol,
@@ -11,13 +12,21 @@ from openad.smols.smol_functions import (
     mws_add,
     normalize_mol_df,
     canonicalize,
+    load_mols_from_file,
 )
+from openad.smols.smol_transformers import dataframe2molset
 from openad.app.global_var_lib import GLOBAL_SETTINGS
 from openad.helpers.output import output_error, output_warning, output_success, output_text
 from openad.helpers.output_msgs import msg
 from openad.helpers.spinner import Spinner
 
+RDLogger.DisableLog("rdApp.error")  # Suppress RDKiot errors
+
 mol_name_cache = {}
+
+
+#
+#
 
 
 def merge_molecule_property_data(cmd_pointer, inp):
@@ -97,57 +106,69 @@ def merge_molecule_property_data(cmd_pointer, inp):
 
 def load_mol_data(source_file, cmd_pointer):
     """loads molecule data from a file where Smiles, property and values are supplied in row format"""
+
+    # SDF
     if source_file.split(".")[-1].lower() == "sdf":
-        # From sdf file
         try:
             name = source_file.split("/")[-1]
             sdffile = cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/" + name
             mol_frame = PandasTools.LoadSDF(sdffile)
-        except BaseException as err:
-            output_error(msg("err_load_sdf", err), return_val=False)
+        except Exception as err:
+            output_error(msg("err_load", "SDF", err), return_val=False)
             return None
+
+    # CSV
     elif source_file.split(".")[-1].lower() == "csv":
-        # From csv file.
         try:
             name = source_file.split("/")[-1]
             name = cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/" + name
-
             mol_frame = pandas.read_csv(name, dtype="string")
-
-        except BaseException as err:
-            output_error(msg("err_load_csv", err), return_val=False)
+        except Exception as err:
+            output_error(msg("err_load", "CSV", err), return_val=False)
             return None
 
     return mol_frame
 
 
-def load_batch_molecules(cmd_pointer, inp):
-    """loads molecules in batch"""
+def load_mols_to_mws(cmd_pointer, inp):
+    """
+    Load a batch of molecules into the molecules working set.
+    """
 
-    mol_dataframe = None
-    if "load_molecules_dataframe" in inp.as_dict():
-        mol_dataframe = normalize_mol_df(cmd_pointer.api_variables[inp.as_dict()["in_dataframe"]], batch=True)
+    molset = None
+    df_name = inp.as_dict().get("in_dataframe", None)
+    file_path = inp.as_dict().get("moles_file", None)
+
+    # Load from dataframe
+    if df_name:
+        df = cmd_pointer.api_variables[df_name]
+        molset = dataframe2molset(df)
+        # molset = normalize_mol_df(cmd_pointer.api_variables[inp.as_dict()["in_dataframe"]], batch=True)
+        if molset is None:
+            return output_error("The provided dataframe does not contain molecules")
+
+    # Load from file
+    elif file_path:
+        molset = load_mols_from_file(cmd_pointer, file_path)
+        if molset is None:
+            return output_error("Source not Found")
+
+    # Add molecules
+    if "append" in inp:
+        cmd_pointer.molecule_list.extend(molset)
     else:
-        mol_dataframe = load_mol(inp.as_dict()["moles_file"], cmd_pointer)
+        cmd_pointer.molecule_list = molset
 
-    if mol_dataframe is None:
-        output_error("Source not Found ", return_val=False)
-        return True
-    mol_dataframe = mol_dataframe.fillna("")  # Fill NaN with empty string
-    if "append" not in inp:
-        cmd_pointer.molecule_list.clear()
     if "pubchem_merge" in inp.as_dict():
-        batch_pubchem(cmd_pointer, mol_dataframe)
-    if mol_dataframe is not None:
-        shred_merge_add_df_mols(mol_dataframe, cmd_pointer)
+        batch_pubchem(cmd_pointer, molset)
+
+    if molset:
+        # shred_merge_add_df_mols(molset, cmd_pointer)
         # Todo: `load mols using file` should add instead of overwrite your current mols,
         # when this is implemented, we'll need to calculate successfully loaded mols differently.
-        output_success(f"Total number of records: <yellow>{len(mol_dataframe)}</yellow>", pad=0, return_val=False)
-        output_success(
-            f"Successfully loaded: <yellow>{len(cmd_pointer.molecule_list)}</yellow>", pad=0, return_val=False
+        return output_success(
+            f"Successfully loaded <yellow>{len(molset)}</yellow> molecules into the working set", pad=0
         )
-
-    return True
 
 
 def batch_pubchem(cmd_pointer, dataframe):
@@ -159,6 +180,8 @@ def batch_pubchem(cmd_pointer, dataframe):
         from halo import Halo  # pylint: disable=import-outside-toplevel
 
     batch_spinner = Spinner(GLOBAL_SETTINGS["verbose"])
+
+    print(999, dataframe)
 
     batch_spinner.start("loading molecules from PubChem")
 
@@ -286,29 +309,3 @@ def shred_merge_add_df_mols(dataframe, cmd_pointer):
         output_warning("The following molecules had 1 or more duplicate entries and were merged :", return_val=False)
         output_text("\n   - " + "\n   - ".join(merge_list), return_val=False)
     return True
-
-
-def load_mol(source_file, cmd_pointer):
-    """loads molecules from a souce file"""
-    if source_file.split(".")[-1].lower() == "sdf":
-        # From sdf file
-        try:
-            name = source_file.split("/")[-1]
-            SDFFile = cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/" + name
-
-            return normalize_mol_df(PandasTools.LoadSDF(SDFFile), batch=True)
-
-        except BaseException as err:
-            output_error(msg("err_load_sdf", err), return_val=False)
-            return None
-    elif source_file.split(".")[-1].lower() == "csv":
-        # From csv file.
-        try:
-            name = source_file.split("/")[-1]
-            SDFFile = cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/" + name
-            mol_frame = pandas.read_csv(SDFFile, dtype="string")
-            return normalize_mol_df(mol_frame, batch=True)
-
-        except BaseException as err:
-            output_error(msg("err_load_csv", err), return_val=False)
-            return None

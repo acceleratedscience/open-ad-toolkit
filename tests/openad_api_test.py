@@ -61,7 +61,7 @@ if __name__ == "__main__":
 
     df = myclass2.request("search collection 'PubChem' for 'PFOA OR PFOS OR PFHxS OR PFNA OR HFPO-DA'")
 
-    myclass2.request("load molecules using dataframe df", **vars())
+    myclass2.request("load molecules from dataframe df", **vars())
     a_list = list(set(df["SMILES"].to_list()))
     # Define list of Delta to be inferred properties
     properties = ["is_scaffold", "bertz", "tpsa", "logp", "qed", "plogp", "penalized_logp", "lipinski", "sas", "esol"]

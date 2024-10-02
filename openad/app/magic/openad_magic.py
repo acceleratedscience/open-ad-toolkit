@@ -80,10 +80,7 @@ class AD(Magics):
                     except:  # pylint: disable=bare-except # We do not care what fails
                         pass
                 i += 1
-        print("--")
         result = openad.app.main.api_remote(line, context_cache, api_variable)
-        print(type(result))
-        print(result)
 
         if isinstance(result, DataFrame):
             result = output_table(result, return_val=True)

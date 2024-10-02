@@ -25,7 +25,14 @@ from openad.helpers.general import confirm_prompt, pretty_date, is_numeric
 from openad.helpers.spinner import spinner
 from openad.helpers.json_decimal_encoder import DecimalEncoder
 from openad.helpers.data_formats import OPENAD_SMOL_DICT
-from openad.smols.smol_transformers import molset2dataframe, write_dataframe2sdf, write_dataframe2csv
+from openad.smols.smol_transformers import (
+    molset2dataframe,
+    write_dataframe2sdf,
+    write_dataframe2csv,
+    sdf_path2molset,
+    csv_path2molset,
+    smiles_path2molset,
+)
 
 # Suppress RDKit logs
 # rdBase.BlockLogs()  # pylint: disable=c-extension-no-member
@@ -152,6 +159,11 @@ INPUT_MAPPINGS = {
 }
 
 mol_name_cache = {}
+
+
+#
+#
+
 
 ############################################################
 # region - Lookup / creation
@@ -546,7 +558,7 @@ def new_smol(inchi_or_smiles: str = None, mol_rdkit: Mol = None, name: str = Non
     # Store identifiers
     smol["identifiers"]["name"] = name
     smol["identifiers"]["inchi"] = Chem.MolToInchi(mol_rdkit)
-    smol["identifiers"]["inchikey"] = Chem.inchi.InchiToInchiKey(smol["properties"]["inchi"])
+    smol["identifiers"]["inchikey"] = Chem.inchi.InchiToInchiKey(smol["identifiers"]["inchi"])
     smol["identifiers"]["canonical_smiles"] = Chem.MolToSmiles(mol_rdkit)  # pylint: disable=no-member
     smol["identifiers"]["isomeric_smiles"] = Chem.MolToSmiles(mol_rdkit, isomericSmiles=True)  # pylint: disable=no-member
     smol["identifiers"]["molecular_formula"] = Chem.rdMolDescriptors.CalcMolFormula(mol_rdkit) # pylint: disable=c-extension-no-member
@@ -690,7 +702,69 @@ def valid_inchi(inchi: str) -> bool:
 # endregion
 
 ############################################################
-# region - Saving
+# region - Reading / Saving
+
+
+def load_mols_from_file(cmd_pointer, file_path):
+    """
+    Load list of molecules from a souce file.
+
+    Supported source files:
+    - molset (.molset.json)
+    - SDF (.sdf)
+    - CSV (.csv)
+    - SMILES (.smi)
+    """
+
+    workspace_path = cmd_pointer.workspace_path()
+    file_path_absolute = f"{workspace_path}/{file_path}"
+
+    # Molset
+    if file_path.endswith(".molset.json"):
+        # Read file and return the molset
+        try:
+            with open(file_path_absolute, "r", encoding="utf-8") as file:
+                molset = file.read()
+            molset = json.loads(molset) if molset else None
+            source_type = "molset"
+        except Exception as err:  # pylint: disable=broad-except
+            error = err
+
+    # SDF
+    elif file_path.endswith(".sdf"):
+        molset, error = sdf_path2molset(file_path_absolute)
+        source_type = "SDF"
+
+        # try:
+        #     return normalize_mol_df(PandasTools.LoadSDF(SDFFile), batch=True)
+        # except BaseException as err:
+        #     output_error(msg("err_load_sdf", err), return_val=False)
+        #     return None
+
+    # CSV
+    elif file_path.endswith(".csv"):
+        molset, error = csv_path2molset(file_path_absolute)
+        source_type = "CSV"
+
+        # try:
+        #     mol_frame = pandas.read_csv(file_path_absolute, dtype="string")
+        #     return normalize_mol_df(mol_frame, batch=True)
+
+        # except BaseException as err:
+        #     output_error(msg("err_load_csv", err), return_val=False)
+        #     return None
+
+    # SMILES
+    elif file_path.endswith(".smi"):
+        molset, error = smiles_path2molset(file_path_absolute)
+        source_type = "SMILES"
+
+    # Return
+    if molset:
+        return molset
+    if error:
+        output_error(msg("err_load", source_type, error), return_val=False)
+        return None
 
 
 def save_molset_as_json(molset: list, path: str):
@@ -879,7 +953,7 @@ def get_smol_from_list(identifier, molset, ignore_synonyms=False):
             return None
 
         # Name match
-        if identifier.upper() == identifiers_dict.get("name", "").upper():
+        if identifier.upper() == (identifiers_dict.get("name") or "").upper():
             return openad_mol
 
         # CID match

@@ -106,9 +106,7 @@ _messages = {
     "err_export": lambda err: ["Export failed", err],
     "err_copy": lambda err: ["Copying file failed", err],
     "err_delete": lambda err: ["Deleting file failed", err],
-    "err_load_dataframe": lambda err: ["Unable to load dataframe", err],
-    "err_load_sdf": lambda err: ["Unable to load sdf file", err],
-    "err_load_csv": lambda err: ["Unable to load csv file", err],
+    "err_load": lambda source_type, err: [f"Unable to load {source_type} file", err],
     # endregion
     ##########################################################################
     # region - WORKSPACES

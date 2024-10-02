@@ -335,7 +335,7 @@ def rename_mol_in_list(cmd_pointer, inp):
     return False
 
 
-def export_molecule_set(cmd_pointer, inp):
+def export_mws(cmd_pointer, inp):
     """
     Export molecule working set to a dataframe (Notebook) or CSV file (CLI).
     """
@@ -362,8 +362,8 @@ def export_molecule_set(cmd_pointer, inp):
 
         # No file name provided --> use default
         else:
-            output_warning(msg("war_no_filename_provided", "mols_export.csv"), return_val=False, pad=0)
             file_name = "smol_export"
+            output_warning(msg("war_no_filename_provided", f"{file_name}.{ext}"), return_val=False, pad=0)
 
         # Detect file extension and strip it
         if file_name.lower().endswith(".molset.json"):
