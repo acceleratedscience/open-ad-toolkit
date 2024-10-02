@@ -288,6 +288,7 @@ def load_service_config(local_service_path: str) -> UserProvidedConfig:
             if conf:
                 # create a UserProvidedConfig with conf data
                 spinner.info("found non defaults in openad.cfg")
+                spinner.stop()
                 table_data = [[key, value] for key, value in conf.items()]
                 print(tabulate(table_data, headers=["Resource", "value"], tablefmt="pretty"))
                 return UserProvidedConfig(**conf, workdir=local_service_path, data=json.dumps({}))
@@ -296,6 +297,7 @@ def load_service_config(local_service_path: str) -> UserProvidedConfig:
         except Exception as e:
             output_error(str(e))
             spinner.warn("error with (openad.cfg). Could not load user config. Loading defaults.")
+            spinner.stop()
     # use default config
     return UserProvidedConfig(workdir=local_service_path, data=json.dumps({}))
 
@@ -362,7 +364,7 @@ def catalog_add_model_service(cmd_pointer, parser) -> bool:
         output = add_remote_service_from_endpoint(cmd_pointer, parser)
         if auth_group is not None:
             updated_lookup_table = update_lookup_table(auth_group=auth_group, service=service_name)
-        output_success(f"Service {service_name} added to catalog", return_val=False)
+        output_success(f"Service {service_name} added to catalog for remote service {service_path}", return_val=False)
         return output
     # check if service exists
     with Dispatcher() as service:
@@ -467,6 +469,7 @@ def start_service_shutdown(service_name):
             service.remove_service(service_name)
             service.add_service(service_name, config)
             spinner.warn(f"service {service_name} is terminating.. may take some time.")
+            spinner.stop()
             return True
         else:
             # output_error(

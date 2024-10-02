@@ -64,7 +64,6 @@ except:
 
 SUPPORTED_TELL_ME_MODELS_SETTINGS = {
     "BAM": {
-        # "model": "ibm/granite-13b-instruct-v2",
         "model": "ibm/granite-13b-chat-v2",
         "url": "https://bam-api.res.ibm.com",
         "template": """  When responding follow the following rules:
@@ -86,19 +85,36 @@ Answer the question based only on the following context: {context}  Question: {q
         "settings": {
             "temperature": 0.5,
             "decoding_method": "greedy",
-            "max_new_tokens": 2048,
+            "max_new_tokens": 5000,
             "min_new_tokens": 1,
-            "top_p": 0.85,
+            "top_p": 0.3,
             "top_k": 50,
         },
         "embeddings": None,
         "embeddings_api": None,
     },
     "OLLAMA": {
-        # "model": "granite-code:8b",
-        "model": "instructlab/granite-7b-lab",
+        "model": "llama3.1:8b",
+        # "model": "instructlab/granite-7b-lab:latest",
         "url": OLLAMA_HOST,
-        "template": """You are a technical documentation writer and when responding follow the following rules:
+        "template": """  When responding follow the following rules:
+                - Answer and format like a Technical Documentation writer concisely and to the point
+                - Format All Command Syntax, Clauses, Examples or Option Syntax in codeblock ipython Markdown
+                - Format all Command Syntax, Options or clause quotations in codeblock ipython Markdown
+                - Only format codeblocks one line at a time and place them  on single lines
+                - For each instruction used in an answer also provide full command syntax with clauses and options in codeblock format. for example " Use the `search collection` with the 'PubChem' collection to search for papers and molecules.   \n\n command: ` search collection '<collection name or key>' for '<search string>' using ( [ page_size=<int> system_id=<system_id> edit_distance=<integer> display_first=<integer>]) show (data|docs) [ estimate only|return as data|save as '<csv_filename>' ] ` \n
+                \n For Example: ` search collection 'PubChem' for 'Ibuprofen' show ( data ) ` \n"
+                - Provide All syntax, clauses, Options, Parameters and Examples separated by "\n" for a command when answering a question with no leading spaces on the line
+                - ensure bullet lines are indented consistently
+                - Compounds and Molecules are the same concept
+                - smiles or inchi strings are definitions of compounds or smiles
+                - Always explain using the full name not short form of a name
+                - do not return data in a table format
+                - Always list all options and parameters that are documented for a command
+
+
+Answer the question based only on the following context: {context}  Question: {question} """,
+        "template1": """You are a technical documentation writer and when responding follow the following rules:
                 - Respond like you were writing a refernce guide for a software package
                 - Format All Command Syntax, Clauses, Examples or Option  Syntax in codeblock ipython Markdown
                 - Format all Command Syntax, Options or clause quotations in codeblock ipython Markdown
@@ -110,7 +126,10 @@ Answer the question based only on the following context: {context}  Question: {q
                 - Always explain using the full name not short form of a name
                 - Never refer to source files from the embeddings
                 - after explaning a command  tell them how to go to the help using `<command> ?` substituing the command into the string
+                - if a Property is mentioned look for commands that mention the Property exactly
                 - respond with a output format as per following example
+                - Commands in the documentation are bracketed in the <cmd>  </cmd> tags
+                - prioritise command responses from examples in <cmd> tags
                 '''Command: <put command syntax here >
 
                 Description: <brief description of funciton
@@ -126,11 +145,11 @@ Question: {question}
 
 Answer:""",
         "settings": {
-            "temperature": 0.5,
+            "temperature": 0.2,
             "decoding_method": "greedy",
-            "max_new_tokens": 3000,
+            "max_new_tokens": 5000,
             "min_new_tokens": 1,
-            "top_p": 0.85,
+            "top_p": 0.3,
             "top_k": 50,
         },
         "embeddings": None,
@@ -229,7 +248,13 @@ def get_embeddings_model(service: str, api_key: str):
             ) from e  # pylint: disable=broad-exception-raised
     elif service == "OLLAMA":
         try:
-            embeddings = OllamaEmbeddings(model="nomic-embed-text", base_url=OLLAMA_HOST)
+            embeddings = OllamaEmbeddings(
+                model="pankajrajdeo/sentence-transformers_all-minilm-l6-v2",
+                # model="jmorgan/all-minilm-l6",
+                base_url=OLLAMA_HOST,
+                # model_kwargs={"truncation": True},
+            )
+            # embeddings = OllamaEmbeddings(model="all-minilm", base_url=OLLAMA_HOST)
         except Exception as e:
             raise Exception(
                 "Error: cannot initialise embeddings, check API Key"
@@ -260,7 +285,7 @@ def get_embeddings_model(service: str, api_key: str):
             print("Error: cannot initialise embeddings, check BAM requirements isntalled")
             raise Exception("Error: cannot initialise embeddings, check BAM requirements isntalled") from e
 
-    elif service == "WATSONX":
+    """elif service == "WATSONX":
         if MINI_EMBEDDINGS_MODEL_PRESENT is False:
             return False
         try:
@@ -274,5 +299,5 @@ def get_embeddings_model(service: str, api_key: str):
             raise Exception(
                 "Error: cannot initialise embeddings, check API Key"
             ) from e  # pylint: disable=broad-exception-raised
-        # If not refreshing the database, check to see if the database exists
+        # If not refreshing the database, check to see if the database exists"""
     return embeddings

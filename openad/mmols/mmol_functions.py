@@ -133,7 +133,6 @@ def parse_cif_block(cif_block):
 
     data = {}
     for item in cif_block:
-
         # Pairs
         if item.pair is not None:
             # Category title
