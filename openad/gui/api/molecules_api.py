@@ -332,7 +332,7 @@ class MoleculesApi:
 
             # Save as .sdf file.
             elif format_as == "sdf":
-                df = molset2dataframe([smol])
+                df = molset2dataframe([smol], include_romol=True)
                 write_dataframe2sdf(df, file_path)
 
             # Save as .csv file.
@@ -591,7 +591,7 @@ class MoleculesApi:
             # Save as SDF file.
             if format_as == "sdf":
                 try:
-                    df = molset2dataframe(molset, remove_invalid_mols)
+                    df = molset2dataframe(molset, remove_invalid_mols, include_romol=True)
                     write_dataframe2sdf(df, file_path)
                 except ValueError as err:
                     return {

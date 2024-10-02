@@ -30,7 +30,13 @@ from openad.smols.smol_functions import (
     mws_add,
     mws_remove,
     merge_molecule_REPLACE,
+    save_molset_as_json,
+    save_molset_as_sdf,
+    save_molset_as_csv,
+    save_molset_as_smiles,
+    load_molset_to_mws,
 )
+from openad.smols.smol_transformers import molset2dataframe, write_dataframe2csv
 
 
 def display_molecule(cmd_pointer, inp):
@@ -276,29 +282,6 @@ def remove_molecule(cmd_pointer, inp):
     mws_remove(cmd_pointer, mol, force=force)
 
 
-# def create_molecule(cmd_pointer, inp):
-#     """creates a blank molecule"""
-
-#     molecule_identifier = inp.as_dict()["smiles"]
-#     molecule_name = inp.as_dict()["name"]
-
-#     mol = new_molecule(molecule_name, name=molecule_identifier)
-
-#     identifier = mol["name"] + "   " + mol["properties"]["canonical_smiles"]
-
-#     if get_smol_from_mws(cmd_pointer, mol["properties"]["canonical_smiles"]) != None:
-#         output_error("Molecule already in list", return_val=False)
-#         return True
-
-#     if confirm_prompt("Are you wish to add " + identifier + " to your working list ?"):
-#         cmd_pointer.molecule_list.append(mol.copy())
-#         output_success("Molecule was added.", return_val=False)
-#         return True
-
-#     output_error("Molecule was not added", return_val=False)
-#     return False
-
-
 def clear_workset(cmd_pointer, inp):
     """clears a workset"""
     if confirm_prompt("Are you wish to clear the Molecule Workset ?"):
@@ -353,108 +336,80 @@ def rename_mol_in_list(cmd_pointer, inp):
 
 
 def export_molecule_set(cmd_pointer, inp):
-    """exports molecule Set to Data frame on Notebook or file in workspace"""
+    """
+    Export molecule working set to a dataframe (Notebook) or CSV file (CLI).
+    """
 
     if len(cmd_pointer.molecule_list) == 0:
-        output_error("No molecules in molecule-set", return_val=False)
+        output_error("No molecules stored in your working set.", return_val=False)
         return True
-    csv_file_name = None
 
-    if GLOBAL_SETTINGS["display"] in ["notebook", "api"] and "csv_file_name" not in inp.as_dict():
-        return moleculelist_to_data_frame(cmd_pointer.molecule_list.copy())
+    as_file = "csv_file_name" in inp.as_dict()
+    workspace_path = cmd_pointer.workspace_path()
+    mws = cmd_pointer.molecule_list
+    file_name = None
+    ext = "molset.json"
 
+    # Return dataframe in Jupyter/API
+    if GLOBAL_SETTINGS["display"] in ["notebook", "api"] and not as_file:
+        return molset2dataframe(mws)
+
+    # Save to file
     else:
-        if "csv_file_name" not in inp.as_dict():
-            output_warning(msg("war_no_filename_provided", "mols_export.csv"), return_val=False)
-            csv_file_name = "mols_export"
+        # File name provided
+        if as_file:
+            file_name = inp.as_dict()["csv_file_name"]
+
+        # No file name provided --> use default
         else:
-            csv_file_name = inp.as_dict()["csv_file_name"]
-        if csv_file_name.lower().endswith(".csv"):
-            csv_file_name = csv_file_name.split(".")[0]
+            output_warning(msg("war_no_filename_provided", "mols_export.csv"), return_val=False, pad=0)
+            file_name = "smol_export"
 
-        file_name = cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/" + csv_file_name + ".csv"
+        # Detect file extension and strip it
+        if file_name.lower().endswith(".molset.json"):
+            file_name = file_name[:-12]
+            ext = "molset.json"
+        elif file_name.lower().endswith(".json"):
+            file_name = file_name[:-5]
+            ext = "molset.json"
+        elif file_name.lower().endswith(".sdf"):
+            file_name = file_name[:-4]
+            ext = "sdf"
+        elif file_name.lower().endswith(".csv"):
+            file_name = file_name[:-4]
+            ext = "csv"
+        elif file_name.lower().endswith(".smi"):
+            file_name = file_name[:-4]
+            ext = "smi"
 
-        if os.path.exists(file_name):
-            i = 0
-            while os.path.exists(
-                cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper())
-                + "/"
-                + csv_file_name
-                + str(i)
-                + ".csv"
-            ):
+        # Find the next available file file path
+        file_path = f"{workspace_path}/{file_name}.{ext}"
+        if os.path.exists(file_path):
+            i = 1
+            while os.path.exists(f"{workspace_path}/{file_name}-{i}.{ext}"):
                 i = i + 1
-            file_name = (
-                cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper())
-                + "/"
-                + csv_file_name
-                + str(i)
-                + ".csv"
-            )
-        result = moleculelist_to_data_frame(cmd_pointer.molecule_list.copy())
-        result.to_csv(file_name)
-        output_success(f"Result set saved to workspace as {file_name.split('/')[-1]}", return_val=False)
+            file_path = f"{workspace_path}/{file_name}-{i}.{ext}"
 
+        # Store the file
+        if ext == "molset.json":
+            success, err = save_molset_as_json(mws, file_path)
+        elif ext == "sdf":
+            success, err = save_molset_as_sdf(mws, file_path)
+        elif ext == "csv":
+            success, err = save_molset_as_csv(mws, file_path)
+        elif ext == "smi":
+            success, err = save_molset_as_smiles(mws, file_path)
 
-def moleculelist_to_data_frame(molecule_set):
-    """Turns the molecule list properties to a dataframe"""
-    molecule_list = []
-    for molecule in molecule_set:
-        mol = {"mol_name": molecule["name"]}
-        mol["SMILES"] = molecule["properties"]["canonical_smiles"]
-        mol["canonical_smiles"] = molecule["properties"]["canonical_smiles"]
-        mol["isomeric_smiles"] = molecule["properties"]["isomeric_smiles"]
-        mol["inchi"] = molecule["properties"]["inchi"]
-        mol["inchikey"] = molecule["properties"]["inchikey"]
-        mol["formula"] = molecule["properties"]["molecular_formula"]
+        # Success
+        if success:
+            return output_success(f"Result set saved to workspace as {file_path.split('/')[-1]}", pad=0)
 
-        for mol_property in molecule["properties"]:
-            if mol_property not in mol:
-                mol[mol_property] = molecule["properties"][mol_property]
-        molecule_list.append(mol.copy())
-    return pd.DataFrame(molecule_list)
-
-
-# TRASH
-# @refactored
-# Moved to mol_functions --> get_smol_from_list (includes the loop)
-# def is_molecule(mol, molecule):
-#     """determines if a given molecule identifier is actually a valid molecule"""
-#     if molecule.upper() == mol["name"].upper():
-#         return mol
-#     try:
-#         if int(molecule) == int(mol["properties"]["cid"]):
-#             return mol
-#     except:
-#         pass
-#     if molecule == mol["properties"]["inchi"]:
-#         return mol
-#     if molecule == mol["properties"]["inchikey"]:
-#         return mol
-#     if (
-#         mol["properties"]["isomeric_smiles"] is not None
-#         and molecule.upper() == mol["properties"]["isomeric_smiles"].upper()
-#     ):
-#         return mol
-#     try:
-#         if canonical_smiles(molecule) == canonical_smiles(mol["properties"]["canonical_smiles"]):
-#             return mol
-#     except:
-#         pass
-#     return None
-
-
-# TRASH
-# @refactored
-# This is not integrated into mol_functions --> get_smol_from_list
-# def is_molecule_synonym(mol, molecule):
-#     """determines if a molecule is mentioned in the synonym property of a molecule"""
-#     if mol["synonyms"] is not None and "Synonym" in mol["synonyms"]:
-#         for syn in mol["synonyms"]["Synonym"]:
-#             if molecule.upper() == syn.upper():
-#                 return mol
-
-#     return None
+        # Error
+        elif err:
+            if "invalid_mols" in err:
+                return output_error([err["error_msg"], err["invalid_mols"]])
+            else:
+                return output_error(err["error_msg"])
 
 
 def _create_workspace_dir_if_nonexistent(cmd_pointer, dir_name):

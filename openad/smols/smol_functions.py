@@ -25,6 +25,7 @@ from openad.helpers.general import confirm_prompt, pretty_date, is_numeric
 from openad.helpers.spinner import spinner
 from openad.helpers.json_decimal_encoder import DecimalEncoder
 from openad.helpers.data_formats import OPENAD_SMOL_DICT
+from openad.smols.smol_transformers import molset2dataframe, write_dataframe2sdf, write_dataframe2csv
 
 # Suppress RDKit logs
 # rdBase.BlockLogs()  # pylint: disable=c-extension-no-member
@@ -689,6 +690,109 @@ def valid_inchi(inchi: str) -> bool:
 # endregion
 
 ############################################################
+# region - Saving
+
+
+def save_molset_as_json(molset: list, path: str):
+    """
+    Save a molset as a molset JSON file.
+    """
+
+    # Add/fix extension if missing
+    if path.endswith(".molset.json"):
+        pass
+    elif path.endswith(".json"):
+        path = path[:-4] + "molset.json"
+
+    # Remove any invalid extension
+    elif len(path.split(".")) > 1 and 2 < len(path.split(".")[-1]) < 5:
+        path = path[: -len(path.split(".")[-1])]
+
+    # Write json to disk.
+    try:
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(molset, f, cls=DecimalEncoder, indent=4)
+            return True, None
+    except Exception as err:  # pylint: disable=broad-except
+        return False, {"error_msg": f"Error writing molset.json file: {err}"}
+
+
+def save_molset_as_sdf(molset: list, path: str, remove_invalid_mols=False):
+    """
+    Save a molset as an SDF file.
+    """
+    try:
+        df = molset2dataframe(molset, remove_invalid_mols=remove_invalid_mols, include_romol=True)
+        write_dataframe2sdf(df, path)
+        return True, None
+    except ValueError as err:
+        return False, {
+            "error_msg": str(err),
+            "invalid_mols": err.args[1],
+        }
+
+
+def save_molset_as_csv(molset: list, path: str, remove_invalid_mols=False):
+    """
+    Save a molset as a CSV file.
+    """
+    try:
+        df = molset2dataframe(molset, remove_invalid_mols)
+        write_dataframe2csv(df, path)
+        return True, None
+    except ValueError as err:
+        return False, {
+            "error_msg": str(err),
+            "invalid_mols": err.args[1],
+        }
+
+
+def save_molset_as_smiles(molset: list, path: str, remove_invalid_mols=False):
+    """
+    Save a molset as a SMILES file.
+    """
+    # Collect SMILES.
+    smiles_list = []
+    missing_smiles = []
+    for smol in molset:
+        smiles = get_best_available_smiles(smol)
+        if smiles:
+            smiles_list.append(smiles)
+        else:
+            missing_smiles.append(smol["index"])
+
+    # Return error if there are missing SMILES.
+    if missing_smiles and not remove_invalid_mols:
+        return False, {
+            "error_msg": "Some molecules are missing SMILES.",
+            "invalid_mols": missing_smiles,
+        }
+
+    # Write to file.
+    try:
+        with open(path, "w", encoding="utf-8") as f:
+            f.write("\n".join(smiles_list))
+        return True, None
+
+    # Fail
+    except Exception as err:  # pylint: disable=broad-except
+        return False, {
+            "error_msg": f"Error writing SMILES file: {err}",
+        }
+
+
+def load_molset_to_mws(cmd_pointer: object, molset: list, append=False):
+    """
+    Load a molset into the molecule working set.
+    """
+    if append:
+        cmd_pointer.molecule_list.extend(molset)
+    else:
+        cmd_pointer.molecule_list = molset
+
+
+# endregion
+############################################################
 # region - Utility
 
 
@@ -1132,7 +1236,7 @@ def mws_add(cmd_pointer: object, smol: dict, force: bool = False, suppress: bool
     # Confirm before adding.
     smiles = get_best_available_smiles(smol)
     smiles_str = f" <reset>{smiles}</reset>" if smiles else ""
-    if confirm_prompt(f"Add molecule <green>{name}</green>{smiles_str} to your molecules working list?"):
+    if confirm_prompt(f"Add molecule <green>{name}</green>{smiles_str} to your molecules working set?"):
         return _add_mol()
     else:
         output_error(f"Molecule <yellow>{name}</yellow> was not added", pad=0, return_val=False)

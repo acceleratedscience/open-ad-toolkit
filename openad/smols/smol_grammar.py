@@ -110,6 +110,7 @@ protein_identifier = Word(alphas + "-", "*")
 desc = QuotedString("'", escQuote="\\")
 
 MOL_SHORTHAND = "You can use the 'mol' shorthand instead of 'molecule'."
+MOLS_SHORTHAND = "You can use the 'mols' shorthand instead of 'molecules'."
 MOLSET_SHORTHAND = "You can use the 'molset' shorthand instead of 'molecule-set'."
 SPECIFY_MOL = "You can specify any molecule by SMILES or InChI, and PubChem classified molecules also by name, InChIKey or their PubChem CID. \n A molecule identifier can be in single quotes or defined with unquoted text. If you have spaces in your molecule identifier e.g. a name, then you must user a single quoted string"
 WORKING_SET_PRIORITY = "If the requested molecule exists in your current working list, that version will be used."
@@ -692,11 +693,20 @@ to perform the same load and merge with pubchem data simply add the <cmd> merge 
         help_dict_create(
             name="export molecules",
             category="Molecules Working Set",
-            command="export molecules [ as <csv_filename> ]",
-            description="""
-This command exports the molecules in the current working list of molecules.
+            command="export molecules [ as '<filename.json/.csv/.sdf/.smi>' ]",
+            description=f"""Export your molecules working set as a dataframe (Jupyter/API) or a file (CLI).
 
-When run inside a Notebook, this will return a dataframe. When run from the command line, the molecules will be saved to your workspace as a CSV file named "result_#.csv". The rows will be numbered with the highest number representing the latest molecule that was added.
+{MOLS_SHORTHAND}
+
+When run inside a Jupyter Notebook or from the API, the <cmd>as <filename></cmd> clause will be ignored and a dataframe will be returned.
+
+When run from the command line, the filename's extension will define what format the molecule are exported as. Supported formats are:
+- molset (.molset.json)
+- CSV (.csv)
+- SDF (.sdf)
+- SMILES (.smi)
+
+If no filename or extension is provided, the molecules will be saved as molset file.
 """,
         )
     )
