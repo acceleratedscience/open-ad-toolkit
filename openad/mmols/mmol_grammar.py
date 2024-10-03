@@ -47,11 +47,14 @@ def mmol_grammar_add(statements, grammar_help):
             name="show macromolecule",
             category="Macromolecules",
             command="show mmol|protein <fasta> | '<pdb_id>'",
-            description="""
-Inspect a macromolecule in the browser.
+            description=f"""Launch the molecule viewer { 'in your browser ' if is_notebook_mode() else '' }to visualize your macromolecule and inspect its properties.
 
 Examples:
-- <cmd>show mmol 2g64</cmd>
+- Show a protein by its PDBe ID:
+  <cmd>show mmol '2g64'</cmd>
+
+- Show a protein by its FASTA string:
+  <cmd>show protein MAKWVCKICGYIYDEDAGDPDNGISPGTKFEELPDDWVCPICGAPKSEFEKLED</cmd>
 """,
         )
     )

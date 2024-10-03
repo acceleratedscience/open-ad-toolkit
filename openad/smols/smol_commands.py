@@ -425,7 +425,9 @@ def export_mws(cmd_pointer, inp):
 
         # Success
         if success:
-            return output_success(f"Result set saved to workspace as {file_path.split('/')[-1]}", pad=0)
+            return output_success(
+                f"Result set saved to workspace as <yellow>{file_path.split('/')[-1]}</yellow>", pad=0
+            )
 
         # Error
         elif err:

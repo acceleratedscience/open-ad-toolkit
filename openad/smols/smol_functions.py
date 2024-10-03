@@ -330,6 +330,61 @@ def get_smol_from_pubchem(identifier: str, show_spinner: bool = False) -> dict |
     return None
 
 
+def _sep_identifiers_from_properties(smol: dict) -> dict:
+    """
+    Separate molecules identifiers from properties.
+
+    This is the final step when processing external molecule data
+    from a file like MDL, SDF, CSV, etc. or from an API call, so
+    a molecule is in the correct OpenAD format.
+
+    Parameters:
+    -----------
+    smol: dict
+        The molecule object to modify.
+    """
+
+    # Move all identifiers to the identifiers key.
+    smol["identifiers"] = _get_identifiers(smol)
+
+    # Remove identifiers from properties.
+    # Create a lowercase version of the properties dictionary
+    # so we can scan for properties in a case-insensitive way.
+    molIdfrs = {k.lower(): v for k, v in smol["identifiers"].items()}
+    for prop in list(smol["properties"]):
+        if prop.lower() in molIdfrs:
+            del smol["properties"][prop]
+
+    return smol
+
+
+def _get_identifiers(smol: dict) -> dict:
+    """
+    Pull the identifiers from a molecule.
+    """
+
+    identifier_keys = OPENAD_SMOL_DICT.get("identifiers").keys()
+
+    # In case this smol has the identifiers already separated.
+    if smol.get("identifiers"):
+        for key, val in smol.get("identifiers").items():
+            if val and key != "name":
+                return smol["identifiers"]
+
+    identifier_dict = {"name": smol["identifiers"].get("name", None)}
+
+    # Create a lowercase version of the properties dictionary
+    # so we can scan for properties in a case-insensitive way.
+    smol_props = {k.lower(): v for k, v in smol["properties"].items()}
+
+    # Separate idenfitiers from properties.
+    for key in identifier_keys:
+        if key in smol_props:
+            identifier_dict[key] = smol_props[key]
+
+    return identifier_dict
+
+
 # region--local
 def _get_pubchem_compound(identifier: str, identifier_type: str) -> dict | None:
     """
@@ -438,61 +493,6 @@ def _add_pcy_data(smol, smol_pcy, identifier, identifier_type):
                             smol["property_sources"][x] = y["urn"]
 
     return smol
-
-
-def _sep_identifiers_from_properties(smol: dict) -> dict:
-    """
-    Separate molecules identifiers from properties.
-
-    This is the final step when processing external molecule data
-    from a file like MDL, SDF, CSV, etc. or from an API call, so
-    a molecule is in the correct OpenAD format.
-
-    Parameters:
-    -----------
-    smol: dict
-        The molecule object to modify.
-    """
-
-    # Move all identifiers to the identifiers key.
-    smol["identifiers"] = _get_identifiers(smol)
-
-    # Remove identifiers from properties.
-    # Create a lowercase version of the properties dictionary
-    # so we can scan for properties in a case-insensitive way.
-    molIdfrs = {k.lower(): v for k, v in smol["identifiers"].items()}
-    for prop in list(smol["properties"]):
-        if prop.lower() in molIdfrs:
-            del smol["properties"][prop]
-
-    return smol
-
-
-def _get_identifiers(smol: dict) -> dict:
-    """
-    Pull the identifiers from a molecule.
-    """
-
-    identifier_keys = OPENAD_SMOL_DICT.get("identifiers").keys()
-
-    # In case this smol has the identifiers already separated.
-    if smol.get("identifiers"):
-        for key, val in smol.get("identifiers").items():
-            if val and key != "name":
-                return smol["identifiers"]
-
-    identifier_dict = {"name": smol["identifiers"].get("name", None)}
-
-    # Create a lowercase version of the properties dictionary
-    # so we can scan for properties in a case-insensitive way.
-    smol_props = {k.lower(): v for k, v in smol["properties"].items()}
-
-    # Separate idenfitiers from properties.
-    for key in identifier_keys:
-        if key in smol_props:
-            identifier_dict[key] = smol_props[key]
-
-    return identifier_dict
 
 
 # endregion
@@ -863,6 +863,7 @@ def save_molset_as_smiles(molset: list, path: str, remove_invalid_mols=False):
 
 
 # endregion
+
 ############################################################
 # region - Utility
 
