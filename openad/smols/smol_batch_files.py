@@ -21,6 +21,7 @@ from openad.app.global_var_lib import GLOBAL_SETTINGS
 from openad.helpers.output import output_error, output_warning, output_success, output_text
 from openad.helpers.output_msgs import msg
 from openad.helpers.spinner import Spinner
+from openad.plugins.style_parser import style
 
 RDLogger.DisableLog("rdApp.error")  # Suppress RDKiot errors
 
@@ -184,26 +185,26 @@ def _enrich_with_pubchem_data(cmd_pointer, molset):
 
     for i, smol in enumerate(molset):
         try:
+            identifiers = smol["identifiers"]
+
             # Get name field regardless of case
             name = next((value for key, value in identifiers.items() if key.lower() == "name"), None)
-            spinner.text = f"Fetching from PubChem: #{i} - {name}"
+            spinner.text = style(f"<soft>Fetching from PubChem: #{i} - {name}</soft>")
 
             # Use fallback name is missing
             if not name:
                 name = smol.get("chemical_name", None)
-            if not name:
-                name = identifier
 
             # Select the identifier keys we'll look for in order of preference
-            identifiers = smol["identifiers"]
             keys = ["inchi", "canonical_smiles", "isomeric_smiles", "smiles", "inchikey", "name", "cid"]
             identifier = next((identifiers.get(key) for key in keys if identifiers.get(key) is not None), None)
+            name = name or identifier or "unknown molecule"
             if not identifier:
                 output_warning(f"#{i} - No valid identifier found for {name}", return_val=False)
                 continue
 
             # Fetch enriched molecule
-            smol_enriched = get_smol_from_pubchem(cmd_pointer, identifier)
+            smol_enriched = get_smol_from_pubchem(identifier)
             if not smol_enriched:
                 output_warning(f"#{i} - Failed to enrich {name}", return_val=False)
 
@@ -211,7 +212,8 @@ def _enrich_with_pubchem_data(cmd_pointer, molset):
             smol = merge_smols(smol, smol_enriched)
 
         except Exception as err:  # pylint: disable=broad-except
-            output_text(["Something went wrong enriching molecules with data from PubChem", err], return_val=False)
+            spinner.stop()
+            output_error(["Something went wrong enriching molecules with data from PubChem", err], return_val=False)
 
     spinner.succeed("Done")
     spinner.stop()

@@ -81,7 +81,7 @@ def confirm_prompt(question: str = "", default=False) -> bool:
     reply = None
     while reply not in ("y", "n"):
         try:
-            output_text(f"<yellow>{question}</yellow>", pad_top=1, return_val=False)
+            output_text(f"<yellow>{question}</yellow>", return_val=False)
             reply = input("(y/n): ").casefold()
             readline.remove_history_item(readline.get_current_history_length() - 1)
         except KeyboardInterrupt:

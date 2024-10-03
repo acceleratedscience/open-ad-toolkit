@@ -282,14 +282,25 @@ def lang_parse(cmd_pointer, parser):
         # output_text(
         #     [
         #         "<on_red> This command is deprecated </on_red>",
-        #         "Wrong:   <cmd>load molecules <red>using</red> ...</cmd>",
-        #         "Correct: <cmd>load molecules <green>from</green> ...</cmd>",
+        #         "Wrong:   <cmd>load molecules <red>using</red> ... <red>merge with pubchem</red></cmd>",
+        #         "Correct: <cmd>load molecules <green>from</green> ... <green>enrich</green></cmd>",
         #     ],
         # )
         return load_mols_to_mws(cmd_pointer, parser)
     elif parser.getName() in ["load_molecules_file", "load_molecules_dataframe"]:
         return load_mols_to_mws(cmd_pointer, parser)
+    elif parser.getName() in ["merge_molecules_data_file-DEPRECATED", "merge_molecules_data_dataframe-DEPRECATED"]:
+        # Un-comment this in next major release to display deprecation message.
+        # output_text(
+        #     [
+        #         "<on_red> This command is deprecated </on_red>",
+        #         "Wrong:   <cmd>merge molecules <red>using</red> ... <red>merge with pubchem</red></cmd>",
+        #         "Correct: <cmd>merge molecules <green>from</green> ... <green>enrich</green></cmd>",
+        #     ],
+        # )
+        return merge_molecule_property_data(cmd_pointer, parser)
     elif parser.getName() in ["merge_molecules_data_file", "merge_molecules_data_dataframe"]:
+        # NOTE: merge_molecules_data_file is not implemented
         return merge_molecule_property_data(cmd_pointer, parser)
     elif parser.getName() == "export_mws":
         return export_mws(cmd_pointer, parser)

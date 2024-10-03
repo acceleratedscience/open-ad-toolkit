@@ -557,12 +557,18 @@ def new_smol(inchi_or_smiles: str = None, mol_rdkit: Mol = None, name: str = Non
     # fmt: off
     # Store identifiers
     smol["identifiers"]["name"] = name
-    smol["identifiers"]["inchi"] = Chem.MolToInchi(mol_rdkit)
+    smol["identifiers"]["inchi"] = Chem.MolToInchi(mol_rdkit) # See note below **
     smol["identifiers"]["inchikey"] = Chem.inchi.InchiToInchiKey(smol["identifiers"]["inchi"])
     smol["identifiers"]["canonical_smiles"] = Chem.MolToSmiles(mol_rdkit)  # pylint: disable=no-member
     smol["identifiers"]["isomeric_smiles"] = Chem.MolToSmiles(mol_rdkit, isomericSmiles=True)  # pylint: disable=no-member
     smol["identifiers"]["molecular_formula"] = Chem.rdMolDescriptors.CalcMolFormula(mol_rdkit) # pylint: disable=c-extension-no-member
     smol["properties"]["molecular_weight"] = MolWt(mol_rdkit)
+
+    # ** Note:
+    # This will print error messages to the console which we can't
+    # seem to suppress using RDLogger.DisableLog("rdApp.error").
+    # Error example for smiles CC(CC1=CC2=C(C=C1)OCO2)NC:
+    # [14:38:48] WARNING: Omitted undefined stereo
     
     # Store property sources
     smol["property_sources"]["name"] = prop_src
@@ -1380,7 +1386,7 @@ def merge_smols(smol: dict, merge_smol: dict) -> dict:
 
         # Merge identifiers
         if key == "identifiers" and isinstance(val, dict):
-            for idfr_key, idfr_val in val:
+            for idfr_key, idfr_val in val.items():
                 # Skip if None
                 if idfr_val is None:
                     continue
@@ -1398,7 +1404,7 @@ def merge_smols(smol: dict, merge_smol: dict) -> dict:
 
         # Merge properties & property sources
         elif key == "properties" and isinstance(val, dict):
-            for prop_key, prop_val in val:
+            for prop_key, prop_val in val.items():
                 # Skip if None
                 if prop_val is None:
                     continue
@@ -1406,7 +1412,7 @@ def merge_smols(smol: dict, merge_smol: dict) -> dict:
                 # Set property and property source
                 else:
                     smol[key][prop_key] = prop_val
-                    source = merge_smol["property_sources"][prop_key] or {"source": "merge", "date": pretty_date()}
+                    source = merge_smol["property_sources"].get(prop_key) or {"source": "merge", "date": pretty_date()}
                     smol["property_sources"][prop_key] = source
 
         # Merge analysis results - without duplcates
@@ -1420,7 +1426,10 @@ def merge_smols(smol: dict, merge_smol: dict) -> dict:
 
             # Merge labels without duplicates and ensure they're all lowercase
             smol[key]["labels"] = list(
-                set(list(map(str.lower, smol[key]["labels"])) + list(map(str.lower, merge_smol[key]["labels"])))
+                set(
+                    list(map(str.lower, smol[key].get("labels", [])))
+                    + list(map(str.lower, merge_smol[key].get("labels", [])))
+                )
             )
 
         # Merge enriched flag - only merge when True
