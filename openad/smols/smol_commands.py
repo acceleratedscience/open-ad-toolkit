@@ -481,8 +481,8 @@ def get_smol_prop(cmd_pointer, inp):
 
     # Fail
     else:
-        output_error(
-            f"We couldn't find the '<reset>{molecule_property}</reset>' property for the molecule <yellow>{molecule_identifier}</yellow>."
+        return output_error(
+            f"We couldn't find the <yellow>{molecule_property}</yellow> property for the molecule <yellow>{molecule_identifier}</yellow>."
         )
 
     # Return
