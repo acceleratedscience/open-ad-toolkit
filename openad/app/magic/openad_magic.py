@@ -73,7 +73,9 @@ class AD(Magics):
             result = result.replace("<br>", "\n")
 
         display(result)
-        # return result
+
+        # MAJOR-RELEASE-TODO: display function should never return data
+        return result
 
     @needs_local_scope
     @line_cell_magic
@@ -97,10 +99,11 @@ class AD(Magics):
                 i += 1
         result = openad.app.main.api_remote(line, context_cache, api_variable)
 
+        # MAJOR-RELEASE-TODO: data function should never display
         if isinstance(result, Styler):
             result = result.data
-        # if isinstance(result, str):
-        #     display(Markdown(result))
+        if isinstance(result, str):
+            display(Markdown(result))
         return result
 
 

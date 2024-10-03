@@ -7,15 +7,11 @@ import copy
 import pickle
 import urllib.parse
 from copy import deepcopy
-import glob
-import pickle
-import shutil
 import pandas as pd
 from rdkit import Chem
 from rdkit.Chem import AllChem
 
 # Helpers
-from openad.helpers.general import confirm_prompt
 from openad.helpers.output import output_text, output_table, output_warning, output_error, output_success
 from openad.helpers.output_msgs import msg
 from openad.helpers.pretty_data import list_columns, key_val_columns, key_val_full
@@ -23,7 +19,7 @@ from openad.app.global_var_lib import GLOBAL_SETTINGS
 
 
 # Molecule functions
-from openad.smols.smol_transformers import molset2dataframe, write_dataframe2csv
+from openad.smols.smol_transformers import molset2dataframe
 from openad.smols.smol_functions import (
     SMOL_PROPERTIES,
     find_smol,
@@ -505,6 +501,7 @@ def show_mol(cmd_pointer, inp):
     molecule_identifier = inp.as_dict()["molecule_identifier"]
     path = "smol/" + urllib.parse.quote(molecule_identifier, safe="")
     gui_init(cmd_pointer, path)
+    return True
 
 
 # Launch molset viewer and display a molecule set file.
@@ -515,6 +512,7 @@ def show_molset(cmd_pointer, inp):
 
     path = "~/" + urllib.parse.quote(molset_file, safe="")
     gui_init(cmd_pointer, path)
+    return True
 
 
 # Launch molset viewer and display a molecule set dataframe.
@@ -526,6 +524,7 @@ def show_molset_df(cmd_pointer, inp):
 
     path = "dataframe/" + df_name
     gui_init(cmd_pointer, path)
+    return True
 
 
 def _create_workspace_dir_if_nonexistent(cmd_pointer, dir_name):

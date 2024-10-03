@@ -82,7 +82,7 @@ def merge_molecule_property_data(cmd_pointer, inp=None, mol_dataframe=None):
             smiles = canonicalize(row[SMILES])
 
             merge_mol = get_smol_from_mws(cmd_pointer, smiles)
-        except:
+        except Exception:  # pylint: disable=broad-except
             output_warning("unable to canonicalise:" + row[SMILES])
             continue
         if merge_mol is None:

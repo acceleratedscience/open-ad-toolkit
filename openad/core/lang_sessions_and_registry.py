@@ -100,7 +100,7 @@ def delete_session_registry(session_id: str):
     """
     try:
         os.remove(_meta_registry_session + session_id)
-    except Exception as err:
+    except Exception as err:  # pylint: disable=broad-except
         # When clear sessions was called from another session,
         # the session registry file won't exist and we don't
         # want to throw an error.
@@ -126,7 +126,7 @@ def clear_sessions(cmd_pointer, parser):
             os.remove(os.path.dirname(_meta_registry_session) + "/" + i)
         # raise Exception("This is a test exception")
         return output_success(msg("success_clear_sessions"), return_val=False)
-    except Exception as err:
+    except Exception as err:  # pylint: disable=broad-except
         output_error(msg("err_clear_sessions", err), return_val=False)
         return False
 
