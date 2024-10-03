@@ -309,13 +309,6 @@ def merge_dict_lists(list1, list2):
     return merged_list
 
 
-# Example usage
-list1 = [{"a": 1, "b": 2}, {"c": 3, "d": 4}]
-list2 = [{"b": 2, "a": 1}, {"e": 5, "f": 6}]
-
-merged_list = merge_dict_lists(list1, list2)
-print(merged_list)  # Output: [{'a': 1, 'b': 2}, {'c': 3, 'd': 4}, {'e': 5, 'f': 6}]
-
 #
 #
 #
