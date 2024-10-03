@@ -125,7 +125,7 @@ class MoleculesApi:
 
     def add_mol_to_mws(self):
         """
-        Add a molecule to the molecule working set
+        Add a molecule to the molecule working set.
 
         Takes either an identifier or a mol object.
         Identifier is slow because the molecule data has to be loaded from PubChem.
@@ -149,7 +149,7 @@ class MoleculesApi:
 
     def remove_mol_from_mws(self):
         """
-        Remove a molecule from the my-mols working set.
+        Remove a molecule from your molecule working set.
 
         Takes either an identifier or a mol object.
         Identifier is slow because the molecule data has to be loaded from PubChem.
@@ -163,9 +163,9 @@ class MoleculesApi:
 
         return {"status": success}, 200
 
-    def check_mol_in_list(self):
+    def check_mol_in_mws(self):
         """
-        Check if a molecule is stored in the my-mols working set.
+        Check if a molecule is stored in your molecule working set.
         """
 
         data = json.loads(request.data) if request.data else {}
@@ -405,9 +405,9 @@ class MoleculesApi:
         # Formulate response object.
         return create_molset_response(molset, query, cache_id), 200
 
-    def get_molset_list(self):
+    def get_molset_mws(self):
         """
-        Get the list of molecules currently stored in the cmd_pointer.
+        Get the list of molecules currently stored in the molecule working set.
         """
 
         data = json.loads(request.data) if request.data else {}
@@ -497,9 +497,9 @@ class MoleculesApi:
         """
         return self._save_molset(new_file=False)
 
-    def update_molset_list(self):
+    def update_molset_mws(self):
         """
-        Save changes to the molecule list.
+        Save changes to the molecule working set.
         """
         return self._save_molset(format_as="my-mols")
 

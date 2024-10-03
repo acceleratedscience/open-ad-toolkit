@@ -1310,7 +1310,7 @@ def mws_add(cmd_pointer: object, smol: dict, force: bool = False, suppress: bool
     # Confirm before adding.
     smiles = get_best_available_smiles(smol)
     smiles_str = f" <reset>{smiles}</reset>" if smiles else ""
-    if confirm_prompt(f"Add molecule <green>{name}</green>{smiles_str} to your molecules working set?"):
+    if confirm_prompt(f"Add molecule <green>{name}</green>{smiles_str} to your molecule working set?"):
         return _add_mol()
     else:
         output_error(f"Molecule <yellow>{name}</yellow> was not added", pad=0, return_val=False)
@@ -1358,7 +1358,7 @@ def mws_remove(cmd_pointer: object, smol: dict, force: bool = False, suppress: b
     # Confirm before removing.
     smiles = get_best_available_smiles(smol)
     smiles_str = f" <reset>{smiles}</reset>" if smiles else ""
-    if confirm_prompt(f"Remove molecule <green>{name}</green>{smiles_str} from your molecules working list?"):
+    if confirm_prompt(f"Remove molecule <green>{name}</green>{smiles_str} from your working set?"):
         return _remove_mol()
     else:
         output_error(f"Molecule <yellow>{name}</yellow> was not removed", pad=0, return_val=False)

@@ -118,8 +118,8 @@ SUPPORTED_FILE_FORMATS = """Supported file formats:
 - CSV (.csv)
 - SMILES (.smi)"""
 SPECIFY_MOL = "You can specify any molecule by SMILES or InChI, and PubChem classified molecules also by name, InChIKey or their PubChem CID. \n A molecule identifier can be in single quotes or defined with unquoted text. If you have spaces in your molecule identifier e.g. a name, then you must user a single quoted string"
-WORKING_SET_PRIORITY = "If the requested molecule exists in your current working list, that version will be used."
-USING_NAME = "If you use the name of a molecule, the tool will do a caseless search of the names and synonyms first in current working list, then on pubchem."
+WORKING_SET_PRIORITY = "If the requested molecule exists in your current working set, that version will be used."
+USING_NAME = "If you use the name of a molecule, the tool will do a caseless search of the names and synonyms first in current molecule working set, then on PubChem."
 
 
 def smol_grammar_add(statements, grammar_help):
@@ -140,10 +140,10 @@ def smol_grammar_add(statements, grammar_help):
     grammar_help.append(
         help_dict_create(
             name="add molecule",
-            category="Molecules Working Set",
+            category="Molecule Working Set",
             command="add mol|molecule <name> | <smiles> | <inchi> | <inchikey> | <cid> [ as '<name>' ] [ basic ] [ force ]",
             description=f"""
-This command is how you add a molecule to a current working list of molecules in memory. When adding a molecule by name, this name will become the molecule's identifying string. 
+This command is how you add a molecule to your current molecule working set in memory. When adding a molecule by name, this name will become the molecule's identifying string. 
 
 It will take any molecules identifier from the following categories:
     -<cmd>smiles </cmd>
@@ -169,7 +169,7 @@ Options :
 {USING_NAME}
 
 
-Examples of how to add a molecule to your working list:
+Examples of how to add a molecule to your molecule working set:
 - Add a molecule by name:
 <cmd>add molecule aspirin</cmd>
 or with single quotes
@@ -250,7 +250,7 @@ Examples:
     grammar_help.append(
         help_dict_create(
             name="display sources",
-            category="Molecules Working Set",
+            category="Molecule Working Set",
             command="display sources <name> | <smiles> | <inchi> | <inchikey> | <cid>",
             description=f"""
 Display the sources of a molecule's properties, attributing back to how they were calculated or sourced.
@@ -280,15 +280,15 @@ Display the sources of a molecule's properties, attributing back to how they wer
     grammar_help.append(
         help_dict_create(
             name="rename molecule",
-            category="Molecules Working Set",
+            category="Molecule Working Set",
             command="rename molecule <molecule_identifer_string> as <molecule_name>",
             description=f"""
-Rename a molecule in the current working list.
+Rename a molecule in the current working set.
 
 {MOL_SHORTHAND}
 
 Example:
-Let's say you've added a molecule "CC(=O)OC1=CC=CC=C1C(=O)O" to your current working list of molecules, you can then rename it as such:
+Let's say you've added a molecule "CC(=O)OC1=CC=CC=C1C(=O)O" to your current molecule working set, you can then rename it as such:
 <cmd>rename molecule CC(=O)OC1=CC=CC=C1C(=O)O as Aspirin</cmd>
 """,
         )
@@ -308,11 +308,11 @@ Let's say you've added a molecule "CC(=O)OC1=CC=CC=C1C(=O)O" to your current wor
     grammar_help.append(
         help_dict_create(
             name="export molecule",
-            category="Molecules Working Set",
+            category="Molecule Working Set",
             command="export molecule <name> | <smiles> | <inchi> | <inchikey> | <cid> [ as file ]",
             description=f"""
 When run inside a jupyter lab notebook, this will return a dictionary of the molecule's properties. When run from the command line, or when <cmd>as file</cmd> is set, the molecule will be saved to your workspace as a JSON file, named after the molecule's identifying string.
-If the molecule is in your current working list it will be retrieved from there, if the molecule is not there pubchem will be called to retrieve the molecule.
+If the molecule is in your current working set it will be retrieved from there, if the molecule is not there pubchem will be called to retrieve the molecule.
 
 {MOL_SHORTHAND}
 
@@ -337,10 +337,10 @@ Examples
     grammar_help.append(
         help_dict_create(
             name="remove molecule",
-            category="Molecules Working Set",
+            category="Molecule Working Set",
             command="remove mol|molecule <name> | <smiles> | <inchi> | <inchikey> | <cid> [ force ]",
             description=f"""
-Remove a molecule from the current working list based on a given molecule identifier.
+Remove a molecule from the current working set based on a given molecule identifier.
 
 {MOL_SHORTHAND}
             
@@ -369,9 +369,9 @@ Examples:
     grammar_help.append(
         help_dict_create(
             name="list molecules",
-            category="Molecules Working Set",
+            category="Molecule Working Set",
             command="list molecules",
-            description="List all molecules in the current working list.",
+            description="List all molecules in the current working set.",
         )
     )
 
@@ -381,9 +381,9 @@ Examples:
     grammar_help.append(
         help_dict_create(
             name="show molecules",
-            category="Molecules Working Set",
+            category="Molecule Working Set",
             command="show mols|molecules",
-            description="Display the current working list of molecules in the GUI.",
+            description="Display the current molecule working set in the GUI.",
         )
     )
 
@@ -440,7 +440,7 @@ Example:
             category="Molecule Sets",
             command="merge molecule-set|molset <molecule-set_name> [merge only] [append only]",
             description="""
-This command merges a molecule-set from your workspace into cour current working list of molecules in memory, and updates properties/Analysis in existing molecules or appends new molecules to the working list.
+This command merges a molecule-set from your workspace into cour current molecule working set in memory, and updates properties/Analysis in existing molecules or appends new molecules to the working set.
 
 Options:
     - <cmd> merge only</cmd> Only merges with existing molecules in list
@@ -469,7 +469,7 @@ Options:
     grammar_help.append(
         help_dict_create(
             name="enrich molecules",
-            category="Molecules Working Set",
+            category="Molecule Working Set",
             command="enrich molecules with analysis",
             description="""
 Enrich the molecules in your working set with the results of the last performed analysis.
@@ -498,7 +498,7 @@ Please refer to the DS4SD and RXN toolkits for further assistance on these comma
     grammar_help.append(
         help_dict_create(
             name="clear analysis cache",
-            category="Molecules Working Set",
+            category="Molecule Working Set",
             command="clear analysis cache",
             description="this command clears the cache of analysis results for your current workspace.",
         )
@@ -510,9 +510,9 @@ Please refer to the DS4SD and RXN toolkits for further assistance on these comma
     grammar_help.append(
         help_dict_create(
             name="clear Molecules",
-            category="Molecules Working Set",
+            category="Molecule Working Set",
             command="clear molecules",
-            description="This command clears the working list of molecules.",
+            description="This command clears the molecule working set.",
         )
     )
 
@@ -528,7 +528,7 @@ Please refer to the DS4SD and RXN toolkits for further assistance on these comma
             name="@<molecule>",
             category="Small Molecules",
             command="@(<name> | <smiles> | <inchi> | <inchikey> | <cid>)>><molecule_property_name>",
-            description=f"""This command request the given property of a molecule, it will first try and retrieve the provided molecule from your working list of molecules, if it is not there it will will try and retrieve the molecule from pubchem.
+            description=f"""This command request the given property of a molecule, it will first try and retrieve the provided molecule from your molecule working set, if it is not there it will will try and retrieve the molecule from pubchem.
 
 The <cmd>@</cmd> symbol should be followed by the molecule's name, SMILES, InChI, InChIKey or CID, then after the <cmd>>></cmd> include one of the properties mentioned below.
 
@@ -581,7 +581,7 @@ Available properties: <cmd>{'</cmd>, <cmd>'.join(m_props)}</cmd>
     grammar_help.append(
         help_dict_create(
             name="load molecules",
-            category="Molecules Working Set",
+            category="Molecule Working Set",
             command="load molecules from file '<filename.molset.json|sdf|csv|smi>' [ merge with pubchem ] [ append ]",
             description=f"""Load molecules from a file into your molecule working set.
 
@@ -629,8 +629,8 @@ Examples:
     )
     grammar_help.append(
         help_dict_create(
-            name="load Molecules Working Set",
-            category="Molecules Working Set",
+            name="load Molecule Working Set",
+            category="Molecule Working Set",
             command="load molecules from dataframe <dataframe> [ merge with pubchem ] [ append ]",
             description=f"""Load molecules from a dataframe into your molecule working set.
 
@@ -669,7 +669,7 @@ Examples:
             description="""            
 
             
-This command merges molecules into the molecule working list from a dataframe. 
+This command merges molecules into the molecule working set from a dataframe. 
      
 It takes files with the columns named: 
 
@@ -710,9 +710,9 @@ to perform the same load and merge with pubchem data simply add the <cmd> merge 
     grammar_help.append(
         help_dict_create(
             name="export molecules",
-            category="Molecules Working Set",
+            category="Molecule Working Set",
             command="export molecules [ as '<filename.molset.json|sdf|csv|smi>' ]",
-            description=f"""Export your molecules working set as a dataframe (Jupyter/API) or a file (CLI).
+            description=f"""Export your molecule working set as a dataframe (Jupyter/API) or a file (CLI).
 
 {MOLS_SHORTHAND}
 

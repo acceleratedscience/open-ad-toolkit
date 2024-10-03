@@ -253,7 +253,7 @@ def export_molecule(cmd_pointer, inp):
 
 def add_molecule(cmd_pointer, inp):
     """
-    Adds a molecule to your molecules working set.
+    Adds a molecule to your molecule working set.
     """
 
     identifier = inp.as_dict()["molecule_identifier"]
@@ -271,7 +271,7 @@ def add_molecule(cmd_pointer, inp):
 
 def remove_molecule(cmd_pointer, inp):
     """
-    Removes a molecule from your molecules working set.
+    Removes a molecule from your molecule working set.
     """
 
     molecule_identifier = inp.as_dict()["molecule_identifier"]
@@ -303,7 +303,7 @@ def list_molecules(cmd_pointer, inp):
         #    return output_table(display_list)
 
     else:
-        return output_warning("Your molecules working set is empty")
+        return output_warning("Your molecule working set is empty")
 
 
 def show_molecules(cmd_pointer, inp):
@@ -420,7 +420,7 @@ def _create_workspace_dir_if_nonexistent(cmd_pointer, dir_name):
 
 
 def load_molecules(cmd_pointer, inp):
-    """loads a molecule set into the working list"""
+    """loads a molecule set into the molecule working set"""
     if "molecule-set_name" not in inp:
         return False
 
@@ -588,7 +588,7 @@ def _write_molecules(molecule: dict, location):
 
 
 def merge_molecules(cmd_pointer, inp):
-    """loads a molecule set into the working list"""
+    """loads a molecule set into the molecule working set"""
     if "molecule-set_name" not in inp:
         return False
     merged = 0

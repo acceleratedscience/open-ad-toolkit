@@ -49,7 +49,7 @@ def fetchRoutes(cmd_pointer):
         #
         f"{api_v1}/add-mol-to-mymols": {"func": molecules_api.add_mol_to_mws, "method": "POST"}, # Smol, may support mmol later
         f"{api_v1}/remove-mol-from-mymols": {"func": molecules_api.remove_mol_from_mws, "method": "POST"}, # Smol, may support mmol later
-        f"{api_v1}/check-mol-in-mymols": {"func": molecules_api.check_mol_in_list, "method": "POST"}, # Smol, may support mmol later
+        f"{api_v1}/check-mol-in-mymols": {"func": molecules_api.check_mol_in_mws, "method": "POST"}, # Smol, may support mmol later
         f"{api_v1}/enrich-smol": {"func": molecules_api.enrich_smol, "method": "POST"},
         #
         f"{api_v1}/save-smol-as-json": {"func": molecules_api.save_smol_as_json, "method": "POST"},
@@ -61,13 +61,13 @@ def fetchRoutes(cmd_pointer):
         #
         # Molecules - Molsets
         f"{api_v1}/get-molset": {"func": molecules_api.get_molset, "method": "POST"},
-        f"{api_v1}/get-molset-mymols": {"func": molecules_api.get_molset_list, "method": "POST"},
+        f"{api_v1}/get-molset-mymols": {"func": molecules_api.get_molset_mws, "method": "POST"},
         #
         f"{api_v1}/remove-from-molset": {"func": molecules_api.remove_from_molset, "method": "POST"},
         f"{api_v1}/clear-molset-working-copy": {"func": molecules_api.clear_molset_working_copy, "method": "POST"},
         #
         f"{api_v1}/update-molset": {"func": molecules_api.update_molset, "method": "POST"},
-        f"{api_v1}/update-molset-mymols": {"func": molecules_api.update_molset_list, "method": "POST"},
+        f"{api_v1}/update-molset-mymols": {"func": molecules_api.update_molset_mws, "method": "POST"},
         #
         f"{api_v1}/save-molset-as-json": {"func": molecules_api.save_molset_as_json, "method": "POST"},
         f"{api_v1}/save-molset-as-sdf": {"func": molecules_api.save_molset_as_sdf, "method": "POST"},

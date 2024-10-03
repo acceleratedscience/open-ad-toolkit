@@ -134,7 +134,7 @@ def load_mol_data(source_file, cmd_pointer):
 
 def load_mols_to_mws(cmd_pointer, inp):
     """
-    Load a batch of molecules into the molecules working set.
+    Load a batch of molecules into the molecule working set.
     """
 
     molset = None
