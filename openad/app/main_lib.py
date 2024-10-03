@@ -40,19 +40,19 @@ from openad.smols.smol_commands import (
     remove_molecule,
     list_molecules,
     show_molecules,
-    save_molecules,
-    load_molecules,
-    list_molsets,
-    display_molsets,
+    save_molecules_DEPRECATED,
+    load_molecules_DEPRECATED,
+    _list_molsets_DEPRECATED,
+    display_molsets_DEPRECATED,
     export_molecule,
     get_smol_prop,
     rename_mol_in_list,
-    clear_workset,
+    clear_molecules,
     export_mws,
     show_mol,
     show_molset,
     show_molset_df,
-    merge_molecules,
+    merge_molecules_DEPRECATED,
 )
 from openad.mmols.mmol_commands import show_mmol
 
@@ -257,14 +257,18 @@ def lang_parse(cmd_pointer, parser):
         return list_molecules(cmd_pointer, parser)
     elif parser.getName() == "show_molecules":
         return show_molecules(cmd_pointer, parser)
-    elif parser.getName() == "save_molecule-set":
-        return save_molecules(cmd_pointer, parser)
-    elif parser.getName() == "load_molecule-set":
-        return load_molecules(cmd_pointer, parser)
-    elif parser.getName() == "merge_molecule-set":
-        return merge_molecules(cmd_pointer, parser)
-    elif parser.getName() == "list_molecule-sets":
-        return display_molsets(cmd_pointer, parser)
+    elif parser.getName() == "save_molecules_DEPRECATED":
+        # MAJOR-RELEASE-TODO: Remove this, this is deprecated functionality
+        return save_molecules_DEPRECATED(cmd_pointer, parser)
+    elif parser.getName() == "load_molecules_DEPRECATED":
+        # MAJOR-RELEASE-TODO: Remove this, this is deprecated functionality
+        return load_molecules_DEPRECATED(cmd_pointer, parser)
+    elif parser.getName() == "merge_molecules_DEPRECATED":
+        # MAJOR-RELEASE-TODO: Remove this, this is deprecated functionality
+        return merge_molecules_DEPRECATED(cmd_pointer, parser)
+    elif parser.getName() == "list_molecule_sets_DEPRECATED":
+        # MAJOR-RELEASE-TODO: Remove this, this is deprecated functionality
+        return display_molsets_DEPRECATED(cmd_pointer, parser)
     elif parser.getName() == "load_analysis":
         return attach_all_results(cmd_pointer, parser)
     elif parser.getName() == "export_molecule":
@@ -276,8 +280,9 @@ def lang_parse(cmd_pointer, parser):
     elif parser.getName() == "rename_molecule":
         return rename_mol_in_list(cmd_pointer, parser)
     elif parser.getName() == "clear_molecules":
-        return clear_workset(cmd_pointer, parser)
+        return clear_molecules(cmd_pointer, parser)
     elif parser.getName() in ["load_molecules_file-DEPRECATED", "load_molecules_dataframe-DEPRECATED"]:
+        # MAJOR-RELEASE-TODO
         # Un-comment this in next major release to display deprecation message.
         # output_text(
         #     [
@@ -290,6 +295,7 @@ def lang_parse(cmd_pointer, parser):
     elif parser.getName() in ["load_molecules_file", "load_molecules_dataframe"]:
         return load_mols_to_mws(cmd_pointer, parser)
     elif parser.getName() in ["merge_molecules_data_file-DEPRECATED", "merge_molecules_data_dataframe-DEPRECATED"]:
+        # MAJOR-RELEASE-TODO
         # Un-comment this in next major release to display deprecation message.
         # output_text(
         #     [

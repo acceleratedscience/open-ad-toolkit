@@ -34,7 +34,7 @@ from openad.smols.smol_functions import (
     save_molset_as_sdf,
     save_molset_as_csv,
     save_molset_as_smiles,
-    load_molset_to_mws,
+    clear_mws,
 )
 from openad.smols.smol_transformers import molset2dataframe, write_dataframe2csv
 
@@ -233,7 +233,7 @@ def export_molecule(cmd_pointer, inp):
     if smol:
         cmd_pointer.last_external_molecule = smol
 
-    if "as_file" in inp.as_dict() or GLOBAL_SETTINGS["display"] not in ["api", "notebook"]:
+    if "as_file" in inp.as_dict() or GLOBAL_SETTINGS["display"] in ["terminal"]:
         json_file = open(
             cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper())
             + "/"
@@ -244,7 +244,8 @@ def export_molecule(cmd_pointer, inp):
         )
         json.dump(smol, json_file)
         output_success(
-            "Molecule saved as " + smol["identifiers"]["name"] + ".smol.json to your workspace.", return_val=False
+            "Molecule saved to your workspace as <yellow>" + smol["identifiers"]["name"] + ".smol.json</yellow>.",
+            return_val=False,
         )
     elif GLOBAL_SETTINGS["display"] in ["api", "notebook"]:
         return deepcopy(smol)
@@ -282,10 +283,13 @@ def remove_molecule(cmd_pointer, inp):
     mws_remove(cmd_pointer, mol, force=force)
 
 
-def clear_workset(cmd_pointer, inp):
-    """clears a workset"""
-    if confirm_prompt("Are you wish to clear the Molecule Workset ?"):
-        cmd_pointer.molecule_list.clear()
+def clear_molecules(cmd_pointer, inp):
+    """
+    Clear the molecule working set.
+    """
+
+    force = "force" in inp.as_dict()
+    clear_mws(cmd_pointer, force)
 
 
 def list_molecules(cmd_pointer, inp):
@@ -344,11 +348,11 @@ def export_mws(cmd_pointer, inp):
         output_error("No molecules stored in your working set.", return_val=False)
         return True
 
-    as_file = "csv_file_name" in inp.as_dict()
+    as_file = "file_name" in inp.as_dict()
     workspace_path = cmd_pointer.workspace_path()
     mws = cmd_pointer.molecule_list
     file_name = None
-    ext = "molset.json"
+    ext = "csv"  # Default export file format
 
     # Return dataframe in Jupyter/API
     if GLOBAL_SETTINGS["display"] in ["notebook", "api"] and not as_file:
@@ -358,11 +362,11 @@ def export_mws(cmd_pointer, inp):
     else:
         # File name provided
         if as_file:
-            file_name = inp.as_dict()["csv_file_name"]
+            file_name = inp.as_dict()["file_name"]
 
         # No file name provided --> use default
         else:
-            file_name = "smol_export"
+            file_name = f"smol_export.{ext}"
             output_warning(msg("war_no_filename_provided", f"{file_name}.{ext}"), return_val=False, pad=0)
 
         # Detect file extension and strip it
@@ -410,76 +414,6 @@ def export_mws(cmd_pointer, inp):
                 return output_error([err["error_msg"], err["invalid_mols"]])
             else:
                 return output_error(err["error_msg"])
-
-
-def _create_workspace_dir_if_nonexistent(cmd_pointer, dir_name):
-    """creates a workspace directory"""
-    if not os.path.isdir(cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/" + dir_name):
-        os.mkdir(cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/" + dir_name)
-    return cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/" + dir_name
-
-
-def load_molecules(cmd_pointer, inp):
-    """loads a molecule set into the molecule working set"""
-    if "molset_name" not in inp:
-        return False
-
-    mol_file_path = _create_workspace_dir_if_nonexistent(cmd_pointer, "_mols")
-    if "append" not in inp:
-        cmd_pointer.molecule_list.clear()
-
-    for i in glob.glob(mol_file_path + "/" + inp["molset_name"].upper() + "--*.molecule", recursive=True):
-        func_file = open(i, "rb")
-        mol = dict(pickle.load(func_file))
-        for properties in mol["properties"]:
-            if properties not in SMOL_PROPERTIES and properties not in [
-                "atoms",
-                "bonds",
-                "record",
-                "elements",
-                "cactvs_fingerprint",
-                "fingerprint",
-            ]:
-                SMOL_PROPERTIES.append(properties)
-        cmd_pointer.molecule_list.append(mol.copy())
-    output_text("<green>Number of molecules loaded</green> = " + str(len(cmd_pointer.molecule_list)), return_val=False)
-    return True
-
-
-def display_molsets(cmd_pointer, inp):
-    """displays the list of molecule-sets"""
-    return list_molsets(cmd_pointer)
-
-
-def list_molsets(cmd_pointer):
-    """creates list of molecule sets"""
-    molsets = []
-    in_list = []
-    mol_file_path = _create_workspace_dir_if_nonexistent(cmd_pointer, "_mols")
-    for i in glob.glob(mol_file_path + "/*--*.molecule", recursive=True):
-        x = i.split("/")
-        molset = str(x[-1])
-
-        molset = str(molset.split("--")[0])
-
-        if molset not in in_list:
-            in_list.append(molset)
-            molsets.append([molset])
-    if len(in_list) > 0:
-        return output_table(molsets, is_data=False, headers=["Stored Molecule Sets"])
-    return True
-
-
-def save_molecules(cmd_pointer, inp):
-    """saves a molecule set"""
-    if "molset_name" not in inp:
-        return False
-    mol_file_path = _create_workspace_dir_if_nonexistent(cmd_pointer, "_mols")
-    if cmd_pointer.molecule_list is not None and len(cmd_pointer.molecule_list) > 0:
-        for mol in cmd_pointer.molecule_list:
-            name = inp["molset_name"].upper() + "--" + mol["properties"]["inchikey"] + ".molecule"
-            _write_molecules(mol, mol_file_path + "/" + name.strip())
-    return True
 
 
 def property_retrieve(molecule_identifier, molecule_property, cmd_pointer):
@@ -580,14 +514,69 @@ def _load_molecules(location):
         return molecule
 
 
-def _write_molecules(molecule: dict, location):
+def _create_workspace_dir_if_nonexistent(cmd_pointer, dir_name):
+    """creates a workspace directory"""
+    if not os.path.isdir(cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/" + dir_name):
+        os.mkdir(cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/" + dir_name)
+    return cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/" + dir_name
+
+
+# MAJOR-RELEASE-TODO: Remove this, this is deprecated functionality
+# We don't use .molecule files anymore
+def save_molecules_DEPRECATED(cmd_pointer, inp):
+    """saves a molecule set"""
+    if "molset_name" not in inp:
+        return False
+    mol_file_path = _create_workspace_dir_if_nonexistent(cmd_pointer, "_mols")
+    if cmd_pointer.molecule_list is not None and len(cmd_pointer.molecule_list) > 0:
+        for mol in cmd_pointer.molecule_list:
+            name = inp["molset_name"].upper() + "--" + mol["identifiers"]["inchikey"] + ".molecule"
+            _write_molecules_DEPRECATED(mol, mol_file_path + "/" + name.strip())
+    return True
+
+
+# MAJOR-RELEASE-TODO: Remove this, this is deprecated functionality
+# We don't use .molecule files anymore
+def _write_molecules_DEPRECATED(molecule: dict, location):
     """writes molecules to a given file"""
+    print("write ", location)
     with open(os.path.expanduser(location), "wb") as handle:
         pickle.dump(molecule, handle)
     return True
 
 
-def merge_molecules(cmd_pointer, inp):
+# MAJOR-RELEASE-TODO: Remove this, this is deprecated functionality
+# We don't use .molecule files anymore
+def load_molecules_DEPRECATED(cmd_pointer, inp):
+    """loads a molecule set into the molecule working set"""
+    if "molset_name" not in inp:
+        return False
+
+    mol_file_path = _create_workspace_dir_if_nonexistent(cmd_pointer, "_mols")
+    if "append" not in inp:
+        cmd_pointer.molecule_list.clear()
+
+    for i in glob.glob(mol_file_path + "/" + inp["molset_name"].upper() + "--*.molecule", recursive=True):
+        func_file = open(i, "rb")
+        mol = dict(pickle.load(func_file))
+        for properties in mol["properties"]:
+            if properties not in SMOL_PROPERTIES and properties not in [
+                "atoms",
+                "bonds",
+                "record",
+                "elements",
+                "cactvs_fingerprint",
+                "fingerprint",
+            ]:
+                SMOL_PROPERTIES.append(properties)
+        cmd_pointer.molecule_list.append(mol.copy())
+    output_text("<green>Number of molecules loaded</green> = " + str(len(cmd_pointer.molecule_list)), return_val=False)
+    return True
+
+
+# MAJOR-RELEASE-TODO: Remove this, this is deprecated functionality
+# We don't use .molecule files anymore
+def merge_molecules_DEPRECATED(cmd_pointer, inp):
     """loads a molecule set into the molecule working set"""
     if "molset_name" not in inp:
         return False
@@ -609,4 +598,32 @@ def merge_molecules(cmd_pointer, inp):
                 appended += 1
     output_text("<green>Number of molecules added</green> = " + str(appended), return_val=False)
     output_text("<green>Number of molecules updated</green> = " + str(merged), return_val=False)
+    return True
+
+
+# MAJOR-RELEASE-TODO: Remove this, this is deprecated functionality
+# We don't use .molecule files anymore
+def display_molsets_DEPRECATED(cmd_pointer, inp):
+    """displays the list of molecule-sets"""
+    return _list_molsets_DEPRECATED(cmd_pointer)
+
+
+# MAJOR-RELEASE-TODO: Remove this, this is deprecated functionality
+# We don't use .molecule files anymore
+def _list_molsets_DEPRECATED(cmd_pointer):
+    """creates list of molecule sets"""
+    molsets = []
+    in_list = []
+    mol_file_path = _create_workspace_dir_if_nonexistent(cmd_pointer, "_mols")
+    for i in glob.glob(mol_file_path + "/*--*.molecule", recursive=True):
+        x = i.split("/")
+        molset = str(x[-1])
+
+        molset = str(molset.split("--")[0])
+
+        if molset not in in_list:
+            in_list.append(molset)
+            molsets.append([molset])
+    if len(in_list) > 0:
+        return output_table(molsets, is_data=False, headers=["Stored Molecule Sets"])
     return True

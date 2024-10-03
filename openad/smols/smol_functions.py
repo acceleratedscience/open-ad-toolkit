@@ -861,16 +861,6 @@ def save_molset_as_smiles(molset: list, path: str, remove_invalid_mols=False):
         }
 
 
-def load_molset_to_mws(cmd_pointer: object, molset: list, append=False):
-    """
-    Load a molset into the molecule working set.
-    """
-    if append:
-        cmd_pointer.molecule_list.extend(molset)
-    else:
-        cmd_pointer.molecule_list = molset
-
-
 # endregion
 ############################################################
 # region - Utility
@@ -1369,6 +1359,23 @@ def mws_remove(cmd_pointer: object, smol: dict, force: bool = False, suppress: b
     else:
         output_error(f"Molecule <yellow>{name}</yellow> was not removed", pad=0, return_val=False)
         return False
+
+
+def clear_mws(cmd_pointer: object, force: bool = False):
+    """
+    Clear the molecule working set.
+
+    Parameters
+    ----------
+    cmd_pointer: object
+        The command pointer object.
+    force: bool
+        If True, clear without confirming.
+    """
+
+    if force or confirm_prompt("Clear the molecule working set?"):
+        cmd_pointer.molecule_list.clear()
+        output_success("Molecule working set was cleared", return_val=False)
 
 
 # endregion

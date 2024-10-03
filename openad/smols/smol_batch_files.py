@@ -133,6 +133,17 @@ def load_mol_data(source_file, cmd_pointer):
     return mol_frame
 
 
+# Unused
+# def load_molset_to_mws(cmd_pointer: object, molset: list, append=False):
+#     """
+#     Load a molset into the molecule working set.
+#     """
+#     if append:
+#         cmd_pointer.molecule_list.extend(molset)
+#     else:
+#         cmd_pointer.molecule_list = molset
+
+
 def load_mols_to_mws(cmd_pointer, inp):
     """
     Load a batch of molecules into the molecule working set.

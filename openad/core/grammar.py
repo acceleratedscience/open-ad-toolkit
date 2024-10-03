@@ -532,6 +532,9 @@ grammar_help.append(
 ##########################################################################
 
 # Display data
+# MAJOR-RELEASE-TODO:
+# In a Notebook, `x = %openad display data 'file.csv'` returns data, which
+# is inconsistent with other display commands like `display mol dopamine`
 statements.append(Forward(d_isplay + data("data") + desc("file_path"))("display_data"))
 grammar_help.append(
     help_dict_create(
