@@ -47,8 +47,8 @@ def fetchRoutes(cmd_pointer):
         f"{api_v1}/get-smol-viz-data": {"func": molecules_api.get_smol_viz_data, "method": "POST"},
         f"{api_v1}/get-mol-data-from-molset": {"func": molecules_api.get_mol_data_from_molset, "method": "POST"}, # Smol, may support mmol later
         #
-        f"{api_v1}/add-mol-to-mymols": {"func": molecules_api.add_mol_to_list, "method": "POST"}, # Smol, may support mmol later
-        f"{api_v1}/remove-mol-from-mymols": {"func": molecules_api.remove_mol_from_list, "method": "POST"}, # Smol, may support mmol later
+        f"{api_v1}/add-mol-to-mymols": {"func": molecules_api.add_mol_to_mws, "method": "POST"}, # Smol, may support mmol later
+        f"{api_v1}/remove-mol-from-mymols": {"func": molecules_api.remove_mol_from_mws, "method": "POST"}, # Smol, may support mmol later
         f"{api_v1}/check-mol-in-mymols": {"func": molecules_api.check_mol_in_list, "method": "POST"}, # Smol, may support mmol later
         f"{api_v1}/enrich-smol": {"func": molecules_api.enrich_smol, "method": "POST"},
         #

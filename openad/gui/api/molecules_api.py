@@ -20,7 +20,7 @@ from openad.smols.smol_functions import (
     get_smol_from_mws,
     get_best_available_identifier,
     get_best_available_smiles,
-    merge_mols,
+    merge_smols,
 )
 from openad.smols.smol_transformers import (
     smol2svg,
@@ -123,7 +123,7 @@ class MoleculesApi:
 
     ##
 
-    def add_mol_to_list(self):
+    def add_mol_to_mws(self):
         """
         Add a molecule to the molecule working set
 
@@ -137,17 +137,17 @@ class MoleculesApi:
         # Get best available identifier.
         _, identifier = get_best_available_identifier(smol)
 
-        # Enrich molecule withg RDKit data.
-        openad_mol_enriched = find_smol(self.cmd_pointer, identifier, basic=True)
-        if openad_mol_enriched:
-            smol = merge_mols(smol, openad_mol_enriched)
+        # Enrich molecule with PubChem data.
+        smol_enriched = find_smol(self.cmd_pointer, identifier, basic=True)
+        if smol_enriched:
+            smol = merge_smols(smol, smol_enriched)
 
         # Add it to the working set.
         success = mws_add(self.cmd_pointer, smol, force=True)
 
         return {"status": success}, 200
 
-    def remove_mol_from_list(self):
+    def remove_mol_from_mws(self):
         """
         Remove a molecule from the my-mols working set.
 
@@ -193,7 +193,7 @@ class MoleculesApi:
         # Enrich molecule withg PubChem data.
         smol_enriched = get_smol_from_pubchem(identifier)
         if smol_enriched:
-            smol = merge_mols(smol, smol_enriched)
+            smol = merge_smols(smol, smol_enriched)
 
         return smol, 200
 

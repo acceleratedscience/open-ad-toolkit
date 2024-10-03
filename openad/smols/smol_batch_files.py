@@ -8,11 +8,13 @@ from openad.smols.smol_functions import (
     get_smol_from_mws,
     merge_molecule_properties,
     valid_smiles,
+    get_smol_from_pubchem,
     new_smol,
     mws_add,
     normalize_mol_df,
     canonicalize,
     load_mols_from_file,
+    merge_smols,
 )
 from openad.smols.smol_transformers import dataframe2molset
 from openad.app.global_var_lib import GLOBAL_SETTINGS
@@ -153,14 +155,15 @@ def load_mols_to_mws(cmd_pointer, inp):
         if molset is None:
             return output_error("Source not Found")
 
-    # Add molecules
+    # Add PubChem data
+    if "pubchem_merge" in inp.as_dict():
+        _enrich_with_pubchem_data(cmd_pointer, molset)
+
+    # Append or overwrite molecules
     if "append" in inp:
         cmd_pointer.molecule_list.extend(molset)
     else:
         cmd_pointer.molecule_list = molset
-
-    if "pubchem_merge" in inp.as_dict():
-        batch_pubchem(cmd_pointer, molset)
 
     if molset:
         # shred_merge_add_df_mols(molset, cmd_pointer)
@@ -171,66 +174,47 @@ def load_mols_to_mws(cmd_pointer, inp):
         )
 
 
-def batch_pubchem(cmd_pointer, dataframe):
-    """does the prompting of pubchem for data to merge in a bach operation"""
+def _enrich_with_pubchem_data(cmd_pointer, molset):
+    """
+    Pull data from PubChem to merge in into a molset.
+    """
 
-    if GLOBAL_SETTINGS["display"] == "notebook":
-        from halo import HaloNotebook as Halo  # pylint: disable=import-outside-toplevel
-    else:
-        from halo import Halo  # pylint: disable=import-outside-toplevel
+    spinner = Spinner(GLOBAL_SETTINGS["verbose"])
+    spinner.start("Fetching from PubChem")
 
-    batch_spinner = Spinner(GLOBAL_SETTINGS["verbose"])
-
-    print(999, dataframe)
-
-    batch_spinner.start("loading molecules from PubChem")
-
-    dict_list = dataframe.to_dict("records")
-
-    for i, a_mol in enumerate(dict_list):
+    for i, smol in enumerate(molset):
         try:
-            Name_Flag = False
-            if "name" in a_mol:
-                name = a_mol["name"]
-            elif "Name" in a_mol:
-                name = a_mol["Name"]
-            elif "NAME" in a_mol:
-                name = a_mol["NAME"]
-            elif "chemical_name" in a_mol:
-                name = a_mol["chemical_name"]
-            else:
-                name = None
-            if name is not None:
-                merge_mol = get_smol_from_mws(cmd_pointer, name)
-                if merge_mol is not None:
-                    Name_Flag = True
-            batch_spinner.text = f"Loading: {a_mol['SMILES']}"
+            # Get name field regardless of case
+            name = next((value for key, value in identifiers.items() if key.lower() == "name"), None)
+            spinner.text = f"Fetching from PubChem: #{i} - {name}"
 
-            if not valid_smiles(a_mol["SMILES"]):
-                output_warning(
-                    "error merging SMILES: "
-                    + a_mol["SMILES"]
-                    + " Smiles has been excluded by load, it is not recognised by RDKIT",
-                    return_val=False,
-                )
+            # Use fallback name is missing
+            if not name:
+                name = smol.get("chemical_name", None)
+            if not name:
+                name = identifier
+
+            # Select the identifier keys we'll look for in order of preference
+            identifiers = smol["identifiers"]
+            keys = ["inchi", "canonical_smiles", "isomeric_smiles", "smiles", "inchikey", "name", "cid"]
+            identifier = next((identifiers.get(key) for key in keys if identifiers.get(key) is not None), None)
+            if not identifier:
+                output_warning(f"#{i} - No valid identifier found for {name}", return_val=False)
                 continue
 
-            # TRASH - @refactored
-            # add_molecule(cmd_pointer, {"molecule_identifier": a_mol["SMILES"]}, force=True, suppress=True)
+            # Fetch enriched molecule
+            smol_enriched = get_smol_from_pubchem(cmd_pointer, identifier)
+            if not smol_enriched:
+                output_warning(f"#{i} - Failed to enrich {name}", return_val=False)
 
-            # Create molecule dict.
-            openad_mol = find_smol(cmd_pointer, a_mol["SMILES"])  # @@TODO: to be tested
+            # Merge enriched data
+            smol = merge_smols(smol, smol_enriched)
 
-            # Add it to the working set.
-            mws_add(cmd_pointer, openad_mol, force=True, suppress=True)
+        except Exception as err:  # pylint: disable=broad-except
+            output_text(["Something went wrong enriching molecules with data from PubChem", err], return_val=False)
 
-        except Exception as err:
-            print(err)
-            err_msg = f"#{i} - <error>Invalid SMILES, molecule discarded:</error> <yellow>{a_mol['SMILES']}</yellow>"
-            output_text(err_msg, return_val=False)
-
-    batch_spinner.succeed("Finished loading from PubChem")
-    batch_spinner.stop()
+    spinner.succeed("Done")
+    spinner.stop()
 
 
 def shred_merge_add_df_mols(dataframe, cmd_pointer):

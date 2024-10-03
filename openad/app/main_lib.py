@@ -278,13 +278,14 @@ def lang_parse(cmd_pointer, parser):
     elif parser.getName() == "clear_molecules":
         return clear_workset(cmd_pointer, parser)
     elif parser.getName() in ["load_molecules_file-DEPRECATED", "load_molecules_dataframe-DEPRECATED"]:
-        output_text(
-            [
-                "<on_red> This command is deprecated </on_red>",
-                "Wrong:   <cmd>load molecules <red>using</red> ...</cmd>",
-                "Correct: <cmd>load molecules <green>from</green> ...</cmd>",
-            ],
-        )
+        # Un-comment this in next major release to display deprecation message.
+        # output_text(
+        #     [
+        #         "<on_red> This command is deprecated </on_red>",
+        #         "Wrong:   <cmd>load molecules <red>using</red> ...</cmd>",
+        #         "Correct: <cmd>load molecules <green>from</green> ...</cmd>",
+        #     ],
+        # )
         return load_mols_to_mws(cmd_pointer, parser)
     elif parser.getName() in ["load_molecules_file", "load_molecules_dataframe"]:
         return load_mols_to_mws(cmd_pointer, parser)

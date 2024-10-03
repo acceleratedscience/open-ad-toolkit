@@ -294,6 +294,28 @@ def is_numeric(str_or_nr):
         return False
 
 
+# Merge two lists of dictionaries while avoiding duplicates.
+def merge_dict_lists(list1, list2):
+    # Convert dictionaries to tuples of sorted items
+    list1_tuples = [tuple(sorted(d.items())) for d in list1]
+    list2_tuples = [tuple(sorted(d.items())) for d in list2]
+
+    # Perform set operations to merge the lists while avoiding duplicates
+    merged_tuples = list1_tuples + list(set(list2_tuples) - set(list1_tuples))
+
+    # Convert the tuples back to dictionaries
+    merged_list = [dict(t) for t in merged_tuples]
+
+    return merged_list
+
+
+# Example usage
+list1 = [{"a": 1, "b": 2}, {"c": 3, "d": 4}]
+list2 = [{"b": 2, "a": 1}, {"e": 5, "f": 6}]
+
+merged_list = merge_dict_lists(list1, list2)
+print(merged_list)  # Output: [{'a': 1, 'b': 2}, {'c': 3, 'd': 4}, {'e': 5, 'f': 6}]
+
 #
 #
 #

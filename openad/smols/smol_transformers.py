@@ -221,7 +221,7 @@ def dataframe2molset(df):
     # Convert the molecules to SDF format
     molset = []
     for i, row in df.iterrows():
-        # Get case insensitive name column
+        # Get name field regardless of case.
         name = next((value for key, value in row.items() if key.lower() == "name"), None)
 
         # Create molecule

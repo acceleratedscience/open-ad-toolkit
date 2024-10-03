@@ -21,7 +21,7 @@ from rdkit.Chem.Descriptors import MolWt, ExactMolWt
 from openad.helpers.output_msgs import msg
 from openad.helpers.output import output_error, output_warning, output_success, output_text
 from openad.helpers.files import open_file
-from openad.helpers.general import confirm_prompt, pretty_date, is_numeric
+from openad.helpers.general import confirm_prompt, pretty_date, is_numeric, merge_dict_lists
 from openad.helpers.spinner import spinner
 from openad.helpers.json_decimal_encoder import DecimalEncoder
 from openad.helpers.data_formats import OPENAD_SMOL_DICT
@@ -1368,45 +1368,99 @@ def mws_remove(cmd_pointer: object, smol: dict, force: bool = False, suppress: b
 # endregion
 
 
-# @@TODO: update merge_molecule command to use this function.
-def merge_mols(openad_mol_1, openad_mol_2):
+def merge_smols(smol: dict, merge_smol: dict) -> dict:
     """
-    Merge two molecule objects into one.
+    Merge two molecule dictionaries into one.
 
-    This adds parameters from 2nd molecule into the 1st, while
-    preventing None values from overwriting existing values.
+    The 2nd molecule's values will get priority over the 1st,
+    while preventing None values from overwriting existing ones.
     """
 
-    # Loop through all properties of the 2nd molecule.
-    for key, value in openad_mol_2.items():
-        # Skip if None
-        if value is None:
-            continue
+    for key, val in merge_smol.items():
 
-        # If the property is a dictionary, merge it.
-        if isinstance(value, dict):
-            if key in openad_mol_1:
-                openad_mol_1[key].update(value)
-            else:
-                openad_mol_1[key] = value
-
-        # If the property is a list, merge it.
-        elif isinstance(value, list):
-            if key in openad_mol_1:
-                # Temporary fix for synonyms, which are stored in a nested list in v1 dict.
-                if key == "synonyms" and "Synonym" in openad_mol_1[key]:
-                    openad_mol_1[key]["Synonym"].extend(value)
+        # Merge identifiers
+        if key == "identifiers" and isinstance(val, dict):
+            for idfr_key, idfr_val in val:
+                # Skip if None
+                if idfr_val is None:
+                    continue
                 else:
-                    openad_mol_1[key].extend(value)
-            else:
-                openad_mol_1[key] = value
+                    smol[key][idfr_key] = idfr_val
 
-        # If the property is a string, merge it.
-        elif isinstance(value, str):
-            openad_mol_1[key] = value
+        # Merge synonyms - without duplicates regardless of case
+        elif key == "synonyms" and isinstance(val, list):
+            # Create a dictionary to map lowercase elements to their original case
+            og_case_map = {item.lower(): item for item in smol[key] + merge_smol[key]}
+
+            # Merge the synonyms in a case-insensitive way (skip new synonyms if they are just differently cased)
+            case_insensitive_merge = list(set(list(map(str.lower, smol[key])) + list(map(str.lower, merge_smol[key]))))
+            smol[key] = smol[key] + [og_case_map[item.lower()] for item in case_insensitive_merge]
+
+        # Merge properties & property sources
+        elif key == "properties" and isinstance(val, dict):
+            for prop_key, prop_val in val:
+                # Skip if None
+                if prop_val is None:
+                    continue
+
+                # Set property and property source
+                else:
+                    smol[key][prop_key] = prop_val
+                    source = merge_smol["property_sources"][prop_key] or {"source": "merge", "date": pretty_date()}
+                    smol["property_sources"][prop_key] = source
+
+        # Merge analysis results - without duplcates
+        elif key == "analysis" and isinstance(val, list):
+            smol[key] = merge_dict_lists(smol[key], merge_smol[key])
+
+        # Merge meta information
+        elif key == "meta" and isinstance(val, dict):
+            # Merge notes with a separator string
+            smol[key]["notes"] = smol[key]["notes"] + "\n\n- - -\n\n" + merge_smol[key]["notes"]
+
+            # Merge labels without duplicates and ensure they're all lowercase
+            smol[key]["labels"] = list(
+                set(list(map(str.lower, smol[key]["labels"])) + list(map(str.lower, merge_smol[key]["labels"])))
+            )
+
+        # Merge enriched flag - only merge when True
+        elif key == "enriched" and isinstance(val, bool):
+            if val is True:
+                smol[key] = val
+
+        # - - -
+
+        # Brute fallback for any future parameters we may have forgotten to add.
+
+        # Dictionaries: merge
+        elif isinstance(val, dict):
+            if key in smol:
+                smol[key].update(val)
+            else:
+                smol[key] = val
+
+        # Lists: extend
+        elif isinstance(val, list):
+            if key in smol:
+                # Temporary fix for synonyms, which are stored in a nested list in v1 dict.
+                if key == "synonyms" and "Synonym" in smol[key]:
+                    smol[key]["Synonym"].extend(val)
+                else:
+                    smol[key].extend(val)
+            else:
+                smol[key] = val
+
+        # Booleans: only merge when True
+        elif isinstance(val, bool):
+            if val is True:
+                smol[key] = val
+
+        # Strings and numbers: overwrite
+        elif isinstance(val, str) or isinstance(val, int):
+            smol[key] = val
 
     # Return
-    return openad_mol_1
+    return smol
 
 
 # @@TODO: merge function with merge_mols
