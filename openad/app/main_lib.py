@@ -56,7 +56,7 @@ from openad.smols.smol_commands import (
 )
 from openad.mmols.mmol_commands import show_mmol
 
-from openad.smols.smol_cache import attach_all_results, clear_results
+from openad.smols.smol_cache import enrich_mws_with_analysis, clear_analysis
 
 import openad.app.login_manager as login_manager
 
@@ -120,6 +120,8 @@ from openad.plugins import edit_json
 # This is called by the default run_cmd method, for executing current commands.
 def lang_parse(cmd_pointer, parser):
     """the routes commands to the correct functions"""
+
+    # print("Parser command name", parser.getName())
 
     # Workspace commands
     if parser.getName() == "create_workspace_statement":
@@ -269,12 +271,12 @@ def lang_parse(cmd_pointer, parser):
     elif parser.getName() == "list_molecule_sets_DEPRECATED":
         # MAJOR-RELEASE-TODO: Remove this, this is deprecated functionality
         return display_molsets_DEPRECATED(cmd_pointer, parser)
-    elif parser.getName() == "load_analysis":
-        return attach_all_results(cmd_pointer, parser)
+    elif parser.getName() == "enrich_mws_with_analysis":
+        return enrich_mws_with_analysis(cmd_pointer, parser)
     elif parser.getName() == "export_molecule":
         return export_molecule(cmd_pointer, parser)
     elif parser.getName() == "clear_analysis":
-        return clear_results(cmd_pointer, parser)
+        return clear_analysis(cmd_pointer, parser)
     elif parser.getName() == "get_smol_prop":
         return get_smol_prop(cmd_pointer, parser)
     elif parser.getName() == "rename_molecule":

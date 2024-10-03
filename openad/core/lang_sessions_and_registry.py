@@ -1,4 +1,5 @@
 """ Provides Settings Management and Toolkit Management"""
+
 import pickle
 import os
 import datetime
@@ -115,7 +116,7 @@ def clear_sessions(cmd_pointer, parser):
     Required to enable new workspaces and toolkits to be created.
     """
     if not confirm_prompt(msg("confirm_clear_sessions")):
-        output_error(msg("no_sessions_cleared"), pad_btm=1, return_val=False)
+        output_error(msg("no_sessions_cleared"), return_val=False)
         return False
 
     file_list = os.listdir(os.path.dirname(_meta_registry_session))
@@ -124,9 +125,9 @@ def clear_sessions(cmd_pointer, parser):
         for i in file_list:
             os.remove(os.path.dirname(_meta_registry_session) + "/" + i)
         # raise Exception("This is a test exception")
-        return output_success(msg("success_clear_sessions"), pad_btm=1, return_val=False)
+        return output_success(msg("success_clear_sessions"), return_val=False)
     except Exception as err:
-        output_error(msg("err_clear_sessions", err), pad_btm=1, return_val=False)
+        output_error(msg("err_clear_sessions", err), return_val=False)
         return False
 
 

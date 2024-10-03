@@ -411,7 +411,7 @@ def _add_pcy_data(smol, smol_pcy, identifier, identifier_type):
     # Add canonical smiles
     if identifier_type == PCY_IDFR["smiles"]:
         # fmt: off
-        smol["properties"]["canonical_smiles"] = canonicalize(identifier)  # pylint: disable=no-member
+        smol["identifiers"]["canonical_smiles"] = canonicalize(identifier)  # pylint: disable=no-member
         # fmt: on
 
     # Loop through PubChem properties and update our own property_sources
@@ -551,8 +551,9 @@ def new_smol(inchi_or_smiles: str = None, mol_rdkit: Mol = None, name: str = Non
         smol["property_sources"][key] = prop_src
 
     # Figure out the best name
+    mol_formula = Chem.rdMolDescriptors.CalcMolFormula(mol_rdkit)  # pylint: disable=c-extension-no-member
     if name is None:
-        name = smol["properties"].get("name", None)
+        name = smol["identifiers"].get("name", mol_formula)
 
     # fmt: off
     # Store identifiers
@@ -561,7 +562,7 @@ def new_smol(inchi_or_smiles: str = None, mol_rdkit: Mol = None, name: str = Non
     smol["identifiers"]["inchikey"] = Chem.inchi.InchiToInchiKey(smol["identifiers"]["inchi"])
     smol["identifiers"]["canonical_smiles"] = Chem.MolToSmiles(mol_rdkit)  # pylint: disable=no-member
     smol["identifiers"]["isomeric_smiles"] = Chem.MolToSmiles(mol_rdkit, isomericSmiles=True)  # pylint: disable=no-member
-    smol["identifiers"]["molecular_formula"] = Chem.rdMolDescriptors.CalcMolFormula(mol_rdkit) # pylint: disable=c-extension-no-member
+    smol["identifiers"]["molecular_formula"] = mol_formula
     smol["properties"]["molecular_weight"] = MolWt(mol_rdkit)
 
     # ** Note:
@@ -953,7 +954,11 @@ def get_smol_from_list(identifier, molset, ignore_synonyms=False):
             return openad_mol
 
         # CID match
-        if is_numeric(identifier) and int(identifier) == int(identifiers_dict.get("cid", "")):
+        if (
+            is_numeric(identifier)
+            and identifiers_dict.get("cid")
+            and int(identifier) == int(identifiers_dict.get("cid"))
+        ):
             return openad_mol
 
         # InChI match

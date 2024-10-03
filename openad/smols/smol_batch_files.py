@@ -267,7 +267,7 @@ def shred_merge_add_df_mols(dataframe, cmd_pointer):
                 i = i + 1
             name = name + "-" + str(i)
 
-        # if Name_Flag is True and merge_mol["properties"]["canonical_smiles"] != canonical_smiles(a_mol["SMILES"]):
+        # if Name_Flag is True and merge_mol["identifiers"]["canonical_smiles"] != canonical_smiles(a_mol["SMILES"]):
         #    output_error("There is already a molecule by the name, adding  increment to the name " + name, return_val=False)
         #    continue
         if merge_mol is None:
@@ -290,8 +290,8 @@ def shred_merge_add_df_mols(dataframe, cmd_pointer):
 
         while i < len(cmd_pointer.molecule_list):
             if (
-                merge_mol["properties"]["canonical_smiles"]
-                == cmd_pointer.molecule_list[i]["properties"]["canonical_smiles"]
+                merge_mol["identifiers"]["canonical_smiles"]
+                == cmd_pointer.molecule_list[i]["identifiers"]["canonical_smiles"]
             ):
                 cmd_pointer.molecule_list[i] = merge_mol
                 merge_list.append(merge_mol["name"])

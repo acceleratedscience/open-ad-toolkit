@@ -3,6 +3,8 @@ import sys
 import pandas
 import atexit
 
+from openad.app.main import GLOBAL_SETTINGS
+
 # required for Magic Template
 from IPython.display import Markdown
 from IPython.display import display
@@ -47,26 +49,8 @@ class AD(Magics):
     def openad(self, line, cell=None, local_ns=None):
         """Invokes the Magic command interface for OpenAD"""
         api_variable = {}
-        openad.app.main.GLOBAL_SETTINGS["display"] = "notebook"
-        # print(1122)
-
-        # from IPython.display import display, Javascript
-
-        # cell_width = 7
-        # display(
-        #     Javascript(
-        #         """
-        #     (function() {
-        #         var cell = document.querySelector('.code_cell .input');
-        #         var width = cell.offsetWidth;
-        #         var kernel = IPython.notebook.kernel;
-        #         kernel.execute("cell_width = " + width);
-        #     })();
-        # """
-        #     )
-        # )
-        # print(cell_width)
-
+        GLOBAL_SETTINGS["display"] = "notebook"
+        GLOBAL_SETTINGS["print_width"] = 120
         line_list = line.split()
         x = len(line_list)
         i = 1
@@ -96,7 +80,8 @@ class AD(Magics):
     def openadd(self, line, cell=None, local_ns=None):
         """Invokes the Magic command interface for OpenAD and ensure dataFrame Data is of type data"""
         api_variable = {}
-        openad.app.main.GLOBAL_SETTINGS["display"] = "api"
+        GLOBAL_SETTINGS["display"] = "api"
+        GLOBAL_SETTINGS["print_width"] = 120
         line_list = line.split()
         x = len(line_list)
         i = 1

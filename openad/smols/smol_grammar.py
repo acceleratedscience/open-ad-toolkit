@@ -488,7 +488,7 @@ Notes:
 
     # ---
     # Enrich molecule set
-    statements.append(Forward(enrich + molecules + w_ith + analysis)("load_analysis"))
+    statements.append(Forward(enrich + molecules + w_ith + analysis)("enrich_mws_with_analysis"))
     grammar_help.append(
         help_dict_create(
             name="enrich molecules",
@@ -721,7 +721,7 @@ Examples:
             name="merge molecules data",
             category="Molecule Working Set",
             command="merge mols|molecules data from dataframe <dataframe> [ enrich ]",
-            description="""Merge molecule data from a dataframe into the molecules in your working set.
+            description=f"""Merge molecule data from a dataframe into the molecules in your working set.
 
 Options:
 - Append <cmd>enrich</cmd> to enrich the molecule with data from pubchem.
@@ -744,6 +744,9 @@ Sample input file:
 <reverse> O=C(O)C(F)(OC(F)(O)C(F)(F)C(F)(F)F)C(F)(F)F                           molecular_weight               328.058 </reverse>
 <reverse> O=C(O)C(F)(OC(F)(F)C(F)(Br)C(F)(F)F)C(F)(F)F                          molecular_weight               390.955 </reverse>
 <reverse> O=C(O)C(F)OC(O)(F)C(F)(F)C(F)(F)F                                     molecular_weight               260.061 </reverse>
+
+Notes:
+- {MOL_SHORTHAND}
 
 Examples:
 - Merge molecule data from a dataframe called <cmd>new_props</cmd>:

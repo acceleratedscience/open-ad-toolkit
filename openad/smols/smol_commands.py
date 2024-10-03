@@ -1,9 +1,10 @@
 """Functions that are called for molecule commands"""
 
-import glob
-import pickle
 import os
 import json
+import glob
+import copy
+import pickle
 import urllib.parse
 from copy import deepcopy
 import pandas as pd
@@ -45,10 +46,6 @@ def display_molecule(cmd_pointer, inp):
     """
 
     molecule_identifier = inp.as_dict()["molecule_identifier"]
-
-    # if GLOBAL_SETTINGS["display"] == "notebook":
-    #     global PRINT_WIDTH
-    #     PRINT_WIDTH = 100
 
     smol = find_smol(cmd_pointer, molecule_identifier, show_spinner=True)
     if smol is None:
@@ -96,7 +93,7 @@ def format_identifiers(smol):
     Format the identifiers for display.
     """
 
-    output = f"<h1>{smol['name'].capitalize()}</h1>"
+    output = f"<h1>{(smol['identifiers'].get('name') or 'Unknown molecule' ).capitalize()}</h1>"
     identifiers = smol.get("identifiers", {})
     output = output + key_val_full(identifiers, print_width=GLOBAL_SETTINGS["print_width"] - 5)
     return output
@@ -110,6 +107,13 @@ def format_synonyms(smol, truncate=30):
     synonyms = smol.get("synonyms", [])
     synonym_count = len(synonyms)
 
+    # Title
+    output = "<h1>Synonyms:</h1>"
+
+    # No synonyms found
+    if synonym_count == 0:
+        return output + "\n<soft>No synonyms found.</soft>"
+
     # Truncate list of synonyms
     if truncate is not None:
         synonyms = synonyms[:truncate]
@@ -117,14 +121,11 @@ def format_synonyms(smol, truncate=30):
     else:
         is_truncated = False
 
-    # Title
-    output = "<h1>Synonyms:</h1>"
-
     # Truncation note
     if is_truncated:
         output = (
             output
-            + f"\n<soft>This list is truncated. To view all synonyms, run <cmd>@{smol['name']}>>synonyms</cmd></soft>\n\n"
+            + f"\n<soft>This list is truncated. To view all synonyms, run <cmd>@{smol['identifiers']['name']}>>synonyms</cmd></soft>\n\n"
         )
     else:
         output = output + "\n"
@@ -140,8 +141,15 @@ def format_properties(smol):
     Format properties for display.
     """
 
-    output = "<h1>Properties:</h1>"
     properties = get_human_properties(smol)
+
+    # Title
+    output = "<h1>Properties:</h1>"
+
+    # No properties found
+    if len(properties) == 0:
+        return output + "\n<soft>No properties found.</soft>"
+
     output = output + key_val_columns(
         properties, print_width=GLOBAL_SETTINGS["print_width"] - 5, ignore_keys=["DS_URL"]
     )
@@ -159,23 +167,34 @@ def format_analysis(smol):
     output = "<h1>Analysis:</h1>"
 
     for item in smol["analysis"]:
-        output = (
-            output
-            + "\n<cyan>Toolkit: </cyan>"
-            + item["toolkit"]
-            + " / <cyan>Function: </cyan>"
-            + item["function"]
-            + "\n"
-        )
-        output = output + key_val_columns(item, print_width=GLOBAL_SETTINGS["print_width"] - 5, indent=4)
+        results = copy.deepcopy(item["results"])
+        del item["results"]
+
+        # Compile analysis context header
+        header_output = []
+        for key, val in item.items():
+            val = "<soft>-</soft>" if not val and val != 0 else val
+            header_output.append(f"<cyan>{key.capitalize()}:</cyan> {val}")
+        header_output = " <soft>/</soft> ".join(header_output)
+        output = output + "\n" + header_output
+
+        # Compile results
+        results_output = ""
+        for i, result in enumerate(results):
+            results_output = (
+                results_output
+                + f"\n\n<soft>Result #{i}</soft>"
+                + key_val_full(result, print_width=GLOBAL_SETTINGS["print_width"] - 10, indent=2)
+            )
+
+        # Compile final results output
+        output = output + results_output
     return output
 
 
 def display_property_sources(cmd_pointer, inp):
     """displays a molecule properties sources"""
-    # if GLOBAL_SETTINGS["display"] == "notebook":
-    #     global PRINT_WIDTH
-    #     PRINT_WIDTH = 100
+
     molecule_identifier = inp.as_dict()["molecule_identifier"]
 
     mol = get_smol_from_mws(cmd_pointer, molecule_identifier)
@@ -207,15 +226,15 @@ def display_property_sources(cmd_pointer, inp):
     return True
 
 
-def format_sources(mol):
+def format_sources(smol):
     """
     Format the sources for display.
     """
 
-    output = f"\n<yellow>Name:</yellow> {mol['name']}\n"
+    output = f"\n<yellow>Name:</yellow> {smol['identifiers']['name']}\n"
 
-    for mol_property, source in mol["property_sources"].items():
-        if mol_property not in mol["properties"] or mol["properties"][mol_property] is None:
+    for mol_property, source in smol["property_sources"].items():
+        if mol_property not in smol["properties"] or smol["properties"][mol_property] is None:
             continue
         output = output + "\n\n<yellow>Property:</yellow> {} \n".format(mol_property)
         output = output + key_val_columns(source, print_width=GLOBAL_SETTINGS["print_width"] - 5)
@@ -587,7 +606,7 @@ def merge_molecules_DEPRECATED(cmd_pointer, inp):
     for i in glob.glob(mol_file_path + "/" + inp["molset_name"].upper() + "--*.molecule", recursive=True):
         func_file = open(i, "rb")
         merge_mol = dict(pickle.load(func_file))
-        existing_mol_twin = get_smol_from_mws(cmd_pointer, merge_mol["properties"]["canonical_smiles"])
+        existing_mol_twin = get_smol_from_mws(cmd_pointer, merge_mol["identifiers"]["canonical_smiles"])
         if existing_mol_twin is not None:
             if "append_only" not in inp.as_dict():
                 merged += 1
