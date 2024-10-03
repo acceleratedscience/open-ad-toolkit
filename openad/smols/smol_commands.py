@@ -421,14 +421,14 @@ def _create_workspace_dir_if_nonexistent(cmd_pointer, dir_name):
 
 def load_molecules(cmd_pointer, inp):
     """loads a molecule set into the molecule working set"""
-    if "molecule-set_name" not in inp:
+    if "molset_name" not in inp:
         return False
 
     mol_file_path = _create_workspace_dir_if_nonexistent(cmd_pointer, "_mols")
     if "append" not in inp:
         cmd_pointer.molecule_list.clear()
 
-    for i in glob.glob(mol_file_path + "/" + inp["molecule-set_name"].upper() + "--*.molecule", recursive=True):
+    for i in glob.glob(mol_file_path + "/" + inp["molset_name"].upper() + "--*.molecule", recursive=True):
         func_file = open(i, "rb")
         mol = dict(pickle.load(func_file))
         for properties in mol["properties"]:
@@ -472,12 +472,12 @@ def list_molsets(cmd_pointer):
 
 def save_molecules(cmd_pointer, inp):
     """saves a molecule set"""
-    if "molecule-set_name" not in inp:
+    if "molset_name" not in inp:
         return False
     mol_file_path = _create_workspace_dir_if_nonexistent(cmd_pointer, "_mols")
     if cmd_pointer.molecule_list is not None and len(cmd_pointer.molecule_list) > 0:
         for mol in cmd_pointer.molecule_list:
-            name = inp["molecule-set_name"].upper() + "--" + mol["properties"]["inchikey"] + ".molecule"
+            name = inp["molset_name"].upper() + "--" + mol["properties"]["inchikey"] + ".molecule"
             _write_molecules(mol, mol_file_path + "/" + name.strip())
     return True
 
@@ -589,13 +589,13 @@ def _write_molecules(molecule: dict, location):
 
 def merge_molecules(cmd_pointer, inp):
     """loads a molecule set into the molecule working set"""
-    if "molecule-set_name" not in inp:
+    if "molset_name" not in inp:
         return False
     merged = 0
     appended = 0
     mol_file_path = _create_workspace_dir_if_nonexistent(cmd_pointer, "_mols")
 
-    for i in glob.glob(mol_file_path + "/" + inp["molecule-set_name"].upper() + "--*.molecule", recursive=True):
+    for i in glob.glob(mol_file_path + "/" + inp["molset_name"].upper() + "--*.molecule", recursive=True):
         func_file = open(i, "rb")
         merge_mol = dict(pickle.load(func_file))
         existing_mol_twin = get_smol_from_mws(cmd_pointer, merge_mol["properties"]["canonical_smiles"])

@@ -112,18 +112,36 @@ desc = QuotedString("'", escQuote="\\")
 MOL_SHORTHAND = "You can use the 'mol' shorthand instead of 'molecule'."
 MOLS_SHORTHAND = "You can use the 'mols' shorthand instead of 'molecules'."
 MOLSET_SHORTHAND = "You can use the 'molset' shorthand instead of 'molecule-set'."
+MOL_LOOKUP_PRIORITY = (
+    "If the requested molecule exists in your current working set or in memory, that version will be prioritized."
+)
+
+
+SUPPORTED_IDENTIFIERS = """Supported molecule identifiers:
+- <cmd>name</cmd> / <cmd>synonym</cmd>
+- <cmd>SMILES</cmd>
+- <cmd>InChI</cmd>
+- <cmd>InChIKey</cmd>
+- <cmd>PubChem CID</cmd>"""
+SUPPORTED_IDENTIFIERS_BASIC = """Supported molecule identifiers:
+- <cmd>name</cmd> / <cmd>synonym</cmd>
+- <cmd>SMILES</cmd> <soft>- supports [ basic ]</soft>
+- <cmd>InChI</cmd> <soft>- supports [ basic ]</soft>
+- <cmd>InChIKey</cmd>
+- <cmd>PubChem CID</cmd>"""
 SUPPORTED_FILE_FORMATS = """Supported file formats:
 - molset (.molset.json)
 - SDF (.sdf)
 - CSV (.csv)
 - SMILES (.smi)"""
-SPECIFY_MOL = "You can specify any molecule by SMILES or InChI, and PubChem classified molecules also by name, InChIKey or their PubChem CID. \n A molecule identifier can be in single quotes or defined with unquoted text. If you have spaces in your molecule identifier e.g. a name, then you must user a single quoted string"
-WORKING_SET_PRIORITY = "If the requested molecule exists in your current working set, that version will be used."
-USING_NAME = "If you use the name of a molecule, the tool will do a caseless search of the names and synonyms first in current molecule working set, then on PubChem."
+DELETE_____SPECIFY_MOL = "You can specify any molecule by SMILES or InChI, and PubChem classified molecules also by name, InChIKey or their PubChem CID. \n A molecule identifier can be in single quotes or defined with unquoted text. If you have spaces in your molecule identifier e.g. a name, then you must user a single quoted string"
+DELETE_____USING_NAME = "If you use the name of a molecule, the tool will do a caseless search of the names and synonyms first in current molecule working set, then on PubChem."
 
 
 def smol_grammar_add(statements, grammar_help):
-    """defines the grammar available for managing molecules"""
+    """
+    Grammar for managing small molecules.
+    """
 
     #
     #
@@ -147,65 +165,54 @@ def smol_grammar_add(statements, grammar_help):
         help_dict_create(
             name="add molecule",
             category="Molecule Working Set",
-            command="add mol|molecule <name> | <smiles> | <inchi> | <inchikey> | <cid> [ as '<name>' ] [ basic ] [ force ]",
-            description=f"""
-This command is how you add a molecule to your current molecule working set in memory. When adding a molecule by name, this name will become the molecule's identifying string. 
+            command="add mol|molecule <name> | <smiles> | <inchi> | <inchikey> | <cid> [ as <name> ] [ basic ] [ force ]",
+            description=f"""Add a molecule to your current molecule working set.
 
-It will take any molecules identifier from the following categories:
-    -<cmd>smiles </cmd>
-    -<cmd>name or synonym</cmd>
-    -<cmd>smiles</cmd>
-    -<cmd>inchi</cmd>
-    -<cmd>inchikey </cmd>
-    -<cmd>cid </cmd>
+{SUPPORTED_IDENTIFIERS_BASIC}
 
-Options :
-    - <cmd>as <name> </cmd>: if the <cmd> as '<name>' </cmd> not used the molecule the  molecule identfier will be used for the molecules name. if the <cmd> as '<name>' </cmd> not used the molecule the  molecule identfier will be used for the molecules name.
-        You can set or override an name later for  any molecule with the <cmd>rename molecule</cmd> command.
-    - <cmd> basic </cmd> Creates a molecule that does not have its properties and synonyms populated with pubchem data, this feature is only valid with a SMILES molecule identifier
-    - <cmd>force</cmd>: The <cmd>force</cmd> option allows you to ovveride the confirmation that you wish to add a molecule.
+Options:
+- <cmd>as <name></cmd>: Provide a custom name for the molecule, which will be used by the software whenever refering to it going forward.
+  Note: you can always update a molecule's name later by running <cmd>rename molecule <name></cmd>.
+- <cmd>basic</cmd>: Create a minimal molecule without enriching it with PubChem data. This is only relevant when using a SMILES or InChI string as identifier. Because no API calls are made, this is much faster than the default behavior.
+- <cmd>force</cmd>: This suppressed the confirmation step after adding a molecule, which may be desired in batch operations.
 
+Notes:
+- {MOL_SHORTHAND}
+- {MOL_LOOKUP_PRIORITY}
 
+Examples:
+- Add a molecule by SMILES string:
+  <cmd>add molecule CC(=O)OC1=CC=CC=C1C(=O)O</cmd>
 
-    
-{MOL_SHORTHAND}
+- Add a molecule by SMILES string, without enriching it with PubChem data:
+  <cmd>add molecule CC(=O)OC1=CC=CC=C1C(=O)O basic</cmd>
 
-{SPECIFY_MOL}
+- Add a molecule by SMILES string, giving it a custom name:
+  <cmd>add molecule CC(=O)OC1=CC=CC=C1C(=O)O as 'mymol' basic</cmd>
 
-{USING_NAME}
+- Add a molecule by unquoted InChI string:
+  <cmd>add mol InChI=1S/C9H8O4/c1-6(10)13-8-5-3-2-4-7(8)9(11)12/h2-5H,1H3,(H,11,12)</cmd>
 
-
-Examples of how to add a molecule to your molecule working set:
-- Add a molecule by name:
-<cmd>add molecule aspirin</cmd>
-or with single quotes
-<cmd> display molecule 'Aspirin 325 mg' </cmd>
-
-- Add a molecule by name and force through the acknowledgement to add it:
-<cmd>add molecule aspirin force</cmd>
-
-- Add a molecule by SMILES:
-<cmd>add molecule CC(=O)OC1=CC=CC=C1C(=O)O</cmd>
-
-- Add a molecule by SMILES without populated pubchem properties:
-<cmd>add molecule CC(=O)OC1=CC=CC=C1C(=O)O basic </cmd>
-
-- Add a molecule by CID:
-<cmd>add mol 2244</cmd>
-
-- Add a molecule by InChI:
-<cmd>add mol InChI=1S/C9H8O4/c1-6(10)13-8-5-3-2-4-7(8)9(11)12/h2-5H,1H3,(H,11,12)</cmd>
- or with single quotes
- <cmd>add mol 'InChI=1S/C9H8O4/c1-6(10)13-8-5-3-2-4-7(8)9(11)12/h2-5H,1H3,(H,11,12)'</cmd>
+- Add a molecule by quoted InChI string:
+  <cmd>add mol 'InChI=1S/C9H8O4/c1-6(10)13-8-5-3-2-4-7(8)9(11)12/h2-5H,1H3,(H,11,12)'</cmd>
 
 - Add a molecule by InChIKey:
-<cmd>add mol BSYNRYMUTXBXSQ-UHFFFAOYSA-N</cmd>
+  <cmd>add mol BSYNRYMUTXBXSQ-UHFFFAOYSA-N</cmd>
 
-- Add a molecule by InChIKey nd set its name to "mymol":
-<cmd>add mol BSYNRYMUTXBXSQ-UHFFFAOYSA-N as 'mymol' </cmd>
+- Add a molecule by InChIKey, giving it a custom name:
+  <cmd>add mol BSYNRYMUTXBXSQ-UHFFFAOYSA-N as 'mymol'</cmd>
 
-- Add a molecule by SMILES nd set its name to "mymol" and not prepopulate values from pubchem:
-<cmd>add mol CC(=O)OC1=CC=CC=C1C(=O)O as 'mymol' basic </cmd>
+- Add a molecule by name:
+  <cmd>add molecule aspirin</cmd>
+
+- Add a molecule by name, supressing the confirmation step:
+  <cmd>add molecule aspirin force</cmd>
+
+- Add a molecule by quoted name:
+  <cmd>add mol 'Aspirin 325 mg'</cmd>
+
+- Add a molecule by its PubChem CID:
+  <cmd>add mol 2244</cmd>
 """,
         )
     )
@@ -222,26 +229,26 @@ or with single quotes
             name="remove molecule",
             category="Molecule Working Set",
             command="remove mol|molecule <name> | <smiles> | <inchi> | <inchikey> | <cid> [ force ]",
-            description=f"""
-Remove a molecule from the current working set based on a given molecule identifier.
+            description=f"""Remove a molecule from the current working set based on a given molecule identifier.
 
-{MOL_SHORTHAND}
+Notes:
+- {MOL_SHORTHAND}
             
 Examples:
 - Remove a molecule by name:
-<cmd>remove molecule Aspirin</cmd>
-
+  <cmd>remove molecule Aspirin</cmd>
+  
 - Remove a molecule by SMILES:
-<cmd>remove molecule CC(=O)OC1=CC=CC=C1C(=O)O</cmd>
+  <cmd>remove molecule CC(=O)OC1=CC=CC=C1C(=O)O</cmd>
 
 - Remove a molecule by InChIKey:
-<cmd>remove mol  BSYNRYMUTXBXSQ-UHFFFAOYSA-N</cmd>
+  <cmd>remove mol BSYNRYMUTXBXSQ-UHFFFAOYSA-N</cmd>
 
-- Remove a molecule by InChI:
-<cmd>remove mol  InChI='1S/C9H8O4/c1-6(10)13-8-5-3-2-4-7(8)9(11)12/h2-5H,1H3,(H,11,12)'</cmd>
+- Remove a molecule by InChI
+  <cmd>remove mol  InChI=1S/C9H8O4/c1-6(10)13-8-5-3-2-4-7(8)9(11)12/h2-5H,1H3,(H,11,12)</cmd>
 
 - Remove a molecule by CID:
-<cmd>remove mol 2244</cmd>
+  <cmd>remove mol 2244</cmd>
 """,
         )
     )
@@ -254,7 +261,11 @@ Examples:
             name="list molecules",
             category="Molecule Working Set",
             command="list mols|molecules",
-            description="List all molecules in the current working set.",
+            description=f"""List all molecules in the current working set.
+
+Notes:
+- {MOLS_SHORTHAND}
+""",
         )
     )
 
@@ -266,7 +277,11 @@ Examples:
             name="show molecules",
             category="Molecule Working Set",
             command="show mols|molecules",
-            description="Display the current molecule working set in the GUI.",
+            description=f"""Visualize the current molecule working set in an iframe (Jupyter Notebook) or in the browser (CLI).
+
+Notes:
+- {MOLS_SHORTHAND}
+""",
         )
     )
 
@@ -278,15 +293,18 @@ Examples:
             name="enrich molecules",
             category="Molecule Working Set",
             command="enrich mols|molecules with analysis",
-            description="""
-Enrich the molecules in your working set with the results of the last performed analysis.
+            description=f"""Enrich the molecules in your current working set with the results of the last performed analysis.
+
 This assumes that your molecule working set contains either the input molecule or any of the result molecules from the analysis.
+
+Notes:
+- {MOLS_SHORTHAND}
 
 Currently supported analysis commands:
 
 RXN:
 - <cmd>predict reaction</cmd>
-- <cmd>predict retrosynthesis </cmd>
+- <cmd>predict retrosynthesis</cmd>
 
 DS4SD:
 - <cmd>search for patents containing molecule</cmd>
@@ -307,7 +325,10 @@ Please refer to the DS4SD and RXN toolkits for further assistance on these comma
             name="clear analysis cache",
             category="Molecule Working Set",
             command="clear analysis cache",
-            description="this command clears the cache of analysis results for your current workspace.",
+            description="""Clear the analysis results cache for your current workspace.
+
+Please refer to the <cmd>enrich mols|molecules with analysis</cmd> command for more information about analysis results.
+""",
         )
     )
 
@@ -321,33 +342,31 @@ Please refer to the DS4SD and RXN toolkits for further assistance on these comma
             name="display molecule",
             category="Small Molecules",
             command="display mol|molecule <name> | <smiles> | <inchi> | <inchikey> | <cid>",
-            description=f"""
-This command will display a molecule's identifiers, propoerties, synonyms and any Analysis results it has been enriched with.
-if the molecule exists in the current molecule workling list in memory the molecule will be retrieved from there if not pubchem will be checked to see if the molecule and its information is avialable there.
+            description=f"""Display a molecule's details.
 
-{MOL_SHORTHAND}
+A molecule's details include its identifiers, synonyms, properties and any analysis results it has been enriched with.
 
-{WORKING_SET_PRIORITY}
+{SUPPORTED_IDENTIFIERS}
 
-{SPECIFY_MOL}
-
-{USING_NAME}
+Notes:
+- {MOL_SHORTHAND}
+- {MOL_LOOKUP_PRIORITY}
             
 Examples:
 - Display a molecule by name:
-<cmd>display molecule Aspirin</cmd>
+  <cmd>display molecule Aspirin</cmd>
 
-- Display a molecule by SMILES:
-<cmd>display molecule CC(=O)OC1=CC=CC=C1C(=O)O</cmd>
+- Display a molecule by SMILES string:
+  <cmd>display molecule CC(=O)OC1=CC=CC=C1C(=O)O</cmd>
 
-- Display a molecule by InChI:
-<cmd>display mol InChI=1S/C9H8O4/c1-6(10)13-8-5-3-2-4-7(8)9(11)12/h2-5H,1H3,(H,11,12)</cmd>
+- Display a molecule by InChI string:
+  <cmd>display mol InChI=1S/C9H8O4/c1-6(10)13-8-5-3-2-4-7(8)9(11)12/h2-5H,1H3,(H,11,12)</cmd>
 
-- Display a molecule by InChIKey string:
-<cmd>display mol BSYNRYMUTXBXSQ-UHFFFAOYSA-N</cmd>
+- Display a molecule by InChIKey:
+  <cmd>display mol BSYNRYMUTXBXSQ-UHFFFAOYSA-N</cmd>
 
-- Display a molecule by CID:
-<cmd>display mol 2244</cmd>
+- Display a molecule by its PubChem CID:
+  <cmd>display mol 2244</cmd>
 """,
         )
     )
@@ -359,16 +378,10 @@ Examples:
             name="display sources",
             category="Molecule Working Set",
             command="display sources <name> | <smiles> | <inchi> | <inchikey> | <cid>",
-            description=f"""
-Display the sources of a molecule's properties, attributing back to how they were calculated or sourced.
+            description=f"""Display the sources of a molecule's properties, attributing how they were calculated or where they were sourced.
 
-{WORKING_SET_PRIORITY}
-
-{SPECIFY_MOL}
-
-{USING_NAME}
-            
-
+Notes:
+- {MOL_LOOKUP_PRIORITY}
 """,
         )
     )
@@ -389,14 +402,14 @@ Display the sources of a molecule's properties, attributing back to how they wer
             name="rename molecule",
             category="Molecule Working Set",
             command="rename mol|molecule <molecule_identifer_string> as <molecule_name>",
-            description=f"""
-Rename a molecule in the current working set.
+            description=f"""Rename a molecule in the current working set.
 
-{MOL_SHORTHAND}
+Notes:
+- {MOL_SHORTHAND}
 
 Example:
-Let's say you've added a molecule "CC(=O)OC1=CC=CC=C1C(=O)O" to your current molecule working set, you can then rename it as such:
-<cmd>rename molecule CC(=O)OC1=CC=CC=C1C(=O)O as Aspirin</cmd>
+- Assuming you've added the molecule <yellow>CC(=O)OC1=CC=CC=C1C(=O)O</yellow> to your molecule working set, you can then rename it as such:
+  <cmd>rename molecule CC(=O)OC1=CC=CC=C1C(=O)O as Aspirin</cmd>
 """,
         )
     )
@@ -433,19 +446,27 @@ Let's say you've added a molecule "CC(=O)OC1=CC=CC=C1C(=O)O" to your current mol
             command="load mols|molecules from file '<filename.molset.json|sdf|csv|smi>' [ enrich ] [ append ]",
             description=f"""Load molecules from a file into your molecule working set.
 
-{MOLS_SHORTHAND}
-
 {SUPPORTED_FILE_FORMATS}
 
 Options:
-- Append <cmd>enrich</cmd> to enrich the molecule with data from pubchem
-- Append <cmd>append</cmd> to append the molecules to the existing working set instead of overwriting it
+- Append <cmd>enrich</cmd> to enrich the molecule with data from pubchem.
+- Append <cmd>append</cmd> to append the molecules to the existing working set instead of overwriting it.
+
+Notes:
+- {MOLS_SHORTHAND}
 
 Examples:
-- <cmd>load molecules from file 'my_molecules.molset.json'</cmd>
-- <cmd>load mols from file 'my_molecules.sdf'` appen</cmd>
-- <cmd>load molecules from file 'my_molecules.csv'</cmd>
-- <cmd>load mols from file 'my_molecules.smi'` merge with pubche</cmd>
+- Load molecules from a molset JSON file:
+  <cmd>load molecules from file 'my_molecules.molset.json'</cmd>
+
+- Load molecules from an SDF file, appending them to the existing working set:
+  <cmd>load mols from file 'my_molecules.sdf'` append</cmd>
+
+- Load molecules from an CSV file:
+  <cmd>load molecules from file 'my_molecules.csv'</cmd>
+
+- Load molecules from an SMILES file, enriching them with PubChem data:
+  <cmd>load mols from file 'my_molecules.smi'` enrich</cmd>
 """,
         )
     )
@@ -482,18 +503,23 @@ Examples:
             command="load mols|molecules from dataframe <dataframe> [ enrich ] [ append ]",
             description=f"""Load molecules from a dataframe into your molecule working set.
 
-{MOLS_SHORTHAND}
-
-This command only works when called from a Jupyter Notebook or the API.
-
 Options:
 - Append <cmd>enrich</cmd> to enrich the molecule with data from pubchem
 - Append <cmd>append</cmd> to append the molecules to the existing working set instead of overwriting it
 
+Notes:
+- This command only works when called from a Jupyter Notebook or the API.
+- {MOLS_SHORTHAND}
+
 Examples:
-- <cmd>load molecules from dataframe my_dataframe</cmd>
-- <cmd>load mols from dataframe my_dataframe append</cmd>
-- <cmd>load mols from dataframe my_dataframe enrich</cmd>
+- Load molecules from a dataframe:
+  <cmd>load molecules from dataframe my_dataframe</cmd>
+
+- Load molecules from a dataframe, appending them to the existing working set:
+  <cmd>load mols from dataframe my_dataframe append</cmd>
+
+- Load molecules from a dataframe, enriching them with PubChem data:
+  <cmd>load mols from dataframe my_dataframe enrich</cmd>
 """,
         )
     )
@@ -529,14 +555,13 @@ Examples:
             category="Molecule Working Set",
             command="merge mols|molecules data from dataframe <dataframe> [ enrich ]",
             description="""Merges molecule data from a dataframe into the molecules in your working set.
-     
-It takes files with the columns named: 
+    
+It takes files with columns named as follows:
+- <cmd>subject</cmd> or <cmd>smiles</cmd>: molecules similes string
+- <cmd>property</cmd>: the name of the property to be merged
+- <cmd>result</cmd>: the value of the property to be nmerged
 
-<cmd>subject or <cmd>smiles</cmd>: molecules similes string
-<cmd>property</cmd> : the property generation name
-<cmd>result</cmd> : the value of the property
-
-Sample input file
+Sample input file:
 
 subject                                                               property                        result
 --------------------------------------------------------------------  -------------------------  -----------
@@ -551,15 +576,14 @@ O=C(O)C(F)(OC(F)(F)C(F)(Br)C(F)(F)F)C(F)(F)F                          molecular_
 O=C(O)C(F)OC(O)(F)C(F)(F)C(F)(F)F                                     molecular_weight               260.061
 
 
-Example Command:
+Examples:
 
-merge molecules from a data frame called <cmd>new_props</cmd>
+- Merge molecule data from a dataframe called <cmd>new_props</cmd>:
+  <cmd>merge molecules data from dataframe new_props</cmd>
 
-- <cmd> merge molecules data using dataframe new_props</cmd>
-
-to perform the same load and merge with pubchem data simply add the <cmd> enrich </cmd> clause to the end of the command 
-
-- <cmd> merge molecules data using dataframe new_props enrich</cmd> """,
+- Merge molecule data from a dataframe called <cmd>new_props</cmd>, while enriching the molecules with PubChem data:
+  <cmd>merge molecules data from dataframe new_props enrich</cmd>
+""",
         )
     )
 
@@ -585,9 +609,9 @@ If the molecule is in your current working set it will be retrieved from there, 
 
 {MOL_SHORTHAND}
 
-{WORKING_SET_PRIORITY}
+{MOL_LOOKUP_PRIORITY}
 
-{USING_NAME}
+{DELETE_____USING_NAME}
 
 Examples
 - <cmd>export molecule aspirin</cmd>
@@ -640,15 +664,18 @@ If no filename or extension is provided, the molecules will be saved as molset f
     # ---
     # Save molecules
     statements.append(
-        Forward(save + molecule_set + a_s + Word(alphas, alphanums + "_")("molecule-set_name"))("save_molecule-set")
+        Forward(save + molecule_set + a_s + Word(alphas, alphanums + "_")("molset_name"))("save_molecule-set")
     )
     grammar_help.append(
         help_dict_create(
             name="save molecule-set",
             category="Molecule Sets",
-            command="save molset|molecule-set as <molecule_set_name>",
-            description="""
-Save the current molecule workking list to a molecule-set in your workspace.
+            command="save molset|molecule-set as <molset_name>",
+            description=f"""
+Save the current molecule working set to a molecule-set in your workspace.
+
+Notes:
+- {MOLSET_SHORTHAND}
 
 Example:
 <cmd>save molset as my_working_set</cmd>
@@ -658,16 +685,14 @@ Example:
 
     # ---
     # Load molecule set
-    statements.append(
-        Forward(load + molecule_set + Word(alphas, alphanums + "_")("molecule-set_name"))("load_molecule-set")
-    )
+    statements.append(Forward(load + molecule_set + Word(alphas, alphanums + "_")("molset_name"))("load_molecule-set"))
     grammar_help.append(
         help_dict_create(
             name="load molecule-set",
             category="Molecule Sets",
-            command="load molset|molecule-set <molecule-set_name>",
+            command="load molset|molecule-set <molset_name>",
             description="""
-Loads a molecule-set from your workspace, and replaces your current list of molecules with the molecules from the given  molecule-set.
+Load a molecule-set from your workspace into your working set, replacing your current list of molecules.
 Example:
 <cmd>load molset my_working_set</cmd>
 """,
@@ -679,7 +704,7 @@ Example:
         Forward(
             merge
             + molecule_set
-            + Word(alphas, alphanums + "_")("molecule-set_name")
+            + Word(alphas, alphanums + "_")("molset_name")
             + Optional(merge + only)("merge_only")
             + Optional(append + only)("append_only")
         )("merge_molecule-set")
@@ -688,7 +713,7 @@ Example:
         help_dict_create(
             name="merge molecule-set",
             category="Molecule Sets",
-            command="merge molset|molecule-set <molecule-set_name> [merge only] [append only]",
+            command="merge molset|molecule-set <molset_name> [merge only] [append only]",
             description="""
 This command merges a molecule-set from your workspace into cour current molecule working set in memory, and updates properties/Analysis in existing molecules or appends new molecules to the working set.
 
@@ -766,9 +791,9 @@ The <cmd>@</cmd> symbol should be followed by the molecule's name, SMILES, InChI
 
 E.g. <cmd>@aspirin>>xlogp</cmd>
 
-{SPECIFY_MOL}
+{DELETE_____SPECIFY_MOL}
 
-{USING_NAME}
+{DELETE_____USING_NAME}
 
 Examples of how to retrieve the value of a molecules property:
 - Obtain the molecular weight of the molecule known as Aspirin.

@@ -1425,8 +1425,8 @@ def output_train_statements(cmd_pointer):
                 - show molecule <name> | <smiles> | <inchi> | <inchikey> | <cid>
                 - show molecules using ( file '<mols_file>' | dataframe <dataframe> ) [ save as '<sdf_or_csv_file>' | as molsobject ]
                 - save molecule-set as <molecule_set_name>
-                - load molecule-set|molset <molecule-set_name>
-                - merge molecule-set|molset <molecule-set_name> [merge only] [append only]
+                - load molecule-set|molset <molset_name>
+                - merge molecule-set|molset <molset_name> [merge only] [append only]
                 - list molecule-sets
                 - enrich molecules with analysis
                 - @(<name> | <smiles> | <inchi> | <inchikey> | <cid>)>><molecule_property_name>
