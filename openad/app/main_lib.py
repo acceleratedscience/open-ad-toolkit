@@ -54,10 +54,9 @@ from openad.smols.smol_commands import (
     show_molset_df,
     merge_molecules_DEPRECATED,
 )
+
 from openad.mmols.mmol_commands import show_mmol
-
 from openad.smols.smol_cache import enrich_mws_with_analysis, clear_analysis
-
 import openad.app.login_manager as login_manager
 
 # Core

@@ -4,14 +4,11 @@ import pandas
 from rdkit import RDLogger
 from rdkit.Chem import PandasTools
 from openad.smols.smol_functions import (
-    find_smol,
     get_smol_from_mws,
     merge_molecule_properties,
     valid_smiles,
     get_smol_from_pubchem,
     new_smol,
-    mws_add,
-    normalize_mol_df,
     canonicalize,
     load_mols_from_file,
     merge_smols,
@@ -28,25 +25,24 @@ RDLogger.DisableLog("rdApp.error")  # Suppress RDKiot errors
 mol_name_cache = {}
 
 
-#
-#
-
-
-def merge_molecule_property_data(cmd_pointer, inp):
+def merge_molecule_property_data(cmd_pointer, inp=None, mol_dataframe=None):
     "merges data where SMILES,Property and Value are in Data Frame or csv"
-    mol_dataframe = None
-    if "force" in inp.as_dict():
-        force = True
-    else:
-        force = False
 
-    if "merge_molecules_data_dataframe" in inp.as_dict():
-        mol_dataframe = cmd_pointer.api_variables[inp.as_dict()["in_dataframe"]]
-    else:
-        mol_dataframe = load_mol_data(inp.as_dict()["moles_file"], cmd_pointer)
+    # if "force" in inp.as_dict():
+    #    force = True
+    # else:
+    #    force = False
+    if mol_dataframe is None and inp is None:
+        return False
+
     if mol_dataframe is None:
-        output_error("Source not Found ", return_val=False)
-        return True
+        if "merge_molecules_data_dataframe" in inp.as_dict():
+            mol_dataframe = cmd_pointer.api_variables[inp.as_dict()["in_dataframe"]]
+        else:
+            mol_dataframe = load_mol_data(inp.as_dict()["moles_file"], cmd_pointer)
+        if mol_dataframe is None:
+            output_error("Source not Found ", return_val=False)
+            return True
 
     if "subject" in mol_dataframe.columns:
         SMILES = "subject"

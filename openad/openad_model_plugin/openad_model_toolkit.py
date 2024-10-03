@@ -16,6 +16,7 @@ from openad.openad_model_plugin.catalog_model_services import get_service_reques
 from openad.openad_model_plugin.auth_services import get_service_api_key
 from openad.openad_model_plugin.catalog_model_services import Dispatcher
 from openad.app.global_var_lib import GLOBAL_SETTINGS
+from openad.smols.smol_batch_files import merge_molecule_property_data
 from pyparsing import (  # replaceWith,; Combine,; pyparsing_test,; ParseException,
     CaselessKeyword,
     CharsNotIn,
@@ -114,10 +115,12 @@ molset = ["molecule-set", "molset"]
 molsets = ["molecule-sets", "molsets"]
 clear = CaselessKeyword("clear")
 cache = CaselessKeyword("cache")
+molecules_list = ["@molecules", "@mols"]
 analysis = CaselessKeyword("analysis")
 enrich = CaselessKeyword("enrich")
 mol_properties = ["synonyms"]
 # mol_properties.extend(m_props)
+mol_list = MatchFirst(map(CaselessKeyword, molecules_list))
 mol_properties = MatchFirst(map(CaselessKeyword, mol_properties))
 molecules = MatchFirst(map(CaselessKeyword, mols))
 molecule = MatchFirst(map(CaselessKeyword, mol))
@@ -171,14 +174,23 @@ save_as_clause_help = " (save_as '<filename.csv>')"
 service_command_start = {}
 service_command_subject = {}
 service_command_help = {}
+service_command_description = {}
+service_command_merge = {}
 
 service_command_start["get_molecule_property"] = 'get + CaselessKeyword("molecule") + CaselessKeyword("property")'
 service_command_start["get_crystal_property"] = 'get + CaselessKeyword("crystal") + CaselessKeyword("property")'
 service_command_start["get_protein_property"] = 'get + CaselessKeyword("protein") + CaselessKeyword("property")'
 service_command_start["generate_data"] = 'CaselessKeyword("generate") + CaselessKeyword("with")'
 
+service_command_merge["get_molecule_property"] = (
+    '+ Optional((CaselessKeyword("merge with mols")|CaselessKeyword("merge with molecules"))("merge_with_mws"))'
+)
+service_command_merge["get_crystal_property"] = ""
+service_command_merge["get_protein_property"] = ""
+service_command_merge["generate_data"] = ""
+
 service_command_subject["get_molecule_property"] = (
-    '+CaselessKeyword("for")+((Word("[")+delimitedList(molecule_identifier,delim=",")("molecules")+Word("]")|molecule_identifier("molecule")))'
+    '+CaselessKeyword("for")+(mol_list("mol_list")|(Word("[")+delimitedList(molecule_identifier,delim=",")("molecules")+Word("]")|molecule_identifier("molecule")))'
 )
 service_command_subject["get_protein_property"] = (
     '+CaselessKeyword("for")+((Word("[")+ delimitedList(molecule_identifier,delim=",")("proteins")+Word("]")|molecule_identifier("protein")))'
@@ -226,17 +238,54 @@ generation_targets = {
 
 
 service_command_help["get_molecule_property"] = (
-    "get molecule property <property> for [<list of SMILES>] | <SMILES>   USING (<parameter>=<value> <parameter>=<value>)"
+    "get molecule property <property> FOR @mols | [<list of SMILES>] | <SMILES>   USING (<parameter>=<value> <parameter>=<value>) (merge with mols|molecules)"
 )
 service_command_help["get_crystal_property"] = (
-    "get crystal property <property> for <directory>   USING (<parameter>=<value> <parameter>=<value>)"
+    "get crystal property <property> FOR <directory> USING (<parameter>=<value> <parameter>=<value>)"
 )
 service_command_help["get_protein_property"] = (
-    "get protein property <property> for [<list of Proteins>] | <Protein>   USING (<parameter>=<value> <parameter>=<value>)"
+    "get protein property <property> FOR [<list of Proteins>] | <Protein> USING (<parameter>=<value> <parameter>=<value>)"
 )
 service_command_help["generate_data"] = (
-    "generate with <property> data <TARGET> (sample <sample_size>)  USING (<parameter>=<value> <parameter>=<value>) "
+    "generate with <property> data <TARGET> (sample <sample_size>) USING (<parameter>=<value> <parameter>=<value>) "
 )
+
+service_command_description[
+    "get_molecule_property"
+] = """
+This command gets (generate/predict) a molecules property for one or molecules specified with a SMILES string in the <cmd>FOR</cmd> clause. SMILES can be provided as a single SMILES string or multiple smiles in a comma seperated list in square brackets e.g. <cmd> FOR [CCO, CC(C)CC1=CC=C(C=C1)C(C)C(=O)O ] </cmd>.
+SMILES strings can be specified with or without single quotes, but when in a list smiles with square brackets should be enclosed in single quotes e.g <cmd>[ 'C([H])([H])([H])[H]' ,CCO ]</cmd>
+
+This command gets (generate/predict) the following properties <cmd> <property_list> </cmd>
+
+The clause <cmd>merge with mols </cmd> will merge the resulting molecule properties with the memory molecule working set.
+
+Note: <cmd> @mols </cmd>  specifies the list in the current molecules working set.
+    Example: 
+        The following will generate the specified properties for the molecules in the molecule working set.
+        <cmd>get molecule property <property> for @mols </cmd>
+        The following will generate the specified properties for the molecules in the molecule working set and will merge the resulting molecule properties with the memory molecule working set.
+        <cmd>get molecule property <property> for @mols merge with mols</cmd>
+
+"""
+service_command_description[
+    "get_crystal_property"
+] = """
+This command gets (generate/predict) crystal properties
+"""
+service_command_description[
+    "get_protein_property"
+] = """
+This command gets (generate/predict) a proteins property for one or protiens specified with a FASTA string in the <cmd>FOR</cmd> clause.
+FASTA strings can be provided as a single  string or multiple FASTA strings in a comma seperated list in square brackets e.g. <cmd> FOR ['MKYNNRKLSFNPTTVSIAGTLLTVFFLTRLVLSFFSISLFQLVTFQGIFKPYVPDFKNTPSVEFYDLRNYQGNKDGWQQGDRILFCVPLRDASEHLPMFFNHLNTMTYPHNLIDLSFLVSDSSDNTMGVLLSNLQMAQSQQDKSKRFGNIEIYEKDFGQIIGQSFSDRHGFGAQGPRRKLMARARNWLGSVALKPYHSWVYWRDVDVETIPTTIMEDLMHHDKDVIVPNVWRPLPDWLGNIQPYDLNSWKESEGGLQLADSLDEDAVIVEGYPEYATWRPHLAYMRDPNGNPEDEMELDGIGGVSILAKAKVFRTGSHFPAFSFEKHAETEAFGRLSRRMNYNVIGLPHYVIWHIYEPSSDDLKHMAWMAEEEKRKLEEERIREFYNKIWEIGFEDVRDQWNEERDSILKNIDSTLNNKVTVDWSEEGDGSELVDSKGDFVSPNNQQQQQQQQQQQQQQQQQQQQQQLDGNPQGKPLDDNDKNKKKHPKEVPLDFDPDRN','MQYLNFPRMPNIMMFLEVAILCLWVVADASASSAKFGSTTPASAQQSDVELEPINGTLNYRLYAKKGRDDKPWFDGLDSRHIQCVRRARCYPTSNATNTCFGSKLPYELSSLDLTDFHTEKELNDKLNDYYALKHVPKCWAAIQPFLCAVFKPKCEKINGEDMVYLPSYEMCRITMEPCRILYNTTFFPKFLRCNETLFPTKCTNGARGMKFNGTGQCLSPLVPTDTSASYYPGIEGCGVRCKDPLYTDDEHRQIHKLIGWAGSICLLSNLFVVSTFFIDWKNANKYPAVIVFYINLCFLIACVGWLLQFTSGSREDIVCRKDGTLRHSEPTAGENLSCIVIFVLVYYFLTAGMVWFVFLTYAWHWRAMGHVQDRIDKKGSYFHLVAWSLPLVLTITTMAFSEVDGNSIVGICFVGYINHSMRAGLLLGPLCGVILIGGYFITRGMVMLFGLKHFANDIKSTSASNKIHLIIMRMGVCALLTLVFILVAIACHVTEFRHADEWAQSFRQFIICKISSVFEEKSSCRIENRPSVGVLQLHLLCLFSSGIVMSTWCWTPSSIETWKRYIRKKCGKEVVEEVKMPKHKVIAQTWAKRKDFEDKGRLSITLYNTHTDPVGLNFDVNDLNSSETNDISSTWAAYLPQCVKRRMALTGAATGNSSSHGPRKNSLDSEISVSVRHVSVESRRNSVDSQVSVKIAEMKTKVASRSRGKHGGSSSNRRTQRRRDYIAAATGKSSRRRESSTSVESQVIALKKTTYPNASHKVGVFAHHSSKKQHNYTSSMKRRTANAGLDPSILNEFLQKNGDFIFPFLQNQDMSSSSEEDNSRASQKIQDLNVVVKQQEISEDDHDGIKIEELPNSKQVALENFLKNIKKSNESNSNRHSRNSARSQSKKSQKRHLKNPAADLDFRKDCVKYRSNDSLSCSSEELDVALDVGSLLNSSFSGISMGKPHSRNSKTSCDVGIQANPFELVPSYGEDELQQAMRLLNAASRQRTEAANEDFGGTELQGLLGHSHRHQREPTFMSESDKLKMLLLPSK']</cmd>.
+FASTA strings must be provided in single quotes.
+This command gets (generate/predict) the following properties <property_list>
+"""
+service_command_description[
+    "generate_data"
+] = """
+    This function generates a data set based on the following parameters 
+ """
 
 
 def service_grammar_add(statements: list, help: list, service_catalog: dict):
@@ -259,7 +308,7 @@ def service_grammar_add(statements: list, help: list, service_catalog: dict):
 
             if valid_type is None:
                 valid_type = '( (Word("[")+delimitedList(oneOf(valid_types)|Suppress(Word("\'"))+oneOf(valid_types)+Suppress(Word("\'")),delim=",")("types")+Word("]")) | ( oneOf(valid_types)("type")) ) '
-                help_type = "[ " + ", ".join(list(schema["valid_types"])) + " ] | <valid_type>  "
+                help_type = "[ " + ", ".join(list(schema["valid_types"])) + " ] | <valid_property>  "
             expression = ""
 
             # if parameters  exist for command build parameter grammar
@@ -317,6 +366,7 @@ def service_grammar_add(statements: list, help: list, service_catalog: dict):
                     + valid_type
                     + cmd_subject
                     + expression
+                    + service_command_merge[schema["service_type"]]
                     + save_as_clause
                     + ")"
                     + f'("{schema["service_name"]}@{schema["service_type"]}")'
@@ -345,8 +395,7 @@ def service_grammar_add(statements: list, help: list, service_catalog: dict):
                         function_description = function_description.replace("  ", " ")
             except Exception as e:
                 output_error(e)
-
-            parameter_help = "<h2>Parameters:</h2>\n   <warning>--Note: Parameters should be entered for <cmd> USING Clause </cmd> in the order they are below. </warning>\n"
+            parameter_help = ""
             num_params = 0
             for parameter, description in dict(schema["parameters"]).items():
                 num_params += 1
@@ -354,7 +403,30 @@ def service_grammar_add(statements: list, help: list, service_catalog: dict):
                 for key, value in description.items():
                     print_description = print_description + f"- <cmd>{key}</cmd> : {value}\n  "
 
-                parameter_help = parameter_help + f"\n<cmd>{parameter}</cmd> \r {print_description}\n  "
+                parameter_help = parameter_help + f"<cmd>{parameter}</cmd> \r {print_description}\n  "
+            if "generator_type" in schema.keys():
+                key = "generate_data"
+            else:
+                key = schema["service_type"]
+
+            if num_params != 0:
+                parameter_help = (
+                    service_command_description[key]
+                    .replace("<property_list>", help_type.split("|")[0])
+                    .replace("<property>", help_type.split("|")[0].split(",")[0])
+                    + "]"
+                    + "<h2>Parameters:</h2>\n   <warning>--Note: Parameters should be entered for <cmd> USING Clause </cmd> in the order they are below. </warning>\n"
+                    + parameter_help
+                )
+            else:
+                parameter_help = (
+                    service_command_description[key]
+                    .replace("<property_list>", help_type.split("|")[0])
+                    .replace("<property>", help_type.split("|")[0].split(",")[0])
+                    + "]"
+                    + "<h2>No Parameters</h2>\n"
+                    + parameter_help
+                )
 
             required_parameters = ""
             for i in schema["required_parameters"]:
@@ -605,7 +677,14 @@ def subject_files_repository(file_directory, suffix):
     return parameter_list_files
 
 
-def request_generate(request_input):
+def mol_list_gen(cmd_pointer):
+    mol_list = []
+    for molecule in cmd_pointer.molecule_list:
+        mol_list.append(molecule["properties"]["canonical_smiles"])
+    return mol_list
+
+
+def request_generate(cmd_pointer, request_input):
     """This function constructs the request to be passed to the remote Server"""
 
     name = request_input.getName()
@@ -625,10 +704,13 @@ def request_generate(request_input):
             subjects = request_input.as_dict()["target@list"]
 
     if name.split("@")[1] == "get_molecule_property":
-        if "molecules" in request_input.as_dict():
+        if "mol_list" in request_input.as_dict():
+            subjects = mol_list_gen(cmd_pointer)
+
+        elif "molecules" in request_input.as_dict():
             subjects = request_input.as_dict()["molecules"]
 
-        if "molecule" in request_input.as_dict():
+        elif "molecule" in request_input.as_dict():
             if isinstance(request_input.as_dict()["molecule"], list):
                 subjects = request_input.as_dict()["molecule"]
             else:
@@ -697,7 +779,7 @@ def openad_model_requestor(cmd_pointer, parser):
     else:
         service_name = None
 
-    a_request = request_generate(parser)
+    a_request = request_generate(cmd_pointer, parser)
     # request_params = get_service_requester(service_name)
     # api_key = get_service_api_key(service_name)
     # headers = {"Inference-Service": service_name, "Authorization": f"Bearer {get_service_api_key(service_name)}"}
@@ -755,6 +837,8 @@ def openad_model_requestor(cmd_pointer, parser):
                     cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/" + results_file,
                     index=False,
                 )
+            if "merge_with_mws" in parser.as_dict():
+                merge_molecule_property_data(cmd_pointer=cmd_pointer, mol_dataframe=result)
             return result
 
         except:

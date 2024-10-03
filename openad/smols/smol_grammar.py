@@ -125,8 +125,6 @@ MOLSET_SHORTHAND = "You can use the 'molset' shorthand instead of 'molecule-set'
 MOL_LOOKUP_PRIORITY = (
     "If the requested molecule exists in your current working set or in memory, that version will be prioritized."
 )
-
-
 SUPPORTED_IDENTIFIERS = """Supported molecule identifiers:
 - <cmd>name</cmd> / <cmd>synonym</cmd>
 - <cmd>SMILES</cmd>
@@ -144,8 +142,7 @@ SUPPORTED_FILE_FORMATS = """Supported file formats:
 - SDF (.sdf)
 - CSV (.csv)
 - SMILES (.smi)"""
-DELETE_____SPECIFY_MOL = "You can specify any molecule by SMILES or InChI, and PubChem classified molecules also by name, InChIKey or their PubChem CID. \n A molecule identifier can be in single quotes or defined with unquoted text. If you have spaces in your molecule identifier e.g. a name, then you must user a single quoted string"
-DELETE_____USING_NAME = "If you use the name of a molecule, the tool will do a caseless search of the names and synonyms first in current molecule working set, then on PubChem."
+EXAMPLE_INPUT_FILES = "To see some example input files, you can export the molecules from your working set using the <cmd>export mols|molecules as ...</cmd> command."
 
 
 def smol_grammar_add(statements, grammar_help):
@@ -620,6 +617,7 @@ Options:
 - Append <cmd>append</cmd> to append the molecules to the existing working set instead of overwriting it.
 
 Notes:
+- {EXAMPLE_INPUT_FILES}
 - {MOLS_SHORTHAND}
 
 Examples:
@@ -676,6 +674,7 @@ Options:
 
 Notes:
 - This command only works when called from a Jupyter Notebook or the API.
+- {EXAMPLE_INPUT_FILES}
 - {MOLS_SHORTHAND}
 
 Examples:

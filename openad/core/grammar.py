@@ -5,7 +5,7 @@
 # - Expand all regions:         hold cmd, then hit K followed by J
 # - Collapse to any level:      first expand everything, then hold cmd, then hit K followed by any number
 
-import os
+import os, re
 import glob
 
 
@@ -39,11 +39,12 @@ from openad.core.help import help_dict_create
 import openad.toolkit.toolkit_main as toolkit_main  # Not using "from" to avoid circular import.
 from openad.smols.smol_grammar import smol_grammar_add
 from openad.mmols.mmol_grammar import mmol_grammar_add
+from openad.plugins.style_parser import tags_to_markdown
 
 
 # Helpers
 from openad.helpers.general import is_notebook_mode
-from openad.helpers.output import output_error
+from openad.helpers.output import output_error, output_text
 from openad.helpers.output_msgs import msg
 from openad.openad_model_plugin.openad_model_toolkit import service_grammar_add
 
@@ -1353,9 +1354,24 @@ def output_train_statements(cmd_pointer):
         training_statements.append(
             {
                 "command_group": "base",
-                "command_name": grammar_help[i]["name"],
-                "command_syntax": grammar_help[i]["command"],
-                "command_help": grammar_help[i]["description"],
+                "command_name": grammar_help[i]["name"].replace("_", " "),
+                "command_syntax": tags_to_markdown(grammar_help[i]["command"]),
+                "command_help": _parse_description(grammar_help[i]["description"]),
+            }
+        )
+        i += 1
+    i = 0
+    while i < len(cmd_pointer.current_help.help_model_services):
+        training_statements.append(
+            {
+                "command_group": "base",
+                "command_name": cmd_pointer.current_help.help_model_services[i]["name"].replace("_", " "),
+                "command_syntax": tags_to_markdown(
+                    cmd_pointer.current_help.help_model_services[i]["command"],
+                ),
+                "command_help": _parse_description(
+                    cmd_pointer.current_help.help_model_services[i]["description"],
+                ),
             }
         )
         i += 1
@@ -1370,8 +1386,6 @@ def output_train_statements(cmd_pointer):
         """openad client information
 
         For information in providing answers to how to or Help questions from users :
-
-
 
         The below describes openad clients domain specific language (DSL) for managing science activities using the DSL
 
@@ -1389,7 +1403,6 @@ def output_train_statements(cmd_pointer):
             Show:  Show a data set using a utility that enables you to manipulate or  diagrammatically view it.
             Backup: backup a plugin or workspace
             Add: add a function or plugin
-
             Remove: delete an object
             Save: Save a run or file of some kind
             Load: load a file from project directory to Target system
@@ -1412,6 +1425,7 @@ def output_train_statements(cmd_pointer):
             
             The Model Service is a capability to register and launch model services for property prediction and data set generation and allows you to launch ones you catalog yourself or remotely catalog already running services.
 
+           \@
             If a user asks for parameters or options this refers to the parameters that can be given to a function. Make sure all parameters are provided to the user
             
             The Following commands are used to work with the molecule working set of molecules:
@@ -1433,20 +1447,135 @@ def output_train_statements(cmd_pointer):
                 - list molecule-sets
                 - enrich molecules with analysis
                 - @(<name> | <smiles> | <inchi> | <inchikey> | <cid>)>><molecule_property_name>
+            
+            A parameter designated by <smiles> refers to a parameter with a caluse such as C(C(C1C(=C(C(=O)O1)O)O)O)O 
 
-            ?: will display help and if positioned prior to a command will display help options for that command \\@ \n\n"""
+            ?: will display help and if positioned prior to a command will display help options for that command
+        \@
+             The Model Service is a capability to register and launch model services for property generation and data set generation and allows you to launch ones you catalog yourself or remotely catalog already running services.
+    
+            ***Molecules Properties***
+
+        To generate a molecules Property we use the 'GET MOLECULE PROPERTY" command 
+        
+            ***GET MOLECULE PROPERTY COMMAND***
+            `GET MOLECULE PROPERTY` is a standard command that is used for different model commands. when a user catalogs a model that generates properties 1 or commands are created starting with the namespace or prefix for the model e.g. prop and the syntax for the different available commands e.g. for a 
+            
+            Question: What is the command Syntax for generating a molecules property ?
+            Answer: {
+            The format 'GET MOLECULE PROPERTY" command is as follows: Command Syntax: <cmd><model_prefix> GET MOLECULE PROPERTY @mols | <molecule property identifer> | [ <list of molecule_property identifers> ] FOR  <smiles_string> | [<list of smiles strings >] USING(<option>=<value>) (merge with mols|molecules) </cmd>
+           
+            - `<model_prefix>` : Nomimal user defined name provided to a model service when it is cataloged
+            - `<molecule_property_identifer>` : valid property idenfitier for the given model service that is to be generated in the request like 'esol','xlogp' AA1R
+            - `[<list of molecule property identifer>]` : valid list of property idenfitiers in square brackets and comma separated e.g. [ qes, esol ] for the given model service that is to be generated in the request
+            - `@mols`  specifies the list in the current molecules working set.
+            - `<smiles string>` : a string denoting a valid canonical smiles like 'C(C(C1C(=C(C(=O)O1)O)O)O)O' that is either free text or in single quotes.
+            - `[ <list of smiles strings> ]` :  a list of strings denoting a valid canonical smiles that is either free text or in single quotes and separated by commas enclided in square brackets
+            The clause `merge with mols` will merge the resulting molecule properties with the memory molecule working set.
+            The Using clause is incased in normal brackets () and composed of a space delimited string of valid <options>  and their values  e.g. <option>=<value>
+
+            Lists of smiles or properties are contained in square brackets, smiles strings can be in single quoted strings or without quotes, hoever if special characters are in the strings it is best to place them in quotes.
+            The Using clause is optional and properties are grouped into commands bsed on common properties.
+            
+            With a model_prefix called `prop` the following molecule statements are examples:
+            
+            generate the esol property FOR a list of molecules defined by smiles string
+            - <cmd>prop GET MOLECULE PROPERTY esol FOR ['C(C(C1C(=C(C(=O)O1)O)O)O)O','[H-]']</cmd>
+            - <cmd>prop GET MOLECULE PROPERTY qed FOR ['C(C(C1C(=C(C(=O)O1)O)O)O)O','[H-]']</cmd>
+             - <cmd>prop GET MOLECULE PROPERTY lipinski FOR ['C(C(C1C(=C(C(=O)O1)O)O)O)O','[H-]']</cmd>
+
+            generate a list of properties FOR a single smiles string
+            - <cmd>prop GET MOLECULE PROPERTY [qed,esol] FOR 'C(C(C1C(=C(C(=O)O1)O)O)O)O'</cmd>
+
+            Generate a list of properties FOR a list of smiles strings
+            - <cmd>prop GET MOLECULE PROPERTY [qed,esol] FOR [ C(C(C1C(=C(C(=O)O1)O)O)O)O ,[H-] ]</cmd>
+
+            Generate a list of properties FOR the smiles strings in the molecule working set in memory
+            - <cmd>prop GET MOLECULE PROPERTY [qed,esol] FOR @mols </cmd>
+
+            Generate a list of properties FOR the smiles strings in the molecule working set in memory and merge it back into the molecule working set
+            - <cmd>prop GET MOLECULE PROPERTY [qed,esol] FOR @mols merge with mols</cmd>
+
+            Generate a single property for a single smiles string
+            - <cmd>prop GET MOLECULE PROPERTY esol FOR C(C(C1C(=C(C(=O)O1)O)O)O)O</cmd>
+            - <cmd>prop GET MOLECULE PROPERTY qed FOR [H-] </cmd>
+            - <cmd>prop GET MOLECULE PROPERTY xlogp FOR [H-] </cmd>
+            - <cmd>prop GET MOLECULE PROPERTY lipinski FOR [H-] </cmd>
+
+            Generate a single property for a single smiles string and merge it back into the molecule working set
+            - <cmd>prop GET MOLECULE PROPERTY esol FOR C(C(C1C(=C(C(=O)O1)O)O)O)O merge with mols</cmd> 
+            - <cmd>prop GET MOLECULE PROPERTY qed FOR [H-] merge with mols</cmd> 
+            - <cmd>prop GET MOLECULE PROPERTY xlogp FOR [H-] merge with mols</cmd> 
+            - <cmd>prop GET MOLECULE PROPERTY lipinski FOR [H-] merge with mols</cmd> 
+
+            Generate A SINGLE molecules property FOR a list of smiles strings using an additional parameter
+            - <cmd>prop GET MOLECULE PROPERTY activity_against_target FOR ['C(C(C1C(=C(C(=O)O1)O)O)O)O','[H-]'] using(target=drd2)</cmd>
+
+            Generate A SINGLE molecules property FOR a list of smiles strings using an additional parameter and merge it back into the molecule working set
+            - <cmd>prop GET MOLECULE PROPERTY activity_against_target FOR ['C(C(C1C(=C(C(=O)O1)O)O)O)O','[H-]'] using(target=drd2) merge with mols</cmd>
+            }
+            \@
+            ***GET PROTEIN PROPERTY***
+
+            when identifying a protein we can use what is known as a FASTA string. In bioinformatics and biochemistry, the FASTA format is a text-based format for representing either nucleotide sequences or amino acid (protein) sequences, in which nucleotides or amino acids are represented using single-letter codes.
+            An example of a FASTA string is `MADQLTEEQIAEFKEAFSLFDKDGDGTITTKELGTVMRSLGQNPTEAELQDMINEVDADGNGTIDFPEFLTMMARKMKDTDSEEEIREAFRVFDKDGNGYISAAELRHVMTNLGEKLTDEEVDEMIREADIDGDGQVNYEEFVQMMTAK`
+            - `<model_prefix>` : Nomimal user defined name provided to a model service when it is cataloged
+            - `<protein_property_identifer>` : valid proitein property idenfitier such as length, boman_index, aliphaticity, hydrophobicity, aromaticity, instability
+            - `[<list_of_protein_property_identifers>]` : valid list of property idenfitiers in square brackets and comma separated e.g. [boman_index, aliphaticity, hydrophobicity, aromaticity, instability]
+            - `<FASTA_string>` : a string denoting a valid FASTA string  'MDITIHNPLIRRPLFSWLAPSRIFDQIFGEHLQESELLPASPSLSPFLMRPIFRMPSWLETGLSEMRLEKDKFSVNLDVKHFSPEELKVKVLGDMVEIHGKHEERQDEHGFIAREFNRKYRIPADVDPLTITSSLSLDGVLTVSAPRKQSDVPERSIPITREEKPAIAGAQRK' that is e in single quotes.
+            - `[ <list of FASTA strings> ]` :  a list of strings denoting a valid FASTA representation of proteins that is in single quotes and separated by commas enclided in square brackets []
+            The Using clause is incased in normal brackets () and composed of a space delimited string of valid <options>  and their values  e.g. <option>=<value>
+            this is what we use for identifying proteins for property generation.
+            The Command syntax for 'GET PROTEIN PROPERTY' command is as follows :<cmd><model_prefix> GET MOLECULE PROTEIN <protein property identifer> | [<list of protein property identifers>] FOR  <FASTA string> | [<list of FASTA strings> ] USING(<option>=<value>)</cmd>
+            <cmd>prop get protein property [ charge_density, charge ]  for ['MKYNNRKLSFNPTTVSIAGTLLTVFFLTRLVLSFFSISLFQLVTFQGIFKPYVPDFKNTPSVEFYDLRNYQGNKDGWQQGDRILFCVPLRDASEHLPMFFNHLNTMTYPHNLIDLSFLVSDSSDNTMGVLLSNLQMAQSQQDKSKRFGNIEIYEKDFGQIIGQSFSDRHGFGAQGPRRKLMARARNWLGSVALKPYHSWVYWRDVDVETIPTTIMEDLMHHDKDVIVPNVWRPLPDWLGNIQPYDLNSWKESEGGLQLADSLDEDAVIVEGYPEYATWRPHLAYMRDPNGNPEDEMELDGIGGVSILAKAKVFRTGSHFPAFSFEKHAETEAFGRLSRRMNYNVIGLPHYVIWHIYEPSSDDLKHMAWMAEEEKRKLEEERIREFYNKIWEIGFEDVRDQWNEERDSILKNIDSTLNNKVTVDWSEEGDGSELVDSKGDFVSPNNQQQQQQQQQQQQQQQQQQQQQQLDGNPQGKPLDDNDKNKKKHPKEVPLDFDPDRN','MQYLNFPRMPNIMMFLEVAILCLWVVADASASSAKFGSTTPASAQQSDVELEPINGTLNYRLYAKKGRDDKPWFDGLDSRHIQCVRRARCYPTSNATNTCFGSKLPYELSSLDLTDFHTEKELNDKLNDYYALKHVPKCWAAIQPFLCAVFKPKCEKINGEDMVYLPSYEMCRITMEPCRILYNTTFFPKFLRCNETLFPTKCTNGARGMKFNGTGQCLSPLVPTDTSASYYPGIEGCGVRCKDPLYTDDEHRQIHKLIGWAGSICLLSNLFVVSTFFIDWKNANKYPAVIVFYINLCFLIACVGWLLQFTSGSREDIVCRKDGTLRHSEPTAGENLSCIVIFVLVYYFLTAGMVWFVFLTYAWHWRAMGHVQDRIDKKGSYFHLVAWSLPLVLTITTMAFSEVDGNSIVGICFVGYINHSMRAGLLLGPLCGVILIGGYFITRGMVMLFGLKHFANDIKSTSASNKIHLIIMRMGVCALLTLVFILVAIACHVTEFRHADEWAQSFRQFIICKISSVFEEKSSCRIENRPSVGVLQLHLLCLFSSGIVMSTWCWTPSSIETWKRYIRKKCGKEVVEEVKMPKHKVIAQTWAKRKDFEDKGRLSITLYNTHTDPVGLNFDVNDLNSSETNDISSTWAAYLPQCVKRRMALTGAATGNSSSHGPRKNSLDSEISVSVRHVSVESRRNSVDSQVSVKIAEMKTKVASRSRGKHGGSSSNRRTQRRRDYIAAATGKSSRRRESSTSVESQVIALKKTTYPNASHKVGVFAHHSSKKQHNYTSSMKRRTANAGLDPSILNEFLQKNGDFIFPFLQNQDMSSSSEEDNSRASQKIQDLNVVVKQQEISEDDHDGIKIEELPNSKQVALENFLKNIKKSNESNSNRHSRNSARSQSKKSQKRHLKNPAADLDFRKDCVKYRSNDSLSCSSEELDVALDVGSLLNSSFSGISMGKPHSRNSKTSCDVGIQANPFELVPSYGEDELQQAMRLLNAASRQRTEAANEDFGGTELQGLLGHSHRHQREPTFMSESDKLKMLLLPSK']</cmd>
+ \@ \n"""
     )
 
-    training_file.write(
+    """training_file.write(
         "The following dictionaries are the Domain Specific Language (DSL) commands available in the base openad client.\n \
               The users Domain Specific Language commands will be interpreted from these command definitions which the application\
                   trainslates into the Domain specific Language (DSL) .. for reference \n command_name : is the name of the command\n command_group :\
                       is the toolkit group the command belongs to, command_syntax : is the Syntax description for the command \n command_help :\
-                          is the associated help instructions and examples on how to use the command.  \\@\n"
+                          is the associated help instructions and examples on how to use the command.  \@\n"
+    )"""
+    # for i in training_statements:
+    #    training_file.write(str(i) + "\\@\n")
+    training_file.close()
+    cmds = []
+    cmds.extend(_compile_section(_organize(grammar_help)))
+    cmds.extend(_compile_section(_organize(cmd_pointer.current_help.help_model_services)))
+    commands = "\n".join(cmds)
+    i = 0
+    new_line_replace = """
+"""
+    for command in cmds:
+        i = i + 1
+        training_file = open(
+            os.path.expanduser(cmd_pointer.home_dir + f"/prompt_train/individual_command_{str(i)}.cdoc"),
+            "w",
+            newline=new_line_replace,
+            encoding="utf-8",
+        )
+        command.replace("\n", new_line_replace)
+        training_file.write(command)
+        training_file.close()
+    """import json
+
+    training_file = open(
+        os.path.expanduser(cmd_pointer.home_dir + f"/prompt_train/individual_command.cdoc"),
+        "w",
+        newline="\n",
+        encoding="utf-8",
     )
     for i in training_statements:
-        training_file.write(str(i) + "\\@\n")
-    training_file.close()
+
+        training_file.write(
+            json.dumps(
+                i,
+                ensure_ascii=False,
+                indent=4,
+            )
+        )"""
 
     for i in cmd_pointer.settings["toolkits"]:
         token, a_toolkit = toolkit_main.load_toolkit(i, for_training=True)
@@ -1457,17 +1586,17 @@ def output_train_statements(cmd_pointer):
             newline="\n",
             encoding="utf-8",
         )
-        training_file.write("This file represents the description of the " + a_toolkit.toolkit_name + " \n\n")
+        training_file.write("This file represents the description of the " + a_toolkit.toolkit_name + ". \n\n")
 
         training_file.write(
-            "this is the description of the overall capability of the " + a_toolkit.toolkit_name + " \n \n"
+            "this is the description of the overall capability of the " + a_toolkit.toolkit_name + ". \n \n"
         )
         training_file.write(
             "The following are the  command definitions for the "
             + a_toolkit.toolkit_name
             + " toolkit with their  command definition and description \n "
-            + str(a_toolkit.toolkit_description)
-            + " \n When displaying an answer always interpret the command specified \\@ \n"
+            + str(a_toolkit.toolkit_description.replace("\n", new_line_replace))
+            + " \n When displaying an answer always interpret the command specified \@ \n"
         )
 
         x = 0
@@ -1482,11 +1611,69 @@ def output_train_statements(cmd_pointer):
             )
             x += 1
         for i in training_statements:
-            training_file.write(
-                str(i) + "\n\\@",
-            )
+            training_file.write("\@ " + str(i))
         training_file.close()
     return
+
+
+def _parse_description(description):
+    # description = tags_to_markdown(description)
+
+    # Style notes as blockquotes, and ensure they're always
+    # followed by an empty line, to avoid the next lines to
+    # be treated as part of the blockquote.
+    description = re.sub(
+        r"(\*\*Note:\*\*.+?)(\n{1,})",
+        lambda match: (
+            f"  > {match.group(1)}\n\n" if len(match.group(2)) == 1 else f"  > {match.group(1)}{match.group(2)}"
+        ),
+        description,
+        flags=re.MULTILINE,
+    )
+
+    # description = description.splitlines()
+    # description = "\n".join([line.strip() for line in description])
+    return description.strip()
+
+
+def _organize(cmds, toolkit_name=None):
+    commands_organized = {}
+
+    # Organize commands by category.
+    for cmd in cmds:
+        # Get command string.
+        cmd_str = cmd["command"]
+        cmd_description = cmd["description"]
+
+        if "parent" in cmd and cmd["parent"]:
+            cmd_str = "  -> " + cmd_str
+
+        # Get category.
+        category = cmd["category"] if "category" in cmd else "Uncategorized"
+
+        # Organize by category.
+        if category in commands_organized:
+            commands_organized[category].append((cmd_str, cmd_description))
+        else:
+            commands_organized[category] = [(cmd_str, cmd_description)]
+
+    return commands_organized
+
+
+# Compile all commands of a single section.
+def _compile_section(cmds_organized):
+    output = []
+
+    for category in cmds_organized:
+        category_output = ""
+        for cmd_str, cmd_description in cmds_organized[category]:
+            category_output = (
+                category_output
+                + f"Command Category: {category}\n Command Syntax: `{cmd_str.strip()}`\nCommand Description: {_parse_description(cmd_description)}<br>\n \@"
+            )
+
+        output.append(category_output)
+    return output
 
 
 # Need to fix later

@@ -7,6 +7,9 @@ import copy
 import pickle
 import urllib.parse
 from copy import deepcopy
+import glob
+import pickle
+import shutil
 import pandas as pd
 from rdkit import Chem
 from rdkit.Chem import AllChem
@@ -20,6 +23,7 @@ from openad.app.global_var_lib import GLOBAL_SETTINGS
 
 
 # Molecule functions
+from openad.smols.smol_transformers import molset2dataframe, write_dataframe2csv
 from openad.smols.smol_functions import (
     SMOL_PROPERTIES,
     find_smol,
@@ -37,7 +41,6 @@ from openad.smols.smol_functions import (
     save_molset_as_smiles,
     clear_mws,
 )
-from openad.smols.smol_transformers import molset2dataframe, write_dataframe2csv
 
 
 def display_molecule(cmd_pointer, inp):
@@ -53,9 +56,9 @@ def display_molecule(cmd_pointer, inp):
         return None
 
     if smol is not None:
-        ouput = format_identifiers(smol) + "\n\n" + format_synonyms(smol) + "\n\n" + format_properties(smol)
+        output = format_identifiers(smol) + "\n\n" + format_synonyms(smol) + "\n\n" + format_properties(smol)
         if "analysis" in smol and smol["analysis"] != []:
-            ouput = ouput + "\n\n" + format_analysis(smol)
+            output = output + "\n\n" + format_analysis(smol)
 
     if GLOBAL_SETTINGS["display"] == "notebook":
         import py3Dmol
@@ -74,16 +77,16 @@ def display_molecule(cmd_pointer, inp):
         view.zoomTo()
         view.animate({"loop": "forward"})
         view.show()
-        ouput = ouput.replace("<soft>", "<span style=color:#cccccc;white-space=pre>")
-        ouput = ouput.replace("</soft>", "</span>")
-        ouput = ouput.replace("<cyan>", "<span style=color:#00AAAA;white-space=pre>")
-        ouput = ouput.replace("</cyan>", "</span>")
-        ouput = ouput.replace("\n", "<br>")
-        display(HTML("<pre>" + ouput + "</pre>"))
+        output = output.replace("<soft>", "<span style=color:#cccccc;white-space=pre>")
+        output = output.replace("</soft>", "</span>")
+        output = output.replace("<cyan>", "<span style=color:#00AAAA;white-space=pre>")
+        output = output.replace("</cyan>", "</span>")
+        output = output.replace("\n", "<br>")
+        display(HTML("<pre>" + output + "</pre>"))
 
         # display(output_text(print_string, return_val=True))
     else:
-        output_text(ouput, edge=True, pad=1)
+        output_text(output, edge=True, pad=1)
 
     return True
 
@@ -525,21 +528,30 @@ def show_molset_df(cmd_pointer, inp):
     gui_init(cmd_pointer, path)
 
 
-def _load_molecules(location):
-    """Loads molecules from  a given file"""
-    if not os.path.exists(os.path.expanduser(location)):
-        return None
-    with open(os.path.expanduser(location), "rb") as handle:
-        molecule = pickle.loads(handle.read())
-        handle.close()
-        return molecule
-
-
 def _create_workspace_dir_if_nonexistent(cmd_pointer, dir_name):
     """creates a workspace directory"""
     if not os.path.isdir(cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/" + dir_name):
         os.mkdir(cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/" + dir_name)
     return cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/" + dir_name
+
+
+#
+#
+# DEPRECATED
+#
+#
+
+
+# Trash
+# def _load_molecules(location):
+#     """Loads molecules from  a given file"""
+#     if not os.path.exists(os.path.expanduser(location)):
+#         return None
+#     with open(os.path.expanduser(location), "rb") as handle:
+#         molecule = pickle.loads(handle.read())
+#         handle.close()
+#         return molecule
+#
 
 
 # MAJOR-RELEASE-TODO: Remove this, this is deprecated functionality

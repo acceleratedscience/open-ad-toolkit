@@ -8,7 +8,6 @@ import shutil
 from urllib.parse import unquote
 from flask import Response, request
 
-# Small molecule functions
 from openad.smols.smol_functions import (
     get_smol_from_pubchem,
     create_molset_cache_file,
