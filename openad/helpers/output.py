@@ -115,7 +115,7 @@ def output_text(message, return_val=None, jup_return_format=None, **kwargs):
             else:
                 return Markdown(tags_to_markdown(message))
         else:
-            return Markdown(tags_to_markdown(message))
+            display(Markdown(tags_to_markdown(message)))
 
     # CLI
     elif GLOBAL_SETTINGS["display"] == "terminal" or GLOBAL_SETTINGS["display"] == None:

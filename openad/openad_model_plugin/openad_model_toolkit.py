@@ -680,7 +680,7 @@ def subject_files_repository(file_directory, suffix):
 def mol_list_gen(cmd_pointer):
     mol_list = []
     for molecule in cmd_pointer.molecule_list:
-        mol_list.append(molecule["properties"]["canonical_smiles"])
+        mol_list.append(molecule["identifiers"]["canonical_smiles"])
     return mol_list
 
 
