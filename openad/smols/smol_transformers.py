@@ -11,7 +11,9 @@ from openad.helpers.files import open_file
 from openad.helpers.output import output_error
 import openad.smols.smol_functions as smol_functions
 
-RDLogger.DisableLog("rdApp.error")  # Suppress RDKit errors
+# Suppress RDKit errors
+RDLogger.DisableLog("rdApp.error")
+RDLogger.DisableLog("rdApp.warning")
 
 
 #

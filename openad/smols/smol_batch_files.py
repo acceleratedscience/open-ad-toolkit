@@ -20,7 +20,9 @@ from openad.helpers.output_msgs import msg
 from openad.helpers.spinner import Spinner
 from openad.plugins.style_parser import style
 
-RDLogger.DisableLog("rdApp.error")  # Suppress RDKiot errors
+# Suppress RDKit errors
+RDLogger.DisableLog("rdApp.error")
+RDLogger.DisableLog("rdApp.warning")
 
 mol_name_cache = {}
 

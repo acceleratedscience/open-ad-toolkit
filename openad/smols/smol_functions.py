@@ -34,9 +34,12 @@ from openad.smols.smol_transformers import (
     smiles_path2molset,
 )
 
-# Suppress RDKit logs
+# Suppress RDKit errors
+RDLogger.DisableLog("rdApp.error")
+RDLogger.DisableLog("rdApp.warning")
+
+# This doesn't seem to work anymore... is upposed to live inside the function scope.
 # rdBase.BlockLogs()  # pylint: disable=c-extension-no-member
-RDLogger.DisableLog("rdApp.error")  # Added because rdBase.BlockLogs doesn't seem to work anymore (?)
 
 # PubChem accepted molecule identifiers
 PCY_IDFR = {
