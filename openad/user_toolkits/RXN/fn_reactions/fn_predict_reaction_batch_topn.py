@@ -173,8 +173,8 @@ def predict_reaction_batch_topn(inputs: dict, cmd_pointer):
         retries = 0
         while "predictions" not in x:
             try:
-                if retries == 0:
-                    # newspin.info("Processing Prediction")
+                # if retries == 0:
+                #     newspin.info("Processing Prediction")
 
                 x = rxn4chemistry_wrapper.get_predict_reaction_batch_topn_results(
                     predict_rection_batch_response["task_id"]
