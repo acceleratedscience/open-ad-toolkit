@@ -12,6 +12,7 @@ from openad.smols.smol_functions import (
     canonicalize,
     load_mols_from_file,
     merge_smols,
+    mws_remove,
 )
 from openad.smols.smol_transformers import dataframe2molset
 from openad.app.global_var_lib import GLOBAL_SETTINGS
@@ -27,81 +28,95 @@ RDLogger.DisableLog("rdApp.warning")
 mol_name_cache = {}
 
 
-def merge_molecule_property_data(cmd_pointer, inp=None, mol_dataframe=None):
-    "merges data where SMILES,Property and Value are in Data Frame or csv"
+def merge_molecule_property_data(cmd_pointer, inp=None, dataframe=None):
+    """
+    Merge data from a dataframe into your molecule working set molecule properties.
 
-    # if "force" in inp.as_dict():
-    #    force = True
-    # else:
-    #    force = False
-    if mol_dataframe is None and inp is None:
+    The dataframe should contain the following columns:
+    - SMILES/subject
+    - property
+    - value
+    """
+
+    if dataframe is None and inp is None:
         return False
 
-    if mol_dataframe is None:
+    if dataframe is None:
+        # Load from dataframe
         if "merge_molecules_data_dataframe" in inp.as_dict():
-            mol_dataframe = cmd_pointer.api_variables[inp.as_dict()["in_dataframe"]]
+            dataframe = cmd_pointer.api_variables[inp.as_dict()["in_dataframe"]]
+
+        # Load from file (not yet implemented)
         else:
-            mol_dataframe = load_mol_data(inp.as_dict()["moles_file"], cmd_pointer)
-        if mol_dataframe is None:
-            output_error("Source not Found ", return_val=False)
+            dataframe = load_mol_data(inp.as_dict()["moles_file"], cmd_pointer)
+
+        if dataframe is None:
+            output_error("Source not found ", return_val=False)
             return True
 
-    if "subject" in mol_dataframe.columns:
-        SMILES = "subject"
-    elif "smiles" in mol_dataframe.columns:
-        SMILES = "smiles"
-    elif "SMILES" in mol_dataframe.columns:
-        SMILES = "SMILES"
+    # Detect the SMILES/subject column
+    if "subject" in dataframe.columns:
+        smiles_key = "subject"
+    elif "smiles" in dataframe.columns:
+        smiles_key = "smiles"
+    elif "SMILES" in dataframe.columns:
+        smiles_key = "SMILES"
     else:
-        output_error("No  'subject' or 'SMILES' column found ", return_val=False)
-        return True
-    if "property" in mol_dataframe.columns:
-        prop = "property"
-    elif "PROPERTY" in mol_dataframe.columns:
-        prop = "PROPERTY"
-    else:
-        output_error("No  'property' or 'PROPERTY' column found ", return_val=False)
-        return True
-    if "value" in mol_dataframe.columns:
-        val = "value"
-    elif "VALUE" in mol_dataframe.columns:
-        val = "VALUE"
-    elif "result" in mol_dataframe.columns:
-        val = "result"
-    elif "RESULT" in mol_dataframe.columns:
-        val = "RESULT"
-    else:
-        output_error("No  'result' or 'value' column found ", return_val=False)
+        output_error(
+            "No <yellow>subject</yellow> or <yellow>SMILES</yellow> column found in merge data", return_val=False
+        )
         return True
 
-    mol_dataframe = mol_dataframe.pivot_table(index=SMILES, columns=[prop], values=val, aggfunc="first")
+    # Detect the property column
+    if "property" in dataframe.columns:
+        prop_key = "property"
+    elif "PROPERTY" in dataframe.columns:
+        prop_key = "PROPERTY"
+    else:
+        output_error("No <yellow>property</yellow> column found in merge data", return_val=False)
+        return True
 
-    mol_dataframe = mol_dataframe.reset_index()
-    for row in mol_dataframe.to_dict("records"):
+    # Detect the value column
+    if "value" in dataframe.columns:
+        val_key = "value"
+    elif "VALUE" in dataframe.columns:
+        val_key = "VALUE"
+    elif "result" in dataframe.columns:
+        val_key = "result"
+    elif "RESULT" in dataframe.columns:
+        val_key = "RESULT"
+    else:
+        output_error("No <yellow>result</yellow> or <yellow>value</yellow> column found", return_val=False)
+        return True
+
+    # Pivot the dataframe
+    dataframe = dataframe.pivot_table(index=smiles_key, columns=[prop_key], values=val_key, aggfunc="first")
+    dataframe = dataframe.reset_index()
+
+    for row in dataframe.to_dict("records"):
         update_flag = True
-        merge_mol = None
+        merge_smol = None
+
         try:
-            smiles = canonicalize(row[SMILES])
-
-            merge_mol = get_smol_from_mws(cmd_pointer, smiles)
+            smiles = canonicalize(row[smiles_key])
+            merge_smol = get_smol_from_mws(cmd_pointer, smiles)
         except Exception:  # pylint: disable=broad-except
-            output_warning("unable to canonicalise:" + row[SMILES])
+            output_warning("unable to canonicalise:" + row[smiles_key])
             continue
-        if merge_mol is None:
-            merge_mol = new_smol(smiles, name=row[SMILES])
 
+        if merge_smol is None:
+            merge_smol = new_smol(smiles, name=row[smiles_key])
             update_flag = False
         else:
             update_flag = True
 
-        # else duplicate
-        # a_mol = {"SMILES": row[SMILES], row[prop]: row[val]}
-        if merge_mol is not None:
-            merge_mol = merge_molecule_properties(row, merge_mol)
-            # print("updated: " + str(a_mol))
-            if update_flag is False:
-                cmd_pointer.molecule_list.append(merge_mol)
-    output_success("Molecule Data Merged", return_val=False)
+        if merge_smol is not None:
+            smol = merge_molecule_properties(row, merge_smol)
+            if update_flag is True:
+                mws_remove(cmd_pointer, merge_smol, force=True, suppress=True)
+            cmd_pointer.molecule_list.append(smol)
+
+    output_success("Data merged into your working set", return_val=False)
     return True
 
 

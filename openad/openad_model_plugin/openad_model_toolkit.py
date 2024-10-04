@@ -838,7 +838,7 @@ def openad_model_requestor(cmd_pointer, parser):
                     index=False,
                 )
             if "merge_with_mws" in parser.as_dict():
-                merge_molecule_property_data(cmd_pointer=cmd_pointer, mol_dataframe=result)
+                merge_molecule_property_data(cmd_pointer=cmd_pointer, dataframe=result)
             return result
 
         except:

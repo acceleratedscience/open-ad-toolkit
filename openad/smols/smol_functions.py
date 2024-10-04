@@ -1308,7 +1308,6 @@ def mws_add(cmd_pointer: object, smol: dict, force: bool = False, suppress: bool
     # Add function
     def _add_mol():
         cmd_pointer.molecule_list.append(smol.copy())
-        print("ADD")
         if suppress is False:
             output_success(f"Molecule <yellow>{name}</yellow> was added", pad=0, return_val=False)
         return True
@@ -1336,9 +1335,9 @@ def mws_remove(cmd_pointer: object, smol: dict, force: bool = False, suppress: b
     cmd_pointer: object
         The command pointer object.
     smol: dict
-        The OpenAD molecule object to add.
+        The OpenAD molecule object to remove.
     force: bool
-        If True, add without confirming.
+        If True, remove without confirming.
     suppress: bool
         If True, suppress success output.
     """
