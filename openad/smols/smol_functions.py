@@ -1414,20 +1414,24 @@ def merge_smols(smol: dict, merge_smol: dict) -> dict:
 
         # Merge synonyms - without duplicates regardless of case
         elif key == "synonyms" and isinstance(val, list):
-            # Create a dictionary to map lowercase elements to their original case
-            og_case_map = {item.lower(): item for item in smol[key] + merge_smol[key]}
-            # print(555, og_case_map)
+            # A maps for each molecule's synonyms, linking the lowercase to the original case.
+            og_case_map_1 = {item.lower(): item for item in smol[key]}
+            og_case_map_2 = {item.lower(): item for item in merge_smol[key]}
 
             # Merge the synonyms in a case-insensitive way (skip new synonyms if they are just differently cased)
             case_insensitive_merge = list(set(list(map(str.lower, smol[key])) + list(map(str.lower, merge_smol[key]))))
-            # print(666)
-            # print(list(map(str.lower, smol[key])))
-            # print(list(map(str.lower, merge_smol[key])))
-            # print("")
 
-            # print(777, [og_case_map[item.lower()] for item in case_insensitive_merge])
+            # Loop through the case-insensitive merge list and add the original
+            # case synonyms to the new molecule, prioritizing the first molecule's
+            # synonyms when there's a case-insensitive match.
+            output = []
+            for i, syn in enumerate(case_insensitive_merge):
+                if syn in og_case_map_1:
+                    output.append(og_case_map_1[syn])
+                elif syn in og_case_map_2:
+                    output.append(og_case_map_2[syn])
 
-            smol[key] = smol[key] + [og_case_map[item.lower()] for item in case_insensitive_merge]
+            smol[key] = output
 
         # Merge properties & property sources
         elif key == "properties" and isinstance(val, dict):
@@ -1474,7 +1478,7 @@ def merge_smols(smol: dict, merge_smol: dict) -> dict:
         # Brute fallback for any future parameters we may have forgotten to add.
 
         # Dictionaries: merge
-        elif isinstance(val, dict):
+        elif key not in ["property_sources"] and isinstance(val, dict):
             if key in smol:
                 smol[key].update(val)
             else:
