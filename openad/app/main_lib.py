@@ -42,10 +42,10 @@ from openad.smols.smol_commands import (
     show_molecules,
     save_molecules_DEPRECATED,
     load_molecules_DEPRECATED,
-    _list_molsets_DEPRECATED,
     display_molsets_DEPRECATED,
     export_molecule,
     get_smol_prop,
+    get_smol_prop_lookup_error,
     rename_mol_in_list,
     clear_molecules,
     export_mws,
@@ -278,6 +278,8 @@ def lang_parse(cmd_pointer, parser):
         return clear_analysis(cmd_pointer, parser)
     elif parser.getName() == "get_smol_prop":
         return get_smol_prop(cmd_pointer, parser)
+    elif parser.getName() == "get_smol_prop_lookup_error":
+        return get_smol_prop_lookup_error(cmd_pointer, parser)
     elif parser.getName() == "rename_molecule":
         return rename_mol_in_list(cmd_pointer, parser)
     elif parser.getName() == "clear_molecules":

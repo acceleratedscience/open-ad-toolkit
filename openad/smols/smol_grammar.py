@@ -262,6 +262,11 @@ Examples:
             "get_smol_prop"
         )
     )
+    statements.append(
+        Forward("@" + (molecule_identifier | desc)("molecule_identifier") + ">>" + Word(alphas, alphanums + "_"))(
+            "get_smol_prop_lookup_error"
+        )
+    )
     grammar_help.append(
         help_dict_create(
             name="@<molecule>",
@@ -290,7 +295,7 @@ Examples:
  <cmd>@ibuprofen>>synonyms</cmd>
 
 Available properties that can be queried:
-{list_columns(SMOL_PROPERTIES, print_width=GLOBAL_SETTINGS["print_width"] - 5)}
+{list_columns(SMOL_PROPERTIES, print_width=GLOBAL_SETTINGS["print_width"] - 10)}
 """,
         )
     )

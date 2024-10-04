@@ -26,7 +26,6 @@ from openad.smols.smol_functions import (
     get_smol_from_mws,
     get_smol_from_pubchem,
     get_human_properties,
-    _get_identifiers,
     get_smol_from_list,
     mws_add,
     mws_remove,
@@ -315,8 +314,8 @@ def list_molecules(cmd_pointer, inp):
     display_list = pd.DataFrame()
 
     if len(cmd_pointer.molecule_list) > 0:
-        for mol in cmd_pointer.molecule_list:
-            identifiers = _get_identifiers(mol)
+        for smol in cmd_pointer.molecule_list:
+            identifiers = smol.get("identifiers", {})
             display_list = pd.concat([display_list, pd.DataFrame([identifiers])])
         return display_list
         # if GLOBAL_SETTINGS["display"] == "notebook":
@@ -494,6 +493,20 @@ def get_smol_prop(cmd_pointer, inp):
         return output_text(result)
 
 
+def get_smol_prop_lookup_error(cmd_pointer, inp):
+    """
+    Display an error message for an invalid molecule property.
+
+    This is handled by a separate command function because
+    the main command won't be reconized by pyparsing when
+    the requested property is not in the property list.
+    """
+    output = "<error>The requested molecule property is not supported</error>"
+    output = output + "\n\n<h1>Available properties:</h1>\n"
+    output = output + list_columns(SMOL_PROPERTIES, print_width=GLOBAL_SETTINGS["print_width"] - 10)
+    return output_text(output)
+
+
 # Launch molecule viewer and display molecule.
 def show_mol(cmd_pointer, inp):
     from openad.gui.gui_launcher import gui_init
@@ -571,7 +584,6 @@ def save_molecules_DEPRECATED(cmd_pointer, inp):
 # We don't use .molecule files anymore
 def _write_molecules_DEPRECATED(molecule: dict, location):
     """writes molecules to a given file"""
-    print("write ", location)
     with open(os.path.expanduser(location), "wb") as handle:
         pickle.dump(molecule, handle)
     return True
