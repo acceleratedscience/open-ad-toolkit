@@ -277,7 +277,6 @@ def add_molecule(cmd_pointer, inp):
 
     identifier = inp.as_dict()["molecule_identifier"]
     basic = "basic" in inp.as_dict()
-    name = "name" in inp.as_dict()
     name = inp.as_dict()["name"] if "name" in inp.as_dict() else identifier
     force = "force" in inp.as_dict()
 
