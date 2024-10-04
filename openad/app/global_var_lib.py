@@ -48,7 +48,8 @@ GLOBAL_SETTINGS = {
     #
     # Setting verbose to false will hide spinners
     # and some other non-essential output
-    "verbose": True,
+    # Todo: this is diplocate of "display" is "notebook" (to be confirmed)
+    "VERBOSE": True,
     #
     # The width in characters we limit the printed output to.
     "print_width": min(shutil.get_terminal_size().columns, 150),

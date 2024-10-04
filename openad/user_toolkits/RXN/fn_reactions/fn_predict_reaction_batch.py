@@ -74,7 +74,7 @@ def predict_reaction_batch(inputs: dict, cmd_pointer):
         except Exception:  # pylint: disable=broad-exception-caught
             output_error("Could not load valid list from file column 'reactions' ", return_val=False)
             return True
-    newspin = Spinner(GLOBAL_SETTINGS["verbose"])
+    newspin = Spinner(GLOBAL_SETTINGS["VERBOSE"])
 
     ### setting up default values... note to put into json metdata file in future
 
@@ -215,7 +215,7 @@ def predict_reaction_batch(inputs: dict, cmd_pointer):
                 display(get_reaction_from_smiles(reaction_prediction["smiles"]))
 
     output_text(" ", return_val=False)
-    if not GLOBAL_SETTINGS["verbose"]:
+    if not GLOBAL_SETTINGS["VERBOSE"]:
         return reaction_predictions["predictions"]
     else:
         return True

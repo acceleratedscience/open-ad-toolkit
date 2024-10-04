@@ -164,7 +164,7 @@ def predict_reaction(inputs: dict, cmd_pointer):
 
     output_text("<green>Reaction:</green> " + sources + "    ---->    " + x_y, return_val=False)
     output_text("<green>Confidence:</green> " + str(confidence), return_val=False)
-    if GLOBAL_SETTINGS["display"] == "notebook" or GLOBAL_SETTINGS["verbose"] == False:
+    if GLOBAL_SETTINGS["display"] == "notebook" or GLOBAL_SETTINGS["VERBOSE"] == False:
         return get_reaction_from_smiles(predict_reaction_results["response"]["payload"]["attempts"][0]["smiles"])
     else:
         output_text("", return_val=False)

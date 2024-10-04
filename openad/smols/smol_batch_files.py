@@ -206,7 +206,7 @@ def _enrich_with_pubchem_data(cmd_pointer, molset):
 
     output_molset = []
 
-    spinner = Spinner(GLOBAL_SETTINGS["verbose"])
+    spinner = Spinner(GLOBAL_SETTINGS["VERBOSE"])
     spinner.start("Fetching from PubChem")
 
     for i, smol in enumerate(molset):

@@ -142,7 +142,7 @@ def predict_reaction_batch_topn(inputs: dict, cmd_pointer):
     if len(new_from_list) > 0:
         val = "val"
         from_list = new_from_list
-        newspin = Spinner(GLOBAL_SETTINGS["verbose"])
+        newspin = Spinner(GLOBAL_SETTINGS["VERBOSE"])
         retries = 0
         status = False
         rxn4chemistry_wrapper = cmd_pointer.login_settings["client"][
@@ -216,7 +216,7 @@ def predict_reaction_batch_topn(inputs: dict, cmd_pointer):
                 )
         output_text(" ", return_val=False)
 
-    if not GLOBAL_SETTINGS["verbose"]:
+    if not GLOBAL_SETTINGS["VERBOSE"]:
         return x
     else:
         return True
