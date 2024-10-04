@@ -1317,9 +1317,9 @@ def mws_add(cmd_pointer: object, smol: dict, force: bool = False, suppress: bool
         return _add_mol()
 
     # Confirm before adding.
-    smiles = get_best_available_smiles(smol)
-    smiles_str = f" <reset>{smiles}</reset>" if smiles else ""
-    if confirm_prompt(f"Add molecule <green>{name}</green>{smiles_str} to your molecule working set?"):
+    # smiles = get_best_available_smiles(smol)
+    # smiles_str = f" <reset>{smiles}</reset>" if smiles and name != smiles else ""
+    if confirm_prompt(f"Add molecule <green>{name}</green> to your molecule working set?"):
         return _add_mol()
     else:
         output_error(f"Molecule <yellow>{name}</yellow> was not added", pad=0, return_val=False)

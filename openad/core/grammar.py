@@ -1463,7 +1463,7 @@ def output_train_statements(cmd_pointer):
             
             Question: What is the command Syntax for generating a molecules property ?
             Answer: {
-            The format 'GET MOLECULE PROPERTY" command is as follows: Command Syntax: <cmd><model_prefix> GET MOLECULE PROPERTY @mols | <molecule property identifer> | [ <list of molecule_property identifers> ] FOR  <smiles_string> | [<list of smiles strings >] USING(<option>=<value>) (merge with mols|molecules) </cmd>
+            The format 'GET MOLECULE PROPERTY" command is as follows: Command Syntax: <cmd><model_prefix> GET MOLECULE PROPERTY @mols | <molecule property identifer> | [ <list of molecule_property identifers> ] FOR  <smiles_string> | [<list of smiles strings >] USING(<option>=<value>) (merge with molecules|mols) </cmd>
            
             - `<model_prefix>` : Nomimal user defined name provided to a model service when it is cataloged
             - `<molecule_property_identifer>` : valid property idenfitier for the given model service that is to be generated in the request like 'esol','xlogp' AA1R

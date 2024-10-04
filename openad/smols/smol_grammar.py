@@ -2,7 +2,7 @@
 # Certain commands are Jupyter-only (or should be separated as jupyter only) and should be hidden from CLI help.
 # Examples:
 # - there should be a `fetch molecule` command, or `@molecule_x` that returns molecule data
-# - The `export mol|molecule` / `export mols|molecules` comands returns molecule data but this should be replaced with the command above.
+# - The `export molecule|mol` / `export molecules|mols` comands returns molecule data but this should be replaced with the command above.
 #   Other command like `display data` do the same, adding to the inconsistency and confusion.
 
 
@@ -115,8 +115,6 @@ molecule_identifier = Word(
     alphas, alphanums + "_" + "[" + "]" + "(" + ")" + "=" + "," + "-" + "+" + "/" + "#" + "@" + "." + "*" + ";"
 ) | Word(nums)
 protein_identifier = Word(alphas + "-", "*")
-
-
 desc = QuotedString("'", escQuote="\\")
 
 MOL_SHORTHAND = "You can use the 'mol' shorthand instead of 'molecule'."
@@ -142,7 +140,7 @@ SUPPORTED_FILE_FORMATS = """Supported file formats:
 - SDF (.sdf)
 - CSV (.csv)
 - SMILES (.smi)"""
-EXAMPLE_INPUT_FILES = "To see some example input files, you can export the molecules from your working set using the <cmd>export mols|molecules as ...</cmd> command."
+EXAMPLE_INPUT_FILES = "To see some example input files, you can export the molecules from your working set using the <cmd>export molecules|mols as ...</cmd> command."
 
 
 def smol_grammar_add(statements, grammar_help):
@@ -165,7 +163,7 @@ def smol_grammar_add(statements, grammar_help):
         help_dict_create(
             name="display molecule",
             category="Small Molecules",
-            command="display mol|molecule <name> | <smiles> | <inchi> | <inchikey> | <cid>",
+            command="display molecule|mol <name> | <smiles> | <inchi> | <inchikey> | <cid>",
             description=f"""Display a molecule's details.
 
 A molecule's details include its identifiers, synonyms, properties and any analysis results it has been enriched with.
@@ -204,7 +202,7 @@ Examples:
         help_dict_create(
             name="show molecule",
             category="Small Molecules",
-            command="show mol|molecule <name> | <smiles> | <inchi> | <inchikey> | <cid>",
+            command="show molecule|mol <name> | <smiles> | <inchi> | <inchikey> | <cid>",
             description=f"""Launch the molecule viewer { 'in your browser ' if is_notebook_mode() else '' }to visualize your molecule and inspect its properties.
 
 {SUPPORTED_IDENTIFIERS}
@@ -315,7 +313,7 @@ Available properties that can be queried:
         help_dict_create(
             name="export molecule",
             category="Small Molecules",
-            command="export mol|molecule <name> | <smiles> | <inchi> | <inchikey> | <cid> [ as file ]",
+            command="export molecule|mol <name> | <smiles> | <inchi> | <inchikey> | <cid> [ as file ]",
             description=f"""Either save a molecule to your workspace as a JSON file (CLI) or return a dictionary of the molecule's properties (Jupyter Notebook).
 
 {SUPPORTED_IDENTIFIERS}
@@ -358,7 +356,7 @@ Examples:
         help_dict_create(
             name="add molecule",
             category="Molecule Working Set",
-            command="add mol|molecule <name> | <smiles> | <inchi> | <inchikey> | <cid> [ as <name> ] [ basic ] [ force ]",
+            command="add molecule|mol <name> | <smiles> | <inchi> | <inchikey> | <cid> [ as '<name>' ] [ basic ] [ force ]",
             description=f"""Add a molecule to your current molecule working set.
 
 {SUPPORTED_IDENTIFIERS_BASIC}
@@ -421,7 +419,7 @@ Examples:
         help_dict_create(
             name="remove molecule",
             category="Molecule Working Set",
-            command="remove mol|molecule <name> | <smiles> | <inchi> | <inchikey> | <cid> [ force ]",
+            command="remove molecule|mol <name> | <smiles> | <inchi> | <inchikey> | <cid> [ force ]",
             description=f"""Remove a molecule from the current working set based on a given molecule identifier.
 
 {SUPPORTED_IDENTIFIERS}
@@ -458,7 +456,7 @@ Examples:
         help_dict_create(
             name="list molecules",
             category="Molecule Working Set",
-            command="list mols|molecules",
+            command="list molecules|mols",
             description=f"""List all molecules in the current working set.
 
 Notes:
@@ -474,7 +472,7 @@ Notes:
         help_dict_create(
             name="show molecules",
             category="Molecule Working Set",
-            command="show mols|molecules",
+            command="show molecules|mols",
             description=f"""Launch the molset viewer { 'in your browser ' if is_notebook_mode() else '' }to visualize your molecule working set.
 
 Notes:
@@ -490,7 +488,7 @@ Notes:
         help_dict_create(
             name="enrich molecules",
             category="Molecule Working Set",
-            command="enrich mols|molecules with analysis",
+            command="enrich molecules|mols with analysis",
             description=f"""Enrich the molecules in your current working set with the results of the last performed analysis.
 
 This assumes that your molecule working set contains either the input molecule or any of the result molecules from the analysis.
@@ -525,7 +523,7 @@ Please refer to the DS4SD and RXN toolkits for further assistance on these comma
             command="clear analysis cache",
             description="""Clear the analysis results cache for your current workspace.
 
-Please refer to the <cmd>enrich mols|molecules with analysis</cmd> command for more information about analysis results.
+Please refer to the <cmd>enrich molecules|mols with analysis</cmd> command for more information about analysis results.
 """,
         )
     )
@@ -565,7 +563,7 @@ Notes:
         help_dict_create(
             name="rename molecule",
             category="Molecule Working Set",
-            command="rename mol|molecule <molecule_identifer_string> as <molecule_name>",
+            command="rename molecule|mol <molecule_identifer_string> as <molecule_name>",
             description=f"""Rename a molecule in the current working set.
 
 Notes:
@@ -607,7 +605,7 @@ Example:
         help_dict_create(
             name="load molecules",
             category="Molecule Working Set",
-            command="load mols|molecules from file '<filename.molset.json|sdf|csv|smi>' [ enrich ] [ append ]",
+            command="load molecules|mols from file '<filename.molset.json|sdf|csv|smi>' [ enrich ] [ append ]",
             description=f"""Load molecules from a file into your molecule working set.
 
 {SUPPORTED_FILE_FORMATS}
@@ -665,7 +663,7 @@ Examples:
         help_dict_create(
             name="load Molecule Working Set",
             category="Molecule Working Set",
-            command="load mols|molecules from dataframe <dataframe> [ enrich ] [ append ]",
+            command="load molecules|mols from dataframe <dataframe> [ enrich ] [ append ]",
             description=f"""Load molecules from a dataframe into your molecule working set.
 
 Options:
@@ -719,7 +717,7 @@ Examples:
         help_dict_create(
             name="merge molecules data",
             category="Molecule Working Set",
-            command="merge mols|molecules data from dataframe <dataframe> [ enrich ]",
+            command="merge molecules|mols data from dataframe <dataframe> [ enrich ]",
             description=f"""Merge molecule data from a dataframe into the molecules in your working set.
 
 Options:
@@ -764,7 +762,7 @@ Examples:
         help_dict_create(
             name="export molecules",
             category="Molecule Working Set",
-            command="export mols|molecules [ as '<filename.molset.json|sdf|csv|smi>' ]",
+            command="export molecules|mols [ as '<filename.molset.json|sdf|csv|smi>' ]",
             description=f"""Export your molecule working set as a file (CLI) or return it as a dataframe (Jupyter/API).
 
 {SUPPORTED_FILE_FORMATS}
@@ -785,7 +783,7 @@ Notes:
         help_dict_create(
             name="clear Molecules",
             category="Molecule Working Set",
-            command="clear mols|molecules [ force ]",
+            command="clear molecules|mols [ force ]",
             description=f"""Clear the molecule working set.
 
 Options:

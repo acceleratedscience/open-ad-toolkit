@@ -238,7 +238,7 @@ generation_targets = {
 
 
 service_command_help["get_molecule_property"] = (
-    "get molecule property <property> FOR @mols | [<list of SMILES>] | <SMILES>   USING (<parameter>=<value> <parameter>=<value>) (merge with mols|molecules)"
+    "get molecule property <property> FOR @mols | [<list of SMILES>] | <SMILES>   USING (<parameter>=<value> <parameter>=<value>) (merge with molecules|mols)"
 )
 service_command_help["get_crystal_property"] = (
     "get crystal property <property> FOR <directory> USING (<parameter>=<value> <parameter>=<value>)"

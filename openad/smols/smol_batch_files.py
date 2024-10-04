@@ -43,7 +43,11 @@ def merge_molecule_property_data(cmd_pointer, inp=None, dataframe=None):
 
     if dataframe is None:
         # Load from dataframe
-        if "merge_molecules_data_dataframe" in inp.as_dict():
+        if (
+            "merge_molecules_data_dataframe" in inp.as_dict()
+            or "merge_molecules_data_dataframe-DEPRECATED"  # Can be removed once the deprecated syntax has been removed
+            in inp.as_dict()
+        ):
             dataframe = cmd_pointer.api_variables[inp.as_dict()["in_dataframe"]]
 
         # Load from file (not yet implemented)
