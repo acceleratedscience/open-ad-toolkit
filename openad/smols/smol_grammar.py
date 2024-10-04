@@ -587,7 +587,7 @@ Example:
             + f_rom
             + file
             + desc("moles_file")
-            + Optional(enrich)("pubchem_merge")
+            + Optional(enrich)("enrich_pubchem")
             + Optional(CaselessKeyword("append"))("append")
         )("load_molecules_file")
     )
@@ -599,7 +599,7 @@ Example:
             + using  # <-- changed
             + file
             + desc("moles_file")
-            + Optional((merge + w_ith + pubchem))("pubchem_merge")  # <-- changed
+            + Optional((merge + w_ith + pubchem))("enrich_pubchem")  # <-- changed
             + Optional(CaselessKeyword("append"))("append")
         )("load_molecules_file-DEPRECATED")
     )
@@ -645,7 +645,7 @@ Examples:
             + f_rom
             + CaselessKeyword("dataframe")
             + molecule_identifier("in_dataframe")
-            + Optional(enrich)("pubchem_merge")
+            + Optional(enrich)("enrich_pubchem")
             + Optional(CaselessKeyword("append"))("append")
         )("load_molecules_dataframe")
     )
@@ -657,7 +657,7 @@ Examples:
             + using  # <-- changed
             + CaselessKeyword("dataframe")
             + molecule_identifier("in_dataframe")
-            + Optional((merge + w_ith + pubchem))("pubchem_merge")
+            + Optional((merge + w_ith + pubchem))("enrich_pubchem")
             + Optional(CaselessKeyword("append"))("append")
         )("load_molecules_dataframe-DEPRECATED")
     )
@@ -700,7 +700,7 @@ Examples:
             + f_rom
             + CaselessKeyword("dataframe")
             + molecule_identifier("in_dataframe")
-            + Optional(enrich)("pubchem_merge")
+            + Optional(enrich)("enrich_pubchem")
         )("merge_molecules_data_dataframe")
     )
     # DEPRECATED: Backward compatibility
@@ -712,7 +712,7 @@ Examples:
             + using  # <-- changed
             + CaselessKeyword("dataframe")
             + molecule_identifier("in_dataframe")
-            + Optional((merge + w_ith + pubchem))("pubchem_merge")  # <-- changed
+            + Optional((merge + w_ith + pubchem))("enrich_pubchem")  # <-- changed
         )("merge_molecules_data_dataframe-DEPRECATED")
     )
     grammar_help.append(

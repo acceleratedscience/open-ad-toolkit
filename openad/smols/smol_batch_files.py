@@ -189,6 +189,8 @@ def _enrich_with_pubchem_data(cmd_pointer, molset):
     Pull data from PubChem to merge in into a molset.
     """
 
+    output_molset = []
+
     spinner = Spinner(GLOBAL_SETTINGS["verbose"])
     spinner.start("Fetching from PubChem")
 
@@ -207,7 +209,7 @@ def _enrich_with_pubchem_data(cmd_pointer, molset):
             # Select the identifier keys we'll look for in order of preference
             keys = ["inchi", "canonical_smiles", "isomeric_smiles", "smiles", "inchikey", "name", "cid"]
             identifier = next((identifiers.get(key) for key in keys if identifiers.get(key) is not None), None)
-            name = name or identifier or "unknown molecule"
+            name = name or identifier or "Unknown molecule"
             if not identifier:
                 output_warning(f"#{i} - No valid identifier found for {name}", return_val=False)
                 continue
@@ -219,6 +221,7 @@ def _enrich_with_pubchem_data(cmd_pointer, molset):
 
             # Merge enriched data
             smol = merge_smols(smol, smol_enriched)
+            output_molset.append(smol)
 
         except Exception as err:  # pylint: disable=broad-except
             spinner.stop()
@@ -226,6 +229,7 @@ def _enrich_with_pubchem_data(cmd_pointer, molset):
 
     spinner.succeed("Done")
     spinner.stop()
+    return output_molset
 
 
 def shred_merge_add_df_mols(dataframe, cmd_pointer):
