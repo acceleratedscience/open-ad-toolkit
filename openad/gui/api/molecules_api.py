@@ -90,9 +90,15 @@ class MoleculesApi:
         if not inchi_or_smiles:
             output_error("get_mol_viz_data() -> Missing inchi_or_smiles")
             return "Missing inchi_or_smiles", 500
+        try:
+            svg = smol2svg(inchi_or_smiles=inchi_or_smiles)
+            mdl = smol2mdl(inchi_or_smiles=inchi_or_smiles)
 
-        svg = smol2svg(inchi_or_smiles=inchi_or_smiles)
-        mdl = smol2mdl(inchi_or_smiles=inchi_or_smiles)
+        # When the identifier is not a smiles or inchi
+        except Exception:  # pylint: disable=broad-except
+            return {
+                "error": f"Failed to generate visualisation data from '{inchi_or_smiles}'. Should be inchi or smiles."
+            }, 400
 
         if not svg and not mdl:
             output_error("get_mol_viz_data() -> Failed to generate SVG/MDL from '{inchi_or_smiles}'.")

@@ -1416,9 +1416,17 @@ def merge_smols(smol: dict, merge_smol: dict) -> dict:
         elif key == "synonyms" and isinstance(val, list):
             # Create a dictionary to map lowercase elements to their original case
             og_case_map = {item.lower(): item for item in smol[key] + merge_smol[key]}
+            # print(555, og_case_map)
 
             # Merge the synonyms in a case-insensitive way (skip new synonyms if they are just differently cased)
             case_insensitive_merge = list(set(list(map(str.lower, smol[key])) + list(map(str.lower, merge_smol[key]))))
+            # print(666)
+            # print(list(map(str.lower, smol[key])))
+            # print(list(map(str.lower, merge_smol[key])))
+            # print("")
+
+            # print(777, [og_case_map[item.lower()] for item in case_insensitive_merge])
+
             smol[key] = smol[key] + [og_case_map[item.lower()] for item in case_insensitive_merge]
 
         # Merge properties & property sources
