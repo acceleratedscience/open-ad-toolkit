@@ -59,6 +59,7 @@ def _retrieve_results(smiles: str, cmd_pointer) -> list | bool:
     rdkit_mol = Chem.MolFromSmiles(smiles)  # pylint: disable=no-member
     inchi = Chem.rdinchi.MolToInchi(rdkit_mol)[0]
     inchikey = Chem.inchi.InchiToInchiKey(inchi)
+    print("inchikey", inchikey)
     results = []
     for i in glob.glob(
         _create_workspace_dir_if_nonexistent(cmd_pointer, CACHE_DIR) + inchikey + "-*.res",
@@ -132,12 +133,19 @@ def enrich_mws_with_analysis(cmd_pointer, inp) -> bool:
 
     i = 0
     while i < len(mws):
+        print(123)
         smol = mws[i].copy()
         if "analysis" not in smol:
             smol["analysis"] = []
         results = _retrieve_results(canonicalize(smol["identifiers"]["canonical_smiles"]), cmd_pointer)
-
+        print(456, results)
         for result in results:
+            print(
+                888,
+                smol["identifiers"]["canonical_smiles"],
+                canonicalize(smol["identifiers"]["canonical_smiles"]),
+                canonicalize(result["smiles"].split("~")[0]),
+            )
             if result not in smol["analysis"] and canonicalize(smol["identifiers"]["canonical_smiles"]) == canonicalize(
                 result["smiles"].split("~")[0]
             ):

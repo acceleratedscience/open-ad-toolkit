@@ -729,21 +729,25 @@ def load_mols_from_file(cmd_pointer, file_path):
     workspace_path = cmd_pointer.workspace_path()
     file_path_absolute = f"{workspace_path}/{file_path}"
 
+    source_type = file_path.split(".")[-1] if "." in file_path else "unknown"
+    molset = None
+    error = None
+
     # Molset
     if file_path.endswith(".molset.json"):
         # Read file and return the molset
+        source_type = "molset"
         try:
             with open(file_path_absolute, "r", encoding="utf-8") as file:
                 molset = file.read()
             molset = json.loads(molset) if molset else None
-            source_type = "molset"
         except Exception as err:  # pylint: disable=broad-except
             error = err
 
     # SDF
     elif file_path.endswith(".sdf"):
-        molset, error = sdf_path2molset(file_path_absolute)
         source_type = "SDF"
+        molset, error = sdf_path2molset(file_path_absolute)
 
         # try:
         #     return normalize_mol_df(PandasTools.LoadSDF(SDFFile), batch=True)
@@ -753,8 +757,8 @@ def load_mols_from_file(cmd_pointer, file_path):
 
     # CSV
     elif file_path.endswith(".csv"):
-        molset, error = csv_path2molset(file_path_absolute)
         source_type = "CSV"
+        molset, error = csv_path2molset(file_path_absolute)
 
         # try:
         #     mol_frame = pandas.read_csv(file_path_absolute, dtype="string")
@@ -766,8 +770,8 @@ def load_mols_from_file(cmd_pointer, file_path):
 
     # SMILES
     elif file_path.endswith(".smi"):
-        molset, error = smiles_path2molset(file_path_absolute)
         source_type = "SMILES"
+        molset, error = smiles_path2molset(file_path_absolute)
 
     # Return
     if molset:
@@ -1400,7 +1404,6 @@ def merge_smols(smol: dict, merge_smol: dict) -> dict:
     """
 
     for key, val in merge_smol.items():
-
         # Merge identifiers
         if key == "identifiers" and isinstance(val, dict):
             for idfr_key, idfr_val in val.items():
@@ -1439,7 +1442,12 @@ def merge_smols(smol: dict, merge_smol: dict) -> dict:
         # Merge meta information
         elif key == "meta" and isinstance(val, dict):
             # Merge notes with a separator string
-            smol[key]["notes"] = smol[key]["notes"] + "\n\n- - -\n\n" + merge_smol[key]["notes"]
+            notes_1 = smol[key].get("notes", None)
+            notes_2 = merge_smol[key].get("notes", None)
+            if notes_1 and notes_2:
+                smol[key]["notes"] = "\n\n- - -\n\n".join([notes_1, notes_2])
+            else:
+                smol[key]["notes"] = notes_1 or notes_2
 
             # Merge labels without duplicates and ensure they're all lowercase
             smol[key]["labels"] = list(

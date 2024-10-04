@@ -166,7 +166,7 @@ def load_mols_to_mws(cmd_pointer, inp):
             return output_error("Source not Found")
 
     # Add PubChem data
-    if "pubchem_merge" in inp.as_dict():
+    if "enrich_pubchem" in inp.as_dict():
         _enrich_with_pubchem_data(cmd_pointer, molset)
 
     # Append or overwrite molecules
