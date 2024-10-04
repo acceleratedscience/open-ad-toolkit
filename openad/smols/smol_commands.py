@@ -285,7 +285,6 @@ def add_molecule(cmd_pointer, inp):
 
     # Add it to the working set.
     if smol:
-        print(88, smol)
         mws_add(cmd_pointer, smol, force=force)
 
 
