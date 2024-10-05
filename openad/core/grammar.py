@@ -220,6 +220,18 @@ grammar_help.append(
 
 INFO_WORKSPACES = "\n<soft>To learn more about workspaces, run <cmd>workspace ?</cmd></soft>"
 
+# list workspaces
+statements.append(Forward(lister + workspaces("workspaces"))("list_workspaces"))
+grammar_help.append(
+    help_dict_create(
+        name="list workspaces",
+        category="Workspaces",
+        command="list workspaces",
+        description="Lists all your workspaces.",
+        note=INFO_WORKSPACES,
+    )
+)
+
 # Set workspaces
 statements.append(
     Forward(s_et + workspace("workspace") + Word(alphas, alphanums + "_")("Workspace_Name"))("set_workspace_statement")
@@ -243,7 +255,35 @@ grammar_help.append(
         name="get workspace",
         category="Workspaces",
         command="get workspace [ <workspace_name> ]",
-        description="Display details a workspace. When no workspace name is passed, details of your current workspace are displayed.",
+        description="Display details a workspace. When no workspace name is defined, details of your current workspace are displayed.",
+        note=INFO_WORKSPACES,
+    )
+)
+
+# Show workspace (in GUI)
+statements.append(Forward(show + workspace("workspace"))("show_workspace"))
+grammar_help.append(
+    help_dict_create(
+        name="show workspace",
+        category="Workspaces",
+        command="show workspace",
+        description=f"Open the file browsing interface{ 'in your browser ' if is_notebook_mode() else '' } displaying your workspace files and directories.",
+        note=INFO_WORKSPACES,
+    )
+)
+
+# Open workspace (in OS)
+statements.append(
+    Forward(o_pen("open") + workspace("workspace") + Optional(Word(alphas, alphanums + "_")("Workspace_Name")))(
+        "open_workspace"
+    )
+)
+grammar_help.append(
+    help_dict_create(
+        name="get workspace",
+        category="Workspaces",
+        command="open workspace [ <workspace_name> ]",
+        description="Open your workspace directory in the file explorer of your operating system. This is useful when you want to move or rename files. When no workspace name is defined, your current workspace will open.",
         note=INFO_WORKSPACES,
     )
 )
@@ -284,17 +324,6 @@ grammar_help.append(
     )
 )
 
-# list workspaces
-statements.append(Forward(lister + workspaces("workspaces"))("list_workspaces"))
-grammar_help.append(
-    help_dict_create(
-        name="list workspaces",
-        category="Workspaces",
-        command="list workspaces",
-        description="Lists all your workspaces.",
-        note=INFO_WORKSPACES,
-    )
-)
 
 # endregion
 

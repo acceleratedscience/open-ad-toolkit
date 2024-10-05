@@ -5,11 +5,11 @@ from time import sleep
 
 import readline
 
-# Core
+# OpenAD
 from openad.core.lang_sessions_and_registry import write_registry, update_main_registry_env_var
-
-# Global variables
 from openad.app.global_var_lib import GLOBAL_SETTINGS
+from openad.gui.gui_launcher import gui_init
+from openad.gui.gui_commands import launch_gui
 
 # Helpers
 from openad.helpers.output import output_text, output_error, output_warning, output_success, output_table
@@ -93,6 +93,24 @@ def get_workspace(cmd_pointer, parser):
         return output_error(msg("invalid_workpace", workspace_name))
     else:
         return output_text(msg("workspace_description", workspace_name, description, active), pad=1, edge=True)
+
+
+def show_workspace(cmd_pointer, parser):
+    """
+    Show the workspace folder in the GUI.
+    """
+
+    launch_gui(cmd_pointer, parser)
+
+
+def open_workspace(cmd_pointer, parser):
+    """
+    Open the workspace folder in the file explorer of your OS.
+    """
+
+    workspace_name = parser.as_dict().get("Workspace_Name", "").upper()
+    workspace_path = cmd_pointer.workspace_path(workspace_name)
+    os.system(f'open "{workspace_path}"')
 
 
 # Remove workspace and all its metadata files.
