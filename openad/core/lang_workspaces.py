@@ -76,23 +76,47 @@ def list_workspaces(cmd_pointer, parser):
 # get the details of a workspace
 # needs to be fixed up as workspace metadata plan is built out
 def get_workspace(cmd_pointer, parser):
-    """gets a workspaces details"""
+    """
+    Get a workspaces details.
+    """
+
+    # Get the workspace name
     if "Workspace_Name" in parser.as_dict():
-        workspace_name = parser.as_dict()["Workspace_Name"].upper()
+        workspace_name = parser.as_dict()["Workspace_Name"]
+
+        # This handles the `get workspace path` command.
+        if workspace_name == "path":
+            return get_workspace_path(cmd_pointer, parser)
+        else:
+            workspace_name = workspace_name.upper()
         active = False
     else:
         workspace_name = cmd_pointer.settings["workspace"].upper()
         active = True
+
+    # Get the workspace description
     if workspace_name in cmd_pointer.settings["descriptions"]:
         description = cmd_pointer.settings["descriptions"][workspace_name]
     else:
         description = None
     description = description if description else msg("no_workspace_description")
 
-    if workspace_name not in cmd_pointer.settings["workspaces"]:
-        return output_error(msg("invalid_workpace", workspace_name))
-    else:
+    # Success
+    if workspace_name in cmd_pointer.settings["workspaces"]:
         return output_text(msg("workspace_description", workspace_name, description, active), pad=1, edge=True)
+
+    # Error
+    else:
+        return output_error(msg("invalid_workpace", workspace_name))
+
+
+def get_workspace_path(cmd_pointer, parser):
+    """
+    Get your workspace path.
+    """
+
+    workspace_path = cmd_pointer.workspace_path()
+    return workspace_path
 
 
 def show_workspace(cmd_pointer, parser):

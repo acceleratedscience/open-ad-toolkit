@@ -97,11 +97,12 @@ from openad.app.global_var_lib import _all_toolkits
     gui,
     filebrowser,
     molviewer,
+    force,
 ) = map(
     CaselessKeyword,
     "get list description using create set unset workspace workspaces context jobs exec\
     as optimize with toolkits toolkit gpu experiment add run save runs show open mol molecules\
-    file display history data remove update result install launch restart quit gui filebrowser molviewer".split(),
+    file display history data remove update result install launch restart quit gui filebrowser molviewer force".split(),
 )
 STRING_VALUE = alphanums
 
@@ -202,12 +203,14 @@ grammar_help.append(
 )
 
 # Clear sessions
-statements.append(Forward(CaselessKeyword("clear") + CaselessKeyword("sessions"))("clear_sessions"))
+statements.append(
+    Forward(CaselessKeyword("clear") + CaselessKeyword("sessions") + Optional(force)("force"))("clear_sessions")
+)
 grammar_help.append(
     help_dict_create(
         name="Clear Sessions",
         category="General",
-        command="clear sessions",
+        command="clear sessions [ force ]",
         description="Clear any other sessions that may be running.",
     )
 )
@@ -256,6 +259,18 @@ grammar_help.append(
         category="Workspaces",
         command="get workspace [ <workspace_name> ]",
         description="Display details a workspace. When no workspace name is defined, details of your current workspace are displayed.",
+        note=INFO_WORKSPACES,
+    )
+)
+
+# Get workspace path
+# Note: the statement is covered by the "get workspace" statement
+grammar_help.append(
+    help_dict_create(
+        name="get workspace path",
+        category="Workspaces",
+        command="get workspace path",
+        description="Returns your current workspace path. This is useful when you wish to access your workspace files from a Jupyter Notebook.",
         note=INFO_WORKSPACES,
     )
 )
