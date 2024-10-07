@@ -59,7 +59,7 @@ _messages = {
     # region - FILE SYSTEM
     ##########################################################################
     # Success
-    "success_import": lambda source_file, workspace_name: f"Imported the file <yellow>{source_file}</yellow> to your {workspace_name} workspace",
+    "success_import": lambda source_file, workspace_name: f"Imported the file {source_file} to your {workspace_name} workspace",
     "success_export": lambda source_file, workspace_name, dest_file: f"Copied the file {source_file} from your {workspace_name} workspace to {dest_file}",
     "success_copy": lambda source_file, source_workspace_name, dest_workspace_name: f"Copied the file {source_file} from your {source_workspace_name} to your {dest_workspace_name} workspace",
     "success_delete": lambda file_name, workspace_name: f"Deleted the file {file_name} from your {workspace_name} workspace",

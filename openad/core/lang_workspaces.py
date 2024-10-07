@@ -5,11 +5,11 @@ from time import sleep
 
 import readline
 
-# OpenAD
+# Core
 from openad.core.lang_sessions_and_registry import write_registry, update_main_registry_env_var
+
+# Global variables
 from openad.app.global_var_lib import GLOBAL_SETTINGS
-from openad.gui.gui_launcher import gui_init
-from openad.gui.gui_commands import launch_gui
 
 # Helpers
 from openad.helpers.output import output_text, output_error, output_warning, output_success, output_table
@@ -76,65 +76,23 @@ def list_workspaces(cmd_pointer, parser):
 # get the details of a workspace
 # needs to be fixed up as workspace metadata plan is built out
 def get_workspace(cmd_pointer, parser):
-    """
-    Get a workspaces details.
-    """
-
-    # Get the workspace name
+    """gets a workspaces details"""
     if "Workspace_Name" in parser.as_dict():
-        workspace_name = parser.as_dict()["Workspace_Name"]
-
-        # This handles the `get workspace path` command.
-        if workspace_name == "path":
-            return get_workspace_path(cmd_pointer, parser)
-        else:
-            workspace_name = workspace_name.upper()
+        workspace_name = parser.as_dict()["Workspace_Name"].upper()
         active = False
     else:
         workspace_name = cmd_pointer.settings["workspace"].upper()
         active = True
-
-    # Get the workspace description
     if workspace_name in cmd_pointer.settings["descriptions"]:
         description = cmd_pointer.settings["descriptions"][workspace_name]
     else:
         description = None
     description = description if description else msg("no_workspace_description")
 
-    # Success
-    if workspace_name in cmd_pointer.settings["workspaces"]:
-        return output_text(msg("workspace_description", workspace_name, description, active), pad=1, edge=True)
-
-    # Error
-    else:
+    if workspace_name not in cmd_pointer.settings["workspaces"]:
         return output_error(msg("invalid_workpace", workspace_name))
-
-
-def get_workspace_path(cmd_pointer, parser):
-    """
-    Get your workspace path.
-    """
-
-    workspace_path = cmd_pointer.workspace_path()
-    return workspace_path
-
-
-def show_workspace(cmd_pointer, parser):
-    """
-    Show the workspace folder in the GUI.
-    """
-
-    launch_gui(cmd_pointer, parser)
-
-
-def open_workspace(cmd_pointer, parser):
-    """
-    Open the workspace folder in the file explorer of your OS.
-    """
-
-    workspace_name = parser.as_dict().get("Workspace_Name", "").upper()
-    workspace_path = cmd_pointer.workspace_path(workspace_name)
-    os.system(f'open "{workspace_path}"')
+    else:
+        return output_text(msg("workspace_description", workspace_name, description, active), pad=1, edge=True)
 
 
 # Remove workspace and all its metadata files.

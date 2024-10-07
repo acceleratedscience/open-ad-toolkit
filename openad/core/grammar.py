@@ -97,12 +97,11 @@ from openad.app.global_var_lib import _all_toolkits
     gui,
     filebrowser,
     molviewer,
-    force,
 ) = map(
     CaselessKeyword,
     "get list description using create set unset workspace workspaces context jobs exec\
     as optimize with toolkits toolkit gpu experiment add run save runs show open mol molecules\
-    file display history data remove update result install launch restart quit gui filebrowser molviewer force".split(),
+    file display history data remove update result install launch restart quit gui filebrowser molviewer".split(),
 )
 STRING_VALUE = alphanums
 
@@ -203,14 +202,12 @@ grammar_help.append(
 )
 
 # Clear sessions
-statements.append(
-    Forward(CaselessKeyword("clear") + CaselessKeyword("sessions") + Optional(force)("force"))("clear_sessions")
-)
+statements.append(Forward(CaselessKeyword("clear") + CaselessKeyword("sessions"))("clear_sessions"))
 grammar_help.append(
     help_dict_create(
         name="Clear Sessions",
         category="General",
-        command="clear sessions [ force ]",
+        command="clear sessions",
         description="Clear any other sessions that may be running.",
     )
 )
@@ -222,18 +219,6 @@ grammar_help.append(
 ##########################################################################
 
 INFO_WORKSPACES = "\n<soft>To learn more about workspaces, run <cmd>workspace ?</cmd></soft>"
-
-# list workspaces
-statements.append(Forward(lister + workspaces("workspaces"))("list_workspaces"))
-grammar_help.append(
-    help_dict_create(
-        name="list workspaces",
-        category="Workspaces",
-        command="list workspaces",
-        description="Lists all your workspaces.",
-        note=INFO_WORKSPACES,
-    )
-)
 
 # Set workspaces
 statements.append(
@@ -258,47 +243,7 @@ grammar_help.append(
         name="get workspace",
         category="Workspaces",
         command="get workspace [ <workspace_name> ]",
-        description="Display details a workspace. When no workspace name is defined, details of your current workspace are displayed.",
-        note=INFO_WORKSPACES,
-    )
-)
-
-# Get workspace path
-# Note: the statement is covered by the "get workspace" statement
-grammar_help.append(
-    help_dict_create(
-        name="get workspace path",
-        category="Workspaces",
-        command="get workspace path",
-        description="Returns your current workspace path. This is useful when you wish to access your workspace files from a Jupyter Notebook.",
-        note=INFO_WORKSPACES,
-    )
-)
-
-# Show workspace (in GUI)
-statements.append(Forward(show + workspace("workspace"))("show_workspace"))
-grammar_help.append(
-    help_dict_create(
-        name="show workspace",
-        category="Workspaces",
-        command="show workspace",
-        description=f"Open the file browsing interface{ 'in your browser ' if is_notebook_mode() else '' } displaying your workspace files and directories.",
-        note=INFO_WORKSPACES,
-    )
-)
-
-# Open workspace (in OS)
-statements.append(
-    Forward(o_pen("open") + workspace("workspace") + Optional(Word(alphas, alphanums + "_")("Workspace_Name")))(
-        "open_workspace"
-    )
-)
-grammar_help.append(
-    help_dict_create(
-        name="get workspace",
-        category="Workspaces",
-        command="open workspace [ <workspace_name> ]",
-        description="Open your workspace directory in the file explorer of your operating system. This is useful when you want to move or rename files. When no workspace name is defined, your current workspace will open.",
+        description="Display details a workspace. When no workspace name is passed, details of your current workspace are displayed.",
         note=INFO_WORKSPACES,
     )
 )
@@ -339,6 +284,17 @@ grammar_help.append(
     )
 )
 
+# list workspaces
+statements.append(Forward(lister + workspaces("workspaces"))("list_workspaces"))
+grammar_help.append(
+    help_dict_create(
+        name="list workspaces",
+        category="Workspaces",
+        command="list workspaces",
+        description="Lists all your workspaces.",
+        note=INFO_WORKSPACES,
+    )
+)
 
 # endregion
 

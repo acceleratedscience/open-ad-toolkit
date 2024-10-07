@@ -77,9 +77,6 @@ from openad.core.lang_workspaces import (
     list_workspaces,
     set_workspace,
     get_workspace,
-    get_workspace_path,
-    show_workspace,
-    open_workspace,
 )
 from openad.core.lang_runs import display_run, exec_run, save_run, list_runs, remove_run
 from openad.core.lang_dev import flask_example
@@ -136,12 +133,6 @@ def lang_parse(cmd_pointer, parser):
         return list_workspaces(cmd_pointer, parser)
     elif parser.getName() == "get_workspace":
         return get_workspace(cmd_pointer, parser)
-    elif parser.getName() == "get_workspace_path":
-        return get_workspace_path(cmd_pointer, parser)
-    elif parser.getName() == "show_workspace":
-        return show_workspace(cmd_pointer, parser)
-    elif parser.getName() == "open_workspace":
-        return open_workspace(cmd_pointer, parser)
 
     # Toolkit commands
     elif parser.getName() == "add_toolkit":

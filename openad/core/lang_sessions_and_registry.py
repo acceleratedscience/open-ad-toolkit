@@ -115,22 +115,19 @@ def clear_sessions(cmd_pointer, parser):
     Burned-earth approach for cleaning up the session directory.
     Required to enable new workspaces and toolkits to be created.
     """
-
-    force = "force" in parser.as_dict()
-
-    if force or confirm_prompt(msg("confirm_clear_sessions")):
-        file_list = os.listdir(os.path.dirname(_meta_registry_session))
-        try:
-            file_list.remove("registry.pkl" + cmd_pointer.session_id)
-            for i in file_list:
-                os.remove(os.path.dirname(_meta_registry_session) + "/" + i)
-            # raise Exception("This is a test exception")
-            return output_success(msg("success_clear_sessions"), return_val=False)
-        except Exception as err:  # pylint: disable=broad-except
-            output_error(msg("err_clear_sessions", err), return_val=False)
-            return False
-    else:
+    if not confirm_prompt(msg("confirm_clear_sessions")):
         output_error(msg("no_sessions_cleared"), return_val=False)
+        return False
+
+    file_list = os.listdir(os.path.dirname(_meta_registry_session))
+    try:
+        file_list.remove("registry.pkl" + cmd_pointer.session_id)
+        for i in file_list:
+            os.remove(os.path.dirname(_meta_registry_session) + "/" + i)
+        # raise Exception("This is a test exception")
+        return output_success(msg("success_clear_sessions"), return_val=False)
+    except Exception as err:  # pylint: disable=broad-except
+        output_error(msg("err_clear_sessions", err), return_val=False)
         return False
 
 

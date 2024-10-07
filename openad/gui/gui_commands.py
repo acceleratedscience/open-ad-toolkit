@@ -27,9 +27,10 @@ def restart_gui(cmd_pointer, parser):
 
 # Terminate the gui server.
 def quit_gui(cmd_pointer, parser):
-    gui_shutdown()
-    # import openad.gui.ws_server as ws_server
-    # import asyncio
+    # gui_shutdown()
+    import openad.gui.ws_server as ws_server
+    import asyncio
 
-    # asyncio.run(ws_server.send("HOLY COW"))
+    asyncio.run(ws_server.send("HOLY COW"))
+    print(">>")
     # print(">> holy COW!")

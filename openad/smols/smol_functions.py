@@ -912,9 +912,7 @@ def canonicalize(smiles: str) -> str | None:
     if not smiles:
         return None
 
-    return Chem.MolToSmiles(  # pylint: disable=no-member
-        Chem.MolFromSmiles(smiles), isomericSmiles=True, canonical=True  # pylint: disable=no-member
-    )
+    return Chem.MolToSmiles(Chem.MolFromSmiles(smiles), isomericSmiles=True)  # pylint: disable=no-member
 
 
 def df_has_molecules(df: pandas.DataFrame) -> bool:
