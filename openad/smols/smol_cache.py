@@ -36,17 +36,15 @@ def save_result(result: dict, cmd_pointer) -> bool:
 
     try:
         timestr = time.strftime("%Y%m%d-%H%M%S")
-
         rdkit_mol = Chem.MolFromSmiles(result["smiles"])  # pylint: disable=no-member
-
         inchi = Chem.rdinchi.MolToInchi(rdkit_mol)[0]
-
         inchikey = Chem.inchi.InchiToInchiKey(inchi)
+        # print("INPUT SMILES:", result["smiles"], "-->", inchikey)
     except Exception:  # pylint: disable=broad-except
         inchikey = result["smiles"]
         return False
 
-    filename = f'{inchikey}-{str(result["toolkit"]).upper()}-{str(result["function"]).upper()}-{timestr}.res'
+    filename = f"{inchikey}-{str(result['toolkit']).upper()}-{str(result['function']).upper()}-{timestr}.res"
     _write_analysis(result, _create_workspace_dir_if_nonexistent(cmd_pointer, CACHE_DIR) + filename)
     return True
 
@@ -59,7 +57,8 @@ def _retrieve_results(smiles: str, cmd_pointer) -> list | bool:
     rdkit_mol = Chem.MolFromSmiles(smiles)  # pylint: disable=no-member
     inchi = Chem.rdinchi.MolToInchi(rdkit_mol)[0]
     inchikey = Chem.inchi.InchiToInchiKey(inchi)
-    print("inchikey", inchikey)
+    # print("RETRIEVE SMILES:", smiles, "-->", inchikey)
+
     results = []
     for i in glob.glob(
         _create_workspace_dir_if_nonexistent(cmd_pointer, CACHE_DIR) + inchikey + "-*.res",

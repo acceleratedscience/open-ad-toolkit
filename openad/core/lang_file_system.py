@@ -81,6 +81,7 @@ def import_file(cmd_pointer, parser):
     workspace_name = cmd_pointer.settings["workspace"].upper()
     source_file = parser["source"]
     dest_file = parser["destination"]
+    filename = os.path.basename(source_file)
 
     # Expand user path: ~/ --> ../
     # from pathlib import PosixPath # Trash
@@ -103,7 +104,7 @@ def import_file(cmd_pointer, parser):
         else:
             # @later: Change language to reflect dir instead of file
             shutil.copytree(source_file, workspace_path + "/" + dest_file)
-        return output_success(msg("success_import", source_file, workspace_name))
+        return output_success(msg("success_import", filename, workspace_name))
     except Exception as err:
         # Failure
         return output_error(msg("err_import", err))

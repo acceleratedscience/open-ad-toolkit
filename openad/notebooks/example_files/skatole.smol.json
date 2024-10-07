@@ -1,0 +1,1202 @@
+{
+    "analysis": [],
+    "enriched": true,
+    "identifiers": {
+        "canonical_smiles": "CC1=CNC2=CC=CC=C12",
+        "cid": 6736,
+        "inchi": "InChI=1S/C9H9N/c1-7-6-10-9-5-3-2-4-8(7)9/h2-6,10H,1H3",
+        "inchikey": "ZFRKQXVRDFCRJG-UHFFFAOYSA-N",
+        "isomeric_smiles": "CC1=CNC2=CC=CC=C12",
+        "molecular_formula": "C9H9N",
+        "name": "skatole"
+    },
+    "meta": {
+        "labels:": [],
+        "notes": ""
+    },
+    "properties": {
+        "atom_stereo_count": 0,
+        "atoms": [
+            {
+                "aid": 1,
+                "element": "N",
+                "number": 7,
+                "x": 4.6783,
+                "y": -0.9853
+            },
+            {
+                "aid": 2,
+                "element": "C",
+                "number": 6,
+                "x": 3.732,
+                "y": 0.3194
+            },
+            {
+                "aid": 3,
+                "element": "C",
+                "number": 6,
+                "x": 3.732,
+                "y": -0.6806
+            },
+            {
+                "aid": 4,
+                "element": "C",
+                "number": 6,
+                "x": 4.6783,
+                "y": 0.6241
+            },
+            {
+                "aid": 5,
+                "element": "C",
+                "number": 6,
+                "x": 5.2619,
+                "y": -0.1806
+            },
+            {
+                "aid": 6,
+                "element": "C",
+                "number": 6,
+                "x": 2.866,
+                "y": 0.8194
+            },
+            {
+                "aid": 7,
+                "element": "C",
+                "number": 6,
+                "x": 2.866,
+                "y": -1.1806
+            },
+            {
+                "aid": 8,
+                "element": "C",
+                "number": 6,
+                "x": 4.9889,
+                "y": 1.5747
+            },
+            {
+                "aid": 9,
+                "element": "C",
+                "number": 6,
+                "x": 2,
+                "y": 0.3194
+            },
+            {
+                "aid": 10,
+                "element": "C",
+                "number": 6,
+                "x": 2,
+                "y": -0.6806
+            },
+            {
+                "aid": 11,
+                "element": "H",
+                "number": 1,
+                "x": 4.8709,
+                "y": -1.5747
+            },
+            {
+                "aid": 12,
+                "element": "H",
+                "number": 1,
+                "x": 5.8819,
+                "y": -0.1806
+            },
+            {
+                "aid": 13,
+                "element": "H",
+                "number": 1,
+                "x": 2.866,
+                "y": 1.4394
+            },
+            {
+                "aid": 14,
+                "element": "H",
+                "number": 1,
+                "x": 2.866,
+                "y": -1.8006
+            },
+            {
+                "aid": 15,
+                "element": "H",
+                "number": 1,
+                "x": 5.5783,
+                "y": 1.382
+            },
+            {
+                "aid": 16,
+                "element": "H",
+                "number": 1,
+                "x": 5.1815,
+                "y": 2.164
+            },
+            {
+                "aid": 17,
+                "element": "H",
+                "number": 1,
+                "x": 4.3996,
+                "y": 1.7673
+            },
+            {
+                "aid": 18,
+                "element": "H",
+                "number": 1,
+                "x": 1.4631,
+                "y": 0.6294
+            },
+            {
+                "aid": 19,
+                "element": "H",
+                "number": 1,
+                "x": 1.4631,
+                "y": -0.9906
+            }
+        ],
+        "bond_stereo_count": 0,
+        "bonds": [
+            {
+                "aid1": 1,
+                "aid2": 3,
+                "order": 1,
+                "style": 8
+            },
+            {
+                "aid1": 1,
+                "aid2": 5,
+                "order": 1,
+                "style": 8
+            },
+            {
+                "aid1": 1,
+                "aid2": 11,
+                "order": 1
+            },
+            {
+                "aid1": 2,
+                "aid2": 3,
+                "order": 1,
+                "style": 8
+            },
+            {
+                "aid1": 2,
+                "aid2": 4,
+                "order": 1,
+                "style": 8
+            },
+            {
+                "aid1": 2,
+                "aid2": 6,
+                "order": 2,
+                "style": 8
+            },
+            {
+                "aid1": 3,
+                "aid2": 7,
+                "order": 2,
+                "style": 8
+            },
+            {
+                "aid1": 4,
+                "aid2": 5,
+                "order": 2,
+                "style": 8
+            },
+            {
+                "aid1": 4,
+                "aid2": 8,
+                "order": 1
+            },
+            {
+                "aid1": 5,
+                "aid2": 12,
+                "order": 1
+            },
+            {
+                "aid1": 6,
+                "aid2": 9,
+                "order": 1,
+                "style": 8
+            },
+            {
+                "aid1": 6,
+                "aid2": 13,
+                "order": 1
+            },
+            {
+                "aid1": 7,
+                "aid2": 10,
+                "order": 1,
+                "style": 8
+            },
+            {
+                "aid1": 7,
+                "aid2": 14,
+                "order": 1
+            },
+            {
+                "aid1": 8,
+                "aid2": 15,
+                "order": 1
+            },
+            {
+                "aid1": 8,
+                "aid2": 16,
+                "order": 1
+            },
+            {
+                "aid1": 8,
+                "aid2": 17,
+                "order": 1
+            },
+            {
+                "aid1": 9,
+                "aid2": 10,
+                "order": 2,
+                "style": 8
+            },
+            {
+                "aid1": 9,
+                "aid2": 18,
+                "order": 1
+            },
+            {
+                "aid1": 10,
+                "aid2": 19,
+                "order": 1
+            }
+        ],
+        "cactvs_fingerprint": "11000000011100100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000101100000000000000000000000000000001100000000000000000000000000000000000000000000000000000000000001011000000000011111000000000000000000000001110000000000000100000000000000000000000000000000110000001000110000010001111000000100001111101100000011110010110010011001000000000000101000000000001100110100011001110100010000000000100000101000000000100000001100010000001000100000000010001101100110100000001110000110010010011000000010000010000011100010110000001001000110010001100001000010000000001000011000001001000000000000110010001100100000000111000100001000000011000000000011101000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000",
+        "charge": 0,
+        "complexity": 122,
+        "conformer_id_3d": null,
+        "conformer_rmsd_3d": null,
+        "coordinate_type": "2d",
+        "covalent_unit_count": 1,
+        "defined_atom_stereo_count": 0,
+        "defined_bond_stereo_count": 0,
+        "effective_rotor_count_3d": null,
+        "elements": [
+            "N",
+            "C",
+            "C",
+            "C",
+            "C",
+            "C",
+            "C",
+            "C",
+            "C",
+            "C",
+            "H",
+            "H",
+            "H",
+            "H",
+            "H",
+            "H",
+            "H",
+            "H",
+            "H"
+        ],
+        "exact_mass": "131.073499291",
+        "feature_selfoverlap_3d": null,
+        "fingerprint": "00000371C072000000000000000000000000000000016000000030000000000000005801F000001C00100000000C08C11E043EC0F2C99000A0033467440082802031022008D9A03864980820E2C09191842008609000C8C8071080C00E80000000000200000000000000040000000000000000",
+        "h_bond_acceptor_count": 0,
+        "h_bond_donor_count": 1,
+        "heavy_atom_count": 10,
+        "isotope_atom_count": 0,
+        "iupac_name": "3-methyl-1H-indole",
+        "mmff94_energy_3d": null,
+        "mmff94_partial_charges_3d": null,
+        "molecular_weight": "131.17",
+        "monoisotopic_mass": "131.073499291",
+        "multipoles_3d": null,
+        "pharmacophore_features_3d": null,
+        "record": {
+            "atoms": {
+                "aid": [
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                    12,
+                    13,
+                    14,
+                    15,
+                    16,
+                    17,
+                    18,
+                    19
+                ],
+                "element": [
+                    7,
+                    6,
+                    6,
+                    6,
+                    6,
+                    6,
+                    6,
+                    6,
+                    6,
+                    6,
+                    1,
+                    1,
+                    1,
+                    1,
+                    1,
+                    1,
+                    1,
+                    1,
+                    1
+                ]
+            },
+            "bonds": {
+                "aid1": [
+                    1,
+                    1,
+                    1,
+                    2,
+                    2,
+                    2,
+                    3,
+                    4,
+                    4,
+                    5,
+                    6,
+                    6,
+                    7,
+                    7,
+                    8,
+                    8,
+                    8,
+                    9,
+                    9,
+                    10
+                ],
+                "aid2": [
+                    3,
+                    5,
+                    11,
+                    3,
+                    4,
+                    6,
+                    7,
+                    5,
+                    8,
+                    12,
+                    9,
+                    13,
+                    10,
+                    14,
+                    15,
+                    16,
+                    17,
+                    10,
+                    18,
+                    19
+                ],
+                "order": [
+                    1,
+                    1,
+                    1,
+                    1,
+                    1,
+                    2,
+                    2,
+                    2,
+                    1,
+                    1,
+                    1,
+                    1,
+                    1,
+                    1,
+                    1,
+                    1,
+                    1,
+                    2,
+                    1,
+                    1
+                ]
+            },
+            "charge": 0,
+            "coords": [
+                {
+                    "aid": [
+                        1,
+                        2,
+                        3,
+                        4,
+                        5,
+                        6,
+                        7,
+                        8,
+                        9,
+                        10,
+                        11,
+                        12,
+                        13,
+                        14,
+                        15,
+                        16,
+                        17,
+                        18,
+                        19
+                    ],
+                    "conformers": [
+                        {
+                            "style": {
+                                "aid1": [
+                                    1,
+                                    1,
+                                    2,
+                                    2,
+                                    2,
+                                    3,
+                                    4,
+                                    6,
+                                    7,
+                                    9
+                                ],
+                                "aid2": [
+                                    3,
+                                    5,
+                                    3,
+                                    4,
+                                    6,
+                                    7,
+                                    5,
+                                    9,
+                                    10,
+                                    10
+                                ],
+                                "annotation": [
+                                    8,
+                                    8,
+                                    8,
+                                    8,
+                                    8,
+                                    8,
+                                    8,
+                                    8,
+                                    8,
+                                    8
+                                ]
+                            },
+                            "x": [
+                                4.6783,
+                                3.732,
+                                3.732,
+                                4.6783,
+                                5.2619,
+                                2.866,
+                                2.866,
+                                4.9889,
+                                2,
+                                2,
+                                4.8709,
+                                5.8819,
+                                2.866,
+                                2.866,
+                                5.5783,
+                                5.1815,
+                                4.3996,
+                                1.4631,
+                                1.4631
+                            ],
+                            "y": [
+                                -0.9853,
+                                0.3194,
+                                -0.6806,
+                                0.6241,
+                                -0.1806,
+                                0.8194,
+                                -1.1806,
+                                1.5747,
+                                0.3194,
+                                -0.6806,
+                                -1.5747,
+                                -0.1806,
+                                1.4394,
+                                -1.8006,
+                                1.382,
+                                2.164,
+                                1.7673,
+                                0.6294,
+                                -0.9906
+                            ]
+                        }
+                    ],
+                    "type": [
+                        1,
+                        5,
+                        255
+                    ]
+                }
+            ],
+            "count": {
+                "atom_chiral": 0,
+                "atom_chiral_def": 0,
+                "atom_chiral_undef": 0,
+                "bond_chiral": 0,
+                "bond_chiral_def": 0,
+                "bond_chiral_undef": 0,
+                "covalent_unit": 1,
+                "heavy_atom": 10,
+                "isotope_atom": 0,
+                "tautomers": -1
+            },
+            "id": {
+                "id": {
+                    "cid": 6736
+                }
+            },
+            "props": [
+                {
+                    "urn": {
+                        "datatype": 5,
+                        "label": "Compound",
+                        "name": "Canonicalized",
+                        "release": "2021.10.14"
+                    },
+                    "value": {
+                        "ival": 1
+                    }
+                },
+                {
+                    "urn": {
+                        "datatype": 7,
+                        "implementation": "E_COMPLEXITY",
+                        "label": "Compound Complexity",
+                        "release": "2021.10.14",
+                        "software": "Cactvs",
+                        "source": "Xemistry GmbH",
+                        "version": "3.4.8.18"
+                    },
+                    "value": {
+                        "fval": 122
+                    }
+                },
+                {
+                    "urn": {
+                        "datatype": 5,
+                        "implementation": "E_NHACCEPTORS",
+                        "label": "Count",
+                        "name": "Hydrogen Bond Acceptor",
+                        "release": "2021.10.14",
+                        "software": "Cactvs",
+                        "source": "Xemistry GmbH",
+                        "version": "3.4.8.18"
+                    },
+                    "value": {
+                        "ival": 0
+                    }
+                },
+                {
+                    "urn": {
+                        "datatype": 5,
+                        "implementation": "E_NHDONORS",
+                        "label": "Count",
+                        "name": "Hydrogen Bond Donor",
+                        "release": "2021.10.14",
+                        "software": "Cactvs",
+                        "source": "Xemistry GmbH",
+                        "version": "3.4.8.18"
+                    },
+                    "value": {
+                        "ival": 1
+                    }
+                },
+                {
+                    "urn": {
+                        "datatype": 5,
+                        "implementation": "E_NROTBONDS",
+                        "label": "Count",
+                        "name": "Rotatable Bond",
+                        "release": "2021.10.14",
+                        "software": "Cactvs",
+                        "source": "Xemistry GmbH",
+                        "version": "3.4.8.18"
+                    },
+                    "value": {
+                        "ival": 0
+                    }
+                },
+                {
+                    "urn": {
+                        "datatype": 16,
+                        "implementation": "E_SCREEN",
+                        "label": "Fingerprint",
+                        "name": "SubStructure Keys",
+                        "parameters": "extended 2",
+                        "release": "2021.10.14",
+                        "software": "Cactvs",
+                        "source": "Xemistry GmbH",
+                        "version": "3.4.8.18"
+                    },
+                    "value": {
+                        "binary": "00000371C072000000000000000000000000000000016000000030000000000000005801F000001C00100000000C08C11E043EC0F2C99000A0033467440082802031022008D9A03864980820E2C09191842008609000C8C8071080C00E80000000000200000000000000040000000000000000"
+                    }
+                },
+                {
+                    "urn": {
+                        "datatype": 1,
+                        "label": "IUPAC Name",
+                        "name": "Allowed",
+                        "release": "2021.10.14",
+                        "software": "Lexichem TK",
+                        "source": "OpenEye Scientific Software",
+                        "version": "2.7.0"
+                    },
+                    "value": {
+                        "sval": "3-methyl-1H-indole"
+                    }
+                },
+                {
+                    "urn": {
+                        "datatype": 1,
+                        "label": "IUPAC Name",
+                        "name": "CAS-like Style",
+                        "release": "2021.10.14",
+                        "software": "Lexichem TK",
+                        "source": "OpenEye Scientific Software",
+                        "version": "2.7.0"
+                    },
+                    "value": {
+                        "sval": "3-methyl-1H-indole"
+                    }
+                },
+                {
+                    "urn": {
+                        "datatype": 1,
+                        "label": "IUPAC Name",
+                        "name": "Markup",
+                        "release": "2021.10.14",
+                        "software": "Lexichem TK",
+                        "source": "OpenEye Scientific Software",
+                        "version": "2.7.0"
+                    },
+                    "value": {
+                        "sval": "3-methyl-1<I>H</I>-indole"
+                    }
+                },
+                {
+                    "urn": {
+                        "datatype": 1,
+                        "label": "IUPAC Name",
+                        "name": "Preferred",
+                        "release": "2021.10.14",
+                        "software": "Lexichem TK",
+                        "source": "OpenEye Scientific Software",
+                        "version": "2.7.0"
+                    },
+                    "value": {
+                        "sval": "3-methyl-1H-indole"
+                    }
+                },
+                {
+                    "urn": {
+                        "datatype": 1,
+                        "label": "IUPAC Name",
+                        "name": "Systematic",
+                        "release": "2021.10.14",
+                        "software": "Lexichem TK",
+                        "source": "OpenEye Scientific Software",
+                        "version": "2.7.0"
+                    },
+                    "value": {
+                        "sval": "3-methyl-1H-indole"
+                    }
+                },
+                {
+                    "urn": {
+                        "datatype": 1,
+                        "label": "IUPAC Name",
+                        "name": "Traditional",
+                        "release": "2021.10.14",
+                        "software": "Lexichem TK",
+                        "source": "OpenEye Scientific Software",
+                        "version": "2.7.0"
+                    },
+                    "value": {
+                        "sval": "skatole"
+                    }
+                },
+                {
+                    "urn": {
+                        "datatype": 1,
+                        "label": "InChI",
+                        "name": "Standard",
+                        "release": "2021.10.14",
+                        "software": "InChI",
+                        "source": "iupac.org",
+                        "version": "1.0.6"
+                    },
+                    "value": {
+                        "sval": "InChI=1S/C9H9N/c1-7-6-10-9-5-3-2-4-8(7)9/h2-6,10H,1H3"
+                    }
+                },
+                {
+                    "urn": {
+                        "datatype": 1,
+                        "label": "InChIKey",
+                        "name": "Standard",
+                        "release": "2021.10.14",
+                        "software": "InChI",
+                        "source": "iupac.org",
+                        "version": "1.0.6"
+                    },
+                    "value": {
+                        "sval": "ZFRKQXVRDFCRJG-UHFFFAOYSA-N"
+                    }
+                },
+                {
+                    "urn": {
+                        "datatype": 7,
+                        "label": "Log P",
+                        "name": "XLogP3",
+                        "release": "2021.10.14",
+                        "source": "sioc-ccbg.ac.cn",
+                        "version": "3.0"
+                    },
+                    "value": {
+                        "fval": 2.6
+                    }
+                },
+                {
+                    "urn": {
+                        "datatype": 1,
+                        "label": "Mass",
+                        "name": "Exact",
+                        "release": "2021.10.14",
+                        "software": "PubChem",
+                        "source": "ncbi.nlm.nih.gov",
+                        "version": "2.2"
+                    },
+                    "value": {
+                        "sval": "131.073499291"
+                    }
+                },
+                {
+                    "urn": {
+                        "datatype": 1,
+                        "label": "Molecular Formula",
+                        "release": "2021.10.14",
+                        "software": "PubChem",
+                        "source": "ncbi.nlm.nih.gov",
+                        "version": "2.2"
+                    },
+                    "value": {
+                        "sval": "C9H9N"
+                    }
+                },
+                {
+                    "urn": {
+                        "datatype": 1,
+                        "label": "Molecular Weight",
+                        "release": "2021.10.14",
+                        "software": "PubChem",
+                        "source": "ncbi.nlm.nih.gov",
+                        "version": "2.2"
+                    },
+                    "value": {
+                        "sval": "131.17"
+                    }
+                },
+                {
+                    "urn": {
+                        "datatype": 1,
+                        "label": "SMILES",
+                        "name": "Canonical",
+                        "release": "2021.10.14",
+                        "software": "OEChem",
+                        "source": "OpenEye Scientific Software",
+                        "version": "2.3.0"
+                    },
+                    "value": {
+                        "sval": "CC1=CNC2=CC=CC=C12"
+                    }
+                },
+                {
+                    "urn": {
+                        "datatype": 1,
+                        "label": "SMILES",
+                        "name": "Isomeric",
+                        "release": "2021.10.14",
+                        "software": "OEChem",
+                        "source": "OpenEye Scientific Software",
+                        "version": "2.3.0"
+                    },
+                    "value": {
+                        "sval": "CC1=CNC2=CC=CC=C12"
+                    }
+                },
+                {
+                    "urn": {
+                        "datatype": 7,
+                        "implementation": "E_TPSA",
+                        "label": "Topological",
+                        "name": "Polar Surface Area",
+                        "release": "2021.10.14",
+                        "software": "Cactvs",
+                        "source": "Xemistry GmbH",
+                        "version": "3.4.8.18"
+                    },
+                    "value": {
+                        "fval": 15.8
+                    }
+                },
+                {
+                    "urn": {
+                        "datatype": 1,
+                        "label": "Weight",
+                        "name": "MonoIsotopic",
+                        "release": "2021.10.14",
+                        "software": "PubChem",
+                        "source": "ncbi.nlm.nih.gov",
+                        "version": "2.2"
+                    },
+                    "value": {
+                        "sval": "131.073499291"
+                    }
+                }
+            ]
+        },
+        "rotatable_bond_count": 0,
+        "shape_fingerprint_3d": null,
+        "shape_selfoverlap_3d": null,
+        "tpsa": 15.8,
+        "undefined_atom_stereo_count": 0,
+        "undefined_bond_stereo_count": 0,
+        "volume_3d": null,
+        "xlogp": 2.6
+    },
+    "property_sources": {
+        "atom_stereo_count": {
+            "source": "PubChem"
+        },
+        "bond_stereo_count": {
+            "source": "PubChem"
+        },
+        "canonical_smiles": {
+            "datatype": 1,
+            "label": "SMILES",
+            "name": "Canonical",
+            "release": "2021.10.14",
+            "software": "OEChem",
+            "source": "OpenEye Scientific Software",
+            "version": "2.3.0"
+        },
+        "charge": {
+            "source": "PubChem"
+        },
+        "cid": {
+            "source": "PubChem"
+        },
+        "complexity": {
+            "datatype": 5,
+            "label": "Compound",
+            "name": "Canonicalized",
+            "release": "2021.10.14"
+        },
+        "conformer_count_3d": {
+            "source": "PubChem"
+        },
+        "conformer_id_3d": {
+            "source": "PubChem"
+        },
+        "conformer_model_rmsd_3d": {
+            "source": "PubChem"
+        },
+        "conformer_rmsd_3d": {
+            "source": "PubChem"
+        },
+        "coordinate_type": {
+            "source": "PubChem"
+        },
+        "covalent_unit_count": {
+            "source": "PubChem"
+        },
+        "defined_atom_stereo_count": {
+            "source": "PubChem"
+        },
+        "defined_bond_stereo_count": {
+            "source": "PubChem"
+        },
+        "effective_rotor_count_3d": {
+            "source": "PubChem"
+        },
+        "exact_mass": {
+            "datatype": 1,
+            "label": "Mass",
+            "name": "Exact",
+            "release": "2021.10.14",
+            "software": "PubChem",
+            "source": "ncbi.nlm.nih.gov",
+            "version": "2.2"
+        },
+        "feature_acceptor_count_3d": {
+            "source": "PubChem"
+        },
+        "feature_anion_count_3d": {
+            "source": "PubChem"
+        },
+        "feature_cation_count_3d": {
+            "source": "PubChem"
+        },
+        "feature_count_3d": {
+            "source": "PubChem"
+        },
+        "feature_donor_count_3d": {
+            "source": "PubChem"
+        },
+        "feature_hydrophobe_count_3d": {
+            "source": "PubChem"
+        },
+        "feature_ring_count_3d": {
+            "source": "PubChem"
+        },
+        "h_bond_acceptor_count": {
+            "datatype": 5,
+            "implementation": "E_NHACCEPTORS",
+            "label": "Count",
+            "name": "Hydrogen Bond Acceptor",
+            "release": "2021.10.14",
+            "software": "Cactvs",
+            "source": "Xemistry GmbH",
+            "version": "3.4.8.18"
+        },
+        "h_bond_donor_count": {
+            "datatype": 5,
+            "implementation": "E_NHDONORS",
+            "label": "Count",
+            "name": "Hydrogen Bond Donor",
+            "release": "2021.10.14",
+            "software": "Cactvs",
+            "source": "Xemistry GmbH",
+            "version": "3.4.8.18"
+        },
+        "heavy_atom_count": {
+            "source": "PubChem"
+        },
+        "inchi": {
+            "datatype": 1,
+            "label": "InChI",
+            "name": "Standard",
+            "release": "2021.10.14",
+            "software": "InChI",
+            "source": "iupac.org",
+            "version": "1.0.6"
+        },
+        "inchikey": {
+            "datatype": 1,
+            "label": "InChIKey",
+            "name": "Standard",
+            "release": "2021.10.14",
+            "software": "InChI",
+            "source": "iupac.org",
+            "version": "1.0.6"
+        },
+        "isomeric_smiles": {
+            "datatype": 1,
+            "label": "SMILES",
+            "name": "Isomeric",
+            "release": "2021.10.14",
+            "software": "OEChem",
+            "source": "OpenEye Scientific Software",
+            "version": "2.3.0"
+        },
+        "isotope_atom_count": {
+            "source": "PubChem"
+        },
+        "iupac_name": {
+            "datatype": 1,
+            "label": "IUPAC Name",
+            "name": "Preferred",
+            "release": "2021.10.14",
+            "software": "Lexichem TK",
+            "source": "OpenEye Scientific Software",
+            "version": "2.7.0"
+        },
+        "mmff94_energy_3d": {
+            "source": "PubChem"
+        },
+        "mmff94_partial_charges_3d": {
+            "source": "PubChem"
+        },
+        "molecular_formula": {
+            "datatype": 1,
+            "label": "Molecular Formula",
+            "release": "2021.10.14",
+            "software": "PubChem",
+            "source": "ncbi.nlm.nih.gov",
+            "version": "2.2"
+        },
+        "molecular_weight": {
+            "datatype": 1,
+            "label": "Molecular Weight",
+            "release": "2021.10.14",
+            "software": "PubChem",
+            "source": "ncbi.nlm.nih.gov",
+            "version": "2.2"
+        },
+        "molecular_weight_exact": {
+            "source": "PubChem"
+        },
+        "monoisotopic_mass": {
+            "datatype": 1,
+            "label": "Weight",
+            "name": "MonoIsotopic",
+            "release": "2021.10.14",
+            "software": "PubChem",
+            "source": "ncbi.nlm.nih.gov",
+            "version": "2.2"
+        },
+        "multipoles_3d": {
+            "source": "PubChem"
+        },
+        "pharmacophore_features_3d": {
+            "source": "PubChem"
+        },
+        "rotatable_bond_count": {
+            "datatype": 5,
+            "implementation": "E_NROTBONDS",
+            "label": "Count",
+            "name": "Rotatable Bond",
+            "release": "2021.10.14",
+            "software": "Cactvs",
+            "source": "Xemistry GmbH",
+            "version": "3.4.8.18"
+        },
+        "sol": {
+            "source": "PubChem"
+        },
+        "sol_classification": {
+            "source": "PubChem"
+        },
+        "tpsa": {
+            "datatype": 7,
+            "implementation": "E_TPSA",
+            "label": "Topological",
+            "name": "Polar Surface Area",
+            "release": "2021.10.14",
+            "software": "Cactvs",
+            "source": "Xemistry GmbH",
+            "version": "3.4.8.18"
+        },
+        "undefined_atom_stereo_count": {
+            "source": "PubChem"
+        },
+        "undefined_bond_stereo_count": {
+            "source": "PubChem"
+        },
+        "volume_3d": {
+            "source": "PubChem"
+        },
+        "x_steric_quadrupole_3d": {
+            "source": "PubChem"
+        },
+        "xlogp": {
+            "datatype": 7,
+            "label": "Log P",
+            "name": "XLogP3",
+            "release": "2021.10.14",
+            "source": "sioc-ccbg.ac.cn",
+            "version": "3.0"
+        },
+        "y_steric_quadrupole_3d": {
+            "source": "PubChem"
+        },
+        "z_steric_quadrupole_3d": {
+            "source": "PubChem"
+        }
+    },
+    "sources": {},
+    "synonyms": [
+        "3-METHYLINDOLE",
+        "3-Methyl-1H-indole",
+        "Skatole",
+        "83-34-1",
+        "Scatole",
+        "Skatol",
+        "1H-Indole, 3-methyl-",
+        "beta-Methylindole",
+        "Indole, 3-methyl-",
+        "3-MI",
+        "3-methyl indole",
+        "3-Methyl-4,5-benzopyrrole",
+        "FEMA No. 3019",
+        "CCRIS 8961",
+        "NSC 122024",
+        "HSDB 3511",
+        "EINECS 201-471-7",
+        "MFCD00005627",
+        ".beta.-Methylindole",
+        "UNII-9W945B5H7R",
+        "SKATOLUM",
+        "CHEBI:9171",
+        "DTXSID8021775",
+        "AI3-24372",
+        "9W945B5H7R",
+        "NSC-122024",
+        "DTXCID601775",
+        "3-methylindole (skatole)",
+        "NCGC00167540-01",
+        "16alpha-Hydroxycortisol",
+        "Skatole, >=98%",
+        "3 Methylindole",
+        "CAS-83-34-1",
+        "SMR000677925",
+        "b-Methylindole",
+        "3-methyl-indole",
+        "U 34908; 16a,17-Dihydroxy-corticosterone; 11ss,16a,17,21-Tetrahydroxy-pregn-4-ene-3,20-dione; 11ss,16a,17,21-Tetrahydroxypregn-4-ene-3,20-dione",
+        "16a-Hydroxycortisol",
+        "3-methyl-1H-indol",
+        "1H-Indole,3-methyl-",
+        "SKATOLUM [HPUS]",
+        "3-Methylindole, 98%",
+        "SKATOLE [FHFI]",
+        "SKATOLE [MI]",
+        "bmse000516",
+        "SCHEMBL5396",
+        "MLS001332537",
+        "MLS001332538",
+        "WLN: T56 BMJ D1",
+        "3-METHYLINDOLE [HSDB]",
+        "CHEMBL1329793",
+        "HMS2233B05",
+        "HMS3371O13",
+        "3-Methylindole, analytical standard",
+        "BCP00912",
+        "Tox21_112537",
+        "AM1199",
+        "NSC122024",
+        "s4959",
+        "STK033388",
+        "AKOS005254880",
+        "Tox21_112537_1",
+        "CCG-214598",
+        "CG-0502",
+        "CS-W007355",
+        "HY-W007355",
+        "SB14956",
+        "NCGC00167540-03",
+        "AC-13010",
+        "DB-011225",
+        "M0347",
+        "NS00013192",
+        "EN300-41009",
+        "C08313",
+        "M-3898",
+        "P10013",
+        "SBI-0633474.0002",
+        "AP-065/40182778",
+        "Q412281",
+        "BRD-K73824630-001-03-2",
+        "Z415653134",
+        "InChI=1/C9H9N/c1-7-6-10-9-5-3-2-4-8(7)9/h2-6,10H,1H"
+    ]
+}
