@@ -10,7 +10,7 @@ import pandas as pd
 
 # from openad.core.help import help_dict_create
 import requests
-from openad.helpers.output import output_error, output_success, output_text, output_warning
+from openad.helpers.output import output_error, output_text, output_warning
 from openad.helpers.spinner import Spinner
 from openad.openad_model_plugin.catalog_model_services import get_service_requester, help_dict_create
 from openad.openad_model_plugin.auth_services import get_service_api_key
@@ -85,7 +85,6 @@ from pyparsing import (  # replaceWith,; Combine,; pyparsing_test,; ParseExcepti
     load,
     results,
     export,
-    create,
     rename,
     merge,
     pubchem,
@@ -99,7 +98,7 @@ from pyparsing import (  # replaceWith,; Combine,; pyparsing_test,; ParseExcepti
     CaselessKeyword,
     "get list description using create set unset workspace workspaces context jobs exec\
           as optimize with toolkits toolkit gpu experiment add run save runs show \
-              file display history data remove result from inchi inchikey smiles formula name last load results export create rename merge pubchem sources basic force append only upsert".split(),
+              file display history data remove result from inchi inchikey smiles formula name last load results export rename merge pubchem sources basic force append only upsert".split(),
 )
 name_expr = Word(alphanums + "_" + ".")
 key_val_expr = Word(alphanums + "_" + ".")

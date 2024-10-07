@@ -295,7 +295,7 @@ Examples:
  <cmd>@ibuprofen>>synonyms</cmd>
 
 Available properties that can be queried:
-{list_columns(SMOL_PROPERTIES, print_width=GLOBAL_SETTINGS["print_width"] - 10)}
+{list_columns(SMOL_PROPERTIES)}
 """,
         )
     )

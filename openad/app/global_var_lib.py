@@ -38,6 +38,11 @@ _all_toolkits = get_toolkits()
 _date_format = "%a %b %d, %G - %R"
 _repo_dir = os.path.dirname(os.path.abspath(__file__))
 
+
+def _get_cli_width():
+    return min(shutil.get_terminal_size().columns, 150)
+
+
 GLOBAL_SETTINGS = {
     # Dictates where our output will be displayed:
     # - terminal: set in main.py -> cmd_line()
@@ -52,7 +57,7 @@ GLOBAL_SETTINGS = {
     "VERBOSE": True,
     #
     # The width in characters we limit the printed output to.
-    "print_width": min(shutil.get_terminal_size().columns, 150),
+    "print_width": _get_cli_width(),
     #
     # Flag that triggers the grammar to be refreshed
     # after we add new molecule properties.

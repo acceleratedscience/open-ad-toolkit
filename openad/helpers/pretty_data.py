@@ -6,7 +6,7 @@ from openad.app.global_var_lib import GLOBAL_SETTINGS
 
 def list_columns(
     values: list,
-    print_width: int = GLOBAL_SETTINGS["print_width"],
+    print_width: int = GLOBAL_SETTINGS["print_width"] - 10,
     col_width: int = 40,
     is_truncated: list = False,
     indent: int = 0,
@@ -18,6 +18,7 @@ def list_columns(
     print_width = print_width - indent
     output = ""
     line_nr = 0
+    print("##", print_width)
 
     # Remove blank values
     values = [f"{value}" for value in values if value]
@@ -53,7 +54,7 @@ def list_columns(
 
 def key_val_columns(
     items_dict: dict,
-    print_width: int = GLOBAL_SETTINGS["print_width"],
+    print_width: int = GLOBAL_SETTINGS["print_width"] - 10,
     col_width: int = 40,
     ignore_keys: list = None,
     indent: int = 0,
@@ -110,39 +111,52 @@ def key_val_columns(
     # The length of each column
     col_length = math.ceil(len(items) / col_count)
 
-    # Reorder the items to the print top to bottom, left to right
-    # instead of left to right top to bottom
-    cols = []
+    # Arrange items into columns
+    table = []
     for j, item in enumerate(items):
         if j % col_length == 0:
-            cols.append([])
-        cols[-1].append(item)
+            table.append([])
+        table[-1].append(item)
 
-    items_rearranged = []
-    i = 0
-    j = 0
-    while len(items_rearranged) < len(items) and j < 50:
-        for col in cols:
-            if j < len(col):
-                items_rearranged.append(col[j])
-        i = i + 1
-        j = (j + 1) % len(col)
-
-    items = items_rearranged
+    # Reorder the items to the print top to bottom, left to right
+    # instead of left to right top to bottom
+    table = _transpose_table(table)
 
     # Compile the output
-    for item in items:
-        if line_nr % col_count == 0:
-            output = output + "\n"
-        output = output + item
-        line_nr = line_nr + 1 % col_length
+    for row in table:
+        output = output + "".join(row) + "\n"
 
     return output
 
 
+def _transpose_table(table):
+    """
+    Transpose a table (list of lists).
+
+    Input:
+    [
+      [a,b,c,d,e],
+      [f,g,h,i,j],
+      [k,l,m]
+    ]
+
+    Output:
+    [
+      [a,f,k],
+      [b,g,l],
+      [c,h,m],
+      [d,i,None],
+      [e,j,None]
+    ]
+    """
+    col_len = len(table[0])
+    table[-1].extend([""] * (col_len - len(table[-1])))
+    return list(zip(*table))
+
+
 def key_val_full(
     items_dict: dict,
-    print_width: int = GLOBAL_SETTINGS["print_width"],
+    print_width: int = GLOBAL_SETTINGS["print_width"] - 10,
     ignore_keys: list = None,
     indent: int = 0,
 ):
@@ -171,4 +185,4 @@ def key_val_full(
         key_val = f"{(indent * ' ')}<{key_color}>{key}:</{key_color}> {val}"
         items.append(key_val)
 
-    return "\n" + "\n".join(items)
+    return "\n".join(items)

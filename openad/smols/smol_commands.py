@@ -91,9 +91,9 @@ def format_identifiers(smol):
     Format the identifiers for display.
     """
 
-    output = f"<h1>{(smol['identifiers'].get('name') or 'Unknown molecule' ).capitalize()}</h1>"
+    output = f"<h1>{(smol['identifiers'].get('name') or 'Unknown molecule' ).capitalize()}</h1>\n"
     identifiers = smol.get("identifiers", {})
-    output = output + key_val_full(identifiers, print_width=GLOBAL_SETTINGS["print_width"] - 5)
+    output = output + key_val_full(identifiers)
     return output
 
 
@@ -106,7 +106,7 @@ def format_synonyms(smol, truncate=30):
     synonym_count = len(synonyms)
 
     # Title
-    output = "<h1>Synonyms:</h1>"
+    output = "<h1>Synonyms:</h1>\n"
 
     # No synonyms found
     if synonym_count == 0:
@@ -123,13 +123,11 @@ def format_synonyms(smol, truncate=30):
     if is_truncated:
         output = (
             output
-            + f"\n<soft>This list is truncated. To view all synonyms, run <cmd>@{smol['identifiers']['name']}>>synonyms</cmd></soft>\n\n"
+            + f"<soft>This list is truncated. To view all synonyms, run <cmd>@{smol['identifiers']['name']}>>synonyms</cmd></soft>\n\n"
         )
-    else:
-        output = output + "\n"
 
     # Values
-    output = output + list_columns(synonyms, print_width=GLOBAL_SETTINGS["print_width"] - 5, is_truncated=is_truncated)
+    output = output + list_columns(synonyms, is_truncated=is_truncated)
 
     return output
 
@@ -142,15 +140,13 @@ def format_properties(smol):
     properties = get_human_properties(smol)
 
     # Title
-    output = "<h1>Properties:</h1>"
+    output = "<h1>Properties:</h1>\n"
 
     # No properties found
     if len(properties) == 0:
         return output + "\n<soft>No properties found.</soft>"
 
-    output = output + key_val_columns(
-        properties, print_width=GLOBAL_SETTINGS["print_width"] - 5, ignore_keys=["DS_URL"]
-    )
+    output = output + key_val_columns(properties, ignore_keys=["DS_URL"])
     return output
 
 
@@ -179,11 +175,7 @@ def format_analysis(smol):
         # Compile results
         results_output = ""
         for i, result in enumerate(results):
-            results_output = (
-                results_output
-                + f"\n\n<soft>Result #{i}</soft>"
-                + key_val_full(result, print_width=GLOBAL_SETTINGS["print_width"] - 10, indent=2)
-            )
+            results_output = results_output + f"\n\n<soft>Result #{i}</soft>" + key_val_full(result, indent=2)
 
         # Compile final results output
         output = output + results_output
@@ -235,7 +227,7 @@ def format_sources(smol):
         if mol_property not in smol["properties"] or smol["properties"][mol_property] is None:
             continue
         output = output + "\n\n<yellow>Property:</yellow> {} \n".format(mol_property)
-        output = output + key_val_columns(source, print_width=GLOBAL_SETTINGS["print_width"] - 5)
+        output = output + key_val_columns(source)
 
     return output
 
@@ -503,7 +495,7 @@ def get_smol_prop_lookup_error(cmd_pointer, inp):
     """
     output = "<error>The requested molecule property is not supported</error>"
     output = output + "\n\n<h1>Available properties:</h1>\n"
-    output = output + list_columns(SMOL_PROPERTIES, print_width=GLOBAL_SETTINGS["print_width"] - 10)
+    output = output + list_columns(SMOL_PROPERTIES)
     return output_text(output)
 
 
