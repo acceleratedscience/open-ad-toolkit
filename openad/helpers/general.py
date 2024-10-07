@@ -317,14 +317,19 @@ def get_print_width(full=False):
     # Notebook - fixed value
     if GLOBAL_SETTINGS["display"] == "notebook" or GLOBAL_SETTINGS["display"] == "api":
         return 120
-
-    # Terminal full width
-    elif full:
-        return shutil.get_terminal_size().columns
-
-    # Terminal regular print width
     else:
-        return min(shutil.get_terminal_size().columns, GLOBAL_SETTINGS["max_print_width"])
+        try:
+            # Terminal full width
+            if full:
+                return shutil.get_terminal_size().columns
+
+            # Terminal regular print width
+            else:
+                # We return the terminal width -10 so there's always room for
+                # output with edge (5 chars) and some padding on the right.
+                return min(shutil.get_terminal_size().columns - 10, GLOBAL_SETTINGS["max_print_width"])
+        except Exception:  # pylint: disable=broad-exception-caught
+            return GLOBAL_SETTINGS["max_print_width"]
 
 
 #
