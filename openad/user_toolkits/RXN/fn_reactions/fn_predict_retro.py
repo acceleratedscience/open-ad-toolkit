@@ -26,7 +26,7 @@ def collect_reactions_from_retrosynthesis(tree: Dict) -> List[str]:
     reactions = []
     if "children" in tree and len(tree["children"]):
         reactions.append(
-            AllChem.ReactionFromSmarts(
+            AllChem.ReactionFromSmarts(  # pylint: disable=no-member
                 "{}>>{}".format(".".join([node["smiles"] for node in tree["children"]]), tree["smiles"]), useSmiles=True
             )
         )  # pylint: disable=no-member

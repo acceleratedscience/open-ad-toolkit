@@ -1,6 +1,9 @@
-"""Handles commonly used global variables"""
+"""
+Central place for commonly used global variables.
+"""
 
 import os
+import shutil
 from openad.helpers.general import get_toolkits
 from openad.app.memory import Memory
 
@@ -35,14 +38,27 @@ _all_toolkits = get_toolkits()
 _date_format = "%a %b %d, %G - %R"
 _repo_dir = os.path.dirname(os.path.abspath(__file__))
 
+
 GLOBAL_SETTINGS = {
     # Dictates where our output will be displayed:
     # - terminal: set in main.py -> cmd_line()
     # - notebook: set in main.py -> api_remote()
     # - api: not yet used
     # - web: not yet used
-    "VERBOSE": True,
     "display": None,
-    "MODEL_SERVICES": None,
+    #
+    # Setting verbose to false will hide spinners
+    # and some other non-essential output
+    # Todo: this is diplocate of "display" is "notebook" (to be confirmed)
+    "VERBOSE": True,
+    #
+    # The width in characters we limit the printed output to.
+    "max_print_width": 150,
+    #
+    # Flag that triggers the grammar to be refreshed
+    # after we add new molecule properties.
+    "grammar_refresh": False,
+    #
+    # "MODEL_SERVICES": None, # unused, trash?
 }
 MEMORY = Memory()

@@ -75,7 +75,7 @@ New molecules are prepopulated with data from RDKit and PubChem by default
 <details>
 <summary>Command</summary>
 
-`show mol|molecule <name> | <smiles> | <inchi> | <inchikey> | <cid>`
+`show molecule|mol <name> | <smiles> | <inchi> | <inchikey> | <cid>`
 
 Example: `show mol dopamine`
 

@@ -2,7 +2,7 @@
 
 import re
 import shutil
-from openad.helpers.general import singular, is_toolkit_installed
+from openad.helpers.general import singular, is_toolkit_installed, get_print_width
 from openad.helpers.output import output_error
 from openad.helpers.output_msgs import msg
 from openad.app.global_var_lib import GLOBAL_SETTINGS
@@ -192,11 +192,7 @@ def command_details(command: list, cmd_pointer):
     )
 
     # Define optimal paragraph width.
-    try:
-        columns, lines = shutil.get_terminal_size()
-    except Exception:
-        columns = 155
-    paragraph_width = min(columns - 5, 150)
+    print_width = get_print_width()
 
     # Style command.
     if GLOBAL_SETTINGS["display"] == "notebook":
@@ -204,16 +200,16 @@ def command_details(command: list, cmd_pointer):
         description = command["description"]
         note = f'<soft>{command["note"]}</soft>' if "note" in command and command["note"] is not None else None
     else:
-        command_str = style(f"<cmd>{command_str}</cmd>", width=paragraph_width)
-        description = style(command["description"], width=paragraph_width)
+        command_str = style(f"<cmd>{command_str}</cmd>", width=print_width)
+        description = style(command["description"], width=print_width)
         note = (
-            style(f'<soft>{command["note"]}</soft>', width=paragraph_width)
+            style(f'<soft>{command["note"]}</soft>', width=print_width)
             if "note" in command and command["note"] is not None
             else None
         )
 
     # Separator
-    sep_len = min(a_len(command_str), paragraph_width)
+    sep_len = min(a_len(command_str), print_width)
     sep = "<soft>" + sep_len * "-" + "</soft>"
 
     # Style description

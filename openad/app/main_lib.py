@@ -32,7 +32,7 @@ from openad.openad_model_plugin.catalog_model_services import (
 
 # molecules
 from openad.smols.smol_functions import df_has_molecules
-from openad.smols.smol_batch_files import load_batch_molecules, merge_molecule_property_data
+from openad.smols.smol_batch_files import load_mols_to_mws, merge_molecule_property_data
 from openad.smols.smol_commands import (
     display_molecule,
     display_property_sources,
@@ -40,24 +40,23 @@ from openad.smols.smol_commands import (
     remove_molecule,
     list_molecules,
     show_molecules,
-    save_molecules,
-    load_molecules,
-    list_molsets,
-    display_molsets,
+    save_molecules_DEPRECATED,
+    load_molecules_DEPRECATED,
+    display_molsets_DEPRECATED,
     export_molecule,
-    get_property,
+    get_smol_prop,
+    get_smol_prop_lookup_error,
     rename_mol_in_list,
-    clear_workset,
-    export_molecule_set,
+    clear_molecules,
+    export_mws,
     show_mol,
     show_molset,
     show_molset_df,
-    merge_molecules,
+    merge_molecules_DEPRECATED,
 )
+
 from openad.mmols.mmol_commands import show_mmol
-
-from openad.smols.smol_cache import attach_all_results, clear_results
-
+from openad.smols.smol_cache import enrich_mws_with_analysis, clear_analysis
 import openad.app.login_manager as login_manager
 
 # Core
@@ -120,6 +119,8 @@ from openad.plugins import edit_json
 # This is called by the default run_cmd method, for executing current commands.
 def lang_parse(cmd_pointer, parser):
     """the routes commands to the correct functions"""
+
+    # print("Parser command name", parser.getName())
 
     # Workspace commands
     if parser.getName() == "create_workspace_statement":
@@ -257,32 +258,61 @@ def lang_parse(cmd_pointer, parser):
         return list_molecules(cmd_pointer, parser)
     elif parser.getName() == "show_molecules":
         return show_molecules(cmd_pointer, parser)
-    elif parser.getName() == "save_molecule-set":
-        return save_molecules(cmd_pointer, parser)
-    elif parser.getName() == "load_molecule-set":
-        return load_molecules(cmd_pointer, parser)
-    elif parser.getName() == "merge_molecule-set":
-        return merge_molecules(cmd_pointer, parser)
-    elif parser.getName() == "list_molecule-sets":
-        return display_molsets(cmd_pointer, parser)
-    elif parser.getName() == "load_analysis":
-        return attach_all_results(cmd_pointer, parser)
+    elif parser.getName() == "save_molecules_DEPRECATED":
+        # MAJOR-RELEASE-TODO: Remove this, this is deprecated functionality
+        return save_molecules_DEPRECATED(cmd_pointer, parser)
+    elif parser.getName() == "load_molecules_DEPRECATED":
+        # MAJOR-RELEASE-TODO: Remove this, this is deprecated functionality
+        return load_molecules_DEPRECATED(cmd_pointer, parser)
+    elif parser.getName() == "merge_molecules_DEPRECATED":
+        # MAJOR-RELEASE-TODO: Remove this, this is deprecated functionality
+        return merge_molecules_DEPRECATED(cmd_pointer, parser)
+    elif parser.getName() == "list_molecule_sets_DEPRECATED":
+        # MAJOR-RELEASE-TODO: Remove this, this is deprecated functionality
+        return display_molsets_DEPRECATED(cmd_pointer, parser)
+    elif parser.getName() == "enrich_mws_with_analysis":
+        return enrich_mws_with_analysis(cmd_pointer, parser)
     elif parser.getName() == "export_molecule":
         return export_molecule(cmd_pointer, parser)
     elif parser.getName() == "clear_analysis":
-        return clear_results(cmd_pointer, parser)
-    elif parser.getName() == "mol_property":
-        return get_property(cmd_pointer, parser)
+        return clear_analysis(cmd_pointer, parser)
+    elif parser.getName() == "get_smol_prop":
+        return get_smol_prop(cmd_pointer, parser)
+    elif parser.getName() == "get_smol_prop_lookup_error":
+        return get_smol_prop_lookup_error(cmd_pointer, parser)
     elif parser.getName() == "rename_molecule":
         return rename_mol_in_list(cmd_pointer, parser)
     elif parser.getName() == "clear_molecules":
-        return clear_workset(cmd_pointer, parser)
+        return clear_molecules(cmd_pointer, parser)
+    elif parser.getName() in ["load_molecules_file-DEPRECATED", "load_molecules_dataframe-DEPRECATED"]:
+        # MAJOR-RELEASE-TODO
+        # Un-comment this in next major release to display deprecation message.
+        # output_text(
+        #     [
+        #         "<on_red> This command is deprecated </on_red>",
+        #         "Wrong:   <cmd>load molecules <red>using</red> ... <red>merge with pubchem</red></cmd>",
+        #         "Correct: <cmd>load molecules <green>from</green> ... <green>enrich</green></cmd>",
+        #     ],
+        # )
+        return load_mols_to_mws(cmd_pointer, parser)
     elif parser.getName() in ["load_molecules_file", "load_molecules_dataframe"]:
-        return load_batch_molecules(cmd_pointer, parser)
-    elif parser.getName() in ["merge_molecules_data_file", "merge_molecules_data_dataframe"]:
+        return load_mols_to_mws(cmd_pointer, parser)
+    elif parser.getName() in ["merge_molecules_data_file-DEPRECATED", "merge_molecules_data_dataframe-DEPRECATED"]:
+        # MAJOR-RELEASE-TODO
+        # Un-comment this in next major release to display deprecation message.
+        # output_text(
+        #     [
+        #         "<on_red> This command is deprecated </on_red>",
+        #         "Wrong:   <cmd>merge molecules <red>using</red> ... <red>merge with pubchem</red></cmd>",
+        #         "Correct: <cmd>merge molecules <green>from</green> ... <green>enrich</green></cmd>",
+        #     ],
+        # )
         return merge_molecule_property_data(cmd_pointer, parser)
-    elif parser.getName() == "export_molecules":
-        return export_molecule_set(cmd_pointer, parser)
+    elif parser.getName() in ["merge_molecules_data_file", "merge_molecules_data_dataframe"]:
+        # NOTE: merge_molecules_data_file is not implemented
+        return merge_molecule_property_data(cmd_pointer, parser)
+    elif parser.getName() == "export_mws":
+        return export_mws(cmd_pointer, parser)
     elif parser.getName() == "show_mol":
         return show_mol(cmd_pointer, parser)
     elif parser.getName() == "show_molset":
@@ -640,14 +670,13 @@ def display_data(cmd_pointer, parser):
             # From csv file.
             try:
                 df = pd.read_csv(workspace_path + file_path)
-                df = df.fillna("")  # Fill NaN with empty string
-
+                df = df.fillna("")  # Replace NaN with empty string
                 return output_table(df)
             except FileNotFoundError:
                 return output_error(msg("err_file_doesnt_exist", file_path))
             except Exception as err:  # pylint: disable=broad-exception-caught
                 # do not care what exception is, just returning failure
-                return output_error(msg("err_load_csv", err))
+                return output_error(msg("err_load", "CSV", err))
         else:
             # Other file formats --> error.
             return output_error(msg("err_invalid_file_format", "csv"))
@@ -749,9 +778,7 @@ def display_data__display(cmd_pointer, parser):  # pylint: disable=unused-argume
 
 
 # --> Return result as dataframe
-def display_data__as_dataframe(
-    cmd_pointer, parser
-):  # pylint: disable=unused-argument # generic pass through used or unused
+def display_data__as_dataframe(cmd_pointer, parser):  # pylint: disable=unused-argument
     """displays last result set in viewer"""
     # Preserve memory for further follow-up commands.
     MEMORY.preserve()

@@ -1,5 +1,4 @@
 from openad.core.help import help_dict_create
-from openad.smols.smol_functions import MOL_PROPERTIES as m_props
 from openad.helpers.general import is_notebook_mode
 
 from pyparsing import (
@@ -47,16 +46,14 @@ def mmol_grammar_add(statements, grammar_help):
             name="show macromolecule",
             category="Macromolecules",
             command="show mmol|protein <fasta> | '<pdb_id>'",
-            description="""
-Show a macromolecule (protein, cabrohydrate, etc.) and its related information in your notebook or browser using either a FASTSA string or Protein Data Bank ID (pdb id)
-
-Data for display is resourced from rcsb.org
+            description=f"""Launch the molecule viewer { 'in your browser ' if is_notebook_mode() else '' }to visualize your macromolecule and inspect its properties.
 
 Examples:
-- Show a protein and its related information based on its Protein database id <cmd>show mmol '2g64'</cmd>
-- Show a protein and its related information based on its FASTA string <cmd>show protein 'MKTGIVNVSSSLNVRSSASTSSKVIGSLSGNTKVTIVGEEGAFYKIEYKGSHGYVAKEYI'</cmd>
-- Show a carbohydrate and its related information based on its FASTA string <cmd>show mmol CGCGAATTCGCG </cmd>
+- Show a protein by its PDBe ID:
+  <cmd>show mmol '2g64'</cmd>
 
+- Show a protein by its FASTA string:
+  <cmd>show protein MAKWVCKICGYIYDEDAGDPDNGISPGTKFEELPDDWVCPICGAPKSEFEKLED</cmd>
 """,
         )
     )

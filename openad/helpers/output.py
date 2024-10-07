@@ -43,11 +43,11 @@ output_text(msg('workspace_description', workspace_name, description), pad=1, ed
 """
 
 import math
-import shutil
 import pandas
 from tabulate import tabulate
 from IPython.display import Markdown, display
 from openad.helpers.output_msgs import msg
+import openad.helpers.general as helpers_general
 
 # Importing our own plugins.
 # This is temporary until every plugin is available as a public pypi package.
@@ -125,7 +125,7 @@ def output_text(message, return_val=None, jup_return_format=None, **kwargs):
             print_s(message, **kwargs)
 
 
-def _output_status(message, status, pad=1, pad_top=None, pad_btm=None, *args, **kwargs):
+def _output_status(message, status, pad=None, pad_top=None, pad_btm=None, *args, **kwargs):
     """
     Assure consistent styling for error/warning/success messages.
 
@@ -260,7 +260,7 @@ def output_table(
         table = table.data
 
     is_df = isinstance(table, pandas.DataFrame)
-    cli_width = shutil.get_terminal_size().columns
+    cli_width = helpers_general.get_print_width(full=True)
 
     # Abort when table is empty.
     if _is_empty_table(table, is_df):

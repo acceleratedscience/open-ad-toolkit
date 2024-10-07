@@ -10,7 +10,7 @@ import pandas as pd
 
 # from openad.core.help import help_dict_create
 import requests
-from openad.helpers.output import output_error, output_success, output_text, output_warning
+from openad.helpers.output import output_error, output_text, output_warning
 from openad.helpers.spinner import Spinner
 from openad.openad_model_plugin.catalog_model_services import get_service_requester, help_dict_create
 from openad.openad_model_plugin.auth_services import get_service_api_key
@@ -40,7 +40,7 @@ from pyparsing import (  # replaceWith,; Combine,; pyparsing_test,; ParseExcepti
     oneOf,
 )
 
-# from openad.molecules.mol_functions import MOL_PROPERTIES as m_props
+# from openad.smols.mol_functions import MOL_PROPERTIES as m_props
 # from openad.helpers.general import is_notebook_mode
 
 
@@ -85,7 +85,6 @@ from pyparsing import (  # replaceWith,; Combine,; pyparsing_test,; ParseExcepti
     load,
     results,
     export,
-    create,
     rename,
     merge,
     pubchem,
@@ -99,7 +98,7 @@ from pyparsing import (  # replaceWith,; Combine,; pyparsing_test,; ParseExcepti
     CaselessKeyword,
     "get list description using create set unset workspace workspaces context jobs exec\
           as optimize with toolkits toolkit gpu experiment add run save runs show \
-              file display history data remove result from inchi inchikey smiles formula name last load results export create rename merge pubchem sources basic force append only upsert".split(),
+              file display history data remove result from inchi inchikey smiles formula name last load results export rename merge pubchem sources basic force append only upsert".split(),
 )
 name_expr = Word(alphanums + "_" + ".")
 key_val_expr = Word(alphanums + "_" + ".")
@@ -239,7 +238,7 @@ generation_targets = {
 
 service_command_help[
     "get_molecule_property"
-] = "get molecule property <property> FOR @mols | [<list of SMILES>] | <SMILES>   USING (<parameter>=<value> <parameter>=<value>) (merge with mols|molecules)"
+] = "get molecule property <property> FOR @mols | [<list of SMILES>] | <SMILES>   USING (<parameter>=<value> <parameter>=<value>) (merge with molecules|mols)"
 service_command_help[
     "get_crystal_property"
 ] = "get crystal property <property> FOR <directory> USING (<parameter>=<value> <parameter>=<value>)"
@@ -680,7 +679,7 @@ def subject_files_repository(file_directory, suffix):
 def mol_list_gen(cmd_pointer):
     mol_list = []
     for molecule in cmd_pointer.molecule_list:
-        mol_list.append(molecule["properties"]["canonical_smiles"])
+        mol_list.append(molecule["identifiers"]["canonical_smiles"])
     return mol_list
 
 
@@ -838,7 +837,7 @@ def openad_model_requestor(cmd_pointer, parser):
                     index=False,
                 )
             if "merge_with_mws" in parser.as_dict():
-                merge_molecule_property_data(cmd_pointer=cmd_pointer, mol_dataframe=result)
+                merge_molecule_property_data(cmd_pointer=cmd_pointer, dataframe=result)
             return result
 
         except:

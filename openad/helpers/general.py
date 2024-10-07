@@ -1,9 +1,11 @@
 import os
 import re
 import sys
-import json
+import time
+import shutil
 import getpass
 import readline
+from datetime import datetime
 from IPython.display import clear_output
 from openad.helpers.output import output_text, output_error
 from openad.helpers.output_msgs import msg
@@ -26,9 +28,9 @@ def refresh_prompt(settings):
 def is_notebook_mode():
     """Return True if we are running inside a Jupyter Notebook or Jupyter Lab."""
     try:
-        get_ipython()  # pylint disable=undefined-variable
+        get_ipython()  # pylint: disable=undefined-variable
         return True
-    except BaseException:  # pylint disable=broad-exception-caught
+    except Exception:  # pylint: disable=broad-exception-caught
         return False
 
 
@@ -80,7 +82,7 @@ def confirm_prompt(question: str = "", default=False) -> bool:
     reply = None
     while reply not in ("y", "n"):
         try:
-            output_text(f"<yellow>{question}</yellow>", pad_top=1, return_val=False)
+            output_text(f"<yellow>{question}</yellow>", return_val=False)
             reply = input("(y/n): ").casefold()
             readline.remove_history_item(readline.get_current_history_length() - 1)
         except KeyboardInterrupt:
@@ -97,7 +99,7 @@ def other_sessions_exist(cmd_pointer):
     file_list = os.listdir(os.path.dirname(_meta_registry_session))
     try:
         file_list.remove("registry.pkl" + cmd_pointer.session_id)
-    except BaseException:
+    except Exception:  # pylint: disable=broad-exception-caught
         pass
 
     if len(file_list) > 0:
@@ -221,7 +223,7 @@ def load_module_from_path(module_name, file_path):
         sys.modules[module_name] = module
         spec.loader.exec_module(module)
         return module
-    except BaseException as err:
+    except Exception as err:
         # Silent fail - only enable this for debugging
         # output_error(f"load_module_from_path('{module_name}', {file_path})\n<soft>{err}</soft>")
         return None
@@ -232,9 +234,7 @@ def print_separator(style=None, width=None, return_val=False):
     from openad.app.global_var_lib import GLOBAL_SETTINGS
 
     if GLOBAL_SETTINGS["display"] == "terminal" or GLOBAL_SETTINGS["display"] == None:
-        import shutil
-
-        cli_width = shutil.get_terminal_size().columns
+        cli_width = get_print_width(full=True)
         width = cli_width if not width or cli_width < width else width
         if style:
             return output_text(f"<{style}>{'-' * width}</{style}>", nowrap=True, return_val=return_val)
@@ -262,6 +262,74 @@ def encode_uri_component(string):
     from urllib.parse import quote
 
     return quote(string.encode("utf-8"), safe="~()*!.'")
+
+
+# Prettify a timestamp
+def pretty_date(timestamp=None, style="log"):
+    # If no timestamp provided, use the current time
+    if not timestamp:
+        timestamp = time.time()
+
+    # Choose the output format
+    fmt = None
+    if style == "log":
+        fmt = "%d-%m-%Y, %H:%M:%S"  # 07-01-2024, 15:12:45
+    elif style == "pretty":
+        fmt = "%b %d, %Y at %H:%M"  # Jan 7, 2024 at 15:12
+    else:
+        output_error("Invalid style for pretty_date()")
+
+    # Parse date/time string
+    date_time = datetime.fromtimestamp(timestamp)
+    return date_time.strftime(fmt)
+
+
+# Check if a variable (string or number) is numeric.
+def is_numeric(str_or_nr):
+    try:
+        float(str_or_nr)
+        return True
+    except ValueError:
+        return False
+
+
+# Merge two lists of dictionaries while avoiding duplicates.
+def merge_dict_lists(list1, list2):
+    # Convert dictionaries to tuples of sorted items
+    list1_tuples = [tuple(sorted(d.items())) for d in list1]
+    list2_tuples = [tuple(sorted(d.items())) for d in list2]
+
+    # Perform set operations to merge the lists while avoiding duplicates
+    merged_tuples = list1_tuples + list(set(list2_tuples) - set(list1_tuples))
+
+    # Convert the tuples back to dictionaries
+    merged_list = [dict(t) for t in merged_tuples]
+
+    return merged_list
+
+
+# Get the available print width of the terminal.
+def get_print_width(full=False):
+    from openad.app.global_var_lib import GLOBAL_SETTINGS
+
+    # Note: "api" can be removed after display() is removed from the %openadd magic command.
+
+    # Notebook - fixed value
+    if GLOBAL_SETTINGS["display"] == "notebook" or GLOBAL_SETTINGS["display"] == "api":
+        return 120
+    else:
+        try:
+            # Terminal full width
+            if full:
+                return shutil.get_terminal_size().columns
+
+            # Terminal regular print width
+            else:
+                # We return the terminal width -10 so there's always room for
+                # output with edge (5 chars) and some padding on the right.
+                return min(shutil.get_terminal_size().columns - 10, GLOBAL_SETTINGS["max_print_width"])
+        except Exception:  # pylint: disable=broad-exception-caught
+            return GLOBAL_SETTINGS["max_print_width"]
 
 
 #

@@ -1,19 +1,23 @@
 """
-This file holds all functions that translate between different molecule and molecule set formats.
+Functions to translate between different molecule and molecule set formats.
 """
 
-import copy
+import ast
 import json
 import pandas as pd
-from rdkit import Chem
+from rdkit import Chem, RDLogger
 
 from openad.helpers.files import open_file
 from openad.helpers.output import output_error
-from openad.smols.smol_functions import (
-    new_molecule,
-    molformat_v2,
-    get_best_available_smiles,
-)
+import openad.smols.smol_functions as smol_functions
+
+# Suppress RDKit errors
+RDLogger.DisableLog("rdApp.error")
+RDLogger.DisableLog("rdApp.warning")
+
+
+#
+#
 
 
 def smol2svg(inchi_or_smiles, highlight=None):
@@ -88,7 +92,7 @@ def smol2mdl(smol=None, inchi_or_smiles=None, path=None):
     Chem.rdDistGeom.EmbedMolecule(mol_rdkit)  # pylint: disable=no-member
 
     # Generate MDL data.
-    mol_mdl = Chem.MolToMolBlock(mol_rdkit)
+    mol_mdl = Chem.MolToMolBlock(mol_rdkit)  # pylint: disable=no-member
 
     # Write to disk
     if path:
@@ -105,7 +109,7 @@ def smol2mdl(smol=None, inchi_or_smiles=None, path=None):
         #     print(">", key, props[key])
 
         # Write mdl to disk.
-        with Chem.SDWriter(path) as writer:
+        with Chem.SDWriter(path) as writer:  # pylint: disable=no-member
             writer.write(mol_rdkit)
 
     # Return data
@@ -207,22 +211,29 @@ def dataframe2molset(df):
     elif "smiles" in cols_lowercase:
         identifier_index = cols_lowercase.index("smiles")
         identifier = df.columns[identifier_index]
+    elif "canonical_smiles" in cols_lowercase:
+        identifier_index = cols_lowercase.index("canonical_smiles")
+        identifier = df.columns[identifier_index]
+    elif "isomeric_smiles" in cols_lowercase:
+        identifier_index = cols_lowercase.index("isomeric_smiles")
+        identifier = df.columns[identifier_index]
     else:
         return None
 
     # Convert the molecules to SDF format
     molset = []
     for i, row in df.iterrows():
-        mol_dict = new_molecule(row[identifier])
+        # Get name field regardless of case.
+        name = next((value for key, value in row.items() if key.lower() == "name"), None)
+
+        # Create molecule
+        mol_dict = smol_functions.new_smol(row[identifier], name=name)
 
         if mol_dict is not None:
             # Add all other dataframe columns as properties to the SDF data,
             # unless they're other identifiers, in which case they will be ignored. %%
             for col in df.columns:
                 mol_dict["properties"][col] = str(row[col])
-
-            # Separate identifiers
-            mol_dict = molformat_v2(mol_dict)
 
             # Add index
             mol_dict["index"] = i + 1
@@ -232,7 +243,7 @@ def dataframe2molset(df):
     return molset
 
 
-def molset2dataframe(molset, remove_invalid_mols=False):
+def molset2dataframe(molset, remove_invalid_mols=False, include_romol=False):
     """
     Takes a molset dictionary and returns an Pandas dataframe.
 
@@ -247,17 +258,20 @@ def molset2dataframe(molset, remove_invalid_mols=False):
         display the list of molecules that will be removed if the user
         chooses to proceed. After confirming, the function will run again
         with remove_invalid_molsset to True.
+    include_romol: bool
+        If set to True, the RDKit molecule object will be included in the
+        dataframe. We need it to transform the dataframe to an SDF of MDL file.
     """
 
     # Flatten the molset into a list of dictionaries.
     data = []
     invalid = []
-    for i, mol in enumerate(molset):
+    for i, smol in enumerate(molset):
         # Create RDKit molecule object (ROMol)
-        if mol["identifiers"].get("inchi"):
-            mol_rdkit = Chem.MolFromInchi(mol["identifiers"]["inchi"])
+        if smol["identifiers"].get("inchi"):
+            mol_rdkit = Chem.MolFromInchi(smol["identifiers"]["inchi"])
         else:
-            smiles = get_best_available_smiles(mol)
+            smiles = smol_functions.get_best_available_smiles(smol)
             if smiles:
                 mol_rdkit = Chem.MolFromSmiles(smiles)  # pylint: disable=no-member
 
@@ -268,19 +282,26 @@ def molset2dataframe(molset, remove_invalid_mols=False):
             continue
 
         # Add ROMol the row.
-        row = {"ROMol": mol_rdkit}
+        if include_romol:
+            row = {"ROMol": mol_rdkit}
+        else:
+            row = {}
 
-        # Add all other properties to the row.
-        for key in mol["identifiers"]:
-            if mol["identifiers"][key]:
-                row[key] = mol["identifiers"][key]
-        for key in mol["properties"]:
-            if mol["properties"][key] is None:  # To avoid None values to be stored as "None" string
+        # Add identifiers to the row.
+        for key in smol["identifiers"]:
+            if smol["identifiers"][key]:
+                row[key] = smol["identifiers"][key]
+
+        # Add properties to the row.
+        for key in smol["properties"]:
+            if smol["properties"][key] is None:  # To avoid None values to be stored as "None" string
                 row[key] = ""
             else:
-                row[key] = mol["properties"][key]
-        if mol["synonyms"] and len(mol["synonyms"]) > 0:
-            row["synonyms"] = "\n".join(mol["synonyms"])
+                row[key] = smol["properties"][key]
+
+        # Add synonyms to the row.
+        if smol["synonyms"] and len(smol["synonyms"]) > 0:
+            row["synonyms"] = "\n".join(smol["synonyms"])
         data.append(row)
 
     # Return list of failures unless user has
@@ -290,7 +311,9 @@ def molset2dataframe(molset, remove_invalid_mols=False):
         raise ValueError(f"Failed to parse {len(invalid)} molecules", invalid_mols)
 
     # Turn data into dataframe
-    return pd.DataFrame(data)
+    df = pd.DataFrame(data)
+    df = df.fillna("")  # Replace NaN with empty string
+    return df
 
 
 def write_dataframe2sdf(df, destination_path):
@@ -356,10 +379,8 @@ def smiles_path2molset(path_absolute):
     smiles_list = [smiles.split(" ")[0] for smiles in smiles_list if smiles]
     molset = []
     for i, smiles in enumerate(smiles_list):
-        mol = new_molecule(smiles)
-        if mol:
-            mol = molformat_v2(mol)
-        else:
+        mol = smol_functions.new_smol(smiles)
+        if not mol:
             mol = {
                 "identifiers": {"canonical_smiles": smiles},
                 "properties": {},
@@ -377,8 +398,6 @@ def sdf_path2molset(sdf_path):
 
     Used to open SDF files.
     """
-    from openad.smols.smol_functions import OPENAD_SMOL_DICT
-    import ast
 
     # This lets us parse all the properties back to their original types,
     # since SDF stores them all as string. However this is can cause
@@ -387,24 +406,37 @@ def sdf_path2molset(sdf_path):
     # gets converted into a number, which then becomes "Infinite" after parsing.
     def _try_parse_json(value):
         try:
-            print("-->", json.loads(value))
             return json.loads(value)
         except json.JSONDecodeError:
             try:
-                print(">>>", ast.literal_eval(value))
                 return ast.literal_eval(value)
             except (ValueError, SyntaxError):
-                print("xxx", value)
                 return value
 
     try:
         mols_rdkit = Chem.SDMolSupplier(sdf_path)  # pylint: disable=no-member
         molset = []
         for i, mol_rdkit in enumerate(mols_rdkit):
-            mol_dict = new_molecule(mol_rdkit=mol_rdkit)
-            mol_dict = molformat_v2(mol_dict)
+            mol_dict = smol_functions.new_smol(mol_rdkit=mol_rdkit)
             mol_dict["index"] = i + 1
             molset.append(mol_dict)
+        return molset, None
+    except Exception as err:
+        return None, err
+
+
+def csv_path2molset(csv_path):
+    """
+    Takes the content of a .csv file and returns a molset dictionary.
+
+    Used to open CSV files.
+    """
+
+    # Read CSV data
+    try:
+        df = pd.read_csv(csv_path)
+        # Convert to molset
+        molset = dataframe2molset(df)
         return molset, None
     except Exception as err:
         return None, err
@@ -418,13 +450,12 @@ def mdl_path2smol(mdl_path):
     """
 
     # Read MDL data
-    supplier = Chem.SDMolSupplier(mdl_path)
+    supplier = Chem.SDMolSupplier(mdl_path)  # pylint: disable=no-member
     mol_rdkit = next(supplier)
 
     if mol_rdkit is None:
         return None, "unknown"
 
     # Translate into OpenAD smol dict
-    mol_dict = new_molecule(mol_rdkit=mol_rdkit)
-    mol_dict = molformat_v2(mol_dict)
+    mol_dict = smol_functions.new_smol(mol_rdkit=mol_rdkit)
     return mol_dict, None

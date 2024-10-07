@@ -34,7 +34,7 @@ To do:
 
 import sys
 import re
-import textwrap
+import shutil
 from collections import deque
 
 # Style tags.
@@ -137,15 +137,13 @@ def style(
     """
     if width is None:
         try:
-            import shutil
-
-            columns, rows = shutil.get_terminal_size()
+            columns = shutil.get_terminal_size().columns
             width = min(columns - 5, 150)
             if tabs:
                 width = width - (tabs * 4)
             elif edge:
                 width = width - 5
-        except BaseException:
+        except Exception:  # pylint: disable=broad-except
             width = 60
 
     if text is None:

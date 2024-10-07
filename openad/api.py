@@ -66,6 +66,8 @@ class OpenadAPI:
     def help_dump(self):
         """dumps the help text in markup"""
 
+        # return render_commands_csv()
+
         output_text("<h1>Generating <yellow>commands.md</yellow> from help</h1>", pad_top=4)
 
         output = []  # Markdown

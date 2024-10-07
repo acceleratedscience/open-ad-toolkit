@@ -6,7 +6,7 @@ from openad.helpers.output import output_table
 from openad.app.global_var_lib import MEMORY
 from openad.smols.smol_functions import (
     df_has_molecules,
-    molformat_v2_to_v1,
+    flatten_smol,
     create_molset_cache_file,
     assemble_cache_path,
     read_molset_from_cache,
@@ -85,7 +85,7 @@ class ResultApi:
             return err_code, 500
 
         # Flatten the mol dictionaries.
-        molset = [molformat_v2_to_v1(mol) for mol in molset]
+        molset = [flatten_smol(mol) for mol in molset]
 
         # Store the columns of the current result table,
         # so we can recreate them when overwriting the result.
@@ -97,7 +97,7 @@ class ResultApi:
         for mol in molset:
             row = {}
             for i, col in enumerate(columns):
-                row[col] = mol["properties"].get(col)
+                row[col] = mol.get(col)
             table.append(row)
 
         # Write data back to memory as a dataframe.

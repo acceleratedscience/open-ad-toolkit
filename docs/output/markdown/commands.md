@@ -16,29 +16,29 @@ https://github.com/acceleratedscience/open-ad-toolkit/tree/main/docs
 
 ### Table of Contents
 
-- [OpenAD](#openad)
-  - [General](#general)
-  - [Workspaces](#workspaces)
-  - [Molecules Working Set](#molecules-working-set)
-  - [Molecules](#molecules)
-  - [Molecule-sets](#molecule-sets)
-  - [Utility](#utility)
-  - [Toolkits](#toolkits)
-  - [Runs](#runs)
-  - [GUI](#gui)
-  - [LLM](#llm)
-  - [File System](#file-system)
-  - [Help](#help)
-  - [Model](#model)
-- [DS4SD](#ds4sd)
-  - [Search Molecules](#search-molecules)
-  - [Search Collections](#search-collections)
-  - [Collections](#collections)
-- [RXN](#rxn)
-  - [General](#general-1)
-  - [Retrosynthesis](#retrosynthesis)
-  - [Prediction](#prediction)
-- [ST4SD](#st4sd)
+-   [OpenAD](#openad)
+    -   [General](#general)
+    -   [Workspaces](#workspaces)
+    -   [Molecules Working Set](#molecules-working-set)
+    -   [Molecules](#molecules)
+    -   [Molecule-sets](#molecule-sets)
+    -   [Utility](#utility)
+    -   [Toolkits](#toolkits)
+    -   [Runs](#runs)
+    -   [GUI](#gui)
+    -   [LLM](#llm)
+    -   [File System](#file-system)
+    -   [Help](#help)
+    -   [Model](#model)
+-   [DS4SD](#ds4sd)
+    -   [Search Molecules](#search-molecules)
+    -   [Search Collections](#search-collections)
+    -   [Collections](#collections)
+-   [RXN](#rxn)
+    -   [General](#general-1)
+    -   [Retrosynthesis](#retrosynthesis)
+    -   [Prediction](#prediction)
+-   [ST4SD](#st4sd)
 
 ## OpenAD
 
@@ -830,7 +830,7 @@ Optional Parameters that can be specified in the `using` clause: <br>
 -   `availability_pricing_threshold=<int>` Maximum price in USD per g/ml of compounds. Default: no threshold. <br>
 -   `available_smiles='<smiles>.<smiles>.<smiles>'` List of molecules available as precursors, delimited with a period. <br>
 -   `exclude_smiles='<smiles>.<smiles>.<smiles>'` List of molecules to exlude from the set of precursors, delimited with a period. <br>
--   `exclude_substructures='<smiles>.<smiles>.<smiles>'` List of substructures to exclude from the set of precursors, delimited with a period. <br>
+-   `exclude_substructures='<smiles>.<smiles>.<smiles>'` List of substructures to excludefrom the set of precursors, delimited with a period. <br>
 -   `exclude_target_molecule=<boolean>` Excluded target molecule. The default is True <br>
 -   `fap=<float>` Every retrosynthetic step is evaluated with the FAP, and is only retained when forward confidence is greater than the FAP value. The default is 0.6. <br>
 -   `max_steps=<int>` The maximum number steps in the results. The default is 3. <br>

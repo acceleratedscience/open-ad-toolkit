@@ -6,24 +6,20 @@ import os
 import json
 import shutil
 from urllib.parse import unquote
-from rdkit import Chem
 from flask import Response, request
 
 from openad.smols.smol_functions import (
-    retrieve_mol,
-    df_has_molecules,
-    molformat_v2,
-    molformat_v2_to_v1,
+    get_smol_from_pubchem,
     create_molset_cache_file,
     assemble_cache_path,
     read_molset_from_cache,
-    mol_from_identifier,
-    mymols_add,
-    mymols_remove,
-    retrieve_mol_from_list,
+    find_smol,
+    mws_add,
+    mws_remove,
+    get_smol_from_mws,
     get_best_available_identifier,
     get_best_available_smiles,
-    merge_mols,
+    merge_smols,
 )
 from openad.smols.smol_transformers import (
     smol2svg,
@@ -31,15 +27,15 @@ from openad.smols.smol_transformers import (
     molset2dataframe,
     write_dataframe2sdf,
     write_dataframe2csv,
-    dataframe2molset,
 )
 
+# Macromolecule functions
 from openad.mmols.mmol_functions import mmol_from_identifier
 from openad.mmols.mmol_transformers import mmol2pdb, mmol2cif, cif2mmol
 
-
+# Helpers
 from openad.helpers.files import open_file
-from openad.helpers.output import output_error, output_table
+from openad.helpers.output import output_error
 from openad.helpers.json_decimal_encoder import DecimalEncoder
 
 
@@ -70,20 +66,17 @@ class MoleculesApi:
             response.status = "No identifier provided."
             return response
 
-        mol = retrieve_mol_from_list(self.cmd_pointer, identifier)
-        if mol is None:
-            mol = retrieve_mol(identifier)
+        smol = find_smol(self.cmd_pointer, identifier)
 
         # Fail
-        if not mol:
+        if not smol:
             response = Response(None, status=500)
             response.status = f"No small molecule found with provided identifier '{identifier}'"
             return response
 
         # Success
         else:
-            mol = molformat_v2(mol)
-            return mol, 200
+            return smol, 200
 
     def get_smol_viz_data(self):
         """
@@ -97,9 +90,15 @@ class MoleculesApi:
         if not inchi_or_smiles:
             output_error("get_mol_viz_data() -> Missing inchi_or_smiles")
             return "Missing inchi_or_smiles", 500
+        try:
+            svg = smol2svg(inchi_or_smiles=inchi_or_smiles)
+            mdl = smol2mdl(inchi_or_smiles=inchi_or_smiles)
 
-        svg = smol2svg(inchi_or_smiles=inchi_or_smiles)
-        mdl = smol2mdl(inchi_or_smiles=inchi_or_smiles)
+        # When the identifier is not a smiles or inchi
+        except Exception:  # pylint: disable=broad-except
+            return {
+                "error": f"Failed to generate visualisation data from '{inchi_or_smiles}'. Should be inchi or smiles."
+            }, 400
 
         if not svg and not mdl:
             output_error("get_mol_viz_data() -> Failed to generate SVG/MDL from '{inchi_or_smiles}'.")
@@ -129,89 +128,79 @@ class MoleculesApi:
 
     ##
 
-    def add_mol_to_list(self):
+    def add_mol_to_mws(self):
         """
-        Add a molecule from the my-mols working set.
+        Add a molecule to the molecule working set.
 
         Takes either an identifier or a mol object.
         Identifier is slow because the molecule data has to be loaded from PubChem.
         """
 
         data = json.loads(request.data) if request.data else {}
-        openad_mol_v2 = data["mol"] if "mol" in data else ""
-
-        # Translate molecule dict.
-        openad_mol = molformat_v2_to_v1(openad_mol_v2)
+        smol = data["mol"] if "mol" in data else ""
 
         # Get best available identifier.
-        _, identifier = get_best_available_identifier(openad_mol)
+        _, identifier = get_best_available_identifier(smol)
 
-        # Enrich molecule withg RDKit data.
-        openad_mol_enriched = mol_from_identifier(self.cmd_pointer, identifier, basic=True)
-        if openad_mol_enriched:
-            openad_mol = merge_mols(openad_mol, openad_mol_enriched)
+        # Enrich molecule with PubChem data.
+        smol_enriched = find_smol(self.cmd_pointer, identifier, basic=True)
+        if smol_enriched:
+            smol = merge_smols(smol, smol_enriched)
 
         # Add it to the working set.
-        success = mymols_add(self.cmd_pointer, openad_mol, force=True)
+        success = mws_add(self.cmd_pointer, smol, force=True)
 
         return {"status": success}, 200
 
-    def remove_mol_from_list(self):
+    def remove_mol_from_mws(self):
         """
-        Remove a molecule from the my-mols working set.
+        Remove a molecule from your molecule working set.
 
         Takes either an identifier or a mol object.
         Identifier is slow because the molecule data has to be loaded from PubChem.
         """
 
         data = json.loads(request.data) if request.data else {}
-        openad_mol_v2 = data["mol"] if "mol" in data else ""
-
-        # Translate molecule dict.
-        openad_mol = molformat_v2_to_v1(openad_mol_v2)
+        smol = data["mol"] if "mol" in data else ""
 
         # Remove it from the working set.
-        success = mymols_remove(self.cmd_pointer, openad_mol, force=True)
+        success = mws_remove(self.cmd_pointer, smol, force=True)
 
         return {"status": success}, 200
 
-    def check_mol_in_list(self):
+    def check_mol_in_mws(self):
         """
-        Check if a molecule is stored in the my-mols working set.
+        Check if a molecule is stored in your molecule working set.
         """
 
         data = json.loads(request.data) if request.data else {}
-        openad_mol_v2 = data["mol"] if "mol" in data else ""
-
-        # Translate molecule dict.
-        openad_mol = molformat_v2_to_v1(openad_mol_v2)
+        smol = data["mol"] if "mol" in data else ""
 
         # Get best available identifier.
-        _, identifier = get_best_available_identifier(openad_mol)
+        _, identifier = get_best_available_identifier(smol)
 
         # Check if it's in the working set.
-        success = bool(retrieve_mol_from_list(self.cmd_pointer, identifier))
+        success = bool(get_smol_from_mws(self.cmd_pointer, identifier))
 
         return {"status": success}, 200
 
     def enrich_smol(self):
         """
-        Enrich a molecule with RDKit data.
+        Enrich a molecule with PubChem data.
         """
 
         data = json.loads(request.data) if request.data else {}
-        openad_mol_v2 = data["smol"] if "smol" in data else ""
+        smol = data["smol"] if "smol" in data else ""
 
         # Get best available identifier.
-        _, identifier = get_best_available_identifier(openad_mol_v2)
+        _, identifier = get_best_available_identifier(smol)
 
-        # Enrich molecule withg RDKit data.
-        openad_mol_enriched = mol_from_identifier(self.cmd_pointer, identifier, basic=False)
-        if openad_mol_enriched:
-            openad_mol_enriched_v2 = molformat_v2(openad_mol_enriched)
-            openad_mol_v2 = merge_mols(openad_mol_v2, openad_mol_enriched_v2)
+        # Enrich molecule withg PubChem data.
+        smol_enriched = get_smol_from_pubchem(identifier)
+        if smol_enriched:
+            smol = merge_smols(smol, smol_enriched)
 
-        return openad_mol_v2, 200
+        return smol, 200
 
     ##
 
@@ -348,7 +337,7 @@ class MoleculesApi:
 
             # Save as .sdf file.
             elif format_as == "sdf":
-                df = molset2dataframe([smol])
+                df = molset2dataframe([smol], include_romol=True)
                 write_dataframe2sdf(df, file_path)
 
             # Save as .csv file.
@@ -421,9 +410,9 @@ class MoleculesApi:
         # Formulate response object.
         return create_molset_response(molset, query, cache_id), 200
 
-    def get_molset_list(self):
+    def get_molset_mws(self):
         """
-        Get the list of molecules currently stored in the cmd_pointer.
+        Get the list of molecules currently stored in the molecule working set.
         """
 
         data = json.loads(request.data) if request.data else {}
@@ -432,10 +421,9 @@ class MoleculesApi:
         if len(self.cmd_pointer.molecule_list) > 0:
             # Compile molset.
             molset = []
-            for i, mol in enumerate(self.cmd_pointer.molecule_list):
-                mol_dict = molformat_v2(mol)
-                mol_dict["index"] = i + 1
-                molset.append(mol_dict)
+            for i, smol in enumerate(self.cmd_pointer.molecule_list):
+                smol["index"] = i + 1
+                molset.append(smol)
 
             # Create cache working copy.
             cache_id = create_molset_cache_file(self.cmd_pointer, molset)
@@ -514,9 +502,9 @@ class MoleculesApi:
         """
         return self._save_molset(new_file=False)
 
-    def update_molset_list(self):
+    def update_molset_mws(self):
         """
-        Save changes to the molecule list.
+        Save changes to the molecule working set.
         """
         return self._save_molset(format_as="my-mols")
 
@@ -608,7 +596,7 @@ class MoleculesApi:
             # Save as SDF file.
             if format_as == "sdf":
                 try:
-                    df = molset2dataframe(molset, remove_invalid_mols)
+                    df = molset2dataframe(molset, remove_invalid_mols, include_romol=True)
                     write_dataframe2sdf(df, file_path)
                 except ValueError as err:
                     return {
@@ -662,8 +650,7 @@ class MoleculesApi:
                 molecule_list = []
                 for mol in molset:
                     try:
-                        mol_dict = molformat_v2_to_v1(mol)
-                        molecule_list.append(mol_dict)
+                        molecule_list.append(mol)
                     except Exception as fails:  # pylint: disable=broad-except
                         print(f"Error converting molecule format: {fails}", mol)
 
