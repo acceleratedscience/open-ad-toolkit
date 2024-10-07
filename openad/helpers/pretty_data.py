@@ -1,12 +1,12 @@
 "Pretty print data in columns."
 
 import math
-from openad.app.global_var_lib import GLOBAL_SETTINGS
+from openad.helpers.general import get_print_width
 
 
 def list_columns(
     values: list,
-    print_width: int = GLOBAL_SETTINGS["print_width"] - 10,
+    print_width: int = None,
     col_width: int = 40,
     is_truncated: list = False,
     indent: int = 0,
@@ -15,10 +15,11 @@ def list_columns(
     Display a list of values in columns.
     """
 
+    if not print_width:
+        print_width = get_print_width()
     print_width = print_width - indent
     output = ""
     line_nr = 0
-    print("##", print_width)
 
     # Remove blank values
     values = [f"{value}" for value in values if value]
@@ -54,7 +55,7 @@ def list_columns(
 
 def key_val_columns(
     items_dict: dict,
-    print_width: int = GLOBAL_SETTINGS["print_width"] - 10,
+    print_width: int = None,
     col_width: int = 40,
     ignore_keys: list = None,
     indent: int = 0,
@@ -63,9 +64,10 @@ def key_val_columns(
     Display a dictionary's keys + values in columns.
     """
 
+    if not print_width:
+        print_width = get_print_width()
     print_width = print_width - indent
     output = ""
-    line_nr = 0
     gap = 4
 
     # The number of columns
@@ -156,13 +158,16 @@ def _transpose_table(table):
 
 def key_val_full(
     items_dict: dict,
-    print_width: int = GLOBAL_SETTINGS["print_width"] - 10,
+    print_width: int = None,
     ignore_keys: list = None,
     indent: int = 0,
 ):
     """
     Display a dictionary's keys + values covering the full width.
     """
+
+    if not print_width:
+        print_width = get_print_width()
 
     items = []
     for key, val in items_dict.items():

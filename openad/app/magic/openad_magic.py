@@ -50,7 +50,6 @@ class AD(Magics):
         """Invokes the Magic command interface for OpenAD"""
         api_variable = {}
         GLOBAL_SETTINGS["display"] = "notebook"
-        GLOBAL_SETTINGS["print_width"] = 120
         line_list = line.split()
         x = len(line_list)
         i = 1
@@ -81,7 +80,6 @@ class AD(Magics):
         """Invokes the Magic command interface for OpenAD and ensure dataFrame Data is of type data"""
         api_variable = {}
         GLOBAL_SETTINGS["display"] = "api"
-        GLOBAL_SETTINGS["print_width"] = 120
         line_list = line.split()
         x = len(line_list)
         i = 1

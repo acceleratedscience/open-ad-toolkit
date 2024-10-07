@@ -2,6 +2,7 @@ import os
 import re
 import sys
 import time
+import shutil
 import getpass
 import readline
 from datetime import datetime
@@ -233,9 +234,7 @@ def print_separator(style=None, width=None, return_val=False):
     from openad.app.global_var_lib import GLOBAL_SETTINGS
 
     if GLOBAL_SETTINGS["display"] == "terminal" or GLOBAL_SETTINGS["display"] == None:
-        import shutil
-
-        cli_width = shutil.get_terminal_size().columns
+        cli_width = get_print_width(full=True)
         width = cli_width if not width or cli_width < width else width
         if style:
             return output_text(f"<{style}>{'-' * width}</{style}>", nowrap=True, return_val=return_val)
@@ -307,6 +306,25 @@ def merge_dict_lists(list1, list2):
     merged_list = [dict(t) for t in merged_tuples]
 
     return merged_list
+
+
+# Get the available print width of the terminal.
+def get_print_width(full=False):
+    from openad.app.global_var_lib import GLOBAL_SETTINGS
+
+    # Note: "api" can be removed after display() is removed from the %openadd magic command.
+
+    # Notebook - fixed value
+    if GLOBAL_SETTINGS["display"] == "notebook" or GLOBAL_SETTINGS["display"] == "api":
+        return 120
+
+    # Terminal full width
+    elif full:
+        return shutil.get_terminal_size().columns
+
+    # Terminal regular print width
+    else:
+        return min(shutil.get_terminal_size().columns, GLOBAL_SETTINGS["max_print_width"])
 
 
 #
