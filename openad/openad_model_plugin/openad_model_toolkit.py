@@ -5,12 +5,14 @@
 import glob
 import json
 import os
-
+import shutil, re
+import openad.helpers.general as helpers_general
 import pandas as pd
 
 # from openad.core.help import help_dict_create
 import requests
-from openad.helpers.output import output_error, output_text, output_warning
+
+from openad.helpers.output import output_error, output_success, output_text, output_warning
 from openad.helpers.spinner import Spinner
 from openad.openad_model_plugin.catalog_model_services import get_service_requester, help_dict_create
 from openad.openad_model_plugin.auth_services import get_service_api_key
@@ -40,7 +42,7 @@ from pyparsing import (  # replaceWith,; Combine,; pyparsing_test,; ParseExcepti
     oneOf,
 )
 
-# from openad.smols.mol_functions import MOL_PROPERTIES as m_props
+# from openad.molecules.mol_functions import MOL_PROPERTIES as m_props
 # from openad.helpers.general import is_notebook_mode
 
 
@@ -85,6 +87,7 @@ from pyparsing import (  # replaceWith,; Combine,; pyparsing_test,; ParseExcepti
     load,
     results,
     export,
+    create,
     rename,
     merge,
     pubchem,
@@ -98,7 +101,7 @@ from pyparsing import (  # replaceWith,; Combine,; pyparsing_test,; ParseExcepti
     CaselessKeyword,
     "get list description using create set unset workspace workspaces context jobs exec\
           as optimize with toolkits toolkit gpu experiment add run save runs show \
-              file display history data remove result from inchi inchikey smiles formula name last load results export rename merge pubchem sources basic force append only upsert".split(),
+              file display history data remove result from inchi inchikey smiles formula name last load results export create rename merge pubchem sources basic force append only upsert".split(),
 )
 name_expr = Word(alphanums + "_" + ".")
 key_val_expr = Word(alphanums + "_" + ".")
@@ -155,7 +158,7 @@ molecule_identifier = (
     Word("'")
 )
 
-
+CLI_WIDTH = helpers_general.get_print_width(full=True)
 desc = QuotedString("'", escQuote="\\")
 input_object = QuotedString('"', end_quote_char='"', escQuote="\\")
 
@@ -181,25 +184,25 @@ service_command_start["get_crystal_property"] = 'get + CaselessKeyword("crystal"
 service_command_start["get_protein_property"] = 'get + CaselessKeyword("protein") + CaselessKeyword("property")'
 service_command_start["generate_data"] = 'CaselessKeyword("generate") + CaselessKeyword("with")'
 
-service_command_merge[
-    "get_molecule_property"
-] = '+ Optional((CaselessKeyword("merge with mols")|CaselessKeyword("merge with molecules"))("merge_with_mws"))'
+service_command_merge["get_molecule_property"] = (
+    '+ Optional((CaselessKeyword("merge with mols")|CaselessKeyword("merge with molecules"))("merge_with_mws"))'
+)
 service_command_merge["get_crystal_property"] = ""
 service_command_merge["get_protein_property"] = ""
 service_command_merge["generate_data"] = ""
 
-service_command_subject[
-    "get_molecule_property"
-] = '+CaselessKeyword("for")+(mol_list("mol_list")|(Word("[")+delimitedList(molecule_identifier,delim=",")("molecules")+Word("]")|molecule_identifier("molecule")))'
-service_command_subject[
-    "get_protein_property"
-] = '+CaselessKeyword("for")+((Word("[")+ delimitedList(molecule_identifier,delim=",")("proteins")+Word("]")|molecule_identifier("protein")))'
-service_command_subject[
-    "get_crystal_property"
-] = '+CaselessKeyword("for")+((Word("[")+ delimitedList(desc,delim=",")("crystal_files")+Word("]")|desc("crystal_file")("crystal_PATH")))'
-service_command_subject[
-    "generate_data"
-] = '+CaselessKeyword("data")+<TARGET>Optional(CaselessKeyword("Sample")+Word(nums)("sample_size"))'
+service_command_subject["get_molecule_property"] = (
+    '+CaselessKeyword("for")+(mol_list("mol_list")|(Word("[")+delimitedList(molecule_identifier,delim=",")("molecules")+Word("]")|molecule_identifier("molecule")))'
+)
+service_command_subject["get_protein_property"] = (
+    '+CaselessKeyword("for")+((Word("[")+ delimitedList(molecule_identifier,delim=",")("proteins")+Word("]")|molecule_identifier("protein")))'
+)
+service_command_subject["get_crystal_property"] = (
+    '+CaselessKeyword("for")+((Word("[")+ delimitedList(desc,delim=",")("crystal_files")+Word("]")|desc("crystal_file")("crystal_PATH")))'
+)
+service_command_subject["generate_data"] = (
+    '+CaselessKeyword("data")+<TARGET>Optional(CaselessKeyword("Sample")+Word(nums)("sample_size"))'
+)
 
 ###################################################################
 # targets for generate Data
@@ -236,18 +239,18 @@ generation_targets = {
 #         sampling_wrapper={'fraction_to_mask': mask, 'property_goal': {'<esol>': 0.234}}"""
 
 
-service_command_help[
-    "get_molecule_property"
-] = "get molecule property <property> FOR @mols | [<list of SMILES>] | <SMILES>   USING (<parameter>=<value> <parameter>=<value>) (merge with molecules|mols)"
-service_command_help[
-    "get_crystal_property"
-] = "get crystal property <property> FOR <directory> USING (<parameter>=<value> <parameter>=<value>)"
-service_command_help[
-    "get_protein_property"
-] = "get protein property <property> FOR [<list of Proteins>] | <Protein> USING (<parameter>=<value> <parameter>=<value>)"
-service_command_help[
-    "generate_data"
-] = "generate with <property> data <TARGET> (sample <sample_size>) USING (<parameter>=<value> <parameter>=<value>) "
+service_command_help["get_molecule_property"] = (
+    "get molecule property <property> FOR @mols | [<list of SMILES>] | <SMILES>   USING (<parameter>=<value> <parameter>=<value>) (merge with mols|molecules)"
+)
+service_command_help["get_crystal_property"] = (
+    "get crystal property <property> FOR <directory> USING (<parameter>=<value> <parameter>=<value>)"
+)
+service_command_help["get_protein_property"] = (
+    "get protein property <property> FOR [<list of Proteins>] | <Protein> USING (<parameter>=<value> <parameter>=<value>)"
+)
+service_command_help["generate_data"] = (
+    "generate with <property> data <TARGET> (sample <sample_size>) USING (<parameter>=<value> <parameter>=<value>) "
+)
 
 service_command_description[
     "get_molecule_property"
@@ -255,7 +258,7 @@ service_command_description[
 This command gets (generate/predict) a molecules property for one or molecules specified with a SMILES string in the <cmd>FOR</cmd> clause. SMILES can be provided as a single SMILES string or multiple smiles in a comma seperated list in square brackets e.g. <cmd> FOR [CCO, CC(C)CC1=CC=C(C=C1)C(C)C(=O)O ] </cmd>.
 SMILES strings can be specified with or without single quotes, but when in a list smiles with square brackets should be enclosed in single quotes e.g <cmd>[ 'C([H])([H])([H])[H]' ,CCO ]</cmd>
 
-This command gets (generate/predict) the following properties <cmd> <property_list> </cmd>
+This command gets (generate/predict) the following properties:\n<cmd><property_list></cmd>
 
 The clause <cmd>merge with mols </cmd> will merge the resulting molecule properties with the memory molecule working set.
 
@@ -278,7 +281,7 @@ service_command_description[
 This command gets (generate/predict) a proteins property for one or protiens specified with a FASTA string in the <cmd>FOR</cmd> clause.
 FASTA strings can be provided as a single  string or multiple FASTA strings in a comma seperated list in square brackets e.g. <cmd> FOR ['MKYNNRKLSFNPTTVSIAGTLLTVFFLTRLVLSFFSISLFQLVTFQGIFKPYVPDFKNTPSVEFYDLRNYQGNKDGWQQGDRILFCVPLRDASEHLPMFFNHLNTMTYPHNLIDLSFLVSDSSDNTMGVLLSNLQMAQSQQDKSKRFGNIEIYEKDFGQIIGQSFSDRHGFGAQGPRRKLMARARNWLGSVALKPYHSWVYWRDVDVETIPTTIMEDLMHHDKDVIVPNVWRPLPDWLGNIQPYDLNSWKESEGGLQLADSLDEDAVIVEGYPEYATWRPHLAYMRDPNGNPEDEMELDGIGGVSILAKAKVFRTGSHFPAFSFEKHAETEAFGRLSRRMNYNVIGLPHYVIWHIYEPSSDDLKHMAWMAEEEKRKLEEERIREFYNKIWEIGFEDVRDQWNEERDSILKNIDSTLNNKVTVDWSEEGDGSELVDSKGDFVSPNNQQQQQQQQQQQQQQQQQQQQQQLDGNPQGKPLDDNDKNKKKHPKEVPLDFDPDRN','MQYLNFPRMPNIMMFLEVAILCLWVVADASASSAKFGSTTPASAQQSDVELEPINGTLNYRLYAKKGRDDKPWFDGLDSRHIQCVRRARCYPTSNATNTCFGSKLPYELSSLDLTDFHTEKELNDKLNDYYALKHVPKCWAAIQPFLCAVFKPKCEKINGEDMVYLPSYEMCRITMEPCRILYNTTFFPKFLRCNETLFPTKCTNGARGMKFNGTGQCLSPLVPTDTSASYYPGIEGCGVRCKDPLYTDDEHRQIHKLIGWAGSICLLSNLFVVSTFFIDWKNANKYPAVIVFYINLCFLIACVGWLLQFTSGSREDIVCRKDGTLRHSEPTAGENLSCIVIFVLVYYFLTAGMVWFVFLTYAWHWRAMGHVQDRIDKKGSYFHLVAWSLPLVLTITTMAFSEVDGNSIVGICFVGYINHSMRAGLLLGPLCGVILIGGYFITRGMVMLFGLKHFANDIKSTSASNKIHLIIMRMGVCALLTLVFILVAIACHVTEFRHADEWAQSFRQFIICKISSVFEEKSSCRIENRPSVGVLQLHLLCLFSSGIVMSTWCWTPSSIETWKRYIRKKCGKEVVEEVKMPKHKVIAQTWAKRKDFEDKGRLSITLYNTHTDPVGLNFDVNDLNSSETNDISSTWAAYLPQCVKRRMALTGAATGNSSSHGPRKNSLDSEISVSVRHVSVESRRNSVDSQVSVKIAEMKTKVASRSRGKHGGSSSNRRTQRRRDYIAAATGKSSRRRESSTSVESQVIALKKTTYPNASHKVGVFAHHSSKKQHNYTSSMKRRTANAGLDPSILNEFLQKNGDFIFPFLQNQDMSSSSEEDNSRASQKIQDLNVVVKQQEISEDDHDGIKIEELPNSKQVALENFLKNIKKSNESNSNRHSRNSARSQSKKSQKRHLKNPAADLDFRKDCVKYRSNDSLSCSSEELDVALDVGSLLNSSFSGISMGKPHSRNSKTSCDVGIQANPFELVPSYGEDELQQAMRLLNAASRQRTEAANEDFGGTELQGLLGHSHRHQREPTFMSESDKLKMLLLPSK']</cmd>.
 FASTA strings must be provided in single quotes.
-This command gets (generate/predict) the following properties <property_list>
+This command gets (generate/predict) the following properties:\n<cmd><property_list></cmd>\n
 """
 service_command_description[
     "generate_data"
@@ -409,21 +412,40 @@ def service_grammar_add(statements: list, help: list, service_catalog: dict):
                 key = schema["service_type"]
 
             if num_params != 0:
-                parameter_help = (
-                    service_command_description[key]
-                    .replace("<property_list>", help_type.split("|")[0])
-                    .replace("<property>", help_type.split("|")[0].split(",")[0])
-                    + "]"
-                    + "<h2>Parameters:</h2>\n   <warning>--Note: Parameters should be entered for <cmd> USING Clause </cmd> in the order they are below. </warning>\n"
-                    + parameter_help
-                )
+                try:
+                    print(help_type)
+                    parameter_help = (
+                        service_command_description[key]
+                        #    .replace("<property_list>", help_type.split("|")[0])
+                        .replace(
+                            "<property_list>",
+                            format_properties(
+                                list(
+                                    help_type.split("|")[0]
+                                    .replace(" ", "")
+                                    .replace("[", "")
+                                    .replace("]", "")
+                                    .split(",")
+                                )
+                            ),
+                        ).replace("<property>", help_type.split("|")[0].split(",")[0].replace("[", "").lstrip())
+                        + "<h2>Parameters:</h2>\n   <warning>--Note: Parameters should be entered for <cmd> USING Clause </cmd> in the order they are below. </warning>\n"
+                        + parameter_help
+                    )
+                except Exception as e:
+                    print(e)
             else:
                 parameter_help = (
                     service_command_description[key]
-                    .replace("<property_list>", help_type.split("|")[0])
-                    .replace("<property>", help_type.split("|")[0].split(",")[0])
-                    + "]"
-                    + "<h2>No Parameters</h2>\n"
+                    # .replace("<property_list>", help_type.split("|")[0])
+                    .replace(
+                        "<property_list>",
+                        format_properties(
+                            list(help_type.split("|")[0].replace(" ", "").replace("[", "").replace("]", "").split(","))
+                        ),
+                    ).replace("<property>", help_type.split("|")[0].split(",")[0].replace("[", "").lstrip())
+                    + "\n"
+                    + " <h2>No Parameters</h2>\n"
                     + parameter_help
                 )
 
@@ -679,7 +701,7 @@ def subject_files_repository(file_directory, suffix):
 def mol_list_gen(cmd_pointer):
     mol_list = []
     for molecule in cmd_pointer.molecule_list:
-        mol_list.append(molecule["identifiers"]["canonical_smiles"])
+        mol_list.append(molecule["properties"]["canonical_smiles"])
     return mol_list
 
 
@@ -858,3 +880,49 @@ def openad_model_requestor(cmd_pointer, parser):
         return output_error(run_error + "\n" + str(e))
 
     return result
+
+
+def format_properties(props: list):
+    """formats synonyms for display"""
+
+    props_string = ""
+
+    prop_length = 10
+    for i in props:
+        if len(i) > prop_length:
+            prop_length = len(i)
+
+    props_string = props_string + single_value_columns(props, helpers_general.get_print_width(full=True), 40)
+
+    props_string = re.sub(r"<(.*?:)> ", r"<success>\1</success>", props_string)
+    return "\n" + props_string
+
+
+def single_value_columns(values, sys_cli_width, designated_display_width):
+    """displays columns of single value"""
+    return_string = ""
+    i = 0
+    if GLOBAL_SETTINGS["display"] == "notebook":
+        cli_width = 150
+    else:
+        cli_width = min(sys_cli_width, 150)
+
+    for value in values:
+        if len(str(value).strip()) == 0:
+            continue
+        display_width = designated_display_width
+        spacing = 0
+        while len(value) > display_width:
+            display_width += designated_display_width
+        if (len(f"{value:<{display_width}}") + i + spacing < cli_width) or return_string == "":
+            if spacing == 0:
+                return_string = return_string + f"{value:<{display_width}}"
+            else:
+                return_string = return_string + " " + f"{value:<{display_width}}"
+
+            i = i + len(f"{value:<{display_width}}") + spacing
+            spacing = 1
+        else:
+            return_string = return_string + f"\n{value:<{display_width}}"
+            i = len(f"{value:<{display_width}}")
+    return return_string
