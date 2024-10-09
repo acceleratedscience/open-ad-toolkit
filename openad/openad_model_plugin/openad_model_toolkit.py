@@ -413,7 +413,6 @@ def service_grammar_add(statements: list, help: list, service_catalog: dict):
 
             if num_params != 0:
                 try:
-                    print(help_type)
                     parameter_help = (
                         service_command_description[key]
                         #    .replace("<property_list>", help_type.split("|")[0])
