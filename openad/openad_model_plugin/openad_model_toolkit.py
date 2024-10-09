@@ -184,25 +184,25 @@ service_command_start["get_crystal_property"] = 'get + CaselessKeyword("crystal"
 service_command_start["get_protein_property"] = 'get + CaselessKeyword("protein") + CaselessKeyword("property")'
 service_command_start["generate_data"] = 'CaselessKeyword("generate") + CaselessKeyword("with")'
 
-service_command_merge[
-    "get_molecule_property"
-] = '+ Optional((CaselessKeyword("merge with mols")|CaselessKeyword("merge with molecules"))("merge_with_mws"))'
+service_command_merge["get_molecule_property"] = (
+    '+ Optional((CaselessKeyword("merge with mols")|CaselessKeyword("merge with molecules"))("merge_with_mws"))'
+)
 service_command_merge["get_crystal_property"] = ""
 service_command_merge["get_protein_property"] = ""
 service_command_merge["generate_data"] = ""
 
-service_command_subject[
-    "get_molecule_property"
-] = '+CaselessKeyword("for")+(mol_list("mol_list")|(Word("[")+delimitedList(molecule_identifier,delim=",")("molecules")+Word("]")|molecule_identifier("molecule")))'
-service_command_subject[
-    "get_protein_property"
-] = '+CaselessKeyword("for")+((Word("[")+ delimitedList(molecule_identifier,delim=",")("proteins")+Word("]")|molecule_identifier("protein")))'
-service_command_subject[
-    "get_crystal_property"
-] = '+CaselessKeyword("for")+((Word("[")+ delimitedList(desc,delim=",")("crystal_files")+Word("]")|desc("crystal_file")("crystal_PATH")))'
-service_command_subject[
-    "generate_data"
-] = '+CaselessKeyword("data")+<TARGET>Optional(CaselessKeyword("Sample")+Word(nums)("sample_size"))'
+service_command_subject["get_molecule_property"] = (
+    '+CaselessKeyword("for")+(mol_list("mol_list")|(Word("[")+delimitedList(molecule_identifier,delim=",")("molecules")+Word("]")|molecule_identifier("molecule")))'
+)
+service_command_subject["get_protein_property"] = (
+    '+CaselessKeyword("for")+((Word("[")+ delimitedList(molecule_identifier,delim=",")("proteins")+Word("]")|molecule_identifier("protein")))'
+)
+service_command_subject["get_crystal_property"] = (
+    '+CaselessKeyword("for")+((Word("[")+ delimitedList(desc,delim=",")("crystal_files")+Word("]")|desc("crystal_file")("crystal_PATH")))'
+)
+service_command_subject["generate_data"] = (
+    '+CaselessKeyword("data")+<TARGET>Optional(CaselessKeyword("Sample")+Word(nums)("sample_size"))'
+)
 
 ###################################################################
 # targets for generate Data
@@ -239,18 +239,18 @@ generation_targets = {
 #         sampling_wrapper={'fraction_to_mask': mask, 'property_goal': {'<esol>': 0.234}}"""
 
 
-service_command_help[
-    "get_molecule_property"
-] = "get molecule property <property> FOR @mols | [<list of SMILES>] | <SMILES>   USING (<parameter>=<value> <parameter>=<value>) (merge with mols|molecules)"
-service_command_help[
-    "get_crystal_property"
-] = "get crystal property <property> FOR <directory> USING (<parameter>=<value> <parameter>=<value>)"
-service_command_help[
-    "get_protein_property"
-] = "get protein property <property> FOR [<list of Proteins>] | <Protein> USING (<parameter>=<value> <parameter>=<value>)"
-service_command_help[
-    "generate_data"
-] = "generate with <property> data <TARGET> (sample <sample_size>) USING (<parameter>=<value> <parameter>=<value>) "
+service_command_help["get_molecule_property"] = (
+    "get molecule property <property> FOR @mols | [<list of SMILES>] | <SMILES>   USING (<parameter>=<value> <parameter>=<value>) (merge with mols|molecules)"
+)
+service_command_help["get_crystal_property"] = (
+    "get crystal property <property> FOR <directory> USING (<parameter>=<value> <parameter>=<value>)"
+)
+service_command_help["get_protein_property"] = (
+    "get protein property <property> FOR [<list of Proteins>] | <Protein> USING (<parameter>=<value> <parameter>=<value>)"
+)
+service_command_help["generate_data"] = (
+    "generate with <property> data <TARGET> (sample <sample_size>) USING (<parameter>=<value> <parameter>=<value>) "
+)
 
 service_command_description[
     "get_molecule_property"
@@ -387,12 +387,12 @@ def service_grammar_add(statements: list, help: list, service_catalog: dict):
                 function_description = ""
                 if "target" in schema:
                     if schema["target"] is not None:
-                        target_description = "<h2>Target:</h2>\r"
+                        target_description = "<h2>Target:</h2>\n"
                         for key, value in schema["target"].items():
                             target_description = target_description + f"- <cmd>{key}</cmd> : {value}\n  "
 
                 if schema["description"] is not None:
-                    function_description = "\r<h2>Function Description:</h2>\r" + schema["description"]
+                    function_description = "\n<h2>Function Description:</h2>\n" + schema["description"]
                     while "  " in function_description:
                         function_description = function_description.replace("  ", " ")
             except Exception as e:
@@ -405,7 +405,7 @@ def service_grammar_add(statements: list, help: list, service_catalog: dict):
                 for key, value in description.items():
                     print_description = print_description + f"- <cmd>{key}</cmd> : {value}\n  "
 
-                parameter_help = parameter_help + f"<cmd>{parameter}</cmd> \r {print_description}\n  "
+                parameter_help = parameter_help + f"<cmd>{parameter}</cmd> \n {print_description}\n  "
             if "generator_type" in schema.keys():
                 key = "generate_data"
             else:
