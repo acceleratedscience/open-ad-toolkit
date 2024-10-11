@@ -689,7 +689,7 @@ def optional_parameter_list(inp_statement: dict, clause: str):
                     + " "
                 )
             else:
-                print(parameter)
+
                 expression = (
                     expression
                     + f" & {status}(Group( CaselessKeyword ('"
