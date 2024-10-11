@@ -103,8 +103,9 @@ from pyparsing import (  # replaceWith,; Combine,; pyparsing_test,; ParseExcepti
           as optimize with toolkits toolkit gpu experiment add run save runs show \
               file display history data remove result from inchi inchikey smiles formula name last load results export create rename merge pubchem sources basic force append only upsert".split(),
 )
+desc = QuotedString("'", escQuote="\\")
 name_expr = Word(alphanums + "_" + ".")
-key_val_expr = Word(alphanums + "_" + ".")
+key_val_expr = Word(alphanums + "_" + ".") | desc
 key_val_expr_num = Word(nums)
 key_val_expr_alpha = Word(alphanums + "_" + ".")
 number_type = Combine((Word(nums) + "." + Word(nums))) | Word(nums)
@@ -159,7 +160,7 @@ molecule_identifier = (
 )
 
 CLI_WIDTH = helpers_general.get_print_width(full=True)
-desc = QuotedString("'", escQuote="\\")
+
 input_object = QuotedString('"', end_quote_char='"', escQuote="\\")
 
 ####################################################################################
