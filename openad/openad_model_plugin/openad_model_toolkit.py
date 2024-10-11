@@ -108,7 +108,7 @@ name_expr = Word(alphanums + "_" + ".")
 key_val_expr = Word(alphanums + "_" + ".") | desc
 key_val_expr_num = Word(nums)
 key_val_expr_alpha = Word(alphanums + "_" + ".")
-number_type = Combine((Word(nums) + "." + Word(nums))) | Word(nums)
+number_type = Combine(Optional("-") + Word(nums) + Word(".") + Word(nums)) | Word(nums)
 key_val_line = Group(name_expr("key") + Suppress("=") + key_val_expr("val"))
 boolean_var = Keyword("True") | Keyword("False")
 
