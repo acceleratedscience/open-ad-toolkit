@@ -297,7 +297,7 @@ def service_grammar_add(statements: list, help: list, service_catalog: dict):
     for service in service_catalog.keys():
         service_list = service_catalog[service]
         for schema in service_list:
-            print(schema)
+
             command = "CaselessKeyword(service)('service')+" + service_command_start[schema["service_type"]]
             valid_types = None  # noqa: F841
             valid_type = None
