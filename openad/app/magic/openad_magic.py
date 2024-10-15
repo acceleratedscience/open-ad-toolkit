@@ -71,7 +71,6 @@ class AD(Magics):
             result = strip_leading_blanks(result)
             result = result.replace("<br>", "\n")
 
-        # MAJOR-RELEASE-TODO: display function should never return data
         return result
 
     @needs_local_scope

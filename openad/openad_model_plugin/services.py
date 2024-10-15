@@ -324,7 +324,6 @@ class ModelService(Dispatcher):
             logger.debug(f"fetching remote service defs | {name=}'")
             response = self.service_request(name, verify=False)
             if response.status_code == 200:
-                print(response.json())
                 service_definitions = response.json()
         if service_definitions:
             # insert into chache when not None

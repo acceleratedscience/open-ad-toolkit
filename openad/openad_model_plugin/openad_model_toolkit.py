@@ -376,18 +376,7 @@ def service_grammar_add(statements: list, help: list, service_catalog: dict):
                     + ")"
                     + f'("{schema["service_name"]}@{schema["service_type"]}")'
                 )
-                print(
-                    "Forward( "
-                    + command
-                    + "+"
-                    + valid_type
-                    + cmd_subject
-                    + expression
-                    + service_command_merge[schema["service_type"]]
-                    + save_as_clause
-                    + ")"
-                    + f'("{schema["service_name"]}@{schema["service_type"]}")'
-                )
+
             except:
                 output_error("error for schema")
                 output_error(schema)
@@ -627,7 +616,7 @@ def optional_parameter_list(inp_statement: dict, clause: str):
                     + " "
                 )
             else:
-                print(parameter)
+
                 expression = (
                     expression
                     + f" {status}(Group( CaselessKeyword ('"
