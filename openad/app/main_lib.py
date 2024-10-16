@@ -259,16 +259,16 @@ def lang_parse(cmd_pointer, parser):
     elif parser.getName() == "show_molecules":
         return show_molecules(cmd_pointer, parser)
     elif parser.getName() == "save_molecules_DEPRECATED":
-        # MAJOR-RELEASE-TODO: Remove this, this is deprecated functionality
+
         return save_molecules_DEPRECATED(cmd_pointer, parser)
     elif parser.getName() == "load_molecules_DEPRECATED":
-        # MAJOR-RELEASE-TODO: Remove this, this is deprecated functionality
+
         return load_molecules_DEPRECATED(cmd_pointer, parser)
     elif parser.getName() == "merge_molecules_DEPRECATED":
-        # MAJOR-RELEASE-TODO: Remove this, this is deprecated functionality
+
         return merge_molecules_DEPRECATED(cmd_pointer, parser)
     elif parser.getName() == "list_molecule_sets_DEPRECATED":
-        # MAJOR-RELEASE-TODO: Remove this, this is deprecated functionality
+
         return display_molsets_DEPRECATED(cmd_pointer, parser)
     elif parser.getName() == "enrich_mws_with_analysis":
         return enrich_mws_with_analysis(cmd_pointer, parser)

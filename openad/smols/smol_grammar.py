@@ -257,16 +257,21 @@ Examples:
 
     # ---
     # Get molecule property
+    _mol_properties = ["synonyms"]
+
+    _mol_properties.extend(SMOL_PROPERTIES)
+    mol_properties = MatchFirst(map(Keyword, _mol_properties))
+
     statements.append(
         Forward("@" + (molecule_identifier | desc)("molecule_identifier") + ">>" + mol_properties("property"))(
             "get_smol_prop"
         )
     )
-    statements.append(
-        Forward("@" + (molecule_identifier | desc)("molecule_identifier") + ">>" + Word(alphas, alphanums + "_"))(
-            "get_smol_prop_lookup_error"
-        )
-    )
+    # statements.append(
+    #    Forward("@" + (molecule_identifier | desc)("molecule_identifier") + ">>" + Word(alphas, alphanums + "_"))(
+    #        "get_smol_prop_lookup_error"
+    #    )
+    # )
     grammar_help.append(
         help_dict_create(
             name="@<molecule>",
@@ -295,16 +300,11 @@ Examples:
  <cmd>@ibuprofen>>synonyms</cmd>
 
 Available properties that can be queried:
-{list_columns(SMOL_PROPERTIES)}
+{list_columns(_mol_properties)}
 """,
         )
     )
 
-    # ---
-    # Store a single molecule into your workspace.
-    # MAJOR-RELEASE-TODO:
-    # 'Export' is not the right word, as 'export molecules' refers to molecule working set,
-    # this should rather be 'save molecule'.
     statements.append(
         Forward(
             export

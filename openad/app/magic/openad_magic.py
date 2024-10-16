@@ -97,8 +97,8 @@ class AD(Magics):
         # MAJOR-RELEASE-TODO: data function should never display
         if isinstance(result, Styler):
             result = result.data
-        if isinstance(result, str):
-            display(Markdown(result))
+        # if isinstance(result, str):
+        #    display(Markdown(result))
         return result
 
 

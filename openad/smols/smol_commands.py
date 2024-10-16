@@ -449,7 +449,7 @@ def get_smol_prop(cmd_pointer, inp):
 
     result = None
     molecule_identifier = inp.as_dict()["molecule_identifier"]
-    molecule_property = inp.as_dict()["property"].lower()
+    molecule_property = inp.as_dict()["property"]
     smol = find_smol(cmd_pointer, molecule_identifier)
 
     if not smol:
@@ -463,6 +463,7 @@ def get_smol_prop(cmd_pointer, inp):
             return output_error("No synonyms found for this molecule")
 
     # Property
+
     elif molecule_property in smol["properties"]:
         result = smol["properties"][molecule_property]
 

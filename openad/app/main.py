@@ -652,6 +652,11 @@ class RUNCMD(Cmd):
             # print("------------------------------")
             y = self.current_statement_defs.parseString(convert(inp), parseAll=True)
             x = lang_parse(self, y)
+            if GLOBAL_SETTINGS["grammar_refresh"]:
+
+                create_statements(self)
+                GLOBAL_SETTINGS["grammar_refresh"] = False
+
             self.prompt = refresh_prompt(self.settings)
             MEMORY.before_command()
         except Exception as err1:  # pylint: disable=broad-exception-caught # error could be unknown
