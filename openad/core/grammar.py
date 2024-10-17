@@ -159,8 +159,8 @@ statements = []  # Statement definitions
 grammar_help = []  # Help text
 
 
-# Add molecule grammar
-smol_grammar_add(statements=statements, grammar_help=grammar_help)
+# Add molecule grammar (moved to refresh zone)
+# smol_grammar_add(statements=statements, grammar_help=grammar_help)
 
 # Add protein grammar
 mmol_grammar_add(statements=statements, grammar_help=grammar_help)
@@ -993,8 +993,10 @@ def create_statements(cmd_pointer):
         temp_help = []
 
         service_grammar_add(statements=cmd_pointer.current_statements, help=temp_help, service_catalog=service_catalog)
+        smol_grammar_add(statements=cmd_pointer.current_statements, grammar_help=temp_help)
 
         # cmd_pointer.current_statements.extend(service_statements)
+
         cmd_pointer.current_help.help_model_services.clear()
         cmd_pointer.current_help.help_model_services.extend(temp_help)
         cmd_pointer.current_help.reset_help()

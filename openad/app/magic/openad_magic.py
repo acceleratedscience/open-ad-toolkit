@@ -71,7 +71,6 @@ class AD(Magics):
             result = strip_leading_blanks(result)
             result = result.replace("<br>", "\n")
 
-        # MAJOR-RELEASE-TODO: display function should never return data
         return result
 
     @needs_local_scope
@@ -98,8 +97,8 @@ class AD(Magics):
         # MAJOR-RELEASE-TODO: data function should never display
         if isinstance(result, Styler):
             result = result.data
-        if isinstance(result, str):
-            display(Markdown(result))
+        # if isinstance(result, str):
+        #    display(Markdown(result))
         return result
 
 
