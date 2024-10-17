@@ -57,7 +57,7 @@ span + h3 {
     color: red !important;
 }
 p, ul, ol {
-    max-width: 700px !important;
+    max-width: 1000px !important;
 }
 
 
