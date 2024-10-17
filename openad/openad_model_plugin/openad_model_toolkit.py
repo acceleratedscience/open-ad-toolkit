@@ -185,25 +185,25 @@ service_command_start["get_crystal_property"] = 'get + CaselessKeyword("crystal"
 service_command_start["get_protein_property"] = 'get + CaselessKeyword("protein") + CaselessKeyword("property")'
 service_command_start["generate_data"] = 'CaselessKeyword("generate") + CaselessKeyword("with")'
 
-service_command_merge["get_molecule_property"] = (
-    '+ Optional((CaselessKeyword("merge with mols")|CaselessKeyword("merge with molecules"))("merge_with_mws"))'
-)
+service_command_merge[
+    "get_molecule_property"
+] = '+ Optional((CaselessKeyword("merge with mols")|CaselessKeyword("merge with molecules"))("merge_with_mws"))'
 service_command_merge["get_crystal_property"] = ""
 service_command_merge["get_protein_property"] = ""
 service_command_merge["generate_data"] = ""
 
-service_command_subject["get_molecule_property"] = (
-    '+CaselessKeyword("for")+(mol_list("mol_list")|(Word("[")+delimitedList(molecule_identifier,delim=",")("molecules")+Word("]")|molecule_identifier("molecule")))'
-)
-service_command_subject["get_protein_property"] = (
-    '+CaselessKeyword("for")+((Word("[")+ delimitedList(molecule_identifier,delim=",")("proteins")+Word("]")|molecule_identifier("protein")))'
-)
-service_command_subject["get_crystal_property"] = (
-    '+CaselessKeyword("for")+((Word("[")+ delimitedList(desc,delim=",")("crystal_files")+Word("]")|desc("crystal_file")("crystal_PATH")))'
-)
-service_command_subject["generate_data"] = (
-    '+CaselessKeyword("data")+<TARGET>Optional(CaselessKeyword("Sample")+Word(nums)("sample_size"))'
-)
+service_command_subject[
+    "get_molecule_property"
+] = '+CaselessKeyword("for")+(mol_list("mol_list")|(Word("[")+delimitedList(molecule_identifier,delim=",")("molecules")+Word("]")|molecule_identifier("molecule")))'
+service_command_subject[
+    "get_protein_property"
+] = '+CaselessKeyword("for")+((Word("[")+ delimitedList(molecule_identifier,delim=",")("proteins")+Word("]")|molecule_identifier("protein")))'
+service_command_subject[
+    "get_crystal_property"
+] = '+CaselessKeyword("for")+((Word("[")+ delimitedList(desc,delim=",")("crystal_files")+Word("]")|desc("crystal_file")("crystal_PATH")))'
+service_command_subject[
+    "generate_data"
+] = '+CaselessKeyword("data")+<TARGET>Optional(CaselessKeyword("Sample")+Word(nums)("sample_size"))'
 
 ###################################################################
 # targets for generate Data
@@ -240,18 +240,18 @@ generation_targets = {
 #         sampling_wrapper={'fraction_to_mask': mask, 'property_goal': {'<esol>': 0.234}}"""
 
 
-service_command_help["get_molecule_property"] = (
-    "get molecule property <property> FOR @mols | [<list of SMILES>] | <SMILES>   USING (<parameter>=<value> <parameter>=<value>) (merge with mols|molecules)"
-)
-service_command_help["get_crystal_property"] = (
-    "get crystal property <property> FOR <directory> USING (<parameter>=<value> <parameter>=<value>)"
-)
-service_command_help["get_protein_property"] = (
-    "get protein property <property> FOR [<list of Proteins>] | <Protein> USING (<parameter>=<value> <parameter>=<value>)"
-)
-service_command_help["generate_data"] = (
-    "generate with <property> data <TARGET> (sample <sample_size>) USING (<parameter>=<value> <parameter>=<value>) "
-)
+service_command_help[
+    "get_molecule_property"
+] = "get molecule property <property> FOR @mols | [<list of SMILES>] | <SMILES>   USING (<parameter>=<value> <parameter>=<value>) (merge with mols|molecules)"
+service_command_help[
+    "get_crystal_property"
+] = "get crystal property <property> FOR <directory> USING (<parameter>=<value> <parameter>=<value>)"
+service_command_help[
+    "get_protein_property"
+] = "get protein property <property> FOR [<list of Proteins>] | <Protein> USING (<parameter>=<value> <parameter>=<value>)"
+service_command_help[
+    "generate_data"
+] = "generate with <property> data <TARGET> (sample <sample_size>) USING (<parameter>=<value> <parameter>=<value>) "
 
 service_command_description[
     "get_molecule_property"
@@ -297,7 +297,6 @@ def service_grammar_add(statements: list, help: list, service_catalog: dict):
     for service in service_catalog.keys():
         service_list = service_catalog[service]
         for schema in service_list:
-
             command = "CaselessKeyword(service)('service')+" + service_command_start[schema["service_type"]]
             valid_types = None  # noqa: F841
             valid_type = None
@@ -616,7 +615,6 @@ def optional_parameter_list(inp_statement: dict, clause: str):
                     + " "
                 )
             else:
-
                 expression = (
                     expression
                     + f" {status}(Group( CaselessKeyword ('"
@@ -679,7 +677,6 @@ def optional_parameter_list(inp_statement: dict, clause: str):
                     + " "
                 )
             else:
-
                 expression = (
                     expression
                     + f" & {status}(Group( CaselessKeyword ('"
@@ -831,7 +828,6 @@ def openad_model_requestor(cmd_pointer, parser):
     with Dispatcher as servicer:
         service_status = servicer.get_short_status(service_name)
     try:
-
         response = Dispatcher.service_request(
             name=service_name, method="POST", timeout=None, verify=not service_status.get("is_remote"), _json=a_request
         )

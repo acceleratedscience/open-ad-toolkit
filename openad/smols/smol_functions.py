@@ -1532,7 +1532,6 @@ def merge_molecule_properties(molecule_dict: dict, smol: dict):
         smol["properties"][key] = molecule_dict[key]
         smol["property_sources"][key] = {"source": "unknown", "date": pretty_date()}
         if key not in SMOL_PROPERTIES:
-       
             SMOL_PROPERTIES.append(key)
 
     return smol

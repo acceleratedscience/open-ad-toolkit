@@ -653,7 +653,6 @@ class RUNCMD(Cmd):
             y = self.current_statement_defs.parseString(convert(inp), parseAll=True)
             x = lang_parse(self, y)
             if GLOBAL_SETTINGS["grammar_refresh"]:
-
                 create_statements(self)
                 GLOBAL_SETTINGS["grammar_refresh"] = False
 
