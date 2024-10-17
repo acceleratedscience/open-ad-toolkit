@@ -143,9 +143,9 @@ The OpenAD client is accessible from a command line interface, Jupyter Notebook 
 - [Installing on Windows](#installing-on-windows)
   - [Before You Start](#before-you-start-1)
   - [Installing WSL](#installing-wsl)
-- [Linux Notes](#linux-notes)
 - [Appendix](#appendix)
   - [Upgrading Python](#upgrading-python)
+  - [Linux Notes](#linux-notes)
 <!-- tocstop -->
 
 <br>
@@ -574,25 +574,6 @@ Install WSL and create a user called 'openad' or one of your choosing.
 
 <br>
 
-# Linux Notes
-
-If you wish to setup an Ubuntu Python environment from scratch, run:
-
-    sudo add-apt-repository ppa:deadsnakes/ppa
-    sudo apt update
-    sudo apt install python3.11-full
-    sudo apt install python3-pip
-    sudo update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 100
-    sudo pip install pip --upgrade
-
-You will need to restart your Linux session before running `pip install openad` so that the python libraries are in your path.
-
-If you get an error when running `init_magic`, you may first need to setup the default iPython profile for magic commands.
-
-    ipython profile create
-
-<br>
-
 # Appendix
 
 ## Upgrading Python
@@ -628,3 +609,20 @@ There's many ways to install or upgrade Python. We'll use `pyenv`.
     Alternatively, if you only wish to activate it in the current shell:
 
         pyenv shell 3.11
+
+## Linux Notes
+
+If you wish to setup an Ubuntu Python environment from scratch, run:
+
+    sudo add-apt-repository ppa:deadsnakes/ppa
+    sudo apt update
+    sudo apt install python3.11-full
+    sudo apt install python3-pip
+    sudo update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 100
+    sudo pip install pip --upgrade
+
+You will need to restart your Linux session before running `pip install openad` so that the python libraries are in your path.
+
+If you get an error when running `init_magic`, you may first need to setup the default iPython profile for magic commands.
+
+    ipython profile create
