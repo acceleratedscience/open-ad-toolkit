@@ -8,7 +8,7 @@
 
 from openad.core.help import help_dict_create
 from openad.app.global_var_lib import GLOBAL_SETTINGS
-from openad.smols.smol_functions import SMOL_PROPERTIES
+from openad.smols.smol_functions import SMOL_PROPERTIES, PCY_IDFR
 from openad.helpers.general import is_notebook_mode
 from openad.helpers.pretty_data import list_columns
 
@@ -260,6 +260,7 @@ Examples:
     _mol_properties = ["synonyms"]
 
     _mol_properties.extend(SMOL_PROPERTIES)
+    _mol_properties.extend(PCY_IDFR.keys())
     mol_properties = MatchFirst(map(Keyword, _mol_properties))
 
     statements.append(

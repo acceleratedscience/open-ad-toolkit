@@ -22,6 +22,7 @@ from openad.app.global_var_lib import GLOBAL_SETTINGS
 from openad.smols.smol_transformers import molset2dataframe
 from openad.smols.smol_functions import (
     SMOL_PROPERTIES,
+    PCY_IDFR,
     find_smol,
     get_smol_from_mws,
     get_smol_from_pubchem,
@@ -456,8 +457,11 @@ def get_smol_prop(cmd_pointer, inp):
         return output_error("No molecule found for this identifier")
 
     # List of synonyms
-    if molecule_property == "synonyms":
-        if len(smol.get("synonyms", [])) > 0:
+    if molecule_property in PCY_IDFR.keys():
+        result = smol["identifiers"][molecule_property]
+    elif molecule_property == "synonyms":
+        # if len(smol.get("synonyms", [])) > 0:
+        if len(smol["synonyms"]) > 0:
             result = smol["synonyms"]
         else:
             return output_error("No synonyms found for this molecule")
@@ -481,7 +485,7 @@ def get_smol_prop(cmd_pointer, inp):
     if GLOBAL_SETTINGS["display"] == "api":
         return result
     if molecule_property == "synonyms":
-        return output_text(list_columns(result), pad=1)
+        return list_columns(result)
     else:
         return output_text(result)
 
