@@ -16,6 +16,7 @@ import socket
 import logging
 import webbrowser
 import urllib.parse
+from time import sleep
 from pathlib import Path
 from threading import Thread
 import IPython.external
@@ -188,6 +189,13 @@ def _launch(routes={}, path=None, query="", hash="", silent=False):
     # we use Werkzeug's more advanced WSGI server.
     GUI_SERVER = ServerThread(app, host, port)
     GUI_SERVER.start()
+
+    # IMPORTANT
+    # Pause long enough for the flask server to start
+    # Issue can be that jupyter has race condition for resources and the server does not start.
+    # On first starting Server says it is alive but there must be some resource contention that sees it close shorlty after starting
+    # is_alive and -s_running both return ok so need to enformce mandatory pause to ensure no abend
+    sleep(0.5)
 
 
 # This class replaces Flask's builtin app.run() server,
