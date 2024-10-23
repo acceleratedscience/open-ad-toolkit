@@ -65,7 +65,7 @@ The OpenAD client is accessible from our command line interface, via Jupyter Not
   [accelerate.science/projects/openad](https://accelerate.science/projects/openad)
 - **GitHub**<br>
   [github.com/acceleratedscience/open-ad-toolkit](https://github.com/acceleratedscience/open-ad-toolkit)
-- **Pip** install<br>
+- **Pip install**<br>
   [pypi.org/project/openad](https://pypi.org/project/openad)
 - **Documentation**<br>
   [acceleratedscience.github.io/openad-docs](https://acceleratedscience.github.io/openad-docs)
