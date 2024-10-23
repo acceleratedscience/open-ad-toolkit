@@ -17,7 +17,7 @@ nav_order: 1
 
 <!-- [![Docs](https://img.shields.io/badge/website-live-brightgreen)](https://github.com/acceleratedscience/open-ad-toolkit) -->
 
-![Landing](assets/screenshot-landing.png)
+![Landing](assets/openad-cli.png)
 
 {{DESCRIPTION}}
 

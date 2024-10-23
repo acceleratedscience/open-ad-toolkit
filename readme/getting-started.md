@@ -25,9 +25,6 @@
 
         openad
 
-    <!-- ![Landing](assets/screenshot-landing.png) -->
-    <!-- <a href="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/screenshot-landing.png" target="_blank"><img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/screenshot-landing.png" /></a> -->
-
 -   **Exit the command shell**<br>
     Hit `ctrl+c` or run:
 

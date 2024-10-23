@@ -25,7 +25,7 @@ https://github.com/acceleratedscience/open-ad-toolkit/tree/main/docs
 
 <!-- [![Docs](https://img.shields.io/badge/website-live-brightgreen)](https://github.com/acceleratedscience/open-ad-toolkit) -->
 
-![Landing](assets/screenshot-landing.png)
+![Landing](assets/openad-cli.png)
 
 OpenAD is an open-source framework for molecular and materials discovery developed by IBM Research.
 

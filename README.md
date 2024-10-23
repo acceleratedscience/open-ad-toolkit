@@ -33,13 +33,16 @@ For consistency, stick to Chrome, hide your bookmarks & extensions.
 
 # Open Accelerated Discovery <!-- omit from toc -->
 
-**Open-source framework for molecular and materials Discovery**
+**Open-source framework for molecular and materials discovery**
 
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/openad)](https://pypi.org/project/openad/)
 [![PyPI version](https://img.shields.io/pypi/v/openad)](https://pypi.org/project/openad/)
 [![License MIT](https://img.shields.io/github/license/acceleratedscience/open-ad-toolkit)](https://opensource.org/licenses/MIT)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Docs](https://img.shields.io/badge/website-live-brightgreen)](https://acceleratedscience.github.io/openad-docs/)
+
+![Landing](assets/openad-cli.png)
+<!-- <a href="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/openad-cli.png" target="_blank"><img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/openad-cli.png" /></a> -->
 
 <br>
 
