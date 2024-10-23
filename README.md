@@ -59,6 +59,19 @@ The OpenAD client is accessible from our command line interface, via Jupyter Not
 
 <br><br>
 
+### Useful links
+
+- Homepage<br>
+  [https://accelerate.science/projects/openad]
+- GitHub<br>
+  [https://github.com/acceleratedscience/open-ad-toolkit]
+- Pip install<br>
+  [https://pypi.org/project/openad]
+- Documentation<br>
+  [https://acceleratedscience.github.io/openad-docs]
+
+<br><br>
+
 ## Quick Install
 
 > [!IMPORTANT]  
@@ -79,7 +92,7 @@ If you get an error when running `init_magic`, you may first need to setup the d
 
 <br><br>
 
-## See What's New
+## What's New
 
 -   `%Openadd` has been added to the magic commands for commands that return data.
 -   Upgraded SkyPilot to 0.6.0
