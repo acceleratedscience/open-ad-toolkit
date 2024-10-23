@@ -33,6 +33,8 @@ For consistency, stick to Chrome, hide your bookmarks & extensions.
 
 # Open Accelerated Discovery <!-- omit from toc -->
 
+**Open-source framework for molecular and materials Discovery**
+
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/openad)](https://pypi.org/project/openad/)
 [![PyPI version](https://img.shields.io/pypi/v/openad)](https://pypi.org/project/openad/)
 [![License MIT](https://img.shields.io/github/license/acceleratedscience/open-ad-toolkit)](https://opensource.org/licenses/MIT)
@@ -61,7 +63,8 @@ The OpenAD client is accessible from a command line interface, Jupyter Notebook 
 
 ## Quick Install
 
-> **Note:** This will install OpenAD in your global space. If you wish to use a virtual environment (recommended), please refer to the [Installation](#installation) page.
+> [!IMPORTANT]  
+> This will install OpenAD in your global space. If you wish to use a virtual environment (recommended), please refer to the [Installation](/readme/installation.md) page.
 
     pip install openad
     openad
