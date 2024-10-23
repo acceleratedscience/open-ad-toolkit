@@ -1,6 +1,6 @@
 [&larr; Back](../#openad)
 
-# Installation
+# OpenAD Installation
 
 > **Note:** Contributors should skip to [Installation for Development](#installation-for-development)
 

@@ -1,4 +1,6 @@
-# AI Assistant
+[&larr; Back](../#openad)
+
+# OpenAD AI Assistant
 
 To enable our AI assistant, you'll either need access to [IBM BAM](https://bam.res.ibm.com/auth/signin) or use the free open source LLM [Ollama](https://ollama.com).
 

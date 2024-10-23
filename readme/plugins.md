@@ -1,4 +1,6 @@
-# Interacting with the Plugins
+[&larr; Back](../#openad)
+
+# OpenAD Plugins
 
 Plugins are the way molecular tools and AI models are made available to the OpenAD client. Thanks to a unified language, accessing these tools through OpenAD lets you bypass a lot of complexity.
 
