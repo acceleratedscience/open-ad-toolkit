@@ -6,9 +6,9 @@ nav_order: 1
 
 {{DO_NOT_EDIT}}
 
-# Open Accelerated Discovery
+# OpenAD
 
-**Open-source Framework for Molecular and Materials Discovery**
+**Open-source framework for molecular and materials Discovery**
 
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/openad)](https://pypi.org/project/openad/)
 [![PyPI version](https://img.shields.io/pypi/v/openad)](https://pypi.org/project/openad/)
@@ -21,4 +21,11 @@ nav_order: 1
 
 {{DESCRIPTION}}
 
-[Homepage](https://accelerate.science/projects/openad)
+## Getting started
+
+The fastest way to get started with OpenAD is to learn from real examples in our demo Jupyter Notebooks.
+
+See `init_examples` under <a href="installation.html#getting-started---jupyter">Getting Started with Jupyter</a>.
+
+
+<!-- [Homepage](https://accelerate.science/projects/openad) -->

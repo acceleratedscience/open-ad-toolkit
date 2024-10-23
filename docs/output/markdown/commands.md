@@ -32,7 +32,7 @@ https://github.com/acceleratedscience/open-ad-toolkit/tree/main/docs
   - [Search Collections](#search-collections)
   - [Collections](#collections)
 - [RXN](#rxn)
-  - [General](#general-1)
+  - [General](#general)
   - [Retrosynthesis](#retrosynthesis)
   - [Prediction](#prediction)
 - [ST4SD](#st4sd)
