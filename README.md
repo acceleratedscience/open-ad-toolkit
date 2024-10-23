@@ -31,7 +31,7 @@ For consistency, stick to Chrome, hide your bookmarks & extensions.
 
 -->
 
-# OpenAD <!-- omit from toc -->
+# OpenAD
 
 **Open-source framework for molecular and materials discovery**
 
@@ -41,15 +41,12 @@ For consistency, stick to Chrome, hide your bookmarks & extensions.
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Docs](https://img.shields.io/badge/website-live-brightgreen)](https://acceleratedscience.github.io/openad-docs/)
 
-<!-- ![Landing](assets/openad-cli.png) -->
 <a href="assets/openad-cli.png" target="_blank"><img src="assets/openad-cli.png" width="500" /></a>
 
 <!-- description -->
-
 Open Accelerated Discovery (aka OpenAD) is an open-source framework for molecular and materials discovery developed at IBM Research.
 
 The OpenAD client is accessible from our command line interface, via Jupyter Notebook or our API. It provides unified access to a variety of tools and AI models for literature knowledge extraction, forward and retrosynthesis prediction, generative methods and property inference. OpenAD lets you train models on your own data, to then visualize and filter your candidate molecules.
-
 <!-- /description -->
 
 [Installation](https://acceleratedscience.github.io/openad-docs/installation.html)
@@ -82,11 +79,7 @@ If you get an error when running `init_magic`, you may first need to setup the d
 
 <br><br>
 
-### See What's New <!-- omit from toc -->
-
-<details>
-<summary>See what's new in OpenAD</summary>
-<div markdown="block">
+## See What's New
 
 -   `%Openadd` has been added to the magic commands for commands that return data.
 -   Upgraded SkyPilot to 0.6.0
@@ -100,5 +93,3 @@ If you get an error when running `init_magic`, you may first need to setup the d
 
     Pre-Requisite is that you have a AWS Account and can launch your own EC2 Instances Or someone else can launch them for you and you can catalog a Remote Service via URL.
 
-</div>
-</details>
