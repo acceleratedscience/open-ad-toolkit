@@ -57,10 +57,24 @@ The OpenAD client is accessible from a command line interface, Jupyter Notebook 
 &nbsp;&nbsp;&nbsp;
 [Plugins](https://acceleratedscience.github.io/openad-docs/plugins.html)
 
+## Quick Install
 
+> **Note:** This will install OpenAD in your global space. If you wish to use a virtual environment (recommended), please refer to the [Installation](#installation) page.
 
+    pip install openad
+    openad
 
-<!-- [Documentation](https://acceleratedscience.github.io/openad-docs/) -->
+Get started with Jupyter:
+
+    init_magic
+    init_examples
+    jupyter lab ~/openad_notebooks/Table_of_Contents.ipynb
+
+If you get an error when running `init_magic`, you may first need to setup the default iPython profile for magic commands.
+
+    ipython profile create
+
+<br>
 
 <br>
 

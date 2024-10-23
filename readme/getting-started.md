@@ -7,33 +7,11 @@
 -   When not installing into a virtual environment on MacOS, you may need to use `python3` and `pip3` instead of `python` and `pip` respectively
 -   When updating to 0.4.0 or above, first remove all toolkits by runnning `list toolkits` and then `remove toolkit <toolkit_name>`.
 
-
-<br>
-
-## Quick Install
-
-> **Note:** This will install OpenAD in your global space. If you wish to use a virtual environment (recommended), please see more [detailed instructions](#installation) below.
-
-    pip install openad
-    openad
-
-Get started with Jupyter:
-
-    init_magic
-    init_examples
-    jupyter lab ~/openad_notebooks/Table_of_Contents.ipynb
-
-If you get an error when running `init_magic`, you may first need to setup the default iPython profile for magic commands.
-
-    ipython profile create
-
 <br>
 
 ---
 
 <br>
-
-
 
 # Getting Started - CLI
 
