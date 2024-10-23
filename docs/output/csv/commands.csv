@@ -1,4 +1,23 @@
 Command;Category
+display molecule|mol <name> | <smiles> | <inchi> | <inchikey> | <cid>;Small Molecules
+show molecule|mol <name> | <smiles> | <inchi> | <inchikey> | <cid>;Small Molecules
+show molset|molecule-set '<molset_or_sdf_or_smi_path>' | using dataframe <dataframe>;Small Molecules
+@(<name> | <smiles> | <inchi> | <inchikey> | <cid>)>><molecule_property_name>;Small Molecules
+export molecule|mol <name> | <smiles> | <inchi> | <inchikey> | <cid> [ as file ];Small Molecules
+add molecule|mol <name> | <smiles> | <inchi> | <inchikey> | <cid> [ as '<name>' ] [ basic ] [ force ];Molecule Working Set
+remove molecule|mol <name> | <smiles> | <inchi> | <inchikey> | <cid> [ force ];Molecule Working Set
+list molecules|mols;Molecule Working Set
+show molecules|mols;Molecule Working Set
+enrich molecules|mols with analysis;Molecule Working Set
+clear analysis cache;Molecule Working Set
+display sources <name> | <smiles> | <inchi> | <inchikey> | <cid>;Molecule Working Set
+rename molecule|mol <molecule_identifer_string> as <molecule_name>;Molecule Working Set
+load molecules|mols from file '<filename.molset.json|sdf|csv|smi>' [ enrich ] [ append ];Molecule Working Set
+load molecules|mols from dataframe <dataframe> [ enrich ] [ append ];Molecule Working Set
+merge molecules|mols data from dataframe <dataframe> [ enrich ];Molecule Working Set
+export molecules|mols [ as '<filename.molset.json|sdf|csv|smi>' ];Molecule Working Set
+clear molecules|mols [ force ];Molecule Working Set
+show mmol|protein <fasta> | '<pdb_id>';Macromolecules
 interpret recipe '<recipe_paragraph>' | '<txt_filename>' ;General
 list rxn models;General
 set workspace <workspace_name>;Workspaces
@@ -6,36 +25,6 @@ get workspace [ <workspace_name> ];Workspaces
 create workspace <workspace_name> [ description('<description>') on path '<path>' ];Workspaces
 remove workspace <workspace_name> ;Workspaces
 list workspaces;Workspaces
-add mol|molecule <name> | <smiles> | <inchi> | <inchikey> | <cid> [ as '<name>' ] [ basic ] [ force ];Molecules Working Set
-display sources <name> | <smiles> | <inchi> | <inchikey> | <cid>;Molecules Working Set
-rename molecule <molecule_identifer_string> as <molecule_name>;Molecules Working Set
-export molecule <name> | <smiles> | <inchi> | <inchikey> | <cid> [ as file ];Molecules Working Set
-remove mol|molecule <name> | <smiles> | <inchi> | <inchikey> | <cid> [ force ];Molecules Working Set
-list molecules;Molecules Working Set
-show mols|molecules;Molecules Working Set
-enrich molecules with analysis;Molecules Working Set
-clear analysis cache;Molecules Working Set
-clear molecules;Molecules Working Set
-load molecules using file '<csv_or_sdf_filename>' [ merge with pubchem ] [append];Molecules Working Set
-load molecules using dataframe <dataframe> [ merge with pubchem ] [append];Molecules Working Set
-export molecules [ as <csv_filename> ];Molecules Working Set
-display molecule <name> | <smiles> | <inchi> | <inchikey> | <cid>;Molecules
-@(<name> | <smiles> | <inchi> | <inchikey> | <cid>)>><molecule_property_name>;Molecules
-show mol|molecule <name> | <smiles> | <inchi> | <inchikey> | <cid>;Molecules
-save molecule-set as <molecule_set_name>;Molecule-sets
-load molecule-set|molset <molecule-set_name>;Molecule-sets
-merge molecule-set|molset <molecule-set_name> [merge only] [append only];Molecule-sets
-list molecule-sets;Molecule-sets
-show molset|molecule-set '<molset_or_sdf_or_smi_path>' | using dataframe <dataframe>;Molecule-sets
-merge molecules data using dataframe <dataframe> [ merge with pubchem ];Utility
-display data '<filename.csv>';Utility
-  -> result save [as '<filename.csv>'];Utility
-  -> result open;Utility
-  -> result edit;Utility
-  -> result copy;Utility
-  -> result display;Utility
-  -> result as dataframe;Utility
-edit config '<json_config_file>' [ schema '<schema_file>'];Utility
 ds4sd;Toolkits
 rxn;Toolkits
 st4sd;Toolkits
@@ -54,6 +43,14 @@ save run as <run_name>;Runs
 run <run_name>;Runs
 list runs;Runs
 display run <run_name>;Runs
+display data '<filename.csv>';Utility
+  -> result save [as '<filename.csv>'];Utility
+  -> result open;Utility
+  -> result edit;Utility
+  -> result copy;Utility
+  -> result display;Utility
+  -> result as dataframe;Utility
+edit config '<json_config_file>' [ schema '<schema_file>'];Utility
 install gui;GUI
 launch gui;GUI
 restart gui;GUI
