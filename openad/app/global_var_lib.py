@@ -38,6 +38,7 @@ _all_toolkits = get_toolkits()
 _date_format = "%a %b %d, %G - %R"
 _repo_dir = os.path.dirname(os.path.abspath(__file__))
 
+
 GLOBAL_SETTINGS = {
     # Dictates where our output will be displayed:
     # - terminal: set in main.py -> cmd_line()

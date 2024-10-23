@@ -171,7 +171,6 @@ def key_val_full(
 
     items = []
     for key, val in items_dict.items():
-
         # Ignore keys
         if ignore_keys and key in ignore_keys:
             continue
