@@ -104,6 +104,7 @@ def merge_molecule_property_data(cmd_pointer, inp=None, dataframe=None):
         try:
             smiles = canonicalize(row[smiles_key])
             merge_smol = get_smol_from_mws(cmd_pointer, smiles)
+            GLOBAL_SETTINGS["grammar_refresh"] = True
         except Exception:  # pylint: disable=broad-except
             output_warning("unable to canonicalise:" + row[smiles_key])
             continue
@@ -116,11 +117,13 @@ def merge_molecule_property_data(cmd_pointer, inp=None, dataframe=None):
 
         if merge_smol is not None:
             smol = merge_molecule_properties(row, merge_smol)
+            GLOBAL_SETTINGS["grammar_refresh"] = True
             if update_flag is True:
                 mws_remove(cmd_pointer, merge_smol, force=True, suppress=True)
             cmd_pointer.molecule_list.append(smol)
 
     output_success("Data merged into your working set", return_val=False)
+    GLOBAL_SETTINGS["grammar_refresh"] = True
     return True
 
 
