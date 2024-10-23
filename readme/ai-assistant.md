@@ -1,4 +1,4 @@
-<sub>[&larr; Back](../#openad)</sub>
+<sub>[&larr; BACK](../#openad)</sub>
 
 # OpenAD AI Assistant
 

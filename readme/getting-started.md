@@ -1,4 +1,4 @@
-[&larr; Back](../#openad)
+<sub>[&larr; BACK](../#openad)</sub>
 
 # Getting Started with OpenAD
 
