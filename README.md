@@ -49,9 +49,15 @@ The OpenAD client is accessible from a command line interface, Jupyter Notebook 
 
 <!-- /description -->
 
-[Documentation](https://acceleratedscience.github.io/openad-docs/)
+[Installation](https://acceleratedscience.github.io/openad-docs/installation.html)
+[Getting Started](https://acceleratedscience.github.io/openad-docs/getting-started.html)
+[Models Service](https://acceleratedscience.github.io/openad-docs/models-service.html)
+[Plugins](https://acceleratedscience.github.io/openad-docs/plugins.html)
 
-<button>test</button>
+
+
+
+<!-- [Documentation](https://acceleratedscience.github.io/openad-docs/) -->
 
 <br>
 
