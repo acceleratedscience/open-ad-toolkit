@@ -41,8 +41,8 @@ For consistency, stick to Chrome, hide your bookmarks & extensions.
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Docs](https://img.shields.io/badge/website-live-brightgreen)](https://acceleratedscience.github.io/openad-docs/)
 
-![Landing](assets/openad-cli.png)
-<!-- <a href="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/openad-cli.png" target="_blank"><img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/openad-cli.png" /></a> -->
+<!-- ![Landing](assets/openad-cli.png) -->
+<a href="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/openad-cli.png" target="_blank"><img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/openad-cli.png" style="max-width:500px" /></a>
 
 <br>
 
