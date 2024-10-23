@@ -31,7 +31,7 @@ For consistency, stick to Chrome, hide your bookmarks & extensions.
 
 -->
 
-# OpenAD / Open Accelerated Discovery <!-- omit from toc -->
+# OpenAD <!-- omit from toc -->
 
 **Open-source framework for molecular and materials discovery**
 
@@ -46,7 +46,7 @@ For consistency, stick to Chrome, hide your bookmarks & extensions.
 
 <!-- description -->
 
-OpenAD is an open-source framework for molecular and materials discovery developed by IBM Research.
+Open Accelerated Discovery (aka OpenAD) is an open-source framework for molecular and materials discovery developed by IBM Research.
 
 The OpenAD client is accessible from a command line interface, Jupyter Notebook and an API. It provides unified access to a variety of tools and AI models for literature knowledge extraction, forward and retrosynthesis prediction, generative methods and property inference. You can train models on your own data as well as visualize and filter candidate molecules.
 
