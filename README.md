@@ -48,13 +48,20 @@ Open Accelerated Discovery (aka OpenAD) is an open-source framework for molecula
 The OpenAD client is accessible from our command line interface, via Jupyter Notebook or our API. It provides unified access to a variety of tools and AI models for literature knowledge extraction, forward and retrosynthesis prediction, generative methods and property inference. OpenAD lets you train models on your own data, to then visualize and filter your candidate molecules.
 <!-- /description -->
 
-[Installation](readme/installation.md)
+[Installation](README_installation.md)
 &nbsp;&nbsp;&nbsp;
-[Getting Started](readme/getting-started.md)
+[Getting Started](README_getting-started.md)
 &nbsp;&nbsp;&nbsp;
-[Models Service](readme/models-service.md)
+[Models Service](README_models-service.md)
 &nbsp;&nbsp;&nbsp;
-[Plugins](readme/plugins.md)
+[Plugins](README_plugins.md)
+<br><br>
+<sub>
+[AI Assistant](README_ai-assistant.md)
+&nbsp;&nbsp;&nbsp;
+[Developers](README_developers.md)
+</sub>
+
 
 <br><br>
 
@@ -74,7 +81,7 @@ The OpenAD client is accessible from our command line interface, via Jupyter Not
 ## Quick Install
 
 > [!IMPORTANT]  
-> This will install OpenAD in your global space. If you wish to use a virtual environment (recommended), please refer to the [Installation](/readme/installation.md) page.
+> This will install OpenAD in your global space. If you wish to use a virtual environment (recommended), please refer to the [Installation](/README_installation.md) page.
 
     pip install openad
     openad
@@ -97,7 +104,7 @@ If you get an error when running `init_magic`, you may first need to setup the d
 -   Upgraded SkyPilot to 0.6.0
 -   Support for deploying in OpenShift AI/Open Data hub workbench or Podman/Docker image. [See the workbench repo](https://github.com/acceleratedscience/openad_workbench).
 -   Support for application API
--   New property and dataset generation services. See [OpenAD Models Service](/readme/models-service.md)
+-   New property and dataset generation services. See [OpenAD Models Service](/README_models-service.md)
     -   GT4SD Generation Services
     -   GT4SD Property Services
     -   GT4SD MoleR Generation

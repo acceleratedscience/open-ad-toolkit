@@ -71,7 +71,7 @@ def update_readme_md(filename):
     # Insert description
     readme_md_1 = readme_md.split("<!-- description -->")[0]
     readme_md_2 = readme_md.split("<!-- /description -->")[1]
-    readme_md = readme_md_1 + "<!-- description -->\n\n" + description_txt + "\n\n<!-- /description -->" + readme_md_2
+    readme_md = readme_md_1 + "<!-- description -->\n" + description_txt + "\n<!-- /description -->" + readme_md_2
 
     # Write to output file
     success, err_msg = write_file(filename, readme_md, return_err=True)
@@ -100,18 +100,26 @@ def render_index_md(filename):
         output_error(err_msg)
         return
 
-    # Read description file input content
-    description_txt, err_msg = open_file("docs/source/description.txt", return_err=True)
-    if not description_txt:
+    # Read README.md input content
+    readme_md, err_msg = open_file("README.md", return_err=True)
+    if not readme_md:
         output_text(FLAG_ERROR, pad_top=1)
         output_error(err_msg)
         return
+
+    # Remove comments from README.md
+    readme_md = re.sub(r"<!--.*?-->\n?", "", readme_md, flags=re.DOTALL)
+
+    # Adjust the links to play nice with just-the-docs
+    readme_md = re.sub(
+        r"\[(.*?)\]\(README_(.*?).md\)", lambda m: f"[{m.group(1)}]({m.group(2)}.html)", readme_md, flags=re.DOTALL
+    )
 
     # Insert DO NOT EDIT comment
     index_md = re.sub(r"{{DO_NOT_EDIT}}", DO_NOT_EDIT, index_md, flags=re.DOTALL)
 
     # Insert description
-    index_md = re.sub(r"{{DESCRIPTION}}", description_txt, index_md, flags=re.DOTALL)
+    index_md = re.sub(r"{{README_MD}}", readme_md, index_md, flags=re.DOTALL)
 
     # Write to output file
     success, err_msg = write_file(f"docs/output/markdown/{filename}", index_md, return_err=True)
