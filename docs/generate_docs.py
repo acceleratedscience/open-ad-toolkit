@@ -204,21 +204,28 @@ def render_base_concepts_md(filename):
         output_error(err_msg)
         return
 
-    # Read about_workspace.txt content
+    # Read about_mws.txt content
+    about_mws, err_msg = open_file("docs/source/about_mws.txt", return_err=True)
+    if not about_mws:
+        output_text(FLAG_ERROR, pad_top=1)
+        output_error(err_msg)
+        return
+
+    # Read about_plugin.txt content
     about_plugin, err_msg = open_file("docs/source/about_plugin.txt", return_err=True)
     if not about_plugin:
         output_text(FLAG_ERROR, pad_top=1)
         output_error(err_msg)
         return
 
-    # Read about_workspace.txt content
+    # Read about_context.txt content
     about_context, err_msg = open_file("docs/source/about_context.txt", return_err=True)
     if not about_context:
         output_text(FLAG_ERROR, pad_top=1)
         output_error(err_msg)
         return
 
-    # Read about_workspace.txt content
+    # Read about_run.txt content
     about_run, err_msg = open_file("docs/source/about_run.txt", return_err=True)
     if not about_run:
         output_text(FLAG_ERROR, pad_top=1)
@@ -230,6 +237,7 @@ def render_base_concepts_md(filename):
 
     # Insert descriptions
     base_concepts_md = re.sub(r"{{ABOUT_WORKSPACE}}", about_workspace, base_concepts_md, flags=re.DOTALL)
+    base_concepts_md = re.sub(r"{{ABOUT_MWS}}", about_mws, base_concepts_md, flags=re.DOTALL)
     base_concepts_md = re.sub(r"{{ABOUT_PLUGIN}}", about_plugin, base_concepts_md, flags=re.DOTALL)
     base_concepts_md = re.sub(r"{{ABOUT_CONTEXT}}", about_context, base_concepts_md, flags=re.DOTALL)
     base_concepts_md = re.sub(r"{{ABOUT_RUN}}", about_run, base_concepts_md, flags=re.DOTALL)
