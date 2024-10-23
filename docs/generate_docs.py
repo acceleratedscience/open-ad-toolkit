@@ -89,8 +89,7 @@ def update_readme_md(filename):
 # region - index.md
 
 
-# Loop through all commands and export them to a markdown file
-# that is ready to be included in the just-the-docs documentation.
+# Render the homepage
 def render_index_md(filename):
     output_text("<h1>Generating <yellow>index.md</yellow></h1>", pad_top=2)
 

@@ -1,3 +1,5 @@
+[&larr; Back](../)
+
 # Installation
 
 > **Note:** Contributors should skip to [Installation for Development](#installation-for-development)
