@@ -31,7 +31,7 @@ For consistency, stick to Chrome, hide your bookmarks & extensions.
 
 -->
 
-# Open Accelerated Discovery <!-- omit from toc -->
+# OpenAD / Open Accelerated Discovery <!-- omit from toc -->
 
 **Open-source framework for molecular and materials discovery**
 
@@ -43,8 +43,6 @@ For consistency, stick to Chrome, hide your bookmarks & extensions.
 
 <!-- ![Landing](assets/openad-cli.png) -->
 <a href="assets/openad-cli.png" target="_blank"><img src="assets/openad-cli.png" width="500" /></a>
-
-<br>
 
 <!-- description -->
 
