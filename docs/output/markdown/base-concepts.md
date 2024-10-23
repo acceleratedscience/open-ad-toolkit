@@ -22,6 +22,7 @@ Your workspace represents an isolated environment where your molecules, molecule
 
 Each workspace has its own command history and corresponds with a directory stored in ~/openad/workspaces, allowing you to work on multiple isolated projects at once. OpenAD comes loaded with a default workspace called 'default', and you can create as many additional workspaces as needed.
 
+
 To see how to work with workspaces:
 
     ? workspace
@@ -43,6 +44,7 @@ To see how to work with plugins:
 ## Context
 
 Your context defines what plugin you are currently working with. It ensures you are logged onto the a plugin's corresponding system and all the related functionality is loaded.
+
 
 To see how to switch contexts:
 
