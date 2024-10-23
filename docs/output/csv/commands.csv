@@ -20,11 +20,14 @@ clear molecules|mols [ force ];Molecule Working Set
 show mmol|protein <fasta> | '<pdb_id>';Macromolecules
 interpret recipe '<recipe_paragraph>' | '<txt_filename>' ;General
 list rxn models;General
+list workspaces;Workspaces
 set workspace <workspace_name>;Workspaces
 get workspace [ <workspace_name> ];Workspaces
+get workspace path;Workspaces
+show workspace;Workspaces
+open workspace [ <workspace_name> ];Workspaces
 create workspace <workspace_name> [ description('<description>') on path '<path>' ];Workspaces
 remove workspace <workspace_name> ;Workspaces
-list workspaces;Workspaces
 ds4sd;Toolkits
 rxn;Toolkits
 st4sd;Toolkits
