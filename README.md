@@ -48,18 +48,18 @@ Open Accelerated Discovery (aka OpenAD) is an open-source framework for molecula
 The OpenAD client is accessible from our command line interface, via Jupyter Notebook or our API. It provides unified access to a variety of tools and AI models for literature knowledge extraction, forward and retrosynthesis prediction, generative methods and property inference. OpenAD lets you train models on your own data, to then visualize and filter your candidate molecules.
 <!-- /description -->
 
-[Installation](README_installation.md)
+[INSTALLATION](README_installation.md)
 &nbsp;&nbsp;&nbsp;
-[Getting Started](README_getting-started.md)
+[GETTING STARTED](README_getting-started.md)
 &nbsp;&nbsp;&nbsp;
-[Models Service](README_models-service.md)
+[MODELS SERVICE](README_models-service.md)
 <br><br>
 <sub>
-[Plugins](README_plugins.md)
+[PLUGINS](README_plugins.md)
 &nbsp;&nbsp;&nbsp;
-[AI Assistant](README_ai-assistant.md)
+[AI ASSISTANT](README_ai-assistant.md)
 &nbsp;&nbsp;&nbsp;
-[Developers](README_developers.md)
+[DEVELOPERS](README_developers.md)
 </sub>
 
 
