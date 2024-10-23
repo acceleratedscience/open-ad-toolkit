@@ -204,7 +204,7 @@ def render_base_concepts_md(filename):
         output_error(err_msg)
         return
 
-    # Read about_workspace.txt content
+    # Read about_mws.txt content
     about_mws, err_msg = open_file("docs/source/about_mws.txt", return_err=True)
     if not about_mws:
         output_text(FLAG_ERROR, pad_top=1)
