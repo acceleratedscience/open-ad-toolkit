@@ -1,4 +1,4 @@
-[&larr; Back](../)
+[&larr; Back](../#openad)
 
 # Installation
 
