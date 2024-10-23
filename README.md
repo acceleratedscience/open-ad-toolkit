@@ -42,7 +42,7 @@ For consistency, stick to Chrome, hide your bookmarks & extensions.
 [![Docs](https://img.shields.io/badge/website-live-brightgreen)](https://acceleratedscience.github.io/openad-docs/)
 
 <!-- ![Landing](assets/openad-cli.png) -->
-<a href="assets/openad-cli.png" target="_blank"><img src="assets/openad-cli.png" style="max-width:500px" /></a>
+<a href="assets/openad-cli.png" target="_blank"><img src="assets/openad-cli.png" width="500" /></a>
 
 <br>
 
