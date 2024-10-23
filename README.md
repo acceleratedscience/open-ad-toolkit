@@ -1,5 +1,15 @@
 <!--
 
+Table of contents
+-----------------
+- Install the "Markdown All in One" plugin in VSCode
+- The TOC should be automatically updated. If it's not:
+  • Open the command palette (Press Cmd+Shift+P (macOS) or Ctrl+Shift+P (Windows))
+  • Type "Markdown All in One: Update Table of Contents"
+
+
+Screenshots
+-----------
 For screenshots to look good, they should be small and ideally
 all the same size. The script below lets you open the URLs in
 the right size. Just paste this into the browser console and
@@ -7,19 +17,17 @@ press enter.
 
 To take the screenshots with browser UI included on Mac, press
 cmd+shift+4 followed by the spacebar, then click the window.
-For consistency, stick to Chrome.
+For consistency, stick to Chrome, hide your bookmarks & extensions.
 
-- - -
+    urls = [
+        'https://cps.foc-deepsearch.zurich.ibm.com',
+        'https://rxn.app.accelerate.science',
+        'https://sds.app.accelerate.science',
 
-urls = [
-    'https://cps.foc-deepsearch.zurich.ibm.com',
-    'https://rxn.app.accelerate.science',
-    'https://sds.app.accelerate.science',
-
-]
-for (var i=0; i< urls.length; i++) {
-    window.open(urls[i], '_blank', 'width=1000,height=600');
-}
+    ]
+    for (var i=0; i< urls.length; i++) {
+        window.open(urls[i], '_blank', 'width=1000,height=600');
+    }
 
 -->
 
@@ -52,7 +60,6 @@ The OpenAD client is accessible from a command line interface, Jupyter Notebook 
 <div markdown="block">
 
 -   `%Openadd` has been added to the magic commands for commands that return data.
--   New Macro Molecule viewer for visualising proteins
 -   Upgraded SkyPilot to 0.6.0
 -   Support for deploying in OpenShift AI/Open Data hub workbench or Podman/Docker image. [See the workbench repo](https://github.com/acceleratedscience/openad_workbench).
 -   Support for application API
@@ -111,25 +118,56 @@ The OpenAD client is accessible from a command line interface, Jupyter Notebook 
 
 <br>
 
-### Before You Start <!-- omit from toc -->
+## Table of Contents <!-- omit from toc -->
 
-<details>
-<summary>Things you should know</summary>
-<div markdown="block">
+<!-- toc -->
+- [Installation](#installation)
+- [Getting Started - CLI](#getting-started---cli)
+- [Getting Started - Jupyter](#getting-started---jupyter)
+  - [Setting up Jupyter](#setting-up-jupyter)
+  - [Launching OpenAD in Jupyter](#launching-openad-in-jupyter)
+- [Interacting with the Toolkits](#interacting-with-the-toolkits)
+    - [Registration](#registration)
+    - [Adding a Toolkit](#adding-a-toolkit)
+    - [Sample Commands](#sample-commands)
+    - [Running Bash Commands (CLI)](#running-bash-commands-cli)
+- [AI Assistant](#ai-assistant)
+  - [IBM BAM Setup](#ibm-bam-setup)
+  - [Ollama Setup](#ollama-setup)
+    - [Ollama Remote Setup with SkyPilot](#ollama-remote-setup-with-skypilot)
+    - [Run Ollama](#run-ollama)
+- [Model Services](#model-services)
+- [For Developers](#for-developers)
+  - [Installation for Development](#installation-for-development)
+  - [Testing a branch](#testing-a-branch)
+- [Installing on Windows](#installing-on-windows)
+  - [Before You Start](#before-you-start-1)
+  - [Installing WSL](#installing-wsl)
+- [Appendix](#appendix)
+  - [Upgrading Python](#upgrading-python)
+  - [Linux Notes](#linux-notes)
+<!-- tocstop -->
+
+<br>
+
+
+---
+
+<br>
+
+### Before You Start
 
 -   OpenAD is available for Linux and MacOS
 -   We support Windows 11 via WSL 2 (ubuntu 22.04) - see [Installing on Windows](#installing-on-windows)
 -   When not installing into a virtual environment on MacOS, you may need to use `python3` and `pip3` instead of `python` and `pip` respectively
 -   When updating to 0.4.0 or above, first remove all toolkits by runnning `list toolkits` and then `remove toolkit <toolkit_name>`.
 
-</div>
-</details>
 
 <br>
 
-## Quick Install <!-- omit from toc -->
+## Quick Install
 
-> **Note:** This will install OpenAD in your global space. If you wish to use a virtual environment, please see more [detailed instructions](#installation) below.
+> **Note:** This will install OpenAD in your global space. If you wish to use a virtual environment (recommended), please see more [detailed instructions](#installation) below.
 
     pip install openad
     openad
@@ -150,42 +188,6 @@ If you get an error when running `init_magic`, you may first need to setup the d
 
 <br>
 
-## Table of Contents <!-- omit from toc -->
-
-<!-- toc -->
-
--   [Installation](#installation)
--   [Getting Started - CLI](#getting-started---cli)
--   [Getting Started - Jupyter](#getting-started---jupyter)
-    -   [Setting up Jupyter](#setting-up-jupyter)
-    -   [Launching OpenAD in Jupyter](#launching-openad-in-jupyter)
--   [Interacting with the Toolkits](#interacting-with-the-toolkits)
-    -   [Registration](#registration)
-    -   [Adding a Toolkit](#adding-a-toolkit)
-    -   [Sample Commands](#sample-commands)
-    -   [Running Bash Commands (CLI)](#running-bash-commands-cli)
--   [AI Assistant](#ai-assistant)
-    -   [IBM BAM Setup](#ibm-bam-setup)
-    -   [Ollama Setup](#ollama-setup)
-        -   [Ollama Remote Setup with SkyPilot](#ollama-remote-setup-with-skypilot)
-        -   [Run Ollama](#run-ollama)
--   [Model Services](#model-services)
--   [For Developers](#for-developers)
-    -   [Installation for Development](#installation-for-development)
-    -   [Testing a branch](#testing-a-branch)
--   [Installing on Windows](#installing-on-windows)
-    -   [Before You Start](#before-you-start)
-    -   [Installing WSL](#installing-wsl)
--   [Linux Notes](#linux-notes)
-
-<!-- tocstop -->
-
-<br>
-
----
-
-<br>
-
 <a name="installation"></a>
 
 # Installation
@@ -196,22 +198,25 @@ If you get an error when running `init_magic`, you may first need to setup the d
 
 > **Note:** If you prefer using poetry and you know what you're doing, you can skip the instructions below and run `poetry add openad` instead.
 
+<!-- Note: step 1 & 2 are repeated, make sure any updates are done in both places -->
 1.  **Step 0: Before you start**<br>
-    Ensure you're running Python 3.10 or 3.11. There's multiple ways of updating Python, we'll use pyenv.
+    Ensure you're running Python 3.10.10 or 3.11. See [instructions below](#upgrading-python).
+
+    To see what version you are running:
+
+        python -V
 
     > **Note:** Due to an issue with one of our dependencies, Python 3.12 is not yet supported.
 
-        git clone https://github.com/pyenv/pyenv.git ~/.pyenv
-        pyenv install 3.10
+1.  **Step 1: Set up your virtual environment** (recommended)<br>
 
-1.  **Step 1: Set up your virtual environment** (optional)<br>
-
-        python3.11 -m venv ~/ad-venv
+        python -m venv ~/ad-venv
         source ~/ad-venv/bin/activate
 
+    > **Note:** Use `python3` on macOS.
     > **Note:** To exit the virtual environment, you can run `deactivate`
 
-1.  **Step 2: Installation**
+1.  **Step 2: Install OpenAD**
 
         pip install openad
 
@@ -499,17 +504,22 @@ If you have any questions in the meantime, please [reach out]({% link about.md %
 <summary>Install using pip</summary>
 <div markdown="block">
 
+<!-- Note: step 1 & 2 are repeated, make sure any updates are done in both places -->
 1.  **Step 0: Before you start**<br>
-    Ensure you're running Python 3.10.10 or above. There's multiple ways of doing this, we'll use pyenv.
+    Ensure you're running Python 3.10.10 or 3.11. See [instructions below](#upgrading-python).
 
-            git clone https://github.com/pyenv/pyenv.git ~/.pyenv
-            pyenv install 3.10
+    To see what version you are running:
 
-1.  **Step 1: Set up your virtual environment** (optional)<br>
+        python -V
+
+    > **Note:** Due to an issue with one of our dependencies, Python 3.12 is not yet supported.
+
+1.  **Step 1: Set up your virtual environment** (recommended)<br>
 
         python -m venv ~/ad-venv
         source ~/ad-venv/bin/activate
 
+    > **Note:** Use `python3` on macOS.
     > **Note:** To exit the virtual environment, you can run `deactivate`
 
 1.  **Step 2: Download the repo**
@@ -518,7 +528,7 @@ If you have any questions in the meantime, please [reach out]({% link about.md %
 
     > **Note:** To download a specific branch, you can run instead:<br> > `git clone -b <branch_name> https://github.com/acceleratedscience/open-ad-toolkit.git`
 
-1.  **Step 2: Install the requirements**
+1.  **Step 2: Install OpenAD**
 
         cd open-ad-toolkit
         pip install -e .
@@ -564,7 +574,43 @@ Install WSL and create a user called 'openad' or one of your choosing.
 
 <br>
 
-# Linux Notes
+# Appendix
+
+## Upgrading Python
+
+There's many ways to install or upgrade Python. We'll use `pyenv`.
+
+1.  **Install pyenv**
+
+        curl https://pyenv.run | bash
+    
+1.  **Set up your shell environment for Pyenv**<br>
+    Detailed instructions cam be found [here](https://github.com/pyenv/pyenv?tab=readme-ov-file#set-up-your-shell-environment-for-pyenv). If you're using Zsh, you can run the commands below:
+
+        echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.zshrc
+        echo '[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.zshrc
+        echo 'eval "$(pyenv init -)"' >> ~/.zshrc
+    
+1.  **Reboot your shell**<br>
+    You can either open a new window or run:
+
+        exec $SHELL
+
+1. **Install Python**
+    Please note that OpenAD requires **Python 3.10** or **3.11**. Due to an issue with one of our dependencies, Python 3.12 is not yet supported.
+    
+        pyenv install 3.11
+
+2.  **Activate this version of Python**
+    If you wish to set this version as the default:
+
+        pyenv global 3.11
+        
+    Alternatively, if you only wish to activate it in the current shell:
+
+        pyenv shell 3.11
+
+## Linux Notes
 
 If you wish to setup an Ubuntu Python environment from scratch, run:
 
