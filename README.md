@@ -51,6 +51,8 @@ The OpenAD client is accessible from a command line interface, Jupyter Notebook 
 
 [Documentation](https://acceleratedscience.github.io/openad-docs/)
 
+<button>test</button>
+
 <br>
 
 ### See What's New <!-- omit from toc -->
