@@ -60,8 +60,6 @@ In order to run OpenAD on Windows 11, you will need to install the Ubuntu WSL pa
 
 ## Appendix
 
-<br>
-
 ### Upgrading Python
 
 There's many ways to install or upgrade Python. We'll use `pyenv`.
