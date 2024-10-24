@@ -131,6 +131,8 @@ If you get an error when running `init_magic`, you may first need to setup the d
 - **Demo Notebooks:** See `init_examples` under installation
 <!-- [Mailing list]() -->
 
+<br><br>
+
 ## Contribute
 Stay tuned for detailed instructions on how to build your own OpenAD plugins.<br>
 Check the [Developers] section for guidance with other contributions.
