@@ -1,7 +1,7 @@
 ---
 title: Base Concepts
-layout: home
-nav_order: 3
+layout: default
+nav_order: 4
 ---
 
 {{DO_NOT_EDIT}}

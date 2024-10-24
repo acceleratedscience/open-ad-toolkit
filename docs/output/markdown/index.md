@@ -1,6 +1,6 @@
 ---
 title: Overview
-layout: home
+layout: default
 nav_order: 1
 ---
 
@@ -8,12 +8,11 @@ nav_order: 1
 
 DO NOT EDIT
 -----------
-This file auto-generated.
+This file is auto-generated.
 To update it, consult instructions:
 https://github.com/acceleratedscience/open-ad-toolkit/tree/main/docs
 
 -->
-
 
 # OpenAD
 
@@ -30,15 +29,7 @@ Open Accelerated Discovery (aka OpenAD) is an open-source framework for molecula
 
 The OpenAD client is accessible from our command line interface, via Jupyter Notebook or our API. It provides unified access to a variety of tools and AI models for literature knowledge extraction, forward and retrosynthesis prediction, generative methods and property inference. OpenAD lets you train models on your own data, to then visualize and filter your candidate molecules.
 
-[Installation](installation.html)
-&nbsp;&nbsp;&nbsp;
-[Getting Started](getting-started.html)
-&nbsp;&nbsp;&nbsp;
-[Models Service](models-service.html)
-&nbsp;&nbsp;&nbsp;
-[Plugins](plugins.html)
-
-<br><br>
+<br>
 
 ### Useful links
 
@@ -56,7 +47,7 @@ The OpenAD client is accessible from our command line interface, via Jupyter Not
 ## Quick Install
 
 > [!IMPORTANT]  
-> This will install OpenAD in your global space. If you wish to use a virtual environment (recommended), please refer to the [Installation](/README_installation.md) page.
+> This will install OpenAD in your global space. If you wish to use a virtual environment (recommended), please refer to the [Installation](installation.html) page.
 
     pip install openad
     openad
@@ -79,7 +70,7 @@ If you get an error when running `init_magic`, you may first need to setup the d
 -   Upgraded SkyPilot to 0.6.0
 -   Support for deploying in OpenShift AI/Open Data hub workbench or Podman/Docker image. [See the workbench repo](https://github.com/acceleratedscience/openad_workbench).
 -   Support for application API
--   New property and dataset generation services. See [OpenAD Models Service](/README_models-service.md)
+-   New property and dataset generation services. See [OpenAD Models Service](models-service.html)
     -   GT4SD Generation Services
     -   GT4SD Property Services
     -   GT4SD MoleR Generation
@@ -87,3 +78,31 @@ If you get an error when running `init_magic`, you may first need to setup the d
 
     Pre-Requisite is that you have a AWS Account and can launch your own EC2 Instances Or someone else can launch them for you and you can catalog a Remote Service via URL.
 
+<br><br>
+
+## Provide Feedback
+
+- **Feature requests, feedback and questions:**<br>
+  [phil.downey1@ibm.com](mailto:phil.downey1@ibm.com)
+- **Bug reports:**<br>
+  [Create issue on GitHub](https://github.com/acceleratedscience/open-ad-toolkit/issues)
+
+<br><br>
+
+## Learn
+
+- [OpenAD blog](https://blog.accelerate.science/)
+- **Demo Notebooks:** See `init_examples` under installation
+
+<br><br>
+
+## Contribute
+Stay tuned for detailed instructions on how to build your own OpenAD plugins.<br>
+Check the [Developers] section for guidance with other contributions.
+
+[INSTALLATION]: installation.html
+[GETTING STARTED]: getting-started.html
+[MODELS SERVICE]: models-service.html
+[PLUGINS]: plugins.html
+[AI ASSISTANT]: ai-assistant.html
+[DEVELOPERS]: developers.html

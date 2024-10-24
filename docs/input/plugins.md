@@ -1,7 +1,7 @@
 ---
-title: Overview
+title: Plugins
 layout: default
-nav_order: 1
+nav_order: 7
 ---
 
 {{DO_NOT_EDIT}}

@@ -1,6 +1,6 @@
 # OpenAD Documentation
 
-The folder contains the "single source of truth" for descriptions of OpenAD and its core concepts that are propagated across different aspects of the OpenAD help experience.
+The documentation generation script assures consistency by propagating the source descriptions of OpenAD and its base concepts across different aspects of the OpenAD help experience, while also automatically updating the documentation website with the README content of the OpenAD repository.
 
 ### How to regenerate documentation
 
@@ -8,12 +8,12 @@ The folder contains the "single source of truth" for descriptions of OpenAD and 
 
 ### What this does
 
-When regenerating the docs, the text files in the `/source` folder are used to update:
-
--   The OpenAD description at the top of the main [README.md](/) in this repository
--   The markdown files for the [openad-docs] repository (which are copied over automatically if the repo is found)
--   The intro text that is displayed when running the `intro` command (see [output_content.py](/openad/helpers/output_content.py))
--   The informational paragraphs that are displayed when running the `? workspace`, `? tookit`, `? context` and `? run` commands (see _output_content_ in [main.py](/openad/app/main.py))
+1. Use the descriptions from the [`/source`](/source) folder to update:
+   - The `README.md`
+   - The [intro text](/openad/helpers/output_content.py) that is displayed when running the `intro` command
+   - The informational paragraphs that are displayed when running the `? workspace`, `? mws`, `? tookit`, `? context` and `? run` commands (see _output_content_ in [main.py](/openad/app/main.py))
+   - The [Base Concepts](https://acceleratedscience.github.io/openad-docs/base-concepts.html) page on the documentation website
+2. Duplicate all the README markdown pages, prepare them for just-the-docs consumption, then copy them over to the documentation repository if it's available
 
 ### How it works
 

@@ -1,7 +1,7 @@
 ---
-title: Overview
+title: AI Assistant
 layout: default
-nav_order: 1
+nav_order: 8
 ---
 
 {{DO_NOT_EDIT}}

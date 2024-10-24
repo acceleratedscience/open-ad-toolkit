@@ -38,7 +38,16 @@ DO_NOT_EDIT = (
     "<!--\n\n"
     "DO NOT EDIT\n"
     "-----------\n"
-    "This file auto-generated.\n"
+    "This file is auto-generated.\n"
+    "To update it, consult instructions:\n"
+    "https://github.com/acceleratedscience/open-ad-toolkit/tree/main/docs\n\n"
+    "-->"
+)
+DO_NOT_EDIT_PYPI = (
+    "<!--\n\n"
+    "DO NOT EDIT\n"
+    "-----------\n"
+    "This file is auto-generated with modified links for PyPI.\n"
     "To update it, consult instructions:\n"
     "https://github.com/acceleratedscience/open-ad-toolkit/tree/main/docs\n\n"
     "-->"
@@ -47,21 +56,21 @@ DO_NOT_EDIT = (
 # endregion
 
 ############################################################
-# region - README.md
+# region - README.md (GitHub)
 
 
-# Replace the description in the main README.md file.
-def update_readme_md(filename):
-    output_text("<h1>Updating <yellow>README.md</yellow> with OpenAD description</h1>", pad_top=2)
+# Update the README.md file with OpenAD description.
+def update_github_readme_md(filename="README.md"):
+    output_text(f"<h1>Updating <yellow>{filename}</yellow> with OpenAD description</h1>", pad_top=2)
 
-    # Read README.md input content
+    # Read README.md file content
     readme_md, err_msg = open_file("README.md", return_err=True)
     if not readme_md:
         output_text(FLAG_ERROR, pad_top=1)
         output_error(err_msg)
         return
 
-    # Read description file input content
+    # Read description source file content
     description_txt, err_msg = open_file("docs/source/description.txt", return_err=True)
     if not description_txt:
         output_text(FLAG_ERROR, pad_top=1)
@@ -86,43 +95,36 @@ def update_readme_md(filename):
 # endregion
 
 ############################################################
-# region - index.md
+# region - README-PYPI.md (PyPi)
 
 
-# Render the homepage
-def render_index_md(filename):
-    output_text("<h1>Generating <yellow>index.md</yellow></h1>", pad_top=2)
+# Create the README--PYPI.md for PyPI package page
+# - - -
+# A modified version of the README.md file with links pointing
+# to the documentation website instead of other readme files.
+def render_pypi_readme_md(filename="README--PYPI.md"):
+    output_text(f"<h1>Generating <yellow>{filename}</yellow></h1>", pad_top=2)
 
-    # Read index.md input content
-    index_md, err_msg = open_file("docs/input/index.md", return_err=True)
-    if not index_md:
-        output_text(FLAG_ERROR, pad_top=1)
-        output_error(err_msg)
-        return
-
-    # Read README.md input content
+    # Read README.md file content
     readme_md, err_msg = open_file("README.md", return_err=True)
     if not readme_md:
         output_text(FLAG_ERROR, pad_top=1)
         output_error(err_msg)
         return
 
-    # Remove comments from README.md
+    # Remove comments from README content
     readme_md = re.sub(r"<!--.*?-->\n?", "", readme_md, flags=re.DOTALL)
 
     # Adjust the links to play nice with just-the-docs
     readme_md = re.sub(
-        r"\[(.*?)\]\(README_(.*?).md\)", lambda m: f"[{m.group(1)}]({m.group(2)}.html)", readme_md, flags=re.DOTALL
+        r"^\[(.*?)\]: README_(.*?).md", lambda m: f"[{m.group(1)}]({m.group(2)}.html)", readme_md, flags=re.MULTILINE
     )
 
     # Insert DO NOT EDIT comment
-    index_md = re.sub(r"{{DO_NOT_EDIT}}", DO_NOT_EDIT, index_md, flags=re.DOTALL)
-
-    # Insert description
-    index_md = re.sub(r"{{README_MD}}", readme_md, index_md, flags=re.DOTALL)
+    readme_md = DO_NOT_EDIT_PYPI + "\n\n" + readme_md
 
     # Write to output file
-    success, err_msg = write_file(f"docs/output/markdown/{filename}", index_md, return_err=True)
+    success, err_msg = write_file(filename, readme_md, return_err=True)
     if success:
         output_text(FLAG_SUCCESS)
         output_text(f"<soft>Exported to</soft> <reset>/docs/output/markdown/{filename}</reset>")
@@ -134,50 +136,76 @@ def render_index_md(filename):
 # endregion
 
 ############################################################
-# region - installation.md
+# region - docs pages
 
 
-# Adapt the README.md to be repurposed as
-# instalation page for just-the-docs.
-def render_installation_md(filename):
-    output_text("<h1>Generating <yellow>installation.md</yellow> based off of README.md</h1>", pad_top=2)
+# Convert all main pages
+def render_docs_pages():
+    for page in [
+        "index.md",
+        "installation.md",
+        "getting-started.md",
+        "models-service.md",
+        "plugins.md",
+        "ai-assistant.md",
+        "developers.md",
+    ]:
+        _render_docs_page(page)
 
-    # Read installation.md input content
-    installation_md, err_msg = open_file("docs/input/installation.md", return_err=True)
-    if not installation_md:
+
+# Convert README_xxx.md page into a xxx.md page for the docs website
+def _render_docs_page(filename):
+    output_text(f"<h1>Generating <yellow>{filename}</yellow></h1>", pad_top=2)
+
+    # Read xxx.md input file content
+    input_md, err_msg = open_file(f"docs/input/{filename}", return_err=True)
+    if not input_md:
         output_text(FLAG_ERROR, pad_top=1)
         output_error(err_msg)
         return
 
-    # Read README.md content
-    readme, err_msg = open_file("README.md", return_err=True)
-    if not readme:
+    # Read README_xxx.md base file content
+    base_md_path = "README.md" if filename == "index.md" else f"README_{filename}"
+    base_md, err_msg = open_file(base_md_path, return_err=True)
+    if not base_md:
         output_text(FLAG_ERROR, pad_top=1)
         output_error(err_msg)
         return
 
-    # Remove all comments.
-    readme = re.sub(r"<!--.*?-->", "", readme, flags=re.DOTALL)
+    # Remove navigation links (index.md only)
+    base_md = re.sub(r"<!-- navigation -->.*?<!-- /navigation -->\n*?<br>", "", base_md, flags=re.DOTALL)
 
-    # Remove whitespaces from empty lines
-    # and superfloous linebreaks.
-    readme = re.sub(r"\n\s*\n", "\n\n", readme)
+    # Remove BACK links on top (all pages except index.md)
+    base_md = re.sub(r"^<sub>.+?</sub>\n*?", "", base_md)
 
-    # Trim space from start and end of file.
-    readme = readme.strip()
+    # Remove comments
+    base_md = re.sub(r"<!--.*?-->\n?", "", base_md, flags=re.DOTALL)
 
-    # Remove header
-    splitter = "## Quick Install"
-    readme = splitter + readme.split(splitter)[1]
+    # Remove superfloous linebreaks
+    base_md = re.sub(r"\n\s*\n", "\n\n", base_md)
+
+    # Trim space from start and end of file
+    base_md = base_md.strip()
+
+    # Adjust template links to play nice with just-the-docs
+    base_md = re.sub(
+        r"^\[(.*?)\]: README_(.*?).md",
+        lambda m: f"[{m.group(1)}]: {m.group(2)}.html",
+        base_md,
+        flags=re.MULTILINE,
+    )
+
+    # Adjust regular links to play nice with just-the-docs
+    base_md = re.sub(r"\[(.*?)\]\(README_(.*?).md\)", lambda m: f"[{m.group(1)}]({m.group(2)}.html)", base_md)
 
     # Insert DO NOT EDIT comment
-    installation_md = re.sub(r"{{DO_NOT_EDIT}}", DO_NOT_EDIT, installation_md, flags=re.DOTALL)
+    input_md = re.sub(r"{{DO_NOT_EDIT}}", DO_NOT_EDIT, input_md)
 
-    # Insert description
-    installation_md = re.sub(r"{{INSTALLATION}}", readme, installation_md, flags=re.DOTALL)
+    # Insert base file content
+    input_md = re.sub(r"{{CONTENT}}", base_md, input_md)
 
-    # Write to file
-    success, err_msg = write_file(f"{REPO_PATH}/docs/output/markdown/{filename}", installation_md, return_err=True)
+    # Write to output file
+    success, err_msg = write_file(f"docs/output/markdown/{filename}", input_md, return_err=True)
     if success:
         output_text(FLAG_SUCCESS)
         output_text(f"<soft>Exported to</soft> <reset>/docs/output/markdown/{filename}</reset>")
@@ -192,47 +220,46 @@ def render_installation_md(filename):
 # region - base-concepts.md
 
 
-# Adapt the README.md to be repurposed as
-# instalation page for just-the-docs.
-def render_base_concepts_md(filename):
-    output_text("<h1>Generating <yellow>base-concepts.md</yellow></h1>", pad_top=2)
+# Generate the base-concepts.md file for the documentation website.
+def render_base_concepts_md(filename="base-concepts.md"):
+    output_text(f"<h1>Generating <yellow>{filename}</yellow></h1>", pad_top=2)
 
-    # Read base-concepts.md input content
+    # Read base-concepts.md input file content
     base_concepts_md, err_msg = open_file("docs/input/base-concepts.md", return_err=True)
     if not base_concepts_md:
         output_text(FLAG_ERROR, pad_top=1)
         output_error(err_msg)
         return
 
-    # Read about_workspace.txt content
+    # Read about_workspace.txt source file content
     about_workspace, err_msg = open_file("docs/source/about_workspace.txt", return_err=True)
     if not about_workspace:
         output_text(FLAG_ERROR, pad_top=1)
         output_error(err_msg)
         return
 
-    # Read about_mws.txt content
+    # Read about_mws.txt source file content (molecule working set)
     about_mws, err_msg = open_file("docs/source/about_mws.txt", return_err=True)
     if not about_mws:
         output_text(FLAG_ERROR, pad_top=1)
         output_error(err_msg)
         return
 
-    # Read about_plugin.txt content
+    # Read about_plugin.txt source file content
     about_plugin, err_msg = open_file("docs/source/about_plugin.txt", return_err=True)
     if not about_plugin:
         output_text(FLAG_ERROR, pad_top=1)
         output_error(err_msg)
         return
 
-    # Read about_context.txt content
+    # Read about_context.txt source file content
     about_context, err_msg = open_file("docs/source/about_context.txt", return_err=True)
     if not about_context:
         output_text(FLAG_ERROR, pad_top=1)
         output_error(err_msg)
         return
 
-    # Read about_run.txt content
+    # Read about_run.txt source file content
     about_run, err_msg = open_file("docs/source/about_run.txt", return_err=True)
     if not about_run:
         output_text(FLAG_ERROR, pad_top=1)
@@ -530,15 +557,19 @@ def _compile_commands(cmds_organized):
 
 if __name__ == "__main__":
     # Update main README.md
-    update_readme_md("README.md")
+    update_github_readme_md()
+    render_pypi_readme_md()
 
     # Render markdown files for documentation website
-    render_index_md("index.md")
-    render_installation_md("installation.md")
     render_base_concepts_md("base-concepts.md")
     render_commands_md("commands.md")
     render_commands_csv("commands.csv")
     render_description_txt("llm_description.txt")
 
-    # Copy markdown files into the documentation repo
-    copy_docs(["index.md", "installation.md", "base-concepts.md", "commands.md"])
+    render_docs_pages()
+
+    # Move all generated markdown files to the documentation repo.
+    docs = []
+    for filename in os.listdir(f"{REPO_PATH}/docs/output/markdown"):
+        docs.append(filename)
+    copy_docs(docs)

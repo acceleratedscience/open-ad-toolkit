@@ -1,37 +1,15 @@
 <!--
 
-Table of contents
------------------
-- Install the "Markdown All in One" plugin in VSCode
-- The TOC should be automatically updated. If it's not:
-  • Open the command palette (Press Cmd+Shift+P (macOS) or Ctrl+Shift+P (Windows))
-  • Type "Markdown All in One: Update Table of Contents"
-
-
-Screenshots
+DO NOT EDIT
 -----------
-For screenshots to look good, they should be small and ideally
-all the same size. The script below lets you open the URLs in
-the right size. Just paste this into the browser console and
-press enter.
-
-To take the screenshots with browser UI included on Mac, press
-cmd+shift+4 followed by the spacebar, then click the window.
-For consistency, stick to Chrome, hide your bookmarks & extensions.
-
-    urls = [
-        'https://cps.foc-deepsearch.zurich.ibm.com',
-        'https://rxn.app.accelerate.science',
-        'https://sds.app.accelerate.science',
-
-    ]
-    for (var i=0; i< urls.length; i++) {
-        window.open(urls[i], '_blank', 'width=1000,height=600');
-    }
+This file is auto-generated with modified links for PyPI.
+To update it, consult instructions:
+https://github.com/acceleratedscience/open-ad-toolkit/tree/main/docs
 
 -->
 
-# OpenAD TEST
+
+# OpenAD
 
 **Open-source framework for molecular and materials discovery**
 
@@ -42,24 +20,24 @@ For consistency, stick to Chrome, hide your bookmarks & extensions.
 
 <a href="assets/openad-cli.png" target="_blank"><img src="assets/openad-cli.png" width="500" /></a>
 
-<!-- description -->
 Open Accelerated Discovery (aka OpenAD) is an open-source framework for molecular and materials discovery developed at IBM Research.
 
 The OpenAD client is accessible from our command line interface, via Jupyter Notebook or our API. It provides unified access to a variety of tools and AI models for literature knowledge extraction, forward and retrosynthesis prediction, generative methods and property inference. OpenAD lets you train models on your own data, to then visualize and filter your candidate molecules.
-<!-- /description -->
 
-**[INSTALLATION](README_installation.md)**
+**[INSTALLATION]**
 &nbsp;&nbsp;&nbsp;
-**[GETTING STARTED](README_getting-started.md)**
+**[GETTING STARTED]**
 &nbsp;&nbsp;&nbsp;
-**[MODELS SERVICE](README_models-service.md)**
-<br>
+**[MODELS SERVICE]**
+
 <sub>
-**[PLUGINS](README_plugins.md)**
+
+**[PLUGINS]**
 &nbsp;&nbsp;&nbsp;
-**[AI ASSISTANT](README_ai-assistant.md)**
+**[AI ASSISTANT]**
 &nbsp;&nbsp;&nbsp;
-**[DEVELOPERS](README_developers.md)**
+**[DEVELOPERS]**
+
 </sub>
 
 
@@ -112,3 +90,32 @@ If you get an error when running `init_magic`, you may first need to setup the d
 
     Pre-Requisite is that you have a AWS Account and can launch your own EC2 Instances Or someone else can launch them for you and you can catalog a Remote Service via URL.
 
+<br><br>
+
+## Provide Feedback
+
+- **Feature requests, feedback and questions:**<br>
+  [phil.downey1@ibm.com](mailto:phil.downey1@ibm.com)
+- **Bug reports:**<br>
+  [Create issue on GitHub](https://github.com/acceleratedscience/open-ad-toolkit/issues)
+
+<br><br>
+
+## Learn
+
+- [OpenAD blog](https://blog.accelerate.science/)
+- **Demo Notebooks:** See `init_examples` under installation
+
+<br><br>
+
+## Contribute
+Stay tuned for detailed instructions on how to build your own OpenAD plugins.<br>
+Check the [Developers] section for guidance with other contributions.
+
+
+[INSTALLATION](installation.html)
+[GETTING STARTED](getting-started.html)
+[MODELS SERVICE](models-service.html)
+[PLUGINS](plugins.html)
+[AI ASSISTANT](ai-assistant.html)
+[DEVELOPERS](developers.html)
