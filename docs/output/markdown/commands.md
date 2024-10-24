@@ -35,7 +35,6 @@ https://github.com/acceleratedscience/open-ad-toolkit/tree/main/docs
   - [General](#general)
   - [Retrosynthesis](#retrosynthesis)
   - [Prediction](#prediction)
-- [ST4SD](#st4sd)
 
 
 ## OpenAD
@@ -99,9 +98,6 @@ Display the splash screen for the DS4SD toolkit. <br><br>
 
 `rxn`{: .cmd }
 Display the splash screen for the RXN toolkit. <br><br>
-
-`st4sd`{: .cmd }
-Display the splash screen for the ST4SD toolkit. <br><br>
 
 `list toolkits`{: .cmd }
 List all installed toolkits. To see all available toolkits, run `list all toolkits`. <br><br>
@@ -593,14 +589,6 @@ Examples: <br>
 - `predict reaction topn in batch from list ['BrBr.c1ccc2cc3ccccc3cc2c1CCO' , 'BrBr.c1ccc2cc3ccccc3cc2c1'] use_saved ` <br><br>
 
 <br>
-
-</details>
-
-## ST4SD
-
-
-<details markdown="block">
-<summary>See commands</summary>
 
 </details>
 

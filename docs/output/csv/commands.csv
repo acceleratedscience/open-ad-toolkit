@@ -9,7 +9,6 @@ remove workspace <workspace_name> ;Workspaces
 list workspaces;Workspaces
 ds4sd;Toolkits
 rxn;Toolkits
-st4sd;Toolkits
 list toolkits;Toolkits
 list all toolkits;Toolkits
 add toolkit <toolkit_name>;Toolkits

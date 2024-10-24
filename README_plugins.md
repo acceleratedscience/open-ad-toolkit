@@ -15,7 +15,9 @@ Note: Plugins are currently referred to as "toolkits" by the commands, however t
 > [!IMPORTANT]
 > When running commands from Jupyter, prepend them with `%openad`
 
-### Registration
+<br><br>
+
+## Registration
 
 Before you can interact with the plugins, you'll need to register with each individual plugin.
 
@@ -68,14 +70,18 @@ Before you can interact with the plugins, you'll need to register with each indi
 </div>
 </details>
 
-### Adding a Toolkit
+<br><br>
+
+## Adding a Toolkit
 
 First install the toolkit, then set the context to this toolkit.
 
     add toolkit ds4sd
     set context ds4sd
 
-### Sample Commands
+<br><br>
+
+## Sample Commands
 
     # DS4SD
     display all collections
@@ -83,7 +89,9 @@ First install the toolkit, then set the context to this toolkit.
     # RXN
     list rxn models
 
-### Running Bash Commands (CLI)
+<br><br>
+
+## Running Bash Commands (CLI)
 
 To run a command in bash mode, prepend it with `openad` and make sure to escape quotes.
 

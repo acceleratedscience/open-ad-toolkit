@@ -563,7 +563,7 @@ def render_description_txt(filename):
         if success:
             output_text(flag_toolkit + FLAG_SUCCESS)
             output_text(
-                f"<soft>Updated in</soft> <reset>/docs/openad/user_toolkits/<toolkit_name>/{filename}</reset>",
+                f"<soft>Updated in</soft> <reset>/docs/openad/user_toolkits/{toolkit_name}/{filename}</reset>",
                 pad_btm=1,
             )
         else:
