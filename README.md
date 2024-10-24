@@ -202,7 +202,7 @@ If you get an error when running `init_magic`, you may first need to setup the d
     > **Note:** Due to an issue with one of our dependencies, Python 3.12 is not yet supported.
 
         git clone https://github.com/pyenv/pyenv.git ~/.pyenv
-        pyenv install 3.10
+        pyenv install 3.11
 
 1.  **Step 1: Set up your virtual environment** (optional)<br>
 
