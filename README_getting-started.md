@@ -2,14 +2,12 @@
 
 # Getting Started with OpenAD
 
-### Before You Start
+---
 
 -   OpenAD is available for Linux and MacOS
--   We support Windows 11 via WSL 2 (ubuntu 22.04) - see [Installing on Windows](#installing-on-windows)
--   When not installing into a virtual environment on MacOS, you may need to use `python3` and `pip3` instead of `python` and `pip` respectively
--   When updating to 0.4.0 or above, first remove all toolkits by runnning `list toolkits` and then `remove toolkit <toolkit_name>`.
-
-<br>
+-   We support Windows 11 via WSL 2 (ubuntu 22.04) - see [Installing on Windows](README_installation.md#installing-on-windows)
+-   When not installing into a virtual environment on macOS, you may need to use `python3` and `pip3` instead of `python` and `pip` respectively
+-   When updating to OpenAD 0.4.0 or above, first remove all toolkits by runnning `list toolkits` and then `remove toolkit <toolkit_name>`.
 
 ---
 
