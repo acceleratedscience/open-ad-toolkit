@@ -2,7 +2,8 @@
 
 # OpenAD Installation
 
-#### Notes
+---
+
 - **Quick install:** For a simplified install without virtual environment, see [Quick Install](/README.md#quick-install)
 - **Contributors:** Skip to [Installation for Development](#installation-for-development)<br>
 - **Linux users:** Check the [Linux Notes](#linux-notes)<br>
