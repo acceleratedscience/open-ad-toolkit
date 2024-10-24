@@ -4,7 +4,7 @@
 
 ---
 
-- If you haven't done so yet, [install OpenAD](README_installation.md) first.
+- If you haven't yet done so, [install OpenAD](README_installation.md) first.
 - When installing on macOS without a virtual environment, you may need to use `python3` and `pip3` instead of `python` and `pip`.
 - When updating to OpenAD `0.4.0` or above, first remove all toolkits by runnning `list toolkits` and then `remove toolkit <toolkit_name>`.
 
@@ -104,3 +104,7 @@ The following commands only need to be run once after installation:
     Magic commands let you run terminal commands from within Jupyter. They are invoked by the `%openad` prefix. All OpenAD CLI commands can be accessed like this. For example:<br>
 
         %openad list files
+
+    If you wish to retrieve data from an OpenAD command, you can use the `%openadd` prefix which will return raw, unstyled data for further processing.
+
+        my_data = %openadd display data 'my_data_file.csv'
