@@ -116,11 +116,11 @@ If you get an error when running `init_magic`, you may first need to setup the d
 
 ## Provide Feedback
 
-- **Feature requests, feedback and questions:**
+- **Feature requests, feedback and questions:**<br>
   [phil.downey1@ibm.com](mailto:phil.downey1@ibm.com)
-- **Bug reports:**
+- **Bug reports:**<br>
   [Create issue on GitHub](https://github.com/acceleratedscience/open-ad-toolkit/issues)
-- **Contributing:**
+- **Contributing:**<br>
   We'll publish detailed instructions on how to build your own plugins for OpenAD. Stay tuned for more information.
 
 <br><br>
