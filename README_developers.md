@@ -10,6 +10,11 @@ If you have any questions in the meantime, please [reach out]().
 
 ## Developing Plugins
 
+> [!NOTE]  
+> Coming soon...
+
+**C O M I N G &nbsp; S O O N**
+
 Stay tuned for documentation on how to build plugins, enabling you to integrate your own tools into the OpenAD eco-system.
 
 <br><br>
