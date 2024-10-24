@@ -121,7 +121,7 @@ If you get an error when running `init_magic`, you may first need to setup the d
 - **Bug reports:**<br>
   [Create issue on GitHub](https://github.com/acceleratedscience/open-ad-toolkit/issues)
 - **Contributing:**<br>
-  We'll publish detailed instructions on how to build your own plugins for OpenAD. Stay tuned for more information.
+  Stay tuned for detailed instructions on how to build your own OpenAD plugins.
 
 <br><br>
 
