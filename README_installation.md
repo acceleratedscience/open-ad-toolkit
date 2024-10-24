@@ -2,10 +2,11 @@
 
 # OpenAD Installation
 
-> **Notes:**<br>
-> Contributors should skip to [Installation for Development](#installation-for-development)<br>
-> Linux users may want to check the [Linux Notes](#linux-notes)<br>
-> If you prefer using poetry and you know what you're doing, you can skip the instructions below and run `poetry add openad` instead.
+### Notes
+1. For installation without virtual environment, see the simplified [Quick Install](/README.md#quick-install)
+2. Contributors should skip to [Installation for Development](#installation-for-development)<br>
+3. Linux users may want to check the [Linux Notes](#linux-notes)<br>
+4. If you prefer using poetry and you know what you're doing, you can skip the instructions below and run `poetry add openad` instead.
 
 <!-- Note: step 1 & 2 are repeated, make sure any updates are done in both places -->
 1.  **Step 0: Before you start**<br>
