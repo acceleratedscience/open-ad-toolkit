@@ -64,7 +64,7 @@ def update_github_readme_md(filename="README.md"):
     output_text(f"<h1>Updating <yellow>{filename}</yellow> with OpenAD description</h1>", pad_top=2)
 
     # Read README.md file content
-    readme_md, err_msg = open_file("README.md", return_err=True)
+    readme_md, err_msg = open_file(filename, return_err=True)
     if not readme_md:
         output_text(FLAG_ERROR, pad_top=1)
         output_error(err_msg)
@@ -84,6 +84,47 @@ def update_github_readme_md(filename="README.md"):
 
     # Write to output file
     success, err_msg = write_file(filename, readme_md, return_err=True)
+    if success:
+        output_text(FLAG_SUCCESS)
+        output_text(f"<soft>Updated</soft> <reset>{filename}</reset>")
+    else:
+        output_text(FLAG_ERROR)
+        output_error(err_msg, pad=0)
+
+
+# endregion
+
+############################################################
+# region - README_plugins.md (GitHub)
+
+
+# Update the README_plugins.md file with the about_plugin description
+def update_github_readme_plugin_md(filename="README_plugin.md"):
+    output_text(f"<h1>Updating <yellow>{filename}</yellow> with about_plugin description</h1>", pad_top=2)
+
+    # Read README.md file content
+    readme_plugin_md, err_msg = open_file(filename, return_err=True)
+    if not readme_plugin_md:
+        output_text(FLAG_ERROR, pad_top=1)
+        output_error(err_msg)
+        return
+
+    # Read about_plugin source file content
+    about_plugin_txt, err_msg = open_file("docs/source/about_plugin.txt", return_err=True)
+    if not about_plugin_txt:
+        output_text(FLAG_ERROR, pad_top=1)
+        output_error(err_msg)
+        return
+
+    # Insert about_plugin text
+    readme_md_1 = readme_plugin_md.split("<!-- about_plugin -->")[0]
+    readme_md_2 = readme_plugin_md.split("<!-- /about_plugin -->")[1]
+    readme_plugin_md = (
+        readme_md_1 + "<!-- about_plugin -->\n" + about_plugin_txt + "\n<!-- /about_plugin -->" + readme_md_2
+    )
+
+    # Write to output file
+    success, err_msg = write_file(filename, readme_plugin_md, return_err=True)
     if success:
         output_text(FLAG_SUCCESS)
         output_text(f"<soft>Updated</soft> <reset>{filename}</reset>")
@@ -556,19 +597,25 @@ def _compile_commands(cmds_organized):
 ############################################################
 
 if __name__ == "__main__":
-    # Update main README.md
+    # Update README files
     update_github_readme_md()
+    update_github_readme_plugin_md()
+
+    # Generate README for PyPI
     render_pypi_readme_md()
 
-    # Render markdown files for documentation website
+    # Turn README files into pages for the documentation website
+    render_docs_pages()
+
+    # Generate additional bespoke pages for documentation website
     render_base_concepts_md("base-concepts.md")
     render_commands_md("commands.md")
+
+    # Render additional files
     render_commands_csv("commands.csv")
     render_description_txt("llm_description.txt")
 
-    render_docs_pages()
-
-    # Move all generated markdown files to the documentation repo.
+    # Move all generated markdown files to the documentation repo
     docs = []
     for filename in os.listdir(f"{REPO_PATH}/docs/output/markdown"):
         docs.append(filename)

@@ -9,7 +9,8 @@ The documentation generation script assures consistency by propagating the sourc
 ### What this does
 
 1. Use the descriptions from the [`/source`](./source) folder to update:
-   - The `README.md`
+   - The `README.md` with OpenAD description
+   - The `README_plugins.md` with plugins description
    - The [openad_intro] text (/openad/helpers/output_content.py) that is displayed when running the `intro` command
    - The informational paragraphs that are displayed when running the `? workspace`, `? mws`, `? tookit`, `? context` and `? run` commands (see _output_content_ in [main.py](/openad/app/main.py))
    - The [Base Concepts](https://acceleratedscience.github.io/openad-docs/base-concepts.html) page on the documentation website
