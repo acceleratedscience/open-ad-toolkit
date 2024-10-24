@@ -2,9 +2,15 @@
 
 # OpenAD for Developers
 
-OpenAD is fully open source and we encourage contributions. We plan to provide documentation on how to integrate your own toolkits in the future.
+OpenAD is fully open source and we encourage contributions.
 
-If you have any questions in the meantime, please [reach out]({% link about.md %}).
+If you have any questions in the meantime, please [reach out]().
+
+<br><br>
+
+## Developing Plugins
+
+Stay tuned for documentation on how to build plugins, enabling you to integrate your own tools into the OpenAD eco-system.
 
 <br><br>
 
