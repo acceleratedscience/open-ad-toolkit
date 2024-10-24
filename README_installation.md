@@ -37,7 +37,7 @@
 
         pip install openad
 
-1.  **Continue to [Getting Started](README_getting-started.md)**
+1.  Continue to [Getting Started](README_getting-started.md)
 
 <br><br>
 
@@ -58,7 +58,7 @@ In order to run OpenAD on Windows 11, you will need to install the Ubuntu WSL pa
 
     **Optional:** To setup an Ubuntu Python environment from scratch, continue to <a href="#linux-notes">Linux Notes</a>
 
-1.  **Continue to [Getting Started](README_getting-started.md)**
+1.  Continue to [Getting Started](README_getting-started.md)
 
 <br><br>
 
