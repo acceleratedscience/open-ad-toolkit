@@ -122,9 +122,6 @@ If you get an error when running `init_magic`, you may first need to setup the d
   [phil.downey1@ibm.com](mailto:phil.downey1@ibm.com)
 - **Bug reports:**<br>
   [Create issue on GitHub](https://github.com/acceleratedscience/open-ad-toolkit/issues)
-- **Contributing:**<br>
-  Stay tuned for detailed instructions on how to build your own OpenAD plugins.<br>
-  Check the [Developers] section for guidance with other contributions.
 
 <br><br>
 
@@ -133,6 +130,10 @@ If you get an error when running `init_magic`, you may first need to setup the d
 - [OpenAD blog](https://blog.accelerate.science/)
 - **Demo Notebooks:** See `init_examples` under installation
 <!-- [Mailing list]() -->
+
+## Contribute
+Stay tuned for detailed instructions on how to build your own OpenAD plugins.<br>
+Check the [Developers] section for guidance with other contributions.
 
 
 [INSTALLATION]: README_installation.md
