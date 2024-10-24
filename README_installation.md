@@ -11,6 +11,8 @@
 
 ---
 
+<br>
+
 <!-- Note: step 1 & 2 are repeated, make sure any updates are done in both places -->
 1.  **Step 0: Before you start**<br>
     Ensure you're running Python 3.10.10 or 3.11. See [instructions below](#upgrading-python).
