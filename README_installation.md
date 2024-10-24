@@ -13,9 +13,11 @@
 
 <br>
 
+## Installing on macOS / Linux
+
 <!-- Note: step 1 & 2 are repeated, make sure any updates are done in both places -->
 1.  **Step 0: Before you start**<br>
-    Ensure you're running Python 3.10.10 or 3.11. See [instructions below](#upgrading-python).
+    Ensure you're running Python 3.10.10+ or 3.11. See [instructions below](#upgrading-python).
 
     To see what version you are running:
 
@@ -35,33 +37,26 @@
 
         pip install openad
 
-<br>
+<br><br>
 
-# Installing on Windows
+## Installing on Windows
 
 In order to run OpenAD on Windows 11, you will need to install the Ubuntu WSL package ("Windows Subsystem for Linux").
 
-<br>
-
-## Before You Start
-
--   **Verify Windows version**<br>
+1.  **Step 1: Verify Windows version**<br>
     To check if you are running Windows 11 or later, press `Win` + `R`, type "winver", and press `Enter`. A window will open showing your Windows version.
 
--   **Verify WSL**<br>
+1.  **Step 2: Verify WSL**<br>
     To check if you already have WSL installed, run `wsl -l -v` into the terminal. To see more information about your current version of Ubuntu, run `lsb_release -a`
 
-<br>
+1.  **Step 3: Install WSL**<br>
+    Install WSL and create a user called 'openad' or one of your choosing.
 
-## Installing WSL
+        wsl --install Ubuntu-22.04
 
-Install WSL and create a user called 'openad' or one of your choosing.
+    **Optional:** To setup an Ubuntu Python environment from scratch, continue to <a href="#linux-notes">Linux Notes</a>
 
-    wsl --install Ubuntu-22.04
-
-**Optional:** To setup an Ubuntu Python environment from scratch, continue to <a href="#linux-notes">Linux Notes</a>
-
-<br>
+<br><br>
 
 # Appendix
 
