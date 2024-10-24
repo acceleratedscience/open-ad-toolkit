@@ -54,12 +54,14 @@ The OpenAD client is accessible from our command line interface, via Jupyter Not
 &nbsp;&nbsp;&nbsp;
 **[MODELS SERVICE]**
 
-<sub>
+<sub>\
+
 **[PLUGINS]**
 &nbsp;&nbsp;&nbsp;
 **[AI ASSISTANT]**
 &nbsp;&nbsp;&nbsp;
 **[DEVELOPERS]**
+
 </sub>
 
 
