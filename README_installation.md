@@ -3,10 +3,10 @@
 # OpenAD Installation
 
 #### Notes
-1. For a simplified installation without virtual environment, see [Quick Install](/README.md#quick-install)
-2. Contributors should skip to [Installation for Development](#installation-for-development)<br>
-3. Linux users may want to check the [Linux Notes](#linux-notes)<br>
-4. If you prefer poetry, you can run the poetry setup wizard instead: `poetry add openad`
+1. For a **simplified installation** without virtual environment, see [Quick Install](/README.md#quick-install)
+2. **Contributors** should skip to [Installation for Development](#installation-for-development)<br>
+3. **Linux users** may want to check the [Linux Notes](#linux-notes)<br>
+4. If you prefer **Poetry**, you can run the poetry setup wizard instead: `poetry add openad`
 
 ---
 
