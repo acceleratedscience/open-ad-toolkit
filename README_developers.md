@@ -6,7 +6,7 @@ OpenAD is fully open source and we encourage contributions. We plan to provide d
 
 If you have any questions in the meantime, please [reach out]({% link about.md %}).
 
-<br>
+<br><br>
 
 ## Installation for Development
 
@@ -66,7 +66,7 @@ If you have any questions in the meantime, please [reach out]({% link about.md %
 </div>
 </details>
 
-<br>
+<br><br>
 
 ## Testing a branch
 
