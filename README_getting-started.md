@@ -4,7 +4,7 @@
 
 ---
 
-- If you have not yet installed OpenAD, please refer to [Installation](README_installation.md).
+- If you haven't done so yet, [install](README_installation.md) OpenAD.
 - When installing on macOS without a virtual environment, you may need to use `python3` and `pip3` instead of `python` and `pip`.
 - When updating to OpenAD `0.4.0` or above, first remove all toolkits by runnning `list toolkits` and then `remove toolkit <toolkit_name>`.
 
