@@ -112,6 +112,8 @@ If you get an error when running `init_magic`, you may first need to setup the d
 
     Pre-Requisite is that you have a AWS Account and can launch your own EC2 Instances Or someone else can launch them for you and you can catalog a Remote Service via URL.
 
+<br><br>
+
 ## Provide Feedback
 
 - **Feature requests, feedback and questions:**
@@ -120,6 +122,8 @@ If you get an error when running `init_magic`, you may first need to setup the d
   [Create issue on GitHub](https://github.com/acceleratedscience/open-ad-toolkit/issues)
 - **Contributing:**
   We'll publish detailed instructions on how to build your own plugins for OpenAD. Stay tuned for more information.
+
+<br><br>
 
 ## Learn
 
