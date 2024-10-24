@@ -105,6 +105,6 @@ The following commands only need to be run once after installation:
 
         %openad list files
 
-    If you wish to retrieve data from an OpenAD command, you can use the `%openadd` prefix which will return raw, unstyled data for further processing.
+    If you wish to retrieve data from an OpenAD command, you can use the `%openadd` prefix instead. This will return raw, unstyled data for further processing.
 
         my_data = %openadd display data 'my_data_file.csv'
