@@ -2,9 +2,9 @@
 
 # OpenAD Installation
 
-> **Notes:**
-> Contributors should skip to [Installation for Development](#installation-for-development)
-> Linux users may want to check the [Linux Notes](#linux-notes)
+> **Notes:**<br>
+> Contributors should skip to [Installation for Development](#installation-for-development)<br>
+> Linux users may want to check the [Linux Notes](#linux-notes)<br>
 > If you prefer using poetry and you know what you're doing, you can skip the instructions below and run `poetry add openad` instead.
 
 <!-- Note: step 1 & 2 are repeated, make sure any updates are done in both places -->
