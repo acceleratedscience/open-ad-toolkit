@@ -16,7 +16,7 @@
 ## Installing on macOS / Linux
 
 <!-- Note: step 1 & 2 are repeated, make sure any updates are done in both places -->
-1.  **Step 0: Before you start**<br>
+1.  **Before you start**<br>
     Ensure you're running Python 3.10.10+ or 3.11. See [instructions below](#upgrading-python).
 
     To see what version you are running:
@@ -25,7 +25,7 @@
 
     > **Note:** Due to an issue with one of our dependencies, Python 3.12 is not yet supported.
 
-1.  **Step 1: Set up your virtual environment** (recommended)<br>
+2.  **Set up your virtual environment** (recommended)<br>
 
         python -m venv ~/ad-venv
         source ~/ad-venv/bin/activate
@@ -33,11 +33,11 @@
     > **Note:** Use `python3` on macOS.
     > **Note:** To exit the virtual environment, you can run `deactivate`
 
-1.  **Step 2: Install OpenAD**
+3.  **Install OpenAD**
 
         pip install openad
 
-1.  **Continue to [Getting Started](README-getting-started.md)**
+4.  **Continue to [Getting Started](README-getting-started.md)**
 
 <br><br>
 
@@ -45,20 +45,20 @@
 
 In order to run OpenAD on Windows 11, you will need to install the Ubuntu WSL package ("Windows Subsystem for Linux").
 
-1.  **Step 1: Verify Windows version**<br>
+1.  **Verify Windows version**<br>
     To check if you are running Windows 11 or later, press `Win` + `R`, type "winver", and press `Enter`. A window will open showing your Windows version.
 
-1.  **Step 2: Verify WSL**<br>
+2.  **Verify WSL**<br>
     To check if you already have WSL installed, run `wsl -l -v` into the terminal. To see more information about your current version of Ubuntu, run `lsb_release -a`
 
-1.  **Step 3: Install WSL**<br>
+3.  **Install WSL**<br>
     Install WSL and create a user called 'openad' or one of your choosing.
 
         wsl --install Ubuntu-22.04
 
     **Optional:** To setup an Ubuntu Python environment from scratch, continue to <a href="#linux-notes">Linux Notes</a>
 
-1.  **Continue to [Getting Started](README-getting-started.md)**
+4.  **Continue to [Getting Started](README-getting-started.md)**
 
 <br><br>
 
