@@ -73,11 +73,11 @@ Before you can interact with the plugins, you'll need to register with each indi
 
 First install the toolkit, then set the context to this toolkit.
 
-> [!IMPORTANT]
-> When running commands from Jupyter, prepend them with `%openad`
-
     add toolkit ds4sd
     set context ds4sd
+
+> [!IMPORTANT]
+> When running commands from Jupyter, prepend them with `%openad`
 
 <br><br>
 
