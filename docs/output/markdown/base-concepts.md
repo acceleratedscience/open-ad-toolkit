@@ -1,14 +1,14 @@
 ---
 title: Base Concepts
-layout: home
-nav_order: 3
+layout: default
+nav_order: 4
 ---
 
 <!--
 
 DO NOT EDIT
 -----------
-This file auto-generated.
+This file is auto-generated.
 To update it, consult instructions:
 https://github.com/acceleratedscience/open-ad-toolkit/tree/main/docs
 

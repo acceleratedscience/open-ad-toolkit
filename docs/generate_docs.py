@@ -99,7 +99,7 @@ def update_github_readme_md(filename="README.md"):
 
 
 # Update the README_plugins.md file with the about_plugin description
-def update_github_readme_plugin_md(filename="README_plugin.md"):
+def update_github_readme_plugin_md(filename="README_plugins.md"):
     output_text(f"<h1>Updating <yellow>{filename}</yellow> with about_plugin description</h1>", pad_top=2)
 
     # Read README.md file content

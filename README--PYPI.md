@@ -40,7 +40,6 @@ The OpenAD client is accessible from our command line interface, via Jupyter Not
 
 </sub>
 
-
 <br><br>
 
 ### Useful links
@@ -59,7 +58,7 @@ The OpenAD client is accessible from our command line interface, via Jupyter Not
 ## Quick Install
 
 > [!IMPORTANT]  
-> This will install OpenAD in your global space. If you wish to use a virtual environment (recommended), please refer to the [Installation](/README_installation.md) page.
+> This will install OpenAD in your global space. If you wish to use a virtual environment (recommended), please refer to the [Installation](README_installation.md) page.
 
     pip install openad
     openad
@@ -82,7 +81,7 @@ If you get an error when running `init_magic`, you may first need to setup the d
 -   Upgraded SkyPilot to 0.6.0
 -   Support for deploying in OpenShift AI/Open Data hub workbench or Podman/Docker image. [See the workbench repo](https://github.com/acceleratedscience/openad_workbench).
 -   Support for application API
--   New property and dataset generation services. See [OpenAD Models Service](/README_models-service.md)
+-   New property and dataset generation services. See [OpenAD Models Service](README_models-service.md)
     -   GT4SD Generation Services
     -   GT4SD Property Services
     -   GT4SD MoleR Generation
@@ -92,7 +91,7 @@ If you get an error when running `init_magic`, you may first need to setup the d
 
 <br><br>
 
-## Provide Feedback
+## Feedback
 
 - **Feature requests, feedback and questions:**<br>
   [phil.downey1@ibm.com](mailto:phil.downey1@ibm.com)

@@ -16,14 +16,21 @@ https://github.com/acceleratedscience/open-ad-toolkit/tree/main/docs
 
 # OpenAD Installation
 
-> **Note:** Contributors should skip to [Installation for Development](#installation-for-development)
+---
 
-> **Note:** Linux users may want to check the [Linux Notes](#linux-notes)
+- **Quick install:** For a simplified install without virtual environment, see [Quick Install](/README.md#quick-install)
+- **Contributors:** Skip to [Installation for Development](README_developers.md#installation-for-development)<br>
+- **Linux users:** Check the [Linux Notes](#linux-notes)<br>
+- **Poetry:** If you prefer Poetry, you can run the setup wizard instead: `poetry add openad`
 
-> **Note:** If you prefer using poetry and you know what you're doing, you can skip the instructions below and run `poetry add openad` instead.
+---
 
-1.  **Step 0: Before you start**<br>
-    Ensure you're running Python 3.10.10 or 3.11. See [instructions below](#upgrading-python).
+<br>
+
+## Installing on macOS / Linux
+
+1.  **Before you start**<br>
+    Ensure you're running Python 3.10.10+ or 3.11. See [instructions below](#upgrading-python).
 
     To see what version you are running:
 
@@ -31,7 +38,7 @@ https://github.com/acceleratedscience/open-ad-toolkit/tree/main/docs
 
     > **Note:** Due to an issue with one of our dependencies, Python 3.12 is not yet supported.
 
-1.  **Step 1: Set up your virtual environment** (recommended)<br>
+1.  **Set up your virtual environment** (recommended)<br>
 
         python -m venv ~/ad-venv
         source ~/ad-venv/bin/activate
@@ -39,41 +46,38 @@ https://github.com/acceleratedscience/open-ad-toolkit/tree/main/docs
     > **Note:** Use `python3` on macOS.
     > **Note:** To exit the virtual environment, you can run `deactivate`
 
-1.  **Step 2: Install OpenAD**
+1.  **Install OpenAD**
 
         pip install openad
 
-<br>
+1.  Continue to [Getting Started](getting-started.html)
 
-# Installing on Windows
+<br><br>
+
+## Installing on Windows
 
 In order to run OpenAD on Windows 11, you will need to install the Ubuntu WSL package ("Windows Subsystem for Linux").
 
-<br>
-
-## Before You Start
-
--   **Verify Windows version**<br>
+1.  **Verify Windows version**<br>
     To check if you are running Windows 11 or later, press `Win` + `R`, type "winver", and press `Enter`. A window will open showing your Windows version.
 
--   **Verify WSL**<br>
+1.  **Verify WSL**<br>
     To check if you already have WSL installed, run `wsl -l -v` into the terminal. To see more information about your current version of Ubuntu, run `lsb_release -a`
 
-<br>
+1.  **Install WSL**<br>
+    Install WSL and create a user called 'openad' or one of your choosing.
 
-## Installing WSL
+        wsl --install Ubuntu-22.04
 
-Install WSL and create a user called 'openad' or one of your choosing.
+    **Optional:** To setup an Ubuntu Python environment from scratch, continue to <a href="#linux-notes">Linux Notes</a>
 
-    wsl --install Ubuntu-22.04
+1.  Continue to [Getting Started](getting-started.html)
 
-**Optional:** To setup an Ubuntu Python environment from scratch, continue to <a href="#linux-notes">Linux Notes</a>
+<br><br>
 
-<br>
+## Appendix
 
-# Appendix
-
-## Upgrading Python
+### Upgrading Python
 
 There's many ways to install or upgrade Python. We'll use `pyenv`.
 
@@ -107,7 +111,9 @@ There's many ways to install or upgrade Python. We'll use `pyenv`.
 
         pyenv shell 3.11
 
-## Linux Notes
+<br>
+
+### Linux Notes
 
 If you wish to setup an Ubuntu Python environment from scratch, run:
 

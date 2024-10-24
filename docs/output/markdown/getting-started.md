@@ -16,14 +16,11 @@ https://github.com/acceleratedscience/open-ad-toolkit/tree/main/docs
 
 # Getting Started with OpenAD
 
-### Before You Start
+---
 
--   OpenAD is available for Linux and MacOS
--   We support Windows 11 via WSL 2 (ubuntu 22.04) - see [Installing on Windows](#installing-on-windows)
--   When not installing into a virtual environment on MacOS, you may need to use `python3` and `pip3` instead of `python` and `pip` respectively
--   When updating to 0.4.0 or above, first remove all toolkits by runnning `list toolkits` and then `remove toolkit <toolkit_name>`.
-
-<br>
+- If you haven't yet done so, [install OpenAD](installation.html) first.
+- When installing on macOS without a virtual environment, you may need to use `python3` and `pip3` instead of `python` and `pip`.
+- When updating to OpenAD `0.4.0` or above, first remove all toolkits by runnning `list toolkits` and then `remove toolkit <toolkit_name>`.
 
 ---
 
@@ -118,6 +115,10 @@ The following commands only need to be run once after installation:
     </figure>
 
 1.  **Magic Commands**<br>
-    Magic commands let you run terminal commands from within Jupyter. They are invoked by the `%openad` prefix. All OpenAD CLI commands can be accessed like this. For example:<br>
+    Magic commands let you access any OpenAD CLI command from within Jupyter. They are invoked by the `%openad` prefix.
 
         %openad list files
+
+    If you wish to retrieve data from an OpenAD command, you can use the `%openadd` prefix instead. This will return raw, unstyled data for further processing.
+
+        my_data = %openadd display data 'my_data_file.csv'

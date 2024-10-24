@@ -3,8 +3,12 @@
 # OpenAD Plugins
 
 <!-- about_plugin -->
-Plugins are the way molecular tools and AI models are made available to the OpenAD client. Thanks to a unified language, accessing these tools through OpenAD lets yoewrwertwertwe;jsdfsadflkasd;flkjase;dlfkjesa;lfkj
+Plugins are the way molecular tools and AI models are made available to the OpenAD client. Thanks to a unified language, accessing these tools through OpenAD lets you bypass a lot of complexity.
+
+OpenAD comes preloaded with a number of plugins for literature knowledge extraction (DS4SD), forward and retrosynthesis prediction (RXN) as well as generative methods and property inference (GT4SD).
+
 You can create your own plugins, and the publicly available plugins will soon include a much larger variety of open-source tools.
+
 Note: Plugins are currently referred to as "toolkits" by the commands, however this language will be updated soon.
 <!-- /about_plugin -->
 

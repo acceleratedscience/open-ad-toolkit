@@ -16,11 +16,17 @@ https://github.com/acceleratedscience/open-ad-toolkit/tree/main/docs
 
 # OpenAD for Developers
 
-OpenAD is fully open source and we encourage contributions. We plan to provide documentation on how to integrate your own toolkits in the future.
+OpenAD is fully open source and we encourage contributions. If you have any questions, please [get in touch](https://acceleratedscience.github.io/openad-docs/about.html).
 
-If you have any questions in the meantime, please [reach out]({% link about.md %}).
+<br><br>
 
-<br>
+## Developing Plugins
+
+**C O M I N G &nbsp; S O O N**<br>
+Building your own OpenAD plugin lets you to integrate your own tools into the OpenAD workflow.<br>
+Stay tuned here for documentation on how to do this.
+
+<br><br>
 
 ## Installation for Development
 
@@ -79,7 +85,7 @@ If you have any questions in the meantime, please [reach out]({% link about.md %
 </div>
 </details>
 
-<br>
+<br><br>
 
 ## Testing a branch
 
