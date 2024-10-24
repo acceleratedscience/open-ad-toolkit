@@ -116,6 +116,9 @@ def update_github_readme_plugin_md(filename="README_plugins.md"):
         output_error(err_msg)
         return
 
+    # Add some extra formatting to the about_plugin text
+    about_plugin_txt = re.sub(r"^Note: ", "> **Note:** ", about_plugin_txt, flags=re.MULTILINE)
+
     # Insert about_plugin text
     readme_md_1 = readme_plugin_md.split("<!-- about_plugin -->")[0]
     readme_md_2 = readme_plugin_md.split("<!-- /about_plugin -->")[1]

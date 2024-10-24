@@ -9,11 +9,8 @@ OpenAD comes preloaded with a number of plugins for literature knowledge extract
 
 You can create your own plugins, and the publicly available plugins will soon include a much larger variety of open-source tools.
 
-Note: Plugins are currently referred to as "toolkits" by the commands, however this language will be updated soon.
+> **Note:** Plugins are currently referred to as "toolkits" by the commands, however this language will be updated soon.
 <!-- /about_plugin -->
-
-> [!IMPORTANT]
-> When running commands from Jupyter, prepend them with `%openad`
 
 <br><br>
 
@@ -75,6 +72,9 @@ Before you can interact with the plugins, you'll need to register with each indi
 ## Adding a Toolkit
 
 First install the toolkit, then set the context to this toolkit.
+
+> [!IMPORTANT]
+> When running commands from Jupyter, prepend them with `%openad`
 
     add toolkit ds4sd
     set context ds4sd

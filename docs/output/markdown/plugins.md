@@ -22,12 +22,14 @@ OpenAD comes preloaded with a number of plugins for literature knowledge extract
 
 You can create your own plugins, and the publicly available plugins will soon include a much larger variety of open-source tools.
 
-Note: Plugins are currently referred to as "toolkits" by the commands, however this language will be updated soon.
+> **Note:** Plugins are currently referred to as "toolkits" by the commands, however this language will be updated soon.
 
 > [!IMPORTANT]
 > When running commands from Jupyter, prepend them with `%openad`
 
-### Registration
+<br><br>
+
+## Registration
 
 Before you can interact with the plugins, you'll need to register with each individual plugin.
 
@@ -80,14 +82,18 @@ Before you can interact with the plugins, you'll need to register with each indi
 </div>
 </details>
 
-### Adding a Toolkit
+<br><br>
+
+## Adding a Toolkit
 
 First install the toolkit, then set the context to this toolkit.
 
     add toolkit ds4sd
     set context ds4sd
 
-### Sample Commands
+<br><br>
+
+## Sample Commands
 
     # DS4SD
     display all collections
@@ -95,7 +101,9 @@ First install the toolkit, then set the context to this toolkit.
     # RXN
     list rxn models
 
-### Running Bash Commands (CLI)
+<br><br>
+
+## Running Bash Commands (CLI)
 
 To run a command in bash mode, prepend it with `openad` and make sure to escape quotes.
 
