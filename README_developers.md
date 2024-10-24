@@ -8,9 +8,9 @@ OpenAD is fully open source and we encourage contributions. If you have any ques
 
 ## Developing Plugins
 
-**&nbsp;~ C O M I N G &nbsp; S O O N ~&nbsp;**
-
-Stay tuned for documentation on how to build plugins, enabling you to integrate your own tools into the OpenAD eco-system.
+**C O M I N G &nbsp; S O O N**<br>
+Building your own OpenAD plugin lets you to integrate your own tools into the OpenAD workflow.<br>
+Stay tuned here for documentation on how to do this.
 
 <br><br>
 
