@@ -2,18 +2,13 @@
 
 # OpenAD for Developers
 
-OpenAD is fully open source and we encourage contributions.
-
-If you have any questions in the meantime, please [reach out]().
+OpenAD is fully open source and we encourage contributions. If you have any questions, please [get in touch](https://acceleratedscience.github.io/openad-docs/about.html).
 
 <br><br>
 
 ## Developing Plugins
 
-> [!NOTE]  
-> Coming soon...
-
-**C O M I N G &nbsp; S O O N**
+** ~ C O M I N G &nbsp; S O O N ~ **
 
 Stay tuned for documentation on how to build plugins, enabling you to integrate your own tools into the OpenAD eco-system.
 
