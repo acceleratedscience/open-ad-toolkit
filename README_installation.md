@@ -2,11 +2,10 @@
 
 # OpenAD Installation
 
-> **Note:** Contributors should skip to [Installation for Development](#installation-for-development)
-
-> **Note:** Linux users may want to check the [Linux Notes](#linux-notes)
-
-> **Note:** If you prefer using poetry and you know what you're doing, you can skip the instructions below and run `poetry add openad` instead.
+> **Notes:**
+> Contributors should skip to [Installation for Development](#installation-for-development)
+> Linux users may want to check the [Linux Notes](#linux-notes)
+> If you prefer using poetry and you know what you're doing, you can skip the instructions below and run `poetry add openad` instead.
 
 <!-- Note: step 1 & 2 are repeated, make sure any updates are done in both places -->
 1.  **Step 0: Before you start**<br>
@@ -18,7 +17,7 @@
 
     > **Note:** Due to an issue with one of our dependencies, Python 3.12 is not yet supported.
 
-1.  **Step 1: Set up your virtual environment** (recommended)<br>
+2.  **Step 1: Set up your virtual environment** (recommended)<br>
 
         python -m venv ~/ad-venv
         source ~/ad-venv/bin/activate
@@ -26,7 +25,7 @@
     > **Note:** Use `python3` on macOS.
     > **Note:** To exit the virtual environment, you can run `deactivate`
 
-1.  **Step 2: Install OpenAD**
+3.  **Step 2: Install OpenAD**
 
         pip install openad
 

@@ -117,7 +117,7 @@ If you get an error when running `init_magic`, you may first need to setup the d
 
 <br><br>
 
-## Provide Feedback
+## Feedback
 
 - **Feature requests, feedback and questions:**<br>
   [phil.downey1@ibm.com](mailto:phil.downey1@ibm.com)

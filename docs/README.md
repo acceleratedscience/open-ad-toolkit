@@ -1,4 +1,4 @@
-# OpenAD Documentation
+# OpenAD Automated Documentation
 
 The documentation generation script assures consistency by propagating the source descriptions of OpenAD and its base concepts across different aspects of the OpenAD help experience, while also automatically updating the documentation website with the README content of the OpenAD repository.
 
