@@ -48,18 +48,18 @@ Open Accelerated Discovery (aka OpenAD) is an open-source framework for molecula
 The OpenAD client is accessible from our command line interface, via Jupyter Notebook or our API. It provides unified access to a variety of tools and AI models for literature knowledge extraction, forward and retrosynthesis prediction, generative methods and property inference. OpenAD lets you train models on your own data, to then visualize and filter your candidate molecules.
 <!-- /description -->
 
-**[INSTALLATION](README_installation.md)**
+**[INSTALLATION]**
 &nbsp;&nbsp;&nbsp;
-**[GETTING STARTED](README_getting-started.md)**
+**[GETTING STARTED]**
 &nbsp;&nbsp;&nbsp;
-**[MODELS SERVICE](README_models-service.md)**
-<br>
+**[MODELS SERVICE]**
+
 <sub>
-**[PLUGINS](README_plugins.md)**
+**[PLUGINS]**
 &nbsp;&nbsp;&nbsp;
-**[AI ASSISTANT](README_ai-assistant.md)**
+**[AI ASSISTANT]**
 &nbsp;&nbsp;&nbsp;
-**[DEVELOPERS](README_developers.md)**
+**[DEVELOPERS]**
 </sub>
 
 
@@ -121,7 +121,8 @@ If you get an error when running `init_magic`, you may first need to setup the d
 - **Bug reports:**<br>
   [Create issue on GitHub](https://github.com/acceleratedscience/open-ad-toolkit/issues)
 - **Contributing:**<br>
-  Stay tuned for detailed instructions on how to build your own OpenAD plugins.
+  Stay tuned for detailed instructions on how to build your own OpenAD plugins.<b>
+  Check the [Developers]
 
 <br><br>
 
@@ -130,3 +131,11 @@ If you get an error when running `init_magic`, you may first need to setup the d
 - [OpenAD blog](https://blog.accelerate.science/)
 - **Demo Notebooks:** See `init_examples` under installation
 <!-- [Mailing list]() -->
+
+
+[INSTALLATION]: README_installation.md
+[GETTING STARTED]: README_getting-started.md
+[MODELS SERVICE]: README_models-service.md
+[PLUGINS]: README_plugins.md
+[AI ASSISTANT]: README_ai-assistant.md
+[DEVELOPERS]: README_developers.md
