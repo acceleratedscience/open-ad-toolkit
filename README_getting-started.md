@@ -101,7 +101,7 @@ The following commands only need to be run once after installation:
     </figure>
 
 1.  **Magic Commands**<br>
-    Magic commands let you run terminal commands from within Jupyter. They are invoked by the `%openad` prefix. All OpenAD CLI commands can be accessed like this. For example:<br>
+    Magic commands let you access any OpenAD CLI command from within Jupyter. They are invoked by the `%openad` prefix.
 
         %openad list files
 
