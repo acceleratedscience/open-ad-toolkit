@@ -25,7 +25,7 @@
 
     > **Note:** Due to an issue with one of our dependencies, Python 3.12 is not yet supported.
 
-2.  **Step 1: Set up your virtual environment** (recommended)<br>
+1.  **Step 1: Set up your virtual environment** (recommended)<br>
 
         python -m venv ~/ad-venv
         source ~/ad-venv/bin/activate
@@ -33,9 +33,11 @@
     > **Note:** Use `python3` on macOS.
     > **Note:** To exit the virtual environment, you can run `deactivate`
 
-3.  **Step 2: Install OpenAD**
+1.  **Step 2: Install OpenAD**
 
         pip install openad
+
+1.  **Continue to [Getting Started](README-getting-started.md)**
 
 <br><br>
 
@@ -55,6 +57,8 @@ In order to run OpenAD on Windows 11, you will need to install the Ubuntu WSL pa
         wsl --install Ubuntu-22.04
 
     **Optional:** To setup an Ubuntu Python environment from scratch, continue to <a href="#linux-notes">Linux Notes</a>
+
+1.  **Continue to [Getting Started](README-getting-started.md)**
 
 <br><br>
 
