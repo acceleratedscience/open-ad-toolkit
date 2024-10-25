@@ -50,7 +50,7 @@ This is the full list of available commands.
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block"><code>show mmol|protein <fasta> | '<pdb_id>'</code></summary>
-
+<br>
 
 > Launch the molecule viewer to visualize your macromolecule and inspect its properties. <br> 
 > 
@@ -69,7 +69,7 @@ This is the full list of available commands.
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block"><code>openad</code></summary>
-
+<br>
 
 > Display the openad splash screen. <br>
 
@@ -77,7 +77,7 @@ This is the full list of available commands.
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block"><code>get status</code></summary>
-
+<br>
 
 > Display the currently selected workspace and toolkit. <br>
 
@@ -85,7 +85,7 @@ This is the full list of available commands.
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block"><code>display history</code></summary>
-
+<br>
 
 > Display the last 30 commands run in your current workspace. <br>
 
@@ -93,7 +93,7 @@ This is the full list of available commands.
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block"><code>clear sessions</code></summary>
-
+<br>
 
 > Clear any other sessions that may be running. <br>
 
@@ -105,7 +105,7 @@ This is the full list of available commands.
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block"><code>set workspace <workspace_name></code></summary>
-
+<br>
 
 > Change the current workspace. <br>
 
@@ -113,7 +113,7 @@ This is the full list of available commands.
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block"><code>get workspace [ <workspace_name> ]</code></summary>
-
+<br>
 
 > Display details a workspace. When no workspace name is passed, details of your current workspace are displayed. <br>
 
@@ -121,7 +121,7 @@ This is the full list of available commands.
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block"><code>create workspace <workspace_name> [ description('<description>') on path '<path>' ]</code></summary>
-
+<br>
 
 > Create a new workspace with an optional description and path. <br>
 
@@ -129,7 +129,7 @@ This is the full list of available commands.
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block"><code>remove workspace <workspace_name></code></summary>
-
+<br>
 
 > Remove a workspace from your registry. Note that this doesn't remove the workspace's directory. <br>
 
@@ -137,7 +137,7 @@ This is the full list of available commands.
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block"><code>list workspaces</code></summary>
-
+<br>
 
 > Lists all your workspaces. <br>
 
@@ -149,7 +149,7 @@ This is the full list of available commands.
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block"><code>ds4sd</code></summary>
-
+<br>
 
 > Display the splash screen for the DS4SD toolkit. <br>
 
@@ -157,7 +157,7 @@ This is the full list of available commands.
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block"><code>rxn</code></summary>
-
+<br>
 
 > Display the splash screen for the RXN toolkit. <br>
 
@@ -165,7 +165,7 @@ This is the full list of available commands.
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block"><code>list toolkits</code></summary>
-
+<br>
 
 > List all installed toolkits. To see all available toolkits, run `list all toolkits`. <br>
 
@@ -173,7 +173,7 @@ This is the full list of available commands.
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block"><code>list all toolkits</code></summary>
-
+<br>
 
 > List all available toolkits. <br>
 
@@ -181,7 +181,7 @@ This is the full list of available commands.
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block"><code>add toolkit <toolkit_name></code></summary>
-
+<br>
 
 > Install a toolkit. <br>
 
@@ -189,7 +189,7 @@ This is the full list of available commands.
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block"><code>remove toolkit <toolkit_name></code></summary>
-
+<br>
 
 > Remove a toolkit from the registry. <br> 
 > 
@@ -199,7 +199,7 @@ This is the full list of available commands.
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block"><code>update toolkit <toolkit_name></code></summary>
-
+<br>
 
 > Update a toolkit with the latest version. It is recommended to do this on a regular basis. <br>
 
@@ -207,7 +207,7 @@ This is the full list of available commands.
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block"><code>update all toolkits</code></summary>
-
+<br>
 
 > Update all installed toolkits with the latest version. Happens automatically whenever OpenAD is updated to a new version. <br>
 
@@ -215,7 +215,7 @@ This is the full list of available commands.
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block"><code>set context <toolkit_name> [ reset ]</code></summary>
-
+<br>
 
 > Set your context to the chosen toolkit. By setting the context, the selected toolkit functions become available to you. The optional parameter `reset` can be used to reset your login information. <br>
 
@@ -223,7 +223,7 @@ This is the full list of available commands.
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block"><code>get context</code></summary>
-
+<br>
 
 > Display the currently selected toolkit. <br>
 
@@ -231,7 +231,7 @@ This is the full list of available commands.
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block"><code>unset context</code></summary>
-
+<br>
 
 > Exit your toolkit context. You will no longer have access to toolkit-specific functions. <br>
 
@@ -243,7 +243,7 @@ This is the full list of available commands.
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block"><code>create run</code></summary>
-
+<br>
 
 > Start recording a run. <br>
 
@@ -251,7 +251,7 @@ This is the full list of available commands.
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block"><code>remove run <run_name></code></summary>
-
+<br>
 
 > remove a run. <br>
 
@@ -259,7 +259,7 @@ This is the full list of available commands.
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block"><code>save run as <run_name></code></summary>
-
+<br>
 
 > Stop recording a run and save it. <br>
 
@@ -267,7 +267,7 @@ This is the full list of available commands.
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block"><code>run <run_name></code></summary>
-
+<br>
 
 > Execute a previously recorded run. This will execute every command and continue regardless of any failures. <br>
 
@@ -275,7 +275,7 @@ This is the full list of available commands.
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block"><code>list runs</code></summary>
-
+<br>
 
 > List all runs saved in the current workspace. <br>
 
@@ -283,7 +283,7 @@ This is the full list of available commands.
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block"><code>display run <run_name></code></summary>
-
+<br>
 
 > Display the commands stored in a certain run. <br>
 
@@ -295,7 +295,7 @@ This is the full list of available commands.
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block"><code>display data '<filename.csv>'</code></summary>
-
+<br>
 
 > Display data from a csv file. <br>
 
@@ -303,7 +303,7 @@ This is the full list of available commands.
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block"><code>-> result save [as '<filename.csv>']</code></summary>
-
+<br>
 
 > Save table data to csv file. <br>
 
@@ -311,7 +311,7 @@ This is the full list of available commands.
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block"><code>-> result open</code></summary>
-
+<br>
 
 > Explore table data in the browser. <br> 
 >         if you append `-d` to the end of the command `result open -d` display will result to data viewer. <br>
@@ -320,7 +320,7 @@ This is the full list of available commands.
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block"><code>-> result edit</code></summary>
-
+<br>
 
 > Edit table data in the browser. <br> 
 >         if you append `-d` to the end of the command `result open -d` display will result to data viewer. <br>
@@ -329,7 +329,7 @@ This is the full list of available commands.
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block"><code>-> result copy</code></summary>
-
+<br>
 
 > Copy table data to clipboard, formatted for spreadheet. <br>
 
@@ -337,7 +337,7 @@ This is the full list of available commands.
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block"><code>-> result display</code></summary>
-
+<br>
 
 > Display the result in the CLI. <br> 
 > 
@@ -347,7 +347,7 @@ This is the full list of available commands.
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block"><code>-> result as dataframe</code></summary>
-
+<br>
 
 > Return the result as dataframe (only for Jupyter Notebook) <br>
 
@@ -355,7 +355,7 @@ This is the full list of available commands.
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block"><code>edit config '<json_config_file>' [ schema '<schema_file>']</code></summary>
-
+<br>
 
 > Edit any JSON file in your workspace directly from the CLI. If a schema is specified, it will be used for validation and documentation. <br>
 
@@ -367,7 +367,7 @@ This is the full list of available commands.
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block"><code>install gui</code></summary>
-
+<br>
 
 > Install the OpenAD GUI (graphical user interface). <br> 
 > 
@@ -377,7 +377,7 @@ This is the full list of available commands.
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block"><code>launch gui</code></summary>
-
+<br>
 
 > Launch the OpenAD GUI (graphical user interface). <br>
 
@@ -385,7 +385,7 @@ This is the full list of available commands.
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block"><code>restart gui</code></summary>
-
+<br>
 
 > Terminate and then restart the GUI server. <br>
 
@@ -393,7 +393,7 @@ This is the full list of available commands.
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block"><code>quit gui</code></summary>
-
+<br>
 
 > Terminate the GUI server. <br>
 
@@ -405,7 +405,7 @@ This is the full list of available commands.
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block"><code>tell me <how to do xyz></code></summary>
-
+<br>
 
 > Ask your AI assistant how to do anything in OpenAD. <br>
 
@@ -413,7 +413,7 @@ This is the full list of available commands.
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block"><code>set llm  <language_model_name></code></summary>
-
+<br>
 
 > Set the target language model name for the `tell me` command. <br>
 
@@ -421,7 +421,7 @@ This is the full list of available commands.
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block"><code>clear llm auth</code></summary>
-
+<br>
 
 > Clear the language model's authentication file. <br>
 
@@ -433,7 +433,7 @@ This is the full list of available commands.
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block"><code>list files [ path ]</code></summary>
-
+<br>
 
 > List al directories and files in your current workspace. <br>
 
@@ -441,7 +441,7 @@ This is the full list of available commands.
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block"><code>import from '<external_source_file>' to '<workspace_file>'</code></summary>
-
+<br>
 
 > Import a file from outside OpenAD into your current workspace. <br>
 
@@ -449,7 +449,7 @@ This is the full list of available commands.
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block"><code>export from '<workspace_file>' to '<external_file>'</code></summary>
-
+<br>
 
 > Export a file from your current workspace to anywhere on your hard drive. <br>
 
@@ -457,7 +457,7 @@ This is the full list of available commands.
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block"><code>copy file '<workspace_file>' to '<other_workspace_name>'</code></summary>
-
+<br>
 
 > Export a file from your current workspace to another workspace. <br>
 
@@ -465,7 +465,7 @@ This is the full list of available commands.
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block"><code>remove '<filename>'</code></summary>
-
+<br>
 
 > Remove a file from your current workspace. <br>
 
@@ -473,7 +473,7 @@ This is the full list of available commands.
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block"><code>open '<filename>'</code></summary>
-
+<br>
 
 > Open a file or dataframe in an iframe  <br> 
 > 
@@ -489,7 +489,7 @@ This is the full list of available commands.
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block"><code>intro</code></summary>
-
+<br>
 
 > Display an introduction to the OpenAD CLI. <br>
 
@@ -497,7 +497,7 @@ This is the full list of available commands.
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block"><code>docs</code></summary>
-
+<br>
 
 > Open the documentation webpage. <br>
 
@@ -505,7 +505,7 @@ This is the full list of available commands.
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block"><code>?</code></summary>
-
+<br>
 
 > List all available commands. <br>
 
@@ -513,7 +513,7 @@ This is the full list of available commands.
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block"><code>? ...<soft>   --> List all commands containing "..."</soft></code></summary>
-
+<br>
 
 > 
 
@@ -521,7 +521,7 @@ This is the full list of available commands.
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block"><code>... ?<soft>   --> List all commands starting with "..."</soft></code></summary>
-
+<br>
 
 > 
 
@@ -533,7 +533,7 @@ This is the full list of available commands.
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block"><code>model auth list</code></summary>
-
+<br>
 
 > show authentication group mapping <br>
 
@@ -541,7 +541,7 @@ This is the full list of available commands.
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block"><code>model auth add group '<auth_group>'|<auth_group> with '<api_key>'</code></summary>
-
+<br>
 
 > add an authentication group for model services to use <br>
 
@@ -549,7 +549,7 @@ This is the full list of available commands.
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block"><code>model auth remove group '<auth_group>' | <auth_group></code></summary>
-
+<br>
 
 > remove an authentication group <br>
 
@@ -557,7 +557,7 @@ This is the full list of available commands.
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block"><code>model auth add service '<service_name>'|,service_name> to group '<auth_group>'|<auth_group></code></summary>
-
+<br>
 
 > Attach an authentication group to a model service <br>
 
@@ -565,7 +565,7 @@ This is the full list of available commands.
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block"><code>model auth remove service '<service_name>'|<service_name></code></summary>
-
+<br>
 
 > Detatch an authentication group from a model service <br>
 
@@ -573,7 +573,7 @@ This is the full list of available commands.
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block"><code>model service status</code></summary>
-
+<br>
 
 > Get the status of currently cataloged services <br>
 
@@ -581,7 +581,7 @@ This is the full list of available commands.
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block"><code>model service describe '<service_name>'|<service_name></code></summary>
-
+<br>
 
 > get the configuration of a service <br>
 
@@ -589,7 +589,7 @@ This is the full list of available commands.
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block"><code>model catalog list</code></summary>
-
+<br>
 
 > get the list of currently cataloged services <br>
 
@@ -597,7 +597,7 @@ This is the full list of available commands.
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block"><code>uncatalog model service '<service_name>'|<service_name></code></summary>
-
+<br>
 
 > uncatalog a model service  <br> 
 > 
@@ -608,7 +608,7 @@ This is the full list of available commands.
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block"><code>catalog model service from (remote) '<path> or <github> or <service_url>' as  '<service_name>'|<service_name>   USING (<parameter>=<value> <parameter>=<value>)</code></summary>
-
+<br>
 
 > catalog a model service from a path or github or remotely from an existing OpenAD service. <br> 
 > (USING) optional headers parameters for communication with service backend. <br> 
@@ -650,7 +650,7 @@ This is the full list of available commands.
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block"><code>model service up '<service_name>'|<service_name> [no_gpu]}</code></summary>
-
+<br>
 
 > launches a cataloged model service when it was cataloged as a self managed service from a directory or github repository. <br> 
 > If you do not want to launch a service with GPU you should specify `no_gpu` at the end of the command. <br> 
@@ -666,7 +666,7 @@ This is the full list of available commands.
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block"><code>model service local up '<service_name>'|<service_name></code></summary>
-
+<br>
 
 > Launches a model service locally. <br> 
 > 
@@ -677,7 +677,7 @@ This is the full list of available commands.
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block"><code>model service down '<service_name>'|<service_name></code></summary>
-
+<br>
 
 > Bring down a model service   <br> 
 >  Examples:  <br> 
@@ -697,7 +697,7 @@ This is the full list of available commands.
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block"><code>search for similar molecules to '<smiles>' [ save as '<filename.csv>' ]</code></summary>
-
+<br>
 
 > Search for molecules that are similar to the provided molecule or molecule substructure as provided in the `<smiles_string>`. <br> 
 > 
@@ -710,7 +710,7 @@ This is the full list of available commands.
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block"><code>search for molecules in patents from list ['<patent1>', '<patent2>', ...] | dataframe <dataframe_name> | file '<filename.csv>' [ save as '<filename.csv>' ]</code></summary>
-
+<br>
 
 > Search for molecules mentioned in a defined list of patents. When sourcing patents from a CSV or DataFrame, there must be column named "PATENT ID" or "patent id". <br> 
 > 
@@ -723,7 +723,7 @@ This is the full list of available commands.
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block"><code>search for patents containing molecule '<smiles>' | '<inchi>' | '<inchikey>' [ save as '<filename.csv>' ]</code></summary>
-
+<br>
 
 > Search for mentions of a specified molecules in registered patents. The queried molecule can be described as a SMILES string, InChI or InChiKey. <br> 
 > 
@@ -736,7 +736,7 @@ This is the full list of available commands.
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block"><code>search for substructure instances of '<smiles>' [ save as '<filename.csv>' ]</code></summary>
-
+<br>
 
 > Search for molecules by substructure, as defined by the `<smiles_string>`. <br> 
 > 
@@ -753,7 +753,7 @@ This is the full list of available commands.
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block"><code>search collection '<collection_name_or_key>' for '<search_string>' [ using (page_size=<int> system_id=<system_id> edit_distance=<integer> display_first=<integer>) ] show (data | docs) [ estimate only | return as data | save as '<filename.csv>' ]</code></summary>
-
+<br>
 
 > Performs a document search of the Deep Search repository based on a given collection. The required `using` clause specifies the collection to search. Use `estimate only` to return only the potential number of hits. <br> 
 > 
@@ -801,7 +801,7 @@ This is the full list of available commands.
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block"><code>display collection matches for '<search_string>' [ save as '<filename.csv>' ]</code></summary>
-
+<br>
 
 > Search all collections for documents that contain a given Deep Search `<search_string>`. This is useful when narrowing down document collection(s) for subsequent search. You can use the `<index_key>` from the returned table in your next search. <br> 
 > 
@@ -818,7 +818,7 @@ This is the full list of available commands.
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block"><code>display collections in domains from list <list_of_domains> [ save as '<filename.csv>' ]</code></summary>
-
+<br>
 
 > Display collections that belong to the listed domains. <br> 
 > 
@@ -833,7 +833,7 @@ This is the full list of available commands.
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block"><code>display all collections [ save as '<filename.csv>' ]</code></summary>
-
+<br>
 
 > Display all available collections in Deep Search. <br> 
 > 
@@ -843,7 +843,7 @@ This is the full list of available commands.
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block"><code>display collections for domain '<domain_name>'</code></summary>
-
+<br>
 
 > Display the available collections in a given Deep Search domain. <br> 
 > 
@@ -856,7 +856,7 @@ This is the full list of available commands.
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block"><code>display collection details '<collection_name_or_key>'</code></summary>
-
+<br>
 
 > Display the details for a specified collection. You can specify a collection by its name or key. <br> 
 > 
@@ -876,7 +876,7 @@ This is the full list of available commands.
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block"><code>interpret recipe '<recipe_paragraph>' | '<txt_filename>'</code></summary>
-
+<br>
 
 > Build a ordered list of actions interpreted from a provided text-based recipe. The recipe can be provided as a string or as a text file from your current workspace. <br> 
 > 
@@ -888,7 +888,7 @@ This is the full list of available commands.
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block"><code>list rxn models</code></summary>
-
+<br>
 
 > Lists all RXN AI models currently available. <br>
 
@@ -900,7 +900,7 @@ This is the full list of available commands.
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block"><code>predict retrosynthesis '<smiles>' [ using (option1=<value> option2=<value>) ]</code></summary>
-
+<br>
 
 > Perform a retrosynthesis route prediction on a molecule. <br> 
 > 
@@ -935,7 +935,7 @@ This is the full list of available commands.
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block"><code>predict reaction in batch from dataframe <dataframe_name> | file '<filename.csv>' | list ['<smiles>.<smiles>','<smiles>.<smiles>'] [ using (ai_model='<ai_model>') ] [ use_saved ]</code></summary>
-
+<br>
 
 > Run a batch of reaction predictions. The provided list of reactions can be specified as a DataFrame, a CSV file from your current workspace or a list of strings. When proving a DataFrame or CSV file, we will look for the "reactions" column. <br> 
 > 
@@ -954,7 +954,7 @@ This is the full list of available commands.
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block"><code>predict reaction '<smiles>.<smiles>' [ using (ai_model='<ai_model>') ] [ use_saved ]</code></summary>
-
+<br>
 
 > Predict the reaction between two molecules. <br> 
 > 
@@ -973,7 +973,7 @@ This is the full list of available commands.
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block"><code>predict reaction topn in batch from dataframe <dataframe_name> | file '<filename.csv>' | list ['<smiles>.<smiles>','<smiles>.<smiles>'] [ using (topn=<integer> ai_model='<ai_model>') ] [ use_saved ]</code></summary>
-
+<br>
 
 > Run a batch of reaction predictions for topn. The provided list of reactions can be specified as a DataFrame, a CSV file from your current workspace or a list of strings. When proving a DataFrame or CSV file, we will look for the "reactions" column. <br> 
 > 

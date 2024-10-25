@@ -471,7 +471,7 @@ def _compile_section_github(output, toc, cmds_organized):
         for cmd_str, cmd_description in cmds_organized[category]:
             # Add `> ` in front of every line so the description shows up as a note block
             cmd_description = (
-                "\n\n" + re.sub(r"^", "> ", _parse_description(cmd_description), flags=re.MULTILINE) + "\n"
+                "<br>\n\n" + re.sub(r"^", "> ", _parse_description(cmd_description), flags=re.MULTILINE) + "\n"
             )
             cmd_output = "\n".join(
                 [
