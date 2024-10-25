@@ -9,23 +9,6 @@ https://github.com/acceleratedscience/open-ad-toolkit/tree/main/docs
 -->
 
 
-[Test](https://acceleratedscience.github.io/openad-docs/#quick-install) /
-[Test](https://acceleratedscience.github.io/openad-docs/#) /
-[Test](https://acceleratedscience.github.io/openad-docs/) /
-[Test](https://acceleratedscience.github.io/openad-docs/#quick-install) /
-[Test](https://acceleratedscience.github.io/openad-docs/#) /
-[Test](https://acceleratedscience.github.io/openad-docs/) /
-[Test](https://acceleratedscience.github.io/openad-docs/developers.html#testing-a-branch) /
-[Test](https://acceleratedscience.github.io/openad-docs/developers.html#) /
-[Test](https://acceleratedscience.github.io/openad-docs/developers.html) /
-
-[test 1]: https://acceleratedscience.github.io/openad-docs/
-[test 2]: https://acceleratedscience.github.io/openad-docs/#foo
-[test 3]: https://acceleratedscience.github.io/openad-docs/#
-[test 4]: https://acceleratedscience.github.io/openad-docs/developers.html#testing-a-branch
-[test 5]: https://acceleratedscience.github.io/openad-docs/developers.html#
-[test 6]: https://acceleratedscience.github.io/openad-docs/developers.html
-
 # OpenAD
 
 **Open-source framework for molecular and materials discovery**
