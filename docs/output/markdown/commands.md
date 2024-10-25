@@ -470,28 +470,28 @@ show authentication group mapping <br>
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block">
-`model auth add group '<auth_group>'|<auth_group> with '<api_key>'`{: .cmd }
+`model auth add group <auth_group> with '<api_key>'`{: .cmd }
 </summary>
 add an authentication group for model services to use <br>
 </details>
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block">
-`model auth remove group '<auth_group>' | <auth_group>`{: .cmd }
+`model auth remove group <auth_group>`{: .cmd }
 </summary>
 remove an authentication group <br>
 </details>
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block">
-`model auth add service '<service_name>'|,service_name> to group '<auth_group>'|<auth_group>`{: .cmd }
+`model auth add service <service_name> to group <auth_group>`{: .cmd }
 </summary>
 Attach an authentication group to a model service <br>
 </details>
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block">
-`model auth remove service '<service_name>'|<service_name>`{: .cmd }
+`model auth remove service <service_name>`{: .cmd }
 </summary>
 Detatch an authentication group from a model service <br>
 </details>
@@ -505,7 +505,7 @@ Get the status of currently cataloged services <br>
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block">
-`model service describe '<service_name>'|<service_name>`{: .cmd }
+`model service describe <service_name>`{: .cmd }
 </summary>
 get the configuration of a service <br>
 </details>
@@ -519,7 +519,7 @@ get the list of currently cataloged services <br>
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block">
-`uncatalog model service '<service_name>'|<service_name>`{: .cmd }
+`uncatalog model service <service_name>`{: .cmd }
 </summary>
 uncatalog a model service  <br> 
 
@@ -529,10 +529,10 @@ uncatalog a model service  <br>
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block">
-`catalog model service from (remote) '<path> or <github> or <service_url>' as  '<service_name>'|<service_name>   USING (<parameter>=<value> <parameter>=<value>)`{: .cmd }
+`catalog model service from (remote) '<path> or <github> or <service_url>' as  <service_name> using (<parameter>=<value> <parameter>=<value>)`{: .cmd }
 </summary>
 catalog a model service from a path or github or remotely from an existing OpenAD service. <br> 
-(USING) optional headers parameters for communication with service backend. <br> 
+(using) optional headers parameters for communication with service backend. <br> 
 If you are cataloging a service using a model defined in a directory, provide the absolute ` <path> ` of that directory in quotes. <br> 
 
 The following options require the `remote` option be declared. <br> 
@@ -543,7 +543,7 @@ If you are cataloging a remote service on a ip address and port provide the remo
 
 `service_name`: this is the name of the service as you will define it for your usage. e.g `prop` short for properties.  <br> 
 
-USING Parameters: <br> 
+Parameters: <br> 
 
 If using a hosted service the following parameters must be supplied: <br> 
 -`Inference-Service`: this is the name of the inference service that is hosted, it is a required parameter if cataloging a remote service. <br> 
@@ -558,11 +558,11 @@ Skypilot Deployment <br>
 -`catalog model service from 'git@github.com:acceleratedscience/generation_inference_service.git' as 'gen'` <br> 
 
 Service using a authentication group  <br> 
--`catalog model service from remote '<service_url>' as  molf  USING (Inference-Service=molformer  )` <br> 
+-`catalog model service from remote '<service_url>' as  molf using (Inference-Service=molformer  )` <br> 
 ` model auth add service 'molf' to group 'default'` <br> 
 
 Single Authorisation Service <br> 
--`openad catalog model service from remote '<service_URL>' as 'gen' USING (Inference-Service=generation Authorization='<api_key>')` <br> 
+-`openad catalog model service from remote '<service_URL>' as 'gen' using (Inference-Service=generation Authorization='<api_key>')` <br> 
 
 Catalog a remote service shared with you: <br> 
 -`catalog model service from remote 'http://54.235.3.243:30001' as gen` <br>
@@ -799,7 +799,7 @@ Lists all RXN AI models currently available. <br>
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block">
-`predict retrosynthesis '<smiles>' [ using (option1=<value> option2=<value>) ]`{: .cmd }
+`predict retrosynthesis '<smiles>' [ using (<parameter>=<value> <parameter>=<value>) ]`{: .cmd }
 </summary>
 Perform a retrosynthesis route prediction on a molecule. <br> 
 

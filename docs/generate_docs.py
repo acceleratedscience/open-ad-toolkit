@@ -812,6 +812,7 @@ if __name__ == "__main__":
     render_commands_csv()
     render_description_txt()
 
+    # For testing
     # _render_docs_page("index.md")
 
     # Move all generated markdown files to the documentation repo

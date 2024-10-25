@@ -12,7 +12,7 @@ General:
 	`list rxn models`
 
 Retrosynthesis:
-	`predict retrosynthesis '<smiles>' [ using (option1=<value> option2=<value>) ]`
+	`predict retrosynthesis '<smiles>' [ using (<parameter>=<value> <parameter>=<value>) ]`
 
 Prediction:
 	`predict reaction in batch from dataframe <dataframe_name> | file '<filename.csv>' | list ['<smiles>.<smiles>','<smiles>.<smiles>'] [ using (ai_model='<ai_model>') ] [ use_saved ]`
