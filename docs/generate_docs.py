@@ -171,7 +171,7 @@ def render_pypi_readme_md(filename="README--PYPI.md"):
     readme_md = re.sub(r"<!--.*?-->\n?", "", readme_md, flags=re.DOTALL)
 
     # Update link pointers
-    readme_md = _updateLinks(readme_md, absolute=True)
+    readme_md = _update_links(readme_md, absolute=True)
 
     # Insert DO NOT EDIT comment
     readme_md = DO_NOT_EDIT_PYPI + "\n\n" + readme_md
@@ -241,7 +241,9 @@ def _render_docs_page(filename):
     base_md = base_md.strip()
 
     # Update link pointers
-    base_md = _updateLinks(base_md)
+    base_md = _update_links(base_md)
+
+    base_md = _update_alerts(base_md)
 
     # Insert DO NOT EDIT comment
     input_md = re.sub(r"{{DO_NOT_EDIT}}", DO_NOT_EDIT, input_md)
@@ -259,7 +261,7 @@ def _render_docs_page(filename):
         output_error(err_msg, pad=0)
 
 
-def _updateLinks(text, absolute=False):
+def _update_links(text, absolute=False):
     """
     When translating a GitHub README file to a just-the-docs markdown file,
     we need to update all internal links so they point to the just-the-docs
@@ -305,7 +307,19 @@ def _updateLinks(text, absolute=False):
         text,
     )
 
-    # Adjust
+    return text
+
+
+def _update_alerts(text):
+    """
+    We use GitHub-specific alert styles in the README files.
+    These need to be updated to render nicely on Just the Docs and PyPI.
+
+    Documentation:
+    https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax#alerts
+    """
+
+    text = re.sub(r"::: tip", "<div class='note'>", text)
 
     return text
 
