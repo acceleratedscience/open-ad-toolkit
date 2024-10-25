@@ -463,6 +463,7 @@ def _compile_section(output, toc, cmds_organized):
 
 def _compile_section_github(output, toc, cmds_organized):
     for i, category in enumerate(cmds_organized):
+        print(i, category)
         space = "<br>\n\n" if i == 0 else "<br><br>\n\n"
         output.append(f"{space}### {category}\n")
         toc.append(_toc_link(category, 1))

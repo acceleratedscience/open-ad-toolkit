@@ -42,6 +42,8 @@ This is the full list of available commands.
 
 ## OpenAD
 
+<br>
+
 ### Macromolecules
 
 <details markdown="block" class="cmd-wrap">
@@ -57,6 +59,8 @@ This is the full list of available commands.
 >   `show protein MAKWVCKICGYIYDEDAGDPDNGISPGTKFEELPDDWVCPICGAPKSEFEKLED` <br>
 
 </details>
+
+<br><br>
 
 ### General
 
@@ -87,6 +91,8 @@ This is the full list of available commands.
 > Clear any other sessions that may be running. <br>
 
 </details>
+
+<br><br>
 
 ### Workspaces
 
@@ -124,6 +130,8 @@ This is the full list of available commands.
 > Lists all your workspaces. <br>
 
 </details>
+
+<br><br>
 
 ### Toolkits
 
@@ -206,6 +214,8 @@ This is the full list of available commands.
 
 </details>
 
+<br><br>
+
 ### Runs
 
 <details markdown="block" class="cmd-wrap">
@@ -249,6 +259,8 @@ This is the full list of available commands.
 > Display the commands stored in a certain run. <br>
 
 </details>
+
+<br><br>
 
 ### Utility
 
@@ -312,6 +324,8 @@ This is the full list of available commands.
 
 </details>
 
+<br><br>
+
 ### GUI
 
 <details markdown="block" class="cmd-wrap">
@@ -344,6 +358,8 @@ This is the full list of available commands.
 
 </details>
 
+<br><br>
+
 ### LLM
 
 <details markdown="block" class="cmd-wrap">
@@ -366,6 +382,8 @@ This is the full list of available commands.
 > Clear the language model's authentication file. <br>
 
 </details>
+
+<br><br>
 
 ### File System
 
@@ -415,6 +433,8 @@ This is the full list of available commands.
 
 </details>
 
+<br><br>
+
 ### Help
 
 <details markdown="block" class="cmd-wrap">
@@ -451,6 +471,8 @@ This is the full list of available commands.
 > 
 
 </details>
+
+<br><br>
 
 ### Model
 
@@ -601,6 +623,8 @@ This is the full list of available commands.
 ## DS4SD
 
 
+<br>
+
 ### Search Molecules
 
 <details markdown="block" class="cmd-wrap">
@@ -650,6 +674,8 @@ This is the full list of available commands.
 > `search for substructure instances of 'C1(C(=C)C([O-])C1C)=O' save as 'my_mol'` <br>
 
 </details>
+
+<br><br>
 
 ### Search Collections
 
@@ -712,6 +738,8 @@ This is the full list of available commands.
 
 </details>
 
+<br><br>
+
 ### Collections
 
 <details markdown="block" class="cmd-wrap">
@@ -764,6 +792,8 @@ This is the full list of available commands.
 ## RXN
 
 
+<br>
+
 ### General
 
 <details markdown="block" class="cmd-wrap">
@@ -783,6 +813,8 @@ This is the full list of available commands.
 > Lists all RXN AI models currently available. <br>
 
 </details>
+
+<br><br>
 
 ### Retrosynthesis
 
@@ -815,6 +847,8 @@ This is the full list of available commands.
 > `predict retrosynthesis  'BrCCc1cccc2c(Br)c3ccccc3cc12' using (max_steps=6 ai_model='12class-tokens-2021-05-14' ) ` <br>
 
 </details>
+
+<br><br>
 
 ### Prediction
 
