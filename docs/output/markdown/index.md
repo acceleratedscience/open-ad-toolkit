@@ -14,6 +14,23 @@ https://github.com/acceleratedscience/open-ad-toolkit/tree/main/docs
 
 -->
 
+[Test](index.html#quick-install) /
+[Test](index.html#) /
+[Test](index.html) /
+[Test](index.html#quick-install) /
+[Test](index.html#) /
+[Test](index.html) /
+[Test](developers.html#testing-a-branch) /
+[Test](developers.html#) /
+[Test](developers.html) /
+
+[test 1]: index.html
+[test 2]: index.html#foo
+[test 3]: index.html#
+[test 4]: developers.html#testing-a-branch
+[test 5]: developers.html#
+[test 6]: developers.html
+
 # OpenAD
 
 **Open-source framework for molecular and materials discovery**

@@ -31,6 +31,22 @@ For consistency, stick to Chrome, hide your bookmarks & extensions.
 
 -->
 
+[Test](README.md#quick-install) /
+[Test](README.md#) /
+[Test](README.md) /
+[Test](/README.md#quick-install) /
+[Test](/README.md#) /
+[Test](/README.md) /
+[Test](/README_developers.md#testing-a-branch) /
+[Test](/README_developers.md#) /
+[Test](/README_developers.md) /
+[Test]: /README.md
+[Test]: /README.md#foo
+[Test]: /README.md#
+[Test]: /README_developers.md#testing-a-branch
+[Test]: /README_developers.md#
+[Test]: /README_developers.md
+
 # OpenAD
 
 **Open-source framework for molecular and materials discovery**

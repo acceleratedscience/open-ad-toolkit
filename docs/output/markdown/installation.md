@@ -18,8 +18,8 @@ https://github.com/acceleratedscience/open-ad-toolkit/tree/main/docs
 
 ---
 
-- **Quick install:** For a simplified install without virtual environment, see [Quick Install](/README.md#quick-install)
-- **Contributors:** Skip to [Installation for Development](README_developers.md#installation-for-development)<br>
+- **Quick install:** For a simplified install without virtual environment, see [Quick Install](index.html#quick-install)
+- **Contributors:** Skip to [Installation for Development](developers.html#installation-for-development)<br>
 - **Linux users:** Check the [Linux Notes](#linux-notes)<br>
 - **Poetry:** If you prefer Poetry, you can run the setup wizard instead: `poetry add openad`
 

@@ -27,6 +27,18 @@ To see how to work with workspaces:
 
     ? workspace
 
+## Molecule Working Set
+
+Your molecule working set (MWS) is an in-memory list of small molecules that is the subject of your calculations and manipulations.
+
+The MWS makes it easy to gather candidate molecules from various sources, either by adding them individually, by loading them in batch from a dataframe, CSV or SDF file, or by bookmarking molecules in the GUI. You can then calculate certain properties, perform triage and then store the results in your workspace as a molecule set, ready for further processing within OpenAD or elsewhere.
+
+Please note that at this time the MWS does not support macromolecules, only small molecules.
+
+To see how to work with your molecule working set:
+
+    ? mws
+
 ## Plugins
 
 Plugins are the way molecular tools and AI models are made available to the OpenAD client. Thanks to a unified language, accessing these tools through OpenAD lets you bypass a lot of complexity.

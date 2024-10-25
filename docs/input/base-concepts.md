@@ -16,6 +16,14 @@ To see how to work with workspaces:
 
     ? workspace
 
+## Molecule Working Set
+
+{{ABOUT_MWS}}
+
+To see how to work with your molecule working set:
+
+    ? mws
+
 ## Plugins
 
 {{ABOUT_PLUGIN}}

@@ -9,6 +9,23 @@ https://github.com/acceleratedscience/open-ad-toolkit/tree/main/docs
 -->
 
 
+[Test](https://acceleratedscience.github.io/openad-docs/#quick-install) /
+[Test](https://acceleratedscience.github.io/openad-docs/#) /
+[Test](https://acceleratedscience.github.io/openad-docs/) /
+[Test](https://acceleratedscience.github.io/openad-docs/#quick-install) /
+[Test](https://acceleratedscience.github.io/openad-docs/#) /
+[Test](https://acceleratedscience.github.io/openad-docs/) /
+[Test](https://acceleratedscience.github.io/openad-docs/developers.html#testing-a-branch) /
+[Test](https://acceleratedscience.github.io/openad-docs/developers.html#) /
+[Test](https://acceleratedscience.github.io/openad-docs/developers.html) /
+
+[test 1]: https://acceleratedscience.github.io/openad-docs/
+[test 2]: https://acceleratedscience.github.io/openad-docs/#foo
+[test 3]: https://acceleratedscience.github.io/openad-docs/#
+[test 4]: https://acceleratedscience.github.io/openad-docs/developers.html#testing-a-branch
+[test 5]: https://acceleratedscience.github.io/openad-docs/developers.html#
+[test 6]: https://acceleratedscience.github.io/openad-docs/developers.html
+
 # OpenAD
 
 **Open-source framework for molecular and materials discovery**
@@ -58,7 +75,7 @@ The OpenAD client is accessible from our command line interface, via Jupyter Not
 ## Quick Install
 
 > [!IMPORTANT]  
-> This will install OpenAD in your global space. If you wish to use a virtual environment (recommended), please refer to the [Installation](README_installation.md) page.
+> This will install OpenAD in your global space. If you wish to use a virtual environment (recommended), please refer to the [Installation](https://acceleratedscience.github.io/openad-docs/installation.html) page.
 
     pip install openad
     openad
@@ -81,7 +98,7 @@ If you get an error when running `init_magic`, you may first need to setup the d
 -   Upgraded SkyPilot to 0.6.0
 -   Support for deploying in OpenShift AI/Open Data hub workbench or Podman/Docker image. [See the workbench repo](https://github.com/acceleratedscience/openad_workbench).
 -   Support for application API
--   New property and dataset generation services. See [OpenAD Models Service](README_models-service.md)
+-   New property and dataset generation services. See [OpenAD Models Service](https://acceleratedscience.github.io/openad-docs/models-service.html)
     -   GT4SD Generation Services
     -   GT4SD Property Services
     -   GT4SD MoleR Generation
@@ -112,9 +129,9 @@ Stay tuned for detailed instructions on how to build your own OpenAD plugins.<br
 Check the [Developers] section for guidance with other contributions.
 
 
-[INSTALLATION](installation.html)
-[GETTING STARTED](getting-started.html)
-[MODELS SERVICE](models-service.html)
-[PLUGINS](plugins.html)
-[AI ASSISTANT](ai-assistant.html)
-[DEVELOPERS](developers.html)
+[INSTALLATION]: https://acceleratedscience.github.io/openad-docs/installation.html
+[GETTING STARTED]: https://acceleratedscience.github.io/openad-docs/getting-started.html
+[MODELS SERVICE]: https://acceleratedscience.github.io/openad-docs/models-service.html
+[PLUGINS]: https://acceleratedscience.github.io/openad-docs/plugins.html
+[AI ASSISTANT]: https://acceleratedscience.github.io/openad-docs/ai-assistant.html
+[DEVELOPERS]: https://acceleratedscience.github.io/openad-docs/developers.html

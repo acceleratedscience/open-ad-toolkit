@@ -6,6 +6,8 @@ The documentation generation script assures consistency by propagating the sourc
 
     python3 docs/generate_docs.py
 
+<br>
+
 ### What this does
 
 1. Use the descriptions from the [`/source`](./source) folder to update:
@@ -19,6 +21,8 @@ The documentation generation script assures consistency by propagating the sourc
    - [Base Concepts](https://acceleratedscience.github.io/openad-docs/base-concepts.html)
    - [Commands](https://acceleratedscience.github.io/openad-docs/commands.html)
 2. Update the [llm_description.txt](/openad/user_toolkits/DS4SD/llm_description.txt) for each individual plugin with the correct commands, used for LLM training.
+
+<br>
 
 ### How it works
 
