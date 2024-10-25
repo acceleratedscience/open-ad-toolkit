@@ -462,8 +462,9 @@ def _compile_section(output, toc, cmds_organized):
 
 
 def _compile_section_github(output, toc, cmds_organized):
-    for category in cmds_organized:
-        output.append(f"### {category}\n")
+    for i, category in enumerate(cmds_organized):
+        space = "<br>\n\n" if i == 0 else "<br><br>\n\n"
+        output.append(f"{space}### {category}\n")
         toc.append(_toc_link(category, 1))
         for cmd_str, cmd_description in cmds_organized[category]:
             # Add `> ` in front of every line so the description shows up as a note block
