@@ -68,7 +68,7 @@ Un-comment this section to test how GitHub alerts are translated for Just the Do
 [![License MIT](https://img.shields.io/github/license/acceleratedscience/open-ad-toolkit)](https://opensource.org/licenses/MIT)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-<a href="assets/openad-cli.png" target="_blank"><img src="assets/openad-cli.png" width="500" /></a>
+<a href="assets/openad-cli.png" target="_blank"><img src="assets/openad-cli.png" width="500" height="328" /></a>
 
 <!-- description -->
 Open Accelerated Discovery (aka OpenAD) is an open-source framework for molecular and materials discovery developed at IBM Research.
