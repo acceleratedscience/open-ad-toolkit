@@ -529,9 +529,9 @@ def render_commands_md(filename="commands.md", for_github=False):
         output_error(err_msg)
         return
 
-    # Update GitHub alerts
-    if not for_github:
-        commands_md = _update_alerts(commands_md)
+    # # Update GitHub alerts
+    # if not for_github:
+    #     commands_md = _update_alerts(commands_md)
 
     # Replace the just-the-docs header with a back link when generating for GitHub
     if for_github:
