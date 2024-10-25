@@ -59,47 +59,6 @@ Un-comment this section to test how GitHub alerts are translated for Just the Do
 
 -->
 
-> [!NOTE]
-> AAA
-> BBB
-
-> [!NOTE]
-> CCC
-> DDD
-
-> [!TIP]
-> EEE
-> FFF
-
-> [!TIP]
-> GGG
-> HHH
-
-> [!IMPORTANT]
-> III
-> JJJ
-
-> [!IMPORTANT]
-> KKK
-> LLL
-
-> [!WARNING]
-> MMM
-> NNN
-
-> [!WARNING]
-> OOO
-> PPP
-
-> [!CAUTION]
-> QQQ
-> RRR
-
-> [!CAUTION]
-> SSS
-> TTT
-
-
 # OpenAD
 
 **Open-source framework for molecular and materials discovery**
