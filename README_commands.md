@@ -40,9 +40,8 @@ This is the full list of available commands.
   - [Prediction](#prediction)
 
 
-## OpenAD
-
 <br>
+## OpenAD
 
 ### Macromolecules
 
@@ -60,7 +59,7 @@ This is the full list of available commands.
 
 </details>
 
-<br><br>
+<br>
 
 ### General
 
@@ -92,7 +91,7 @@ This is the full list of available commands.
 
 </details>
 
-<br><br>
+<br>
 
 ### Workspaces
 
@@ -131,7 +130,7 @@ This is the full list of available commands.
 
 </details>
 
-<br><br>
+<br>
 
 ### Toolkits
 
@@ -214,7 +213,7 @@ This is the full list of available commands.
 
 </details>
 
-<br><br>
+<br>
 
 ### Runs
 
@@ -260,7 +259,7 @@ This is the full list of available commands.
 
 </details>
 
-<br><br>
+<br>
 
 ### Utility
 
@@ -324,7 +323,7 @@ This is the full list of available commands.
 
 </details>
 
-<br><br>
+<br>
 
 ### GUI
 
@@ -358,7 +357,7 @@ This is the full list of available commands.
 
 </details>
 
-<br><br>
+<br>
 
 ### LLM
 
@@ -383,7 +382,7 @@ This is the full list of available commands.
 
 </details>
 
-<br><br>
+<br>
 
 ### File System
 
@@ -433,7 +432,7 @@ This is the full list of available commands.
 
 </details>
 
-<br><br>
+<br>
 
 ### Help
 
@@ -472,7 +471,7 @@ This is the full list of available commands.
 
 </details>
 
-<br><br>
+<br>
 
 ### Model
 
@@ -623,8 +622,6 @@ This is the full list of available commands.
 ## DS4SD
 
 
-<br>
-
 ### Search Molecules
 
 <details markdown="block" class="cmd-wrap">
@@ -675,7 +672,7 @@ This is the full list of available commands.
 
 </details>
 
-<br><br>
+<br>
 
 ### Search Collections
 
@@ -738,7 +735,7 @@ This is the full list of available commands.
 
 </details>
 
-<br><br>
+<br>
 
 ### Collections
 
@@ -792,8 +789,6 @@ This is the full list of available commands.
 ## RXN
 
 
-<br>
-
 ### General
 
 <details markdown="block" class="cmd-wrap">
@@ -814,7 +809,7 @@ This is the full list of available commands.
 
 </details>
 
-<br><br>
+<br>
 
 ### Retrosynthesis
 
@@ -848,7 +843,7 @@ This is the full list of available commands.
 
 </details>
 
-<br><br>
+<br>
 
 ### Prediction
 
