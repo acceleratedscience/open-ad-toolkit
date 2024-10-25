@@ -357,7 +357,7 @@ def render_commands_md(filename="commands.md", for_github=False):
 
     # Parse main commands
     space = "<br>\n\n" if for_github else "<br><br>\n\n"
-    md_output.append(f"{space}## OpenAD\n")
+    md_output.append(f"{space}## Main Commands\n")
     toc.append(_toc_link("OpenAD"))
     cmds = cmd_pointer.current_help.help_current
     cmds_organized = _organize(cmds)
@@ -470,7 +470,9 @@ def _compile_section_github(output, toc, cmds_organized):
         toc.append(_toc_link(category, 1))
         for cmd_str, cmd_description in cmds_organized[category]:
             # Add `> ` in front of every line so the description shows up as a note block
-            cmd_description = "\n" + re.sub(r"^", "> ", _parse_description(cmd_description), flags=re.MULTILINE) + "\n"
+            cmd_description = (
+                "\n\n" + re.sub(r"^", "> ", _parse_description(cmd_description), flags=re.MULTILINE) + "\n"
+            )
             cmd_output = "\n".join(
                 [
                     '<details markdown="block" class="cmd-wrap">',

@@ -48,7 +48,7 @@ This is the full list of available commands.
 
 <br><br>
 
-## OpenAD
+## Main Commands
 
 ### Macromolecules
 
