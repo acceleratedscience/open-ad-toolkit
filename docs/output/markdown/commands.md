@@ -21,7 +21,9 @@ This is the full list of available commands.
 > [!IMPORTANT]
 > When running commands from Jupyter, prepend them with `%openad`
 
-### Table of Contents
+<br>
+
+## Table of Contents
 - [OpenAD](#openad)
   - [Macromolecules](#macromolecules)
   - [General](#general)
@@ -43,6 +45,8 @@ This is the full list of available commands.
   - [Retrosynthesis](#retrosynthesis)
   - [Prediction](#prediction)
 
+
+<br><br>
 
 ## OpenAD
 
@@ -602,6 +606,8 @@ Bring down a model service   <br>
 `model service down 'gen'`  <br>
 </details>
 
+<br><br>
+
 ## DS4SD
 
 
@@ -764,6 +770,8 @@ Use the command `display all collections` to list available collections. <br>
 Example: <br> 
 `display collection details 'Patents from USPTO'` <br>
 </details>
+
+<br><br>
 
 ## RXN
 

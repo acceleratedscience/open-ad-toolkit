@@ -368,7 +368,8 @@ def render_commands_md(filename="commands.md", for_github=False):
 
     # Parse tookit commands
     for toolkit_name in _all_toolkits:
-        md_output.append(f"## {toolkit_name}\n\n")
+        space = "<br>\n\n" if for_github else "<br><br>\n\n"
+        md_output.append(f"{space}## {toolkit_name}\n\n")
         toc.append(_toc_link(toolkit_name))
         success, toolkit = load_toolkit(toolkit_name, from_repo=True)
         if success:
@@ -380,7 +381,7 @@ def render_commands_md(filename="commands.md", for_github=False):
                 _compile_section(md_output, toc, toolkit_cmds_organized)
 
     # Compile table of contents
-    toc = "### Table of Contents\n" + "\n".join(toc) + "\n"
+    toc = "<br>\n\n## Table of Contents\n" + "\n".join(toc) + "\n"
 
     # Compile commands
     md_output = "\n".join(md_output)
@@ -663,16 +664,16 @@ if __name__ == "__main__":
 
     # # Generate additional bespoke pages for documentation website
     # render_base_concepts_md("base-concepts.md")
-    # render_commands_md()
+    render_commands_md()
 
     # # Render additional files
     # render_commands_csv("commands.csv")
     # render_description_txt("llm_description.txt")
 
-    # # Move all generated markdown files to the documentation repo
-    # docs = []
-    # for filename in os.listdir(f"{REPO_PATH}/docs/output/markdown"):
-    #     docs.append(filename)
-    # copy_docs(docs)
+    # Move all generated markdown files to the documentation repo
+    docs = []
+    for filename in os.listdir(f"{REPO_PATH}/docs/output/markdown"):
+        docs.append(filename)
+    copy_docs(docs)
 
     update_github_readme_commands_md()

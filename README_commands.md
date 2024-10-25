@@ -17,7 +17,9 @@ This is the full list of available commands.
 > [!IMPORTANT]
 > When running commands from Jupyter, prepend them with `%openad`
 
-### Table of Contents
+<br>
+
+## Table of Contents
 - [OpenAD](#openad)
   - [Macromolecules](#macromolecules)
   - [General](#general)
@@ -620,6 +622,8 @@ This is the full list of available commands.
 
 </details>
 
+<br>
+
 ## DS4SD
 
 
@@ -786,6 +790,8 @@ This is the full list of available commands.
 > `display collection details 'Patents from USPTO'` <br>
 
 </details>
+
+<br>
 
 ## RXN
 
