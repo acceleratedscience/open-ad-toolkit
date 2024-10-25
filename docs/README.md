@@ -42,11 +42,15 @@ The documentation generation script assures consistency by propagating the sourc
     -   `/csv`
         -   [csv/commands.csv](output/csv/commands.csv) - A CSV file with all available commands that is not used anywhere but comes in handy to have a clean overview of available commands
 
+<br>
+
 ### Link mapping
 
 A key part of the translation from **GitHub** markdown to **Just the Docs** and **PyPI** markdown files, is to update internal links.
 
-When users visit our GitHub repo, we want to link between the different README files. When users visit our documentation website, the links should point to the other pages on the docs website. When users visit the OpenAD page on PyPI, we want the links to be absolute links that point to the documentation website.
+- **GitHub:** Links and relative and point to other README files.
+- **[Documentation](https://acceleratedscience.github.io/openad-docs):** Links and relative and point to the other pages on the site.
+- **[PyPI](https://pypi.org/project/openad/):** Links are absolute and point to the documentation website.
     
 **Source: GitHub**
 
@@ -107,5 +111,5 @@ When users visit our GitHub repo, we want to link between the different README f
     [Link]: https://acceleratedscience.github.io/openad-docs/#quick-install
     [Link]: https://acceleratedscience.github.io/openad-docs/developers.html
     [Link]: https://acceleratedscience.github.io/openad-docs/developers.html#testing-a-branch
-    
+
 [openad-docs]: https://github.com/acceleratedscience/openad-docs
