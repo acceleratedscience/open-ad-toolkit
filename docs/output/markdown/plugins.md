@@ -24,9 +24,6 @@ You can create your own plugins, and the publicly available plugins will soon in
 
 > **Note:** Plugins are currently referred to as "toolkits" by the commands, however this language will be updated soon.
 
-> [!IMPORTANT]
-> When running commands from Jupyter, prepend them with `%openad`
-
 <br><br>
 
 ## Registration
@@ -90,6 +87,9 @@ First install the toolkit, then set the context to this toolkit.
 
     add toolkit ds4sd
     set context ds4sd
+
+> [!IMPORTANT]
+> When running commands from Jupyter, prepend them with `%openad`
 
 <br><br>
 

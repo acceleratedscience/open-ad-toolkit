@@ -420,15 +420,21 @@ def _organize(cmds, toolkit_name=None):
 
 # Compile all commands of a single section.
 def _compile_section(output, toc, cmds_organized):
-    output.append('<details markdown="block">')
-    output.append("<summary>See commands</summary>\n")
     for category in cmds_organized:
         output.append(f"### {category}\n")
         toc.append(_toc_link(category, 1))
         for cmd_str, cmd_description in cmds_organized[category]:
-            output.append(f"`{cmd_str.strip()}`{{: .cmd }}\n{_parse_description(cmd_description)}<br>\n")
-        output.append("<br>\n")
-    output.append("</details>\n")
+            cmd_output = "\n".join(
+                [
+                    '<details markdown="block" class="cmd-wrap">',
+                    '<summary markdown="block">',
+                    f"`{cmd_str.strip()}`{{: .cmd }}",
+                    "</summary>",
+                    _parse_description(cmd_description),
+                    "</details>\n",
+                ]
+            )
+            output.append(cmd_output)
 
 
 # Prepare the command description for proper rendering.
