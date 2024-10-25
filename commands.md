@@ -22,26 +22,28 @@ This is the full list of available commands.
 > When running commands from Jupyter, prepend them with `%openad`
 
 ### Table of Contents
-- [OpenAD](#openad)
-  - [Macromolecules](#macromolecules)
-  - [General](#general)
-  - [Workspaces](#workspaces)
-  - [Toolkits](#toolkits)
-  - [Runs](#runs)
-  - [Utility](#utility)
-  - [GUI](#gui)
-  - [LLM](#llm)
-  - [File System](#file-system)
-  - [Help](#help)
-  - [Model](#model)
-- [DS4SD](#ds4sd)
-  - [Search Molecules](#search-molecules)
-  - [Search Collections](#search-collections)
-  - [Collections](#collections)
-- [RXN](#rxn)
-  - [General](#general)
-  - [Retrosynthesis](#retrosynthesis)
-  - [Prediction](#prediction)
+- [OpenAD Commands](#openad-commands)
+    - [Table of Contents](#table-of-contents)
+  - [OpenAD](#openad)
+    - [Macromolecules](#macromolecules)
+    - [General](#general)
+    - [Workspaces](#workspaces)
+    - [Toolkits](#toolkits)
+    - [Runs](#runs)
+    - [Utility](#utility)
+    - [GUI](#gui)
+    - [LLM](#llm)
+    - [File System](#file-system)
+    - [Help](#help)
+    - [Model](#model)
+  - [DS4SD](#ds4sd)
+    - [Search Molecules](#search-molecules)
+    - [Search Collections](#search-collections)
+    - [Collections](#collections)
+  - [RXN](#rxn)
+    - [General](#general-1)
+    - [Retrosynthesis](#retrosynthesis)
+    - [Prediction](#prediction)
 
 
 ## OpenAD
@@ -50,7 +52,7 @@ This is the full list of available commands.
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block">
-`show mmol|protein <fasta> | '<pdb_id>'`{: .cmd }
+`show mmol|protein <fasta> | '<pdb_id>'`
 </summary>
 Launch the molecule viewer to visualize your macromolecule and inspect its properties. <br> 
 
