@@ -529,9 +529,9 @@ def render_commands_md(filename="commands.md", for_github=False):
         output_error(err_msg)
         return
 
-    # # Update GitHub alerts
-    # if not for_github:
-    #     commands_md = _update_alerts(commands_md)
+    # Update GitHub alerts
+    if not for_github:
+        commands_md = _update_alerts(commands_md)
 
     # Replace the just-the-docs header with a back link when generating for GitHub
     if for_github:
@@ -793,26 +793,26 @@ def _compile_commands(cmds_organized):
 ############################################################
 
 if __name__ == "__main__":
-    # # Update README files
-    # update_github_readme_md()
-    # update_github_readme_plugin_md()
-    # update_github_readme_commands_md()
+    # Update README files
+    update_github_readme_md()
+    update_github_readme_plugin_md()
+    update_github_readme_commands_md()
 
-    # # Generate alt README for PyPI (links pointing to docs)
-    # render_pypi_readme_md()
+    # Generate alt README for PyPI (links pointing to docs)
+    render_pypi_readme_md()
 
-    # # Turn README files into pages for the documentation website
-    # render_docs_pages()
+    # Turn README files into pages for the documentation website
+    render_docs_pages()
 
-    # # Generate additional bespoke pages for documentation website
-    # render_base_concepts_md()
-    # render_commands_md()
+    # Generate additional bespoke pages for documentation website
+    render_base_concepts_md()
+    render_commands_md()
 
-    # # Render additional files
-    # render_commands_csv()
-    # render_description_txt()
+    # Render additional files
+    render_commands_csv()
+    render_description_txt()
 
-    _render_docs_page("index.md")
+    # _render_docs_page("index.md")
 
     # Move all generated markdown files to the documentation repo
     docs = []
