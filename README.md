@@ -81,6 +81,8 @@ The OpenAD client is accessible from our command line interface, via Jupyter Not
 &nbsp;&nbsp;&nbsp;
 **[GETTING STARTED]**
 &nbsp;&nbsp;&nbsp;
+**[COMMANDS]**
+&nbsp;&nbsp;&nbsp;
 **[MODELS SERVICE]**
 
 <sub>
@@ -169,6 +171,7 @@ Check the [Developers] section for guidance with other contributions.
 
 [INSTALLATION]: README_installation.md
 [GETTING STARTED]: README_getting-started.md
+[COMMANDS]: README_commands.md
 [MODELS SERVICE]: README_models-service.md
 [PLUGINS]: README_plugins.md
 [AI ASSISTANT]: README_ai-assistant.md
