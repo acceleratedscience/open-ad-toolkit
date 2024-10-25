@@ -139,6 +139,17 @@ def update_github_readme_plugin_md(filename="README_plugins.md"):
 # endregion
 
 ############################################################
+# region - README_commands.md (GitHub)
+
+
+# Update the README_commands.md with auto-generated commands
+def update_github_readme_commands_md():
+    render_commands_md("README_commands.md", for_github=True)
+
+
+# endregion
+
+############################################################
 # region - README-PYPI.md (PyPi)
 
 
@@ -338,34 +349,40 @@ def render_base_concepts_md(filename="base-concepts.md"):
 
 # Loop through all commands and export them to a markdown file
 # that is ready to be included in the just-the-docs documentation.
-def render_commands_md(filename):
+def render_commands_md(filename="commands.md", for_github=False):
     output_text("<h1>Generating <yellow>commands.md</yellow> from help</h1>", pad_top=2)
 
     toc = []  # Table of content
-    commands = []  # Markdown
+    md_output = []  # Markdown
 
     # Parse main commands
-    commands.append(f"## OpenAD\n")
+    md_output.append(f"## OpenAD\n")
     toc.append(_toc_link("OpenAD"))
     cmds = cmd_pointer.current_help.help_current
     cmds_organized = _organize(cmds)
-    _compile_section(commands, toc, cmds_organized)
+    if for_github:
+        _compile_section_github(md_output, toc, cmds_organized)
+    else:
+        _compile_section(md_output, toc, cmds_organized)
 
     # Parse tookit commands
     for toolkit_name in _all_toolkits:
-        commands.append(f"## {toolkit_name}\n\n")
+        md_output.append(f"## {toolkit_name}\n\n")
         toc.append(_toc_link(toolkit_name))
         success, toolkit = load_toolkit(toolkit_name, from_repo=True)
         if success:
             toolkit_cmds = toolkit.methods_help
             toolkit_cmds_organized = _organize(toolkit_cmds)
-            _compile_section(commands, toc, toolkit_cmds_organized)
+            if for_github:
+                _compile_section_github(md_output, toc, toolkit_cmds_organized)
+            else:
+                _compile_section(md_output, toc, toolkit_cmds_organized)
 
     # Compile table of contents
     toc = "### Table of Contents\n" + "\n".join(toc) + "\n"
 
     # Compile commands
-    commands = "\n".join(commands)
+    md_output = "\n".join(md_output)
 
     # Read commands.md input content
     commands_md, err_msg = open_file("docs/input/commands.md", return_err=True)
@@ -374,6 +391,10 @@ def render_commands_md(filename):
         output_error(err_msg)
         return
 
+    # Replace the just-the-docs header with a back link when generating for GitHub
+    if for_github:
+        commands_md = re.sub(r"^---.+---", "<sub>[&larr; BACK](./README.md#openad)</sub>", commands_md, flags=re.DOTALL)
+
     # Insert DO NOT EDIT comment
     commands_md = re.sub(r"{{DO_NOT_EDIT}}", DO_NOT_EDIT, commands_md, flags=re.DOTALL)
 
@@ -381,10 +402,13 @@ def render_commands_md(filename):
     commands_md = re.sub(r"{{TOC}}", toc, commands_md, flags=re.DOTALL)
 
     # Insert commands
-    commands_md = re.sub(r"{{COMMANDS}}", commands, commands_md, flags=re.DOTALL)
+    commands_md = re.sub(r"{{COMMANDS}}", md_output, commands_md, flags=re.DOTALL)
 
     # Write to file
-    success, err_msg = write_file(f"{REPO_PATH}/docs/output/markdown/{filename}", commands_md, return_err=True)
+    if for_github:
+        success, err_msg = write_file(f"{REPO_PATH}/{filename}", commands_md, return_err=True)
+    else:
+        success, err_msg = write_file(f"{REPO_PATH}/docs/output/markdown/{filename}", commands_md, return_err=True)
     if success:
         output_text(FLAG_SUCCESS)
         output_text(f"<soft>Exported to</soft> <reset>/docs/output/markdown/{filename}</reset>")
@@ -431,6 +455,24 @@ def _compile_section(output, toc, cmds_organized):
                     f"`{cmd_str.strip()}`{{: .cmd }}",
                     "</summary>",
                     _parse_description(cmd_description),
+                    "</details>\n",
+                ]
+            )
+            output.append(cmd_output)
+
+
+def _compile_section_github(output, toc, cmds_organized):
+    for category in cmds_organized:
+        output.append(f"### {category}\n")
+        toc.append(_toc_link(category, 1))
+        for cmd_str, cmd_description in cmds_organized[category]:
+            # Add `> ` in front of every line so the description shows up as a note block
+            cmd_description = "\n" + re.sub(r"^", "> ", _parse_description(cmd_description), flags=re.MULTILINE) + "\n"
+            cmd_output = "\n".join(
+                [
+                    '<details markdown="block" class="cmd-wrap">',
+                    f'<summary markdown="block"><code>{cmd_str.strip()}</code></summary>',
+                    cmd_description,
                     "</details>\n",
                 ]
             )
@@ -606,26 +648,29 @@ def _compile_commands(cmds_organized):
 ############################################################
 
 if __name__ == "__main__":
-    # Update README files
-    update_github_readme_md()
-    update_github_readme_plugin_md()
+    # # Update README files
+    # update_github_readme_md()
+    # update_github_readme_plugin_md()
+    # update_github_readme_commands_md()
 
-    # Generate README for PyPI
-    render_pypi_readme_md()
+    # # Generate README for PyPI
+    # render_pypi_readme_md()
 
-    # Turn README files into pages for the documentation website
-    render_docs_pages()
+    # # Turn README files into pages for the documentation website
+    # render_docs_pages()
 
-    # Generate additional bespoke pages for documentation website
-    render_base_concepts_md("base-concepts.md")
-    render_commands_md("commands.md")
+    # # Generate additional bespoke pages for documentation website
+    # render_base_concepts_md("base-concepts.md")
+    # render_commands_md()
 
-    # Render additional files
-    render_commands_csv("commands.csv")
-    render_description_txt("llm_description.txt")
+    # # Render additional files
+    # render_commands_csv("commands.csv")
+    # render_description_txt("llm_description.txt")
 
-    # Move all generated markdown files to the documentation repo
-    docs = []
-    for filename in os.listdir(f"{REPO_PATH}/docs/output/markdown"):
-        docs.append(filename)
-    copy_docs(docs)
+    # # Move all generated markdown files to the documentation repo
+    # docs = []
+    # for filename in os.listdir(f"{REPO_PATH}/docs/output/markdown"):
+    #     docs.append(filename)
+    # copy_docs(docs)
+
+    update_github_readme_commands_md()
