@@ -2,10 +2,14 @@
 
 # OpenAD AI Assistant
 
-To enable our AI assistant, you'll either need access to [IBM BAM](https://bam.res.ibm.com/auth/signin) or use the free open source LLM [Ollama](https://ollama.com).
+---
 
-> **Note:** Ollama requires an 8GB GPU
-> **Note:** Support for WatsonX is coming soon
+- **Ollama** requires an 8GB GPU.
+- **WatsonX support** is coming soon.
+
+---
+
+To enable our AI assistant, you'll either need access to [IBM BAM](https://bam.res.ibm.com/auth/signin) or use the free open source LLM [Ollama](https://ollama.com).
 
 <br>
 
