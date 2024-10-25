@@ -358,7 +358,7 @@ def render_commands_md(filename="commands.md", for_github=False):
     # Parse main commands
     space = "<br>\n\n" if for_github else "<br><br>\n\n"
     md_output.append(f"{space}## Main Commands\n")
-    toc.append(_toc_link("OpenAD"))
+    toc.append(_toc_link("Main Commands"))
     cmds = cmd_pointer.current_help.help_current
     cmds_organized = _organize(cmds)
     if for_github:

@@ -24,7 +24,7 @@ This is the full list of available commands.
 <br>
 
 ## Table of Contents
-- [OpenAD](#openad)
+- [Main Commands](#main-commands)
   - [Macromolecules](#macromolecules)
   - [General](#general)
   - [Workspaces](#workspaces)
