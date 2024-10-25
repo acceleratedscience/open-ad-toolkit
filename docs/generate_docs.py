@@ -356,7 +356,8 @@ def render_commands_md(filename="commands.md", for_github=False):
     md_output = []  # Markdown
 
     # Parse main commands
-    md_output.append(f"## OpenAD\n")
+    space = "<br>\n" if for_github else "<br><br>\n"
+    md_output.append(f"{space}## OpenAD\n")
     toc.append(_toc_link("OpenAD"))
     cmds = cmd_pointer.current_help.help_current
     cmds_organized = _organize(cmds)
@@ -463,8 +464,7 @@ def _compile_section(output, toc, cmds_organized):
 
 def _compile_section_github(output, toc, cmds_organized):
     for i, category in enumerate(cmds_organized):
-        print(i, category)
-        space = "<br>\n\n" if i == 0 else "<br><br>\n\n"
+        space = "" if i == 0 else "<br>\n\n"
         output.append(f"{space}### {category}\n")
         toc.append(_toc_link(category, 1))
         for cmd_str, cmd_description in cmds_organized[category]:
