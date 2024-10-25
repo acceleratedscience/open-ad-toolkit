@@ -45,7 +45,7 @@ from openad.helpers.output_msgs import msg
 from openad.helpers.general import refresh_prompt
 from openad.helpers.splash import splash
 from openad.helpers.files import empty_trash
-from openad.helpers.output_content import about_workspace, about_plugin, about_run, about_context
+from openad.helpers.output_content import about_workspace, about_mws, about_plugin, about_run, about_context
 
 # Globals
 from openad.app.global_var_lib import _repo_dir
@@ -237,9 +237,10 @@ class RUNCMD(Cmd):
             %openad ? list           --> Notebook and API requests go via api_remote()
         """
 
-        # `??` --> Advanced help (to be implemented)
+        # `??` --> Advanced help, for now opens the commands page on docs website.
         if inp.strip() == "?":
-            return output_warning(openad_help.advanced_help())
+            openad_help.advanced_help()
+            return
 
         # Strip question marks at the beginning and end of input.
         if len(inp.strip()) > 0 and inp.split()[0] == "?":
@@ -279,25 +280,58 @@ class RUNCMD(Cmd):
                 openad_help.all_commands(all_commands, toolkit_current=self.toolkit_current, cmd_pointer=self),
                 pad=2,
                 tabs=1,
+                nowrap=True,
             )
 
-        # Display info text about important key concepts.
-        if display_info and ("return_val" not in kwargs or not kwargs["return_val"]):
-            if inp.lower() == "workspace" or inp.lower() == "workspaces":
-                output_text("<h1>About Workspaces</h1>\n" + about_workspace, edge=True, pad=1, return_val=False)
-            elif inp.lower() == "toolkit" or inp.lower() == "toolkits":
-                output_text("<h1>About Toolkits</h1>\n" + about_plugin, edge=True, pad=1, return_val=False)
-            elif inp.lower() == "run" or inp.lower() == "runs":
-                output_text("<h1>About Runs</h1>\n" + about_run, edge=True, pad=1, return_val=False)
-            elif inp.lower() == "context" or inp.lower() == "contexts":
-                output_text("<h1>About Context</h1>\n" + about_context, edge=True, pad=1, return_val=False)
+        # `<category> ?` / `? <category>` --> Display all commands related to a certain category + into paragraph if available.
+        categories = []
+        categories_map = {}
+        for command in all_commands:
+            cat = command["category"].lower()
+            categories_map[cat] = cat
+            if cat not in categories:
+                categories.append(cat)
+                if cat[-1] == "s":
+                    cat_singular = singular(cat)
+                    categories.append(cat_singular)
+                    categories_map[cat_singular] = cat
+        categories.extend(["mws", "plugins", "plugin", "contexts", "context"])
+        categories_map["mws"] = "molecule working set"
+        categories_map["plugins"] = "toolkits"
+        categories_map["plugin"] = "toolkits"
+        categories_map["contexts"] = "toolkits"
+        categories_map["context"] = "toolkits"
+
+        input_cat = categories_map.get(inp.lower(), None)
+        if input_cat:
+            output = []
+            # fmt: off
+            # Add category about text
+            if display_info and ("return_val" not in kwargs or not kwargs["return_val"]):
+                if input_cat == "workspaces":
+                    output.append(output_text("<h1>About Workspaces</h1>\n" + about_workspace, return_val=True, pad_btm=3, nowrap=True))
+                elif input_cat == "molecule working set":
+                    output.append(output_text("<h1>About your Molecule Working Set</h1>\n" + about_mws, return_val=True, pad_btm=3, nowrap=True))
+                elif input_cat == "toolkits":
+                    if inp.lower() in ["context", "contexts"]:
+                        output.append(output_text("<h1>About Context</h1>\n" + about_context, return_val=True, pad_btm=3, nowrap=True))
+                    else:
+                        output.append(output_text("<h1>About Plugins</h1>\n" + about_plugin, return_val=True, pad_btm=3, nowrap=True))
+                elif input_cat == "runs":
+                    output.append(output_text("<h1>About Runs</h1>\n" + about_run, return_val=True, pad_btm=3, nowrap=True))
+            # fmt: on
+            commands = list(filter(lambda x: x["category"].lower() == input_cat, all_commands))
+            # Add category commands
+            output.append(openad_help.all_commands(commands, no_title=True, cmd_pointer=self))
+            # Print
+            return output_text("".join(output), pad=1, edge=True)
 
         # `<toolkit_name> ?` --> Display all toolkkit commands.
         if inp.upper() in _all_toolkits + ["DEMO"]:  # DEMO is omitted from _all_toolkits
             toolkit_name = inp.upper()
             ok, toolkit = load_toolkit(toolkit_name)
             return output_text(
-                openad_help.all_commands(toolkit.methods_help, toolkit_name, cmd_pointer=self), pad=2, tabs=1
+                openad_help.all_commands(toolkit.methods_help, toolkit_name, cmd_pointer=self), pad=2, edge=True
             )
 
         # Add the current toolkit's commands to the list of all commands.
@@ -634,7 +668,7 @@ class RUNCMD(Cmd):
             not convert(inp).lower().startswith("tell me") or convert(inp).lower() == "tell me ?"
         ):
             # ... ?
-            return self.do_help(inp, display_info=False)
+            return self.do_help(inp)
 
         try:
             try:

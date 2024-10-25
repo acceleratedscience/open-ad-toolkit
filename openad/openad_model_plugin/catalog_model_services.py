@@ -656,7 +656,7 @@ def service_catalog_grammar(statements: list, help: list):
         help_dict_create(
             name="model auth add group",
             category="Model",
-            command="model auth add group '<auth_group>'|<auth_group> with '<api_key>'",
+            command="model auth add group <auth_group> with '<api_key>'",
             description="add an authentication group for model services to use",
         )
     )
@@ -666,7 +666,7 @@ def service_catalog_grammar(statements: list, help: list):
         help_dict_create(
             name="model auth remove group",
             category="Model",
-            command="model auth remove group '<auth_group>' | <auth_group>",
+            command="model auth remove group <auth_group>",
             description="remove an authentication group",
         )
     )
@@ -680,7 +680,7 @@ def service_catalog_grammar(statements: list, help: list):
         help_dict_create(
             name="model auth add service",
             category="Model",
-            command="model auth add service '<service_name>'|,service_name> to group '<auth_group>'|<auth_group>",
+            command="model auth add service <service_name> to group <auth_group>",
             description="Attach an authentication group to a model service",
         )
     )
@@ -692,7 +692,7 @@ def service_catalog_grammar(statements: list, help: list):
         help_dict_create(
             name="model auth remove service",
             category="Model",
-            command="model auth remove service '<service_name>'|<service_name>",
+            command="model auth remove service <service_name>",
             description="Detatch an authentication group from a model service",
         )
     )
@@ -712,7 +712,7 @@ def service_catalog_grammar(statements: list, help: list):
         help_dict_create(
             name="model service describe",
             category="Model",
-            command="model service describe '<service_name>'|<service_name>",
+            command="model service describe <service_name>",
             description="get the configuration of a service",
         )
     )
@@ -732,7 +732,7 @@ def service_catalog_grammar(statements: list, help: list):
         help_dict_create(
             name="uncatalog model service",
             category="Model",
-            command="uncatalog model service '<service_name>'|<service_name>",
+            command="uncatalog model service <service_name>",
             description="uncatalog a model service \n\n Example: \n<cmd>uncatalog model service 'gen'</cmd>",
         )
     )
@@ -754,9 +754,9 @@ def service_catalog_grammar(statements: list, help: list):
         help_dict_create(
             name="catalog Model service",
             category="Model",
-            command="catalog model service from (remote) '<path> or <github> or <service_url>' as  '<service_name>'|<service_name>   USING (<parameter>=<value> <parameter>=<value>)",
+            command="catalog model service from (remote) '<path> or <github> or <service_url>' as  <service_name> using (<parameter>=<value> <parameter>=<value>)",
             description="""catalog a model service from a path or github or remotely from an existing OpenAD service.
-(USING) optional headers parameters for communication with service backend.
+(using) optional headers parameters for communication with service backend.
 If you are cataloging a service using a model defined in a directory, provide the absolute <cmd> <path> </cmd> of that directory in quotes.
 
 The following options require the <cmd>remote</cmd> option be declared.
@@ -767,7 +767,7 @@ If you are cataloging a remote service on a ip address and port provide the remo
 
 <cmd>service_name</cmd>: this is the name of the service as you will define it for your usage. e.g <cmd>prop</cmd> short for properties. 
 
-USING Parameters:
+Parameters:
 
 If using a hosted service the following parameters must be supplied:
 -<cmd>Inference-Service</cmd>: this is the name of the inference service that is hosted, it is a required parameter if cataloging a remote service.
@@ -782,11 +782,11 @@ Skypilot Deployment
 -<cmd>catalog model service from 'git@github.com:acceleratedscience/generation_inference_service.git' as 'gen'</cmd>
 
 Service using a authentication group 
--<cmd>catalog model service from remote '<service_url>' as  molf  USING (Inference-Service=molformer  )</cmd>
+-<cmd>catalog model service from remote '<service_url>' as  molf using (Inference-Service=molformer  )</cmd>
 <cmd> model auth add service 'molf' to group 'default'</cmd>
 
 Single Authorisation Service
--<cmd>openad catalog model service from remote '<service_URL>' as 'gen' USING (Inference-Service=generation Authorization='<api_key>')</cmd>
+-<cmd>openad catalog model service from remote '<service_URL>' as 'gen' using (Inference-Service=generation Authorization='<api_key>')</cmd>
 
 Catalog a remote service shared with you:
 -<cmd>catalog model service from remote 'http://54.235.3.243:30001' as gen</cmd>""",
