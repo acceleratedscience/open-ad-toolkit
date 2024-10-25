@@ -4,18 +4,15 @@
 
 ---
 
+- **Supported LLMs** are [IBM BAM] and [Ollama]
 - **Ollama** requires an 8GB GPU.
 - **WatsonX support** is coming soon.
 
 ---
 
-To enable our AI assistant, you'll either need access to [IBM BAM](https://bam.res.ibm.com/auth/signin) or use the free open source LLM [Ollama](https://ollama.com).
-
-<br>
-
 ## IBM BAM Setup
 
-To use IBM BAM if you have access to it, simply provide your API key when prompted.
+To use [IBM BAM] if you have access to it, simply provide your API key when prompted.
 
     set llm bam
     tell me <enter prompt>
@@ -24,14 +21,14 @@ To use IBM BAM if you have access to it, simply provide your API key when prompt
 
 ## Ollama Setup
 
-1.  Install [Ollama](https://ollama.com/download) onto your platform.
+1.  Install [Ollama] onto your platform.
 
-1.  Download the appropriate models.
+2.  Download the appropriate models.
 
         ollama pull llama3:latest
         ollama pull nomic-embed-text
 
-1.  Start the server if not already started.
+3.  Start the server if not already started.
 
         ollama serve
 
@@ -56,4 +53,5 @@ That's it for local usage. If you want to run Ollama remotely, continue below.
     set llm ollama
     tell me <enter prompt>
 
-<br>
+[IBM BAM]: https://bam.res.ibm.com
+[Ollama]: https://ollama.com
