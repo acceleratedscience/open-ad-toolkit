@@ -31,24 +31,78 @@ For consistency, stick to Chrome, hide your bookmarks & extensions.
 
 -->
 
+<!-- 
+
+For testing
+-----------
+Un-comment this section to test how GitHub alerts are translated for Just the Docs.
+
+> [!NOTE]
+> Useful information that users should know,
+> even when skimming content.
+
+> [!TIP]
+> Helpful advice for doing things
+> better or more easily.
+
+> [!IMPORTANT]
+> Key information users need to know
+> to achieve their goal.
+
+> [!WARNING]
+> Urgent info that needs immediate
+> user attention to avoid problems.
+
+> [!CAUTION]
+> Advises about risks or negative
+> outcomes of certain actions.
+
+-->
+
+> [!NOTE]
+> AAA
+> BBB
+
+> [!NOTE]
+> CCC
+> DDD
+
+> [!TIP]
+> EEE
+> FFF
+
+> [!TIP]
+> GGG
+> HHH
+
+> [!IMPORTANT]
+> III
+> JJJ
+
+> [!IMPORTANT]
+> KKK
+> LLL
+
+> [!WARNING]
+> MMM
+> NNN
+
+> [!WARNING]
+> OOO
+> PPP
+
+> [!CAUTION]
+> QQQ
+> RRR
+
+> [!CAUTION]
+> SSS
+> TTT
+
+
 # OpenAD
 
 **Open-source framework for molecular and materials discovery**
-
-> [!NOTE]
-> Useful information that users should know, even when skimming content.
-
-> [!TIP]
-> Helpful advice for doing things better or more easily.
-
-> [!IMPORTANT]
-> Key information users need to know to achieve their goal.
-
-> [!WARNING]
-> Urgent info that needs immediate user attention to avoid problems.
-
-> [!CAUTION]
-> Advises about risks or negative outcomes of certain actions.
 
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/openad)](https://pypi.org/project/openad/)
 [![PyPI version](https://img.shields.io/pypi/v/openad)](https://pypi.org/project/openad/)
@@ -98,7 +152,7 @@ The OpenAD client is accessible from our command line interface, via Jupyter Not
 
 ## Quick Install
 
-> [!IMPORTANT]  
+> [!IMPORTANT]
 > This will install OpenAD in your global space. If you wish to use a virtual environment (recommended), please refer to the [Installation](README_installation.md) page.
 
     pip install openad
