@@ -1,8 +1,7 @@
 [tool.poetry]
 name = "openad"
-version = "0.6.2"
+version = "0.6.4"
 description = "Open Accelerated Discovery Client"
-long_description_file = "README--PYPI.md"
 authors = ["Phil Downey <phil.downey1@ibm.com>"]
 readme = "README.md"
 license = "MIT"
