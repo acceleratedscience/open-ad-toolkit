@@ -21,7 +21,7 @@
 	"help": {
 		"name": "predict retrosynthesis",
 		"category": "Retrosynthesis",
-		"command": "predict retrosynthesis '<smiles>' [ using (option1=<value> option2=<value>) ]",
+		"command": "predict retrosynthesis '<smiles>' [ using (<parameter>=<value> <parameter>=<value>) ]",
 		"description": "",
 		"url": {}
 	},

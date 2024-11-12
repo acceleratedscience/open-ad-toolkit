@@ -1,7 +1,7 @@
 ---
 title: Base Concepts
-layout: home
-nav_order: 3
+layout: default
+nav_order: 4
 ---
 
 {{DO_NOT_EDIT}}
@@ -15,6 +15,14 @@ nav_order: 3
 To see how to work with workspaces:
 
     ? workspace
+
+## Molecule Working Set
+
+{{ABOUT_MWS}}
+
+To see how to work with your molecule working set:
+
+    ? mws
 
 ## Plugins
 

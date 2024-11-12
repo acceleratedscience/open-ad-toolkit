@@ -1,25 +1,11 @@
----
-title: Installation
-layout: default
-nav_order: 2
----
-
-<!--
-
-DO NOT EDIT
------------
-This file is auto-generated.
-To update it, consult instructions:
-https://github.com/acceleratedscience/open-ad-toolkit/tree/main/docs
-
--->
+<sub>[&larr; BACK](./README.md#openad)</sub>
 
 # OpenAD Installation
 
 ---
 
-- **Quick install:** For a simplified install without virtual environment, see [Quick Install](index.html#quick-install)
-- **Contributors:** Skip to [Installation for Development](developers.html#installation-for-development)<br>
+- **Quick install:** For a simplified install without virtual environment, see [Quick Install](README.md#quick-install)
+- **Contributors:** Skip to [Installation for Development](README_developers.md#installation-for-development)<br>
 - **Linux users:** Check the [Linux Notes](#linux-notes)<br>
 - **Poetry:** If you prefer Poetry, you can run the setup wizard instead: `poetry add openad`
 
@@ -29,6 +15,7 @@ https://github.com/acceleratedscience/open-ad-toolkit/tree/main/docs
 
 ## Installing on macOS / Linux
 
+<!-- Note: step 1 & 2 are repeated, make sure any updates are done in both places -->
 1.  **Before you start**<br>
     Ensure you're running Python 3.10.10+ or 3.11. See [instructions below](#upgrading-python).
 
@@ -50,7 +37,7 @@ https://github.com/acceleratedscience/open-ad-toolkit/tree/main/docs
 
         pip install openad
 
-1.  Continue to [Getting Started](getting-started.html)
+1.  Continue to [Getting Started](README_getting-started.md)
 
 <br><br>
 
@@ -71,7 +58,7 @@ In order to run OpenAD on Windows 11, you will need to install the Ubuntu WSL pa
 
     **Optional:** To setup an Ubuntu Python environment from scratch, continue to <a href="#linux-notes">Linux Notes</a>
 
-1.  Continue to [Getting Started](getting-started.html)
+1.  Continue to [Getting Started](README_getting-started.md)
 
 <br><br>
 
@@ -84,14 +71,14 @@ There's many ways to install or upgrade Python. We'll use `pyenv`.
 1.  **Install pyenv**
 
         curl https://pyenv.run | bash
-
+    
 1.  **Set up your shell environment for Pyenv**<br>
     Detailed instructions cam be found [here](https://github.com/pyenv/pyenv?tab=readme-ov-file#set-up-your-shell-environment-for-pyenv). If you're using Zsh, you can run the commands below:
 
         echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.zshrc
         echo '[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.zshrc
         echo 'eval "$(pyenv init -)"' >> ~/.zshrc
-
+    
 1.  **Reboot your shell**<br>
     You can either open a new window or run:
 
@@ -99,14 +86,14 @@ There's many ways to install or upgrade Python. We'll use `pyenv`.
 
 1. **Install Python**
     Please note that OpenAD requires **Python 3.10** or **3.11**. Due to an issue with one of our dependencies, Python 3.12 is not yet supported.
-
+    
         pyenv install 3.11
 
 2.  **Activate this version of Python**
     If you wish to set this version as the default:
 
         pyenv global 3.11
-
+        
     Alternatively, if you only wish to activate it in the current shell:
 
         pyenv shell 3.11

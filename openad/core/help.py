@@ -1,7 +1,7 @@
 """ The help Module"""
 
 import re
-import shutil
+import webbrowser
 from openad.helpers.general import singular, is_toolkit_installed, get_print_width
 from openad.helpers.output import output_error
 from openad.helpers.output_msgs import msg
@@ -46,7 +46,11 @@ def help_dict_create(
 
 
 def all_commands(
-    available_commands: list, toolkit_name: str = None, toolkit_current: object = None, cmd_pointer: object = None
+    available_commands: list,
+    toolkit_name: str = None,
+    toolkit_current: object = None,
+    no_title: bool = False,
+    cmd_pointer: object = None,
 ):
     """
     Return xml string listing all available commands organized by category.
@@ -74,7 +78,9 @@ def all_commands(
                 commands_organized[category] = [command_str]
 
         # Compile output.
-        output = [f'<h1>Available Commands - {toolkit_name if toolkit_name else "Main"}</h1>']
+        output = []
+        if not no_title:
+            output.append(f'<h1>Available Commands - {toolkit_name if toolkit_name else "Main"}</h1>')
         if toolkit_name and not is_toolkit_installed(toolkit_name, cmd_pointer):
             err_msg = output_error(
                 msg("fail_toolkit_not_installed", toolkit_name),
@@ -84,12 +90,17 @@ def all_commands(
             )
             output.append(err_msg)
         elif len(commands_organized):
-            output.append("")
+            if not no_title:
+                output.append("")
             for category, available_commands in commands_organized.items():
-                output.append(f"{category}:")
+                if no_title:
+                    output.append(f"<h1>{category} Commands</h1>")
+                else:
+                    output.append(f"{category}:")
                 for command_str in available_commands:
                     output.append(f"<cmd>{command_str}</cmd>")
-                output.append("")
+                if not no_title:
+                    output.append("")
 
             if toolkit_name:
                 output.append(
@@ -222,7 +233,9 @@ def command_details(command: list, cmd_pointer):
 # Display advanced help
 def advanced_help():
     """Call advanced Help"""
-    return "Advanced help is yet to be implemented."
+
+    # @future: build interactive command help using blessed
+    webbrowser.open("https://acceleratedscience.github.io/openad-docs/commands.html")
 
 
 class OpenadHelp:

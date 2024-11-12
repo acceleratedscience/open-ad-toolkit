@@ -22,7 +22,7 @@ FLAG_ERROR = f"<on_red> FAILED </on_red>"
 
 def copy_docs(files, source_dir=SOUCRE_DIR, dest_dir=DEST_DIR):
     # Title
-    output_text("<h1>Copying readme files to the <yellow>openad-docs</yellow> repository</h1>")
+    output_text("\n\n\n<h1>Copying readme files to the <yellow>openad-docs</yellow> repository</h1>")
 
     # Source folder not found
     if not os.path.exists(source_dir):
