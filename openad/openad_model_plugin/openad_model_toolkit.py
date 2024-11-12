@@ -109,6 +109,7 @@ key_val_expr = Word(alphanums + "_" + ".") | desc
 key_val_expr_num = Word(nums)
 key_val_expr_alpha = Word(alphanums + "_" + ".")
 number_type = Combine(Optional("-") + Word(nums) + Word(".") + Word(nums)) | Word(nums)
+array_var = Suppress(Word("[")) + delimitedList(OneOrMore(desc | number_type)) + Suppress(Word("]"))
 key_val_line = Group(name_expr("key") + Suppress("=") + key_val_expr("val"))
 boolean_var = Keyword("True") | Keyword("False")
 
@@ -185,25 +186,25 @@ service_command_start["get_crystal_property"] = 'get + CaselessKeyword("crystal"
 service_command_start["get_protein_property"] = 'get + CaselessKeyword("protein") + CaselessKeyword("property")'
 service_command_start["generate_data"] = 'CaselessKeyword("generate") + CaselessKeyword("with")'
 
-service_command_merge[
-    "get_molecule_property"
-] = '+ Optional((CaselessKeyword("merge with mols")|CaselessKeyword("merge with molecules"))("merge_with_mws"))'
+service_command_merge["get_molecule_property"] = (
+    '+ Optional((CaselessKeyword("merge with mols")|CaselessKeyword("merge with molecules"))("merge_with_mws"))'
+)
 service_command_merge["get_crystal_property"] = ""
 service_command_merge["get_protein_property"] = ""
 service_command_merge["generate_data"] = ""
 
-service_command_subject[
-    "get_molecule_property"
-] = '+CaselessKeyword("for")+(mol_list("mol_list")|(Word("[")+delimitedList(molecule_identifier,delim=",")("molecules")+Word("]")|molecule_identifier("molecule")))'
-service_command_subject[
-    "get_protein_property"
-] = '+CaselessKeyword("for")+((Word("[")+ delimitedList(molecule_identifier,delim=",")("proteins")+Word("]")|molecule_identifier("protein")))'
-service_command_subject[
-    "get_crystal_property"
-] = '+CaselessKeyword("for")+((Word("[")+ delimitedList(desc,delim=",")("crystal_files")+Word("]")|desc("crystal_file")("crystal_PATH")))'
-service_command_subject[
-    "generate_data"
-] = '+CaselessKeyword("data")+<TARGET>Optional(CaselessKeyword("Sample")+Word(nums)("sample_size"))'
+service_command_subject["get_molecule_property"] = (
+    '+CaselessKeyword("for")+(mol_list("mol_list")|(Word("[")+delimitedList(molecule_identifier,delim=",")("molecules")+Word("]")|molecule_identifier("molecule")))'
+)
+service_command_subject["get_protein_property"] = (
+    '+CaselessKeyword("for")+((Word("[")+ delimitedList(molecule_identifier,delim=",")("proteins")+Word("]")|molecule_identifier("protein")))'
+)
+service_command_subject["get_crystal_property"] = (
+    '+CaselessKeyword("for")+((Word("[")+ delimitedList(desc,delim=",")("crystal_files")+Word("]")|desc("crystal_file")("crystal_PATH")))'
+)
+service_command_subject["generate_data"] = (
+    '+CaselessKeyword("data")+<TARGET>Optional(CaselessKeyword("Sample")+Word(nums)("sample_size"))'
+)
 
 ###################################################################
 # targets for generate Data
@@ -240,18 +241,18 @@ generation_targets = {
 #         sampling_wrapper={'fraction_to_mask': mask, 'property_goal': {'<esol>': 0.234}}"""
 
 
-service_command_help[
-    "get_molecule_property"
-] = "get molecule property <property> FOR @mols | [<list of SMILES>] | <SMILES>   USING (<parameter>=<value> <parameter>=<value>) (merge with mols|molecules)"
-service_command_help[
-    "get_crystal_property"
-] = "get crystal property <property> FOR <directory> USING (<parameter>=<value> <parameter>=<value>)"
-service_command_help[
-    "get_protein_property"
-] = "get protein property <property> FOR [<list of Proteins>] | <Protein> USING (<parameter>=<value> <parameter>=<value>)"
-service_command_help[
-    "generate_data"
-] = "generate with <property> data <TARGET> (sample <sample_size>) USING (<parameter>=<value> <parameter>=<value>) "
+service_command_help["get_molecule_property"] = (
+    "get molecule property <property> FOR @mols | [<list of SMILES>] | <SMILES>   USING (<parameter>=<value> <parameter>=<value>) (merge with mols|molecules)"
+)
+service_command_help["get_crystal_property"] = (
+    "get crystal property <property> FOR <directory> USING (<parameter>=<value> <parameter>=<value>)"
+)
+service_command_help["get_protein_property"] = (
+    "get protein property <property> FOR [<list of Proteins>] | <Protein> USING (<parameter>=<value> <parameter>=<value>)"
+)
+service_command_help["generate_data"] = (
+    "generate with <property> data <TARGET> (sample <sample_size>) USING (<parameter>=<value> <parameter>=<value>) "
+)
 
 service_command_description[
     "get_molecule_property"
@@ -536,6 +537,118 @@ def optional_parameter_list(inp_statement: dict, clause: str):
     """Create an optional parameter list for a clause"""
     ii = 0
     expression = " "
+    type_dict = {
+        "allOf": "key_val_expr",
+        "anyOf": "key_val_expr",
+        "string": "key_val_expr",
+        "desc": "desc",
+        "object": "input_object",
+        "boolean": "boolean_var",
+        "array": "array_var",
+        "number": "number_type",
+        "integer": "number_type",
+    }
+    for i in inp_statement[clause]:
+        if i in ["selected_property", "property_type", "domain", "algorithm_type"]:
+            continue
+        if "allOf" in inp_statement[clause][i] and "type" not in inp_statement[clause][i]:
+            type_str = "allOf"
+        elif "anyOf" in inp_statement[clause][i] and "type" not in inp_statement[clause][i]:
+            type_str = "anyOf"
+        elif "type" in inp_statement[clause][i]:
+            type_str = "type"
+        elif "allOf" in inp_statement[clause][i]:
+            type_str = "type"
+        if isinstance(inp_statement[clause][i][type_str], list):
+            if isinstance(i, int):
+                parameter = "param_" + i + "@" + "integer"
+            elif isinstance(i, float):
+                parameter = "param_" + i + "@" + "float"
+            else:
+                parameter = "param_" + i + "@" + "other"
+        else:
+            parameter = "param_" + i + "@" + inp_statement[clause][i][type_str]
+
+        if i in inp_statement["required_parameters"]:
+            status = ""
+
+        else:
+            status = "ZeroOrMore"
+
+        if ii == 0:
+            expression = expression + " "
+            if type_str in ["anyOf", "allOf"]:
+                expression = (
+                    expression
+                    + f" {status}(Group( CaselessKeyword ('"
+                    + i
+                    + "') +Suppress('=')+key_val_expr('val'))('"
+                    + parameter
+                    + "'))"
+                    + " "
+                )
+            elif inp_statement[clause][i][type_str] in type_dict:
+                expression = (
+                    expression
+                    + f" {status}(Group( CaselessKeyword ('"
+                    + i
+                    + f"') +Suppress('=')+{type_dict[inp_statement[clause][i][type_str]]}('val'))('"
+                    + parameter
+                    + "'))"
+                    + " "
+                )
+            else:
+                expression = (
+                    expression
+                    + f" {status}(Group( CaselessKeyword ('"
+                    + i
+                    + "') +Suppress('=')+number_type('val'))('"
+                    + parameter
+                    + "'))"
+                    + " "
+                )
+
+        else:
+            if type_str in ["anyOf", "allOf"]:
+                expression = (
+                    expression
+                    + f" & {status}(Group( CaselessKeyword ('"
+                    + i
+                    + "') +Suppress('=')+key_val_expr('val'))('"
+                    + parameter
+                    + "'))"
+                    + " "
+                )
+            elif inp_statement[clause][i][type_str] in type_dict:
+                expression = (
+                    expression
+                    + f" & {status}(Group( CaselessKeyword ('"
+                    + i
+                    + f"') +Suppress('=')+{type_dict[inp_statement[clause][i][type_str]]}('val'))('"
+                    + parameter
+                    + "'))"
+                    + " "
+                )
+            else:
+                expression = (
+                    expression
+                    + f" & {status}(Group( CaselessKeyword ('"
+                    + i
+                    + "') +Suppress('=')+number_type('val'))('"
+                    + parameter
+                    + "'))"
+                    + " "
+                )
+
+        ii = 1
+
+    return expression
+
+
+def optional_parameter_list_deprecated(inp_statement: dict, clause: str):
+    """Create an optional parameter list for a clause"""
+    ii = 0
+    expression = " "
     for i in inp_statement[clause]:
         if i in ["selected_property", "property_type", "domain", "algorithm_type"]:
             continue
@@ -624,6 +737,16 @@ def optional_parameter_list(inp_statement: dict, clause: str):
                     + "'))"
                     + " "
                 )
+        elif inp_statement[clause][i][type_str] == "array":
+            expression = (
+                expression
+                + f" {status}(Group( CaselessKeyword ('"
+                + i
+                + "') +Suppress('=')+array_var('val'))('"
+                + parameter
+                + "'))"
+                + " "
+            )
         else:
             if type_str == "allOf":
                 expression = (
@@ -672,6 +795,16 @@ def optional_parameter_list(inp_statement: dict, clause: str):
                     + f" & {status}(Group( CaselessKeyword ('"
                     + i
                     + "') +Suppress('=')+boolean_var('val'))('"
+                    + parameter
+                    + "'))"
+                    + " "
+                )
+            elif inp_statement[clause][i][type_str] == "array":
+                expression = (
+                    expression
+                    + f" & {status}(Group( CaselessKeyword ('"
+                    + i
+                    + "') +Suppress('=')+array_var('val'))('"
                     + parameter
                     + "'))"
                     + " "
@@ -788,7 +921,8 @@ def request_generate(cmd_pointer, request_input):
                 )
             elif actual_param.split("@")[1] == "integer":
                 template["parameters"][actual_param.split("@")[0]] = bool(request_input.as_dict()[param]["val"])
-
+            elif actual_param.split("@")[1] == "string":
+                template["parameters"][actual_param.split("@")[0]] = str(request_input.as_dict()[param]["val"])
             else:
                 template["parameters"][actual_param.split("@")[0]] = request_input.as_dict()[param]["val"]
     return template
