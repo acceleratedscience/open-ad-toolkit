@@ -209,12 +209,12 @@ def command_details(command: list, cmd_pointer):
     if GLOBAL_SETTINGS["display"] == "notebook":
         command_str = f"<cmd>{command_str}</cmd>"
         description = command["description"]
-        note = f'<soft>{command["note"]}</soft>' if "note" in command and command["note"] is not None else None
+        note = f'\n<soft>{command["note"]}</soft>' if "note" in command and command["note"] is not None else None
     else:
         command_str = style(f"<cmd>{command_str}</cmd>", width=print_width)
         description = style(command["description"], width=print_width)
         note = (
-            style(f'<soft>{command["note"]}</soft>', width=print_width)
+            style(f'\n<soft>{command["note"]}</soft>', width=print_width)
             if "note" in command and command["note"] is not None
             else None
         )
