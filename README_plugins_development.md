@@ -21,7 +21,7 @@ Creating a plugin for OpenAD is simple. Here's how you do it.
     ├── tests/
     │   ├── test_hello_world.py
     └── README.md
-```
+
 
 <br>
 
