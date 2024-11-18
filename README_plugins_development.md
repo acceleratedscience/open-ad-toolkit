@@ -59,7 +59,7 @@ Locate `my_plugin/plugin_params.py` and set the required parameters:
 This lets you test your plugin in OpenAD while editing it.
 
     cd /path/to/my_plugin
-    pip install . -e
+    pip install -e .
 
 Reboot OpenAD for any changes to take effect.
 
@@ -93,11 +93,17 @@ For more advanced requirements, you can find the list of pyparsing types in the 
 
 <br>
 
-### 7. Publish your repository on GitHub
+### 7. Edit `pyproject.toml` to reflect your plugin
+
+You may also want to update the `README.md`
 
 <br>
 
-### 8. Install your plugin
+### 8. Publish your repository on GitHub
+
+<br>
+
+### 9. Install your plugin
     
 First uninstall the developemnt version.
 
