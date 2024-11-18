@@ -2,7 +2,7 @@
 
 # OpenAD Plugin Development Manual
 
-Creating a plugin for OpenAD is simple. Here's how you do it.
+A simple manual on how to create your own OpenAD plugins in no time. This is an easy way to you integrate your own application with all of OpenAD's functionality like the molecule viewer and more.
 
 <br>
 
