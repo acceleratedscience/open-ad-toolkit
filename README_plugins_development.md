@@ -17,13 +17,13 @@ Creating a plugin for OpenAD is simple. Here's how you do it.
     Locate `my_plugin/plugin_params.py` and set the required parameters:
 
     - **`LIBRARY_NAME`**<br>
-        The name of your plugin as it is displayed to OpenAD users. It is also how users can list all your plugin's commands: `plugin demo ?`
+        The name of your plugin as it is displayed to OpenAD users. It is also how users can list all your plugin's commands: `plugin demo ?`<br>
         <br>
     - **`LIBRARY_KEY`**<br>
-        A snake_case version of your plugin's name, used to create internal command ids.
+        A snake_case version of your plugin's name, used to create internal command ids.<br>
         <br>
     - **`PLUGIN_NAMESPACE`**<br>
-        A short word or letter combination that will prepend all your commands.
+        A short word or letter combination that will prepend all your commands.<br>
         <br>
     - **`CMD_NOTE`**<br>
         An optional information note that can be added to all your commands, for example: `To see all available demo comands, run 'demo plugin ?'`
