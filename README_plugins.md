@@ -13,10 +13,10 @@ Creating your own plugins is easy if you have a basic understanding of Python.<!
 
 OpenAD comes preloaded with a number of plugins:
 
-- **[DS4SD](#ds4sd):** Literature knowledge extraction
-- **[RXN](#rxn):** Forward and retrosynthesis prediction
-- **[GT4SD](#guardian):** Generative methods and property inference <!-- https://github.com/GT4SD/gt4sd-core -->
-- **[BMFM](#bmfm):** Biomedical Foundation Models
+- **[DS4SD](#1-ds4sd-deep-search):** Literature knowledge extraction
+- **[RXN](#2-rxn):** Forward and retrosynthesis prediction
+- **[GT4SD](#3-guardian):** Generative methods and property inference <!-- https://github.com/GT4SD/gt4sd-core -->
+- **[BMFM](#4-bmfm):** Biomedical Foundation Models
 
 Additinal available plugins will we published on the OpenAD Portal (coming soon).
 
