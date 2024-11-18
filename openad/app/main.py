@@ -72,10 +72,10 @@ installed_packages_list = [
 for module_name in installed_packages_list:
     try:
         module_name = module_name.replace("-", "_")
-        module = importlib.import_module(f"{module_name}.plugins")
-        PLUGIN_CLASS_LIST.append(getattr(module, "openad_plugins"))
-    except:
-        output_error("ignoring addin, incorrect class definition")
+        module = importlib.import_module(f"{module_name}.main")
+        PLUGIN_CLASS_LIST.append(getattr(module, "OpenADPlugin"))
+    except Exception as err:  # pylint: disable=broad-exception-caught
+        output_error([f"Ignoring plugin '<yellow>{module_name}</yellow>' due to incorrect class definition", err])
 
 
 sys.ps1 = "\x01\033[31m\x02>>> \x01\033[0m\x02"

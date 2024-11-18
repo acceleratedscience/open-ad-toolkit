@@ -3,33 +3,23 @@
 # OpenAD Plugins
 
 <!-- about_plugin -->
-Plugins are how molecular tools and AI models are made available to the OpenAD client. They provide drastically simplified access to a series of advanced tools, and make it easy for your own Python applications to interface with OpenAD.
+Plugins are the way molecular tools and AI models are made available to the OpenAD client. Thanks to a unified language, accessing these tools through OpenAD lets you bypass a lot of complexity.
 
-Creating your own plugins is easy if you have a basic understanding of Python.
+OpenAD comes preloaded with a number of plugins for literature knowledge extraction (DS4SD), forward and retrosynthesis prediction (RXN) as well as generative methods and property inference (GT4SD).
+
+You can create your own plugins, and the publicly available plugins will soon include a much larger variety of open-source tools.
+
+> **Note:** Plugins are currently referred to as "toolkits" by the commands, however this language will be updated soon.
 <!-- /about_plugin -->
-
-Jump to [Plugin Development](#plugin-development) below.
 
 <br><br>
 
-## Discovering Plugins
+## Registration
 
-OpenAD comes preloaded with a number of plugins:
-
-- **DS4SD:** Literature knowledge extraction - [website](https://ds4sd.github.io/)
-- **RXN:** Forward and retrosynthesis prediction - [website](https://rxn.app.accelerate.science/)
-- **GT4SD:** Generative methods and property inference - [project github](https://github.com/GT4SD/gt4sd-core)
-- **BMFM:** Biomedical Foundation Models - [website](https://research.ibm.com/projects/biomedical-foundation-models)
-
-Additinal available plugins will we published on the OpenAD Portal (coming soon)
-
-### DS4SD (Deep Search)
-The DS4SD plugin lets you search for similar molecules, substructures and other data from patents and industry literature.
-
-    pip install @openad/ds4sd
+Before you can interact with the plugins, you'll need to register with each individual plugin.
 
 <details>
-<summary>Registration</summary>
+<summary>Register with DS4SD (Deep Search)</summary>
 <div markdown="block">
 
 1. First, you'll need to generate an API key on the Deep Search website.
@@ -54,13 +44,8 @@ The DS4SD plugin lets you search for similar molecules, substructures and other 
 </div>
 </details>
 
-### RXN
-Predict reactions, find retrosynthesis pathways and derive experimental procedures.
-
-    pip install @openad/rxn
-
 <details>
-<summary>Registration</summary>
+<summary>Register with RXN</summary>
 <div markdown="block">
 
 1. First, you'll need to generate an API key on the RXN website.
@@ -82,23 +67,32 @@ Predict reactions, find retrosynthesis pathways and derive experimental procedur
 </div>
 </details>
 
-### Guardian
-Built on GT4SD, Guardian makes training and using state-of-the-art generative AI models a matter of minutes.
+<br><br>
 
-    pip install @openad/guardian
+## Adding a Toolkit
 
-### BMFM
-Calculate PFAS classification for molecules
+First install the toolkit, then set the context to this toolkit.
 
-    pip install @openad/bmfm
+> [!IMPORTANT]
+> When running commands from Jupyter, prepend them with `%openad`
 
-## Installing a Plugin
+    add toolkit ds4sd
+    set context ds4sd
 
-Installing a plugin can be done with a simple pip install (if available) or an installation directly from a GitHup repository.
+<br><br>
 
-    add plugin <plugin_name> git@github.com:<github_repo_path>
+## Sample Commands
 
-## Writing your Own Plugin
+    # DS4SD
+    display all collections
 
-Creating your own plugins is easy if you have a basic understanding of Python. Check the [Plugin Development Manual](
-    .md) with included examples for you to hit the ground running.
+    # RXN
+    list rxn models
+
+<br><br>
+
+## Running Bash Commands (CLI)
+
+To run a command in bash mode, prepend it with `openad` and make sure to escape quotes.
+
+    openad show molecules using file \'base_molecules.sdf\'
