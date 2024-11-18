@@ -4,7 +4,7 @@
 
 A simple manual on how to create your first OpenAD plugin in minutes.
 
-This is an easy way to you integrate your own application with all of OpenAD's functionality like the molecule viewer and more.
+A plugin is an easy way for your application to integrate with all of OpenAD's functionality like the molecule viewer and more.
 
 <br>
 
