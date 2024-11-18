@@ -20,12 +20,12 @@ OpenAD comes preloaded with a number of plugins:
 
 Additinal available plugins will we published on the OpenAD Portal (coming soon).
 
-#### 1. DS4SD (Deep Search)
+### 1. DS4SD (Deep Search)
+[ds4sd.github.io]((https://ds4sd.github.io/))
+
 The DS4SD plugin lets you search for similar molecules, substructures and other data from patents and industry literature.
 
     pip install @openad/ds4sd
-
-[ds4sd.github.io]((https://ds4sd.github.io/))
 
 <details>
 <summary>Registration</summary>
@@ -53,12 +53,12 @@ The DS4SD plugin lets you search for similar molecules, substructures and other 
 </div>
 </details>
 
-#### 2. RXN
+### 2. RXN
+[rxn.app.accelerate.science](https://rxn.app.accelerate.science/)
+
 Predict reactions, find retrosynthesis pathways and derive experimental procedures.
 
     pip install @openad/rxn
-
-[rxn.app.accelerate.science](https://rxn.app.accelerate.science/)
 
 <details>
 <summary>Registration</summary>
@@ -83,19 +83,19 @@ Predict reactions, find retrosynthesis pathways and derive experimental procedur
 </div>
 </details>
 
-#### 3. Guardian
+### 3. Guardian
+[open.accelerator.cafe](https://open.accelerator.cafe/)
+
 Built on GT4SD, Guardian makes training and using state-of-the-art generative AI models a matter of minutes.
 
     pip install @openad/guardian
 
-[open.accelerator.cafe](https://open.accelerator.cafe/)
+### 4. BMFM
+[research.ibm.com/projects/biomedical-foundation-models](https://research.ibm.com/projects/biomedical-foundation-models)
 
-#### 4. BMFM
 Calculate PFAS classification for molecules.
 
     pip install @openad/bmfm
-
-[research.ibm.com/projects/biomedical-foundation-models](https://research.ibm.com/projects/biomedical-foundation-models)
 
 
 <br><br>
