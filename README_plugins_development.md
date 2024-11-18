@@ -4,6 +4,8 @@
 
 Creating a plugin for OpenAD is simple. Here's how you do it.
 
+<br>
+
 ### 1.Clone the `plugin_kit` repository
 
         git clone git@github.com:acceleratedscience/openad-plugin-kit.git
