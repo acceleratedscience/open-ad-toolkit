@@ -3,9 +3,9 @@
 # OpenAD Plugins
 
 <!-- about_plugin -->
-Plugins are how molecular tools and AI models are made available to the OpenAD client. They provide drastically simplified access to a series of advanced tools, and make it easy for your own Python applications to interface with OpenAD.
+Plugins are how molecular tools and AI models are made available to the OpenAD client. They provide drastically simplified access to a series of advanced tools, and they make it easy for your own Python applications to interface with OpenAD.
 
-Creating your own plugins is easy if you have a basic understanding of Python.<!-- /about_plugin --> Jump to [Plugin Development](#plugin-development) below.
+Creating your own plugins is easy if you have a basic understanding of Python.<!-- /about_plugin --> Jump to [Plugin Development](#plugin-development).
 
 <br><br>
 
@@ -13,10 +13,10 @@ Creating your own plugins is easy if you have a basic understanding of Python.<!
 
 OpenAD comes preloaded with a number of plugins:
 
-- **DS4SD:** Literature knowledge extraction - [website](https://ds4sd.github.io/)
-- **RXN:** Forward and retrosynthesis prediction - [website](https://rxn.app.accelerate.science/)
-- **GT4SD:** Generative methods and property inference - [project github](https://github.com/GT4SD/gt4sd-core)
-- **BMFM:** Biomedical Foundation Models - [website](https://research.ibm.com/projects/biomedical-foundation-models)
+- **[DS4SD]((https://ds4sd.github.io/)):** Literature knowledge extraction
+- **[RXN](https://rxn.app.accelerate.science/):** Forward and retrosynthesis prediction
+- **[GT4SD]((https://github.com/GT4SD/gt4sd-core)):** Generative methods and property inference
+- **[BMFM](https://research.ibm.com/projects/biomedical-foundation-models):** Biomedical Foundation Models
 
 Additinal available plugins will we published on the OpenAD Portal (coming soon)
 
