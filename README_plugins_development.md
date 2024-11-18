@@ -6,9 +6,9 @@ Creating a plugin for OpenAD is simple. Here's how you do it.
 
 <br>
 
-### 1.Clone the `plugin_kit` repository
+### 1. Clone the `plugin_kit` repository
 
-        git clone git@github.com:acceleratedscience/openad-plugin-kit.git
+    git clone git@github.com:acceleratedscience/openad-plugin-kit.git
     
 ```plaintext
 my_plugin/
@@ -28,7 +28,7 @@ my_plugin/
 
 <br>
 
-1. **Provide the Plugin Parameters**
+# 2. Provide the Plugin Parameters
     
     Rename the plugin folder as desired, let's say `my_plugin`.
 
@@ -50,7 +50,7 @@ my_plugin/
 
 <br>
 
-1. **Install the plugin in edit mode**
+# 3. Install the plugin in edit mode
     
     This lets you test your plugin in OpenAD while editing it.
 
@@ -63,19 +63,19 @@ my_plugin/
 
 <br>
 
-1. **Copy the hello_world command folder**
+# 4. Copy the hello_world command folder
 
     Rename it to a snake_case name for your command, let's say `my_first_command`.
 
 <br>
 
-1. **Find the plugin file: `/my_plugin/my_first_command/command.py`**
+# 5. Find the plugin file: `/my_plugin/my_first_command/command.py`
 
     Rename this file to a snake_case name for your command and insert your own functionality. The file is self-explanatory.
 
 <br>
 
-1. **Build your command**
+# 6. Build your command
    
    The command is constructed by `statements.append()` using [pyparsing](https://github.com/pyparsing/pyparsing/).
    
@@ -89,11 +89,11 @@ my_plugin/
 
 <br>
 
-1. **Publish your repository on GitHub**
+# 7. Publish your repository on GitHub
 
 <br>
 
-1. **Install your plugin**
+# 8. Install your plugin
     
     First uninstall the developemnt version.
 
