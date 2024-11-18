@@ -18,7 +18,7 @@ OpenAD comes preloaded with a number of plugins:
 - **[GT4SD](https://github.com/GT4SD/gt4sd-core):** Generative methods and property inference
 - **[BMFM](https://research.ibm.com/projects/biomedical-foundation-models):** Biomedical Foundation Models
 
-Additinal available plugins will we published on the OpenAD Portal (coming soon)
+Additinal available plugins will we published on the OpenAD Portal (coming soon).
 
 ### DS4SD (Deep Search)
 The DS4SD plugin lets you search for similar molecules, substructures and other data from patents and industry literature.
@@ -85,17 +85,18 @@ Built on GT4SD, Guardian makes training and using state-of-the-art generative AI
     pip install @openad/guardian
 
 ### BMFM
-Calculate PFAS classification for molecules
+Calculate PFAS classification for molecules.
 
     pip install @openad/bmfm
 
+<br><br>
+
 ## Installing a Plugin
 
-Installing a plugin can be done with a simple pip install (if available) or an installation directly from a GitHup repository.
+Installing any non-native plugins can be done with a simple pip install of the plugin's GitHup repository.
 
-    add plugin <plugin_name> git@github.com:<github_repo_path>
+    pip install git+https://github.com/some_username/some_plugin.git
 
 ## Writing your Own Plugin
 
-Creating your own plugins is easy if you have a basic understanding of Python. Check the [Plugin Development Manual](
-    .md) with included examples for you to hit the ground running.
+Creating your own plugins is quick and easy if you have a basic understanding of Python. Check the [Plugin Development Manual](README_plugins_development.md) to hit the ground running.
