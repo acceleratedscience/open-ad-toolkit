@@ -42,10 +42,6 @@ from pyparsing import (  # replaceWith,; Combine,; pyparsing_test,; ParseExcepti
     oneOf,
 )
 
-# from openad.molecules.mol_functions import MOL_PROPERTIES as m_props
-# from openad.helpers.general import is_notebook_mode
-
-
 (
     get,
     lister,
@@ -301,7 +297,6 @@ def service_grammar_add(statements: list, help: list, service_catalog: dict):
             command = "CaselessKeyword(service)('service')+" + service_command_start[schema["service_type"]]
             valid_types = None  # noqa: F841
             valid_type = None
-
             # in properties this refers to generateable properties for a Target in Generators this is simple a single name of a generarion Algorithm
             # for some propertyy statements there can be multiple properties in a single statement
 
@@ -645,185 +640,6 @@ def optional_parameter_list(inp_statement: dict, clause: str):
     return expression
 
 
-def optional_parameter_list_deprecated(inp_statement: dict, clause: str):
-    """Create an optional parameter list for a clause"""
-    ii = 0
-    expression = " "
-    for i in inp_statement[clause]:
-        if i in ["selected_property", "property_type", "domain", "algorithm_type"]:
-            continue
-        if "allOf" in inp_statement[clause][i] and "type" not in inp_statement[clause][i]:
-            type_str = "allOf"
-        elif "anyOf" in inp_statement[clause][i] and "type" not in inp_statement[clause][i]:
-            type_str = "anyOf"
-        elif "type" in inp_statement[clause][i]:
-            type_str = "type"
-        elif "allOf" in inp_statement[clause][i]:
-            type_str = "type"
-        if isinstance(inp_statement[clause][i][type_str], list):
-            if isinstance(i, int):
-                parameter = "param_" + i + "@" + "integer"
-            elif isinstance(i, float):
-                parameter = "param_" + i + "@" + "float"
-            else:
-                parameter = "param_" + i + "@" + "other"
-        else:
-            parameter = "param_" + i + "@" + inp_statement[clause][i][type_str]
-
-        if i in inp_statement["required_parameters"]:
-            status = ""
-
-        else:
-            status = "ZeroOrMore"
-        if ii == 0:
-            expression = expression + " "
-            if inp_statement[clause][i] == "allOf":
-                expression = (
-                    expression
-                    + f" {status}(Group( CaselessKeyword ('"
-                    + i
-                    + "') +Suppress('=')+key_val_expr('val'))('"
-                    + parameter
-                    + "'))"
-                    + " "
-                )
-            elif inp_statement[clause][i][type_str] == "string":
-                expression = (
-                    expression
-                    + f" {status}(Group( CaselessKeyword ('"
-                    + i
-                    + "') +Suppress('=')+key_val_expr('val'))('"
-                    + parameter
-                    + "'))"
-                    + " "
-                )
-            elif inp_statement[clause][i][type_str] == "desc":
-                expression = (
-                    expression
-                    + f" {status}(Group( CaselessKeyword ('"
-                    + i
-                    + "') +Suppress('=')+desc('val'))('"
-                    + parameter
-                    + "'))"
-                    + " "
-                )
-            elif inp_statement[clause][i][type_str] == "object":
-                expression = (
-                    expression
-                    + f" {status}(Group( CaselessKeyword ('"
-                    + i
-                    + "') +Suppress('=')+input_object('val'))('"
-                    + parameter
-                    + "'))"
-                    + " "
-                )
-            elif inp_statement[clause][i][type_str] == "boolean":
-                expression = (
-                    expression
-                    + f" {status}(Group( CaselessKeyword ('"
-                    + i
-                    + "') +Suppress('=')+boolean_var('val'))('"
-                    + parameter
-                    + "'))"
-                    + " "
-                )
-            else:
-                expression = (
-                    expression
-                    + f" {status}(Group( CaselessKeyword ('"
-                    + i
-                    + "') +Suppress('=')+number_type('val'))('"
-                    + parameter
-                    + "'))"
-                    + " "
-                )
-        elif inp_statement[clause][i][type_str] == "array":
-            expression = (
-                expression
-                + f" {status}(Group( CaselessKeyword ('"
-                + i
-                + "') +Suppress('=')+array_var('val'))('"
-                + parameter
-                + "'))"
-                + " "
-            )
-        else:
-            if type_str == "allOf":
-                expression = (
-                    expression
-                    + f" & {status}(Group( CaselessKeyword ('"
-                    + i
-                    + "') +Suppress('=')+key_val_expr('val'))('"
-                    + parameter
-                    + "'))"
-                    + " "
-                )
-
-            elif inp_statement[clause][i][type_str] == "string":
-                expression = (
-                    expression
-                    + f" & {status}(Group( CaselessKeyword ('"
-                    + i
-                    + "') +Suppress('=')+key_val_expr('val'))('"
-                    + parameter
-                    + "'))"
-                    + " "
-                )
-            elif inp_statement[clause][i][type_str] == "desc":
-                expression = (
-                    expression
-                    + f" & {status}(Group( CaselessKeyword ('"
-                    + i
-                    + "') +Suppress('=')+desc('val'))('"
-                    + parameter
-                    + "'))"
-                    + " "
-                )
-            elif inp_statement[clause][i][type_str] == "object":
-                expression = (
-                    expression
-                    + f" & {status}(Group( CaselessKeyword ('"
-                    + i
-                    + "') +Suppress('=')+input_object('val'))('"
-                    + parameter
-                    + "'))"
-                    + " "
-                )
-            elif inp_statement[clause][i][type_str] == "boolean":
-                expression = (
-                    expression
-                    + f" & {status}(Group( CaselessKeyword ('"
-                    + i
-                    + "') +Suppress('=')+boolean_var('val'))('"
-                    + parameter
-                    + "'))"
-                    + " "
-                )
-            elif inp_statement[clause][i][type_str] == "array":
-                expression = (
-                    expression
-                    + f" & {status}(Group( CaselessKeyword ('"
-                    + i
-                    + "') +Suppress('=')+array_var('val'))('"
-                    + parameter
-                    + "'))"
-                    + " "
-                )
-            else:
-                expression = (
-                    expression
-                    + f" & {status}(Group( CaselessKeyword ('"
-                    + i
-                    + "') +Suppress('=')+number_type('val'))('"
-                    + parameter
-                    + "'))"
-                    + " "
-                )
-        ii = 1
-
-    return expression
-
-
 def subject_files_repository(file_directory, suffix):
     file_directory = os.path.expanduser(file_directory)
     parameter_files = glob.glob(file_directory + "/*." + suffix)
@@ -941,21 +757,7 @@ def openad_model_requestor(cmd_pointer, parser):
         service_name = None
 
     a_request = request_generate(cmd_pointer, parser)
-    # request_params = get_service_requester(service_name)
-    # api_key = get_service_api_key(service_name)
-    # headers = {"Inference-Service": service_name, "Authorization": f"Bearer {get_service_api_key(service_name)}"}
 
-    # if Endpoint is not None and len((Endpoint.strip())) > 0:
-    #     if "http" not in Endpoint:
-    #         Endpoint = "http://" + Endpoint
-    # Endpoint = "http://34.205.69.8:8080"
-    # else:
-    #     Endpoint = None
-
-    # if Endpoint is None:
-    #     return output_error(
-    #         "No Service Cataloged or service not up. \n Check Service Status <cmd>model service status</cmd> "
-    #     )
     spinner = Spinner(GLOBAL_SETTINGS["VERBOSE"])
     spinner.start("Executing Request Against Server")
 
