@@ -9,18 +9,18 @@ Creating a plugin for OpenAD is simple. Here's how you do it.
         git clone git@github.com:acceleratedscience/openad-plugin-kit.git
     
     ```plaintext
-my_plugin/
-├── main.py
-├── plugin_grammar.py
-├── plugin_params.py
-├── commands/
-│   ├── hello_world/
-│   │   ├── command.py
-│   │   ├── description.txt
-│   │── ...
-├── tests/
-│   ├── test_hello_world.py
-└── README.md
+    my_plugin/
+    ├── main.py
+    ├── plugin_grammar.py
+    ├── plugin_params.py
+    ├── commands/
+    │   ├── hello_world/
+    │   │   ├── command.py
+    │   │   ├── description.txt
+    │   │── ...
+    ├── tests/
+    │   ├── test_hello_world.py
+    └── README.md
 ```
 
 <br>
