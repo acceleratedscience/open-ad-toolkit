@@ -21,9 +21,8 @@ OpenAD comes preloaded with a number of plugins:
 Additinal available plugins will we published on the OpenAD Portal (coming soon).
 
 ### 1. DS4SD (Deep Search)
-[ds4sd.github.io]((https://ds4sd.github.io/))
-
-The DS4SD plugin lets you search for similar molecules, substructures and other data from patents and industry literature.
+The DS4SD plugin lets you search for similar molecules, substructures and other data from patents and industry literature.<br>
+[ds4sd.github.io](https://ds4sd.github.io/)
 
     pip install @openad/ds4sd
 
@@ -54,9 +53,8 @@ The DS4SD plugin lets you search for similar molecules, substructures and other 
 </details>
 
 ### 2. RXN
+Predict reactions, find retrosynthesis pathways and derive experimental procedures.<br>
 [rxn.app.accelerate.science](https://rxn.app.accelerate.science/)
-
-Predict reactions, find retrosynthesis pathways and derive experimental procedures.
 
     pip install @openad/rxn
 
@@ -84,16 +82,14 @@ Predict reactions, find retrosynthesis pathways and derive experimental procedur
 </details>
 
 ### 3. Guardian
+Built on GT4SD, Guardian makes training and using state-of-the-art generative AI models a matter of minutes.<br>
 [open.accelerator.cafe](https://open.accelerator.cafe/)
-
-Built on GT4SD, Guardian makes training and using state-of-the-art generative AI models a matter of minutes.
 
     pip install @openad/guardian
 
 ### 4. BMFM
+Calculate PFAS classification for molecules.<br>
 [research.ibm.com/projects/biomedical-foundation-models](https://research.ibm.com/projects/biomedical-foundation-models)
-
-Calculate PFAS classification for molecules.
 
     pip install @openad/bmfm
 
