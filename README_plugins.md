@@ -5,7 +5,7 @@
 <!-- about_plugin -->
 Plugins are how molecular tools and AI models are made available to the OpenAD client. They provide drastically simplified access to a series of advanced tools, and they make it easy for your own Python applications to interface with OpenAD.
 
-Creating your own plugins is easy if you have a basic understanding of Python.<!-- /about_plugin --> Jump to [Plugin Development](README_plugins_development.md).
+Creating your own plugins is easy if you have a basic understanding of Python.<!-- /about_plugin --> Jump to the [Plugin Development Manual](README_plugins_development.md).
 
 <br><br>
 
@@ -104,6 +104,6 @@ Installing any non-native plugins can be done with a simple pip install of the p
 
 <br><br>
 
-## Writing your Own Plugin
+## Writing your Own Plugins
 
 Creating your own plugins is quick and easy if you have a basic understanding of Python. Check the [Plugin Development Manual](README_plugins_development.md) to hit the ground running.

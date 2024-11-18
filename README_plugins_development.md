@@ -4,11 +4,11 @@
 
 Creating a plugin for OpenAD is simple. Here's how you do it.
 
-1. Clone the `plugin_kit` repository.
+1. **Clone the `plugin_kit` repository**
 
         git clone git@github.com:acceleratedscience/openad-plugin-kit.git
 
-1. Provide the Plugin Parameters.
+1. **Provide the Plugin Parameters**
     
     Rename the plugin folder as desired, let's say `my_plugin`.
 
@@ -19,7 +19,7 @@ Creating a plugin for OpenAD is simple. Here's how you do it.
     - `PLUGIN_NAMESPACE`: A short word or letter combination that will prepend all your commands.
     - `CMD_NOTE`: An optional information note that can be added to all your commands, for example: `To see all available demo comands, run 'demo plugin ?'`
 
-1. Install the plugin in edit mode.
+1. **Install the plugin in edit mode**
     
     This lets you test your plugin in OpenAD while editing it.
 
@@ -30,15 +30,15 @@ Creating a plugin for OpenAD is simple. Here's how you do it.
 
         reboot
 
-1. Copy the hello_world command folder.
+1. **Copy the hello_world command folder**
 
     Rename it to a snake_case name for your command, let's say `my_first_command`.
 
-2. Find the plugin file: `/my_plugin/my_first_command/command.py`
+1. **Find the plugin file: `/my_plugin/my_first_command/command.py`**
 
     Rename this file to a snake_case name for your command and insert your own functionality. The file is self-explanatory.
 
-3. Build your command
+1. **Build your command**
    
    The command is constructed by `statements.append()` using [pyparsing](https://github.com/pyparsing/pyparsing/).
    
@@ -50,9 +50,9 @@ Creating a plugin for OpenAD is simple. Here's how you do it.
 
    For more advanced requirements, you can find the list of pyparsing types in the [pyparsing documentation](https://pyparsing-docs.readthedocs.io/en/latest/pyparsing.html).
 
-4. Publish your repository on GitHub
+1. **Publish your repository on GitHub**
 
-5. Install your plugin
+1. **Install your plugin**
     
     First uninstall the developemnt version.
 
