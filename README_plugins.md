@@ -13,17 +13,19 @@ Creating your own plugins is easy if you have a basic understanding of Python.<!
 
 OpenAD comes preloaded with a number of plugins:
 
-- **[DS4SD](https://ds4sd.github.io/):** Literature knowledge extraction
-- **[RXN](https://rxn.app.accelerate.science/):** Forward and retrosynthesis prediction
-- **[GT4SD](https://github.com/GT4SD/gt4sd-core):** Generative methods and property inference
-- **[BMFM](https://research.ibm.com/projects/biomedical-foundation-models):** Biomedical Foundation Models
+- **[DS4SD](#ds4sd):** Literature knowledge extraction
+- **[RXN](#rxn):** Forward and retrosynthesis prediction
+- **[GT4SD](#guardian):** Generative methods and property inference <!-- https://github.com/GT4SD/gt4sd-core -->
+- **[BMFM](#bmfm):** Biomedical Foundation Models
 
 Additinal available plugins will we published on the OpenAD Portal (coming soon).
 
-### DS4SD (Deep Search)
+#### 1. DS4SD (Deep Search)
 The DS4SD plugin lets you search for similar molecules, substructures and other data from patents and industry literature.
 
     pip install @openad/ds4sd
+
+[ds4sd.github.io]((https://ds4sd.github.io/))
 
 <details>
 <summary>Registration</summary>
@@ -51,10 +53,12 @@ The DS4SD plugin lets you search for similar molecules, substructures and other 
 </div>
 </details>
 
-### RXN
+#### 2. RXN
 Predict reactions, find retrosynthesis pathways and derive experimental procedures.
 
     pip install @openad/rxn
+
+[rxn.app.accelerate.science](https://rxn.app.accelerate.science/)
 
 <details>
 <summary>Registration</summary>
@@ -79,15 +83,20 @@ Predict reactions, find retrosynthesis pathways and derive experimental procedur
 </div>
 </details>
 
-### Guardian
+#### 3. Guardian
 Built on GT4SD, Guardian makes training and using state-of-the-art generative AI models a matter of minutes.
 
     pip install @openad/guardian
 
-### BMFM
+[open.accelerator.cafe](https://open.accelerator.cafe/)
+
+#### 4. BMFM
 Calculate PFAS classification for molecules.
 
     pip install @openad/bmfm
+
+[research.ibm.com/projects/biomedical-foundation-models](https://research.ibm.com/projects/biomedical-foundation-models)
+
 
 <br><br>
 
@@ -96,6 +105,8 @@ Calculate PFAS classification for molecules.
 Installing any non-native plugins can be done with a simple pip install of the plugin's GitHup repository.
 
     pip install git+https://github.com/some_username/some_plugin.git
+
+<br><br>
 
 ## Writing your Own Plugin
 
