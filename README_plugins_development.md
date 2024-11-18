@@ -22,7 +22,8 @@ my_plugin/
 │   │── ...
 ├── tests/
 │   ├── test_hello_world.py
-└── README.md```
+└── README.md
+```
 
 
 <br>
