@@ -1,3 +1,5 @@
+# https://pyparsing-docs.readthedocs.io/en/latest/pyparsing.html
+
 import pyparsing as py
 
 #############################################
@@ -6,7 +8,7 @@ import pyparsing as py
 # Optional quoted string
 quoted = py.QuotedString("'", escQuote="\\")
 # quoted.setParseAction(py.removeQuotes)
-opt_quoted = py.Optional(quoted)
+opt_quoted = py.Optional("'") + quoted + py.Optional("'")
 
 
 # endregion
@@ -33,7 +35,7 @@ molecules = py.CaselessKeyword("molecules") | py.CaselessKeyword("mols")
 # with molecule identifiers that contain square brackets themselves.
 # This requires that the list is the end of the command.
 molecule_identifier = py.Forward()
-_mol_chars = py.alphanums + "_()=-+/\\#@.,*;"
+_mol_chars = py.alphanums + "_()=-+/\\#@.*;"
 _mol_str = py.Word(_mol_chars)
 _mol_str_brackets = py.Combine(py.Literal("[") + molecule_identifier + py.Literal("]"))
 molecule_identifier <<= py.Combine(py.OneOrMore(_mol_str | _mol_str_brackets))

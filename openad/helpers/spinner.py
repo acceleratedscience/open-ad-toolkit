@@ -40,7 +40,7 @@ class Spinner(Halo):
         }
 
         if self.verbose is True:
-            super().__init__(spinner=spinner, color="white")  # Cool spinner
+            super().__init__(spinner=spinner, color="yellow")  # Cool spinner
 
             # Lame spinner
             # super().__init__(spinner="triangle", color="white", interval=150)
