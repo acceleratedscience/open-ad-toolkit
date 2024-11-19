@@ -770,7 +770,6 @@ class RUNCMD(Cmd):
                     # Not for printing
                     # Fetch commands matching the entire input.
                     # Example input -> `search for molecules in parents`
-                    # %%%
                     do_help_output_A = self.do_help(
                         inp + " ?",
                         starts_with_only=True,
