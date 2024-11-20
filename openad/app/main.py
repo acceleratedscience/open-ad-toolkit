@@ -336,7 +336,7 @@ class RUNCMD(Cmd):
                 return output_text("".join(output), pad=1, edge=True)
 
         # `<toolkit_name> ?` --> Display all toolkkit commands.
-        if inp.upper() in _all_toolkits:  # DEMO is omitted from _all_toolkits
+        if inp.upper() in _all_toolkits:
             toolkit_name = inp.upper()
             ok, toolkit = load_toolkit(toolkit_name)
             return output_text(
