@@ -125,16 +125,10 @@ class RUNCMD(Cmd):
     llm_model = "instructlab/granite-7b-lab"
     llm_models = SUPPORTED_TELL_ME_MODELS_SETTINGS
 
-    # Load OpenAD Plugins into cmd_pointer
-    plugins = PLUGIN_CLASS_LIST.copy()
+    # Plugins
     plugin_objects = {}
     plugins_statements = []
     plugins_help = []
-    for plugin in plugins:
-        p = plugin()
-        plugin_objects.update(p.PLUGIN_OBJECTS)
-        plugins_statements.extend(p.statements)
-        plugins_help.extend(p.help)
 
     # # Instantiate memory class # Trash
     # memory = Memory()
@@ -165,12 +159,10 @@ class RUNCMD(Cmd):
         self.prompt = refresh_prompt(self.settings)  # sets the command prompt
 
         # load the toolkit in current context
-
         if self.settings["context"] in self.settings["toolkits"]:
             ok, toolkit_current = load_toolkit(self.settings["context"])
             if ok:
                 self.toolkit_current = toolkit_current
-        create_statements(self)
 
         # Initialise current toolkit registry
         self.login_settings = login_manager.load_login_registry()
@@ -204,6 +196,16 @@ class RUNCMD(Cmd):
             self.llm_model = self.llm_models[self.llm_service]
         except Exception:  # pylint: disable=broad-exception-caught  # if LLM not initiated move on
             pass
+
+        # Load OpenAD Plugins into cmd_pointer
+        plugins = PLUGIN_CLASS_LIST.copy()
+        for plugin in plugins:
+            p = plugin(self)
+            self.plugin_objects.update(p.PLUGIN_OBJECTS)
+            self.plugins_statements.extend(p.statements)
+            self.plugins_help.extend(p.help)
+
+        create_statements(self)
 
         output_train_statements(self)
 

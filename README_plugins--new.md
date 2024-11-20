@@ -100,7 +100,7 @@ Calculate PFAS classification for molecules.<br>
 
 Installing any non-native plugins can be done with a simple pip install of the plugin's GitHup repository.
 
-    pip install git+https://github.com/some_username/some_plugin.git
+    pip install git+ssh://git@github.com/some_username/some_plugin.git
 
 <br><br>
 
