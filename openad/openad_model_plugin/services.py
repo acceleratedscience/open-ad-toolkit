@@ -325,6 +325,11 @@ class ModelService(Dispatcher):
             response = self.service_request(name, verify=False)
             if response.status_code == 200:
                 service_definitions = response.json()
+        elif service_data.get("up"):
+            logger.debug(f"fetching remote service defs | {name=}'")
+            response = self.service_request(name, verify=False)
+            if response.status_code == 200:
+                service_definitions = response.json()
         if service_definitions:
             # insert into chache when not None
             logger.debug(f"inserting '{name}' into cache")
