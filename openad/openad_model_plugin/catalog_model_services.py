@@ -115,27 +115,28 @@ def get_cataloged_service_defs() -> Dict[str, dict]:
     logger.debug("checking available service definitions")
     service_definitions = dict()
     # get local namespace service definitions
-    list_of_namespaces = [os.path.basename(f.path) for f in os.scandir(SERVICE_MODEL_PATH) if f.is_dir()]
-    # iterate over local service definitions
-    for namespace in list_of_namespaces:
-        service_list = []
-        services_path = SERVICE_MODEL_PATH + namespace + SERVICES_PATH
-        if os.path.exists(services_path):
-            service_list = get_local_service_defs(services_path)
-        else:
-            services_path = SERVICE_MODEL_PATH + namespace + "/**" + SERVICES_PATH
-            services_path = glob.glob(services_path, recursive=True)
-            if len(services_path) > 0:
-                services_path = services_path[0]
-                service_list = get_local_service_defs(services_path)
-        if service_list:
-            logger.debug(f"adding local defs for | {namespace=}")
-            service_definitions[namespace] = service_list
+    # list_of_namespaces = [os.path.basename(f.path) for f in os.scandir(SERVICE_MODEL_PATH) if f.is_dir()]
+    # list_of_namespaces = []
+    # # iterate over local service definitions
+    # for namespace in list_of_namespaces:
+    #     service_list = []
+    #     services_path = SERVICE_MODEL_PATH + namespace + SERVICES_PATH
+    #     if os.path.exists(services_path):
+    #         service_list = get_local_service_defs(services_path)
+    #     else:
+    #         services_path = SERVICE_MODEL_PATH + namespace + "/**" + SERVICES_PATH
+    #         services_path = glob.glob(services_path, recursive=True)
+    #         if len(services_path) > 0:
+    #             services_path = services_path[0]
+    #             service_list = get_local_service_defs(services_path)
+    #     if service_list:
+    #         logger.debug(f"adding local defs for | {namespace=}")
+    #         service_definitions[namespace] = service_list
     # iterate over remote service definitions
     with Dispatcher() as service:
         dispatcher_services = service.list()
         # iterate over keys not used before
-        for name in set(dispatcher_services) - set(list_of_namespaces):
+        for name in set(dispatcher_services):  # - set(list_of_namespaces):
             remote_definitions = service.get_remote_service_definitions(name)
             if remote_definitions:
                 logger.debug(f"adding remote service defs for | {name=}")
