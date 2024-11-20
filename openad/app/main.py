@@ -72,10 +72,10 @@ installed_packages_list = [
 for module_name in installed_packages_list:
     try:
         module_name = module_name.replace("-", "_")
-        module = importlib.import_module(f"{module_name}.plugins")
-        PLUGIN_CLASS_LIST.append(getattr(module, "openad_plugins"))
-    except:
-        output_error("ignoring addin, incorrect class definition")
+        module = importlib.import_module(f"{module_name}.main")
+        PLUGIN_CLASS_LIST.append(getattr(module, "OpenADPlugin"))
+    except Exception as err:  # pylint: disable=broad-exception-caught
+        output_error([f"Ignoring plugin '<yellow>{module_name}</yellow>' due to incorrect class definition", err])
 
 
 sys.ps1 = "\x01\033[31m\x02>>> \x01\033[0m\x02"
@@ -221,14 +221,22 @@ class RUNCMD(Cmd):
         """Sets the current workspace path in the settings dictionary"""
         self.settings["paths"][workspace.upper()] = os.path.expanduser(path)
 
-    def do_help(self, inp, display_info=True, starts_with_only=False, **kwargs):
+    def do_help(self, inp, display_info=True, starts_with_only=False, disable_category_match=False, **kwargs):
         """CMD class called function:
         Display help about a command, for example 'list'.
 
-        Parameters:
-            inp: The input string.
-            display_info: If True, display info text when relevant.
-                Eg. `workspaces ?`, `toolkits ?`, `runs ?`, etc.
+        Parameters
+        ----------
+        inp: str
+            The input string.
+        display_info: bool, optional
+            If True, display info text when relevant.
+            Eg. `workspaces ?`, `toolkits ?`, `runs ?`, etc.
+        starts_with_only: bool, optional
+            If True, only match commands that start with the input string.
+        enable_category_match: bool, optional
+            If True, print help for a certain category only, if the input matches a category.
+
 
         The different entry points:
             ? list                   --> The questionmark is interpreted and stripped by the language parser
@@ -284,50 +292,51 @@ class RUNCMD(Cmd):
             )
 
         # `<category> ?` / `? <category>` --> Display all commands related to a certain category + into paragraph if available.
-        categories = []
-        categories_map = {}
-        for command in all_commands:
-            cat = command["category"].lower()
-            categories_map[cat] = cat
-            if cat not in categories:
-                categories.append(cat)
-                if cat[-1] == "s":
-                    cat_singular = singular(cat)
-                    categories.append(cat_singular)
-                    categories_map[cat_singular] = cat
-        categories.extend(["mws", "plugins", "plugin", "contexts", "context"])
-        categories_map["mws"] = "molecule working set"
-        categories_map["plugins"] = "toolkits"
-        categories_map["plugin"] = "toolkits"
-        categories_map["contexts"] = "toolkits"
-        categories_map["context"] = "toolkits"
+        if not disable_category_match:
+            categories = []
+            categories_map = {}
+            for command in all_commands:
+                cat = command["category"].lower()
+                categories_map[cat] = cat
+                if cat not in categories:
+                    categories.append(cat)
+                    if cat[-1] == "s":
+                        cat_singular = singular(cat)
+                        categories.append(cat_singular)
+                        categories_map[cat_singular] = cat
+            categories.extend(["mws", "plugins", "plugin", "contexts", "context"])
+            categories_map["mws"] = "molecule working set"
+            categories_map["plugins"] = "toolkits"
+            categories_map["plugin"] = "toolkits"
+            categories_map["contexts"] = "toolkits"
+            categories_map["context"] = "toolkits"
 
-        input_cat = categories_map.get(inp.lower(), None)
-        if input_cat:
-            output = []
-            # fmt: off
-            # Add category about text
-            if display_info and ("return_val" not in kwargs or not kwargs["return_val"]):
-                if input_cat == "workspaces":
-                    output.append(output_text("<h1>About Workspaces</h1>\n" + about_workspace, return_val=True, pad_btm=3, nowrap=True))
-                elif input_cat == "molecule working set":
-                    output.append(output_text("<h1>About your Molecule Working Set</h1>\n" + about_mws, return_val=True, pad_btm=3, nowrap=True))
-                elif input_cat == "toolkits":
-                    if inp.lower() in ["context", "contexts"]:
-                        output.append(output_text("<h1>About Context</h1>\n" + about_context, return_val=True, pad_btm=3, nowrap=True))
-                    else:
-                        output.append(output_text("<h1>About Plugins</h1>\n" + about_plugin, return_val=True, pad_btm=3, nowrap=True))
-                elif input_cat == "runs":
-                    output.append(output_text("<h1>About Runs</h1>\n" + about_run, return_val=True, pad_btm=3, nowrap=True))
-            # fmt: on
-            commands = list(filter(lambda x: x["category"].lower() == input_cat, all_commands))
-            # Add category commands
-            output.append(openad_help.all_commands(commands, no_title=True, cmd_pointer=self))
-            # Print
-            return output_text("".join(output), pad=1, edge=True)
+            input_cat = categories_map.get(inp.lower(), None)
+            if input_cat:
+                output = []
+                # fmt: off
+                # Add category about text
+                if display_info and ("return_val" not in kwargs or not kwargs["return_val"]):
+                    if input_cat == "workspaces":
+                        output.append(output_text("<h1>About Workspaces</h1>\n" + about_workspace, return_val=True, pad_btm=3, nowrap=True))
+                    elif input_cat == "molecule working set":
+                        output.append(output_text("<h1>About your Molecule Working Set</h1>\n" + about_mws, return_val=True, pad_btm=3, nowrap=True))
+                    elif input_cat == "toolkits":
+                        if inp.lower() in ["context", "contexts"]:
+                            output.append(output_text("<h1>About Context</h1>\n" + about_context, return_val=True, pad_btm=3, nowrap=True))
+                        else:
+                            output.append(output_text("<h1>About Plugins</h1>\n" + about_plugin, return_val=True, pad_btm=3, nowrap=True))
+                    elif input_cat == "runs":
+                        output.append(output_text("<h1>About Runs</h1>\n" + about_run, return_val=True, pad_btm=3, nowrap=True))
+                # fmt: on
+                commands = list(filter(lambda x: x["category"].lower() == input_cat, all_commands))
+                # Add category commands
+                output.append(openad_help.all_commands(commands, no_title=True, cmd_pointer=self))
+                # Print
+                return output_text("".join(output), pad=1, edge=True)
 
         # `<toolkit_name> ?` --> Display all toolkkit commands.
-        if inp.upper() in _all_toolkits + ["DEMO"]:  # DEMO is omitted from _all_toolkits
+        if inp.upper() in _all_toolkits:
             toolkit_name = inp.upper()
             ok, toolkit = load_toolkit(toolkit_name)
             return output_text(
@@ -762,7 +771,11 @@ class RUNCMD(Cmd):
                     # Fetch commands matching the entire input.
                     # Example input -> `search for molecules in parents`
                     do_help_output_A = self.do_help(
-                        inp + " ?", return_val=True, jup_return_format="plain", starts_with_only=True
+                        inp + " ?",
+                        starts_with_only=True,
+                        disable_category_match=True,
+                        jup_return_format="plain",
+                        return_val=True,
                     )
 
                     # Not for printing
@@ -771,8 +784,9 @@ class RUNCMD(Cmd):
                     # Example input -> `search for molecules in p`
                     do_help_output_B = self.do_help(
                         inp[0 : error_col_grabber(error_descriptor)] + " ?",
-                        jup_return_format="plain",
                         starts_with_only=True,
+                        disable_category_match=True,
+                        jup_return_format="plain",
                         return_val=True,
                     )
 
@@ -780,7 +794,11 @@ class RUNCMD(Cmd):
                     # Fetch commands matching recognized words, or the first word.
                     # Example input -> `search for molecules in`
                     do_help_output_C = self.do_help(
-                        help_ref.lower() + " ?", return_val=True, jup_return_format="plain", starts_with_only=True
+                        help_ref.lower() + " ?",
+                        starts_with_only=True,
+                        disable_category_match=True,
+                        jup_return_format="plain",
+                        return_val=True,
                     )
 
                     # Check for scenario A, B, C in that order.
@@ -809,9 +827,10 @@ class RUNCMD(Cmd):
                             # Not for printing
                             do_help_output_A = self.do_help(
                                 inp[0:error_col] + " ?",
-                                return_val=True,
-                                jup_return_format="plain",
                                 starts_with_only=True,
+                                disable_category_match=True,
+                                jup_return_format="plain",
+                                return_val=True,
                             )
                             show_suggestions = "No commands" not in str(do_help_output_A)
                             multiple_suggestions = "Commands starting with" in str(do_help_output_A)
@@ -829,7 +848,13 @@ class RUNCMD(Cmd):
 
                         # Example to trigger this: `list xxx`
 
-                        self.do_help(help_ref + " ?", starts_with_only=True, return_val=False, pad_top=pad_top)
+                        self.do_help(
+                            help_ref + " ?",
+                            starts_with_only=True,
+                            disable_category_match=True,
+                            pad_top=pad_top,
+                            return_val=False,
+                        )
                         note = msg("run_?")
                         output_text(f"<soft>{note}</soft>", return_val=False, pad=1)
                     return

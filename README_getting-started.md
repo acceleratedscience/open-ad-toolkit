@@ -37,6 +37,12 @@
 
         deactivate
 
+## Running Bash Commands
+
+To run a command in bash mode, prepend it with `openad` and make sure to escape quotes.
+
+    openad show molecules using file \'base_molecules.sdf\'
+
 <br>
 
 # Getting Started - Jupyter

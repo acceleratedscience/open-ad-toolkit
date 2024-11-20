@@ -764,8 +764,11 @@ def openad_model_requestor(cmd_pointer, parser):
     with Dispatcher as servicer:
         service_status = servicer.get_short_status(service_name)
     try:
+        # response = Dispatcher.service_request(
+        #     name=service_name, method="POST", timeout=None, verify=not service_status.get("is_remote"), _json=a_request
+        # )
         response = Dispatcher.service_request(
-            name=service_name, method="POST", timeout=None, verify=not service_status.get("is_remote"), _json=a_request
+            name=service_name, method="POST", timeout=None, verify=False, _json=a_request
         )
         # response = requests.post(Endpoint + "/service", json=a_request, headers=headers, verify=False)
     except Exception as e:

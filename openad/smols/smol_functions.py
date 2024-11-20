@@ -650,6 +650,36 @@ def get_molset_mols(path_absolute: str):
 # region - Validation
 
 
+def valid_identifier(identifier: str, rich=False) -> bool:
+    """
+    Verify if a string is a valid molecule identifier.
+
+    Parameters
+    ----------
+    identifier: str
+        The molecule identifier to validate
+    rich: bool
+        If True, check PubChem
+    """
+
+    if possible_smiles(identifier) and valid_smiles(identifier):
+        return True
+    if valid_inchi(identifier):
+        return True
+    if is_numeric(identifier):
+        return True
+
+    # Check pubchem
+    if rich:
+        try:
+            pcy.get_compounds(identifier, "name")
+            return True
+        except Exception:
+            pass
+
+    return False
+
+
 def possible_smiles(smiles: str) -> bool:
     """
     Verify is a string *could* be a SMILES definition.
@@ -659,7 +689,7 @@ def possible_smiles(smiles: str) -> bool:
     smiles: str
         The SMILES string to validate
     """
-    return bool(re.search(r"[BCNOFPSI](?:[a-df-z0-9#=@+%$:\[\]\(\)\\\/\.\-])*", smiles))
+    return bool(re.search(r"[BCNOFPSI](?:[a-df-z0-9#=@+%$:\[\]\(\)\\\/\.\-])*", smiles, flags=re.I))
 
 
 def valid_smiles(smiles: str) -> bool:
@@ -1389,6 +1419,13 @@ def clear_mws(cmd_pointer: object, force: bool = False):
     if force or confirm_prompt("Clear the molecule working set?"):
         cmd_pointer.molecule_list.clear()
         output_success("Molecule working set was cleared", return_val=False)
+
+
+def mws_is_empty(cmd_pointer):
+    """
+    Check if the molecule working set is empty.
+    """
+    return len(cmd_pointer.molecule_list) == 0
 
 
 # endregion

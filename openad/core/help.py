@@ -1,8 +1,10 @@
 """ The help Module"""
 
 import re
+import os
 import webbrowser
-from openad.helpers.general import singular, is_toolkit_installed, get_print_width
+from openad.helpers.files import open_file
+from openad.helpers.general import singular, is_toolkit_installed, get_print_width, get_locale
 from openad.helpers.output import output_error
 from openad.helpers.output_msgs import msg
 from openad.app.global_var_lib import GLOBAL_SETTINGS
@@ -43,6 +45,82 @@ def help_dict_create(
         "url": url,
         "parent": parent,
     }
+
+
+def help_dict_create_v2(
+    category: str,
+    command: str,
+    description_file: str = None,
+    description: str = None,
+    note: str | dict = None,
+):
+    """
+    Create a help dictionary
+
+    Parameters
+    ----------
+    category: str
+        Category used to organize the commands in help & docs
+    command: str
+        Command structure, used for help, docs, training
+    description: str, optional (not recommended)
+        Option A: One-line description of the command, eg. "Say hello to the world"
+    description_file: str, optional (recommended)
+        option B: Command dir + filename of the description .txt file, eg. "hello_world/description.txt"
+        If localized versions of the file exist, they will be prioritized based on the user's
+        locale setting, eg. "hello_world/description_fr.txt".
+    note: str | dict, optional
+        Optional bottom note to the command description, eg. "To learn more about xyz, run `xyz ?`"
+        Can be a dict with localized notes, eg. {"en": "Note in English", "fr": "Note en français"}
+    """
+
+    description = description or _try_localize_description_file(description_file)
+    note = _try_localize_note_text(note)
+
+    return {
+        "category": category,
+        "command": command,
+        "description": description,
+        "note": note,
+    }
+
+
+# Prioritize localized description files if available
+def _try_localize_description_file(path):
+    path_localized = _localize_path(path)
+    if os.path.isfile(path_localized):
+        path = path_localized
+
+    description = open_file(path)
+    return description
+
+
+# Localize the description filename with the
+# locale settings from your terminal.
+def _localize_path(path: str):
+    lang = get_locale("lang")
+    if lang:
+        path = path.replace(".txt", f"_{lang}.txt")
+    return path
+
+
+def _try_localize_note_text(note: str):
+    if not note:
+        return None
+
+    # Simple string note
+    elif isinstance(note, str):
+        return note
+
+    # Localized note
+    elif isinstance(note, dict):
+        lang = get_locale("lang")
+        if lang and lang in note:
+            note = note[lang]
+        else:
+            note = note.get("en", None)
+
+    return note
 
 
 def all_commands(
@@ -209,12 +287,12 @@ def command_details(command: list, cmd_pointer):
     if GLOBAL_SETTINGS["display"] == "notebook":
         command_str = f"<cmd>{command_str}</cmd>"
         description = command["description"]
-        note = f'<soft>{command["note"]}</soft>' if "note" in command and command["note"] is not None else None
+        note = f'\n<soft>{command["note"]}</soft>' if "note" in command and command["note"] is not None else None
     else:
         command_str = style(f"<cmd>{command_str}</cmd>", width=print_width)
         description = style(command["description"], width=print_width)
         note = (
-            style(f'<soft>{command["note"]}</soft>', width=print_width)
+            style(f'\n<soft>{command["note"]}</soft>', width=print_width)
             if "note" in command and command["note"] is not None
             else None
         )

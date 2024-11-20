@@ -218,7 +218,7 @@ grammar_help.append(
 # region - Workspaces
 ##########################################################################
 
-INFO_WORKSPACES = "\n<soft>To learn more about workspaces, run <cmd>workspace ?</cmd></soft>"
+INFO_WORKSPACES = "<soft>To learn more about workspaces, run <cmd>workspace ?</cmd></soft>"
 
 # Set workspaces
 statements.append(
@@ -329,7 +329,7 @@ grammar_help.append(
         name="list toolkits",
         category="Toolkits",
         command="list toolkits",
-        description=f"List all installed toolkits. To see all available toolkits, run <cmd>list all toolkits</cmd>.",
+        description=f"List all installed toolkits.",
         note=f"{NOTE_TOOLKITS_SEE_ALL}\n{NOTE_TOOLKITS}",
     )
 )

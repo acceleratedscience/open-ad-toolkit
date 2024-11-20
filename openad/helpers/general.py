@@ -3,12 +3,17 @@ import re
 import sys
 import time
 import shutil
+import locale
 import getpass
 import readline
 from datetime import datetime
 from IPython.display import clear_output
 from openad.helpers.output import output_text, output_error
 from openad.helpers.output_msgs import msg
+from openad.plugins.style_parser import style
+
+# https://docs.python.org/3/library/locale.html#locale.setlocale
+locale.setlocale(locale.LC_ALL, "")
 
 
 # Refreshes the command prompt when in the shell.
@@ -131,7 +136,7 @@ def user_secret(cmd_pointer, question):
 # Return list of available toolkit names.
 def get_toolkits():
     folder_path = os.path.dirname(os.path.abspath(__file__)) + "/../user_toolkits"
-    ignore_dirs = ["__pycache__", "DEMO", "readme"]
+    ignore_dirs = ["__pycache__", "readme"]
     toolkit_names = [
         name.upper()
         for name in os.listdir(folder_path)
@@ -330,6 +335,66 @@ def get_print_width(full=False):
                 return min(shutil.get_terminal_size().columns - 10, GLOBAL_SETTINGS["max_print_width"])
         except Exception:  # pylint: disable=broad-exception-caught
             return GLOBAL_SETTINGS["max_print_width"]
+
+
+# Style a boolean value in red or green
+def style_bool(value):
+    return (
+        style(f"<success>{value}</success>")
+        if value is True
+        else style(f"<error>{value}</error>")
+        if value is False
+        else value
+    )
+
+
+def get_locale(key=None):
+    """
+    Find out the locale setting of your terminal.
+
+    Parameters
+    ----------
+    key: str, optional
+        Specify which part of the locale to return: "lang", "region", "encoding"
+        If no key is specified, the full locale info is returned as a tuple.
+
+    Returns:
+    - None if no locale is set.
+    - (<language>, <region>, <encoding>) if no key is specified
+    - <language> if key="lang"
+    - <region> if key="region"
+    - <encoding> if key="encoding"
+
+    Locale breakdown:
+    fr_FR.ISO8859-15 --> ('fr', 'FR', 'ISO8859-15')
+    fr_BE.ISO8859-1 --> ('fr', 'BE', 'ISO8859-1')
+    fr_BE.UTF-8 --> ('fr', 'BE', 'UTF-8')
+    fr_BE --> ('fr', 'BE', 'ISO8859-1') # Returns default encoding when not specified
+
+    Current locale settings: run `locale` in your terminal
+    Available locales: run `locale -a` in your terminal
+    Change session locale to test: run `LC_ALL=fr_FR.UTF-8` in your terminal
+    """
+
+    output = None
+
+    try:
+        lang = locale.getdefaultlocale()
+        output = {
+            "lang": lang[0].split("_")[0],
+            "region": lang[0].split("_")[1],
+            "encoding": lang[1],
+        }
+    except Exception:  # pylint: disable=broad-except
+        pass
+
+    if output:
+        if key:
+            return output[key]
+        else:
+            return (output["lang"], output["region"], output["encoding"])
+    else:
+        return None
 
 
 #
