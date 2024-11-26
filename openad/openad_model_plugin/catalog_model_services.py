@@ -628,7 +628,9 @@ def get_model_service_result(cmd_pointer, parser):
             if isinstance(response_result, str):
                 response_result = json.loads(response_result)
             if isinstance(response_result, dict):
-                if "error" in response_result:
+                if "warning" in response_result:
+                    return output_warning(response_result["warning"]["reason"])
+                elif "error" in response_result:
                     run_error = "Request Error:\n"
 
                     for key, value in response_result["error"].items():
