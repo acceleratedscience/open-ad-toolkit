@@ -170,7 +170,8 @@ input_object = QuotedString('"', end_quote_char='"', escQuote="\\")
 
 save_as_clause = "+ Optional(CaselessKeyword('save_as')('save_as')+desc('results_file'))"
 save_as_clause_help = " (save_as '<filename.csv>')"
-
+async_clause = "+ Optional(CaselessKeyword('async')('async')) "
+async_clause_help = " (async)"
 service_command_start = {}
 service_command_subject = {}
 service_command_help = {}
@@ -368,6 +369,7 @@ def service_grammar_add(statements: list, help: list, service_catalog: dict):
                     + expression
                     + service_command_merge[schema["service_type"]]
                     + save_as_clause
+                    + async_clause
                     + ")"
                     + f'("{schema["service_name"]}@{schema["service_type"]}")'
                 )
@@ -516,7 +518,7 @@ def service_grammar_add(statements: list, help: list, service_catalog: dict):
                     name=schema["service_type"],
                     category=service + "->" + category,
                     parent=None,
-                    command=command_str + save_as_clause_help,
+                    command=command_str + save_as_clause_help + async_clause_help,
                     description=target_description
                     + parameter_help
                     + algo_versions
@@ -716,6 +718,8 @@ def request_generate(cmd_pointer, request_input):
         },
         "api_key": "reserved for federated APIs",
     }
+    if "async" in request_input.as_dict():
+        template["async"] = True
     if Sample_Size is not None:
         template["sample_size"] = Sample_Size
 
@@ -775,7 +779,7 @@ def openad_model_requestor(cmd_pointer, parser):
         spinner.fail("Request Failed")
         spinner.stop()
         output_error(str(e))
-        return output_error("Error: \n Server not reachable at " + str(service_status.get("url")))
+        return output_error("Error: \n Server not reachable  " + str(service_status.get("url")))
 
     spinner.succeed("Request Returned")
     spinner.stop()
