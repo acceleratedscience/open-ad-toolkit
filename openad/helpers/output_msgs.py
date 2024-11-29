@@ -69,6 +69,7 @@ _messages = {
         if filename
         else "File successully saved to your workspace"
     ),
+    "success_file_saved_updated": lambda filename, updated_filename: f"<error>Warning:</error> A file with the name '{filename}' already exists.\n<success>Saving as '<reset>{updated_filename}</reset>' instead.</success>",
     # Warning
     "war_no_filename_provided": lambda default: f"No filename provided, reverting to the default '{default}'",
     # Error

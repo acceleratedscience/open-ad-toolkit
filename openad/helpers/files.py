@@ -3,7 +3,7 @@ import json
 import ijson
 import pandas as pd
 from io import StringIO
-from openad.helpers.output import output_error
+from openad.helpers.output import output_error, output_warning, output_success
 from openad.helpers.output_msgs import msg
 from openad.helpers.json_decimal_encoder import DecimalEncoder
 
@@ -256,3 +256,66 @@ def write_file(file_path, data, return_err=False):
 def empty_trash(cmd_pointer):
     trash_dir = f"{cmd_pointer.workspace_path()}/.trash"
     os.system(f"rm -rf '{trash_dir}'")
+
+
+def save_df_as_csv(cmd_pointer, df, dest_file_path):
+    """
+    Save a pandas dataframe as a CSV file.
+
+    Parameters
+    ----------
+    cmd_pointer: Cmd
+        The command pointer.
+    df: pandas.DataFrame
+        The dataframe to save.
+    dest_file_path: str
+        The destination file path, with your workspace as root
+        and an optional .csv extension and leading slash.
+        All valid:
+        - filename
+        - folder1/folder2/filename
+        - folder1/folder2/filename.csv
+        - /folder1/folder2/filename.csv
+    """
+    # Remove leading slash
+    if dest_file_path.startswith("/"):
+        dest_file_path = dest_file_path[1:]
+
+    # Remove any number of ../ from the path to avoid storing
+    # files outside the workspace (could be abused)
+    while dest_file_path.startswith("../"):
+        dest_file_path = dest_file_path.replace("../", "")
+
+    # Ensure CSV extension
+    if not dest_file_path.endswith(".csv"):
+        dest_file_path = dest_file_path + ".csv"
+
+    # Create destination file path directories if they don't exist
+    dirs = dest_file_path.split("/")[:-1]
+    workspace_path = cmd_pointer.workspace_path()
+    for d in dirs:
+        workspace_path += "/" + d
+        if not os.path.exists(workspace_path):
+            os.makedirs(workspace_path)
+
+    # Find next available filename if the file already exists
+    absolute_dest_file_path = cmd_pointer.workspace_path() + "/" + dest_file_path
+    base, extension = os.path.splitext(dest_file_path)
+    counter = 1
+    updated_dest_file_path = None
+    while os.path.exists(absolute_dest_file_path):
+        updated_dest_file_path = f"{base}-{counter}{extension}"
+        absolute_dest_file_path = cmd_pointer.workspace_path() + "/" + updated_dest_file_path
+        counter += 1
+
+    # Save the file
+    df = df.fillna("")  # Replace NaN with empty string
+    df.to_csv(absolute_dest_file_path, index=False)
+
+    # Display success message
+    if updated_dest_file_path:
+        output_warning(
+            msg("success_file_saved_updated", dest_file_path, updated_dest_file_path), return_val=False, pad_btm=1
+        )
+    else:
+        output_success(msg("success_file_saved", dest_file_path), return_val=False, pad_btm=1)

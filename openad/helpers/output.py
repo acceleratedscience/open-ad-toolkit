@@ -45,7 +45,9 @@ output_text(msg('workspace_description', workspace_name, description), pad=1, ed
 import math
 import pandas
 from tabulate import tabulate
-from IPython.display import Markdown, display
+from rdkit.Chem import PandasTools
+from IPython.display import Markdown, display, HTML
+from rdkit.Chem.Draw import IPythonConsole, MolDraw2DSVG, MolToImage
 from openad.helpers.output_msgs import msg
 import openad.helpers.general as helpers_general
 
@@ -53,6 +55,9 @@ import openad.helpers.general as helpers_general
 # This is temporary until every plugin is available as a public pypi package.
 from openad.plugins.style_parser import style, print_s, strip_tags, tags_to_markdown
 
+# Set RDKit to render molecules as SVG
+# Unfortunately doesn't work when displaying table data.
+IPythonConsole.ipython_useSVG = True
 
 # NOTE (moe) - I'm not able to do import memory from the core director
 # Meanwhile this is obsolete, but I still don't have an explanation.
@@ -370,21 +375,43 @@ def output_table(
             # Hide index column in Jupyter, unless we want it.
             if not show_index:
                 table.hide(axis="index")
+
+        # Disabled: we no longer hide the index by default, because to do this
+        # the table is converted into a styler object, which disabled ROMol and
+        # image rendering in the table column values. This can still be achieved
+        # using table.to_html(index=False), but this is not worth the added complexity.
         else:
             if not show_index:
-                table = table.style.hide(axis="index")
+                pass
+                # table = table.style.hide(axis="index") # Don't use, turns table into styler object.
+                # table = table.to_html(index=False) # Possible workaround, but requires tp be printed as display(HTML(table))
 
         if footnote:
             output_text(footnote, return_val=False)
 
-        if GLOBAL_SETTINGS["display"] == "api":
+        if GLOBAL_SETTINGS["display"] == "api" or return_val is True or return_val is None:
             if isinstance(table, pandas.io.formats.style.Styler):
                 return table.data
             else:
                 return table
-        elif return_val is True or return_val is None:
-            return table
         else:
+            # table = table.style.hide(axis="index")
+
+            # Display molecules as images in Jupyter, is SMILES or ROMol columns are present.
+            possible_smiles_columns = ["SMILES", "smiles", "canonical_smiles", "isomeric_smiles"]
+            if any(col in table.columns for col in possible_smiles_columns) or "ROMol" in table.columns:
+                # Add ROMol (RDKit molecule object) - this allows Notebook users
+                # to read the RDKit molecule, while also displaying it as an image.
+                if not "ROMol" in table.columns:
+                    smiles_col = next((col for col in possible_smiles_columns if col in table.columns), None)
+                    PandasTools.AddMoleculeColumnToFrame(table, smilesCol=smiles_col)
+
+                # Move ROMol and SMILES columns to the front
+                col = table.pop("ROMol")
+                table.insert(0, col.name, col)
+                col = table.pop(smiles_col)
+                table.insert(1, col.name, col)
+
             display(table)
 
     # Output for terminal

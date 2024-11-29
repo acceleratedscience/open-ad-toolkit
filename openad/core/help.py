@@ -63,12 +63,14 @@ def help_dict_create_v2(
         Category used to organize the commands in help & docs
     command: str
         Command structure, used for help, docs, training
-    description: str, optional (not recommended)
-        Option A: One-line description of the command, eg. "Say hello to the world"
-    description_file: str, optional (recommended)
-        option B: Command dir + filename of the description .txt file, eg. "hello_world/description.txt"
+    description_file: str, optional
+        option A: Command directory + filename of the description .txt file, eg. "hello_world/description.txt"
         If localized versions of the file exist, they will be prioritized based on the user's
         locale setting, eg. "hello_world/description_fr.txt".
+    description: str, optional
+        Option B: The actual desciption of the command, useful for one-line descriptions (eg. "Say hello to the world")
+        or when the description needs to be parsed with variables (eg. f"Say hello to {name}"). When both description_file
+        and description are provided, description will be prioritized.
     note: str | dict, optional
         Optional bottom note to the command description, eg. "To learn more about xyz, run `xyz ?`"
         Can be a dict with localized notes, eg. {"en": "Note in English", "fr": "Note en français"}
@@ -87,8 +89,17 @@ def help_dict_create_v2(
 
 # Prioritize localized description files if available
 def _try_localize_description_file(path):
+    if not path:
+        return None
     path_localized = _localize_path(path)
-    if os.path.isfile(path_localized):
+    path_localized_region = _localize_path(path, True)
+
+    # Check if language+region-localized description file exist
+    if os.path.isfile(path_localized_region):
+        path = path_localized_region
+
+    # Check if language-localized description file exist
+    elif os.path.isfile(path_localized):
         path = path_localized
 
     description = open_file(path)
@@ -97,10 +108,14 @@ def _try_localize_description_file(path):
 
 # Localize the description filename with the
 # locale settings from your terminal.
-def _localize_path(path: str):
+def _localize_path(path: str, include_region=False):
     lang = get_locale("lang")
     if lang:
-        path = path.replace(".txt", f"_{lang}.txt")
+        region = get_locale("region") if include_region else None
+        if region:
+            path = path.replace(".txt", f"_{lang}_{region}.txt")
+        else:
+            path = path.replace(".txt", f"_{lang}.txt")
     return path
 
 
@@ -115,10 +130,16 @@ def _try_localize_note_text(note: str):
     # Localized note
     elif isinstance(note, dict):
         lang = get_locale("lang")
-        if lang and lang in note:
-            note = note[lang]
-        else:
-            note = note.get("en", None)
+        region = get_locale("region")
+        _note = None
+        if lang:
+            _note = note.get(f"{lang}_{region}", None) if region else None
+            if not _note:
+                _note = note.get(lang, None)
+        if not _note:
+            _note = note.get("en", None)
+
+        return _note
 
     return note
 
