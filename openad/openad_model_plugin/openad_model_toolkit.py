@@ -289,12 +289,20 @@ service_command_description[
     This function generates a data set based on the following parameters 
  """
 
+async_help_clause = "\n \n Note: If <cmd> async clause </cmd> is defined the user will be returned an id for the given job and will use the <cmd> `model service <service name> result '<job_id>' </cmd> command to retrieve it when it is ready. use this command to test for readiness."
+
 
 def service_grammar_add(statements: list, help: list, service_catalog: dict):
     """defines the grammar available for managing molecules"""
     for service in service_catalog.keys():
         service_list = service_catalog[service]
         for schema in service_list:
+            # Allow Async for command if supported
+            if "async_allow" in schema and schema["async_allow"]:
+                async_allow = True
+            else:
+                async_allow = False
+
             command = "CaselessKeyword(service)('service')+" + service_command_start[schema["service_type"]]
             valid_types = None  # noqa: F841
             valid_type = None
@@ -369,7 +377,7 @@ def service_grammar_add(statements: list, help: list, service_catalog: dict):
                     + expression
                     + service_command_merge[schema["service_type"]]
                     + save_as_clause
-                    + async_clause
+                    + (async_clause if async_allow else "")
                     + ")"
                     + f'("{schema["service_name"]}@{schema["service_type"]}")'
                 )
@@ -518,12 +526,13 @@ def service_grammar_add(statements: list, help: list, service_catalog: dict):
                     name=schema["service_type"],
                     category=service + "->" + category,
                     parent=None,
-                    command=command_str + save_as_clause_help + async_clause_help,
+                    command=command_str + save_as_clause_help + (async_clause_help if async_allow else ""),
                     description=target_description
                     + parameter_help
                     + algo_versions
                     + required_parameters
-                    + function_description,
+                    + function_description
+                    + (async_help_clause if async_allow else ""),
                 )
             )
 

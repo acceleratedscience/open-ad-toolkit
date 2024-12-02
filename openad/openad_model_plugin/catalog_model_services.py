@@ -606,7 +606,6 @@ def list_auth_services(cmd_pointer, parser):
 
 
 def get_model_service_result(cmd_pointer, parser):
-
     # with Dispatcher as servicer:
     #    service_status = servicer.get_short_status(parser.to_dict()["service_name"].lower())
     try:

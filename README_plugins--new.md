@@ -87,11 +87,6 @@ Built on GT4SD, Guardian makes training and using state-of-the-art generative AI
 
     pip install @openad/guardian
 
-### 4. BMFM
-Calculate PFAS classification for molecules.<br>
-[research.ibm.com/projects/biomedical-foundation-models](https://research.ibm.com/projects/biomedical-foundation-models)
-
-    pip install @openad/bmfm
 
 
 <br><br>
