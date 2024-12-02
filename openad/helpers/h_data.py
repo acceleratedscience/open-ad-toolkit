@@ -14,11 +14,10 @@ def col_from_df(df, column_name) -> list:
 
 def csv_to_df(cmd_pointer, filename):
     """
-    Returns a dataframe from a csv file.
+    Return a dataframe from a CSV file.
     """
 
-    if not os.path.isfile(cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/" + filename):
-        raise Exception("File does not exist")  # pylint: disable=broad-exception-raised
-    else:
-        df = pd.read_csv(cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/" + filename)
-    return df
+    file_path = cmd_pointer.workspace_path() + "/" + filename
+    if not os.path.isfile(file_path):
+        raise FileNotFoundError(f"File '{filename}' does not exist")
+    return pd.read_csv(file_path)
