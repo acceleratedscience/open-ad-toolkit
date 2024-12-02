@@ -1003,11 +1003,12 @@ def create_statements(cmd_pointer):
     except Exception as e:
         print(e)
         pass
-    # add plugins
 
+    # add plugins
     for stmt in cmd_pointer.plugins_statements:
         cmd_pointer.current_statements.append(stmt)
-
+    # added to stop duplication after model services run
+    cmd_pointer.current_help.help_plugins = []
     cmd_pointer.current_help.help_plugins.extend(cmd_pointer.plugins_help)
     cmd_pointer.current_help.reset_help()
 

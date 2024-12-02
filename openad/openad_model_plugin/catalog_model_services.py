@@ -8,6 +8,7 @@ import time
 from functools import lru_cache
 from subprocess import run
 from typing import Dict, Tuple
+import pandas as pd
 
 import pyparsing as py
 from openad.app.global_var_lib import GLOBAL_SETTINGS
@@ -141,6 +142,10 @@ def get_cataloged_service_defs() -> Dict[str, dict]:
             if remote_definitions:
                 logger.debug(f"adding remote service defs for | {name=}")
                 service_definitions[name] = remote_definitions
+            else:
+                logger.warning(f"remote service defs not found, sevice not available | {name=}")
+                service_definitions[name] = remote_definitions
+
     return service_definitions
 
 
@@ -600,6 +605,70 @@ def list_auth_services(cmd_pointer, parser):
     return DataFrame({"service": services, "auth group": auth_groups, "api key": apis})
 
 
+def get_model_service_result(cmd_pointer, parser):
+    # with Dispatcher as servicer:
+    #    service_status = servicer.get_short_status(parser.to_dict()["service_name"].lower())
+    try:
+        # response = Dispatcher.service_request(
+        #     name=service_name, method="POST", timeout=None, verify=not service_status.get("is_remote"), _json=a_request
+        # )
+        a_request = {"url": parser.as_dict()["request_id"], "service_type": "get_result"}
+        response = Dispatcher.service_request(
+            name=parser.as_dict()["service_name"].lower(), method="POST", timeout=None, verify=False, _json=a_request
+        )
+        # response = requests.post(Endpoint + "/service", json=a_request, headers=headers, verify=False)
+    except Exception as e:
+        output_error(str(e))
+        return output_error("Error: \n Server not reachable at ")
+
+    try:
+        response_result = response.json()
+        try:
+            if isinstance(response_result, str):
+                response_result = json.loads(response_result)
+            if isinstance(response_result, dict):
+                if "warning" in response_result:
+                    return output_warning(response_result["warning"]["reason"])
+                elif "error" in response_result:
+                    run_error = "Request Error:\n"
+
+                    for key, value in response_result["error"].items():
+                        value = str(value).replace("<", "`<")
+                        value = str(value).replace(">", ">`")
+                        run_error = run_error + f"- <cmd>{key}</cmd> : {value}\n  "
+                    return output_error(run_error)
+                if "detail" in response_result:
+                    return output_warning(response_result["detail"])
+
+            result = pd.DataFrame(response_result)
+            if "save_as" in parser:
+                results_file = str(parser["results_file"])
+                if not results_file.endswith(".csv"):
+                    results_file = results_file + ".csv"
+                result.to_csv(
+                    cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/" + results_file,
+                    index=False,
+                )
+
+        except Exception as e:
+            print(e)
+            result = response_result
+
+        if isinstance(result, dict):
+            if "error" in result:
+                run_error = "Request Error:\n"
+                for key, value in result["error"].items():
+                    run_error = run_error + f"- <cmd>{key}</cmd> : {value}\n  "
+                return output_text(run_error)
+
+    except Exception as e:
+        run_error = "HTTP Request Error:\n"
+
+        return output_error(run_error + "\n" + str(e))
+
+    return result
+
+
 def service_catalog_grammar(statements: list, help: list):
     """This function creates the required grammar for managing cataloging services and model up or down"""
     logger.debug("catalog model service grammer")
@@ -847,5 +916,24 @@ Examples:
             category="Model",
             command="model service down '<service_name>'|<service_name>",
             description="Bring down a model service  \n Examples: \n\n<cmd>model service down gen</cmd> \n\n<cmd>model service down 'gen'</cmd> ",
+        )
+    )
+
+    statements.append(
+        py.Forward(
+            py.CaselessKeyword("get")
+            + model
+            + py.CaselessKeyword("service")
+            + service_name("service_name")
+            + py.CaselessKeyword("result")
+            + quoted_string("request_id")
+        )("get_model_service_result")
+    )
+    help.append(
+        help_dict_create(
+            name="Get Model Service Result",
+            category="Model",
+            command="get model service '<service_name>'|<service_name> result '<result_id>' ",
+            description="retrieves a result from a model service  \n Examples: \n\n<cmd>get model service myservier result 'wergergerg'  ",
         )
     )

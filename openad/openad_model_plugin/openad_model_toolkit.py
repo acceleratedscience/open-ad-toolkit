@@ -170,7 +170,8 @@ input_object = QuotedString('"', end_quote_char='"', escQuote="\\")
 
 save_as_clause = "+ Optional(CaselessKeyword('save_as')('save_as')+desc('results_file'))"
 save_as_clause_help = " (save_as '<filename.csv>')"
-
+async_clause = "+ Optional(CaselessKeyword('async')('async')) "
+async_clause_help = " (async)"
 service_command_start = {}
 service_command_subject = {}
 service_command_help = {}
@@ -182,25 +183,25 @@ service_command_start["get_crystal_property"] = 'get + CaselessKeyword("crystal"
 service_command_start["get_protein_property"] = 'get + CaselessKeyword("protein") + CaselessKeyword("property")'
 service_command_start["generate_data"] = 'CaselessKeyword("generate") + CaselessKeyword("with")'
 
-service_command_merge["get_molecule_property"] = (
-    '+ Optional((CaselessKeyword("merge with mols")|CaselessKeyword("merge with molecules"))("merge_with_mws"))'
-)
+service_command_merge[
+    "get_molecule_property"
+] = '+ Optional((CaselessKeyword("merge with mols")|CaselessKeyword("merge with molecules"))("merge_with_mws"))'
 service_command_merge["get_crystal_property"] = ""
 service_command_merge["get_protein_property"] = ""
 service_command_merge["generate_data"] = ""
 
-service_command_subject["get_molecule_property"] = (
-    '+CaselessKeyword("for")+(mol_list("mol_list")|(Word("[")+delimitedList(molecule_identifier,delim=",")("molecules")+Word("]")|molecule_identifier("molecule")))'
-)
-service_command_subject["get_protein_property"] = (
-    '+CaselessKeyword("for")+((Word("[")+ delimitedList(molecule_identifier,delim=",")("proteins")+Word("]")|molecule_identifier("protein")))'
-)
-service_command_subject["get_crystal_property"] = (
-    '+CaselessKeyword("for")+((Word("[")+ delimitedList(desc,delim=",")("crystal_files")+Word("]")|desc("crystal_file")("crystal_PATH")))'
-)
-service_command_subject["generate_data"] = (
-    '+CaselessKeyword("data")+<TARGET>Optional(CaselessKeyword("Sample")+Word(nums)("sample_size"))'
-)
+service_command_subject[
+    "get_molecule_property"
+] = '+CaselessKeyword("for")+(mol_list("mol_list")|(Word("[")+delimitedList(molecule_identifier,delim=",")("molecules")+Word("]")|molecule_identifier("molecule")))'
+service_command_subject[
+    "get_protein_property"
+] = '+CaselessKeyword("for")+((Word("[")+ delimitedList(molecule_identifier,delim=",")("proteins")+Word("]")|molecule_identifier("protein")))'
+service_command_subject[
+    "get_crystal_property"
+] = '+CaselessKeyword("for")+((Word("[")+ delimitedList(desc,delim=",")("crystal_files")+Word("]")|desc("crystal_file")("crystal_PATH")))'
+service_command_subject[
+    "generate_data"
+] = '+CaselessKeyword("data")+<TARGET>Optional(CaselessKeyword("Sample")+Word(nums)("sample_size"))'
 
 ###################################################################
 # targets for generate Data
@@ -237,18 +238,18 @@ generation_targets = {
 #         sampling_wrapper={'fraction_to_mask': mask, 'property_goal': {'<esol>': 0.234}}"""
 
 
-service_command_help["get_molecule_property"] = (
-    "get molecule property <property> FOR @mols | [<list of SMILES>] | <SMILES>   USING (<parameter>=<value> <parameter>=<value>) (merge with mols|molecules)"
-)
-service_command_help["get_crystal_property"] = (
-    "get crystal property <property> FOR <directory> USING (<parameter>=<value> <parameter>=<value>)"
-)
-service_command_help["get_protein_property"] = (
-    "get protein property <property> FOR [<list of Proteins>] | <Protein> USING (<parameter>=<value> <parameter>=<value>)"
-)
-service_command_help["generate_data"] = (
-    "generate with <property> data <TARGET> (sample <sample_size>) USING (<parameter>=<value> <parameter>=<value>) "
-)
+service_command_help[
+    "get_molecule_property"
+] = "get molecule property <property> FOR @mols | [<list of SMILES>] | <SMILES>   USING (<parameter>=<value> <parameter>=<value>) (merge with mols|molecules)"
+service_command_help[
+    "get_crystal_property"
+] = "get crystal property <property> FOR <directory> USING (<parameter>=<value> <parameter>=<value>)"
+service_command_help[
+    "get_protein_property"
+] = "get protein property <property> FOR [<list of Proteins>] | <Protein> USING (<parameter>=<value> <parameter>=<value>)"
+service_command_help[
+    "generate_data"
+] = "generate with <property> data <TARGET> (sample <sample_size>) USING (<parameter>=<value> <parameter>=<value>) "
 
 service_command_description[
     "get_molecule_property"
@@ -288,12 +289,20 @@ service_command_description[
     This function generates a data set based on the following parameters 
  """
 
+async_help_clause = "\n \n Note: If <cmd> async clause </cmd> is defined the user will be returned an id for the given job and will use the <cmd> `model service <service name> result '<job_id>' </cmd> command to retrieve it when it is ready. use this command to test for readiness."
+
 
 def service_grammar_add(statements: list, help: list, service_catalog: dict):
     """defines the grammar available for managing molecules"""
     for service in service_catalog.keys():
         service_list = service_catalog[service]
         for schema in service_list:
+            # Allow Async for command if supported
+            if "async_allow" in schema and schema["async_allow"]:
+                async_allow = True
+            else:
+                async_allow = False
+
             command = "CaselessKeyword(service)('service')+" + service_command_start[schema["service_type"]]
             valid_types = None  # noqa: F841
             valid_type = None
@@ -368,6 +377,7 @@ def service_grammar_add(statements: list, help: list, service_catalog: dict):
                     + expression
                     + service_command_merge[schema["service_type"]]
                     + save_as_clause
+                    + (async_clause if async_allow else "")
                     + ")"
                     + f'("{schema["service_name"]}@{schema["service_type"]}")'
                 )
@@ -516,12 +526,13 @@ def service_grammar_add(statements: list, help: list, service_catalog: dict):
                     name=schema["service_type"],
                     category=service + "->" + category,
                     parent=None,
-                    command=command_str + save_as_clause_help,
+                    command=command_str + save_as_clause_help + (async_clause_help if async_allow else ""),
                     description=target_description
                     + parameter_help
                     + algo_versions
                     + required_parameters
-                    + function_description,
+                    + function_description
+                    + (async_help_clause if async_allow else ""),
                 )
             )
 
@@ -716,6 +727,8 @@ def request_generate(cmd_pointer, request_input):
         },
         "api_key": "reserved for federated APIs",
     }
+    if "async" in request_input.as_dict():
+        template["async"] = True
     if Sample_Size is not None:
         template["sample_size"] = Sample_Size
 
@@ -775,7 +788,7 @@ def openad_model_requestor(cmd_pointer, parser):
         spinner.fail("Request Failed")
         spinner.stop()
         output_error(str(e))
-        return output_error("Error: \n Server not reachable at " + str(service_status.get("url")))
+        return output_error("Error: \n Server not reachable  " + str(service_status.get("url")))
 
     spinner.succeed("Request Returned")
     spinner.stop()
