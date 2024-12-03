@@ -23,9 +23,9 @@ class Spinner(Halo):
 
     def __init__(self, verbose=True):
         self.verbose = verbose
-
+        # this spinner uses too much CPU over time... processe gets behind...
         spinner = {
-            "interval": 80,
+            "interval": 700,
             "frames": [
                 "▉▋▍▎▏▏",
                 "▉▉▋▍▎▏",
@@ -40,7 +40,8 @@ class Spinner(Halo):
         }
 
         if self.verbose is True:
-            super().__init__(spinner=spinner, color="yellow")  # Cool spinner
+            super().__init__(spinner="triangle", color="white", interval=700)
+            # super().__init__(spinner=spinner, color="yellow")  # Cool spinner
 
             # Lame spinner
             # super().__init__(spinner="triangle", color="white", interval=150)
