@@ -201,6 +201,7 @@ def organize_commands(cmds):
 
     # Organize commands by category
     for cmd in cmds:
+        print("\n", cmd)
         # Get command description
         cmd_description = cmd.get("description")
 
