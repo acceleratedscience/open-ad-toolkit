@@ -271,7 +271,7 @@ def encode_uri_component(string):
 
 
 # Prettify a timestamp
-def pretty_date(timestamp=None, style="log", time=True):
+def pretty_date(timestamp=None, style="log", include_time=True):
     # If no timestamp provided, use the current time
     if not timestamp:
         timestamp = time.time()
@@ -280,11 +280,11 @@ def pretty_date(timestamp=None, style="log", time=True):
     fmt = None
     if style == "log":
         fmt = "%d-%m-%Y"  # 07-01-2024
-        if time:
+        if include_time:
             fmt += ", %H:%M:%S"  # 07-01-2024, 15:12:45
     elif style == "pretty":
         fmt = "%b %d, %Y"  # Jan 7, 2024
-        if time:
+        if include_time:
             fmt += " at %H:%M"  # Jan 7, 2024 at 15:12
     else:
         output_error("Invalid style for pretty_date()")

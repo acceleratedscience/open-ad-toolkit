@@ -319,4 +319,4 @@ def save_df_as_csv(cmd_pointer, df, dest_file_path):
         output_success(msg("success_file_saved", dest_file_path), return_val=False)
 
     # Display hint on how to open it
-    output_text(f"<soft>To open it, run <cmd>open '{dest_file_path}'</cmd></soft>", pad_btm=1)
+    output_text(f"<soft>To open it, run <cmd>open '{updated_dest_file_path or dest_file_path}'</cmd></soft>", pad_btm=1)
