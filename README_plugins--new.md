@@ -107,3 +107,14 @@ Installing any non-native plugins can be done with a simple pip install of the p
 ## Writing your Own Plugins
 
 Creating your own plugins is quick and easy if you have a basic understanding of Python. Check the [Plugin Development Manual](README_plugins_development.md) to hit the ground running.
+
+
+<!--
+Documentation / tutorials to add:
+- How to order commands, and order categories
+- How to implement login
+- How to have command aliases
+- Demo command showing output text + link to style parser etc
+- Demo on centralized messaging with msg()
+- Working with table data
+-->
