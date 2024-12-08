@@ -33,7 +33,7 @@ def init():
     def banner_styling():
         styles2 = f"""
         <style>
-        .banner::after {{
+        .banner_header::after {{
             background: url({data_uri}) center center no-repeat;
             background-size: cover;
         }}
@@ -43,4 +43,20 @@ def init():
 
     style2 = banner_styling()
 
-    return HTML(style1 + style2)
+    data_uri2 = image_to_data_uri("./media/science_banner.jpg")
+
+    # Then, in your CSS, you can use this data URI directly
+    def banner_styling2():
+        styles3 = f"""
+        <style>
+        .banner::after {{
+            background: url({data_uri2}) center center no-repeat;
+            background-size: cover;
+        }}
+        </style>
+        """
+        return styles3
+
+    style3 = banner_styling2()
+
+    return HTML(style1 + style2+ style3)
