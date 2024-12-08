@@ -205,6 +205,7 @@ def output_table(
     is_data=True,
     headers=None,
     show_index=False,
+    display_mol=None,
     note=None,
     return_val=None,
     pad=1,
@@ -232,6 +233,13 @@ def output_table(
         Ignored when table is a dataframe.
     show_index (bool, default=False):
         Display the index column in Jupyter.
+    display_mol (bool, default=None):
+        When SMILES column is detected, add RDKit ROMol object to the table in Jupyter,
+        which will be remdered as an molecule image when displayed in Jupyter.
+        Default behavior: enabled by default up until 200 results, disabled for larger
+        tables unless explicitly enabled. In case the table is styled, disabled by default
+        because molecules image rendering is not compatible with styled tables. When
+        set to True, table styling will be removed.
     note (str):
         A footnote to display at the bottom of the table.
     return_val (None/bool):
@@ -395,22 +403,38 @@ def output_table(
             else:
                 return table
         else:
-            # table = table.style.hide(axis="index")
-
             # Display molecules as images in Jupyter, is SMILES or ROMol columns are present.
-            possible_smiles_columns = ["SMILES", "smiles", "canonical_smiles", "isomeric_smiles"]
-            if any(col in table.columns for col in possible_smiles_columns) or "ROMol" in table.columns:
-                # Add ROMol (RDKit molecule object) - this allows Notebook users
-                # to read the RDKit molecule, while also displaying it as an image.
-                if not "ROMol" in table.columns:
-                    smiles_col = next((col for col in possible_smiles_columns if col in table.columns), None)
-                    PandasTools.AddMoleculeColumnToFrame(table, smilesCol=smiles_col)
+            add_romol = True
 
-                # Move ROMol and SMILES columns to the front
-                col = table.pop("ROMol")
-                table.insert(0, col.name, col)
-                col = table.pop(smiles_col)
-                table.insert(1, col.name, col)
+            # In case table is styled, we abort unless display_mol is explicitly set.
+            if is_df_styler_obj:
+                if display_mol is True:
+                    table = table.data
+                else:
+                    add_romol = False  # Abort
+
+            # In case results are over 200, we abort unless display_mol is explicitly set.
+            results_count = len(table.data) if is_df_styler_obj else len(table)
+            if results_count > 200:
+                if display_mol is True:
+                    pass
+                else:
+                    add_romol = False  # Abort
+
+            if add_romol:
+                possible_smiles_columns = ["SMILES", "smiles", "canonical_smiles", "isomeric_smiles"]
+                if any(col in table.columns for col in possible_smiles_columns) or "ROMol" in table.columns:
+                    # Add ROMol (RDKit molecule object) - this allows Notebook users
+                    # to read the RDKit molecule, while also displaying it as an image.
+                    if not "ROMol" in table.columns:
+                        smiles_col = next((col for col in possible_smiles_columns if col in table.columns), None)
+                        PandasTools.AddMoleculeColumnToFrame(table, smilesCol=smiles_col)
+
+                    # Move ROMol and SMILES columns to the front
+                    col = table.pop("ROMol")
+                    table.insert(0, col.name, col)
+                    col = table.pop(smiles_col)
+                    table.insert(1, col.name, col)
 
             display(table)
 

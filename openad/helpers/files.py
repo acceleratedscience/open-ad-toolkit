@@ -3,7 +3,7 @@ import json
 import ijson
 import pandas as pd
 from io import StringIO
-from openad.helpers.output import output_error, output_warning, output_success
+from openad.helpers.output import output_error, output_warning, output_success, output_text
 from openad.helpers.output_msgs import msg
 from openad.helpers.json_decimal_encoder import DecimalEncoder
 
@@ -314,8 +314,9 @@ def save_df_as_csv(cmd_pointer, df, dest_file_path):
 
     # Display success message
     if updated_dest_file_path:
-        output_warning(
-            msg("success_file_saved_updated", dest_file_path, updated_dest_file_path), return_val=False, pad_btm=1
-        )
+        output_warning(msg("success_file_saved_updated", dest_file_path, updated_dest_file_path), return_val=False)
     else:
-        output_success(msg("success_file_saved", dest_file_path), return_val=False, pad_btm=1)
+        output_success(msg("success_file_saved", dest_file_path), return_val=False)
+
+    # Display hint on how to open it
+    output_text(f"<soft>To open it, run <cmd>open '{dest_file_path}'</cmd></soft>", pad_btm=1)

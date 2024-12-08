@@ -35,7 +35,7 @@ from pyparsing import (
 )
 
 # Main
-from openad.core.help import help_dict_create
+from openad.core.help import help_dict_create, organize_commands
 import openad.toolkit.toolkit_main as toolkit_main  # Not using "from" to avoid circular import.
 from openad.smols.smol_grammar import smol_grammar_add
 from openad.mmols.mmol_grammar import mmol_grammar_add
@@ -1064,6 +1064,7 @@ def from_builder(options: list) -> str:
 
 def statement_builder(toolkit_pointer, inp_statement):
     """builds statements from toolkit function defintions"""
+
     #####################################################################
     #
     # This section deals with Method call like statements, they will always be prefixed with 'exec'.
@@ -1215,7 +1216,14 @@ def statement_builder(toolkit_pointer, inp_statement):
 
         toolkit_pointer.methods_dict.append(inp_statement)
 
-        toolkit_pointer.methods_help.append(inp_statement["help"])
+        # TEMP
+        # We switched help_dict_create to store command string and aliases in "commands" field instead of "command".
+        # We need to translate the toolkit help to the new format.
+        help_statement = inp_statement["help"]
+        cmd = help_statement.pop("command")
+        help_statement["commands"] = [cmd]
+        #
+        toolkit_pointer.methods_help.append(help_statement)
 
     except Exception as err:
         fwd_expr = "Forward( " + expression + ' ("toolkit_exec_' + inp_statement["command"] + '")'
@@ -1357,7 +1365,7 @@ def output_train_statements(cmd_pointer):
             {
                 "command_group": "base",
                 "command_name": grammar_help[i]["name"].replace("_", " "),
-                "command_syntax": tags_to_markdown(grammar_help[i]["command"]),
+                "command_syntax": tags_to_markdown("\n" + "\n".join(grammar_help[i]["commands"])),
                 "command_help": _parse_description(grammar_help[i]["description"]),
             }
         )
@@ -1369,7 +1377,7 @@ def output_train_statements(cmd_pointer):
                 "command_group": "base",
                 "command_name": cmd_pointer.current_help.help_model_services[i]["name"].replace("_", " "),
                 "command_syntax": tags_to_markdown(
-                    cmd_pointer.current_help.help_model_services[i]["command"],
+                    "\n" + "\n".join(cmd_pointer.current_help.help_model_services[i]["commands"]),
                 ),
                 "command_help": _parse_description(
                     cmd_pointer.current_help.help_model_services[i]["description"],
@@ -1484,7 +1492,7 @@ def output_train_statements(cmd_pointer):
             generate the esol property FOR a list of molecules defined by smiles string
             - <cmd>prop GET MOLECULE PROPERTY esol FOR ['C(C(C1C(=C(C(=O)O1)O)O)O)O','[H-]']</cmd>
             - <cmd>prop GET MOLECULE PROPERTY qed FOR ['C(C(C1C(=C(C(=O)O1)O)O)O)O','[H-]']</cmd>
-             - <cmd>prop GET MOLECULE PROPERTY lipinski FOR ['C(C(C1C(=C(C(=O)O1)O)O)O)O','[H-]']</cmd>
+            - <cmd>prop GET MOLECULE PROPERTY lipinski FOR ['C(C(C1C(=C(C(=O)O1)O)O)O)O','[H-]']</cmd>
 
             generate a list of properties FOR a single smiles string
             - <cmd>prop GET MOLECULE PROPERTY [qed,esol] FOR 'C(C(C1C(=C(C(=O)O1)O)O)O)O'</cmd>
@@ -1544,8 +1552,8 @@ def output_train_statements(cmd_pointer):
     #    training_file.write(str(i) + "\\@\n")
     training_file.close()
     cmds = []
-    cmds.extend(_compile_section(_organize(grammar_help)))
-    cmds.extend(_compile_section(_organize(cmd_pointer.current_help.help_model_services)))
+    cmds.extend(_compile_section(organize_commands(grammar_help)))
+    cmds.extend(_compile_section(organize_commands(cmd_pointer.current_help.help_model_services)))
     commands = "\n".join(cmds)
     i = 0
     new_line_replace = """
@@ -1558,6 +1566,7 @@ def output_train_statements(cmd_pointer):
             newline=new_line_replace,
             encoding="utf-8",
         )
+        # print("\n", 888, os.path.expanduser(cmd_pointer.home_dir + f"/prompt_train/individual_command_{str(i)}.cdoc"))
         command.replace("\n", new_line_replace)
         training_file.write(command)
         training_file.close()
@@ -1607,7 +1616,7 @@ def output_train_statements(cmd_pointer):
                 {
                     "toolkit group": a_toolkit.toolkit_name,
                     "command_name": a_toolkit.methods_help[x]["name"],
-                    "command": a_toolkit.methods_help[x]["command"],
+                    "commands": "\n".join(a_toolkit.methods_help[x]["commands"]),
                     "command_help": a_toolkit.methods_help[x]["description"],
                 }
             )
@@ -1619,7 +1628,7 @@ def output_train_statements(cmd_pointer):
 
 
 def _parse_description(description):
-    # description = tags_to_markdown(description)
+    description = tags_to_markdown(description)
 
     # Style notes as blockquotes, and ensure they're always
     # followed by an empty line, to avoid the next lines to
@@ -1638,30 +1647,6 @@ def _parse_description(description):
     return description.strip()
 
 
-def _organize(cmds, toolkit_name=None):
-    commands_organized = {}
-
-    # Organize commands by category.
-    for cmd in cmds:
-        # Get command string.
-        cmd_str = cmd["command"]
-        cmd_description = cmd["description"]
-
-        if "parent" in cmd and cmd["parent"]:
-            cmd_str = "  -> " + cmd_str
-
-        # Get category.
-        category = cmd["category"] if "category" in cmd else "Uncategorized"
-
-        # Organize by category.
-        if category in commands_organized:
-            commands_organized[category].append((cmd_str, cmd_description))
-        else:
-            commands_organized[category] = [(cmd_str, cmd_description)]
-
-    return commands_organized
-
-
 # Compile all commands of a single section.
 def _compile_section(cmds_organized):
     output = []
@@ -1671,7 +1656,7 @@ def _compile_section(cmds_organized):
         for cmd_str, cmd_description in cmds_organized[category]:
             category_output = (
                 category_output
-                + f"Command Category: {category}\n Command Syntax: `{cmd_str.strip()}`\nCommand Description: {_parse_description(cmd_description)}<br>\n \@"
+                + f"Command Category: {category}\nCommand Syntax: `{cmd_str.strip()}`\nCommand Description: {_parse_description(cmd_description)}<br>\n \@"
             )
 
         output.append(category_output)

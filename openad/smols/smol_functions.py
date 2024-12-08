@@ -333,6 +333,40 @@ def get_smol_from_pubchem(identifier: str, show_spinner: bool = False) -> dict |
     return None
 
 
+def get_mol_rdkit(inchi_or_smiles: str, identifier_type: str = None) -> dict | None:
+    """
+    Parse identifier into an RDKit molecule.
+
+    Parameters
+    ----------
+    inchi_or_smiles: str
+        An InChI or SMILES molecule identifier
+    identifier_type: str
+        Either "inchi" or "smiles"
+    """
+
+    mol_rdkit = None
+
+    try:
+        if identifier_type and isinstance(str, identifier_type) and identifier_type.lower() == "smiles":
+            print(888)
+            mol_rdkit = Chem.MolFromSmiles(inchi_or_smiles)  # pylint: disable=no-member
+            print(889, mol_rdkit)
+        else:
+            print(77)
+            mol_rdkit = Chem.MolFromInchi(inchi_or_smiles)
+            if not mol_rdkit:
+                mol_rdkit = Chem.MolFromSmiles(inchi_or_smiles)  # pylint: disable=no-member
+            if not mol_rdkit:
+                mol_rdkit = Chem.MolFromInchi("InChI=1S/" + inchi_or_smiles)
+            if not mol_rdkit:
+                return None
+    except Exception:  # pylint: disable=broad-exception-caught
+        return None
+
+    return mol_rdkit
+
+
 # region--local
 def _get_pubchem_compound(identifier: str, identifier_type: str) -> dict | None:
     """
@@ -535,6 +569,7 @@ def new_smol(inchi_or_smiles: str = None, mol_rdkit: Mol = None, name: str = Non
     prop_src = {"source": "RDKit", "date": timestamp}
 
     # Create RDKit molecule object
+    # Todo: use get_mol_rdkit()
     if mol_rdkit is None:
         try:
             mol_rdkit = Chem.MolFromInchi(inchi_or_smiles)
