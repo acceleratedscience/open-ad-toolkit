@@ -306,7 +306,6 @@ grammar_help.append(
 NOTE_TOOLKITS_SEE_ALL = "<soft>To see all available toolkits, run <cmd>list all toolkits</cmd>.</soft>"
 NOTE_TOOLKITS = "<soft>To learn more about toolkits, run <cmd>toolkit ?</cmd>.</soft>"
 
-
 # Available commands per toolkit.
 for tk in _all_toolkits:
     statements.append(Forward(CaselessKeyword(tk))(tk))
@@ -961,6 +960,8 @@ statements.append(Forward(CaselessKeyword("flask") + CaselessKeyword("example"))
 
 # endregion
 
+##########################################################################
+
 # Define The Concepts of Jobs
 # statements.append( Forward(lister +jobs('job') )('list_jobs'))
 
@@ -1003,21 +1004,24 @@ def create_statements(cmd_pointer):
     except Exception as e:
         print(e)
         pass
-    # add plugins
 
+    # Add plugin commands
     for stmt in cmd_pointer.plugins_statements:
         cmd_pointer.current_statements.append(stmt)
 
-    cmd_pointer.current_help.help_plugins.extend(cmd_pointer.plugins_help)
+    # Add plugin help
+    cmd_pointer.current_help.help_plugins = cmd_pointer.plugins_help
     cmd_pointer.current_help.reset_help()
 
-    for i in cmd_pointer.current_statements:
-        cmd_pointer.current_statement_defs |= i
+    # Add main commands
+    for stmt in cmd_pointer.current_statements:
+        cmd_pointer.current_statement_defs |= stmt
 
+    # Add tookit commands
     if cmd_pointer.toolkit_current is not None:
-        for i in cmd_pointer.toolkit_current.methods_grammar:
-            cmd_pointer.current_statement_defs |= i
-            cmd_pointer.current_statements.append(i)
+        for stmt in cmd_pointer.toolkit_current.methods_grammar:
+            cmd_pointer.current_statement_defs |= stmt
+            cmd_pointer.current_statements.append(stmt)
 
     # statements_zom = ZeroOrMore(statements_def)
 
