@@ -108,7 +108,7 @@ def other_sessions_exist(cmd_pointer):
     except Exception:  # pylint: disable=broad-exception-caught
         pass
 
-    if len(file_list) > 1:
+    if len(file_list) > 0:
         output_error(msg("abort_clear_sessions"), return_val=False)
         return True
     else:
