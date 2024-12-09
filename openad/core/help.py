@@ -383,13 +383,13 @@ def all_commands(
         # List plugin commands
         all_plugin_commands_organized = organize_commands(cmd_pointer.current_help.help_plugins).get("_plugins", {})
         for plugin_name, plugin_commands_organized in all_plugin_commands_organized.items():
-            plugin_commands = "\n\n\n" + _compile(plugin_commands_organized, plugin_name=plugin_name)
+            plugin_commands = "\n\n\n\n" + _compile(plugin_commands_organized, plugin_name=plugin_name)
             main_commands = main_commands + plugin_commands
 
         # List toolkit commands
         if toolkit_current:
             toolkit_commands_organized = organize_commands(toolkit_current.methods_help)
-            toolkit_commands = "\n\n\n" + _compile(
+            toolkit_commands = "\n\n\n\n" + _compile(
                 toolkit_commands_organized, toolkit_name=toolkit_current.toolkit_name
             )
         else:

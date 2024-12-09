@@ -396,18 +396,14 @@ class RUNCMD(Cmd):
                 all_plugin_commands_organized, plugin_name
             )
             return output_text(
-                openad_help.all_commands(plugin_commands_organized, plugin_name=plugin_name, cmd_pointer=self),
-                pad=2,
-                # tabs=1,
+                openad_help.all_commands(plugin_commands_organized, plugin_name=plugin_name, cmd_pointer=self), pad=2
             )
         if inp.lower() in plugin_namespaces:
             plugin_namespace = inp.lower()
             plugin_name = plugin_ns_name_map.get(plugin_namespace, "")
             plugin_commands_organized = all_plugin_commands_organized.get(plugin_name, {})
             return output_text(
-                openad_help.all_commands(plugin_commands_organized, plugin_name=plugin_name, cmd_pointer=self),
-                pad=2,
-                # tabs=1,
+                openad_help.all_commands(plugin_commands_organized, plugin_name=plugin_name, cmd_pointer=self), pad=2
             )
 
         # Add the current toolkit's commands to the list of all commands.
