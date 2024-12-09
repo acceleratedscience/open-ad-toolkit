@@ -234,8 +234,8 @@ class RUNCMD(Cmd):
             Eg. `workspaces ?`, `toolkits ?`, `runs ?`, etc.
         starts_with_only: bool, optional
             If True, only match commands that start with the input string.
-        enable_category_match: bool, optional
-            If True, print help for a certain category only, if the input matches a category.
+        disable_category_match: bool, optional
+            Unless True, print help for a certain category only, if the input matches a category.
 
 
         The different entry points:
