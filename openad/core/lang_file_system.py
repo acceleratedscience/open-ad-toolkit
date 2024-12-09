@@ -199,8 +199,5 @@ def remove_file(cmd_pointer, parser):
 def open_file(cmd_pointer, parser):
     from openad.gui.gui_launcher import gui_init
 
-    print("FILE:", type(parser["file"]))
-    print(parser["file"])
-
     path = "~/" + parser["file"]
     gui_init(cmd_pointer, path)

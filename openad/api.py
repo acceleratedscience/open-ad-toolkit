@@ -7,6 +7,7 @@ from openad.app.global_var_lib import _all_toolkits
 from openad.toolkit.toolkit_main import load_toolkit
 from openad.plugins.style_parser import tags_to_markdown
 from openad.helpers.output import output_error, output_text, output_success
+from openad.core.help import organize_commands
 
 
 class OpenadAPI:
@@ -97,7 +98,7 @@ class OpenadAPI:
         output.append(f"## OpenAD\n")
         toc.append(_toc_link("OpenAD"))
         cmds = self.main_app.RUNCMD().current_help.help_current
-        cmds_organized = _organize(cmds)
+        cmds_organized = organize_commands(cmds)
         _compile_section(output, toc, cmds_organized)
 
         # Parse tookit commands
@@ -107,7 +108,7 @@ class OpenadAPI:
             success, toolkit = load_toolkit(toolkit_name, from_repo=True)
             if success:
                 toolkit_cmds = toolkit.methods_help
-                toolkit_cmds_organized = _organize(toolkit_cmds)
+                toolkit_cmds_organized = organize_commands(toolkit_cmds)
                 _compile_section(output, toc, toolkit_cmds_organized)
 
         # Write output to file to this python file's parent folder
@@ -124,30 +125,6 @@ class OpenadAPI:
                 X = str(x).replace("   ", "  ")
             output = output + x + "\n"
         return output
-
-
-def _organize(cmds, toolkit_name=None):
-    commands_organized = {}
-
-    # Organize commands by category.
-    for cmd in cmds:
-        # Get command string.
-        cmd_str = cmd["command"]
-        cmd_description = cmd["description"]
-
-        if "parent" in cmd and cmd["parent"]:
-            cmd_str = "  -> " + cmd_str
-
-        # Get category.
-        category = cmd["category"] if "category" in cmd else "Uncategorized"
-
-        # Organize by category.
-        if category in commands_organized:
-            commands_organized[category].append((cmd_str, cmd_description))
-        else:
-            commands_organized[category] = [(cmd_str, cmd_description)]
-
-    return commands_organized
 
 
 # Compile all commands of a single section.
