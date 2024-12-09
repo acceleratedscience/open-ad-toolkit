@@ -59,4 +59,4 @@ def init():
 
     style3 = banner_styling2()
 
-    return HTML(style1 + style2+ style3)
+    return HTML(style1 + style2 + style3)
