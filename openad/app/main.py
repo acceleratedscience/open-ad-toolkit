@@ -266,6 +266,8 @@ class RUNCMD(Cmd):
         # [:] is to make a copy of the list, so we don't modify the original.
         all_commands = self.current_help.help_current[:]
         all_commands_organized = openad_help.organize_commands(all_commands)
+        all_plugin_commands = self.current_help.help_plugins
+        all_plugin_commands_organized = openad_help.organize_commands(all_plugin_commands).get("_plugins", {})
         matching_commands = {
             "match_word": [],
             "match_start": [],
@@ -301,7 +303,7 @@ class RUNCMD(Cmd):
         if not disable_category_match:
             categories = []
             categories_map = {}
-            for cmd in all_commands:
+            for cmd in all_commands + all_plugin_commands:
                 cat = cmd.get("category")
                 if cat:
                     cat = cat.lower()
@@ -344,8 +346,7 @@ class RUNCMD(Cmd):
                 # If category is not found in main commands, look across plugins
                 parent_plugin = None
                 if not category_commands:
-                    plugins = all_commands_organized.get("_plugins", {})
-                    for plugin_name, plugin_commands_organized in plugins.items():
+                    for plugin_name, plugin_commands_organized in all_plugin_commands_organized.items():
                         category, category_commands = get_case_insensitive_key(plugin_commands_organized, input_cat)
                         if category_commands:
                             parent_plugin = plugin_name
@@ -376,7 +377,6 @@ class RUNCMD(Cmd):
         plugin_namespaces = set()
         plugin_names = set()
         plugin_ns_name_map = {}  # map namespace to name
-        # for cmd in all_commands:
         for cmd in self.current_help.help_plugins:
             if cmd.get("plugin_name"):
                 plugin_names.add(cmd.get("plugin_name").lower())
@@ -387,9 +387,6 @@ class RUNCMD(Cmd):
                     plugin_ns_name_map[namespace] = cmd.get("plugin_name")
 
         # `<plugin_name_or_namespace> ?` or `? <plugin_name_or_namespace>` --> Display all plugin commands.
-        all_plugin_commands_organized = openad_help.organize_commands(self.current_help.help_plugins).get(
-            "_plugins", {}
-        )
         if inp.lower() in plugin_names:
             plugin_name = inp.lower()
             plugin_name, plugin_commands_organized = get_case_insensitive_key(

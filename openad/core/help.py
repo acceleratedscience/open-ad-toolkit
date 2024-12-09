@@ -272,10 +272,15 @@ def all_commands(
         # Compile output.
         output = []
 
+        # HEADER
         # - - - - - - - - - - - - - -
 
+        # Category commands - no header
+        if is_category:
+            pass
+
         # Plugin commands - add header
-        if plugin_name:
+        elif plugin_name:
             namespace = (
                 commands_organized.pop("_namespace") if "_namespace" in commands_organized else plugin_name.lower()
             )
@@ -299,14 +304,11 @@ def all_commands(
             else:
                 output.append(f"<h1>Available Commands - {toolkit_name}</h1>\n")
 
-        # Category commands - no header
-        elif is_category:
-            pass
-
         # Main commands - add header
         else:
             output.append("<h1>Available Commands - Main</h1>\n")
 
+        # COMMANDS
         # - - - - - - - - - - - - - -
 
         # Add commands
@@ -325,27 +327,15 @@ def all_commands(
     # Cycle through individual commands of a category and add them to the output list
     def _add_cmds_by_category(commands_organized: list, is_plugin: bool = False):
         output = []
-        edge = "<soft>|</soft>    " if is_plugin else ""
+        edge = "<soft>|</soft>    " if is_plugin and not is_category else ""
         for i, (category, available_commands) in enumerate(commands_organized.items()):
 
-            # trash %%
-            # # Plugins -> recursively call this function for _plugins as they are nested
-            # if category == "_plugins":
-            #     for plugin_name in available_commands:
+            # Ignore _plugins key, this is not a category but
+            # a container for plugins - see organize_commands()
+            if category == "_plugins":
+                continue
 
-            #         # Plugin header
-            #         namespace = available_commands[plugin_name].pop("_namespace")
-            #         output.append(
-            #             f"\n\n\n<yellow><reverse> PLUGIN </reverse></yellow><reverse> {plugin_name} </reverse>\n"
-            #         )
-            #         output.append(f"<soft>To learn more about this plugin, run <cmd>{namespace} ?</cmd></soft>\n")
-
-            #         # Recursion
-            #         output = output + _add_cmds_by_category(available_commands[plugin_name], is_plugin=True)
-
-            # # Print commands
-            # else:
-
+            # First line blank, edge after that
             if i > 0:
                 output.append(edge)
 
@@ -379,23 +369,28 @@ def all_commands(
     # List all commands, including selected toolkit.
     else:
         main_commands = _compile(commands_organized)
+        toolkit_commands = ""
+        plugin_commands = ""
 
-        # List plugin commands
-        all_plugin_commands_organized = organize_commands(cmd_pointer.current_help.help_plugins).get("_plugins", {})
-        for plugin_name, plugin_commands_organized in all_plugin_commands_organized.items():
-            plugin_commands = "\n\n\n\n" + _compile(plugin_commands_organized, plugin_name=plugin_name)
-            main_commands = main_commands + plugin_commands
+        if not is_category:
 
-        # List toolkit commands
-        if toolkit_current:
-            toolkit_commands_organized = organize_commands(toolkit_current.methods_help)
-            toolkit_commands = "\n\n\n\n" + _compile(
-                toolkit_commands_organized, toolkit_name=toolkit_current.toolkit_name
-            )
-        else:
-            toolkit_commands = ""
+            # List plugin commands
+            all_plugin_commands_organized = organize_commands(cmd_pointer.current_help.help_plugins).get("_plugins", {})
+            for plugin_name, plugin_commands_organized in all_plugin_commands_organized.items():
+                plugin_commands = (
+                    plugin_commands + "\n\n\n\n" + _compile(plugin_commands_organized, plugin_name=plugin_name)
+                )
 
-        return main_commands + toolkit_commands
+            # List toolkit commands
+            if toolkit_current:
+                toolkit_commands_organized = organize_commands(toolkit_current.methods_help)
+                toolkit_commands = "\n\n\n\n" + _compile(
+                    toolkit_commands_organized, toolkit_name=toolkit_current.toolkit_name
+                )
+            else:
+                toolkit_commands = ""
+
+        return main_commands + toolkit_commands + plugin_commands
 
 
 def queried_commands(matching_commands: object, inp: str = None, starts_with_only: bool = False):
