@@ -267,7 +267,7 @@ def all_commands(
     # - - -
     # Cycle through categories in the organized commands and add
     # commands lines and category titles to the output list.
-    def _compile(commands_organized, toolkit_name=None):
+    def _compile(commands_organized, toolkit_name=None, plugin_name=None):
 
         # Compile output.
         output = []
@@ -311,7 +311,7 @@ def all_commands(
 
         # Add commands
         if commands_organized:
-            output = output + _add_cmds_by_category(commands_organized)
+            output = output + _add_cmds_by_category(commands_organized, is_plugin=bool(plugin_name))
 
             if toolkit_name:
                 output.append(
@@ -326,54 +326,67 @@ def all_commands(
     def _add_cmds_by_category(commands_organized: list, is_plugin: bool = False):
         output = []
         edge = "<soft>|</soft>    " if is_plugin else ""
-
         for i, (category, available_commands) in enumerate(commands_organized.items()):
 
-            # Plugins -> recursively call this function for _plugins as they are nested
-            if category == "_plugins":
-                for plugin_name in available_commands:
+            # trash %%
+            # # Plugins -> recursively call this function for _plugins as they are nested
+            # if category == "_plugins":
+            #     for plugin_name in available_commands:
 
-                    # Plugin header
-                    namespace = available_commands[plugin_name].pop("_namespace")
-                    output.append(
-                        f"\n\n\n<yellow><reverse> PLUGIN </reverse></yellow><reverse> {plugin_name} </reverse>\n"
-                    )
-                    output.append(f"<soft>To learn more about this plugin, run <cmd>{namespace} ?</cmd></soft>\n")
+            #         # Plugin header
+            #         namespace = available_commands[plugin_name].pop("_namespace")
+            #         output.append(
+            #             f"\n\n\n<yellow><reverse> PLUGIN </reverse></yellow><reverse> {plugin_name} </reverse>\n"
+            #         )
+            #         output.append(f"<soft>To learn more about this plugin, run <cmd>{namespace} ?</cmd></soft>\n")
 
-                    # Recursion
-                    output = output + _add_cmds_by_category(available_commands[plugin_name], is_plugin=True)
+            #         # Recursion
+            #         output = output + _add_cmds_by_category(available_commands[plugin_name], is_plugin=True)
 
-            # Print commands
-            else:
-                if i > 0:
-                    output.append(edge)
+            # # Print commands
+            # else:
 
-                # Category title
-                if category != "Uncategorized":
-                    output.append(f"{edge}{category}")
+            if i > 0:
+                output.append(edge)
 
-                # Commands
-                for cmd_str, _description in available_commands:
-                    for line in cmd_str.splitlines():
-                        output.append(f"{edge}<cmd>{line}</cmd>")
+            # Category title
+            if category != "Uncategorized":
+                output.append(f"{edge}{category}")
 
-                # Gap between the next category
-                if not category:
-                    last_in_list = len(commands_organized.items()) - 1 == i
-                    output.append("" if last_in_list else edge)
+            # Commands
+            for cmd_str, _description in available_commands:
+                for line in cmd_str.splitlines():
+                    output.append(f"{edge}<cmd>{line}</cmd>")
+
+            # Gap between the next category
+            if not category:
+                last_in_list = len(commands_organized.items()) - 1 == i
+                output.append("" if last_in_list else edge)
 
         return output
 
     #
     #
 
+    # Only list commands for a specific plugin.
+    if plugin_name:
+        return _compile(commands_organized, plugin_name=plugin_name)
+
     # Only list commands for a specific toolkit.
     if toolkit_name:
-        return _compile(commands_organized, toolkit_name)
+        return _compile(commands_organized, toolkit_name=toolkit_name)
 
     # List all commands, including selected toolkit.
     else:
         main_commands = _compile(commands_organized)
+
+        # List plugin commands
+        all_plugin_commands_organized = organize_commands(cmd_pointer.current_help.help_plugins).get("_plugins", {})
+        for plugin_name, plugin_commands_organized in all_plugin_commands_organized.items():
+            plugin_commands = "\n\n\n" + _compile(plugin_commands_organized, plugin_name=plugin_name)
+            main_commands = main_commands + plugin_commands
+
+        # List toolkit commands
         if toolkit_current:
             toolkit_commands_organized = organize_commands(toolkit_current.methods_help)
             toolkit_commands = "\n\n\n" + _compile(
@@ -381,6 +394,7 @@ def all_commands(
             )
         else:
             toolkit_commands = ""
+
         return main_commands + toolkit_commands
 
 
@@ -510,4 +524,4 @@ class OpenadHelp:
     def reset_help(self):
         self.help_current = self.help_orig.copy()
         self.help_current.extend(self.help_model_services)
-        self.help_current.extend(self.help_plugins)
+        # self.help_current.extend(self.help_plugins)

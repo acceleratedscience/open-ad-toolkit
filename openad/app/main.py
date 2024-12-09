@@ -345,8 +345,8 @@ class RUNCMD(Cmd):
                 parent_plugin = None
                 if not category_commands:
                     plugins = all_commands_organized.get("_plugins", {})
-                    for plugin_name, plugin_commands in plugins.items():
-                        category, category_commands = get_case_insensitive_key(plugin_commands, input_cat)
+                    for plugin_name, plugin_commands_organized in plugins.items():
+                        category, category_commands = get_case_insensitive_key(plugin_commands_organized, input_cat)
                         if category_commands:
                             parent_plugin = plugin_name
                             break
@@ -376,7 +376,8 @@ class RUNCMD(Cmd):
         plugin_namespaces = set()
         plugin_names = set()
         plugin_ns_name_map = {}  # map namespace to name
-        for cmd in all_commands:
+        # for cmd in all_commands:
+        for cmd in self.current_help.help_plugins:
             if cmd.get("plugin_name"):
                 plugin_names.add(cmd.get("plugin_name").lower())
             if cmd.get("plugin_namespace"):
@@ -386,24 +387,27 @@ class RUNCMD(Cmd):
                     plugin_ns_name_map[namespace] = cmd.get("plugin_name")
 
         # `<plugin_name_or_namespace> ?` or `? <plugin_name_or_namespace>` --> Display all plugin commands.
+        all_plugin_commands_organized = openad_help.organize_commands(self.current_help.help_plugins).get(
+            "_plugins", {}
+        )
         if inp.lower() in plugin_names:
             plugin_name = inp.lower()
-            plugin_name, plugin_commands = get_case_insensitive_key(
-                all_commands_organized.get("_plugins", {}), plugin_name
+            plugin_name, plugin_commands_organized = get_case_insensitive_key(
+                all_plugin_commands_organized, plugin_name
             )
             return output_text(
-                openad_help.all_commands(plugin_commands, plugin_name=plugin_name, cmd_pointer=self),
+                openad_help.all_commands(plugin_commands_organized, plugin_name=plugin_name, cmd_pointer=self),
                 pad=2,
-                edge=True,
+                # tabs=1,
             )
         if inp.lower() in plugin_namespaces:
             plugin_namespace = inp.lower()
             plugin_name = plugin_ns_name_map.get(plugin_namespace, "")
-            plugin_commands_organized = all_commands_organized.get("_plugins", {}).get(plugin_name, {})
+            plugin_commands_organized = all_plugin_commands_organized.get(plugin_name, {})
             return output_text(
                 openad_help.all_commands(plugin_commands_organized, plugin_name=plugin_name, cmd_pointer=self),
                 pad=2,
-                edge=True,
+                # tabs=1,
             )
 
         # Add the current toolkit's commands to the list of all commands.
