@@ -9,6 +9,7 @@ from IPython.display import display
 
 # Core
 from openad.core.grammar import create_statements
+from openad.openad_model_plugin.utils import bcolors, get_logger
 
 # Global variables
 from openad.app.global_var_lib import _meta_dir_toolkits
@@ -21,6 +22,8 @@ from openad.app.global_var_lib import _all_toolkits
 from openad.helpers.output import output_text, output_error, output_success, output_warning
 from openad.helpers.output_msgs import msg
 from openad.helpers.general import confirm_prompt, refresh_prompt, other_sessions_exist
+
+logger = get_logger(__name__, color=bcolors.OKCYAN + bcolors.UNDERLINE)
 
 
 def initialise_registry():
@@ -81,6 +84,12 @@ def write_registry(registry: dict, cmd_pointer, orig_reg=False):
     If orig_reg=False it writes to the session registry file,
     otherwise it writes to the master registry file.
     """
+    if len(os.listdir(os.path.dirname(_meta_registry_session))) > 1:
+        logger.warning(
+            "Main Registry was not Saved as other sessions are open. use clear Session command to clear zombie sessions"
+        )
+        return True
+
     if orig_reg is True:
         registry_file = _meta_registry
     else:

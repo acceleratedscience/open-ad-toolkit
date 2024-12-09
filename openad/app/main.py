@@ -321,8 +321,8 @@ class RUNCMD(Cmd):
             categories_map["plugin"] = "toolkits"
             categories_map["contexts"] = "toolkits"
             categories_map["context"] = "toolkits"
-            input_cat = categories_map.get(inp.lower(), None)
 
+            input_cat = categories_map.get(inp.lower(), None)
             if input_cat:
                 output = []
                 # fmt: off
@@ -426,7 +426,9 @@ class RUNCMD(Cmd):
                     inp_plural = inp_singular + "s"
                     if inp_singular in words or inp_plural in words:
                         matching_commands["match_word"].append(cmd)
-                        break  # When one of the command aliases matches, we don't want to mathe the others or we have duplicates
+                        # When one of the command aliases matches, we don't
+                        # want to mathe the others or we have duplicates
+                        break
 
         # Then list commands starting with the input string.
         for cmd in all_commands:

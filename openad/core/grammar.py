@@ -1005,12 +1005,12 @@ def create_statements(cmd_pointer):
         print(e)
         pass
 
-    # Add plugin commands
+    # add plugins
     for stmt in cmd_pointer.plugins_statements:
         cmd_pointer.current_statements.append(stmt)
-
-    # Add plugin help
-    cmd_pointer.current_help.help_plugins = cmd_pointer.plugins_help
+    # added to stop duplication after model services run
+    cmd_pointer.current_help.help_plugins = []
+    cmd_pointer.current_help.help_plugins.extend(cmd_pointer.plugins_help)
     cmd_pointer.current_help.reset_help()
 
     # Add main commands
@@ -1220,9 +1220,11 @@ def statement_builder(toolkit_pointer, inp_statement):
 
         toolkit_pointer.methods_dict.append(inp_statement)
 
-        # TEMP
+        # TEMPORARY toolkit support
         # We switched help_dict_create to store command string and aliases in "commands" field instead of "command".
         # We need to translate the toolkit help to the new format.
+        #
+        # Before: toolkit_pointer.methods_help.append(inp_statement["help"])
         help_statement = inp_statement["help"]
         cmd = help_statement.pop("command")
         help_statement["commands"] = [cmd]

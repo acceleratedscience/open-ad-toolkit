@@ -28,6 +28,7 @@ from openad.openad_model_plugin.catalog_model_services import (
     attach_service_auth_group,
     detach_service_auth_group,
     list_auth_services,
+    get_model_service_result,
 )
 
 # molecules
@@ -156,6 +157,8 @@ def lang_parse(cmd_pointer, parser):
     elif parser.getName() in _all_toolkits:
         # Toolkit welcome screens
         return output_text(splash(parser.getName(), cmd_pointer), nowrap=True)
+    elif parser.getName() == "get_model_service_result":
+        return get_model_service_result(cmd_pointer, parser)
     # Model Service grammar
     elif parser.getName() == "catalog_add_model_service":
         result = catalog_add_model_service(cmd_pointer, parser)

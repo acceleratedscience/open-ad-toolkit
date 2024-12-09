@@ -349,11 +349,8 @@ def get_mol_rdkit(inchi_or_smiles: str, identifier_type: str = None) -> dict | N
 
     try:
         if identifier_type and isinstance(str, identifier_type) and identifier_type.lower() == "smiles":
-            print(888)
             mol_rdkit = Chem.MolFromSmiles(inchi_or_smiles)  # pylint: disable=no-member
-            print(889, mol_rdkit)
         else:
-            print(77)
             mol_rdkit = Chem.MolFromInchi(inchi_or_smiles)
             if not mol_rdkit:
                 mol_rdkit = Chem.MolFromSmiles(inchi_or_smiles)  # pylint: disable=no-member
