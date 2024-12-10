@@ -159,7 +159,15 @@ def _try_localize_note_text(note: str):
 
 def organize_commands(cmds):
     """
-    Organize commands by category and plugin.
+    Organize commands by category.
+
+    When a command belongs to a plugin, it will be placed under the plugin's name
+    under the '_plugins' key, with each plugin adhering to the same structure as
+    the parent dictionary, except for the additinal '_namespace' key.
+
+    Plugin commands are stored and organized separately, so they don't usually
+    mix together with the main commands. When no plugin commands are present,
+    the '_plugins' key will not be added.
 
     Input:
     [
@@ -184,6 +192,8 @@ def organize_commands(cmds):
             ("bar a", <description>),
             ("bar b", <description>),
         ],
+
+        # Only if
         "_plugins": {
             "Some Plugin": {
                 "_namespace": "sp",
@@ -195,9 +205,7 @@ def organize_commands(cmds):
         },
     }
     """
-    commands_organized = {
-        "_plugins": {},
-    }
+    commands_organized = {}
 
     # Organize commands by category
     for cmd in cmds:
@@ -216,15 +224,16 @@ def organize_commands(cmds):
 
         # Organize plugin commands
         if plugin_name:
+            if "_plugins" not in commands_organized:
+                commands_organized["_plugins"] = {}
             if plugin_name not in commands_organized["_plugins"]:
                 commands_organized["_plugins"][plugin_name] = {
                     "_namespace": cmd.get("plugin_namespace", plugin_name.lower())
                 }
-            if category in commands_organized["_plugins"][plugin_name]:
-                for cmd_str in cmd.get("commands"):
+            for cmd_str in cmd.get("commands"):
+                if category in commands_organized["_plugins"][plugin_name]:
                     commands_organized["_plugins"][plugin_name][category].append((cmd_str, cmd_description))
-            else:
-                for cmd_str in cmd.get("commands"):
+                else:
                     commands_organized["_plugins"][plugin_name][category] = [(cmd_str, cmd_description)]
 
         # Organize main commands
@@ -238,8 +247,9 @@ def organize_commands(cmds):
                     commands_organized[category] = [(cmd_str, cmd_description)]
 
     # Move plugins to the bottom
-    plugins = commands_organized.pop("_plugins")
-    commands_organized["_plugins"] = plugins
+    if "_plugins" in commands_organized:
+        plugins = commands_organized.pop("_plugins")
+        commands_organized["_plugins"] = plugins
 
     return commands_organized
 
@@ -328,6 +338,7 @@ def all_commands(
     def _add_cmds_by_category(commands_organized: list, is_plugin: bool = False):
         output = []
         edge = "<soft>|</soft>    " if is_plugin and not is_category else ""
+
         for i, (category, available_commands) in enumerate(commands_organized.items()):
 
             # Ignore _plugins key, this is not a category but

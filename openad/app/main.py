@@ -403,13 +403,16 @@ class RUNCMD(Cmd):
                 openad_help.all_commands(plugin_commands_organized, plugin_name=plugin_name, cmd_pointer=self), pad=2
             )
 
-        # Add the current toolkit's commands to the list of all commands.
+        # Add the current toolkit's commands to the main list of commands.
         try:
             for i in self.toolkit_current.methods_help:
                 if i not in all_commands:
                     all_commands.append(i)
-        except Exception:  # pylint: disable=broad-exception-caught # do not need to know exception
+        except Exception:  # pylint: disable=broad-exception-caught
             pass
+
+        # Add plugin commands to the main list of commands.
+        all_commands = all_commands + all_plugin_commands
 
         # First list commands with full word matches.
         if not starts_with_only:

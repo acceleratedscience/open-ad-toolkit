@@ -1,30 +1,15 @@
 <!--
 
-For screenshots to look good, they should be small and ideally
-all the same size. The script below lets you open the URLs in
-the right size. Just paste this into the browser console and
-press enter.
-
-To take the screenshots with browser UI included on Mac, press
-cmd+shift+4 followed by the spacebar, then click the window.
-For consistency, stick to Chrome.
-
-- - -
-
-urls = [
-    'https://cps.foc-deepsearch.zurich.ibm.com',
-    'https://rxn.app.accelerate.science',
-    'https://sds.app.accelerate.science',
-
-]
-for (var i=0; i< urls.length; i++) {
-    window.open(urls[i], '_blank', 'width=1000,height=600');
-}
+DO NOT EDIT
+-----------
+This file is auto-generated with modified links for PyPI.
+To update it, consult instructions:
+https://github.com/acceleratedscience/open-ad-toolkit/tree/main/docs
 
 -->
 
-# Open Accelerated Discovery <!-- omit from toc -->
 
+# Open Accelerated Discovery 
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/openad)](https://pypi.org/project/openad/)
 [![PyPI version](https://img.shields.io/pypi/v/openad)](https://pypi.org/project/openad/)
 [![License MIT](https://img.shields.io/github/license/acceleratedscience/open-ad-toolkit)](https://opensource.org/licenses/MIT)
@@ -33,18 +18,15 @@ for (var i=0; i< urls.length; i++) {
 
 <br>
 
-<!-- description -->
 Open Accelerated Discovery (aka OpenAD) is an open-source framework for molecular and materials discovery developed at IBM Research.
 
 The OpenAD client is accessible from our command line interface, via Jupyter Notebook or our API. It provides unified access to a variety of tools and AI models for literature knowledge extraction, forward and retrosynthesis prediction, generative methods and property inference. OpenAD lets you train models on your own data, to then visualize and filter your candidate molecules.
-<!-- /description -->
 
 [Documentation](https://acceleratedscience.github.io/openad-docs/)
 
 <br>
 
-### See What's New <!-- omit from toc -->
-
+### See What's New 
 <details>
 <summary>See what's new in OpenAD</summary>
 <div markdown="block">
@@ -109,8 +91,7 @@ The OpenAD client is accessible from our command line interface, via Jupyter Not
 
 <br>
 
-### Before You Start <!-- omit from toc -->
-
+### Before You Start 
 <details>
 <summary>Things you should know</summary>
 <div markdown="block">
@@ -125,8 +106,7 @@ The OpenAD client is accessible from our command line interface, via Jupyter Not
 
 <br>
 
-## Quick Install <!-- omit from toc -->
-
+## Quick Install 
 > **Note:** This will install OpenAD in your global space. If you wish to use a virtual environment, please see more [detailed instructions](#installation) below.
 
     pip install openad
@@ -148,9 +128,7 @@ If you get an error when running `init_magic`, you may first need to setup the d
 
 <br>
 
-## Table of Contents <!-- omit from toc -->
-
-<!-- toc -->
+## Table of Contents 
 
 -   [Installation](#installation)
 -   [Getting Started - CLI](#getting-started---cli)
@@ -176,7 +154,6 @@ If you get an error when running `init_magic`, you may first need to setup the d
     -   [Installing WSL](#installing-wsl)
 -   [Linux Notes](#linux-notes)
 
-<!-- tocstop -->
 
 <br>
 
@@ -227,9 +204,7 @@ If you get an error when running `init_magic`, you may first need to setup the d
 
         openad
 
-    <!-- ![Landing](assets/screenshot-landing.png) -->
-    <!-- <a href="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/screenshot-landing.png" target="_blank"><img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/screenshot-landing.png" /></a> -->
-
+        
 -   **Exit the command shell**<br>
     Hit `ctrl+c` or run:
 
@@ -317,8 +292,7 @@ The following commands only need to be run once after installation:
 
 OpenAD integrates with `DS4SD`, `RXN`, and has placeholder support for `ST4SD`.
 
-> [!IMPORTANT]
-> When running commands from Jupyter, prepend them with `%openad`
+> <div class='alert-icn-wrap' style='color:#8250df'><svg class="alert-icon" width="16" height="16" viewBox="0 0 16 16" fill="#8250df" xmlns="http://www.w3.org/2000/svg"><path d="M8 1C6.61553 1 5.26216 1.41054 4.11101 2.17971C2.95987 2.94888 2.06266 4.04213 1.53285 5.32122C1.00303 6.6003 0.86441 8.00776 1.13451 9.36563C1.4046 10.7235 2.07129 11.9708 3.05026 12.9497C4.02922 13.9287 5.2765 14.5954 6.63437 14.8655C7.99224 15.1356 9.3997 14.997 10.6788 14.4672C11.9579 13.9373 13.0511 13.0401 13.8203 11.889C14.5895 10.7378 15 9.38447 15 8C15 6.14348 14.2625 4.36301 12.9497 3.05025C11.637 1.7375 9.85652 1 8 1ZM8 14C6.81332 14 5.65328 13.6481 4.66658 12.9888C3.67989 12.3295 2.91085 11.3925 2.45673 10.2961C2.0026 9.19974 1.88378 7.99334 2.11529 6.82946C2.3468 5.66557 2.91825 4.59647 3.75736 3.75736C4.59648 2.91824 5.66558 2.3468 6.82946 2.11529C7.99335 1.88378 9.19975 2.0026 10.2961 2.45672C11.3925 2.91085 12.3295 3.67988 12.9888 4.66658C13.6481 5.65327 14 6.81331 14 8C14 9.5913 13.3679 11.1174 12.2426 12.2426C11.1174 13.3679 9.5913 14 8 14Z"/><path d="M8.5 4H7.5V9.5H8.5V4Z"/><path d="M8 11C7.85167 11 7.70666 11.044 7.58333 11.1264C7.45999 11.2088 7.36386 11.3259 7.30709 11.463C7.25033 11.6 7.23547 11.7508 7.26441 11.8963C7.29335 12.0418 7.36478 12.1754 7.46967 12.2803C7.57456 12.3852 7.7082 12.4567 7.85369 12.4856C7.99917 12.5145 8.14997 12.4997 8.28701 12.4429C8.42406 12.3861 8.54119 12.29 8.6236 12.1667C8.70602 12.0433 8.75 11.8983 8.75 11.75C8.75 11.5511 8.67098 11.3603 8.53033 11.2197C8.38968 11.079 8.19892 11 8 11Z"/></svg> IMPORTANT</div><span style='color: #8250df'>When running commands from Jupyter, prepend them with `%openad`</span>
 
 ### Registration
 
@@ -335,8 +309,7 @@ Before you can interact with the toolkits, you'll need to register with each ind
     - Once logged in, click the Toolkit/API icon in the top right hand corner, then open the HTTP section
     - Click the "Generate new API key" button<br>
       <br>
-          <!-- ![Landing](assets/ds4sd-api-key.png) -->
-        <a href="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/ds4sd-api-key.png" target="_blank"><img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/ds4sd-api-key.png" /></a>
+                  <a href="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/ds4sd-api-key.png" target="_blank"><img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/ds4sd-api-key.png" /></a>
 
 1. Once inside the OpenAD client, you'll be prompted to authenticate when activating the Deep Search (DS4SD) toolkit. When running `set context ds4sd` :
 
@@ -360,8 +333,7 @@ Before you can interact with the toolkits, you'll need to register with each ind
     - Sign up for an RXN account at [rxn.app.accelerate.science](https://rxn.app.accelerate.science)
     - Obtain your API key by clicking the user profile icon in the top right hand corner and select "My profile".<br>
       <br>
-          <!-- ![Landing](assets/rxn-api-key.png) -->
-        <a href="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/rxn-api-key.png" target="_blank"><img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/rxn-api-key.png" /></a>
+                  <a href="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/rxn-api-key.png" target="_blank"><img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/rxn-api-key.png" /></a>
 
 1. When setting the context to RXN using `set context rxn` you'll be prompted to create a new auth configuration file:
 
