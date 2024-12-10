@@ -441,6 +441,13 @@ def get_case_insensitive_key(dictionary, key_lowercase):
         The dictionary to search in
     key_lowercase: str
         The key to search for
+
+    Returns
+    -------
+    str:
+        The matched key
+    object:
+        The value of the matched key
     """
     for key in dictionary:
         if key.lower() == key_lowercase.lower():
