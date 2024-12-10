@@ -84,7 +84,7 @@ def write_registry(registry: dict, cmd_pointer, orig_reg=False):
     If orig_reg=False it writes to the session registry file,
     otherwise it writes to the master registry file.
     """
-    if len(os.listdir(os.path.dirname(_meta_registry_session))) > 1:
+    if len(os.listdir(os.path.dirname(_meta_registry_session))) > 1 and orig_reg == True:
         logger.warning(
             "Main Registry was not Saved as other sessions are open. use clear Session command to clear zombie sessions"
         )
