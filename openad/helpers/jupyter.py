@@ -32,7 +32,7 @@ def jup_display_input_molecule(identifier, identifier_type=None):
             img_html = f'<div style="width:300px; height: 300px; margin: 30px 0; border: solid 1px #ddd; display: inline-block; padding: 32px; position: relative"><div style="position: absolute; top: 8px; left: 8px; font-size: 12px; line-height: 12px; color: #999;">INPUT MOLECULE</div>{mol_svg}</div>'
             display(HTML(img_html))
             # raise Exception("This is a test error.")
-        except Exception as err:
+        except Exception as err:  # pylint: disable=broad-except
             w_id_type = " with identifier type '" + identifier_type + "'" if identifier_type else ""
             ouput_msg = f"Error in jup_display_input_molecule():\nSomething went wrong displaying the molecule '{identifier}'{w_id_type}."
             output_error([ouput_msg, err], return_val=False)

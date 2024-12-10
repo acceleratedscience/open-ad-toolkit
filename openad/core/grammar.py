@@ -959,6 +959,9 @@ except Exception as e:
 # Launches the demo flask app.
 statements.append(Forward(CaselessKeyword("flask") + CaselessKeyword("example"))("flask_example"))
 
+# Expose the cmd pointer
+statements.append(Forward(CaselessKeyword("cmd_pointer"))("cmd_pointer"))
+
 # endregion
 
 # Define The Concepts of Jobs
