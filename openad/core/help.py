@@ -276,7 +276,6 @@ def all_commands(
     # Cycle through categories in the organized commands and add
     # commands lines and category titles to the output list.
     def _compile(commands_organized, toolkit_name=None, plugin_name=None):
-
         # Compile output.
         output = []
 
@@ -297,7 +296,6 @@ def all_commands(
 
         # Toolkit commands - add header
         elif toolkit_name:
-
             # Toolkit not installed
             if not is_toolkit_installed(toolkit_name, cmd_pointer):
                 err_msg = output_error(
@@ -338,7 +336,6 @@ def all_commands(
         edge = "<soft>|</soft>    " if is_plugin and not is_category else ""
 
         for i, (category, available_commands) in enumerate(commands_organized.items()):
-
             # Ignore _plugins key, this is not a category but
             # a container for plugins - see organize_commands()
             if category == "_plugins":
@@ -382,7 +379,6 @@ def all_commands(
         plugin_commands = ""
 
         if not is_category:
-
             # List plugin commands
             all_plugin_commands_organized = organize_commands(cmd_pointer.current_help.help_plugins).get("_plugins", {})
             for plugin_name, plugin_commands_organized in all_plugin_commands_organized.items():

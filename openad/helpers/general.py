@@ -378,7 +378,9 @@ def style_bool(value):
     return (
         style(f"<success>{value}</success>")
         if value is True
-        else style(f"<error>{value}</error>") if value is False else value
+        else style(f"<error>{value}</error>")
+        if value is False
+        else value
     )
 
 
