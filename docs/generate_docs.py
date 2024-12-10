@@ -24,6 +24,7 @@ if str(root_dir) not in sys.path:
 from copy_docs import copy_docs  # This resolves when running the script directly
 from openad.app.main import RUNCMD as cmd_pointer
 from openad.app.global_var_lib import _all_toolkits
+from openad.core.help import organize_commands
 from openad.toolkit.toolkit_main import load_toolkit
 from openad.plugins.style_parser import tags_to_markdown
 from openad.helpers.output import output_error, output_text, output_success
@@ -496,7 +497,7 @@ def render_commands_md(filename="commands.md", for_github=False):
     md_output.append(f"{space}## Main Commands\n")
     toc.append(_toc_link("Main Commands"))
     cmds = cmd_pointer.current_help.help_current
-    cmds_organized = _organize(cmds)
+    cmds_organized = organize_commands(cmds)
     if for_github:
         _compile_section_github(md_output, toc, cmds_organized)
     else:
@@ -510,7 +511,7 @@ def render_commands_md(filename="commands.md", for_github=False):
         success, toolkit = load_toolkit(toolkit_name, from_repo=True)
         if success:
             toolkit_cmds = toolkit.methods_help
-            toolkit_cmds_organized = _organize(toolkit_cmds)
+            toolkit_cmds_organized = organize_commands(toolkit_cmds)
             if for_github:
                 _compile_section_github(md_output, toc, toolkit_cmds_organized)
             else:
@@ -557,31 +558,6 @@ def render_commands_md(filename="commands.md", for_github=False):
     else:
         output_text(FLAG_ERROR)
         output_error(err_msg, pad=0)
-
-
-# Organize commands of a single section by category.
-def _organize(cmds, toolkit_name=None):
-    commands_organized = {}
-
-    # Organize commands by category.
-    for cmd in cmds:
-        # Get command string.
-        cmd_str = cmd["command"]
-        cmd_description = cmd["description"]
-
-        if "parent" in cmd and cmd["parent"]:
-            cmd_str = "  -> " + cmd_str
-
-        # Get category.
-        category = cmd["category"] if "category" in cmd else "Uncategorized"
-
-        # Organize by category.
-        if category in commands_organized:
-            commands_organized[category].append((cmd_str, cmd_description))
-        else:
-            commands_organized[category] = [(cmd_str, cmd_description)]
-
-    return commands_organized
 
 
 # Compile all commands of a single section.
@@ -668,14 +644,14 @@ def render_commands_csv(filename="commands.csv", delimiter=";"):
 
     # Parse main commands
     cmds_main = cmd_pointer.current_help.help_current
-    cmds_organized = _organize(cmds_main)
+    cmds_organized = organize_commands(cmds_main)
 
     # Parse tookit commands
     for toolkit_name in _all_toolkits:
         success, toolkit = load_toolkit(toolkit_name, from_repo=True)
         if success:
             toolkit_cmds = toolkit.methods_help
-            toolkit_cmds_organized = _organize(toolkit_cmds)
+            toolkit_cmds_organized = organize_commands(toolkit_cmds)
             cmds_organized.update(toolkit_cmds_organized)
 
     # Add a row per command.
@@ -730,7 +706,7 @@ def render_description_txt(filename="llm_description.txt"):
             continue
 
         toolkit_cmds = toolkit.methods_help
-        toolkit_cmds_organized = _organize(toolkit_cmds)
+        toolkit_cmds_organized = organize_commands(toolkit_cmds)
         output = _compile_commands(toolkit_cmds_organized)
 
         # Load llm_description.txt

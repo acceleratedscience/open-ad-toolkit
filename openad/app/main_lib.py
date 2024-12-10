@@ -402,6 +402,8 @@ def lang_parse(cmd_pointer, parser):
     # Development commands (unpublished in help)
     elif parser.getName() == "flask_example":
         return flask_example(cmd_pointer, parser)
+    elif parser.getName() == "cmd_pointer":
+        return cmd_pointer
 
     # openad Plugin Search for commands
     elif parser.getName() in cmd_pointer.plugin_objects.keys():

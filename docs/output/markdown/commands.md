@@ -152,7 +152,7 @@ Display the splash screen for the RXN toolkit. <br>
 <summary markdown="block">
 `list toolkits`{: .cmd }
 </summary>
-List all installed toolkits. To see all available toolkits, run `list all toolkits`. <br>
+List all installed toolkits. <br>
 </details>
 
 <details markdown="block" class="cmd-wrap">
@@ -268,14 +268,14 @@ Display data from a csv file. <br>
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block">
-`-> result save [as '<filename.csv>']`{: .cmd }
+`result save [as '<filename.csv>']`{: .cmd }
 </summary>
 Save table data to csv file. <br>
 </details>
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block">
-`-> result open`{: .cmd }
+`result open`{: .cmd }
 </summary>
 Explore table data in the browser. <br> 
         if you append `-d` to the end of the command `result open -d` display will result to data viewer. <br>
@@ -283,7 +283,7 @@ Explore table data in the browser. <br>
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block">
-`-> result edit`{: .cmd }
+`result edit`{: .cmd }
 </summary>
 Edit table data in the browser. <br> 
         if you append `-d` to the end of the command `result open -d` display will result to data viewer. <br>
@@ -291,14 +291,14 @@ Edit table data in the browser. <br>
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block">
-`-> result copy`{: .cmd }
+`result copy`{: .cmd }
 </summary>
 Copy table data to clipboard, formatted for spreadheet. <br>
 </details>
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block">
-`-> result display`{: .cmd }
+`result display`{: .cmd }
 </summary>
 Display the result in the CLI. <br> 
 
@@ -307,7 +307,7 @@ Display the result in the CLI. <br>
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block">
-`-> result as dataframe`{: .cmd }
+`result as dataframe`{: .cmd }
 </summary>
 Return the result as dataframe (only for Jupyter Notebook) <br>
 </details>
@@ -470,28 +470,28 @@ show authentication group mapping <br>
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block">
-`model auth add group <auth_group> with '<api_key>'`{: .cmd }
+`model auth add group '<auth_group>'|<auth_group> with '<api_key>'`{: .cmd }
 </summary>
 add an authentication group for model services to use <br>
 </details>
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block">
-`model auth remove group <auth_group>`{: .cmd }
+`model auth remove group '<auth_group>' | <auth_group>`{: .cmd }
 </summary>
 remove an authentication group <br>
 </details>
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block">
-`model auth add service <service_name> to group <auth_group>`{: .cmd }
+`model auth add service '<service_name>'|,service_name> to group '<auth_group>'|<auth_group>`{: .cmd }
 </summary>
 Attach an authentication group to a model service <br>
 </details>
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block">
-`model auth remove service <service_name>`{: .cmd }
+`model auth remove service '<service_name>'|<service_name>`{: .cmd }
 </summary>
 Detatch an authentication group from a model service <br>
 </details>
@@ -505,7 +505,7 @@ Get the status of currently cataloged services <br>
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block">
-`model service describe <service_name>`{: .cmd }
+`model service describe '<service_name>'|<service_name>`{: .cmd }
 </summary>
 get the configuration of a service <br>
 </details>
@@ -519,7 +519,7 @@ get the list of currently cataloged services <br>
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block">
-`uncatalog model service <service_name>`{: .cmd }
+`uncatalog model service '<service_name>'|<service_name>`{: .cmd }
 </summary>
 uncatalog a model service  <br> 
 
@@ -529,10 +529,10 @@ uncatalog a model service  <br>
 
 <details markdown="block" class="cmd-wrap">
 <summary markdown="block">
-`catalog model service from (remote) '<path> or <github> or <service_url>' as  <service_name> using (<parameter>=<value> <parameter>=<value>)`{: .cmd }
+`catalog model service from (remote) '<path> or <github> or <service_url>' as  '<service_name>'|<service_name>   USING (<parameter>=<value> <parameter>=<value>)`{: .cmd }
 </summary>
 catalog a model service from a path or github or remotely from an existing OpenAD service. <br> 
-(using) optional headers parameters for communication with service backend. <br> 
+(USING) optional headers parameters for communication with service backend. <br> 
 If you are cataloging a service using a model defined in a directory, provide the absolute ` <path> ` of that directory in quotes. <br> 
 
 The following options require the `remote` option be declared. <br> 
@@ -543,7 +543,7 @@ If you are cataloging a remote service on a ip address and port provide the remo
 
 `service_name`: this is the name of the service as you will define it for your usage. e.g `prop` short for properties.  <br> 
 
-Parameters: <br> 
+USING Parameters: <br> 
 
 If using a hosted service the following parameters must be supplied: <br> 
 -`Inference-Service`: this is the name of the inference service that is hosted, it is a required parameter if cataloging a remote service. <br> 
@@ -558,11 +558,11 @@ Skypilot Deployment <br>
 -`catalog model service from 'git@github.com:acceleratedscience/generation_inference_service.git' as 'gen'` <br> 
 
 Service using a authentication group  <br> 
--`catalog model service from remote '<service_url>' as  molf using (Inference-Service=molformer  )` <br> 
+-`catalog model service from remote '<service_url>' as  molf  USING (Inference-Service=molformer  )` <br> 
 ` model auth add service 'molf' to group 'default'` <br> 
 
 Single Authorisation Service <br> 
--`openad catalog model service from remote '<service_URL>' as 'gen' using (Inference-Service=generation Authorization='<api_key>')` <br> 
+-`openad catalog model service from remote '<service_URL>' as 'gen' USING (Inference-Service=generation Authorization='<api_key>')` <br> 
 
 Catalog a remote service shared with you: <br> 
 -`catalog model service from remote 'http://54.235.3.243:30001' as gen` <br>
@@ -603,6 +603,16 @@ Bring down a model service   <br>
 `model service down gen`  <br> 
 
 `model service down 'gen'`  <br>
+</details>
+
+<details markdown="block" class="cmd-wrap">
+<summary markdown="block">
+`get model service '<service_name>'|<service_name> result '<result_id>'`{: .cmd }
+</summary>
+retrieves a result from a model service   <br> 
+ Examples:  <br> 
+
+<cmd>get model service myservier result 'wergergerg'   <br>
 </details>
 
 <br><br>
