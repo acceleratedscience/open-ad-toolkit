@@ -192,8 +192,6 @@ def organize_commands(cmds):
             ("bar a", <description>),
             ("bar b", <description>),
         ],
-
-        # Only if
         "_plugins": {
             "Some Plugin": {
                 "_namespace": "sp",
