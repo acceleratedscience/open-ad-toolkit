@@ -328,16 +328,16 @@ class RUNCMD(Cmd):
                 # Add category about text
                 if display_info and ("return_val" not in kwargs or not kwargs["return_val"]):
                     if input_cat == "workspaces":
-                        output.append(output_text("<h1>About Workspaces</h1>\n" + about_workspace, return_val=True, pad_btm=3, nowrap=True))
+                        output.append("<h1>About Workspaces</h1>\n" + about_workspace + "\n\n\n")
                     elif input_cat == "molecule working set":
-                        output.append(output_text("<h1>About your Molecule Working Set</h1>\n" + about_mws, return_val=True, pad_btm=3, nowrap=True))
+                        output.append("<h1>About your Molecule Working Set</h1>\n" + about_mws + "\n\n\n")
                     elif input_cat == "toolkits":
                         if inp.lower() in ["context", "contexts"]:
-                            output.append(output_text("<h1>About Context</h1>\n" + about_context, return_val=True, pad_btm=3, nowrap=True))
+                            output.append("<h1>About Context</h1>\n" + about_context + "\n\n\n")
                         else:
-                            output.append(output_text("<h1>About Plugins</h1>\n" + about_plugin, return_val=True, pad_btm=3, nowrap=True))
+                            output.append("<h1>About Plugins</h1>\n" + about_plugin + "\n\n\n")
                     elif input_cat == "runs":
-                        output.append(output_text("<h1>About Runs</h1>\n" + about_run, return_val=True, pad_btm=3, nowrap=True))
+                        output.append("<h1>About Runs</h1>\n" + about_run + '\n\n\n')
                 # fmt: on
 
                 # Get category commands

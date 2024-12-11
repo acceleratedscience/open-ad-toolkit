@@ -15,9 +15,9 @@ import sys
 import pyperclip
 
 # Add the root directory to the sys.path
-root_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-if str(root_dir) not in sys.path:
-    sys.path.append(root_dir)
+# root_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+# if str(root_dir) not in sys.path:
+#     sys.path.append(root_dir)
 # for path in sys.path:
 #     print("*", path)
 
@@ -72,7 +72,7 @@ def update_github_readme_md(filename="README.md"):
         return
 
     # Read description source file content
-    description_txt, err_msg = open_file("docs/source/description.txt", return_err=True)
+    description_txt, err_msg = open_file("openad/docs_src/description.txt", return_err=True)
     if not description_txt:
         output_text(FLAG_ERROR, pad_top=1)
         output_error(err_msg)
@@ -111,7 +111,7 @@ def update_github_readme_plugin_md(filename="README_plugins.md"):
         return
 
     # Read about_plugin source file content
-    about_plugin_txt, err_msg = open_file("docs/source/about_plugin.txt", return_err=True)
+    about_plugin_txt, err_msg = open_file("openad/docs_src/about_plugin.txt", return_err=True)
     if not about_plugin_txt:
         output_text(FLAG_ERROR, pad_top=1)
         output_error(err_msg)
@@ -424,35 +424,35 @@ def render_base_concepts_md(filename="base-concepts.md"):
         return
 
     # Read about_workspace.txt source file content
-    about_workspace, err_msg = open_file("docs/source/about_workspace.txt", return_err=True)
+    about_workspace, err_msg = open_file("openad/docs_src/about_workspace.txt", return_err=True)
     if not about_workspace:
         output_text(FLAG_ERROR, pad_top=1)
         output_error(err_msg)
         return
 
     # Read about_mws.txt source file content (molecule working set)
-    about_mws, err_msg = open_file("docs/source/about_mws.txt", return_err=True)
+    about_mws, err_msg = open_file("openad/docs_src/about_mws.txt", return_err=True)
     if not about_mws:
         output_text(FLAG_ERROR, pad_top=1)
         output_error(err_msg)
         return
 
     # Read about_plugin.txt source file content
-    about_plugin, err_msg = open_file("docs/source/about_plugin.txt", return_err=True)
+    about_plugin, err_msg = open_file("openad/docs_src/about_plugin.txt", return_err=True)
     if not about_plugin:
         output_text(FLAG_ERROR, pad_top=1)
         output_error(err_msg)
         return
 
     # Read about_context.txt source file content
-    about_context, err_msg = open_file("docs/source/about_context.txt", return_err=True)
+    about_context, err_msg = open_file("openad/docs_src/about_context.txt", return_err=True)
     if not about_context:
         output_text(FLAG_ERROR, pad_top=1)
         output_error(err_msg)
         return
 
     # Read about_run.txt source file content
-    about_run, err_msg = open_file("docs/source/about_run.txt", return_err=True)
+    about_run, err_msg = open_file("openad/docs_src/about_run.txt", return_err=True)
     if not about_run:
         output_text(FLAG_ERROR, pad_top=1)
         output_error(err_msg)
