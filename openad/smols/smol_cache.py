@@ -59,7 +59,6 @@ def _retrieve_results(smiles: str, cmd_pointer) -> list | bool:
     rdkit_mol = Chem.MolFromSmiles(smiles)  # pylint: disable=no-member
     inchi = Chem.rdinchi.MolToInchi(rdkit_mol)[0]
     inchikey = Chem.inchi.InchiToInchiKey(inchi)
-    print("inchikey", inchikey)
     results = []
     for i in glob.glob(
         _create_workspace_dir_if_nonexistent(cmd_pointer, CACHE_DIR) + inchikey + "-*.res",
