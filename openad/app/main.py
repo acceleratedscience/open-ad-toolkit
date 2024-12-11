@@ -322,6 +322,7 @@ class RUNCMD(Cmd):
             categories_map["context"] = "toolkits"
 
             input_cat = categories_map.get(inp.lower(), None)
+            print(33, input_cat, display_info, ("return_val" not in kwargs or not kwargs["return_val"]))
             if input_cat:
                 output = []
                 # fmt: off

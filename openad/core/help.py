@@ -303,6 +303,7 @@ def all_commands(
                     return_val=True,
                     jup_return_format="markdown_data",
                     nowrap=True,
+                    pad_btm=1,
                 )
                 output.append(err_msg)
 
