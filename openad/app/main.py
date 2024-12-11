@@ -1061,7 +1061,7 @@ def api_remote(
 
             # Triggered by magic commands, eg. `%openad ? list files`
             starts_with_qmark = len(inp) > 0 and inp.split()[0] == "?" and inp.strip() != "??"
-            magic_prompt.do_exit("dummy do not remove")
+            # magic_prompt.do_exit("dummy do not remove") # trash
             return magic_prompt.do_help(inp.strip(), jup_return_format=None, display_info=starts_with_qmark)
 
         # If there is a argument and it is not a help attempt to run the command.
