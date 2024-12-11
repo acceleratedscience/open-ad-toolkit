@@ -303,6 +303,8 @@ def remove_molecule(cmd_pointer, inp):
 
     # Remove molecule from working set.
     mol = get_smol_from_mws(cmd_pointer, molecule_identifier)
+    if not mol:
+        return output_error(f"Molecule <yellow>{molecule_identifier}</yellow> was not found in your working set.")
     mws_remove(cmd_pointer, mol, force=force)
 
 
