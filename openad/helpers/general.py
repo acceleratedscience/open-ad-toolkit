@@ -95,7 +95,6 @@ def confirm_prompt(question: str = "", default=False) -> bool:
             return default
     if reply == "y":
         return True
-    return False
 
 
 # Return boolean and formatted error message if other sessions exist.
@@ -271,7 +270,7 @@ def encode_uri_component(string):
 
 
 # Prettify a timestamp
-def pretty_date(timestamp=None, style="log", include_time=True):
+def pretty_date(timestamp=None, style="log"):
     # If no timestamp provided, use the current time
     if not timestamp:
         timestamp = time.time()
@@ -279,50 +278,15 @@ def pretty_date(timestamp=None, style="log", include_time=True):
     # Choose the output format
     fmt = None
     if style == "log":
-        fmt = "%d-%m-%Y"  # 07-01-2024
-        if include_time:
-            fmt += ", %H:%M:%S"  # 07-01-2024, 15:12:45
+        fmt = "%d-%m-%Y, %H:%M:%S"  # 07-01-2024, 15:12:45
     elif style == "pretty":
-        fmt = "%b %d, %Y"  # Jan 7, 2024
-        if include_time:
-            fmt += " at %H:%M"  # Jan 7, 2024 at 15:12
+        fmt = "%b %d, %Y at %H:%M"  # Jan 7, 2024 at 15:12
     else:
         output_error("Invalid style for pretty_date()")
 
     # Parse date/time string
     date_time = datetime.fromtimestamp(timestamp)
     return date_time.strftime(fmt)
-
-
-# Prettify a number
-def pretty_nr(nr, imperial=True):
-    """
-    Add commas to large numbers.
-
-    Parameters
-    ----------
-    nr: int or float
-        The number to format.
-    imperial: bool
-        Whether to use imperial formatting (commas) or not (spaces).
-
-    Returns
-    -------
-    str:
-        The formatted number as a string.
-    """
-
-    if nr is None and nr != 0:
-        return None
-
-    nr_split = str(nr).split(".")
-    integer_str = nr_split[0]
-    decimal_str = nr_split[1] if len(nr_split) > 1 else ""
-
-    char = "," if imperial else " "
-    output = re.sub(r"\B(?=(\d{3})+(?!\d))", char, integer_str)
-
-    return output + (f".{decimal_str}" if decimal_str else "")
 
 
 # Check if a variable (string or number) is numeric.
@@ -431,31 +395,6 @@ def get_locale(key=None):
             return (output["lang"], output["region"], output["encoding"])
     else:
         return None
-
-
-def get_case_insensitive_key(dictionary, key_lowercase):
-    """
-    Get the key from a dictionary in a case-insensitive way.
-
-    Parameters
-    ----------
-    dictionary: dict
-        The dictionary to search in
-    key_lowercase: str
-        The key to search for
-
-    Returns
-    -------
-    str:
-        The matched key
-    object:
-        The value of the matched key
-    """
-    for key in dictionary:
-        if key.lower() == key_lowercase.lower():
-            return key, dictionary.get(key)
-
-    return None, None
 
 
 #
