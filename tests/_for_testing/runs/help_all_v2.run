@@ -1,0 +1,150 @@
+clear sessions
+remove toolkit ds4sd
+remove toolkit rxn
+
+ds4sd ?
+rxn ?
+
+add toolkit ds4sd
+add toolkit rxn
+
+ds4sd ?
+rxn ?
+
+?
+
+docs
+??
+
+
+
+
+
+show mmol ?
+
+get status ?
+display history ?
+clear sessions ?
+
+set workspace ?
+get workspace ?
+create workspace ?
+remove workspace ?
+list workspaces ?
+
+list toolkits ?
+list all toolkits ?
+add toolkit ?
+remove toolkit ?
+update toolkit ?
+update all toolkits ?
+set context ?
+get context ?
+unset context ?
+
+create run ?
+remove run ?
+save run as ?
+run ?
+list runs ?
+display run ?
+
+display data ?
+result save ?
+result open ?
+result edit ?
+result copy ?
+result display ?
+result as dataframe ?
+
+install gui ?
+launch gui ?
+restart gui ?
+quit gui ?
+
+tell me ?
+set llm ?
+clear llm ?
+
+list files ?
+import from ?
+export from ?
+copy file ?
+remove '<filename>' ?
+open '<filename>' ?
+
+intro ?
+docs ?
+
+model auth list ?
+model auth add group ?
+model auth remove group ?
+model auth add service ?
+model auth remove service ?
+model service status ?
+model service describe ?
+model catalog list ?
+uncatalog model service ?
+catalog model service ?
+model service up ?
+model service local up ?
+model service down ?
+get model service ?
+
+display molecule ?
+show molecule|mol ?
+show molset ?
+@ ?
+export molecule|mol ?
+
+add molecule ?
+remove molecule ?
+list molecules ?
+show molecules ?
+enrich molecules ?
+clear analysis ?
+display sources ?
+rename molecule ?
+load molecules|mols from file ?
+load molecules|mols from dataframe ?
+merge molecules ?
+export molecules ?
+clear molecules ?
+
+
+
+
+
+list ?
+
+? list
+
+list molec
+
+show molec
+
+small molecules ?
+? small molecules
+
+molecule working set ?
+? molecule working set
+
+mws ?
+? mws
+
+collections ?
+? collections
+
+deep search ?
+? deep search
+
+ds ?
+? ds
+
+ds find molecules similar ?
+
+ds find molecules ?
+
+ds find molecules similar
+
+ds find molecules 

@@ -34,11 +34,9 @@ for (var i=0; i< urls.length; i++) {
 <br>
 
 <!-- description -->
+Open Accelerated Discovery (aka OpenAD) is an open-source framework for molecular and materials discovery developed at IBM Research.
 
-OpenAD is an open-source framework for molecular and materials discovery developed by IBM Research.
-
-The OpenAD client is accessible from a command line interface, Jupyter Notebook and an API. It provides unified access to a variety of tools and AI models for literature knowledge extraction, forward and retrosynthesis prediction, generative methods and property inference. You can train models on your own data as well as visualize and filter candidate molecules.
-
+The OpenAD client is accessible from our command line interface, via Jupyter Notebook or our API. It provides unified access to a variety of tools and AI models for literature knowledge extraction, forward and retrosynthesis prediction, generative methods and property inference. OpenAD lets you train models on your own data, to then visualize and filter your candidate molecules.
 <!-- /description -->
 
 [Documentation](https://acceleratedscience.github.io/openad-docs/)
@@ -154,29 +152,29 @@ If you get an error when running `init_magic`, you may first need to setup the d
 
 <!-- toc -->
 
--   [Installation](#installation)
--   [Getting Started - CLI](#getting-started---cli)
--   [Getting Started - Jupyter](#getting-started---jupyter)
-    -   [Setting up Jupyter](#setting-up-jupyter)
-    -   [Launching OpenAD in Jupyter](#launching-openad-in-jupyter)
--   [Interacting with the Toolkits](#interacting-with-the-toolkits)
-    -   [Registration](#registration)
-    -   [Adding a Toolkit](#adding-a-toolkit)
-    -   [Sample Commands](#sample-commands)
-    -   [Running Bash Commands (CLI)](#running-bash-commands-cli)
--   [AI Assistant](#ai-assistant)
-    -   [IBM BAM Setup](#ibm-bam-setup)
-    -   [Ollama Setup](#ollama-setup)
-        -   [Ollama Remote Setup with SkyPilot](#ollama-remote-setup-with-skypilot)
-        -   [Run Ollama](#run-ollama)
--   [Model Services](#model-services)
--   [For Developers](#for-developers)
-    -   [Installation for Development](#installation-for-development)
-    -   [Testing a branch](#testing-a-branch)
--   [Installing on Windows](#installing-on-windows)
-    -   [Before You Start](#before-you-start)
-    -   [Installing WSL](#installing-wsl)
--   [Linux Notes](#linux-notes)
+- [Installation](#installation)
+- [Getting Started - CLI](#getting-started---cli)
+- [Getting Started - Jupyter](#getting-started---jupyter)
+  - [Setting up Jupyter](#setting-up-jupyter)
+  - [Launching OpenAD in Jupyter](#launching-openad-in-jupyter)
+- [Interacting with the Toolkits](#interacting-with-the-toolkits)
+    - [Registration](#registration)
+    - [Adding a Toolkit](#adding-a-toolkit)
+    - [Sample Commands](#sample-commands)
+    - [Running Bash Commands (CLI)](#running-bash-commands-cli)
+- [AI Assistant](#ai-assistant)
+  - [IBM BAM Setup](#ibm-bam-setup)
+  - [Ollama Setup](#ollama-setup)
+    - [Ollama Remote Setup with SkyPilot](#ollama-remote-setup-with-skypilot)
+    - [Run Ollama](#run-ollama)
+- [Model Services](#model-services)
+- [For Developers](#for-developers)
+  - [Installation for Development](#installation-for-development)
+  - [Testing a branch](#testing-a-branch)
+- [Installing on Windows](#installing-on-windows)
+  - [Before You Start](#before-you-start)
+  - [Installing WSL](#installing-wsl)
+- [Linux Notes](#linux-notes)
 
 <!-- tocstop -->
 

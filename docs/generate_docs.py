@@ -15,15 +15,16 @@ import sys
 import pyperclip
 
 # Add the root directory to the sys.path
-root_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-if str(root_dir) not in sys.path:
-    sys.path.append(root_dir)
+# root_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+# if str(root_dir) not in sys.path:
+#     sys.path.append(root_dir)
 # for path in sys.path:
 #     print("*", path)
 
 from copy_docs import copy_docs  # This resolves when running the script directly
 from openad.app.main import RUNCMD as cmd_pointer
 from openad.app.global_var_lib import _all_toolkits
+from openad.core.help import organize_commands
 from openad.toolkit.toolkit_main import load_toolkit
 from openad.plugins.style_parser import tags_to_markdown
 from openad.helpers.output import output_error, output_text, output_success
@@ -71,7 +72,7 @@ def update_github_readme_md(filename="README.md"):
         return
 
     # Read description source file content
-    description_txt, err_msg = open_file("docs/source/description.txt", return_err=True)
+    description_txt, err_msg = open_file("openad/docs_src/description.txt", return_err=True)
     if not description_txt:
         output_text(FLAG_ERROR, pad_top=1)
         output_error(err_msg)
@@ -110,7 +111,7 @@ def update_github_readme_plugin_md(filename="README_plugins.md"):
         return
 
     # Read about_plugin source file content
-    about_plugin_txt, err_msg = open_file("docs/source/about_plugin.txt", return_err=True)
+    about_plugin_txt, err_msg = open_file("openad/docs_src/about_plugin.txt", return_err=True)
     if not about_plugin_txt:
         output_text(FLAG_ERROR, pad_top=1)
         output_error(err_msg)
@@ -423,35 +424,35 @@ def render_base_concepts_md(filename="base-concepts.md"):
         return
 
     # Read about_workspace.txt source file content
-    about_workspace, err_msg = open_file("docs/source/about_workspace.txt", return_err=True)
+    about_workspace, err_msg = open_file("openad/docs_src/about_workspace.txt", return_err=True)
     if not about_workspace:
         output_text(FLAG_ERROR, pad_top=1)
         output_error(err_msg)
         return
 
     # Read about_mws.txt source file content (molecule working set)
-    about_mws, err_msg = open_file("docs/source/about_mws.txt", return_err=True)
+    about_mws, err_msg = open_file("openad/docs_src/about_mws.txt", return_err=True)
     if not about_mws:
         output_text(FLAG_ERROR, pad_top=1)
         output_error(err_msg)
         return
 
     # Read about_plugin.txt source file content
-    about_plugin, err_msg = open_file("docs/source/about_plugin.txt", return_err=True)
+    about_plugin, err_msg = open_file("openad/docs_src/about_plugin.txt", return_err=True)
     if not about_plugin:
         output_text(FLAG_ERROR, pad_top=1)
         output_error(err_msg)
         return
 
     # Read about_context.txt source file content
-    about_context, err_msg = open_file("docs/source/about_context.txt", return_err=True)
+    about_context, err_msg = open_file("openad/docs_src/about_context.txt", return_err=True)
     if not about_context:
         output_text(FLAG_ERROR, pad_top=1)
         output_error(err_msg)
         return
 
     # Read about_run.txt source file content
-    about_run, err_msg = open_file("docs/source/about_run.txt", return_err=True)
+    about_run, err_msg = open_file("openad/docs_src/about_run.txt", return_err=True)
     if not about_run:
         output_text(FLAG_ERROR, pad_top=1)
         output_error(err_msg)
@@ -496,7 +497,7 @@ def render_commands_md(filename="commands.md", for_github=False):
     md_output.append(f"{space}## Main Commands\n")
     toc.append(_toc_link("Main Commands"))
     cmds = cmd_pointer.current_help.help_current
-    cmds_organized = _organize(cmds)
+    cmds_organized = organize_commands(cmds)
     if for_github:
         _compile_section_github(md_output, toc, cmds_organized)
     else:
@@ -510,7 +511,7 @@ def render_commands_md(filename="commands.md", for_github=False):
         success, toolkit = load_toolkit(toolkit_name, from_repo=True)
         if success:
             toolkit_cmds = toolkit.methods_help
-            toolkit_cmds_organized = _organize(toolkit_cmds)
+            toolkit_cmds_organized = organize_commands(toolkit_cmds)
             if for_github:
                 _compile_section_github(md_output, toc, toolkit_cmds_organized)
             else:
@@ -557,31 +558,6 @@ def render_commands_md(filename="commands.md", for_github=False):
     else:
         output_text(FLAG_ERROR)
         output_error(err_msg, pad=0)
-
-
-# Organize commands of a single section by category.
-def _organize(cmds, toolkit_name=None):
-    commands_organized = {}
-
-    # Organize commands by category.
-    for cmd in cmds:
-        # Get command string.
-        cmd_str = cmd["command"]
-        cmd_description = cmd["description"]
-
-        if "parent" in cmd and cmd["parent"]:
-            cmd_str = "  -> " + cmd_str
-
-        # Get category.
-        category = cmd["category"] if "category" in cmd else "Uncategorized"
-
-        # Organize by category.
-        if category in commands_organized:
-            commands_organized[category].append((cmd_str, cmd_description))
-        else:
-            commands_organized[category] = [(cmd_str, cmd_description)]
-
-    return commands_organized
 
 
 # Compile all commands of a single section.
@@ -668,14 +644,14 @@ def render_commands_csv(filename="commands.csv", delimiter=";"):
 
     # Parse main commands
     cmds_main = cmd_pointer.current_help.help_current
-    cmds_organized = _organize(cmds_main)
+    cmds_organized = organize_commands(cmds_main)
 
     # Parse tookit commands
     for toolkit_name in _all_toolkits:
         success, toolkit = load_toolkit(toolkit_name, from_repo=True)
         if success:
             toolkit_cmds = toolkit.methods_help
-            toolkit_cmds_organized = _organize(toolkit_cmds)
+            toolkit_cmds_organized = organize_commands(toolkit_cmds)
             cmds_organized.update(toolkit_cmds_organized)
 
     # Add a row per command.
@@ -730,7 +706,7 @@ def render_description_txt(filename="llm_description.txt"):
             continue
 
         toolkit_cmds = toolkit.methods_help
-        toolkit_cmds_organized = _organize(toolkit_cmds)
+        toolkit_cmds_organized = organize_commands(toolkit_cmds)
         output = _compile_commands(toolkit_cmds_organized)
 
         # Load llm_description.txt

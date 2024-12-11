@@ -65,10 +65,11 @@ _messages = {
     "success_delete": lambda file_name, workspace_name: f"Deleted the file {file_name} from your {workspace_name} workspace",
     "success_save_data": lambda file_path: f"Your data was successfully stored as <yellow>{file_path}</yellow>",
     "success_file_saved": lambda filename=None: (
-        f"Successully saved <yellow>{filename}</yellow> to your workspace"
+        f"Successfully saved <yellow>{filename}</yellow> to your workspace"
         if filename
-        else "File successully saved to your workspace"
+        else "Successfully saved file to your workspace"
     ),
+    "success_file_saved_updated": lambda filename, updated_filename: f"Warning: A file with the name '{filename}' already exists.\n<success>Saved as <yellow>{updated_filename}</yellow> instead.</success>",
     # Warning
     "war_no_filename_provided": lambda default: f"No filename provided, reverting to the default '{default}'",
     # Error

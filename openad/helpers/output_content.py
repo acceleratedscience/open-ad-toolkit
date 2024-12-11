@@ -1,25 +1,21 @@
 """
-The introductionary text generated for the `intro` command.
+Snippets used for the help output:
+- Descriptions of OpenAD and some of its key concepts
+- The introductionary text generated for the `intro` command
 """
 
 import os
-import sys
 from openad.helpers.files import open_file
 
-# Add the root directory to the sys.path
-root_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
-if str(root_dir) not in sys.path:
-    sys.path.append(root_dir)
-# for path in sys.path:
-#     print("#", path)
 
 # Construct the file paths relative to the script directory
-description_path = os.path.join(root_dir, "docs", "source", "description.txt")
-about_workspace_path = os.path.join(root_dir, "docs", "source", "about_workspace.txt")
-about_mws_path = os.path.join(root_dir, "docs", "source", "about_mws.txt")
-about_plugin_path = os.path.join(root_dir, "docs", "source", "about_plugin.txt")
-about_context_path = os.path.join(root_dir, "docs", "source", "about_context.txt")
-about_run_path = os.path.join(root_dir, "docs", "source", "about_run.txt")
+docs_src = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), "docs_src")
+description_path = os.path.join(docs_src, "description.txt")
+about_workspace_path = os.path.join(docs_src, "about_workspace.txt")
+about_mws_path = os.path.join(docs_src, "about_mws.txt")
+about_plugin_path = os.path.join(docs_src, "about_plugin.txt")
+about_context_path = os.path.join(docs_src, "about_context.txt")
+about_run_path = os.path.join(docs_src, "about_run.txt")
 
 # Read description files
 description, err_msg = open_file(description_path, return_err=True)
