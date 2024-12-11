@@ -322,7 +322,6 @@ class RUNCMD(Cmd):
             categories_map["context"] = "toolkits"
 
             input_cat = categories_map.get(inp.lower(), None)
-            print(33, input_cat, display_info, ("return_val" not in kwargs or not kwargs["return_val"]))
             if input_cat:
                 output = []
                 # fmt: off
@@ -1061,9 +1060,7 @@ def api_remote(
             # return magic_prompt.do_help(inp.strip(), display_info=display_info)
 
             # Triggered by magic commands, eg. `%openad ? list files`
-            starts_with_qmark = len(inp) > 0 and inp.split()[0] == "?" and inp.strip() != "??"
-            # magic_prompt.do_exit("dummy do not remove") # trash
-            return magic_prompt.do_help(inp.strip(), jup_return_format=None, display_info=starts_with_qmark)
+            return magic_prompt.do_help(inp.strip(), jup_return_format=None)
 
         # If there is a argument and it is not a help attempt to run the command.
         # Note, may be possible add code completion here #revisit
