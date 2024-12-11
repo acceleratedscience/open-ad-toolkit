@@ -530,11 +530,13 @@ def set_context_by_name(cmd_pointer, toolkit_name, reset=False, suppress_splash=
         return output_error(msg("fail_toolkit_not_installed", toolkit_name), nowrap=True)
 
     else:
+        print(10)
         old_cmd_pointer_context = cmd_pointer.settings["context"]
         old_toolkit_current = cmd_pointer.toolkit_current
         load_ok, toolkit_current = load_toolkit(toolkit_name)
-
+        print(11)
         if load_ok:
+            print(12)
             cmd_pointer.settings["context"] = toolkit_name
 
             cmd_pointer.toolkit_current = toolkit_current
@@ -545,9 +547,12 @@ def set_context_by_name(cmd_pointer, toolkit_name, reset=False, suppress_splash=
             # cmd_pointer.current_help.help_current.extend(toolkit_current.methods_help)
             login_success = False
             expiry_datetime = None
+            print(13)
             try:
                 # raise BaseException('Error message') # For testing
+                print(14)
                 login_success, expiry_datetime = login_manager.load_login_api(cmd_pointer, toolkit_name, reset=reset)
+                print(15)
 
             except Exception as err:  # pylint: disable=broad-exception-caught
                 # Error loading login API.
@@ -555,6 +560,7 @@ def set_context_by_name(cmd_pointer, toolkit_name, reset=False, suppress_splash=
                 return False
 
             if not login_success:
+                print(16)
                 # Failed to log in.
                 err = expiry_datetime  # On fail, error is passed as second parameter instead of expiry.
                 _handle_login_error(cmd_pointer, toolkit_name, old_toolkit_current, old_cmd_pointer_context, err)
@@ -562,6 +568,7 @@ def set_context_by_name(cmd_pointer, toolkit_name, reset=False, suppress_splash=
 
             # Success switching context & loggin in.
             if old_cmd_pointer_context != cmd_pointer.settings["context"] and not suppress_splash:
+                print(17)
                 if GLOBAL_SETTINGS["display"] == "terminal" or GLOBAL_SETTINGS["display"] is None:
                     return output_text(splash(toolkit_name, cmd_pointer), nowrap=True)
                 else:
