@@ -1,4 +1,0 @@
-
-global-include *.py *.png *.sh *.txt *.ipynb *.json *.sdf *.csv *.jpg *.gif *.html *.xml *.css
-
-global-exclude *.pyc __pyc__
