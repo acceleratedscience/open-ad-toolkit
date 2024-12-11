@@ -12,7 +12,6 @@ import pandas as pd
 
 import pyparsing as py
 from openad.app.global_var_lib import GLOBAL_SETTINGS
-from openad.core.help import help_dict_create
 from openad.helpers.output import output_error, output_success, output_table, output_text, output_warning
 from openad.helpers.spinner import spinner
 from openad.openad_model_plugin.auth_services import (
@@ -39,6 +38,27 @@ Dispatcher = ModelService(location=DISPATCHER_SERVICE_PATH, update_status=True, 
 ### example of how to use the dispatcher ###
 # with Dispatcher() as service:
 #     print(service.list())
+
+
+def help_dict_create(
+    name: str,  # Name of the comand - used for ...?
+    command: str,  # Command structure, used for help, docs, training
+    description: str,  # Description of the command, used for help, docs, training
+    note: str = None,  # Additional note to the command, only used in help (eg. To learn more about runs, run `run ?`)
+    url: str = None,  # Currently not used - URL to the documentation of the command?
+    category: str = "Uncategorized",  # Category used to organize the commands in help & docs
+    parent: str = None,  # Parent command, only relevant for follow-up commands like `result open`
+):
+    """Create a help dictionary"""
+    return {
+        "category": category,
+        "name": name,
+        "command": command,
+        "description": description,
+        "note": note,
+        "url": url,
+        "parent": parent,
+    }
 
 
 def get_namespaces():
