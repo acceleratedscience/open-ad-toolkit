@@ -1,4 +1,4 @@
-<sub>[&larr; BACK](./README.md#openad)</sub>
+<sub>[&larr; BACK](../README.md#openad)</sub>
 
 # Getting Started with OpenAD
 

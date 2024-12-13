@@ -1,10 +1,10 @@
-<sub>[&larr; BACK](./README.md#openad)</sub>
+<sub>[&larr; BACK](../README.md#openad)</sub>
 
 # OpenAD Installation
 
 ---
 
-- **Quick install:** For a simplified install without virtual environment, see [Quick Install](README.md#quick-install)
+- **Quick install:** For a simplified install without virtual environment, see [Quick Install](../README.md#quick-install)
 - **Contributors:** Skip to [Installation for Development](README_developers.md#installation-for-development)<br>
 - **Linux users:** Check the [Linux Notes](#linux-notes)<br>
 - **Poetry:** If you prefer Poetry, you can run the setup wizard instead: `poetry add openad`
@@ -37,7 +37,7 @@
 
         pip install openad
 
-1.  Continue to [Getting Started](README_getting-started.md)
+2.  Continue to [Getting Started]
 
 <br><br>
 
@@ -58,7 +58,7 @@ In order to run OpenAD on Windows 11, you will need to install the Ubuntu WSL pa
 
     **Optional:** To setup an Ubuntu Python environment from scratch, continue to <a href="#linux-notes">Linux Notes</a>
 
-1.  Continue to [Getting Started](README_getting-started.md)
+2.  Continue to [Getting Started]
 
 <br><br>
 
@@ -116,3 +116,5 @@ You will need to restart your Linux session before running `pip install openad` 
 If you get an error when running `init_magic`, you may first need to setup the default iPython profile for magic commands.
 
     ipython profile create
+
+[Getting Started]: README_getting-started.md
