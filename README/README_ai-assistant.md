@@ -38,7 +38,7 @@ That's it for local usage. If you want to run Ollama remotely, continue below.
 
 ### Ollama Remote Setup with SkyPilot
 
-1.  Check out our configuration file to launch ollama on SkyPilot: [ollama_setup.yaml](./openad/ollama_setup.yaml)
+1.  Check out our configuration file to launch ollama on SkyPilot: [ollama_setup.yaml](../openad/ollama_setup.yaml)
 
         sky serve up ollama_setup.yaml
 
