@@ -25,7 +25,8 @@ Stay tuned here for documentation on how to do this.
 
         git clone https://github.com/acceleratedscience/open-ad-toolkit.git
 
-    > **Note:** To download a specific branch, you can run instead:<br> > `git clone -b <branch_name> https://github.com/acceleratedscience/open-ad-toolkit.git`
+    > **Note:** To download a specific branch, you can run instead:<br>
+    > `git clone -b <branch_name> https://github.com/acceleratedscience/open-ad-toolkit.git`
 
 1.  **Step 2: Launch the setup wizard**
 
