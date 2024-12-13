@@ -135,7 +135,7 @@ If you get an error when running `init_magic`, you may first need to setup the d
 
 <br><br>
 
-<div align="center"><img src="assets/openad-functionality-graph.svg" width="60%" alt="OpenAD functionality" /></div>
+<div align="center"><img src="assets/openad-functionality-graph.svg" width="70%" alt="OpenAD functionality" /></div>
 
 <br><br>
 
