@@ -98,10 +98,6 @@ The OpenAD client is accessible from our command line interface, via Jupyter Not
 
 <br><br>
 
-<div align="center"><img src="assets/openad-ui.png" width="100%" alt="OpenAD interface" /></div>
-
-<br><br>
-
 ### Useful links
 
 - **Homepage**<br>
@@ -112,6 +108,10 @@ The OpenAD client is accessible from our command line interface, via Jupyter Not
   [pypi.org/project/openad](https://pypi.org/project/openad)
 - **Documentation**<br>
   [acceleratedscience.github.io/openad-docs](https://acceleratedscience.github.io/openad-docs)
+
+<br><br>
+
+<div align="center"><img src="assets/openad-ui.png" width="100%" alt="OpenAD interface" /></div>
 
 <br><br>
 
