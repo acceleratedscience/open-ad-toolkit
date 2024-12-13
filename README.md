@@ -59,6 +59,8 @@ Un-comment this section to test how GitHub alerts are translated for Just the Do
 
 -->
 
+<img src="./assets/openad-splash-banner.svg" width="100%" />
+
 # OpenAD
 
 **Open-source framework for molecular and materials discovery**
@@ -67,8 +69,6 @@ Un-comment this section to test how GitHub alerts are translated for Just the Do
 [![PyPI version](https://img.shields.io/pypi/v/openad)](https://pypi.org/project/openad/)
 [![License MIT](https://img.shields.io/github/license/acceleratedscience/open-ad-toolkit)](https://opensource.org/licenses/MIT)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-
-<div style="width:100%; height: 300px; background: #fafafa"><img src="./assets/openad-splash-banner.svg" width="240" height="200" /></div>
 
 <!-- description -->
 Open Accelerated Discovery (aka OpenAD) is an open-source framework for molecular and materials discovery developed at IBM Research.
