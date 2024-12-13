@@ -63,7 +63,7 @@ Un-comment this section to test how GitHub alerts are translated for Just the Do
 
 # OpenAD
 
-**Open-source framework for molecular and materials discovery**
+<!-- **Open-source framework for molecular and materials discovery** -->
 
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/openad)](https://pypi.org/project/openad/)
 [![PyPI version](https://img.shields.io/pypi/v/openad)](https://pypi.org/project/openad/)
