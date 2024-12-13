@@ -111,6 +111,10 @@ The OpenAD client is accessible from our command line interface, via Jupyter Not
 
 <br><br>
 
+<img src="assets/openad-functionality-graph.svg" width="60%" alt="OpenAD functionality" />
+
+<br><br>
+
 ## Quick Install
 
 > [!IMPORTANT]
