@@ -59,7 +59,7 @@ Un-comment this section to test how GitHub alerts are translated for Just the Do
 
 -->
 
-<img src="./assets/openad-splash-banner.svg" width="100%" />
+<img src="assets/openad-splash-banner.svg" width="100%" />
 
 # OpenAD
 
