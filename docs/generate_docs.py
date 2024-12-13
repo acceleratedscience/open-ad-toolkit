@@ -536,9 +536,7 @@ def render_commands_md(filename="commands.md", for_github=False):
 
     # Replace the just-the-docs header with a back link when generating for GitHub
     if for_github:
-        commands_md = re.sub(
-            r"^---.+---", "<sub>[&larr; BACK](../README.md#openad)</sub>", commands_md, flags=re.DOTALL
-        )
+        commands_md = re.sub(r"^---.+---", "<sub>[&larr; BACK](../#openad)</sub>", commands_md, flags=re.DOTALL)
 
     # Insert DO NOT EDIT comment
     commands_md = re.sub(r"{{DO_NOT_EDIT}}", DO_NOT_EDIT, commands_md, flags=re.DOTALL)
