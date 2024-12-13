@@ -115,10 +115,6 @@ The OpenAD client is accessible from our command line interface, via Jupyter Not
 
 <br><br>
 
-<div align="center"><img src="assets/openad-functionality-graph.svg" width="60%" alt="OpenAD functionality" /></div>
-
-<br><br>
-
 ## Quick Install
 
 > [!IMPORTANT]
@@ -136,6 +132,10 @@ Get started with Jupyter Notebook examples:
 If you get an error when running `init_magic`, you may first need to setup the default iPython profile for magic commands.
 
     ipython profile create
+
+<br><br>
+
+<div align="center"><img src="assets/openad-functionality-graph.svg" width="60%" alt="OpenAD functionality" /></div>
 
 <br><br>
 
