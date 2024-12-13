@@ -50,7 +50,7 @@ https://github.com/acceleratedscience/open-ad-toolkit/tree/main/docs
 
         pip install openad
 
-1.  Continue to [Getting Started](getting-started.html)
+2.  Continue to [Getting Started]
 
 <br><br>
 
@@ -71,7 +71,7 @@ In order to run OpenAD on Windows 11, you will need to install the Ubuntu WSL pa
 
     **Optional:** To setup an Ubuntu Python environment from scratch, continue to <a href="#linux-notes">Linux Notes</a>
 
-1.  Continue to [Getting Started](getting-started.html)
+2.  Continue to [Getting Started]
 
 <br><br>
 
@@ -129,3 +129,5 @@ You will need to restart your Linux session before running `pip install openad` 
 If you get an error when running `init_magic`, you may first need to setup the default iPython profile for magic commands.
 
     ipython profile create
+
+[Getting Started]: getting-started.html

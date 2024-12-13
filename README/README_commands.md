@@ -167,7 +167,7 @@ This is the full list of available commands.
 <summary markdown="block"><code>list toolkits</code></summary>
 <br>
 
-> List all installed toolkits. To see all available toolkits, run `list all toolkits`. <br>
+> List all installed toolkits. <br>
 
 </details>
 
@@ -302,7 +302,7 @@ This is the full list of available commands.
 </details>
 
 <details markdown="block" class="cmd-wrap">
-<summary markdown="block"><code>-> result save [as '<filename.csv>']</code></summary>
+<summary markdown="block"><code>result save [as '<filename.csv>']</code></summary>
 <br>
 
 > Save table data to csv file. <br>
@@ -310,7 +310,7 @@ This is the full list of available commands.
 </details>
 
 <details markdown="block" class="cmd-wrap">
-<summary markdown="block"><code>-> result open</code></summary>
+<summary markdown="block"><code>result open</code></summary>
 <br>
 
 > Explore table data in the browser. <br> 
@@ -319,7 +319,7 @@ This is the full list of available commands.
 </details>
 
 <details markdown="block" class="cmd-wrap">
-<summary markdown="block"><code>-> result edit</code></summary>
+<summary markdown="block"><code>result edit</code></summary>
 <br>
 
 > Edit table data in the browser. <br> 
@@ -328,7 +328,7 @@ This is the full list of available commands.
 </details>
 
 <details markdown="block" class="cmd-wrap">
-<summary markdown="block"><code>-> result copy</code></summary>
+<summary markdown="block"><code>result copy</code></summary>
 <br>
 
 > Copy table data to clipboard, formatted for spreadheet. <br>
@@ -336,7 +336,7 @@ This is the full list of available commands.
 </details>
 
 <details markdown="block" class="cmd-wrap">
-<summary markdown="block"><code>-> result display</code></summary>
+<summary markdown="block"><code>result display</code></summary>
 <br>
 
 > Display the result in the CLI. <br> 
@@ -346,7 +346,7 @@ This is the full list of available commands.
 </details>
 
 <details markdown="block" class="cmd-wrap">
-<summary markdown="block"><code>-> result as dataframe</code></summary>
+<summary markdown="block"><code>result as dataframe</code></summary>
 <br>
 
 > Return the result as dataframe (only for Jupyter Notebook) <br>
@@ -540,7 +540,7 @@ This is the full list of available commands.
 </details>
 
 <details markdown="block" class="cmd-wrap">
-<summary markdown="block"><code>model auth add group <auth_group> with '<api_key>'</code></summary>
+<summary markdown="block"><code>model auth add group '<auth_group>'|<auth_group> with '<api_key>'</code></summary>
 <br>
 
 > add an authentication group for model services to use <br>
@@ -548,7 +548,7 @@ This is the full list of available commands.
 </details>
 
 <details markdown="block" class="cmd-wrap">
-<summary markdown="block"><code>model auth remove group <auth_group></code></summary>
+<summary markdown="block"><code>model auth remove group '<auth_group>' | <auth_group></code></summary>
 <br>
 
 > remove an authentication group <br>
@@ -556,7 +556,7 @@ This is the full list of available commands.
 </details>
 
 <details markdown="block" class="cmd-wrap">
-<summary markdown="block"><code>model auth add service <service_name> to group <auth_group></code></summary>
+<summary markdown="block"><code>model auth add service '<service_name>'|,service_name> to group '<auth_group>'|<auth_group></code></summary>
 <br>
 
 > Attach an authentication group to a model service <br>
@@ -564,7 +564,7 @@ This is the full list of available commands.
 </details>
 
 <details markdown="block" class="cmd-wrap">
-<summary markdown="block"><code>model auth remove service <service_name></code></summary>
+<summary markdown="block"><code>model auth remove service '<service_name>'|<service_name></code></summary>
 <br>
 
 > Detatch an authentication group from a model service <br>
@@ -580,7 +580,7 @@ This is the full list of available commands.
 </details>
 
 <details markdown="block" class="cmd-wrap">
-<summary markdown="block"><code>model service describe <service_name></code></summary>
+<summary markdown="block"><code>model service describe '<service_name>'|<service_name></code></summary>
 <br>
 
 > get the configuration of a service <br>
@@ -596,7 +596,7 @@ This is the full list of available commands.
 </details>
 
 <details markdown="block" class="cmd-wrap">
-<summary markdown="block"><code>uncatalog model service <service_name></code></summary>
+<summary markdown="block"><code>uncatalog model service '<service_name>'|<service_name></code></summary>
 <br>
 
 > uncatalog a model service  <br> 
@@ -607,11 +607,11 @@ This is the full list of available commands.
 </details>
 
 <details markdown="block" class="cmd-wrap">
-<summary markdown="block"><code>catalog model service from (remote) '<path> or <github> or <service_url>' as  <service_name> using (<parameter>=<value> <parameter>=<value>)</code></summary>
+<summary markdown="block"><code>catalog model service from (remote) '<path> or <github> or <service_url>' as  '<service_name>'|<service_name>   USING (<parameter>=<value> <parameter>=<value>)</code></summary>
 <br>
 
 > catalog a model service from a path or github or remotely from an existing OpenAD service. <br> 
-> (using) optional headers parameters for communication with service backend. <br> 
+> (USING) optional headers parameters for communication with service backend. <br> 
 > If you are cataloging a service using a model defined in a directory, provide the absolute ` <path> ` of that directory in quotes. <br> 
 > 
 > The following options require the `remote` option be declared. <br> 
@@ -622,7 +622,7 @@ This is the full list of available commands.
 > 
 > `service_name`: this is the name of the service as you will define it for your usage. e.g `prop` short for properties.  <br> 
 > 
-> Parameters: <br> 
+> USING Parameters: <br> 
 > 
 > If using a hosted service the following parameters must be supplied: <br> 
 > -`Inference-Service`: this is the name of the inference service that is hosted, it is a required parameter if cataloging a remote service. <br> 
@@ -637,11 +637,11 @@ This is the full list of available commands.
 > -`catalog model service from 'git@github.com:acceleratedscience/generation_inference_service.git' as 'gen'` <br> 
 > 
 > Service using a authentication group  <br> 
-> -`catalog model service from remote '<service_url>' as  molf using (Inference-Service=molformer  )` <br> 
+> -`catalog model service from remote '<service_url>' as  molf  USING (Inference-Service=molformer  )` <br> 
 > ` model auth add service 'molf' to group 'default'` <br> 
 > 
 > Single Authorisation Service <br> 
-> -`openad catalog model service from remote '<service_URL>' as 'gen' using (Inference-Service=generation Authorization='<api_key>')` <br> 
+> -`openad catalog model service from remote '<service_URL>' as 'gen' USING (Inference-Service=generation Authorization='<api_key>')` <br> 
 > 
 > Catalog a remote service shared with you: <br> 
 > -`catalog model service from remote 'http://54.235.3.243:30001' as gen` <br>
@@ -685,6 +685,17 @@ This is the full list of available commands.
 > `model service down gen`  <br> 
 > 
 > `model service down 'gen'`  <br>
+
+</details>
+
+<details markdown="block" class="cmd-wrap">
+<summary markdown="block"><code>get model service '<service_name>'|<service_name> result '<result_id>'</code></summary>
+<br>
+
+> retrieves a result from a model service   <br> 
+>  Examples:  <br> 
+> 
+> <cmd>get model service myservier result 'wergergerg'   <br>
 
 </details>
 
