@@ -270,12 +270,12 @@ def _render_docs_page(filename):
 
 
 def _translate_image_urls(readme_md):
-    base = "https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/"
+    base = "https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/"
 
     # Markdown URLs
     # ![some alt text](assets/the_image.png)
     readme_md = re.sub(
-        r"!\[(.*?)\]\((.*?)\)",
+        r"!\[(.*?)\]\(assets/(.*?)\)",
         lambda m: f"![{m.group(1)}]({base}{m.group(2)})",
         readme_md,
     )
@@ -283,7 +283,7 @@ def _translate_image_urls(readme_md):
     # HTML URLs
     # <img src="assets/the_image.png">
     readme_md = re.sub(
-        r'<img src="(.*?)"',
+        r'<img src="assets/(.*?)"',
         lambda m: f'<img src="{base}{m.group(1)}"',
         readme_md,
     )

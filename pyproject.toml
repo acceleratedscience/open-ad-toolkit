@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "openad"
-version = "0.6.10"
+version = "0.6.10.1"
 
 description = "Open Accelerated Discovery Client"
 authors = ["Phil Downey <phil.downey1@ibm.com>"]

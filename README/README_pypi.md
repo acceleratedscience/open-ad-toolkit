@@ -10,16 +10,16 @@ https://github.com/acceleratedscience/open-ad-toolkit/tree/main/docs
 
 
 
-<div align="center"><img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/readme_update_moe/assets/openad-cli-landing.svg" width="100%" alt="OpenAD CLI" /></div>
+<div align="center"><img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/openad-cli-landing.svg" width="100%" alt="OpenAD CLI" /></div>
 
 # OpenAD
 
 **Open-source framework for molecular and materials discovery**
 
-[![PyPI - Python Version](https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/readme_update_moe/https://img.shields.io/pypi/pyversions/openad)](https://pypi.org/project/openad/)
-[![PyPI version](https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/readme_update_moe/https://img.shields.io/pypi/v/openad)](https://pypi.org/project/openad/)
-[![License MIT](https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/readme_update_moe/https://img.shields.io/github/license/acceleratedscience/open-ad-toolkit)](https://opensource.org/licenses/MIT)
-[![Code style: black](https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/readme_update_moe/https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/openad)](https://pypi.org/project/openad/)
+[![PyPI version](https://img.shields.io/pypi/v/openad)](https://pypi.org/project/openad/)
+[![License MIT](https://img.shields.io/github/license/acceleratedscience/open-ad-toolkit)](https://opensource.org/licenses/MIT)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 Open Accelerated Discovery (aka OpenAD) is an open-source framework for molecular and materials discovery developed at IBM Research.
 
@@ -58,7 +58,7 @@ The OpenAD client is accessible from our command line interface, via Jupyter Not
 
 <br><br>
 
-<div align="center"><img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/readme_update_moe/assets/openad-ui.png" width="100%" alt="OpenAD interface" /></div>
+<div align="center"><img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/openad-ui.png" width="100%" alt="OpenAD interface" /></div>
 
 <br><br>
 
