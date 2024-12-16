@@ -14,7 +14,7 @@ https://github.com/acceleratedscience/open-ad-toolkit/tree/main/docs
 
 -->
 
-<div align="center"><img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/openad-cli-landing.svg" width="100%" alt="OpenAD CLI" /></div>
+<img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/openad-cli-landing.svg" width="481" height="323" alt="OpenAD CLI" />
 
 # OpenAD
 
