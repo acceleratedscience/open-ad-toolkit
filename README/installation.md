@@ -5,7 +5,7 @@
 ---
 
 - **Quick install:** For a simplified install without virtual environment, see [Quick Install](../README.md#quick-install)
-- **Contributors:** Skip to [Installation for Development](README_developers.md#installation-for-development)<br>
+- **Contributors:** Skip to [Installation for Development](developers.md#installation-for-development)<br>
 - **Linux users:** Check the [Linux Notes](#linux-notes)<br>
 - **Poetry:** If you prefer Poetry, you can run the setup wizard instead: `poetry add openad`
 
@@ -117,4 +117,4 @@ If you get an error when running `init_magic`, you may first need to setup the d
 
     ipython profile create
 
-[Getting Started]: README_getting-started.md
+[Getting Started]: getting-started.md

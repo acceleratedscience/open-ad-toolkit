@@ -1,10 +1,10 @@
 [tool.poetry]
 name = "openad"
-version = "0.6.9"
+version = "0.6.10"
 
 description = "Open Accelerated Discovery Client"
 authors = ["Phil Downey <phil.downey1@ibm.com>"]
-readme = "README.md"
+readme = "README/README_pypi.md"
 license = "MIT"
 homepage = "https://www.accelerate.science/"
 documentation = "https://acceleratedscience.github.io/openad-docs/"

@@ -96,11 +96,11 @@ def update_github_readme_md(filename="README.md"):
 # endregion
 
 ############################################################
-# region - README_plugins.md (GitHub)
+# region - README/plugins.md (GitHub)
 
 
 # Update the README_plugins.md file with the about_plugin description
-def update_github_readme_plugins_md(filename="README_plugins.md"):
+def update_github_readme_plugins_md(filename="plugins.md"):
     output_text(f"<h1>Updating <yellow>{filename}</yellow> with about_plugin description</h1>", pad_top=2)
 
     # Read README.md file content
@@ -140,25 +140,25 @@ def update_github_readme_plugins_md(filename="README_plugins.md"):
 # endregion
 
 ############################################################
-# region - README_commands.md (GitHub)
+# region - README/commands.md (GitHub)
 
 
-# Update the README_commands.md with auto-generated commands
+# Update the README/commands.md with auto-generated commands
 def generate_github_readme_commands_md():
-    generate_commands_md("README_commands.md", for_github=True)
+    generate_commands_md("commands.md", for_github=True)
 
 
 # endregion
 
 ############################################################
-# region - README-PYPI.md (PyPi)
+# region - README/README_pypi.md (PyPi)
 
 
-# Create the README--PYPI.md for PyPI package page
+# Create the README_pypi.md for PyPI package page
 # - - -
 # A modified version of the README.md file with links and images
 # pointing to the documentation website instead of other readme files.
-def generate_pypi_readme_md(filename="README--PYPI.md"):
+def generate_pypi_readme_md(filename="README_pypi.md"):
     output_text(f"<h1>Generating <yellow>{filename}</yellow></h1>", pad_top=2)
 
     # Read README.md file content
@@ -171,17 +171,17 @@ def generate_pypi_readme_md(filename="README--PYPI.md"):
     # Remove comments from README content
     readme_md = re.sub(r"<!--.*?-->\n?", "", readme_md, flags=re.DOTALL)
 
+    # Translate image URLs
+    readme_md = _translate_image_urls(readme_md)
+
     # Translate link pointers
     readme_md = _translate_links(readme_md, absolute=True)
-
-    # Translate GitHub alerts
-    readme_md = _translate_alerts(readme_md)
 
     # Insert DO NOT EDIT comment
     readme_md = DO_NOT_EDIT_PYPI + "\n\n" + readme_md
 
     # Write to output file
-    success, err_msg = write_file(filename, readme_md, return_err=True)
+    success, err_msg = write_file(f"README/{filename}", readme_md, return_err=True)
     if success:
         output_text(FLAG_SUCCESS)
         output_text(f"<soft>Exported to</soft> <reset>/{filename}</reset>")
@@ -222,7 +222,7 @@ def _render_docs_page(filename):
         return
 
     # Read README_xxx.md base file content
-    base_md_path = "README.md" if filename == "index.md" else f"README/README_{filename}"
+    base_md_path = "README.md" if filename == "index.md" else f"README/{filename}"
     base_md, err_msg = open_file(base_md_path, return_err=True)
     if not base_md:
         output_text(FLAG_ERROR, pad_top=1)
@@ -244,6 +244,9 @@ def _render_docs_page(filename):
     # Trim space from start and end of file
     base_md = base_md.strip()
 
+    # Translate image URLs
+    base_md = _translate_image_urls(base_md)
+
     # Update link pointers
     base_md = _translate_links(base_md)
 
@@ -264,6 +267,28 @@ def _render_docs_page(filename):
     else:
         output_text(FLAG_ERROR)
         output_error(err_msg, pad=0)
+
+
+def _translate_image_urls(readme_md):
+    base = "https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/"
+
+    # Markdown URLs
+    # ![some alt text](assets/the_image.png)
+    readme_md = re.sub(
+        r"!\[(.*?)\]\((.*?)\)",
+        lambda m: f"![{m.group(1)}]({base}{m.group(2)})",
+        readme_md,
+    )
+
+    # HTML URLs
+    # <img src="assets/the_image.png">
+    readme_md = re.sub(
+        r'<img src="(.*?)"',
+        lambda m: f'<img src="{base}{m.group(1)}"',
+        readme_md,
+    )
+
+    return readme_md
 
 
 def _translate_links(text, absolute=False):
@@ -331,17 +356,17 @@ def _translate_links(text, absolute=False):
         r"\[(.*?)\]\(((\.\./)|(/))?README.md(#.*)?\)", lambda m: f"[{m.group(1)}]({home_link}{m.group(5) or ''})", text
     )
 
-    # Update template links to secondary README_xxx.md pages
+    # Update template links to secondary README/xxx.md pages
     #
     # Input:
-    #   [some text]: README_abc.md
-    #   [some text]: /README_abc.md
-    #   [some text]: README/README_abc.md
-    #   [some text]: /README/README_abc.md
-    #   [some text]: README_abc.md#foo
-    #   [some text]: /README_abc.md#foo
-    #   [some text]: README/README_abc.md#foo
-    #   [some text]: /README/README_abc.md#foo
+    #   [some text]: abc.md
+    #   [some text]: /abc.md
+    #   [some text]: README/abc.md
+    #   [some text]: /README/abc.md
+    #   [some text]: abc.md#foo
+    #   [some text]: /abc.md#foo
+    #   [some text]: README/abc.md#foo
+    #   [some text]: /README/abc.md#foo
     #
     # Relative output (docs website):
     #   [some text]: abc.html
@@ -351,23 +376,23 @@ def _translate_links(text, absolute=False):
     #   [some text]: https://acceleratedscience.github.io/openad-docs/abc.html
     #   [some text]: https://acceleratedscience.github.io/openad-docs/abc.html#foo
     text = re.sub(
-        r"^\[(.*?)\]: (/?README)?/?README_(.*?).md(#.*)?",
+        r"^\[(.*?)\]: (/?README)?/?(.*?).md(#.*)?",
         lambda m: f"[{m.group(1)}]: {absolute_prefix}{m.group(3)}.html{m.group(4) or ''}",
         text,
         flags=re.MULTILINE,
     )
 
-    # Update inline links to secondary README_xxx.md pages
+    # Update inline links to secondary README/xxx.md pages
     #
     # Input:
-    #   [some text](README_abc.md)
-    #   [some text](/README_abc.md)
-    #   [some text](README/README_abc.md)
-    #   [some text](/README/README_abc.md)
-    #   [some text](README_abc.md#foo)
-    #   [some text](/README_abc.md#foo)
-    #   [some text](README/README_abc.md#foo)
-    #   [some text](/README/README_abc.md#foo)
+    #   [some text](_abc.md)
+    #   [some text](/abc.md)
+    #   [some text](README/abc.md)
+    #   [some text](/README/abc.md)
+    #   [some text](abc.md#foo)
+    #   [some text](/abc.md#foo)
+    #   [some text](README/abc.md#foo)
+    #   [some text](/README/abc.md#foo)
     #
     # Relative output (docs website):
     #   [some text](abc.html)
@@ -377,7 +402,7 @@ def _translate_links(text, absolute=False):
     #   [some text](https://acceleratedscience.github.io/openad-docs/abc.html)
     #   [some text](https://acceleratedscience.github.io/openad-docs/abc.html#foo)
     text = re.sub(
-        r"\[(.*?)\]\((/?README)?/?README_(.*?).md(#.*)?\)",
+        r"\[(.*?)\]\((/?README)?/?(.*?).md(#.*)?\)",
         lambda m: f"[{m.group(1)}]({absolute_prefix}{m.group(3)}.html{m.group(4) or ''})",
         text,
     )

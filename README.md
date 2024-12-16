@@ -173,10 +173,10 @@ Stay tuned for detailed instructions on how to build your own OpenAD plugins.<br
 Check the [Developers] section for guidance with other contributions.
 
 
-[INSTALLATION]: README/README_installation.md
-[GETTING STARTED]: README/README_getting-started.md
-[COMMANDS]: README/README_commands.md
-[MODELS SERVICE]: README/README_models-service.md
-[PLUGINS]: README/README_plugins.md
-[AI ASSISTANT]: README/README_ai-assistant.md
-[DEVELOPERS]: README/README_developers.md
+[INSTALLATION]: README/installation.md
+[GETTING STARTED]: README/getting-started.md
+[COMMANDS]: README/commands.md
+[MODELS SERVICE]: README/models-service.md
+[PLUGINS]: README/plugins.md
+[AI ASSISTANT]: README/ai-assistant.md
+[DEVELOPERS]: README/developers.md

@@ -148,7 +148,7 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus non tellus vel 
 
     Starting from a terminal window:
 
-    -   If you are running OpenAD in a virtual environment, make sure your virtual environment is activated. If you followed the [default installation instructions](README_installation.md), you should be able to run:
+    -   If you are running OpenAD in a virtual environment, make sure your virtual environment is activated. If you followed the [default installation instructions](installation.md), you should be able to run:
 
             source ~/ad-venv/bin/activate
 
