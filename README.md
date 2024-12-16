@@ -59,8 +59,6 @@ Un-comment this section to test how GitHub alerts are translated for Just the Do
 
 -->
 
-<img src="assets/openad-splash-banner.svg" width="100%" alt="OpenAD is an open-source framework for molecular and materials discovery developed at IBM Research" />
-
 # OpenAD
 
 <!-- **Open-source framework for molecular and materials discovery** -->
@@ -132,10 +130,6 @@ Get started with Jupyter Notebook examples:
 If you get an error when running `init_magic`, you may first need to setup the default iPython profile for magic commands.
 
     ipython profile create
-
-<br><br>
-
-<div align="center"><img src="assets/openad-functionality-graph.svg" width="70%" alt="OpenAD functionality" /></div>
 
 <br><br>
 
