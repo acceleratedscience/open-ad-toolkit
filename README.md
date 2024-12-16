@@ -59,6 +59,8 @@ Un-comment this section to test how GitHub alerts are translated for Just the Do
 
 -->
 
+<div align="center"><img src="assets/openad-cli-landing.svg" width="100%" alt="OpenAD CLI" /></div>
+
 # OpenAD
 
 **Open-source framework for molecular and materials discovery**
