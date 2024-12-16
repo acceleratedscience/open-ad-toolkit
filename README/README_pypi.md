@@ -10,7 +10,7 @@ https://github.com/acceleratedscience/open-ad-toolkit/tree/main/docs
 
 
 
-<div align="center"><img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/readme_update_moe/assets/openad-cli-landing.svg" width="100%" alt="OpenAD CLI" /></div>
+<div align="center"><img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/openad-cli-landing.svg" width="100%" alt="OpenAD CLI" /></div>
 
 # OpenAD
 
@@ -58,7 +58,7 @@ The OpenAD client is accessible from our command line interface, via Jupyter Not
 
 <br><br>
 
-<div align="center"><img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/readme_update_moe/assets/openad-ui.png" width="100%" alt="OpenAD interface" /></div>
+<div align="center"><img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/openad-ui.png" width="100%" alt="OpenAD interface" /></div>
 
 <br><br>
 
