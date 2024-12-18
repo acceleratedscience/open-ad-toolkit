@@ -30,7 +30,7 @@ OpenAD lets you easily deploy different models to generate and manipulate molecu
 
 [GitHub](https://github.com/acceleratedscience/generation_inference_service.git)
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus non tellus vel arcu porttitor tincidunt. Curabitur efficitur sodales efficitur. Ut id dui ut mi sodales tempor non nec erat. Pellentesque consectetur, nibh quis tempor luctus, quam lacus sagittis libero, id viverra lectus est id ligula. Nam sem ex, molestie a arcu finibus, dapibus eleifend felis. Interdum et malesuada fames ac ante ipsum primis in faucibus. Sed laoreet elit vestibulum porta viverra.
+<!-- Todo: paragraph about model -->
 
 </div>
 </details>
@@ -43,7 +43,7 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus non tellus vel 
 
 [GitHub](https://github.com/acceleratedscience/property_inference_service.git)
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus non tellus vel arcu porttitor tincidunt. Curabitur efficitur sodales efficitur. Ut id dui ut mi sodales tempor non nec erat. Pellentesque consectetur, nibh quis tempor luctus, quam lacus sagittis libero, id viverra lectus est id ligula. Nam sem ex, molestie a arcu finibus, dapibus eleifend felis. Interdum et malesuada fames ac ante ipsum primis in faucibus. Sed laoreet elit vestibulum porta viverra.
+<!-- Todo: paragraph about model -->
 
 </div>
 </details>
@@ -56,7 +56,7 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus non tellus vel 
 
 [GitHub](https://github.com/acceleratedscience/moler_inference_service.git)
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus non tellus vel arcu porttitor tincidunt. Curabitur efficitur sodales efficitur. Ut id dui ut mi sodales tempor non nec erat. Pellentesque consectetur, nibh quis tempor luctus, quam lacus sagittis libero, id viverra lectus est id ligula. Nam sem ex, molestie a arcu finibus, dapibus eleifend felis. Interdum et malesuada fames ac ante ipsum primis in faucibus. Sed laoreet elit vestibulum porta viverra.
+<!-- Todo: paragraph about model -->
 
 </div>
 </details>
@@ -69,7 +69,7 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus non tellus vel 
 
 [GitHub](https://github.com/acceleratedscience/molformer_inference_service.git)
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus non tellus vel arcu porttitor tincidunt. Curabitur efficitur sodales efficitur. Ut id dui ut mi sodales tempor non nec erat. Pellentesque consectetur, nibh quis tempor luctus, quam lacus sagittis libero, id viverra lectus est id ligula. Nam sem ex, molestie a arcu finibus, dapibus eleifend felis. Interdum et malesuada fames ac ante ipsum primis in faucibus. Sed laoreet elit vestibulum porta viverra.
+<!-- Todo: paragraph about model -->
 
 </div>
 </details>
