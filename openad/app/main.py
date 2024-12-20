@@ -951,6 +951,19 @@ class RUNCMD(Cmd):
         else:
             return x
 
+    def get_df(self, df_name: str):
+        """
+        Return a dataframe from the API variables.
+
+        Used to expose previously defined dataframes to other commands, eg:
+            my_df = pd.read_csv(os.path.join(workspace_path, 'my_reactions.csv'))
+            %openad rx predict reactions from dataframe my_df
+        """
+        df = self.api_variables.get(df_name, None)
+        if df is None:
+            output_error(f"No dataframe found named <yellow>{df_name}</yellow>", return_val=False)
+        return df
+
 
 # Returns the error positioning in the statement that has been parsed.
 def error_col_grabber(error):
