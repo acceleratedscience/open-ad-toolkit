@@ -30,8 +30,6 @@ OpenAD lets you easily deploy different models to generate and manipulate molecu
 
 [GitHub](https://github.com/acceleratedscience/generation_inference_service.git)
 
-<!-- Todo: paragraph about model -->
-
 </div>
 </details>
 
@@ -42,8 +40,6 @@ OpenAD lets you easily deploy different models to generate and manipulate molecu
     git@github.com:acceleratedscience/property_inference_service.git
 
 [GitHub](https://github.com/acceleratedscience/property_inference_service.git)
-
-<!-- Todo: paragraph about model -->
 
 </div>
 </details>
@@ -56,8 +52,6 @@ OpenAD lets you easily deploy different models to generate and manipulate molecu
 
 [GitHub](https://github.com/acceleratedscience/moler_inference_service.git)
 
-<!-- Todo: paragraph about model -->
-
 </div>
 </details>
 
@@ -68,8 +62,6 @@ OpenAD lets you easily deploy different models to generate and manipulate molecu
     git@github.com:acceleratedscience/molformer_inference_service.git
 
 [GitHub](https://github.com/acceleratedscience/molformer_inference_service.git)
-
-<!-- Todo: paragraph about model -->
 
 </div>
 </details>
