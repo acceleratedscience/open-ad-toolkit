@@ -362,17 +362,6 @@ class RUNCMD(Cmd):
                     # Print
                     return output_text("".join(output), pad=1, edge=True)
 
-        # `<toolkit_name> ?` --> Display all toolkit commands.
-        if inp.upper() in _all_toolkits:
-            toolkit_name = inp.upper()
-            ok, toolkit = load_toolkit(toolkit_name)
-            toolkit_commands_organized = openad_help.organize_commands(toolkit.methods_help)
-            return output_text(
-                openad_help.all_commands(toolkit_commands_organized, toolkit_name=toolkit_name, cmd_pointer=self),
-                pad=2,
-                edge=True,
-            )
-
         # Compile list of plugin names and namespaces.
         plugin_namespaces = set()
         plugin_names = set()
@@ -401,6 +390,17 @@ class RUNCMD(Cmd):
             plugin_commands_organized = all_plugin_commands_organized.get(plugin_name, {})
             return output_text(
                 openad_help.all_commands(plugin_commands_organized, plugin_name=plugin_name, cmd_pointer=self), pad=2
+            )
+
+        # `<toolkit_name> ?` --> Display all toolkit commands.
+        if inp.upper() in _all_toolkits:
+            toolkit_name = inp.upper()
+            ok, toolkit = load_toolkit(toolkit_name)
+            toolkit_commands_organized = openad_help.organize_commands(toolkit.methods_help)
+            return output_text(
+                openad_help.all_commands(toolkit_commands_organized, toolkit_name=toolkit_name, cmd_pointer=self),
+                pad=2,
+                edge=True,
             )
 
         # Add the current toolkit's commands to the main list of commands.
@@ -957,7 +957,7 @@ class RUNCMD(Cmd):
 
         Used to expose previously defined dataframes to other commands, eg:
             my_df = pd.read_csv(os.path.join(workspace_path, 'my_reactions.csv'))
-            %openad rx predict reactions from dataframe my_df
+            %openad rxn predict reactions from dataframe my_df
         """
         df = self.api_variables.get(df_name, None)
         if df is None:
