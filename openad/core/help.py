@@ -233,7 +233,7 @@ def all_commands(
                 commands_organized.pop("_namespace") if "_namespace" in commands_organized else plugin_name.lower()
             )
             output.append(f"<yellow><reverse> PLUGIN </reverse></yellow><reverse> {plugin_name} </reverse>\n")
-            output.append(f"<soft>To learn more about this plugin, run <cmd>{namespace} ?</cmd></soft>\n")
+            output.append(f"<soft>To learn more about this plugin, run <cmd>{namespace}</cmd></soft>\n")
 
         # Toolkit commands - add header
         elif toolkit_name:

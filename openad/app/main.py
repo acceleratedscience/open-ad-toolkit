@@ -144,56 +144,6 @@ class RUNCMD(Cmd):
         if namespace:
             plugins_metadata[namespace] = p.metadata
 
-    # -------------------------------------------------------------
-    # TEMPORARY FIX UNTIL ALL TOOLKIT CODE IS REMOVED
-    # -------------------------------------------------------------
-    # This enables users to run `rxn` or `ds4sd` to see information
-    # about a toolkit plus instructions on how to install it.
-    # - - -
-    # Originally this belonged in grammar.py but this needs to be
-    # added AFTER the plugin statemenets are added to avoid conflict
-    # with the new RXN plugin statements.
-    # - - -
-    # More specifically, the toolkit statement that captures `rxn`
-    # conflicts with the new rxn plugin statements that all start
-    # with `rxn` as prefix.
-    from pyparsing import Forward, CaselessKeyword
-    from openad.core.help import help_dict_create
-
-    # Available commands per toolkit.
-    toolkit_statements = []
-    toolkit_grammar_help = []
-    for tk in _all_toolkits:
-        tk = tk.lower()
-        toolkit_statements.append(Forward(CaselessKeyword(tk))(tk))
-        current_help.help_orig.append(
-            help_dict_create(
-                name=f"{tk} splash",
-                category="Toolkits",
-                command=tk.lower(),
-                # This description is never read. Inside main.py -> do_help()
-                # there is a clause that intercepts this command and displays
-                # the available commands for the toolkit instead.
-                description=f"Display the splash screen for the {tk} toolkit.",
-            )
-        )
-    for st in toolkit_statements:
-        current_statement_defs |= st
-    # -------------------------------------------------------------
-    # END TEMPORARY FIX
-    # -------------------------------------------------------------
-
-    # Plugin name or namespace --> display plugin overview
-    plugin_statements = []
-    for plugin_instance in plugin_instances:
-        plugin_metadata = plugin_instance.metadata
-        plugin_namespace = plugin_metadata.get("namespace")
-        plugin_name = plugin_metadata.get("name", "").lower()
-        plugin_statements.append(Forward(CaselessKeyword(plugin_namespace))(plugin_namespace))
-        plugin_statements.append(Forward(CaselessKeyword(plugin_name))(plugin_namespace))
-    for st in plugin_statements:
-        current_statement_defs |= st
-
     # # Instantiate memory class # Trash
     # memory = Memory()
 
@@ -423,25 +373,25 @@ class RUNCMD(Cmd):
         # Compile list of plugin names and namespaces.
         plugin_namespaces = set()
         plugin_names = set()
-        plugin_ns_name_map = {}  # map namespace to name
+        plugin_name_ns_map = {}  # map namespace to name
         for cmd in self.current_help.help_plugins:
             if cmd.get("plugin_name"):
-                plugin_names.add(cmd.get("plugin_name").lower())
+                plugin_name = cmd.get("plugin_name").lower()
+                plugin_names.add(plugin_name)
+                if not plugin_name in plugin_name_ns_map:
+                    plugin_name_ns_map[plugin_name] = cmd.get("plugin_namespace", "")
             if cmd.get("plugin_namespace"):
                 namespace = (cmd.get("plugin_namespace", "") or "").lower()
                 plugin_namespaces.add(namespace)
-                if not namespace in plugin_ns_name_map:
-                    plugin_ns_name_map[namespace] = cmd.get("plugin_name")
 
         # `<plugin_name_or_namespace> ?` or `? <plugin_name_or_namespace>` --> Display plugin overview.
         if inp.lower() in plugin_names:
             plugin_name, plugin_commands_organized = get_case_insensitive_key(all_plugin_commands_organized, inp)
-            plugin_name = inp.lower()
-            return display_plugin_overview(self.plugins_metadata[plugin_name])
+            plugin_namespace = plugin_name_ns_map.get(plugin_name.lower(), "")
+            return display_plugin_overview(self.plugins_metadata[plugin_namespace])
         elif inp.lower() in plugin_namespaces:
             plugin_namespace = inp.lower()
-            plugin_name = plugin_ns_name_map.get(plugin_namespace, "")
-            return display_plugin_overview(self.plugins_metadata[plugin_name])
+            return display_plugin_overview(self.plugins_metadata[plugin_namespace])
 
         # `<toolkit_name> ?` --> Display all toolkit commands.
         if inp.upper() in _all_toolkits:

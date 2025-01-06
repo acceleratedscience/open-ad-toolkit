@@ -159,10 +159,11 @@ statements = []  # Statement definitions
 grammar_help = []  # Help text
 
 
-# Add molecule grammar (moved to refresh zone)
+# Add small molecule grammar
+# Note: moved to create_statements()
 # smol_grammar_add(statements=statements, grammar_help=grammar_help)
 
-# Add protein grammar
+# Add macromolecule grammar
 mmol_grammar_add(statements=statements, grammar_help=grammar_help)
 
 # TODO: Organize all other grammar also by individual files
@@ -307,24 +308,21 @@ NOTE_TOOLKITS_SEE_ALL = "<soft>To see all available toolkits, run <cmd>list all 
 NOTE_TOOLKITS = "<soft>To learn more about toolkits, run <cmd>toolkit ?</cmd>.</soft>"
 
 
-# NOTE:
-# Moved to main.py to avoid conflicts with commands from the plugins.
-# See main.py for more information.
-# - - -
-# # Available commands per toolkit.
-# for tk in _all_toolkits:
-#     statements.append(Forward(CaselessKeyword(tk))(tk))
-#     grammar_help.append(
-#         help_dict_create(
-#             name=f"{tk} splash",
-#             category="Toolkits",
-#             command=tk.lower(),
-#             # This description is never read. Inside main.py -> do_help()
-#             # there is a clause that intercepts this command and displays
-#             # the available commands for the toolkit instead.
-#             description=f"Display the splash screen for the {tk} toolkit.",
-#         )
-#     )
+# Toolkit splash screens
+for tk in _all_toolkits:
+    # Note: statement creation is moved to create_statements()
+    # statements.append(Forward(CaselessKeyword(tk))(tk))
+    grammar_help.append(
+        help_dict_create(
+            name=f"{tk} splash",
+            category="Toolkits",
+            command=tk.lower(),
+            # This description is never read. Inside main.py -> do_help()
+            # there is a clause that intercepts this command and displays
+            # the available commands for the toolkit instead.
+            description=f"Display the splash screen for the {tk} toolkit.",
+        )
+    )
 
 # List toolkits
 statements.append(Forward(lister + toolkits("toolkits"))("list_toolkits"))
@@ -992,14 +990,17 @@ def create_statements(cmd_pointer):
     #    return
     # global statements_zom
 
-    cmd_pointer.current_statements_def = Forward()
     cmd_pointer.current_statements = orig_statements.copy()
+    cmd_pointer.current_statement_defs = Forward()
     service_statements = []
     try:
         service_catalog = get_cataloged_service_defs()
         temp_help = []
 
+        # Add model services grammar
         service_grammar_add(statements=cmd_pointer.current_statements, help=temp_help, service_catalog=service_catalog)
+
+        # Add small molecule grammar
         smol_grammar_add(statements=cmd_pointer.current_statements, grammar_help=temp_help)
 
         # cmd_pointer.current_statements.extend(service_statements)
@@ -1011,21 +1012,34 @@ def create_statements(cmd_pointer):
         print(e)
         pass
 
-    # add plugins
+    # Add plugin commands
     for stmt in cmd_pointer.plugins_statements:
         cmd_pointer.current_statements.append(stmt)
-    # added to stop duplication after model services run
-    cmd_pointer.current_help.help_plugins = []
+    cmd_pointer.current_help.help_plugins = []  # Prevent duplication
     cmd_pointer.current_help.help_plugins.extend(cmd_pointer.plugins_help)
     cmd_pointer.current_help.reset_help()
 
-    for i in cmd_pointer.current_statements:
-        cmd_pointer.current_statement_defs |= i
-
+    # Add toolkit commands
     if cmd_pointer.toolkit_current is not None:
-        for i in cmd_pointer.toolkit_current.methods_grammar:
-            cmd_pointer.current_statement_defs |= i
-            cmd_pointer.current_statements.append(i)
+        for stmt in cmd_pointer.toolkit_current.methods_grammar:
+            cmd_pointer.current_statements.append(stmt)
+
+    # Add plugin overview commands
+    for plugin_instance in cmd_pointer.plugin_instances:
+        plugin_metadata = plugin_instance.metadata
+        if plugin_metadata:
+            plugin_namespace = plugin_metadata.get("namespace", "")
+            plugin_name = plugin_metadata.get("name", "").lower()
+            cmd_pointer.current_statements.append(Forward(CaselessKeyword(plugin_namespace))(plugin_namespace))
+            cmd_pointer.current_statements.append(Forward(CaselessKeyword(plugin_name))(plugin_namespace))
+
+    # Add toolkit overview commands
+    for tk in _all_toolkits:
+        cmd_pointer.current_statements.append(Forward(CaselessKeyword(tk))(tk))
+
+    # Rebuild parser with updated statements
+    for stmt in cmd_pointer.current_statements:
+        cmd_pointer.current_statement_defs |= stmt
 
     # statements_zom = ZeroOrMore(statements_def)
 

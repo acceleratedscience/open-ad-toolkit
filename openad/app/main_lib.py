@@ -123,7 +123,6 @@ def lang_parse(cmd_pointer, parser):
     """the routes commands to the correct functions"""
 
     # print("lang_parse", parser.getName())
-    # print(">>", cmd_pointer.plugins_metadata.keys())
     # print(parser)
 
     # Workspace commands
@@ -417,6 +416,9 @@ def lang_parse(cmd_pointer, parser):
     # Plugin commands
     elif parser.getName() in cmd_pointer.plugin_objects.keys():
         return cmd_pointer.plugin_objects[parser.getName()].exec_command(cmd_pointer, parser)
+
+    else:
+        return "No matching command found"
 
     return
 

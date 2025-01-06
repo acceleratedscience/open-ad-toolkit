@@ -1,5 +1,5 @@
 import os
-import json
+import yaml
 from openad.helpers.output import output_text
 from openad.helpers.locale import localize
 from openad.plugins.style_parser import wrap_text
@@ -14,9 +14,9 @@ def assemble_plugin_metadata(plugin_dir, cmd_help_dicts):
     # Load metadata from file
     plugin_metadata = {}
     try:
-        metadata_file = os.path.join(plugin_dir, "plugin_metadata.json")
+        metadata_file = os.path.join(plugin_dir, "plugin_metadata.yaml")
         with open(metadata_file, "r", encoding="utf-8") as f:
-            plugin_metadata = json.load(f)
+            plugin_metadata = yaml.safe_load(f)
     except Exception:  # pylint: disable=broad-except
         pass
 
