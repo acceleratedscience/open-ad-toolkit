@@ -136,6 +136,39 @@ class RUNCMD(Cmd):
         plugins_statements.extend(p.statements)
         plugins_help.extend(p.help)
 
+    # -------------------------------------------------------------
+    # TEMPORARY FIX UNTIL ALL TOOLKIT CODE IS REMOVED
+    # -------------------------------------------------------------
+    # This enables users to run `rxn` or `ds4sd` to see information
+    # about a toolkit plus instructions on how to install it.
+    # - - -
+    # Originally this belonged in grammar.py but this needs to be
+    # added AFTER the plugin statemenets are added to avoid conflict
+    # with the new RXN plugin statements.
+    # - - -
+    # More specifically, the toolkit statement that captures `rxn`
+    # conflicts with the new rxn plugin statements that all start
+    # with `rxn` as prefix.
+    # -------------------------------------------------------------
+    from pyparsing import Forward, CaselessKeyword
+    from openad.core.help import help_dict_create
+
+    # Available commands per toolkit.
+    for tk in _all_toolkits:
+        statements.append(Forward(CaselessKeyword(tk))(tk))
+        grammar_help.append(
+            help_dict_create(
+                name=f"{tk} splash",
+                category="Toolkits",
+                command=tk.lower(),
+                # This description is never read. Inside main.py -> do_help()
+                # there is a clause that intercepts this command and displays
+                # the available commands for the toolkit instead.
+                description=f"Display the splash screen for the {tk} toolkit.",
+            )
+        )
+    # -------------------------------------------------------------
+
     # # Instantiate memory class # Trash
     # memory = Memory()
 

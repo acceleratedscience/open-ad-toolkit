@@ -307,6 +307,10 @@ NOTE_TOOLKITS_SEE_ALL = "<soft>To see all available toolkits, run <cmd>list all 
 NOTE_TOOLKITS = "<soft>To learn more about toolkits, run <cmd>toolkit ?</cmd>.</soft>"
 
 
+# NOTE:
+# Moved to main.py to avoid conflicts with commands from the plugins.
+# See main.py for more information.
+# - - -
 # # Available commands per toolkit.
 # for tk in _all_toolkits:
 #     statements.append(Forward(CaselessKeyword(tk))(tk))
