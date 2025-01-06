@@ -3,10 +3,11 @@
 import re
 import os
 import webbrowser
-from openad.helpers.files import open_file
-from openad.helpers.general import singular, is_toolkit_installed, get_print_width, get_locale
+from openad.helpers.general import singular, is_toolkit_installed, get_print_width
 from openad.helpers.output import output_error
 from openad.helpers.output_msgs import msg
+from openad.helpers.locale import open_localized_file
+from openad.helpers.plugins import all_cmds_note
 from openad.app.global_var_lib import GLOBAL_SETTINGS
 
 # Importing our own plugins.
@@ -59,6 +60,8 @@ def help_dict_create_v2(
     """
     Create a help dictionary.
 
+    The help dictionaries are stored in cmd_pointer.current_help.help_plugins and are consumed by command_details()
+
     Parameters
     ----------
     category: str
@@ -78,13 +81,9 @@ def help_dict_create_v2(
         Option B: The actual desciption of the command, useful for one-line descriptions (eg. "Say hello to the world")
         or when the description needs to be parsed with variables (eg. f"Say hello to {name}"). When both description_file
         and description are provided, description will be prioritized.
-    note: str | dict, optional
-        Optional bottom note to the command description, eg. "To learn more about xyz, run `xyz ?`"
-        Can be a dict with localized notes, eg. {"en": "Note in English", "fr": "Note en français"}
     """
 
-    description = description or _try_localize_description_file(description_file)
-    note = _try_localize_note_text(note)
+    description = description or open_localized_file(description_file)
 
     # Always store command string as a list, even if it's a single string.
     # Some commands have multiple aliases, so we need to support multiple strings.
@@ -96,65 +95,7 @@ def help_dict_create_v2(
         "category": category,
         "commands": cmd_str_list,
         "description": description,
-        "note": note,
     }
-
-
-# Prioritize localized description files if available
-def _try_localize_description_file(path):
-    if not path:
-        return None
-    path_localized = _localize_path(path)
-    path_localized_region = _localize_path(path, True)
-
-    # Check if language+region-localized description file exist
-    if os.path.isfile(path_localized_region):
-        path = path_localized_region
-
-    # Check if language-localized description file exist
-    elif os.path.isfile(path_localized):
-        path = path_localized
-
-    description = open_file(path)
-    return description
-
-
-# Localize the description filename with the
-# locale settings from your terminal.
-def _localize_path(path: str, include_region=False):
-    lang = get_locale("lang")
-    if lang:
-        region = get_locale("region") if include_region else None
-        if region:
-            path = path.replace(".txt", f"_{lang}_{region}.txt")
-        else:
-            path = path.replace(".txt", f"_{lang}.txt")
-    return path
-
-
-def _try_localize_note_text(note: str):
-    if not note:
-        return None
-
-    # Simple string note
-    elif isinstance(note, str):
-        return note
-
-    # Localized note
-    elif isinstance(note, dict):
-        lang = get_locale("lang")
-        region = get_locale("region")
-        _note = None
-        if lang:
-            _note = note.get(f"{lang}_{region}", None) if region else None
-            if not _note:
-                _note = note.get(lang, None)
-        if not _note:
-            _note = note.get("en", None)
-
-        return _note
-
-    return note
 
 
 def organize_commands(cmds):
@@ -456,7 +397,7 @@ def _append_matches(match_list, inp, output, match_word=False):
     return output
 
 
-def command_details(cmd: list, cmd_pointer):
+def command_details(cmd: list):
     """
     Return a single command with its description.
 
@@ -480,24 +421,25 @@ def command_details(cmd: list, cmd_pointer):
         else:
             cmd_str_list_styled.append(style(f"<cmd>{cmd_str}</cmd>", width=print_width))
 
+    # Bottom note
+    note = None
+    if "plugin_name" in cmd and "plugin_namespace" in cmd:
+        note = all_cmds_note(cmd.get("plugin_name"), cmd.get("plugin_namespace"))
+
     # Style description and note
     if GLOBAL_SETTINGS["display"] == "notebook":
         description = cmd["description"]
-        note = f'\n<soft>{cmd["note"]}</soft>' if "note" in cmd and cmd["note"] is not None else None
+
     else:
         description = style(cmd["description"], width=print_width)
-        note = (
-            style(f'\n<soft>{cmd["note"]}</soft>', width=print_width)
-            if "note" in cmd and cmd["note"] is not None
-            else None
-        )
+        note = style(note, width=print_width) if note else None
 
     # Separator
     sep = "<soft>" + sep_len * "-" + "</soft>"
 
     # Style description
     output = ["\n".join(cmd_str_list_styled), sep, description]
-    if note is not None:
+    if note:
         output.append(note)
     return "\n".join(output)
 

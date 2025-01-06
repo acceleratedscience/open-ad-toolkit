@@ -109,6 +109,7 @@ from openad.helpers.output_msgs import msg
 from openad.helpers.general import refresh_prompt, user_input, validate_file_path, ensure_file_path
 from openad.helpers.splash import splash
 from openad.helpers.output_content import openad_intro
+from openad.helpers.plugins import display_plugin_overview
 
 from openad.plugins import edit_json
 
@@ -122,6 +123,7 @@ def lang_parse(cmd_pointer, parser):
     """the routes commands to the correct functions"""
 
     # print("lang_parse", parser.getName())
+    # print(">>", cmd_pointer.plugins_metadata.keys())
     # print(parser)
 
     # Workspace commands
@@ -155,12 +157,10 @@ def lang_parse(cmd_pointer, parser):
         return get_context(cmd_pointer, parser)
     elif parser.getName() == "unset_context":
         return unset_context(cmd_pointer, parser)
-    elif parser.getName() in _all_toolkits:
-        # Toolkit welcome screens
-        return output_text(splash(parser.getName(), cmd_pointer), nowrap=True)
+
+    # Model Service grammar
     elif parser.getName() == "get_model_service_result":
         return get_model_service_result(cmd_pointer, parser)
-    # Model Service grammar
     elif parser.getName() == "catalog_add_model_service":
         result = catalog_add_model_service(cmd_pointer, parser)
         if result is True:
@@ -406,7 +406,15 @@ def lang_parse(cmd_pointer, parser):
     elif parser.getName() == "cmd_pointer":
         return cmd_pointer
 
-    # openad Plugin Search for commands
+    # Plugin overview screens (name or namspace)
+    elif parser.getName() in cmd_pointer.plugins_metadata.keys():
+        return display_plugin_overview(cmd_pointer.plugins_metadata[parser.getName()])
+
+    # Toolkit overview screens
+    elif parser.getName().upper() in _all_toolkits:
+        return output_text(splash(parser.getName(), cmd_pointer), nowrap=True)
+
+    # Plugin commands
     elif parser.getName() in cmd_pointer.plugin_objects.keys():
         return cmd_pointer.plugin_objects[parser.getName()].exec_command(cmd_pointer, parser)
 

@@ -20,6 +20,7 @@ from openad.app import login_manager
 from openad.gui.gui_launcher import gui_init, GUI_SERVER, gui_shutdown
 from openad.gui.ws_server import ws_server  # Web socket server for gui - experimental
 from openad.helpers.output import output_table
+from openad.helpers.plugins import display_plugin_overview
 
 # Core
 import openad.core.help as openad_help
@@ -127,14 +128,21 @@ class RUNCMD(Cmd):
 
     # Load OpenAD Plugins into cmd_pointer
     plugins = PLUGIN_CLASS_LIST.copy()
+    plugin_instances = []
     plugin_objects = {}
     plugins_statements = []
     plugins_help = []
+    plugins_metadata = {}
     for plugin in plugins:
         p = plugin()
+        plugin_instances.append(p)
         plugin_objects.update(p.PLUGIN_OBJECTS)
         plugins_statements.extend(p.statements)
         plugins_help.extend(p.help)
+
+        namespace = p.metadata.get("namespace")
+        if namespace:
+            plugins_metadata[namespace] = p.metadata
 
     # -------------------------------------------------------------
     # TEMPORARY FIX UNTIL ALL TOOLKIT CODE IS REMOVED
@@ -149,14 +157,16 @@ class RUNCMD(Cmd):
     # More specifically, the toolkit statement that captures `rxn`
     # conflicts with the new rxn plugin statements that all start
     # with `rxn` as prefix.
-    # -------------------------------------------------------------
     from pyparsing import Forward, CaselessKeyword
     from openad.core.help import help_dict_create
 
     # Available commands per toolkit.
+    toolkit_statements = []
+    toolkit_grammar_help = []
     for tk in _all_toolkits:
-        statements.append(Forward(CaselessKeyword(tk))(tk))
-        grammar_help.append(
+        tk = tk.lower()
+        toolkit_statements.append(Forward(CaselessKeyword(tk))(tk))
+        current_help.help_orig.append(
             help_dict_create(
                 name=f"{tk} splash",
                 category="Toolkits",
@@ -167,7 +177,22 @@ class RUNCMD(Cmd):
                 description=f"Display the splash screen for the {tk} toolkit.",
             )
         )
+    for st in toolkit_statements:
+        current_statement_defs |= st
     # -------------------------------------------------------------
+    # END TEMPORARY FIX
+    # -------------------------------------------------------------
+
+    # Plugin name or namespace --> display plugin overview
+    plugin_statements = []
+    for plugin_instance in plugin_instances:
+        plugin_metadata = plugin_instance.metadata
+        plugin_namespace = plugin_metadata.get("namespace")
+        plugin_name = plugin_metadata.get("name", "").lower()
+        plugin_statements.append(Forward(CaselessKeyword(plugin_namespace))(plugin_namespace))
+        plugin_statements.append(Forward(CaselessKeyword(plugin_name))(plugin_namespace))
+    for st in plugin_statements:
+        current_statement_defs |= st
 
     # # Instantiate memory class # Trash
     # memory = Memory()
@@ -408,22 +433,15 @@ class RUNCMD(Cmd):
                 if not namespace in plugin_ns_name_map:
                     plugin_ns_name_map[namespace] = cmd.get("plugin_name")
 
-        # `<plugin_name_or_namespace> ?` or `? <plugin_name_or_namespace>` --> Display all plugin commands.
+        # `<plugin_name_or_namespace> ?` or `? <plugin_name_or_namespace>` --> Display plugin overview.
         if inp.lower() in plugin_names:
+            plugin_name, plugin_commands_organized = get_case_insensitive_key(all_plugin_commands_organized, inp)
             plugin_name = inp.lower()
-            plugin_name, plugin_commands_organized = get_case_insensitive_key(
-                all_plugin_commands_organized, plugin_name
-            )
-            return output_text(
-                openad_help.all_commands(plugin_commands_organized, plugin_name=plugin_name, cmd_pointer=self), pad=2
-            )
-        if inp.lower() in plugin_namespaces:
+            return display_plugin_overview(self.plugins_metadata[plugin_name])
+        elif inp.lower() in plugin_namespaces:
             plugin_namespace = inp.lower()
             plugin_name = plugin_ns_name_map.get(plugin_namespace, "")
-            plugin_commands_organized = all_plugin_commands_organized.get(plugin_name, {})
-            return output_text(
-                openad_help.all_commands(plugin_commands_organized, plugin_name=plugin_name, cmd_pointer=self), pad=2
-            )
+            return display_plugin_overview(self.plugins_metadata[plugin_name])
 
         # `<toolkit_name> ?` --> Display all toolkit commands.
         if inp.upper() in _all_toolkits:
@@ -516,7 +534,7 @@ class RUNCMD(Cmd):
         # Single command -> show details.
         elif result_count == 1 or is_exact_match:
             return output_text(
-                openad_help.command_details(all_matching_commands[0], self),
+                openad_help.command_details(all_matching_commands[0]),
                 edge=True,
                 pad=pad,
                 pad_top=pad_top,
