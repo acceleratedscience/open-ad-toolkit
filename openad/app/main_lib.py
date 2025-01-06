@@ -121,7 +121,8 @@ from openad.plugins import edit_json
 def lang_parse(cmd_pointer, parser):
     """the routes commands to the correct functions"""
 
-    # print("Parser command name", parser.getName())
+    # print("lang_parse", parser.getName())
+    # print(parser)
 
     # Workspace commands
     if parser.getName() == "create_workspace_statement":
