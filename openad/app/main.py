@@ -126,13 +126,16 @@ class RUNCMD(Cmd):
     llm_model = "instructlab/granite-7b-lab"
     llm_models = SUPPORTED_TELL_ME_MODELS_SETTINGS
 
-    # Load OpenAD Plugins into cmd_pointer
+    # Load OpenAD plugins into cmd_pointer
     plugins = PLUGIN_CLASS_LIST.copy()
     plugin_instances = []
     plugin_objects = {}
     plugins_statements = []
     plugins_help = []
     plugins_metadata = {}
+    plugin_namespaces = set()
+    plugin_names = set()  # Lowercase names
+    plugin_name_ns_map = {}  # Lets us map lowercase name to namespace
     for plugin in plugins:
         p = plugin()
         plugin_instances.append(p)
@@ -140,9 +143,15 @@ class RUNCMD(Cmd):
         plugins_statements.extend(p.statements)
         plugins_help.extend(p.help)
 
-        namespace = p.metadata.get("namespace")
-        if namespace:
-            plugins_metadata[namespace] = p.metadata
+        plugin_namespace = p.metadata.get("namespace")
+        if plugin_namespace:
+            plugins_metadata[plugin_namespace] = p.metadata
+
+        plugin_name = p.metadata.get("name")
+        if plugin_name:
+            plugin_names.add(plugin_name.lower())
+            if not plugin_name in plugin_name_ns_map:
+                plugin_name_ns_map[plugin_name.lower()] = plugin_namespace
 
     # # Instantiate memory class # Trash
     # memory = Memory()
@@ -370,26 +379,12 @@ class RUNCMD(Cmd):
                     # Print
                     return output_text("".join(output), pad=1, edge=True)
 
-        # Compile list of plugin names and namespaces.
-        plugin_namespaces = set()
-        plugin_names = set()
-        plugin_name_ns_map = {}  # map namespace to name
-        for cmd in self.current_help.help_plugins:
-            if cmd.get("plugin_name"):
-                plugin_name = cmd.get("plugin_name").lower()
-                plugin_names.add(plugin_name)
-                if not plugin_name in plugin_name_ns_map:
-                    plugin_name_ns_map[plugin_name] = cmd.get("plugin_namespace", "")
-            if cmd.get("plugin_namespace"):
-                namespace = (cmd.get("plugin_namespace", "") or "").lower()
-                plugin_namespaces.add(namespace)
-
         # `<plugin_name_or_namespace> ?` or `? <plugin_name_or_namespace>` --> Display plugin overview.
-        if inp.lower() in plugin_names:
+        if inp.lower() in self.plugin_names:
             plugin_name, plugin_commands_organized = get_case_insensitive_key(all_plugin_commands_organized, inp)
-            plugin_namespace = plugin_name_ns_map.get(plugin_name.lower(), "")
+            plugin_namespace = self.plugin_name_ns_map.get(plugin_name.lower(), "")
             return display_plugin_overview(self.plugins_metadata[plugin_namespace])
-        elif inp.lower() in plugin_namespaces:
+        elif inp.lower() in self.plugin_namespaces:
             plugin_namespace = inp.lower()
             return display_plugin_overview(self.plugins_metadata[plugin_namespace])
 
