@@ -308,7 +308,7 @@ NOTE_TOOLKITS_SEE_ALL = "<soft>To see all available toolkits, run <cmd>list all 
 NOTE_TOOLKITS = "<soft>To learn more about toolkits, run <cmd>toolkit ?</cmd>.</soft>"
 
 
-# Toolkit splash screens
+# Toolkit overview screens (explains what, how to install, etc.)
 for tk in _all_toolkits:
     # Note: statement creation is moved to create_statements()
     # statements.append(Forward(CaselessKeyword(tk))(tk))

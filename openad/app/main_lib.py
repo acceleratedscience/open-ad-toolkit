@@ -399,12 +399,6 @@ def lang_parse(cmd_pointer, parser):
             err = err + "\n" + str(parser.asList())
             return output_error(msg("fail_toolkit_exec_cmd"))
 
-    # Development commands (unpublished in help)
-    elif parser.getName() == "flask_example":
-        return flask_example(cmd_pointer, parser)
-    elif parser.getName() == "cmd_pointer":
-        return cmd_pointer
-
     # Plugin overview screens (name or namspace)
     elif parser.getName() in cmd_pointer.plugins_metadata.keys():
         return display_plugin_overview(cmd_pointer.plugins_metadata[parser.getName()])
@@ -417,8 +411,11 @@ def lang_parse(cmd_pointer, parser):
     elif parser.getName() in cmd_pointer.plugin_objects.keys():
         return cmd_pointer.plugin_objects[parser.getName()].exec_command(cmd_pointer, parser)
 
-    else:
-        return "No matching command found"
+    # Development commands (unpublished in help)
+    elif parser.getName() == "flask_example":
+        return flask_example(cmd_pointer, parser)
+    elif parser.getName() == "cmd_pointer":
+        return cmd_pointer
 
     return
 

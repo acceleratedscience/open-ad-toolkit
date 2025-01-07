@@ -947,6 +947,7 @@ class RUNCMD(Cmd):
         else:
             return x
 
+    # To do: implement this for main commands (was implemented for plugins)
     def get_df(self, df_name: str):
         """
         Return a dataframe from the API variables.
