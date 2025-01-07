@@ -11,7 +11,6 @@ python3 docs/generate_docs.py
 
 import os
 import re
-import sys
 import pyperclip
 
 # Add the root directory to the sys.path

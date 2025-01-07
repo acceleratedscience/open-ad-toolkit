@@ -59,7 +59,7 @@ Un-comment this section to test how GitHub alerts are translated for Just the Do
 
 -->
 
-<img src="assets/openad-cli-landing.svg" width="481" height="323" alt="OpenAD CLI" />
+<img src="assets/molecule-header.jpg" width="100%" alt="OpenAD" />
 
 # OpenAD
 
