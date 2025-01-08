@@ -59,7 +59,7 @@ Un-comment this section to test how GitHub alerts are translated for Just the Do
 
 -->
 
-<img src="assets/molecule-header.jpg" width="100%" alt="OpenAD" />
+<img src="assets/molecule-header.jpg" width="830" height="300" alt="OpenAD" />
 
 # OpenAD
 

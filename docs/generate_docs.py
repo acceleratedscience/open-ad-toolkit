@@ -275,8 +275,8 @@ def _translate_image_urls(readme_md):
     # ![some alt text](assets/the_image.png)
     # ![some alt text](../assets/the_image.png)
     readme_md = re.sub(
-        r"!\[(.*?)\]\((../)?assets/(.*?)\)",
-        lambda m: f"![{m.group(1)}]({base}{m.group(3)})",
+        r"!\[(.*?)\]\((..\/)?assets\/(.*?)\)",
+        lambda m: f'<img src="{base}{m.group(3)}" />',
         readme_md,
     )
 
@@ -284,7 +284,7 @@ def _translate_image_urls(readme_md):
     # <img src="assets/the_image.png">
     # <img src="../assets/the_image.png">
     readme_md = re.sub(
-        r'<img src="(../)?assets/(.*?)"',
+        r'<img src="(..\/)?assets\/(.*?)"',
         lambda m: f'<img src="{base}{m.group(2)}"',
         readme_md,
     )
