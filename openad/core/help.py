@@ -55,7 +55,6 @@ def help_dict_create_v2(
     plugin_namespace: str = None,
     description_file: str = None,
     description: str = None,
-    note: str | dict = None,
 ):
     """
     Create a help dictionary.

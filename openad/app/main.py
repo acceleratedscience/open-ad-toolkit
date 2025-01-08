@@ -145,6 +145,7 @@ class RUNCMD(Cmd):
 
         plugin_namespace = p.metadata.get("namespace")
         if plugin_namespace:
+            plugin_namespaces.add(plugin_namespace)
             plugins_metadata[plugin_namespace] = p.metadata
 
         plugin_name = p.metadata.get("name")
