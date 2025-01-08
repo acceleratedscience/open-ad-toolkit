@@ -113,12 +113,8 @@ The following commands only need to be run once after installation:
 1.  **Select the kernel**<br>
     Make sure to select the "ad-venv" iPython kernel. You can do this under _Kernel > Change Kernel_, or in the latest versions of Jupyter by clicking the kernel name in the top right hand corner. If you don't see your iPython kernel, make sure you followed the Jupyter Setup instructions listed above.
 
-    <figure>
-        <a href="../assets/jupyter-notebook-kernel.png" target="_blank"><img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/jupyter-notebook-kernel.png"></a>
-    </figure>
-    <figure>
-        <a href="../assets/jupyter-lab-kernel.png" target="_blank"><img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/jupyter-lab-kernel.png"></a>
-    </figure>
+    <img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/jupyter-notebook-kernel.png">
+    <img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/jupyter-lab-kernel.png">
 
 2.  **Magic Commands**<br>
     Magic commands let you access any OpenAD CLI command from within Jupyter. They are invoked by the `%openad` prefix.
