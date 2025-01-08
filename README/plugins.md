@@ -24,8 +24,9 @@ Before you can interact with the plugins, you'll need to register with each indi
       [deepsearch-experience.res.ibm.com](https://deepsearch-experience.res.ibm.com)<br>
     - Once logged in, click the `Toolkit / API` icon in the top right hand corner, then open the HTTP section
     - Click the "Generate new API key" button<br>
-      
-      ![Deep Search API key](../assets/ds-api-key.png)
+      <br>
+      <a href="../assets/ds-api-key.png" target="_blank"><img src="../assets/ds-api-key.png" style="max-width:819px" /></a>
+      <!-- ![Deep Search API key](../assets/ds-api-key.png) -->
 
 2. Once inside the OpenAD client, you'll be prompted to authenticate when activating the Deep Search (DS4SD) toolkit. When running `set context ds4sd` :
 
@@ -48,8 +49,9 @@ Before you can interact with the plugins, you'll need to register with each indi
 
     - Sign up for an RXN account at [rxn.app.accelerate.science](https://rxn.app.accelerate.science)
     - Obtain your API key by clicking the user profile icon in the top right hand corner and select "Account", then select the "My keys" tab.<br>
-      
-      ![RXN API key](../assets/rxn-api-key.png)
+      <br>
+      <a href="../assets/rxn-api-key.png" target="_blank"><img src="../assets/rxn-api-key.png" style="max-width:821px" /></a>
+      <!-- ![RXN API key](../assets/rxn-api-key.png) -->
 
 2. When setting the context to RXN using `set context rxn` you'll be prompted to create a new auth configuration file:
 
