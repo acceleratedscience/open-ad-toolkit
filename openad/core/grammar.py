@@ -310,7 +310,11 @@ NOTE_TOOLKITS = "<soft>To learn more about toolkits, run <cmd>toolkit ?</cmd>.</
 
 # Toolkit overview screens (explains what, how to install, etc.)
 for tk in _all_toolkits:
-    statements.append(Forward(CaselessKeyword(tk))(tk))
+    # Note: statement creation is moved to create_statements()
+    # because they need to be appended after the toolkit command
+    # statements, otherwise `<prefix> abc` would be caught by
+    # the toolkit command `<prefix>` and cause error.
+    # statements.append(Forward(CaselessKeyword(tk))(tk))
     grammar_help.append(
         help_dict_create(
             name=f"{tk} splash",
@@ -1023,7 +1027,7 @@ def create_statements(cmd_pointer):
         for stmt in cmd_pointer.toolkit_current.methods_grammar:
             cmd_pointer.current_statements.append(stmt)
 
-    # Add plugin overview commands (plugin name/namespace)
+    # Add plugin overview commands
     for plugin_instance in cmd_pointer.plugin_instances:
         plugin_metadata = plugin_instance.metadata
         if plugin_metadata:
@@ -1032,8 +1036,9 @@ def create_statements(cmd_pointer):
             cmd_pointer.current_statements.append(Forward(CaselessKeyword(plugin_namespace))(plugin_namespace))
             cmd_pointer.current_statements.append(Forward(CaselessKeyword(plugin_name))(plugin_namespace))
 
-    # Addding toolkit overview commandshappens in toolkit section on top - see line:
-    # for tk in _all_toolkits:
+    # Add toolkit overview commands
+    for tk in _all_toolkits:
+        cmd_pointer.current_statements.append(Forward(CaselessKeyword(tk))(tk))
 
     # Rebuild parser with updated statements
     for stmt in cmd_pointer.current_statements:
