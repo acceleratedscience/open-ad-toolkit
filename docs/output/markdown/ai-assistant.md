@@ -52,11 +52,11 @@ That's it for local usage. If you want to run Ollama remotely, continue below.
 
 ### Ollama Remote Setup with SkyPilot
 
-1.  Check out our configuration file to launch ollama on SkyPilot: [ollama_setup.yaml](./openad/ollama_setup.yaml)
+1.  Check out our configuration file to launch ollama on SkyPilot: [ollama_setup.yaml](https://github.com/acceleratedscience/open-ad-toolkit/blob/main/openad/ollama_setup.yaml)
 
         sky serve up ollama_setup.yaml
 
-1.  Set up local environment variables
+2.  Set up local environment variables
 
     -   For windows `setx OLLAMA_HOST=<sky-server-ip>:11434`
     -   For Linux and macOS `export OLLAMA_HOST=<sky-server-ip>:11434`

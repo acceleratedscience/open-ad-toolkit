@@ -733,6 +733,9 @@ def valid_smiles(smiles: str) -> bool:
         The SMILES string to validate
     """
 
+    if not smiles or not possible_smiles(smiles):
+        return False
+
     try:
         m = Chem.MolFromSmiles(smiles, sanitize=False)  # pylint: disable=no-member
     except Exception:  # pylint: disable=broad-exception-caught
