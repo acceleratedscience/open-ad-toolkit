@@ -77,6 +77,9 @@ First install the toolkit, then set the context to this toolkit.
     add toolkit ds4sd
     set context ds4sd
 
+    add toolkit rxn
+    set context rxn
+
 <br><br>
 
 ## Sample Commands
