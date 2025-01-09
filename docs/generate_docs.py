@@ -868,7 +868,6 @@ def _compile_commands(cmds_organized):
 ############################################################
 
 if __name__ == "__main__":
-
     # Update existing README files
     output_text("<magenta>Updating existing README files</magenta>", pad_top=4)
     update_github_readme_md()
