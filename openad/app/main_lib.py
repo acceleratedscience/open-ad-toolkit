@@ -400,8 +400,8 @@ def lang_parse(cmd_pointer, parser):
             return output_error(msg("fail_toolkit_exec_cmd"))
 
     # Plugin overview screens (name or namspace)
-    elif parser.getName() in cmd_pointer.plugins_metadata.keys():
-        return display_plugin_overview(cmd_pointer.plugins_metadata[parser.getName()])
+    elif parser.getName().lower() in cmd_pointer.plugins_metadata.keys():
+        return display_plugin_overview(cmd_pointer.plugins_metadata[parser.getName().lower()])
 
     # Toolkit overview screens
     elif parser.getName().upper() in _all_toolkits:
