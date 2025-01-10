@@ -14,6 +14,7 @@ from openad.helpers.output import output_success, output_error, output_warning
 CACHE_DIR = "/_result_cache/"
 
 
+# To do: rename toolkit param to plugin (currently consumed by both)
 def create_analysis_record(smiles, toolkit, function, parameters, results):
     """creates an analysis record for a molecule"""
     record = copy.deepcopy(ANALYSIS_RECORD)

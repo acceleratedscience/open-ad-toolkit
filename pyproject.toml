@@ -1,10 +1,10 @@
 [tool.poetry]
 name = "openad"
-version = "0.6.9"
+version = "0.6.9.1"
 
 description = "Open Accelerated Discovery Client"
 authors = ["Phil Downey <phil.downey1@ibm.com>"]
-readme = "README.md"
+readme = "README/README_pypi.md"
 license = "MIT"
 homepage = "https://www.accelerate.science/"
 documentation = "https://acceleratedscience.github.io/openad-docs/"
@@ -19,7 +19,6 @@ classifiers = [
     "Typing :: Typed",
     "Programming Language :: Python :: 3.11"
 ]
-[project.urls]
 
 [tool.black]
 line-length=120
@@ -29,6 +28,7 @@ line-length=120
 orjson = "3.10.3"
 
 python = ">=3.10,<3.12"
+setuptools = "75.8.0"
 blessed = "^1.20.0"
 flask = "3.0.0"
 flask-bootstrap = "3.3.7.1"

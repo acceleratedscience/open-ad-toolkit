@@ -11,7 +11,6 @@ python3 docs/generate_docs.py
 
 import os
 import re
-import sys
 import pyperclip
 
 # Add the root directory to the sys.path
@@ -32,7 +31,7 @@ from openad.helpers.output_msgs import msg
 from openad.helpers.files import open_file, write_file
 
 # Get the repo path, this python file's parent folder.
-REPO_PATH = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+# REPO_PATH = os.path.dirname(os.path.dirname(os.path.realpath(__file__))) %%
 FLAG_SUCCESS = f"<on_green> SUCCESS </on_green>"
 FLAG_ERROR = f"<on_red> FAILED </on_red>"
 DO_NOT_EDIT = (
@@ -87,7 +86,7 @@ def update_github_readme_md(filename="README.md"):
     success, err_msg = write_file(filename, readme_md, return_err=True)
     if success:
         output_text(FLAG_SUCCESS)
-        output_text(f"<soft>Updated</soft> <reset>{filename}</reset>")
+        output_text(f"<soft>Updated</soft> <reset>/{filename}</reset>")
     else:
         output_text(FLAG_ERROR)
         output_error(err_msg, pad=0)
@@ -96,15 +95,15 @@ def update_github_readme_md(filename="README.md"):
 # endregion
 
 ############################################################
-# region - README_plugins.md (GitHub)
+# region - README/plugins.md (GitHub)
 
 
 # Update the README_plugins.md file with the about_plugin description
-def update_github_readme_plugin_md(filename="README_plugins.md"):
+def update_github_readme_plugins_md(filename="plugins.md"):
     output_text(f"<h1>Updating <yellow>{filename}</yellow> with about_plugin description</h1>", pad_top=2)
 
     # Read README.md file content
-    readme_plugin_md, err_msg = open_file(filename, return_err=True)
+    readme_plugin_md, err_msg = open_file(f"README/{filename}", return_err=True)
     if not readme_plugin_md:
         output_text(FLAG_ERROR, pad_top=1)
         output_error(err_msg)
@@ -128,10 +127,10 @@ def update_github_readme_plugin_md(filename="README_plugins.md"):
     )
 
     # Write to output file
-    success, err_msg = write_file(filename, readme_plugin_md, return_err=True)
+    success, err_msg = write_file(f"README/{filename}", readme_plugin_md, return_err=True)
     if success:
         output_text(FLAG_SUCCESS)
-        output_text(f"<soft>Updated</soft> <reset>{filename}</reset>")
+        output_text(f"<soft>Updated</soft> <reset>/README/{filename}</reset>")
     else:
         output_text(FLAG_ERROR)
         output_error(err_msg, pad=0)
@@ -140,25 +139,25 @@ def update_github_readme_plugin_md(filename="README_plugins.md"):
 # endregion
 
 ############################################################
-# region - README_commands.md (GitHub)
+# region - README/commands.md (GitHub)
 
 
-# Update the README_commands.md with auto-generated commands
-def update_github_readme_commands_md():
-    render_commands_md("README_commands.md", for_github=True)
+# Update the README/commands.md with auto-generated commands
+def generate_github_readme_commands_md():
+    generate_commands_md("commands.md", for_github=True)
 
 
 # endregion
 
 ############################################################
-# region - README-PYPI.md (PyPi)
+# region - README/README_pypi.md (PyPi)
 
 
-# Create the README--PYPI.md for PyPI package page
+# Create the README_pypi.md for PyPI package page
 # - - -
-# A modified version of the README.md file with links pointing
-# to the documentation website instead of other readme files.
-def render_pypi_readme_md(filename="README--PYPI.md"):
+# A modified version of the README.md file with links and images
+# pointing to the documentation website instead of other readme files.
+def generate_pypi_readme_md(filename="README_pypi.md"):
     output_text(f"<h1>Generating <yellow>{filename}</yellow></h1>", pad_top=2)
 
     # Read README.md file content
@@ -171,20 +170,20 @@ def render_pypi_readme_md(filename="README--PYPI.md"):
     # Remove comments from README content
     readme_md = re.sub(r"<!--.*?-->\n?", "", readme_md, flags=re.DOTALL)
 
-    # Update link pointers
-    readme_md = _update_links(readme_md, absolute=True)
+    # Translate image URLs
+    readme_md = _translate_image_urls(readme_md)
 
-    # Update GitHub alerts
-    readme_md = _update_alerts(readme_md)
+    # Translate link pointers
+    readme_md = _translate_links(readme_md, absolute=True)
 
     # Insert DO NOT EDIT comment
     readme_md = DO_NOT_EDIT_PYPI + "\n\n" + readme_md
 
     # Write to output file
-    success, err_msg = write_file(filename, readme_md, return_err=True)
+    success, err_msg = write_file(f"README/{filename}", readme_md, return_err=True)
     if success:
         output_text(FLAG_SUCCESS)
-        output_text(f"<soft>Exported to</soft> <reset>/docs/output/markdown/{filename}</reset>")
+        output_text(f"<soft>Exported to</soft> <reset>/{filename}</reset>")
     else:
         output_text(FLAG_ERROR)
         output_error(err_msg, pad=0)
@@ -222,7 +221,7 @@ def _render_docs_page(filename):
         return
 
     # Read README_xxx.md base file content
-    base_md_path = "README.md" if filename == "index.md" else f"README_{filename}"
+    base_md_path = "README.md" if filename == "index.md" else f"README/{filename}"
     base_md, err_msg = open_file(base_md_path, return_err=True)
     if not base_md:
         output_text(FLAG_ERROR, pad_top=1)
@@ -238,17 +237,20 @@ def _render_docs_page(filename):
     # Remove comments
     base_md = re.sub(r"<!--.*?-->\n?", "", base_md, flags=re.DOTALL)
 
-    # Remove superfloous linebreaks
+    # Remove superfluous linebreaks
     base_md = re.sub(r"\n\s*\n", "\n\n", base_md)
 
     # Trim space from start and end of file
     base_md = base_md.strip()
 
+    # Translate image URLs
+    base_md = _translate_image_urls(base_md)
+
     # Update link pointers
-    base_md = _update_links(base_md)
+    base_md = _translate_links(base_md)
 
     # Update GitHub alerts
-    base_md = _update_alerts(base_md)
+    base_md = _translate_alerts(base_md)
 
     # Insert DO NOT EDIT comment
     input_md = re.sub(r"{{DO_NOT_EDIT}}", DO_NOT_EDIT, input_md)
@@ -266,7 +268,31 @@ def _render_docs_page(filename):
         output_error(err_msg, pad=0)
 
 
-def _update_links(text, absolute=False):
+def _translate_image_urls(readme_md):
+    base = "https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/"
+
+    # Markdown URLs
+    # ![some alt text](assets/the_image.png)
+    # ![some alt text](../assets/the_image.png)
+    readme_md = re.sub(
+        r"!\[(.*?)\]\((..\/)?assets\/(.*?)\)",
+        lambda m: f'<img src="{base}{m.group(3)}" />',
+        readme_md,
+    )
+
+    # HTML URLs
+    # <img src="assets/the_image.png">
+    # <img src="../assets/the_image.png">
+    readme_md = re.sub(
+        r'<img src="(..\/)?assets\/(.*?)"',
+        lambda m: f'<img src="{base}{m.group(2)}"',
+        readme_md,
+    )
+
+    return readme_md
+
+
+def _translate_links(text, absolute=False):
     """
     When translating a GitHub README file to a just-the-docs markdown file,
     we need to update all internal links so they point to the just-the-docs
@@ -285,40 +311,110 @@ def _update_links(text, absolute=False):
 
     absolute_prefix = "https://acceleratedscience.github.io/openad-docs/" if absolute else ""
 
-    # Update template link back to the main README
+    # Update template links to the main README.md
+    #
+    # Input:
+    #   [some text]: README.md
+    #   [some text]: /README.md
+    #   [some text]: ../README.md
+    #   [some text]: README.md#foo
+    #   [some text]: /README.md#foo
+    #   [some text]: ../README.md#foo
+    #
+    # Relative output (docs website):
+    #   [some text]: index.html
+    #   [some text]: index.html#foo
+    #
+    # Absolute output (PyPI):
+    #   [some text]: https://acceleratedscience.github.io/openad-docs/
+    #   [some text]: https://acceleratedscience.github.io/openad-docs/#foo
     home_link = absolute_prefix if absolute else "index.html"
     text = re.sub(
-        r"^\[(.*?)\]: /?README.md(#.*)?",
-        lambda m: f"[{m.group(1)}]: {home_link}{m.group(2) or ''}",
+        r"^\[(.*?)\]: ((\.\./)|(/))?README.md(#.*)?",
+        lambda m: f"[{m.group(1)}]: {home_link}{m.group(5) or ''}",
         text,
         flags=re.MULTILINE,
     )
 
-    # Update all links back to the main README
-    text = re.sub(r"\[(.*?)\]\(/?README.md(#.*)?\)", lambda m: f"[{m.group(1)}]({home_link}{m.group(2) or ''})", text)
-
-    # Update all template links to secondary README_xxx pages
+    # Update inline links to the main README.md
+    #
+    # Input:
+    #   [some text](README.md)
+    #   [some text](/README.md)
+    #   [some text](../README.md)
+    #   [some text](README.md#foo)
+    #   [some text](/README.md#foo)
+    #   [some text](../README.md#foo)
+    #
+    # Relative output (docs website):
+    #   [some text](index.html)
+    #   [some text](index.html#foo)
+    #
+    # Absolute output (PyPI):
+    #   [some text](https://acceleratedscience.github.io/openad-docs/)
+    #   [some text](https://acceleratedscience.github.io/openad-docs/#foo)
     text = re.sub(
-        r"^\[(.*?)\]: /?README_(.*?).md(#.*)?",
-        lambda m: f"[{m.group(1)}]: {absolute_prefix}{m.group(2)}.html{m.group(3) or ''}",
+        r"\[(.*?)\]\(((\.\./)|(/))?README.md(#.*)?\)", lambda m: f"[{m.group(1)}]({home_link}{m.group(5) or ''})", text
+    )
+
+    # Update template links to secondary README/xxx.md pages
+    #
+    # Input:
+    #   [some text]: abc.md
+    #   [some text]: /abc.md
+    #   [some text]: README/abc.md
+    #   [some text]: /README/abc.md
+    #   [some text]: abc.md#foo
+    #   [some text]: /abc.md#foo
+    #   [some text]: README/abc.md#foo
+    #   [some text]: /README/abc.md#foo
+    #
+    # Relative output (docs website):
+    #   [some text]: abc.html
+    #   [some text]: abc.html#foo
+    #
+    # Absolute output (PyPI):
+    #   [some text]: https://acceleratedscience.github.io/openad-docs/abc.html
+    #   [some text]: https://acceleratedscience.github.io/openad-docs/abc.html#foo
+    text = re.sub(
+        r"^\[(.*?)\]: (/?README)?/?(.*?).md(#.*)?",
+        lambda m: f"[{m.group(1)}]: {absolute_prefix}{m.group(3)}.html{m.group(4) or ''}",
         text,
         flags=re.MULTILINE,
     )
 
-    # Adjust regular links to secondary README_xxx pages
+    # Update inline links to secondary README/xxx.md pages
+    #
+    # Input:
+    #   [some text](_abc.md)
+    #   [some text](/abc.md)
+    #   [some text](README/abc.md)
+    #   [some text](/README/abc.md)
+    #   [some text](abc.md#foo)
+    #   [some text](/abc.md#foo)
+    #   [some text](README/abc.md#foo)
+    #   [some text](/README/abc.md#foo)
+    #
+    # Relative output (docs website):
+    #   [some text](abc.html)
+    #   [some text](abc.html#foo)
+    #
+    # Absolute output (PyPI):
+    #   [some text](https://acceleratedscience.github.io/openad-docs/abc.html)
+    #   [some text](https://acceleratedscience.github.io/openad-docs/abc.html#foo)
     text = re.sub(
-        r"\[(.*?)\]\(/?README_(.*?).md(#.*)?\)",
-        lambda m: f"[{m.group(1)}]({absolute_prefix}{m.group(2)}.html{m.group(3) or ''})",
+        r"\[(.*?)\]\((/?README)?/?(.*?).md(#.*)?\)",
+        lambda m: f"[{m.group(1)}]({absolute_prefix}{m.group(3)}.html{m.group(4) or ''})",
         text,
     )
 
     return text
 
 
-def _update_alerts(text):
+def _translate_alerts(text):
     """
     We use GitHub-specific alert styles in the README files.
-    These need to be updated to render nicely on Just the Docs and PyPI.
+    These need to be tranbslated into HTML to render nicely on Just the Docs and PyPI.
 
     Documentation:
     https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax#alerts
@@ -413,7 +509,7 @@ def _update_alerts(text):
 
 
 # Generate the base-concepts.md file for the documentation website.
-def render_base_concepts_md(filename="base-concepts.md"):
+def generate_base_concepts_md(filename="base-concepts.md"):
     output_text(f"<h1>Generating <yellow>{filename}</yellow></h1>", pad_top=2)
 
     # Read base-concepts.md input file content
@@ -469,7 +565,7 @@ def render_base_concepts_md(filename="base-concepts.md"):
     base_concepts_md = re.sub(r"{{ABOUT_RUN}}", about_run, base_concepts_md, flags=re.DOTALL)
 
     # Write to file
-    success, err_msg = write_file(f"{REPO_PATH}/docs/output/markdown/{filename}", base_concepts_md, return_err=True)
+    success, err_msg = write_file(f"docs/output/markdown/{filename}", base_concepts_md, return_err=True)
     if success:
         output_text(FLAG_SUCCESS)
         output_text(f"<soft>Exported to</soft> <reset>/docs/output/markdown/{filename}</reset>")
@@ -486,8 +582,8 @@ def render_base_concepts_md(filename="base-concepts.md"):
 
 # Loop through all commands and export them to a markdown file
 # that is ready to be included in the just-the-docs documentation.
-def render_commands_md(filename="commands.md", for_github=False):
-    output_text("<h1>Generating <yellow>commands.md</yellow> from help</h1>", pad_top=2)
+def generate_commands_md(filename="commands.md", for_github=False):
+    output_text(f"<h1>Generating <yellow>{filename}</yellow> from help</h1>", pad_top=2)
 
     toc = []  # Table of content
     md_output = []  # Markdown
@@ -532,11 +628,11 @@ def render_commands_md(filename="commands.md", for_github=False):
 
     # Update GitHub alerts
     if not for_github:
-        commands_md = _update_alerts(commands_md)
+        commands_md = _translate_alerts(commands_md)
 
     # Replace the just-the-docs header with a back link when generating for GitHub
     if for_github:
-        commands_md = re.sub(r"^---.+---", "<sub>[&larr; BACK](./README.md#openad)</sub>", commands_md, flags=re.DOTALL)
+        commands_md = re.sub(r"^---.+---", "<sub>[&larr; BACK](../#openad)</sub>", commands_md, flags=re.DOTALL)
 
     # Insert DO NOT EDIT comment
     commands_md = re.sub(r"{{DO_NOT_EDIT}}", DO_NOT_EDIT, commands_md, flags=re.DOTALL)
@@ -549,12 +645,15 @@ def render_commands_md(filename="commands.md", for_github=False):
 
     # Write to file
     if for_github:
-        success, err_msg = write_file(f"{REPO_PATH}/{filename}", commands_md, return_err=True)
+        success, err_msg = write_file(f"README/{filename}", commands_md, return_err=True)
     else:
-        success, err_msg = write_file(f"{REPO_PATH}/docs/output/markdown/{filename}", commands_md, return_err=True)
+        success, err_msg = write_file(f"docs/output/markdown/{filename}", commands_md, return_err=True)
     if success:
         output_text(FLAG_SUCCESS)
-        output_text(f"<soft>Exported to</soft> <reset>/docs/output/markdown/{filename}</reset>")
+        if for_github:
+            output_text(f"<soft>Exported to</soft> <reset>/README/{filename}</reset>")
+        else:
+            output_text(f"<soft>Exported to</soft> <reset>/docs/output/markdown/{filename}</reset>")
     else:
         output_text(FLAG_ERROR)
         output_error(err_msg, pad=0)
@@ -638,7 +737,7 @@ def _toc_link(title, level=0):
 # Loop through all commands and export them to a CSV file.
 # This is not used for anything in particular, other than
 # to have a list of all commands in a file which can be annotated.
-def render_commands_csv(filename="commands.csv", delimiter=";"):
+def generate_commands_csv(filename="commands.csv", delimiter=";"):
     output_text("<h1>Generating <yellow>commands.csv</yellow> from help</h1>", pad_top=2)
     output = [["Command", "Category"]]
 
@@ -667,7 +766,7 @@ def render_commands_csv(filename="commands.csv", delimiter=";"):
     pyperclip.copy(output_clipboard)
 
     # Write to file
-    success, err_msg = write_file(f"{REPO_PATH}/docs/output/csv/{filename}", output_str, return_err=True)
+    success, err_msg = write_file(f"docs/output/csv/{filename}", output_str, return_err=True)
     if success:
         output_text(FLAG_SUCCESS)
         output_text(f"<soft>Exported to</soft> <reset>/docs/output/csv/{filename}</reset>")
@@ -691,8 +790,8 @@ def render_commands_csv(filename="commands.csv", delimiter=";"):
 # the commands are to be inserted - any text after this line
 # will be overwritten:
 # "The following commands are available for this toolkit:"
-def render_description_txt(filename="llm_description.txt"):
-    output_text("<h1>Updating commands in <yellow>llm_description.txt</yellow> for all toolkits</h1>", pad_top=4)
+def generate_llm_description_txt(filename="llm_description.txt"):
+    output_text("<h1>Updating commands in <yellow>llm_description.txt</yellow> for all toolkits</h1>", pad_top=2)
 
     # Loop through all toolkits
     for toolkit_name in _all_toolkits:
@@ -710,7 +809,7 @@ def render_description_txt(filename="llm_description.txt"):
         output = _compile_commands(toolkit_cmds_organized)
 
         # Load llm_description.txt
-        file_path = f"{REPO_PATH}/openad/user_toolkits/{toolkit_name}/{filename}"
+        file_path = f"openad/user_toolkits/{toolkit_name}/{filename}"
         description_txt, err_msg = open_file(file_path, return_err=True)
         if not description_txt:
             output_text(flag_toolkit + FLAG_ERROR)
@@ -769,30 +868,35 @@ def _compile_commands(cmds_organized):
 ############################################################
 
 if __name__ == "__main__":
-    # Update README files
+    # Update existing README files
+    output_text("<magenta>Updating existing README files</magenta>", pad_top=4)
     update_github_readme_md()
-    update_github_readme_plugin_md()
-    update_github_readme_commands_md()
+    update_github_readme_plugins_md()
 
-    # Generate alt README for PyPI (links pointing to docs)
-    render_pypi_readme_md()
+    # Generate README files
+    output_text("<magenta>Generating README files</magenta>", pad_top=4)
+    generate_github_readme_commands_md()
+    generate_pypi_readme_md()  # For PyPI (links pointing to docs)
 
     # Turn README files into pages for the documentation website
+    output_text("<magenta>Translating README files to doc website pages</magenta>", pad_top=4)
     render_docs_pages()
 
     # Generate additional bespoke pages for documentation website
-    render_base_concepts_md()
-    render_commands_md()
+    output_text("<magenta>Generate additional doc website pages</magenta>", pad_top=4)
+    generate_base_concepts_md()
+    generate_commands_md()
 
     # Render additional files
-    render_commands_csv()
-    render_description_txt()
+    output_text("<magenta>Generate additional files</magenta>", pad_top=4)
+    generate_commands_csv()
+    generate_llm_description_txt()
 
     # For testing
     # _render_docs_page("index.md")
 
     # Move all generated markdown files to the documentation repo
     docs = []
-    for filename in os.listdir(f"{REPO_PATH}/docs/output/markdown"):
+    for filename in os.listdir(f"docs/output/markdown"):
         docs.append(filename)
     copy_docs(docs)

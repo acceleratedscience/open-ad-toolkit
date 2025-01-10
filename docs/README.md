@@ -12,7 +12,7 @@ The documentation generation script assures consistency by propagating the sourc
 
 1. Use the descriptions from the [`/source`](./source) folder to update:
    - The `README.md` with OpenAD description
-   - The `README_plugins.md` with plugins description
+   - The `README/plugins.md` with plugins description
    - The [openad_intro] text (/openad/helpers/output_content.py) that is displayed when running the `intro` command
    - The informational paragraphs that are displayed when running the `? workspace`, `? mws`, `? tookit`, `? context` and `? run` commands (see _output_content_ in [main.py](/openad/app/main.py))
    - The [Base Concepts](https://acceleratedscience.github.io/openad-docs/base-concepts.html) page on the documentation website
@@ -56,21 +56,21 @@ A key part of the translation from **GitHub** markdown to **Just the Docs** and 
 
     [Link](README.md)
     [Link](README.md#quick-install)
-    [Link](README_developers.md)
-    [Link](README_developers.md#testing-a-branch)
+    [Link](README/developers.md)
+    [Link](README/developers.md#testing-a-branch)
     [Link]: README.md
     [Link]: README.md#quick-install
-    [Link]: README_developers.md
-    [Link]: README_developers.md#testing-a-branch
+    [Link]: README/developers.md
+    [Link]: README/developers.md#testing-a-branch
     
     [Link](/README.md)
     [Link](/README.md#quick-install)
-    [Link](/README_developers.md)
-    [Link](/README_developers.md#testing-a-branch)
+    [Link](/README/developers.md)
+    [Link](/README/developers.md#testing-a-branch)
     [Link]: /README.md
     [Link]: /README.md#quick-install
-    [Link]: /README_developers.md
-    [Link]: /README_developers.md#testing-a-branch
+    [Link]: /README/developers.md
+    [Link]: /README/developers.md#testing-a-branch
 
 **Translation: Just the Docs**
 

@@ -51,6 +51,12 @@ https://github.com/acceleratedscience/open-ad-toolkit/tree/main/docs
 
         deactivate
 
+## Running Bash Commands
+
+To run a command in bash mode, prepend it with `openad` and make sure to escape quotes.
+
+    openad show molecules using file \'base_molecules.sdf\'
+
 <br>
 
 # Getting Started - Jupyter
@@ -107,14 +113,10 @@ The following commands only need to be run once after installation:
 1.  **Select the kernel**<br>
     Make sure to select the "ad-venv" iPython kernel. You can do this under _Kernel > Change Kernel_, or in the latest versions of Jupyter by clicking the kernel name in the top right hand corner. If you don't see your iPython kernel, make sure you followed the Jupyter Setup instructions listed above.
 
-    <figure>
-        <a href="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/jupyter-notebook-kernel.png" target="_blank"><img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/jupyter-notebook-kernel.png"></a>
-    </figure>
-    <figure>
-        <a href="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/jupyter-lab-kernel.png" target="_blank"><img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/jupyter-lab-kernel.png"></a>
-    </figure>
+    <img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/jupyter-notebook-kernel.png" />
+    <img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/jupyter-lab-kernel.png" />
 
-1.  **Magic Commands**<br>
+2.  **Magic Commands**<br>
     Magic commands let you access any OpenAD CLI command from within Jupyter. They are invoked by the `%openad` prefix.
 
         %openad list files
