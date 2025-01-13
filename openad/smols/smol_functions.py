@@ -333,6 +333,37 @@ def get_smol_from_pubchem(identifier: str, show_spinner: bool = False) -> dict |
     return None
 
 
+def get_mol_rdkit(inchi_or_smiles: str, identifier_type: str = None) -> dict | None:
+    """
+    Parse identifier into an RDKit molecule.
+
+    Parameters
+    ----------
+    inchi_or_smiles: str
+        An InChI or SMILES molecule identifier
+    identifier_type: str
+        Either "inchi" or "smiles"
+    """
+
+    mol_rdkit = None
+
+    try:
+        if identifier_type and isinstance(identifier_type, str) and identifier_type.lower() == "smiles":
+            mol_rdkit = Chem.MolFromSmiles(inchi_or_smiles)  # pylint: disable=no-member
+        else:
+            mol_rdkit = Chem.MolFromInchi(inchi_or_smiles)
+            if not mol_rdkit:
+                mol_rdkit = Chem.MolFromSmiles(inchi_or_smiles)  # pylint: disable=no-member
+            if not mol_rdkit:
+                mol_rdkit = Chem.MolFromInchi("InChI=1S/" + inchi_or_smiles)
+            if not mol_rdkit:
+                return None
+    except Exception:  # pylint: disable=broad-exception-caught
+        return None
+
+    return mol_rdkit
+
+
 # region--local
 def _get_pubchem_compound(identifier: str, identifier_type: str) -> dict | None:
     """
@@ -650,6 +681,36 @@ def get_molset_mols(path_absolute: str):
 # region - Validation
 
 
+def valid_identifier(identifier: str, rich=False) -> bool:
+    """
+    Verify if a string is a valid molecule identifier.
+
+    Parameters
+    ----------
+    identifier: str
+        The molecule identifier to validate
+    rich: bool
+        If True, check PubChem
+    """
+
+    if possible_smiles(identifier) and valid_smiles(identifier):
+        return True
+    if valid_inchi(identifier):
+        return True
+    if is_numeric(identifier):
+        return True
+
+    # Check pubchem
+    if rich:
+        try:
+            pcy.get_compounds(identifier, "name")
+            return True
+        except Exception:
+            pass
+
+    return False
+
+
 def possible_smiles(smiles: str) -> bool:
     """
     Verify is a string *could* be a SMILES definition.
@@ -659,7 +720,7 @@ def possible_smiles(smiles: str) -> bool:
     smiles: str
         The SMILES string to validate
     """
-    return bool(re.search(r"[BCNOFPSI](?:[a-df-z0-9#=@+%$:\[\]\(\)\\\/\.\-])*", smiles))
+    return bool(re.search(r"[BCNOFPSI](?:[a-df-z0-9#=@+%$:\[\]\(\)\\\/\.\-])*", smiles, flags=re.I))
 
 
 def valid_smiles(smiles: str) -> bool:
@@ -671,6 +732,9 @@ def valid_smiles(smiles: str) -> bool:
     smiles: str
         The SMILES string to validate
     """
+
+    if not smiles or not possible_smiles(smiles):
+        return False
 
     try:
         m = Chem.MolFromSmiles(smiles, sanitize=False)  # pylint: disable=no-member
@@ -1391,6 +1455,13 @@ def clear_mws(cmd_pointer: object, force: bool = False):
     if force or confirm_prompt("Clear the molecule working set?"):
         cmd_pointer.molecule_list.clear()
         output_success("Molecule working set was cleared", return_val=False)
+
+
+def mws_is_empty(cmd_pointer):
+    """
+    Check if the molecule working set is empty.
+    """
+    return len(cmd_pointer.molecule_list) == 0
 
 
 # endregion

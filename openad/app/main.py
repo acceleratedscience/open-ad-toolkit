@@ -20,6 +20,7 @@ from openad.app import login_manager
 from openad.gui.gui_launcher import gui_init, GUI_SERVER, gui_shutdown
 from openad.gui.ws_server import ws_server  # Web socket server for gui - experimental
 from openad.helpers.output import output_table
+from openad.helpers.plugins import display_plugin_overview
 
 # Core
 import openad.core.help as openad_help
@@ -39,13 +40,13 @@ from openad.core.lang_workspaces import set_workspace
 from openad.llm_assist.model_reference import SUPPORTED_TELL_ME_MODELS, SUPPORTED_TELL_ME_MODELS_SETTINGS
 
 # Helpers
-from openad.helpers.general import singular, confirm_prompt
+from openad.helpers.general import singular, confirm_prompt, get_case_insensitive_key
 from openad.helpers.output import output_text, output_error, output_warning
 from openad.helpers.output_msgs import msg
 from openad.helpers.general import refresh_prompt
 from openad.helpers.splash import splash
 from openad.helpers.files import empty_trash
-from openad.helpers.output_content import about_workspace, about_plugin, about_run, about_context
+from openad.helpers.output_content import about_workspace, about_mws, about_plugin, about_run, about_context
 
 # Globals
 from openad.app.global_var_lib import _repo_dir
@@ -72,10 +73,10 @@ installed_packages_list = [
 for module_name in installed_packages_list:
     try:
         module_name = module_name.replace("-", "_")
-        module = importlib.import_module(f"{module_name}.plugins")
-        PLUGIN_CLASS_LIST.append(getattr(module, "openad_plugins"))
-    except:
-        output_error("ignoring addin, incorrect class definition")
+        module = importlib.import_module(f"{module_name}.main")
+        PLUGIN_CLASS_LIST.append(getattr(module, "OpenADPlugin"))
+    except Exception as err:  # pylint: disable=broad-exception-caught
+        output_error([f"Ignoring plugin '<yellow>{module_name}</yellow>' due to incorrect class definition", err])
 
 
 sys.ps1 = "\x01\033[31m\x02>>> \x01\033[0m\x02"
@@ -125,16 +126,33 @@ class RUNCMD(Cmd):
     llm_model = "instructlab/granite-7b-lab"
     llm_models = SUPPORTED_TELL_ME_MODELS_SETTINGS
 
-    # Load OpenAD Plugins into cmd_pointer
+    # Load OpenAD plugins into cmd_pointer
     plugins = PLUGIN_CLASS_LIST.copy()
+    plugin_instances = []
     plugin_objects = {}
     plugins_statements = []
     plugins_help = []
+    plugins_metadata = {}
+    plugin_namespaces = set()
+    plugin_names = set()  # Lowercase names
+    plugin_name_ns_map = {}  # Lets us map lowercase name to namespace
     for plugin in plugins:
         p = plugin()
+        plugin_instances.append(p)
         plugin_objects.update(p.PLUGIN_OBJECTS)
         plugins_statements.extend(p.statements)
         plugins_help.extend(p.help)
+
+        plugin_namespace = p.metadata.get("namespace")
+        if plugin_namespace:
+            plugin_namespaces.add(plugin_namespace)
+            plugins_metadata[plugin_namespace] = p.metadata
+
+        plugin_name = p.metadata.get("name")
+        if plugin_name:
+            plugin_names.add(plugin_name.lower())
+            if not plugin_name in plugin_name_ns_map:
+                plugin_name_ns_map[plugin_name.lower()] = plugin_namespace
 
     # # Instantiate memory class # Trash
     # memory = Memory()
@@ -221,14 +239,22 @@ class RUNCMD(Cmd):
         """Sets the current workspace path in the settings dictionary"""
         self.settings["paths"][workspace.upper()] = os.path.expanduser(path)
 
-    def do_help(self, inp, display_info=True, starts_with_only=False, **kwargs):
+    def do_help(self, inp, display_info=True, starts_with_only=False, disable_category_match=False, **kwargs):
         """CMD class called function:
         Display help about a command, for example 'list'.
 
-        Parameters:
-            inp: The input string.
-            display_info: If True, display info text when relevant.
-                Eg. `workspaces ?`, `toolkits ?`, `runs ?`, etc.
+        Parameters
+        ----------
+        inp: str
+            The input string.
+        display_info: bool, optional
+            If True, display info text when relevant.
+            Eg. `workspaces ?`, `toolkits ?`, `runs ?`, etc.
+        starts_with_only: bool, optional
+            If True, only match commands that start with the input string.
+        disable_category_match: bool, optional
+            Unless True, print help for a certain category only, if the input matches a category.
+
 
         The different entry points:
             ? list                   --> The questionmark is interpreted and stripped by the language parser
@@ -237,9 +263,10 @@ class RUNCMD(Cmd):
             %openad ? list           --> Notebook and API requests go via api_remote()
         """
 
-        # `??` --> Advanced help (to be implemented)
+        # `??` --> Advanced help, for now opens the commands page on docs website.
         if inp.strip() == "?":
-            return output_warning(openad_help.advanced_help())
+            openad_help.advanced_help()
+            return
 
         # Strip question marks at the beginning and end of input.
         if len(inp.strip()) > 0 and inp.split()[0] == "?":
@@ -256,81 +283,165 @@ class RUNCMD(Cmd):
         inp = inp.lower().strip()
         # [:] is to make a copy of the list, so we don't modify the original.
         all_commands = self.current_help.help_current[:]
+        all_commands_organized = openad_help.organize_commands(all_commands)
+        all_plugin_commands = self.current_help.help_plugins
+        all_plugin_commands_organized = openad_help.organize_commands(all_plugin_commands).get("_plugins", {})
         matching_commands = {
             "match_word": [],
             "match_start": [],
             "match_anywhere": [],
         }
 
-        # When returning result for a help query, we have to remove
-        # the `... ?` and `? ...` commands because their documentation
-        # is included in the command string and we don't want them to
-        # show up when you query eg. `all ?`. When you just run `?`
-        # the inp will be "" and we don't want to remove anything.
-        # See grammar.py -> "command help 1" and "command help 2".
+        # There are two help commands that behave differently from the rest:
+        #   `? ...`   --> List all commands containing "..."
+        #   `... ?`   --> List all commands starting with "..."
+        # - - -
+        # Because these command strings don't correspond to an actual command,
+        # their documentation is included in the command string itself, but
+        # we don't want them to show up when you query eg. `? all`.
+        # So we filter them out of the results.
+        # - - -
         if len(inp):
-            cmds_to_ignore = [cmd for cmd in all_commands if "-->" in cmd["command"]]
+            cmds_to_ignore = [cmd for cmd in all_commands if "--> List all commands" in cmd["commands"][0]]
             for cmd in cmds_to_ignore:
                 all_commands.remove(cmd)
 
         # `?` --> Display all commands.
         if len(inp.split()) == 0:
             return output_text(
-                openad_help.all_commands(all_commands, toolkit_current=self.toolkit_current, cmd_pointer=self),
+                openad_help.all_commands(
+                    all_commands_organized, toolkit_current=self.toolkit_current, cmd_pointer=self
+                ),
                 pad=2,
                 tabs=1,
+                nowrap=True,
             )
 
-        # Display info text about important key concepts.
-        if display_info and ("return_val" not in kwargs or not kwargs["return_val"]):
-            if inp.lower() == "workspace" or inp.lower() == "workspaces":
-                output_text("<h1>About Workspaces</h1>\n" + about_workspace, edge=True, pad=1, return_val=False)
-            elif inp.lower() == "toolkit" or inp.lower() == "toolkits":
-                output_text("<h1>About Toolkits</h1>\n" + about_plugin, edge=True, pad=1, return_val=False)
-            elif inp.lower() == "run" or inp.lower() == "runs":
-                output_text("<h1>About Runs</h1>\n" + about_run, edge=True, pad=1, return_val=False)
-            elif inp.lower() == "context" or inp.lower() == "contexts":
-                output_text("<h1>About Context</h1>\n" + about_context, edge=True, pad=1, return_val=False)
+        # `<category> ?` / `? <category>` --> Display all commands related to a certain category + into paragraph if available.
+        if not disable_category_match:
+            categories = []
+            categories_map = {}
+            for cmd in all_commands + all_plugin_commands:
+                cat = cmd.get("category")
+                if cat:
+                    cat = cat.lower()
+                    categories_map[cat] = cat
+                    if cat not in categories:
+                        categories.append(cat)
+                        if cat[-1] == "s":
+                            cat_singular = singular(cat)
+                            categories.append(cat_singular)
+                            categories_map[cat_singular] = cat
+            categories.extend(["mws", "plugins", "plugin", "contexts", "context"])
+            categories_map["mws"] = "molecule working set"
+            categories_map["plugins"] = "toolkits"
+            categories_map["plugin"] = "toolkits"
+            categories_map["contexts"] = "toolkits"
+            categories_map["context"] = "toolkits"
 
-        # `<toolkit_name> ?` --> Display all toolkkit commands.
-        if inp.upper() in _all_toolkits + ["DEMO"]:  # DEMO is omitted from _all_toolkits
+            input_cat = categories_map.get(inp.lower(), None)
+            if input_cat:
+                output = []
+                # fmt: off
+                # Add category about text
+                if display_info and ("return_val" not in kwargs or not kwargs["return_val"]):
+                    if input_cat == "workspaces":
+                        output.append("<h1>About Workspaces</h1>\n" + about_workspace + "\n\n\n")
+                    elif input_cat == "molecule working set":
+                        output.append("<h1>About your Molecule Working Set</h1>\n" + about_mws + "\n\n\n")
+                    elif input_cat == "toolkits":
+                        if inp.lower() in ["context", "contexts"]:
+                            output.append("<h1>About Context</h1>\n" + about_context + "\n\n\n")
+                        else:
+                            output.append("<h1>About Plugins</h1>\n" + about_plugin + "\n\n\n")
+                    elif input_cat == "runs":
+                        output.append("<h1>About Runs</h1>\n" + about_run + '\n\n\n')
+                # fmt: on
+
+                # Get category commands
+                category, category_commands = get_case_insensitive_key(all_commands_organized, input_cat)
+
+                # If category is not found in main commands, look across plugins
+                parent_plugin = None
+                if not category_commands:
+                    for plugin_name, plugin_commands_organized in all_plugin_commands_organized.items():
+                        category, category_commands = get_case_insensitive_key(plugin_commands_organized, input_cat)
+                        if category_commands:
+                            parent_plugin = plugin_name
+                            break
+
+                if category_commands:
+                    category_commands_organized = {category: category_commands}
+                    output.append(
+                        openad_help.all_commands(
+                            category_commands_organized, plugin_name=parent_plugin, is_category=True, cmd_pointer=self
+                        )
+                    )
+                    # Print
+                    return output_text("".join(output), pad=1, edge=True)
+
+        # `<plugin_name_or_namespace> ?` or `? <plugin_name_or_namespace>` --> Display plugin overview.
+        if inp.lower() in self.plugin_names:
+            plugin_name, plugin_commands_organized = get_case_insensitive_key(all_plugin_commands_organized, inp)
+            plugin_namespace = self.plugin_name_ns_map.get(plugin_name.lower(), "")
+            return display_plugin_overview(self.plugins_metadata[plugin_namespace])
+        elif inp.lower() in self.plugin_namespaces:
+            plugin_namespace = inp.lower()
+            return display_plugin_overview(self.plugins_metadata[plugin_namespace])
+
+        # `<toolkit_name> ?` --> Display all toolkit commands.
+        if inp.upper() in _all_toolkits:
             toolkit_name = inp.upper()
             ok, toolkit = load_toolkit(toolkit_name)
+            toolkit_commands_organized = openad_help.organize_commands(toolkit.methods_help)
             return output_text(
-                openad_help.all_commands(toolkit.methods_help, toolkit_name, cmd_pointer=self), pad=2, tabs=1
+                openad_help.all_commands(toolkit_commands_organized, toolkit_name=toolkit_name, cmd_pointer=self),
+                pad=2,
+                edge=True,
             )
 
-        # Add the current toolkit's commands to the list of all commands.
+        # Add the current toolkit's commands to the main list of commands.
         try:
             for i in self.toolkit_current.methods_help:
                 if i not in all_commands:
                     all_commands.append(i)
-        except Exception:  # pylint: disable=broad-exception-caught # do not need to know exception
+        except Exception:  # pylint: disable=broad-exception-caught
             pass
+
+        # Add plugin commands to the main list of commands.
+        all_commands = all_commands + all_plugin_commands
 
         # First list commands with full word matches.
         if not starts_with_only:
-            for command in all_commands:
-                words = command["command"].split()
-                inp_singular = singular(inp)
-                inp_plural = inp_singular + "s"
-                if inp_singular in words or inp_plural in words:
-                    matching_commands["match_word"].append(command)
+            for cmd in all_commands:
+                for cmd_str in cmd.get("commands"):
+                    words = cmd_str.split()
+                    inp_singular = singular(inp)
+                    inp_plural = inp_singular + "s"
+                    if inp_singular in words or inp_plural in words:
+                        matching_commands["match_word"].append(cmd)
+                        # When one of the command aliases matches, we don't
+                        # want to mathe the others or we have duplicates
+                        break
 
         # Then list commands starting with the input string.
-        for command in all_commands:
-            if re.match(re.escape(inp), command["command"].lower()) and command not in matching_commands["match_word"]:
-                matching_commands["match_start"].append(command)
+        for cmd in all_commands:
+            for cmd_str in cmd.get("commands"):
+                if re.match(re.escape(inp), cmd_str.lower()) and cmd not in matching_commands["match_word"]:
+                    matching_commands["match_start"].append(cmd)
+                    break
 
         # Then list commands containing the input string.
         if not starts_with_only:
-            for command in all_commands:
-                if (
-                    re.search(re.escape(inp), command["command"].lower())
-                    and command not in matching_commands["match_word"]
-                    and command not in matching_commands["match_start"]
-                ):
-                    matching_commands["match_anywhere"].append(command)
+            for cmd in all_commands:
+                for cmd_str in cmd.get("commands"):
+                    if (
+                        re.search(re.escape(inp), cmd_str.lower())
+                        and cmd not in matching_commands["match_word"]
+                        and cmd not in matching_commands["match_start"]
+                    ):
+                        matching_commands["match_anywhere"].append(cmd)
+                        break
 
         # else:
         all_matching_commands = (
@@ -342,9 +453,10 @@ class RUNCMD(Cmd):
         # Check if there is an exact match.
         # This is for case like `run <run_name> ?` which would otherwise
         # display `run <run_name>` as well as `display run <run_name>`
-        all_matching_commands_str = [item["command"] for item in all_matching_commands]
-
-        exact_match = inp in all_matching_commands_str
+        all_matching_commands_str = []
+        for cmd in all_matching_commands:
+            all_matching_commands_str = all_matching_commands_str + cmd.get("commands")
+        is_exact_match = inp in all_matching_commands_str
 
         # This lets us pass a custom padding value.
         # This is used when suggesting commands after your input was not recognized.
@@ -359,16 +471,16 @@ class RUNCMD(Cmd):
 
         # DISPLAY:
         # No matching commands -> error.
-        if result_count == 0 and not exact_match:
+        if result_count == 0 and not is_exact_match:
             if starts_with_only:
                 return output_error(msg("err_no_cmds_starting", inp), **kwargs)
             else:
                 return output_error(msg("err_no_cmds_matching", inp), **kwargs)
 
         # Single command -> show details.
-        elif result_count == 1 or exact_match:
+        elif result_count == 1 or is_exact_match:
             return output_text(
-                openad_help.command_details(all_matching_commands[0], self),
+                openad_help.command_details(all_matching_commands[0]),
                 edge=True,
                 pad=pad,
                 pad_top=pad_top,
@@ -634,7 +746,7 @@ class RUNCMD(Cmd):
             not convert(inp).lower().startswith("tell me") or convert(inp).lower() == "tell me ?"
         ):
             # ... ?
-            return self.do_help(inp, display_info=False)
+            return self.do_help(inp)
 
         try:
             try:
@@ -728,7 +840,11 @@ class RUNCMD(Cmd):
                     # Fetch commands matching the entire input.
                     # Example input -> `search for molecules in parents`
                     do_help_output_A = self.do_help(
-                        inp + " ?", return_val=True, jup_return_format="plain", starts_with_only=True
+                        inp + " ?",
+                        starts_with_only=True,
+                        disable_category_match=True,
+                        jup_return_format="plain",
+                        return_val=True,
                     )
 
                     # Not for printing
@@ -737,8 +853,9 @@ class RUNCMD(Cmd):
                     # Example input -> `search for molecules in p`
                     do_help_output_B = self.do_help(
                         inp[0 : error_col_grabber(error_descriptor)] + " ?",
-                        jup_return_format="plain",
                         starts_with_only=True,
+                        disable_category_match=True,
+                        jup_return_format="plain",
                         return_val=True,
                     )
 
@@ -746,7 +863,11 @@ class RUNCMD(Cmd):
                     # Fetch commands matching recognized words, or the first word.
                     # Example input -> `search for molecules in`
                     do_help_output_C = self.do_help(
-                        help_ref.lower() + " ?", return_val=True, jup_return_format="plain", starts_with_only=True
+                        help_ref.lower() + " ?",
+                        starts_with_only=True,
+                        disable_category_match=True,
+                        jup_return_format="plain",
+                        return_val=True,
                     )
 
                     # Check for scenario A, B, C in that order.
@@ -775,9 +896,10 @@ class RUNCMD(Cmd):
                             # Not for printing
                             do_help_output_A = self.do_help(
                                 inp[0:error_col] + " ?",
-                                return_val=True,
-                                jup_return_format="plain",
                                 starts_with_only=True,
+                                disable_category_match=True,
+                                jup_return_format="plain",
+                                return_val=True,
                             )
                             show_suggestions = "No commands" not in str(do_help_output_A)
                             multiple_suggestions = "Commands starting with" in str(do_help_output_A)
@@ -795,7 +917,13 @@ class RUNCMD(Cmd):
 
                         # Example to trigger this: `list xxx`
 
-                        self.do_help(help_ref + " ?", starts_with_only=True, return_val=False, pad_top=pad_top)
+                        self.do_help(
+                            help_ref + " ?",
+                            starts_with_only=True,
+                            disable_category_match=True,
+                            pad_top=pad_top,
+                            return_val=False,
+                        )
                         note = msg("run_?")
                         output_text(f"<soft>{note}</soft>", return_val=False, pad=1)
                     return
@@ -819,6 +947,20 @@ class RUNCMD(Cmd):
                 return
         else:
             return x
+
+    # To do: implement this for main commands (was implemented for plugins)
+    def get_df(self, df_name: str):
+        """
+        Return a dataframe from the API variables.
+
+        Used to expose previously defined dataframes to other commands, eg:
+            my_df = pd.read_csv(os.path.join(workspace_path, 'my_reactions.csv'))
+            %openad rxn predict reactions from dataframe my_df
+        """
+        df = self.api_variables.get(df_name, None)
+        if df is None:
+            output_error(f"No dataframe found named <yellow>{df_name}</yellow>", return_val=False)
+        return df
 
 
 # Returns the error positioning in the statement that has been parsed.
@@ -929,9 +1071,7 @@ def api_remote(
             # return magic_prompt.do_help(inp.strip(), display_info=display_info)
 
             # Triggered by magic commands, eg. `%openad ? list files`
-            starts_with_qmark = len(inp) > 0 and inp.split()[0] == "?" and inp.strip() != "??"
-            magic_prompt.do_exit("dummy do not remove")
-            return magic_prompt.do_help(inp.strip(), jup_return_format=None, display_info=starts_with_qmark)
+            return magic_prompt.do_help(inp.strip(), jup_return_format=None)
 
         # If there is a argument and it is not a help attempt to run the command.
         # Note, may be possible add code completion here #revisit

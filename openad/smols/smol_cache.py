@@ -14,6 +14,7 @@ from openad.helpers.output import output_success, output_error, output_warning
 CACHE_DIR = "/_result_cache/"
 
 
+# To do: rename toolkit param to plugin (currently consumed by both)
 def create_analysis_record(smiles, toolkit, function, parameters, results):
     """creates an analysis record for a molecule"""
     record = copy.deepcopy(ANALYSIS_RECORD)
@@ -57,8 +58,6 @@ def _retrieve_results(smiles: str, cmd_pointer) -> list | bool:
     rdkit_mol = Chem.MolFromSmiles(smiles)  # pylint: disable=no-member
     inchi = Chem.rdinchi.MolToInchi(rdkit_mol)[0]
     inchikey = Chem.inchi.InchiToInchiKey(inchi)
-    # print("RETRIEVE SMILES:", smiles, "-->", inchikey)
-
     results = []
     for i in glob.glob(
         _create_workspace_dir_if_nonexistent(cmd_pointer, CACHE_DIR) + inchikey + "-*.res",

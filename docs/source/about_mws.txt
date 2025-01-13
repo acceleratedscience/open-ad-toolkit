@@ -1,7 +1,0 @@
-Your molecule working set (MWS) is an in-memory list of small molecules that is the subject of your calculations and manipulations.
-
-The MWS makes it easy to gather candidate molecules from various sources, either by adding them individually or loading them in batch from a dataframe or CSV or SDF file, calculate certain properties and then store them in your workspace as a molecule set.
-
-When you launch the GUI and you click the bookmark icon on a molecule, it will be stored in the working set.
-
-Please note that at this time the MWS does not support macromolecules, only small molecules.

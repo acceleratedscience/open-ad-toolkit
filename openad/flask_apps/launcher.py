@@ -2,6 +2,7 @@ import os
 import socket
 import webbrowser
 import warnings
+from time import sleep
 from IPython.display import HTML, display
 from IPython.display import IFrame as display_iframe
 from flask import Flask, send_from_directory
@@ -152,6 +153,7 @@ def launch(cmd_pointer=None, routes=None, app_name="", query="", hash=""):
 
         thread = Thread(target=lambda: app.run(host=host, port=port))
         thread.start()
+        sleep(0.5)
     else:
         # CLI --> Start the Flask app in the main thread.
         app.run(host=host, port=port)

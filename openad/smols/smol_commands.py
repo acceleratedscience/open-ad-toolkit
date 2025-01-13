@@ -173,6 +173,19 @@ def format_analysis(smol):
         header_output = " <soft>/</soft> ".join(header_output)
         output = output + "\n" + header_output
 
+        # TEMPORARY FIX
+        # RXN's 'predict retrosynthesis' results are formatted
+        # as a numbered object instead of a list. This causes
+        # key_val_full and thus display_molecule to fail.
+        # Fixing this can happen when RXN is moved to a plugin.
+        # Until then, this fix is a workaround.
+        # So results formatted as:
+        #   { 0: {}, 1: {} }
+        # are turned into:
+        #   [ {}, {} ]
+        if isinstance(results, dict) and int(list(results.keys())[0]) == 0 and int(list(results.keys())[1]) == 1:
+            results = [result for result in results.values()]
+
         # Compile results
         results_output = ""
         for i, result in enumerate(results):
@@ -290,6 +303,8 @@ def remove_molecule(cmd_pointer, inp):
 
     # Remove molecule from working set.
     mol = get_smol_from_mws(cmd_pointer, molecule_identifier)
+    if not mol:
+        return output_error(f"Molecule <yellow>{molecule_identifier}</yellow> was not found in your working set.")
     mws_remove(cmd_pointer, mol, force=force)
 
 

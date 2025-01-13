@@ -1,0 +1,3 @@
+Your workspace represents an isolated environment where your molecules, molecule sets and other files related to your research are stored.
+
+Each workspace has its own command history and corresponds with a directory stored in ~/openad/workspaces, allowing you to work on multiple isolated projects at once. OpenAD comes loaded with a default workspace called 'default', and you can create as many additional workspaces as needed.

@@ -35,7 +35,7 @@ from pyparsing import (
 )
 
 # Main
-from openad.core.help import help_dict_create
+from openad.core.help import help_dict_create, organize_commands
 import openad.toolkit.toolkit_main as toolkit_main  # Not using "from" to avoid circular import.
 from openad.smols.smol_grammar import smol_grammar_add
 from openad.mmols.mmol_grammar import mmol_grammar_add
@@ -160,10 +160,11 @@ statements = []  # Statement definitions
 grammar_help = []  # Help text
 
 
-# Add molecule grammar (moved to refresh zone)
+# Add small molecule grammar
+# Note: moved to create_statements()
 # smol_grammar_add(statements=statements, grammar_help=grammar_help)
 
-# Add protein grammar
+# Add macromolecule grammar
 mmol_grammar_add(statements=statements, grammar_help=grammar_help)
 
 # TODO: Organize all other grammar also by individual files
@@ -221,7 +222,7 @@ grammar_help.append(
 # region - Workspaces
 ##########################################################################
 
-INFO_WORKSPACES = "\n<soft>To learn more about workspaces, run <cmd>workspace ?</cmd></soft>"
+INFO_WORKSPACES = "<soft>To learn more about workspaces, run <cmd>workspace ?</cmd></soft>"
 
 # list workspaces
 statements.append(Forward(lister + workspaces("workspaces"))("list_workspaces"))
@@ -351,9 +352,13 @@ NOTE_TOOLKITS_SEE_ALL = "<soft>To see all available toolkits, run <cmd>list all 
 NOTE_TOOLKITS = "<soft>To learn more about toolkits, run <cmd>toolkit ?</cmd>.</soft>"
 
 
-# Available commands per toolkit.
+# Toolkit overview screens (explains what, how to install, etc.)
 for tk in _all_toolkits:
-    statements.append(Forward(CaselessKeyword(tk))(tk))
+    # Note: statement creation is moved to create_statements()
+    # because they need to be appended after the toolkit command
+    # statements, otherwise `<prefix> abc` would be caught by
+    # the toolkit command `<prefix>` and cause error.
+    # statements.append(Forward(CaselessKeyword(tk))(tk))
     grammar_help.append(
         help_dict_create(
             name=f"{tk} splash",
@@ -373,7 +378,7 @@ grammar_help.append(
         name="list toolkits",
         category="Toolkits",
         command="list toolkits",
-        description=f"List all installed toolkits. To see all available toolkits, run <cmd>list all toolkits</cmd>.",
+        description=f"List all installed toolkits.",
         note=f"{NOTE_TOOLKITS_SEE_ALL}\n{NOTE_TOOLKITS}",
     )
 )
@@ -1003,6 +1008,9 @@ except Exception as e:
 # Launches the demo flask app.
 statements.append(Forward(CaselessKeyword("flask") + CaselessKeyword("example"))("flask_example"))
 
+# Expose the cmd pointer
+statements.append(Forward(CaselessKeyword("cmd_pointer"))("cmd_pointer"))
+
 # endregion
 
 # Define The Concepts of Jobs
@@ -1029,14 +1037,17 @@ def create_statements(cmd_pointer):
     #    return
     # global statements_zom
 
-    cmd_pointer.current_statements_def = Forward()
     cmd_pointer.current_statements = orig_statements.copy()
+    cmd_pointer.current_statement_defs = Forward()
     service_statements = []
     try:
         service_catalog = get_cataloged_service_defs()
         temp_help = []
 
+        # Add model services grammar
         service_grammar_add(statements=cmd_pointer.current_statements, help=temp_help, service_catalog=service_catalog)
+
+        # Add small molecule grammar
         smol_grammar_add(statements=cmd_pointer.current_statements, grammar_help=temp_help)
 
         # cmd_pointer.current_statements.extend(service_statements)
@@ -1047,21 +1058,35 @@ def create_statements(cmd_pointer):
     except Exception as e:
         print(e)
         pass
-    # add plugins
 
+    # Add plugin commands
     for stmt in cmd_pointer.plugins_statements:
         cmd_pointer.current_statements.append(stmt)
-
+    cmd_pointer.current_help.help_plugins = []  # Prevent duplication
     cmd_pointer.current_help.help_plugins.extend(cmd_pointer.plugins_help)
     cmd_pointer.current_help.reset_help()
 
-    for i in cmd_pointer.current_statements:
-        cmd_pointer.current_statement_defs |= i
-
+    # Add toolkit commands
     if cmd_pointer.toolkit_current is not None:
-        for i in cmd_pointer.toolkit_current.methods_grammar:
-            cmd_pointer.current_statement_defs |= i
-            cmd_pointer.current_statements.append(i)
+        for stmt in cmd_pointer.toolkit_current.methods_grammar:
+            cmd_pointer.current_statements.append(stmt)
+
+    # Add plugin overview commands
+    for plugin_instance in cmd_pointer.plugin_instances:
+        plugin_metadata = plugin_instance.metadata
+        if plugin_metadata:
+            plugin_namespace = plugin_metadata.get("namespace", "")
+            plugin_name = plugin_metadata.get("name", "").lower()
+            cmd_pointer.current_statements.append(Forward(CaselessKeyword(plugin_namespace))(plugin_namespace))
+            cmd_pointer.current_statements.append(Forward(CaselessKeyword(plugin_name))(plugin_namespace))
+
+    # Add toolkit overview commands
+    for tk in _all_toolkits:
+        cmd_pointer.current_statements.append(Forward(CaselessKeyword(tk))(tk))
+
+    # Rebuild parser with updated statements
+    for stmt in cmd_pointer.current_statements:
+        cmd_pointer.current_statement_defs |= stmt
 
     # statements_zom = ZeroOrMore(statements_def)
 
@@ -1259,7 +1284,16 @@ def statement_builder(toolkit_pointer, inp_statement):
 
         toolkit_pointer.methods_dict.append(inp_statement)
 
-        toolkit_pointer.methods_help.append(inp_statement["help"])
+        # TEMPORARY toolkit support
+        # We switched help_dict_create to store command string and aliases in "commands" field instead of "command".
+        # We need to translate the toolkit help to the new format.
+        #
+        # Before: toolkit_pointer.methods_help.append(inp_statement["help"])
+        help_statement = inp_statement["help"]
+        cmd = help_statement.pop("command")
+        help_statement["commands"] = [cmd]
+        #
+        toolkit_pointer.methods_help.append(help_statement)
 
     except Exception as err:
         fwd_expr = "Forward( " + expression + ' ("toolkit_exec_' + inp_statement["command"] + '")'
@@ -1401,7 +1435,7 @@ def output_train_statements(cmd_pointer):
             {
                 "command_group": "base",
                 "command_name": grammar_help[i]["name"].replace("_", " "),
-                "command_syntax": tags_to_markdown(grammar_help[i]["command"]),
+                "command_syntax": tags_to_markdown("\n" + "\n".join(grammar_help[i]["commands"])),
                 "command_help": _parse_description(grammar_help[i]["description"]),
             }
         )
@@ -1413,7 +1447,7 @@ def output_train_statements(cmd_pointer):
                 "command_group": "base",
                 "command_name": cmd_pointer.current_help.help_model_services[i]["name"].replace("_", " "),
                 "command_syntax": tags_to_markdown(
-                    cmd_pointer.current_help.help_model_services[i]["command"],
+                    "\n" + "\n".join(cmd_pointer.current_help.help_model_services[i]["commands"]),
                 ),
                 "command_help": _parse_description(
                     cmd_pointer.current_help.help_model_services[i]["description"],
@@ -1588,8 +1622,8 @@ def output_train_statements(cmd_pointer):
     #    training_file.write(str(i) + "\\@\n")
     training_file.close()
     cmds = []
-    cmds.extend(_compile_section(_organize(grammar_help)))
-    cmds.extend(_compile_section(_organize(cmd_pointer.current_help.help_model_services)))
+    cmds.extend(_compile_section(organize_commands(grammar_help)))
+    cmds.extend(_compile_section(organize_commands(cmd_pointer.current_help.help_model_services)))
     commands = "\n".join(cmds)
     i = 0
     new_line_replace = """
@@ -1651,7 +1685,7 @@ def output_train_statements(cmd_pointer):
                 {
                     "toolkit group": a_toolkit.toolkit_name,
                     "command_name": a_toolkit.methods_help[x]["name"],
-                    "command": a_toolkit.methods_help[x]["command"],
+                    "commands": "\n".join(a_toolkit.methods_help[x]["commands"]),
                     "command_help": a_toolkit.methods_help[x]["description"],
                 }
             )
@@ -1680,30 +1714,6 @@ def _parse_description(description):
     # description = description.splitlines()
     # description = "\n".join([line.strip() for line in description])
     return description.strip()
-
-
-def _organize(cmds, toolkit_name=None):
-    commands_organized = {}
-
-    # Organize commands by category.
-    for cmd in cmds:
-        # Get command string.
-        cmd_str = cmd["command"]
-        cmd_description = cmd["description"]
-
-        if "parent" in cmd and cmd["parent"]:
-            cmd_str = "  -> " + cmd_str
-
-        # Get category.
-        category = cmd["category"] if "category" in cmd else "Uncategorized"
-
-        # Organize by category.
-        if category in commands_organized:
-            commands_organized[category].append((cmd_str, cmd_description))
-        else:
-            commands_organized[category] = [(cmd_str, cmd_description)]
-
-    return commands_organized
 
 
 # Compile all commands of a single section.

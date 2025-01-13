@@ -1,14 +1,14 @@
 ---
 title: Base Concepts
-layout: home
-nav_order: 3
+layout: default
+nav_order: 4
 ---
 
 <!--
 
 DO NOT EDIT
 -----------
-This file auto-generated.
+This file is auto-generated.
 To update it, consult instructions:
 https://github.com/acceleratedscience/open-ad-toolkit/tree/main/docs
 
@@ -27,15 +27,23 @@ To see how to work with workspaces:
 
     ? workspace
 
+## Molecule Working Set
+
+Your molecule working set (MWS) is an in-memory list of small molecules that is the subject of your calculations and manipulations.
+
+The MWS makes it easy to gather candidate molecules from various sources, either by adding them individually, by loading them in batch from a dataframe, CSV or SDF file, or by bookmarking molecules in the GUI. You can then calculate certain properties, perform triage and then store the results in your workspace as a molecule set, ready for further processing within OpenAD or elsewhere.
+
+Please note that at this time the MWS does not support macromolecules, only small molecules.
+
+To see how to work with your molecule working set:
+
+    ? mws
+
 ## Plugins
 
-Plugins are the way molecular tools and AI models are made available to the OpenAD client. Thanks to a unified language, accessing these tools through OpenAD lets you bypass a lot of complexity.
+Plugins are how molecular tools and AI models are made available to the OpenAD client. They provide drastically simplified access to a series of advanced tools, and they make it easy for your own Python applications to interface with OpenAD.
 
-OpenAD comes preloaded with a number of plugins for literature knowledge extraction (DS4SD), forward and retrosynthesis prediction (RXN) as well as generative methods and property inference (GT4SD).
-
-You can create your own plugins, and the publicly available plugins will soon include a much larger variety of open-source tools.
-
-Note: Plugins are currently referred to as "toolkits" by the commands, however this language will be updated soon.
+Creating your own plugins is easy if you have a basic understanding of Python.
 
 To see how to work with plugins:
 

@@ -1,0 +1,1 @@
+Your context defines what plugin you are currently working with. It ensures you are logged onto the a plugin's corresponding system and all the related functionality is loaded.

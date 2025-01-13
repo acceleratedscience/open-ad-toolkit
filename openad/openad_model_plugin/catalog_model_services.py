@@ -8,9 +8,11 @@ import time
 from functools import lru_cache
 from subprocess import run
 from typing import Dict, Tuple
+import pandas as pd
 
 import pyparsing as py
 from openad.app.global_var_lib import GLOBAL_SETTINGS
+from openad.core.help import help_dict_create
 from openad.helpers.output import output_error, output_success, output_table, output_text, output_warning
 from openad.helpers.spinner import spinner
 from openad.openad_model_plugin.auth_services import (
@@ -37,27 +39,6 @@ Dispatcher = ModelService(location=DISPATCHER_SERVICE_PATH, update_status=True, 
 ### example of how to use the dispatcher ###
 # with Dispatcher() as service:
 #     print(service.list())
-
-
-def help_dict_create(
-    name: str,  # Name of the comand - used for ...?
-    command: str,  # Command structure, used for help, docs, training
-    description: str,  # Description of the command, used for help, docs, training
-    note: str = None,  # Additional note to the command, only used in help (eg. To learn more about runs, run `run ?`)
-    url: str = None,  # Currently not used - URL to the documentation of the command?
-    category: str = "Uncategorized",  # Category used to organize the commands in help & docs
-    parent: str = None,  # Parent command, only relevant for follow-up commands like `result open`
-):
-    """Create a help dictionary"""
-    return {
-        "category": category,
-        "name": name,
-        "command": command,
-        "description": description,
-        "note": note,
-        "url": url,
-        "parent": parent,
-    }
 
 
 def get_namespaces():
@@ -115,31 +96,36 @@ def get_cataloged_service_defs() -> Dict[str, dict]:
     logger.debug("checking available service definitions")
     service_definitions = dict()
     # get local namespace service definitions
-    list_of_namespaces = [os.path.basename(f.path) for f in os.scandir(SERVICE_MODEL_PATH) if f.is_dir()]
-    # iterate over local service definitions
-    for namespace in list_of_namespaces:
-        service_list = []
-        services_path = SERVICE_MODEL_PATH + namespace + SERVICES_PATH
-        if os.path.exists(services_path):
-            service_list = get_local_service_defs(services_path)
-        else:
-            services_path = SERVICE_MODEL_PATH + namespace + "/**" + SERVICES_PATH
-            services_path = glob.glob(services_path, recursive=True)
-            if len(services_path) > 0:
-                services_path = services_path[0]
-                service_list = get_local_service_defs(services_path)
-        if service_list:
-            logger.debug(f"adding local defs for | {namespace=}")
-            service_definitions[namespace] = service_list
+    # list_of_namespaces = [os.path.basename(f.path) for f in os.scandir(SERVICE_MODEL_PATH) if f.is_dir()]
+    # list_of_namespaces = []
+    # # iterate over local service definitions
+    # for namespace in list_of_namespaces:
+    #     service_list = []
+    #     services_path = SERVICE_MODEL_PATH + namespace + SERVICES_PATH
+    #     if os.path.exists(services_path):
+    #         service_list = get_local_service_defs(services_path)
+    #     else:
+    #         services_path = SERVICE_MODEL_PATH + namespace + "/**" + SERVICES_PATH
+    #         services_path = glob.glob(services_path, recursive=True)
+    #         if len(services_path) > 0:
+    #             services_path = services_path[0]
+    #             service_list = get_local_service_defs(services_path)
+    #     if service_list:
+    #         logger.debug(f"adding local defs for | {namespace=}")
+    #         service_definitions[namespace] = service_list
     # iterate over remote service definitions
     with Dispatcher() as service:
         dispatcher_services = service.list()
         # iterate over keys not used before
-        for name in set(dispatcher_services) - set(list_of_namespaces):
+        for name in set(dispatcher_services):  # - set(list_of_namespaces):
             remote_definitions = service.get_remote_service_definitions(name)
             if remote_definitions:
                 logger.debug(f"adding remote service defs for | {name=}")
                 service_definitions[name] = remote_definitions
+            else:
+                logger.warning(f"remote service defs not found, sevice not available | {name=}")
+                service_definitions[name] = remote_definitions
+
     return service_definitions
 
 
@@ -599,6 +585,70 @@ def list_auth_services(cmd_pointer, parser):
     return DataFrame({"service": services, "auth group": auth_groups, "api key": apis})
 
 
+def get_model_service_result(cmd_pointer, parser):
+    # with Dispatcher as servicer:
+    #    service_status = servicer.get_short_status(parser.to_dict()["service_name"].lower())
+    try:
+        # response = Dispatcher.service_request(
+        #     name=service_name, method="POST", timeout=None, verify=not service_status.get("is_remote"), _json=a_request
+        # )
+        a_request = {"url": parser.as_dict()["request_id"], "service_type": "get_result"}
+        response = Dispatcher.service_request(
+            name=parser.as_dict()["service_name"].lower(), method="POST", timeout=None, verify=False, _json=a_request
+        )
+        # response = requests.post(Endpoint + "/service", json=a_request, headers=headers, verify=False)
+    except Exception as e:
+        output_error(str(e))
+        return output_error("Error: \n Server not reachable at ")
+
+    try:
+        response_result = response.json()
+        try:
+            if isinstance(response_result, str):
+                response_result = json.loads(response_result)
+            if isinstance(response_result, dict):
+                if "warning" in response_result:
+                    return output_warning(response_result["warning"]["reason"])
+                elif "error" in response_result:
+                    run_error = "Request Error:\n"
+
+                    for key, value in response_result["error"].items():
+                        value = str(value).replace("<", "`<")
+                        value = str(value).replace(">", ">`")
+                        run_error = run_error + f"- <cmd>{key}</cmd> : {value}\n  "
+                    return output_error(run_error)
+                if "detail" in response_result:
+                    return output_warning(response_result["detail"])
+
+            result = pd.DataFrame(response_result)
+            if "save_as" in parser:
+                results_file = str(parser["results_file"])
+                if not results_file.endswith(".csv"):
+                    results_file = results_file + ".csv"
+                result.to_csv(
+                    cmd_pointer.workspace_path(cmd_pointer.settings["workspace"].upper()) + "/" + results_file,
+                    index=False,
+                )
+
+        except Exception as e:
+            print(e)
+            result = response_result
+
+        if isinstance(result, dict):
+            if "error" in result:
+                run_error = "Request Error:\n"
+                for key, value in result["error"].items():
+                    run_error = run_error + f"- <cmd>{key}</cmd> : {value}\n  "
+                return output_text(run_error)
+
+    except Exception as e:
+        run_error = "HTTP Request Error:\n"
+
+        return output_error(run_error + "\n" + str(e))
+
+    return result
+
+
 def service_catalog_grammar(statements: list, help: list):
     """This function creates the required grammar for managing cataloging services and model up or down"""
     logger.debug("catalog model service grammer")
@@ -846,5 +896,24 @@ Examples:
             category="Model",
             command="model service down '<service_name>'|<service_name>",
             description="Bring down a model service  \n Examples: \n\n<cmd>model service down gen</cmd> \n\n<cmd>model service down 'gen'</cmd> ",
+        )
+    )
+
+    statements.append(
+        py.Forward(
+            py.CaselessKeyword("get")
+            + model
+            + py.CaselessKeyword("service")
+            + service_name("service_name")
+            + py.CaselessKeyword("result")
+            + quoted_string("request_id")
+        )("get_model_service_result")
+    )
+    help.append(
+        help_dict_create(
+            name="Get Model Service Result",
+            category="Model",
+            command="get model service '<service_name>'|<service_name> result '<result_id>' ",
+            description="retrieves a result from a model service  \n Examples: \n\n<cmd>get model service myservier result 'wergergerg'  ",
         )
     )

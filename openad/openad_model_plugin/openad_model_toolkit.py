@@ -42,10 +42,6 @@ from pyparsing import (  # replaceWith,; Combine,; pyparsing_test,; ParseExcepti
     oneOf,
 )
 
-# from openad.molecules.mol_functions import MOL_PROPERTIES as m_props
-# from openad.helpers.general import is_notebook_mode
-
-
 (
     get,
     lister,
@@ -109,6 +105,7 @@ key_val_expr = Word(alphanums + "_" + ".") | desc
 key_val_expr_num = Word(nums)
 key_val_expr_alpha = Word(alphanums + "_" + ".")
 number_type = Combine(Optional("-") + Word(nums) + Word(".") + Word(nums)) | Word(nums)
+array_var = Suppress(Word("[")) + delimitedList(OneOrMore(desc | number_type)) + Suppress(Word("]"))
 key_val_line = Group(name_expr("key") + Suppress("=") + key_val_expr("val"))
 boolean_var = Keyword("True") | Keyword("False")
 
@@ -173,7 +170,8 @@ input_object = QuotedString('"', end_quote_char='"', escQuote="\\")
 
 save_as_clause = "+ Optional(CaselessKeyword('save_as')('save_as')+desc('results_file'))"
 save_as_clause_help = " (save_as '<filename.csv>')"
-
+async_clause = "+ Optional(CaselessKeyword('async')('async')) "
+async_clause_help = " (async)"
 service_command_start = {}
 service_command_subject = {}
 service_command_help = {}
@@ -291,16 +289,23 @@ service_command_description[
     This function generates a data set based on the following parameters 
  """
 
+async_help_clause = "\n \n Note: If <cmd> async clause </cmd> is defined the user will be returned an id for the given job and will use the <cmd> `model service <service name> result '<job_id>' </cmd> command to retrieve it when it is ready. use this command to test for readiness."
+
 
 def service_grammar_add(statements: list, help: list, service_catalog: dict):
     """defines the grammar available for managing molecules"""
     for service in service_catalog.keys():
         service_list = service_catalog[service]
         for schema in service_list:
+            # Allow Async for command if supported
+            if "async_allow" in schema and schema["async_allow"]:
+                async_allow = True
+            else:
+                async_allow = False
+
             command = "CaselessKeyword(service)('service')+" + service_command_start[schema["service_type"]]
             valid_types = None  # noqa: F841
             valid_type = None
-
             # in properties this refers to generateable properties for a Target in Generators this is simple a single name of a generarion Algorithm
             # for some propertyy statements there can be multiple properties in a single statement
 
@@ -372,6 +377,7 @@ def service_grammar_add(statements: list, help: list, service_catalog: dict):
                     + expression
                     + service_command_merge[schema["service_type"]]
                     + save_as_clause
+                    + (async_clause if async_allow else "")
                     + ")"
                     + f'("{schema["service_name"]}@{schema["service_type"]}")'
                 )
@@ -520,12 +526,13 @@ def service_grammar_add(statements: list, help: list, service_catalog: dict):
                     name=schema["service_type"],
                     category=service + "->" + category,
                     parent=None,
-                    command=command_str + save_as_clause_help,
+                    command=command_str + save_as_clause_help + (async_clause_help if async_allow else ""),
                     description=target_description
                     + parameter_help
                     + algo_versions
                     + required_parameters
-                    + function_description,
+                    + function_description
+                    + (async_help_clause if async_allow else ""),
                 )
             )
 
@@ -536,6 +543,17 @@ def optional_parameter_list(inp_statement: dict, clause: str):
     """Create an optional parameter list for a clause"""
     ii = 0
     expression = " "
+    type_dict = {
+        "allOf": "key_val_expr",
+        "anyOf": "key_val_expr",
+        "string": "key_val_expr",
+        "desc": "desc",
+        "object": "input_object",
+        "boolean": "boolean_var",
+        "array": "array_var",
+        "number": "number_type",
+        "integer": "number_type",
+    }
     for i in inp_statement[clause]:
         if i in ["selected_property", "property_type", "domain", "algorithm_type"]:
             continue
@@ -562,9 +580,10 @@ def optional_parameter_list(inp_statement: dict, clause: str):
 
         else:
             status = "ZeroOrMore"
+
         if ii == 0:
             expression = expression + " "
-            if inp_statement[clause][i] == "allOf":
+            if type_str in ["anyOf", "allOf"]:
                 expression = (
                     expression
                     + f" {status}(Group( CaselessKeyword ('"
@@ -574,42 +593,12 @@ def optional_parameter_list(inp_statement: dict, clause: str):
                     + "'))"
                     + " "
                 )
-            elif inp_statement[clause][i][type_str] == "string":
+            elif inp_statement[clause][i][type_str] in type_dict:
                 expression = (
                     expression
                     + f" {status}(Group( CaselessKeyword ('"
                     + i
-                    + "') +Suppress('=')+key_val_expr('val'))('"
-                    + parameter
-                    + "'))"
-                    + " "
-                )
-            elif inp_statement[clause][i][type_str] == "desc":
-                expression = (
-                    expression
-                    + f" {status}(Group( CaselessKeyword ('"
-                    + i
-                    + "') +Suppress('=')+desc('val'))('"
-                    + parameter
-                    + "'))"
-                    + " "
-                )
-            elif inp_statement[clause][i][type_str] == "object":
-                expression = (
-                    expression
-                    + f" {status}(Group( CaselessKeyword ('"
-                    + i
-                    + "') +Suppress('=')+input_object('val'))('"
-                    + parameter
-                    + "'))"
-                    + " "
-                )
-            elif inp_statement[clause][i][type_str] == "boolean":
-                expression = (
-                    expression
-                    + f" {status}(Group( CaselessKeyword ('"
-                    + i
-                    + "') +Suppress('=')+boolean_var('val'))('"
+                    + f"') +Suppress('=')+{type_dict[inp_statement[clause][i][type_str]]}('val'))('"
                     + parameter
                     + "'))"
                     + " "
@@ -620,23 +609,13 @@ def optional_parameter_list(inp_statement: dict, clause: str):
                     + f" {status}(Group( CaselessKeyword ('"
                     + i
                     + "') +Suppress('=')+number_type('val'))('"
-                    + parameter
-                    + "'))"
-                    + " "
-                )
-        else:
-            if type_str == "allOf":
-                expression = (
-                    expression
-                    + f" & {status}(Group( CaselessKeyword ('"
-                    + i
-                    + "') +Suppress('=')+key_val_expr('val'))('"
                     + parameter
                     + "'))"
                     + " "
                 )
 
-            elif inp_statement[clause][i][type_str] == "string":
+        else:
+            if type_str in ["anyOf", "allOf"]:
                 expression = (
                     expression
                     + f" & {status}(Group( CaselessKeyword ('"
@@ -646,32 +625,12 @@ def optional_parameter_list(inp_statement: dict, clause: str):
                     + "'))"
                     + " "
                 )
-            elif inp_statement[clause][i][type_str] == "desc":
+            elif inp_statement[clause][i][type_str] in type_dict:
                 expression = (
                     expression
                     + f" & {status}(Group( CaselessKeyword ('"
                     + i
-                    + "') +Suppress('=')+desc('val'))('"
-                    + parameter
-                    + "'))"
-                    + " "
-                )
-            elif inp_statement[clause][i][type_str] == "object":
-                expression = (
-                    expression
-                    + f" & {status}(Group( CaselessKeyword ('"
-                    + i
-                    + "') +Suppress('=')+input_object('val'))('"
-                    + parameter
-                    + "'))"
-                    + " "
-                )
-            elif inp_statement[clause][i][type_str] == "boolean":
-                expression = (
-                    expression
-                    + f" & {status}(Group( CaselessKeyword ('"
-                    + i
-                    + "') +Suppress('=')+boolean_var('val'))('"
+                    + f"') +Suppress('=')+{type_dict[inp_statement[clause][i][type_str]]}('val'))('"
                     + parameter
                     + "'))"
                     + " "
@@ -686,6 +645,7 @@ def optional_parameter_list(inp_statement: dict, clause: str):
                     + "'))"
                     + " "
                 )
+
         ii = 1
 
     return expression
@@ -767,6 +727,8 @@ def request_generate(cmd_pointer, request_input):
         },
         "api_key": "reserved for federated APIs",
     }
+    if "async" in request_input.as_dict():
+        template["async"] = True
     if Sample_Size is not None:
         template["sample_size"] = Sample_Size
 
@@ -788,7 +750,8 @@ def request_generate(cmd_pointer, request_input):
                 )
             elif actual_param.split("@")[1] == "integer":
                 template["parameters"][actual_param.split("@")[0]] = bool(request_input.as_dict()[param]["val"])
-
+            elif actual_param.split("@")[1] == "string":
+                template["parameters"][actual_param.split("@")[0]] = str(request_input.as_dict()[param]["val"])
             else:
                 template["parameters"][actual_param.split("@")[0]] = request_input.as_dict()[param]["val"]
     return template
@@ -807,36 +770,25 @@ def openad_model_requestor(cmd_pointer, parser):
         service_name = None
 
     a_request = request_generate(cmd_pointer, parser)
-    # request_params = get_service_requester(service_name)
-    # api_key = get_service_api_key(service_name)
-    # headers = {"Inference-Service": service_name, "Authorization": f"Bearer {get_service_api_key(service_name)}"}
 
-    # if Endpoint is not None and len((Endpoint.strip())) > 0:
-    #     if "http" not in Endpoint:
-    #         Endpoint = "http://" + Endpoint
-    # Endpoint = "http://34.205.69.8:8080"
-    # else:
-    #     Endpoint = None
-
-    # if Endpoint is None:
-    #     return output_error(
-    #         "No Service Cataloged or service not up. \n Check Service Status <cmd>model service status</cmd> "
-    #     )
     spinner = Spinner(GLOBAL_SETTINGS["VERBOSE"])
     spinner.start("Executing Request Against Server")
 
     with Dispatcher as servicer:
         service_status = servicer.get_short_status(service_name)
     try:
+        # response = Dispatcher.service_request(
+        #     name=service_name, method="POST", timeout=None, verify=not service_status.get("is_remote"), _json=a_request
+        # )
         response = Dispatcher.service_request(
-            name=service_name, method="POST", timeout=None, verify=not service_status.get("is_remote"), _json=a_request
+            name=service_name, method="POST", timeout=None, verify=False, _json=a_request
         )
         # response = requests.post(Endpoint + "/service", json=a_request, headers=headers, verify=False)
     except Exception as e:
         spinner.fail("Request Failed")
         spinner.stop()
         output_error(str(e))
-        return output_error("Error: \n Server not reachable at " + str(service_status.get("url")))
+        return output_error("Error: \n Server not reachable  " + str(service_status.get("url")))
 
     spinner.succeed("Request Returned")
     spinner.stop()
