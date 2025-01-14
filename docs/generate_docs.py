@@ -21,11 +21,11 @@ import pyperclip
 #     print("*", path)
 
 from copy_docs import copy_docs  # This resolves when running the script directly
+from openad_tools.style_parser import tags_to_markdown
 from openad.app.main import RUNCMD as cmd_pointer
 from openad.app.global_var_lib import _all_toolkits
 from openad.core.help import organize_commands
 from openad.toolkit.toolkit_main import load_toolkit
-from openad.plugins.style_parser import tags_to_markdown
 from openad.helpers.output import output_error, output_text, output_success
 from openad.helpers.output_msgs import msg
 from openad.helpers.files import open_file, write_file

@@ -6,7 +6,7 @@ from rdkit import Chem
 from rdkit.Chem import AllChem
 from time import sleep
 import importlib.util as include
-from openad.plugins.style_parser import strip_tags
+from openad_tools.style_parser import strip_tags
 from openad.app.global_var_lib import GLOBAL_SETTINGS
 from openad.helpers.spinner import spinner
 from openad.helpers.output import output_text, output_warning, output_error, output_table

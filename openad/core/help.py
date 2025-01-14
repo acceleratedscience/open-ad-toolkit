@@ -6,13 +6,13 @@ import webbrowser
 from openad.helpers.general import singular, is_toolkit_installed, get_print_width
 from openad.helpers.output import output_error
 from openad.helpers.output_msgs import msg
-from openad.helpers.locale import open_localized_file
+from openad_tools.locale import open_localized_file
 from openad.helpers.plugins import all_cmds_note
 from openad.app.global_var_lib import GLOBAL_SETTINGS
 
 # Importing our own plugins.
 # This is temporary until every plugin is available as a public pypi package.
-from openad.plugins.style_parser import style, a_len
+from openad_tools.style_parser import style, a_len
 
 # line_break = "<br>"
 # heading = "<h3>"

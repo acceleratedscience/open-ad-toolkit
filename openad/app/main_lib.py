@@ -111,11 +111,9 @@ from openad.helpers.splash import splash
 from openad.helpers.output_content import openad_intro
 from openad.helpers.plugins import display_plugin_overview
 
-from openad.plugins import edit_json
+from openad_tools.edit_json import EditJson
 
-# Importing our own plugins.
-# This is temporary until every plugin is available as a public pypi package.
-# from openad.plugins.style_parser import tags_to_markdown
+edit_json = EditJson()
 
 
 # This is called by the default run_cmd method, for executing current commands.

@@ -15,7 +15,7 @@ from deepsearch.cps.client.components.elastic import ElasticDataCollectionSource
 from typing import TYPE_CHECKING, Any, Dict, Literal, Optional, Union
 from deepsearch.cps.queries import DataQuery
 from openad.app.global_var_lib import GLOBAL_SETTINGS
-from openad.plugins.style_parser import style
+from openad_tools.style_parser import style
 from openad.helpers.output import output_text, output_table, output_error
 from openad.helpers.credentials import load_credentials
 from openad.helpers.general import load_tk_module

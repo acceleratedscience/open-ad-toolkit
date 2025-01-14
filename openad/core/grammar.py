@@ -39,7 +39,7 @@ from openad.core.help import help_dict_create, organize_commands
 import openad.toolkit.toolkit_main as toolkit_main  # Not using "from" to avoid circular import.
 from openad.smols.smol_grammar import smol_grammar_add
 from openad.mmols.mmol_grammar import mmol_grammar_add
-from openad.plugins.style_parser import tags_to_markdown
+from openad_tools.style_parser import tags_to_markdown
 
 
 # Helpers

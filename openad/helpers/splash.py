@@ -4,11 +4,11 @@ import json
 from openad.helpers.files import open_file
 from openad.helpers.output import output_text, output_error
 from openad.helpers.output_msgs import msg
-from openad.helpers.ascii_type import ascii_type
+from openad_tools.ascii_type import ascii_type
 
 # Importing our own plugins.
 # This is temporary until every plugin is available as a public pypi package.
-from openad.plugins.style_parser import style, wrap_text, strip_tags
+from openad_tools.style_parser import style, wrap_text, strip_tags
 
 
 def splash(toolkit_name=None, cmd_pointer=None, startup=False, raw=False):

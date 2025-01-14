@@ -1,9 +1,11 @@
 import os
 import yaml
 from openad.helpers.output import output_text
-from openad.helpers.locale import localize
-from openad.plugins.style_parser import wrap_text
 import openad.core.help as core_help
+
+# OpenAD tools
+from openad_tools.locale import localize
+from openad_tools.style_parser import wrap_text
 
 
 def assemble_plugin_metadata(plugin_dir, cmd_help_dicts):

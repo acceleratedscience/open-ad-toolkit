@@ -19,7 +19,7 @@ from openad.app.global_var_lib import GLOBAL_SETTINGS
 from openad.helpers.output import output_error, output_warning, output_success, output_text
 from openad.helpers.output_msgs import msg
 from openad.helpers.spinner import Spinner
-from openad.plugins.style_parser import style
+from openad_tools.style_parser import style
 
 # Suppress RDKit errors
 RDLogger.DisableLog("rdApp.error")

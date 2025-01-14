@@ -5,7 +5,7 @@ from copy import deepcopy
 import re
 from openad.app.global_var_lib import _all_toolkits
 from openad.toolkit.toolkit_main import load_toolkit
-from openad.plugins.style_parser import tags_to_markdown
+from openad_tools.style_parser import tags_to_markdown
 from openad.helpers.output import output_error, output_text, output_success
 from openad.core.help import organize_commands
 
