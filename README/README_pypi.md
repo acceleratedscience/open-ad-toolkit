@@ -1,65 +1,16 @@
 <!--
 
-Table of contents
------------------
-- Install the "Markdown All in One" plugin in VSCode
-- The TOC should be automatically updated. If it's not:
-  • Open the command palette (Press Cmd+Shift+P (macOS) or Ctrl+Shift+P (Windows))
-  • Type "Markdown All in One: Update Table of Contents"
-
-
-Screenshots
+DO NOT EDIT
 -----------
-For screenshots to look good, they should be small and ideally
-all the same size. The script below lets you open the URLs in
-the right size. Just paste this into the browser console and
-press enter.
-
-To take the screenshots with browser UI included on Mac, press
-cmd+shift+4 followed by the spacebar, then click the window.
-For consistency, stick to Chrome, hide your bookmarks & extensions.
-
-    urls = [
-        'https://cps.foc-deepsearch.zurich.ibm.com',
-        'https://rxn.app.accelerate.science',
-        'https://sds.app.accelerate.science',
-
-    ]
-    for (var i=0; i< urls.length; i++) {
-        window.open(urls[i], '_blank', 'width=1000,height=600');
-    }
+This file is auto-generated with modified links for PyPI.
+To update it, consult instructions:
+https://github.com/acceleratedscience/open-ad-toolkit/tree/main/docs
 
 -->
 
-<!-- 
 
-For testing
------------
-Un-comment this section to test how GitHub alerts are translated for Just the Docs.
 
-> [!NOTE]
-> Useful information that users should know,
-> even when skimming content.
-
-> [!TIP]
-> Helpful advice for doing things
-> better or more easily.
-
-> [!IMPORTANT]
-> Key information users need to know
-> to achieve their goal.
-
-> [!WARNING]
-> Urgent info that needs immediate
-> user attention to avoid problems.
-
-> [!CAUTION]
-> Advises about risks or negative
-> outcomes of certain actions.
-
--->
-
-<img src="assets/molecule-header.jpg" width="830" height="300" alt="OpenAD" />
+<img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/molecule-header.jpg" width="830" height="300" alt="OpenAD" />
 
 # OpenAD
 
@@ -70,13 +21,10 @@ Un-comment this section to test how GitHub alerts are translated for Just the Do
 [![License MIT](https://img.shields.io/github/license/acceleratedscience/open-ad-toolkit)](https://opensource.org/licenses/MIT)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-<!-- description -->
 Open Accelerated Discovery (aka OpenAD) is an open-source framework for molecular and materials discovery developed at IBM Research.
 
 The OpenAD client is accessible from our command line interface, via Jupyter Notebook or our API. It provides unified access to a variety of tools and AI models for literature knowledge extraction, forward and retrosynthesis prediction, generative methods and property inference. OpenAD lets you train models on your own data, to then visualize and filter your candidate molecules.
-<!-- /description -->
 
-<!-- navigation -->
 **[INSTALLATION]**
 &nbsp;&nbsp;&nbsp;
 **[GETTING STARTED]**
@@ -94,7 +42,6 @@ The OpenAD client is accessible from our command line interface, via Jupyter Not
 **[DEVELOPERS]**
 
 </sub>
-<!-- /navigation -->
 
 <br><br>
 
@@ -111,7 +58,7 @@ The OpenAD client is accessible from our command line interface, via Jupyter Not
 
 <br><br>
 
-<div align="center"><img src="assets/openad-ui.png" width="100%" alt="OpenAD interface" /></div>
+<div align="center"><img src="https://raw.githubusercontent.com/acceleratedscience/open-ad-toolkit/main/assets/openad-ui.png" width="100%" alt="OpenAD interface" /></div>
 
 <br><br>
 
@@ -164,7 +111,6 @@ If you get an error when running `init_magic`, you may first need to setup the d
 
 - [OpenAD blog](https://blog.accelerate.science/)
 - **Demo Notebooks:** See `init_examples` under installation
-<!-- [Mailing list]() -->
 
 <br><br>
 
@@ -173,10 +119,10 @@ Stay tuned for detailed instructions on how to build your own OpenAD plugins.<br
 Check the [Developers] section for guidance with other contributions.
 
 
-[INSTALLATION]: README/installation.md
-[GETTING STARTED]: README/getting-started.md
-[COMMANDS]: README/commands.md
-[MODELS SERVICE]: README/models-service.md
-[PLUGINS]: README/plugins.md
-[AI ASSISTANT]: README/ai-assistant.md
-[DEVELOPERS]: README/developers.md
+[INSTALLATION]: https://acceleratedscience.github.io/openad-docs/installation.html
+[GETTING STARTED]: https://acceleratedscience.github.io/openad-docs/getting-started.html
+[COMMANDS]: https://acceleratedscience.github.io/openad-docs/commands.html
+[MODELS SERVICE]: https://acceleratedscience.github.io/openad-docs/models-service.html
+[PLUGINS]: https://acceleratedscience.github.io/openad-docs/plugins.html
+[AI ASSISTANT]: https://acceleratedscience.github.io/openad-docs/ai-assistant.html
+[DEVELOPERS]: https://acceleratedscience.github.io/openad-docs/developers.html

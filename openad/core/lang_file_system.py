@@ -23,10 +23,6 @@ from openad.helpers.output_msgs import msg
 from openad.app.global_var_lib import _date_format
 
 
-# Importing our own plugins.
-# This is temporary until every plugin is available as a public pypi package.
-
-
 def list_files(cmd_pointer, parser):
     import pprint
 

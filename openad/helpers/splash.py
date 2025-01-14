@@ -4,10 +4,9 @@ import json
 from openad.helpers.files import open_file
 from openad.helpers.output import output_text, output_error
 from openad.helpers.output_msgs import msg
-from openad_tools.ascii_type import ascii_type
 
-# Importing our own plugins.
-# This is temporary until every plugin is available as a public pypi package.
+# OpenAD tools
+from openad_tools.ascii_type import ascii_type
 from openad_tools.style_parser import style, wrap_text, strip_tags
 
 

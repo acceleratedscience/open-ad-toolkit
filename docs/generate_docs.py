@@ -13,15 +13,12 @@ import os
 import re
 import pyperclip
 
-# Add the root directory to the sys.path
-# root_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-# if str(root_dir) not in sys.path:
-#     sys.path.append(root_dir)
-# for path in sys.path:
-#     print("*", path)
 
-from copy_docs import copy_docs  # This resolves when running the script directly
+# OpenAD tools
 from openad_tools.style_parser import tags_to_markdown
+
+# OpenAD
+from copy_docs import copy_docs  # This resolves when running the script directly
 from openad.app.main import RUNCMD as cmd_pointer
 from openad.app.global_var_lib import _all_toolkits
 from openad.core.help import organize_commands
