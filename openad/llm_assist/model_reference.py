@@ -79,7 +79,7 @@ SUPPORTED_TELL_ME_MODELS_SETTINGS = {
 
 Answer the question based only on the following context: {context}  Question: {question} """,
         "settings": {
-            "temperature": 0.5,
+            "temperature": 0.3,
             #    "decoding_method": "greedy",
             "max_new_tokens": 2000,
             "min_new_tokens": 1,
@@ -118,8 +118,8 @@ Answer the question based only on the following context using provided embedding
             # "decoding_method": "greedy",
             "max_new_tokens": 2000,
             "min_new_tokens": 0,
-            "top_p": 0.2,
-            "top_k": 20,
+            # "top_p": 0.2,
+            # "top_k": 20,
             "presence_penalty": 0,
             "frequency_penalty": 0,
         },

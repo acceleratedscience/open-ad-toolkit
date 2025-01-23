@@ -250,7 +250,7 @@ class Chatobject:
 
             def inspect(state):
                 """Print the state passed between Runnables in a langchain and pass it on"""
-                print(state)
+                # print(state)
                 return state
 
             prompt = ChatPromptTemplate.from_template(template)
