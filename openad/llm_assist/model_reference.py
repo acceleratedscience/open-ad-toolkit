@@ -3,7 +3,7 @@
 import platform
 import os
 from openad.helpers.output import output_error
-
+from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.embeddings import OllamaEmbeddings
 from langchain_community.chat_models import ChatOllama
 from genai.schema import TextEmbeddingParameters
@@ -80,8 +80,8 @@ SUPPORTED_TELL_ME_MODELS_SETTINGS = {
 Answer the question based only on the following context: {context}  Question: {question} """,
         "settings": {
             "temperature": 0.5,
-            "decoding_method": "greedy",
-            "max_new_tokens": 5000,
+            #    "decoding_method": "greedy",
+            "max_new_tokens": 2000,
             "min_new_tokens": 1,
             "top_p": 0.3,
             "top_k": 50,
@@ -91,7 +91,7 @@ Answer the question based only on the following context: {context}  Question: {q
         "embeddings_model": "sentence-transformers/all-minilm-l6-v2",
     },
     "OLLAMA": {
-        "model": "granite3.1-dense:8b",
+        "model": "granite3.1-dense:8b-instruct-q4_1",
         # "model": "instructlab/granite-7b-lab:latest",
         "url": OLLAMA_HOST,
         "template": """  When responding follow the following rules:
@@ -108,50 +108,24 @@ Answer the question based only on the following context: {context}  Question: {q
                 - Always explain using the full name not short form of a name
                 - do not return data in a table format
                 - Always list all options and parameters that are documented for a command
-
-
-Answer the question based only on the following context: {context}  Question: {question} """,
-        "template1": """You are a technical documentation writer and when responding follow the following rules:
-                - Respond like you were writing a refernce guide for a software package
-                - Format All Command Syntax, Clauses, Examples or Option  Syntax in codeblock ipython Markdown
-                - Format all Command Syntax, Options or clause quotations in codeblock ipython Markdown
-                - Only format codeblocks one line at a time and place them  on single lines
-                - For each instruction used in an answer also provide full command syntax with clauses and options in codeblock format. for example " Use the `search collection` with the 'PubChem' collection to search for papers and molecules.   \n\n command: ` search collection '<collection name or key>' for '<search string>' using ( [ page_size=<int> system_id=<system_id> edit_distance=<integer> display_first=<integer>]) show (data|docs) [ estimate only|return as data|save as '<csv_filename>' ] ` \n
-                \n For Example: ` search collection 'PubChem' for 'Ibuprofen' show ( data ) ` \n"
-                - Provide All syntax, clauses, Options, Parameters and Examples separated by "\n" for a command when answering a question with no leading spaces on the line
-                - Compounds and Molecules are the same concept
-                - Always explain using the full name not short form of a name
-                - Never refer to source files from the embeddings
-                - after explaning a command  tell them how to go to the help using `<command> ?` substituing the command into the string
-                - if a Property is mentioned look for commands that mention the Property exactly
-                - respond with a output format as per following example
-                - Commands in the documentation are bracketed in the <cmd>  </cmd> tags
-                - prioritise command responses from examples in <cmd> tags
-                '''Command: <put command syntax here >
-
-                Description: <brief description of funciton
-
-                Parameters: < Tell the user what Parameters are available for the comand>
-
-                Examples:  < examples of how to use the function> '''
-
-Answer the question based only on the following 
-context: {context} 
-
-Question: {question}  
-
-Answer:""",
+                - All ways keep syntax and options provided for a command to be sourced from a single document do not mix
+                - do not provide examples of a command not shown in examples for a command, and use exact syntax (include clauses and brackets)
+                - if the question asks for "list all paramaters" or "list all options" for a command display both the Optional Parameters and Required Parameters for the requested command
+                
+Answer the question based only on the following context using provided embeddings only: {context}  Question: {question} """,
         "settings": {
-            "temperature": 0.2,
-            "decoding_method": "greedy",
-            "max_new_tokens": 5000,
-            "min_new_tokens": 1,
+            "temperature": 0.5,
+            # "decoding_method": "greedy",
+            "max_new_tokens": 2000,
+            "min_new_tokens": 0,
             "top_p": 0.2,
             "top_k": 20,
+            "presence_penalty": 0,
+            "frequency_penalty": 0,
         },
         "embeddings": None,
         "embeddings_api": None,
-        "embeddings_model": "all-minilm:l6-v2",
+        "embeddings_model": "all-minilm:33m",
     },
 }
 
@@ -182,7 +156,7 @@ def get_tell_me_model(service: str, api_key: str):
             # model=SUPPORTED_TELL_ME_MODELS_SETTINGS[service]["template"], credentials=creds, params=params
             # )
 
-            model = LangChainInterface(
+            model = hi(
                 client=client,
                 model_id=SUPPORTED_TELL_ME_MODELS_SETTINGS[service]["model"],
                 parameters=params,
