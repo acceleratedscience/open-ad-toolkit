@@ -92,7 +92,6 @@ Answer the question based only on the following context: {context}  Question: {q
     },
     "OLLAMA": {
         "model": "granite3.1-dense:8b-instruct-q4_1",
-        # "model": "instructlab/granite-7b-lab:latest",
         "url": OLLAMA_HOST,
         "template": """  When responding follow the following rules:
                 - Answer and format like a Technical Documentation writer concisely and to the point
@@ -152,11 +151,8 @@ def get_tell_me_model(service: str, api_key: str):
             params = TextGenerationParameters(
                 decoding_method=DecodingMethod.GREEDY, max_new_tokens=1536, min_new_tokens=1, temperature=0.3
             )
-            # model = Model(
-            # model=SUPPORTED_TELL_ME_MODELS_SETTINGS[service]["template"], credentials=creds, params=params
-            # )
 
-            model = hi(
+            model = HuggingFaceEmbeddings(
                 client=client,
                 model_id=SUPPORTED_TELL_ME_MODELS_SETTINGS[service]["model"],
                 parameters=params,
