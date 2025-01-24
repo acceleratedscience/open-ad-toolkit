@@ -200,19 +200,4 @@ def get_embeddings_model(service: str, api_key: str):
             print("Error: cannot initialise embeddings, check BAM requirements isntalled")
             raise Exception("Error: cannot initialise embeddings, check BAM requirements isntalled") from e
 
-    """elif service == "WATSONX":
-        if MINI_EMBEDDINGS_MODEL_PRESENT is False:
-            return False
-        try:
-            embeddings = HuggingFaceEmbeddings(
-                model_name=LOCAL_MODEL_PATH,
-                model_kwargs=LOCAL_MODEL_KWARGS,
-                encode_kwargs=LOCAL_ENCODE_KWARGS,
-            )
-
-        except Exception as e:
-            raise Exception(
-                "Error: cannot initialise embeddings, check API Key"
-            ) from e  # pylint: disable=broad-exception-raised
-        # If not refreshing the database, check to see if the database exists"""
     return embeddings
