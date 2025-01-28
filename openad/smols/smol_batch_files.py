@@ -125,7 +125,7 @@ def merge_molecule_property_data(cmd_pointer, inp=None, dataframe=None):
 
     output_success("Data merged into your working set", return_val=False)
     GLOBAL_SETTINGS["grammar_refresh"] = True
-    return True
+    return
 
 
 def load_mol_data(source_file, cmd_pointer):
@@ -191,25 +191,38 @@ def load_mols_to_mws(cmd_pointer, inp):
     # Add PubChem data
     if "enrich_pubchem" in inp.as_dict():
         _enrich_with_pubchem_data(cmd_pointer, molset)
-    
-    # Merge duplicates
-    # shred_merge_add_df_mols(molset, cmd_pointer)
 
     # Clear mws unless append is passed
     if "append" not in inp:
         cmd_pointer.molecule_list = []
-    
-    count = 0
+
+    added_count = 0
+    failed_count = 0
     for smol in molset:
-        success = mws_add(cmd_pointer, smol, force=True)
+        success = mws_add(cmd_pointer, smol, force=True, suppress=True)
         if success:
-            count += 1
-        
+            added_count += 1
+        else:
+            failed_count += 1
+
     # Todo: `load mols using file` should add instead of overwrite your current mols,
     # when this is implemented, we'll need to calculate successfully loaded mols differently.
-    return output_success(
-        f"Successfully loaded <yellow>{count}</yellow> molecules into the working set", pad=0
-    )
+    if added_count > 0:
+        output_success(
+            f"Successfully loaded <yellow>{added_count}</yellow> molecules into the working set",
+            pad=0,
+            return_val=False,
+        )
+        if failed_count > 0:
+            output_error(f"Ignored <yellow>{failed_count}</yellow> duplicates", pad=0, return_val=False)
+    else:
+        output_error(
+            f"No new molecules were added, all {failed_count} provided molecules were are already present in the working set",
+            pad=0,
+            return_val=False,
+        )
+    return
+
 
 def _enrich_with_pubchem_data(cmd_pointer, molset):
     """
@@ -259,7 +272,9 @@ def _enrich_with_pubchem_data(cmd_pointer, molset):
     return output_molset
 
 
-# DELETE
+# # This used to be a part of `load_mols_to_mws` but was replaced by looping mws_add().
+# # Ads a result, newly added molecules are not merged, but ignored if they already exist.
+# # This merge logic should be added to mws_add() instead. Kept here as a reminder.
 # def shred_merge_add_df_mols(molset, cmd_pointer):
 #     """Merge properties from a molset into the molecule working set"""
 #     # print('shred_merge_add_df_mols')
@@ -271,12 +286,12 @@ def _enrich_with_pubchem_data(cmd_pointer, molset):
 #         name = identifiers.get("name")
 #         canonical_smiles = identifiers.get("canonical_smiles")
 #         # print('\n\n• ', i, canonical_smiles)
-        
+
 #         # Ignore invalid molecules
 #         if not valid_smiles(canonical_smiles):
 #             output_error(f"#{i} - Invalid SMILES, molecule discarded: <yellow>{smol['SMILES']}</yellow>", return_val=False)
 #             continue
-        
+
 #         # Check if molecule with this name already exists in mws
 #         name_match = False
 #         if name:
@@ -291,7 +306,7 @@ def _enrich_with_pubchem_data(cmd_pointer, molset):
 #             merged_smol = merge_smols(smol, smiles_match)
 #             print('merged_smol', bool(merged_smol))
 #             GLOBAL_SETTINGS["grammar_refresh"] = True
-        
+
 #         # If a molecule with this name already exists in the mws,
 #         # but the SMILES don't match, we add an increment to the name.
 #         elif name_match:
@@ -321,7 +336,7 @@ def _enrich_with_pubchem_data(cmd_pointer, molset):
 #                     j = len(cmd_pointer.molecule_list)
 #                     updated_flag = True
 #                 j += 1
-            
+
 #             # If the molecule was not found in the mws, add it
 #             if updated_flag is False:
 #                 cmd_pointer.molecule_list.append(smiles_match)

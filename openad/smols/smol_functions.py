@@ -1046,7 +1046,7 @@ def get_smol_from_list(identifier, molset, ignore_synonyms=False):
             idfr_canonical = canonicalize(identifier)
             if idfr_canonical == canonicalize(identifiers_dict.get("canonical_smiles", None)):
                 return openad_mol
-            elif idfr_canonical == canonicalize(identifiers_dict.get("icomeric_smiles", None)):
+            elif idfr_canonical == canonicalize(identifiers_dict.get("isomeric_smiles", None)):
                 return openad_mol
             elif idfr_canonical == canonicalize(identifiers_dict.get("smiles", None)):
                 return openad_mol
@@ -1356,16 +1356,18 @@ def mws_add(cmd_pointer: object, smol: dict, force: bool = False, suppress: bool
     suppress: bool
         If True, suppress success output.
     """
+    # TODO: Instead of ignoring molecules that are already in the list, we should
+    #       update the existing molecule with the new data. See shred_merge_add_df_mols().
 
     if not smol:
         output_error("No molecule provided", return_val=False)
         return False
-    
+
     # Name
     name = smol["identifiers"].get("name") or smol["identifiers"].get("canonical_smiles")
 
     # Fail - already in list.
-    if get_smol_from_mws(cmd_pointer, smol["identifiers"]["canonical_smiles"]) is not None:
+    if get_smol_from_mws(cmd_pointer, smol["identifiers"]["inchi"]) is not None:
         output_error(f"Molecule already in list: <yellow>{name}</yellow>", return_val=False)
         return False
 
