@@ -1,0 +1,1 @@
+import{E as o,h as n,i as t,v as e}from"./index-C4atIFxU.js";const s={},c=e("h1",null,"Error 404",-1),r=e("p",null,"Page not found",-1),_=[c,r];function a(l,d){return n(),t("main",null,_)}const u=o(s,[["render",a]]);export{u as default};
