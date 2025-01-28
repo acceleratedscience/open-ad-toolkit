@@ -1081,12 +1081,12 @@ def get_best_available_identifier(smol: dict) -> tuple:
     identifiers_dict = smol.get("identifiers", {})
     if not identifiers_dict:
         return None, None
-    
+
     # Canonical SMILES
     canonical_smiles = identifiers_dict.get("canonical_smiles")
     if canonical_smiles:
         return "canonical_smiles", canonical_smiles
-    
+
     # InChI
     inchi = identifiers_dict.get("inchi")
     if inchi:
@@ -1096,7 +1096,7 @@ def get_best_available_identifier(smol: dict) -> tuple:
     inchikey = identifiers_dict.get("inchikey")
     if inchikey:
         return "inchikey", inchikey
-    
+
     # Isomeric SMILES
     isomeric_smiles = identifiers_dict.get("isomeric_smiles")
     if isomeric_smiles:
