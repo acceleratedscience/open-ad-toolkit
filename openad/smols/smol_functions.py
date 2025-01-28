@@ -1138,15 +1138,15 @@ def get_best_available_smiles(smol: dict) -> str | None:
 
     identifiers_dict = smol.get("identifiers")
 
-    # Isomeric SMILES
-    isomeric_smiles = identifiers_dict.get("isomeric_smiles")
-    if isomeric_smiles:
-        return isomeric_smiles
-
     # Canonical SMILES
     canonical_smiles = identifiers_dict.get("canonical_smiles")
     if canonical_smiles:
         return canonical_smiles
+
+    # Isomeric SMILES
+    isomeric_smiles = identifiers_dict.get("isomeric_smiles")
+    if isomeric_smiles:
+        return isomeric_smiles
 
     # SMILES
     smiles = identifiers_dict.get("smiles")
