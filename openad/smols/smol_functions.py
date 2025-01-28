@@ -1081,26 +1081,26 @@ def get_best_available_identifier(smol: dict) -> tuple:
     identifiers_dict = smol.get("identifiers", {})
     if not identifiers_dict:
         return None, None
-
-    # InChI
-    inchi = identifiers_dict.get("inchi")
-    if inchi:
-        return "inchi", inchi
-
+    
+    # Canonical SMILES
+    canonical_smiles = identifiers_dict.get("canonical_smiles")
+    if canonical_smiles:
+        return "canonical_smiles", canonical_smiles
+    
     # Isomeric SMILES
     isomeric_smiles = identifiers_dict.get("isomeric_smiles")
     if isomeric_smiles:
         return "isomeric_smiles", isomeric_smiles
 
-    # Canonical SMILES
-    canonical_smiles = identifiers_dict.get("canonical_smiles")
-    if canonical_smiles:
-        return "canonical_smiles", canonical_smiles
-
     # SMILES
     smiles = identifiers_dict.get("smiles")
     if smiles:
         return "smiles", smiles
+
+    # InChI
+    inchi = identifiers_dict.get("inchi")
+    if inchi:
+        return "inchi", inchi
 
     # InChIKey
     inchikey = identifiers_dict.get("inchikey")
@@ -1367,7 +1367,7 @@ def mws_add(cmd_pointer: object, smol: dict, force: bool = False, suppress: bool
     name = smol["identifiers"].get("name") or smol["identifiers"].get("canonical_smiles")
 
     # Fail - already in list.
-    if get_smol_from_mws(cmd_pointer, smol["identifiers"]["inchi"]) is not None:
+    if get_smol_from_mws(cmd_pointer, smol["identifiers"]["canonical_smiles"]) is not None:
         output_error(f"Molecule already in list: <yellow>{name}</yellow>", return_val=False)
         return False
 
