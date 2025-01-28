@@ -1360,14 +1360,14 @@ def mws_add(cmd_pointer: object, smol: dict, force: bool = False, suppress: bool
     if not smol:
         output_error("No molecule provided", return_val=False)
         return False
+    
+    # Name
+    name = smol["identifiers"].get("name") or smol["identifiers"].get("canonical_smiles")
 
     # Fail - already in list.
     if get_smol_from_mws(cmd_pointer, smol["identifiers"]["canonical_smiles"]) is not None:
-        output_error("Molecule already in list: " + smol["identifiers"]["canonical_smiles"], return_val=False)
-        return True
-
-    # Name
-    name = smol["identifiers"].get("name") or "Unknown"
+        output_error(f"Molecule already in list: <yellow>{name}</yellow>", return_val=False)
+        return False
 
     # Add function
     def _add_mol():

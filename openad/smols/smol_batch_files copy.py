@@ -12,7 +12,6 @@ from openad.smols.smol_functions import (
     canonicalize,
     load_mols_from_file,
     merge_smols,
-    mws_add,
     mws_remove,
 )
 from openad.smols.smol_transformers import dataframe2molset
@@ -191,25 +190,21 @@ def load_mols_to_mws(cmd_pointer, inp):
     # Add PubChem data
     if "enrich_pubchem" in inp.as_dict():
         _enrich_with_pubchem_data(cmd_pointer, molset)
-    
-    # Merge duplicates
-    # shred_merge_add_df_mols(molset, cmd_pointer)
 
-    # Clear mws unless append is passed
-    if "append" not in inp:
-        cmd_pointer.molecule_list = []
-    
-    count = 0
-    for smol in molset:
-        success = mws_add(cmd_pointer, smol, force=True)
-        if success:
-            count += 1
-        
-    # Todo: `load mols using file` should add instead of overwrite your current mols,
-    # when this is implemented, we'll need to calculate successfully loaded mols differently.
-    return output_success(
-        f"Successfully loaded <yellow>{count}</yellow> molecules into the working set", pad=0
-    )
+    # Append or overwrite molecules
+    if "append" in inp:
+        cmd_pointer.molecule_list.extend(molset)
+    else:
+        cmd_pointer.molecule_list = molset
+
+    if molset:
+        # shred_merge_add_df_mols(molset, cmd_pointer)
+        # Todo: `load mols using file` should add instead of overwrite your current mols,
+        # when this is implemented, we'll need to calculate successfully loaded mols differently.
+        return output_success(
+            f"Successfully loaded <yellow>{len(molset)}</yellow> molecules into the working set", pad=0
+        )
+
 
 def _enrich_with_pubchem_data(cmd_pointer, molset):
     """
@@ -259,76 +254,80 @@ def _enrich_with_pubchem_data(cmd_pointer, molset):
     return output_molset
 
 
-# DELETE
-# def shred_merge_add_df_mols(molset, cmd_pointer):
-#     """Merge properties from a molset into the molecule working set"""
-#     # print('shred_merge_add_df_mols')
+def shred_merge_add_df_mols(dataframe, cmd_pointer):
+    """shreds the molecule relevent properties from dataframe and loads into molecules"""
 
-#     merge_list = []
-#     for i, smol in enumerate(molset):
+    dict_list = dataframe.to_dict("records")
+    merge_list = []
+    for i, a_mol in enumerate(dict_list):
+        Name_Flag = False
+        if "name" in a_mol:
+            name = a_mol["name"]
+        elif "Name" in a_mol:
+            name = a_mol["Name"]
+        elif "NAME" in a_mol:
+            name = a_mol["NAME"]
+        elif "chemical name" in a_mol:
+            name = a_mol["chemical name"]
+        elif "chemical_name" in a_mol:
+            name = a_mol["chemical_name"]
+        else:
+            name = None
+        if name == "":
+            name = None
+        if name is not None:
+            merge_mol = get_smol_from_mws(cmd_pointer, name)
+            if merge_mol is not None:
+                Name_Flag = True
+        if not valid_smiles(a_mol["SMILES"]):
+            err_msg = f"#{i} - <error>Invalid SMILES, molecule discarded:</error> <yellow>{a_mol['SMILES']}</yellow>"
+            output_text(err_msg, return_val=False)
+            continue
+        merge_mol = get_smol_from_mws(cmd_pointer, a_mol["SMILES"])
+        if Name_Flag is True and merge_mol is None:
+            # output_error("There is already a molecule by the name, adding  increment to the name  " + name, return_val=False)
+            i = 1
+            while get_smol_from_mws(cmd_pointer, name + "-" + str(i)) is not None:
+                i = i + 1
+            name = name + "-" + str(i)
 
-#         identifiers = smol.get("identifiers", {})
-#         name = identifiers.get("name")
-#         canonical_smiles = identifiers.get("canonical_smiles")
-#         # print('\n\n• ', i, canonical_smiles)
-        
-#         # Ignore invalid molecules
-#         if not valid_smiles(canonical_smiles):
-#             output_error(f"#{i} - Invalid SMILES, molecule discarded: <yellow>{smol['SMILES']}</yellow>", return_val=False)
-#             continue
-        
-#         # Check if molecule with this name already exists in mws
-#         name_match = False
-#         if name:
-#             name_match = bool(get_smol_from_mws(cmd_pointer, name))
-#         # print('name_match', name_match)
+        # if Name_Flag is True and merge_mol["identifiers"]["canonical_smiles"] != canonical_smiles(a_mol["SMILES"]):
+        #    output_error("There is already a molecule by the name, adding  increment to the name " + name, return_val=False)
+        #    continue
+        if merge_mol is None:
+            if name is None:
+                name = a_mol["SMILES"]
+            merge_mol = new_smol(a_mol["SMILES"], name=name)
+        if merge_mol is not None:
+            merge_mol = merge_molecule_properties(a_mol, merge_mol)
+            GLOBAL_SETTINGS["grammar_refresh"] = True
+        else:
+            output_warning(
+                "error merging SMILES: "
+                + a_mol["SMILES"]
+                + " Smiles has been excluded by load, it is not recognised by RDKIT",
+                return_val=False,
+            )
+            pass
 
-#         # Check if molecule with this SMILES already exists in mws
-#         smiles_match = get_smol_from_mws(cmd_pointer, canonical_smiles)
-#         # print('smiles_match', bool(smiles_match))
-#         merged_smol = None
-#         if smiles_match:
-#             merged_smol = merge_smols(smol, smiles_match)
-#             print('merged_smol', bool(merged_smol))
-#             GLOBAL_SETTINGS["grammar_refresh"] = True
-        
-#         # If a molecule with this name already exists in the mws,
-#         # but the SMILES don't match, we add an increment to the name.
-#         elif name_match:
-#             i = 1
-#             while get_smol_from_mws(cmd_pointer, f"name-{i}"):
-#                 i += 1
-#             prev_name = name
-#             name = f"name-{i}"
-#             output_warning(f"#{i} - Different molecule already named <yellow>{prev_name}</yellow>, renaming to ${name}", return_val=False)
-#             continue
+        i = 0
+        updated_flag = False
 
-#         # print('merged_smol', bool(merged_smol))
-#         if merged_smol:
-#             j = 0
-#             updated_flag = False
-
-#             # Replace the existing molecule with the merged molecule
-#             while j < len(cmd_pointer.molecule_list):
-#                 mws_smiles = cmd_pointer.molecule_list[j].get("identifiers").get("canonical_smiles")
-#                 merged_smol_smiles = smiles_match.get("identifiers").get("canonical_smiles")
-#                 if (merged_smol_smiles == mws_smiles):
-#                     cmd_pointer.molecule_list[j] = merged_smol
-#                     merged_smol_name = smiles_match.get("identifiers").get("name")
-#                     if not merged_smol_name:
-#                         merged_smol_name = merged_smol_smiles
-#                     merge_list.append(merged_smol_name)
-#                     j = len(cmd_pointer.molecule_list)
-#                     updated_flag = True
-#                 j += 1
-            
-#             # If the molecule was not found in the mws, add it
-#             if updated_flag is False:
-#                 cmd_pointer.molecule_list.append(smiles_match)
-
-#     if len(merge_list) > 0:
-#         merge_list = list(set(merge_list))
-#         merge_list.sort()
-#         output_warning("The following molecules had one or more duplicate entries and were merged:", return_val=False)
-#         print(merge_list)
-#         # output_text("\n- " + "\n- ".join(merge_list), return_val=False)
+        while i < len(cmd_pointer.molecule_list):
+            if (
+                merge_mol["identifiers"]["canonical_smiles"]
+                == cmd_pointer.molecule_list[i]["identifiers"]["canonical_smiles"]
+            ):
+                cmd_pointer.molecule_list[i] = merge_mol
+                merge_list.append(merge_mol["name"])
+                i = len(cmd_pointer.molecule_list)
+                updated_flag = True
+            i = i + 1
+        if updated_flag is False:
+            cmd_pointer.molecule_list.append(merge_mol)
+    if len(merge_list) > 0:
+        merge_list = list(set(merge_list))
+        merge_list.sort()
+        output_warning("The following molecules had 1 or more duplicate entries and were merged :", return_val=False)
+        output_text("\n   - " + "\n   - ".join(merge_list), return_val=False)
+    return True
