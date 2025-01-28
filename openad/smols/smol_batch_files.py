@@ -125,7 +125,7 @@ def merge_molecule_property_data(cmd_pointer, inp=None, dataframe=None):
 
     output_success("Data merged into your working set", return_val=False)
     GLOBAL_SETTINGS["grammar_refresh"] = True
-    return
+    return True
 
 
 def load_mol_data(source_file, cmd_pointer):
