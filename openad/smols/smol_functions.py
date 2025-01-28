@@ -1046,7 +1046,7 @@ def get_smol_from_list(identifier, molset, ignore_synonyms=False):
             idfr_canonical = canonicalize(identifier)
             if idfr_canonical == canonicalize(identifiers_dict.get("canonical_smiles", None)):
                 return openad_mol
-            elif idfr_canonical == canonicalize(identifiers_dict.get("icomeric_smiles", None)):
+            elif idfr_canonical == canonicalize(identifiers_dict.get("isomeric_smiles", None)):
                 return openad_mol
             elif idfr_canonical == canonicalize(identifiers_dict.get("smiles", None)):
                 return openad_mol
@@ -1082,30 +1082,30 @@ def get_best_available_identifier(smol: dict) -> tuple:
     if not identifiers_dict:
         return None, None
 
+    # Canonical SMILES
+    canonical_smiles = identifiers_dict.get("canonical_smiles")
+    if canonical_smiles:
+        return "canonical_smiles", canonical_smiles
+
     # InChI
     inchi = identifiers_dict.get("inchi")
     if inchi:
         return "inchi", inchi
+
+    # InChIKey
+    inchikey = identifiers_dict.get("inchikey")
+    if inchikey:
+        return "inchikey", inchikey
 
     # Isomeric SMILES
     isomeric_smiles = identifiers_dict.get("isomeric_smiles")
     if isomeric_smiles:
         return "isomeric_smiles", isomeric_smiles
 
-    # Canonical SMILES
-    canonical_smiles = identifiers_dict.get("canonical_smiles")
-    if canonical_smiles:
-        return "canonical_smiles", canonical_smiles
-
     # SMILES
     smiles = identifiers_dict.get("smiles")
     if smiles:
         return "smiles", smiles
-
-    # InChIKey
-    inchikey = identifiers_dict.get("inchikey")
-    if inchikey:
-        return "inchikey", inchikey
 
     # Name
     name = identifiers_dict.get("name")
@@ -1138,15 +1138,15 @@ def get_best_available_smiles(smol: dict) -> str | None:
 
     identifiers_dict = smol.get("identifiers")
 
-    # Isomeric SMILES
-    isomeric_smiles = identifiers_dict.get("isomeric_smiles")
-    if isomeric_smiles:
-        return isomeric_smiles
-
     # Canonical SMILES
     canonical_smiles = identifiers_dict.get("canonical_smiles")
     if canonical_smiles:
         return canonical_smiles
+
+    # Isomeric SMILES
+    isomeric_smiles = identifiers_dict.get("isomeric_smiles")
+    if isomeric_smiles:
+        return isomeric_smiles
 
     # SMILES
     smiles = identifiers_dict.get("smiles")
@@ -1356,18 +1356,20 @@ def mws_add(cmd_pointer: object, smol: dict, force: bool = False, suppress: bool
     suppress: bool
         If True, suppress success output.
     """
+    # TODO: Instead of ignoring molecules that are already in the list, we should
+    #       update the existing molecule with the new data. See shred_merge_add_df_mols().
 
     if not smol:
         output_error("No molecule provided", return_val=False)
         return False
 
+    # Name
+    name = smol["identifiers"].get("name") or smol["identifiers"].get("canonical_smiles")
+
     # Fail - already in list.
     if get_smol_from_mws(cmd_pointer, smol["identifiers"]["canonical_smiles"]) is not None:
-        output_error("Molecule already in list: " + smol["identifiers"]["canonical_smiles"], return_val=False)
-        return True
-
-    # Name
-    name = smol["identifiers"].get("name") or "Unknown"
+        output_error(f"Molecule already in list: <yellow>{name}</yellow>", return_val=False)
+        return False
 
     # Add function
     def _add_mol():
