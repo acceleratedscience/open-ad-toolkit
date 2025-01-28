@@ -256,24 +256,20 @@ def _enrich_with_pubchem_data(cmd_pointer, molset):
 
 def shred_merge_add_df_mols(molset, cmd_pointer):
     """shreds the molecule relevent properties from dataframe and loads into molecules"""
-    print('shred_merge_add_df_mols')
+    print("shred_merge_add_df_mols")
 
     merge_list = []
     for i, smol in enumerate(molset):
-
         identifiers = smol.get("identifiers", {})
         name = identifiers.get("name")
         canonical_smiles = identifiers.get("canonical_smiles")
-        
-        
-        
+
         # Ignore invalid molecules
         if not valid_smiles(canonical_smiles):
-            output_error(f"#{i} - Invalid SMILES, molecule discarded: <yellow>{smol['SMILES']}</yellow>", return_val=False)
+            output_error(
+                f"#{i} - Invalid SMILES, molecule discarded: <yellow>{smol['SMILES']}</yellow>", return_val=False
+            )
             continue
-
-        
-        
 
         # Todo: this logic should exict elswhere
         # # Parse name
@@ -284,7 +280,7 @@ def shred_merge_add_df_mols(molset, cmd_pointer):
         #     name = next((value for key, value in identifiers.items() if key.lower() == "chemical_name"), None)
         # if name == "":
         #     name = None
-        
+
         # Check if molecule with this name already exists in mws
         name_match = False
         if name:
@@ -295,7 +291,7 @@ def shred_merge_add_df_mols(molset, cmd_pointer):
         if smiles_match:
             merged_smol = merge_smols(smol, smiles_match)
             GLOBAL_SETTINGS["grammar_refresh"] = True
-        
+
         # If a molecule with this name already exists in the mws,
         # but the SMILES don't match, we add an increment to the name.
         elif name_match:
@@ -304,12 +300,14 @@ def shred_merge_add_df_mols(molset, cmd_pointer):
                 i += 1
             prev_name = name
             name = f"name-{i}"
-            output_warning(f"#{i} - Different molecule already named <yellow>{prev_name}</yellow>, renaming to ${name}", return_val=False)
-        
+            output_warning(
+                f"#{i} - Different molecule already named <yellow>{prev_name}</yellow>, renaming to ${name}",
+                return_val=False,
+            )
+
         else:
             output_error(
-                [f"Error merging SMILES: <yellow>{canonical_smiles}</yellow>",
-                "SMILES not recognised by RDKIT"],
+                [f"Error merging SMILES: <yellow>{canonical_smiles}</yellow>", "SMILES not recognised by RDKIT"],
                 return_val=False,
             )
             pass
@@ -336,9 +334,6 @@ def shred_merge_add_df_mols(molset, cmd_pointer):
         output_text("\n   - " + "\n   - ".join(merge_list), return_val=False)
     return True
 
-
-        
-
-        # if Name_Flag is True and merge_mol["identifiers"]["canonical_smiles"] != canonical_smiles(a_mol["SMILES"]):
-        #    output_error("There is already a molecule by the name, adding  increment to the name " + name, return_val=False)
-        #    continue
+    # if Name_Flag is True and merge_mol["identifiers"]["canonical_smiles"] != canonical_smiles(a_mol["SMILES"]):
+    #    output_error("There is already a molecule by the name, adding  increment to the name " + name, return_val=False)
+    #    continue
