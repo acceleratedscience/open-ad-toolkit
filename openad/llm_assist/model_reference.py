@@ -113,7 +113,7 @@ Answer the question based only on the following context: {context}  Question: {q
                 
 Answer the question based only on the following context using provided embeddings only: {context}  Question: {question} """,
         "settings": {
-            "temperature": 0.5,
+            "temperature": 0.4,
             # "decoding_method": "greedy",
             "max_new_tokens": 2000,
             "min_new_tokens": 0,
