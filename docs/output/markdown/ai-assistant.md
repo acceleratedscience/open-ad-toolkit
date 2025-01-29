@@ -26,23 +26,14 @@ https://github.com/acceleratedscience/open-ad-toolkit/tree/main/docs
 
 <br>
 
-## IBM BAM Setup
-
-To use [IBM BAM] if you have access to it, simply provide your API key when prompted.
-
-    set llm bam
-    tell me <enter prompt>
-
-<br>
-
 ## Ollama Setup
 
 1.  Install [Ollama] onto your platform.
 
 2.  Download the appropriate models.
 
-        ollama pull llama3:latest
-        ollama pull nomic-embed-text
+        ollama pull granite3.1-dense:8b-instruct-q4_1
+        ollama pull all-minilm:l6-v2
 
 3.  Start the server if not already started.
 
@@ -69,5 +60,4 @@ That's it for local usage. If you want to run Ollama remotely, continue below.
     set llm ollama
     tell me <enter prompt>
 
-[IBM BAM]: https://bam.res.ibm.com
 [Ollama]: https://ollama.com

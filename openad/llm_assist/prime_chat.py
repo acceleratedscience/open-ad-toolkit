@@ -176,11 +176,7 @@ class Chatobject:
                         docs.extend(text_splitter.split_documents(documents))
                     elif j == "**/*.md":
                         loader = DirectoryLoader(i, glob=j, loader_cls=UnstructuredMarkdownLoader)
-                        # print(i)
                         try:
-                            # import nltk
-
-                            # nltk.download("punkt")
                             documents = loader.load()
                             headers_to_split_on = [("#", "Header 1"), ("##", "Header 2")]
                             markdown_splitter = MarkdownHeaderTextSplitter(headers_to_split_on=headers_to_split_on)
@@ -189,8 +185,8 @@ class Chatobject:
                                 chunk_size=2000, chunk_overlap=100, separators=["\@"], keep_separator=False
                             )"""
                             text_splitter = RecursiveCharacterTextSplitter(
-                                chunk_size=3000,
-                                chunk_overlap=30,
+                                chunk_size=2000,
+                                chunk_overlap=30,  # 30,
                                 separators=["\@"],
                                 length_function=len_func,
                                 keep_separator=False,
@@ -221,14 +217,14 @@ class Chatobject:
                         loader = DirectoryLoader(i, glob=j, loader_cls=TextLoader)
                         documents = loader.load()
                         text_splitter = RecursiveCharacterTextSplitter(
-                            chunk_size=2000, chunk_overlap=100, separators=["\@", "Property:"], keep_separator=False
+                            chunk_size=2000, chunk_overlap=30, separators=["\@", "Property:"], keep_separator=False
                         )
                         docs.extend(text_splitter.split_documents(documents))
                     else:
                         loader = DirectoryLoader(i, glob=j, loader_cls=TextLoader)
                         documents = loader.load()
                         text_splitter = RecursiveCharacterTextSplitter(
-                            chunk_size=2000, chunk_overlap=130, separators=["\n"]
+                            chunk_size=2000, chunk_overlap=30, separators=["\n"]
                         )
                         docs.extend(text_splitter.split_documents(documents))
 
@@ -243,7 +239,7 @@ class Chatobject:
 
     def how_to_search(self, search: str):
         """Executing the Tell Me Function"""
-        retriever = self.db_handle.as_retriever(fetch_k=5)
+        retriever = self.db_handle.as_retriever(k=100)
 
         model, template = get_tell_me_model(self.llm_service, self.API_key)
 

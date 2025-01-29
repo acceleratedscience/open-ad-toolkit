@@ -1,6 +1,6 @@
 envs:
-  MODEL_NAME: instructlab/granite-7b-lab # mistral, phi, other ollama supported models
-  EMBEDDINGS_MODEL_NAME: pankajrajdeo/sentence-transformers_all-minilm-l6-v2  # mistral, phi, other ollama supported models
+  MODEL_NAME: granite3.1-dense:8b-instruct-q4_1 # mistral, phi, other ollama supported models
+  EMBEDDINGS_MODEL_NAME: all-minilm:l6-v2 # mistral, phi, other ollama supported models
   OLLAMA_HOST: 0.0.0.0:8888  # Host and port for Ollama to listen on
 
 resources:
