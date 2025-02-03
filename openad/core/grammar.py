@@ -308,24 +308,24 @@ NOTE_TOOLKITS_SEE_ALL = "<soft>To see all available toolkits, run <cmd>list all 
 NOTE_TOOLKITS = "<soft>To learn more about toolkits, run <cmd>toolkit ?</cmd>.</soft>"
 
 
-# Toolkit overview screens (explains what, how to install, etc.)
-for tk in _all_toolkits:
-    # Note: statement creation is moved to create_statements()
-    # because they need to be appended after the toolkit command
-    # statements, otherwise `<prefix> abc` would be caught by
-    # the toolkit command `<prefix>` and cause error.
-    # statements.append(Forward(CaselessKeyword(tk))(tk))
-    grammar_help.append(
-        help_dict_create(
-            name=f"{tk} splash",
-            category="Toolkits",
-            command=tk.lower(),
-            # This description is never read. Inside main.py -> do_help()
-            # there is a clause that intercepts this command and displays
-            # the available commands for the toolkit instead.
-            description=f"Display the splash screen for the {tk} toolkit.",
-        )
-    )
+# # Toolkit overview screens (explains what, how to install, etc.)
+# for tk in _all_toolkits:
+#     # Note: statement creation is moved to create_statements()
+#     # because they need to be appended after the toolkit command
+#     # statements, otherwise `<prefix> abc` would be caught by
+#     # the toolkit command `<prefix>` and cause error.
+#     # statements.append(Forward(CaselessKeyword(tk))(tk))
+#     grammar_help.append(
+#         help_dict_create(
+#             name=f"{tk} splash",
+#             category="Toolkits",
+#             command=tk.lower(),
+#             # This description is never read. Inside main.py -> do_help()
+#             # there is a clause that intercepts this command and displays
+#             # the available commands for the toolkit instead.
+#             description=f"Display the splash screen for the {tk} toolkit.",
+#         )
+#     )
 
 # List toolkits
 statements.append(Forward(lister + toolkits("toolkits"))("list_toolkits"))
