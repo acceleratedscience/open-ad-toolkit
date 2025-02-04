@@ -34,8 +34,8 @@ class NotebookStyles:
         path_banner_chapter = os.path.join(self.dir_path, "media", "science_banner.jpg")
         data_uri_banner_main = self._image_to_data_uri(path_banner_main)
         data_uri_banner_chapter = self._image_to_data_uri(path_banner_chapter)
-        self.css_banner_main = self._create_banner_css("banner", data_uri_banner_main)
-        self.css_banner_chapter = self._create_banner_css("banner-1", data_uri_banner_chapter)
+        self.css_banner_main = self._create_banner_css("banner:not(.chapter)", data_uri_banner_main)
+        self.css_banner_chapter = self._create_banner_css("banner.chapter", data_uri_banner_chapter)
 
     def _image_to_data_uri(self, filepath):
         """Convert an image to a data URI (url in css doesn't work)"""

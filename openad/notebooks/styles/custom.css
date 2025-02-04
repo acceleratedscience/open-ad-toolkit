@@ -92,10 +92,10 @@ code {
   padding: 0 3px !important;
   max-width: none;
 }
-pre.cmd, /* Legacy */
-pre code, /* Legacy */
-code.block, /* Legacy temp */
-pre.code {
+/* pre.cmd, /* Legacy */
+/* code.block, /* Legacy temp */
+pre  code, /* Displays indented text as a code block */
+pre.code /* Explicitly set a pre tag as a code block */ {
   color: #eec !important;
   background-color: #2f2d3a !important;
   display: block;
@@ -122,6 +122,9 @@ pre.code {
   display: flex;
   flex-direction: column-reverse;
   font-weight: 300;
+}
+.banner.chapter {
+  text-align: left;
 }
 .banner::after {
   content: "";
@@ -154,4 +157,15 @@ pre.code {
 .banner b span::before {
   content: " / ";
   margin: 0 5px;
+}
+
+/**
+ * Summary blocks
+ */
+
+details summary h1,
+details summary h2,
+details summary h3,
+details summary h4 {
+  display: inline-block;
 }
