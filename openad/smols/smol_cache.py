@@ -93,6 +93,7 @@ def clear_analysis(cmd_pointer, inp) -> list | bool:
         _create_workspace_dir_if_nonexistent(cmd_pointer, CACHE_DIR) + "*.res",
         recursive=True,
     ):
+        print(i)
         os.remove(i)
 
     # Success
