@@ -18,7 +18,7 @@ https://github.com/acceleratedscience/open-ad-toolkit/tree/main/docs
 
 ---
 
-- **Supported LLMs** are [IBM BAM] and [Ollama]
+- **Supported LLMs**  [Ollama]
 - **Ollama** requires an 8GB GPU.
 - **WatsonX support** is coming soon.
 

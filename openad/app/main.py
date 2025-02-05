@@ -203,6 +203,8 @@ class RUNCMD(Cmd):
                 self.workspace_path(self.settings["workspace"].upper()) + "/.cmd_history"
             )
         # set current context login
+        unset_context(self, None)
+        self.settings["context"] = None
         if self.settings["context"] is not None:
             success, expiry = login_manager.load_login_api(self, self.settings["context"])
             if success is False:
