@@ -134,8 +134,10 @@ class RUNCMD(Cmd):
     plugins_help = []
     plugins_metadata = {}
     plugin_namespaces = set()
-    plugin_names = set()  # Lowercase names
+    plugin_names = set()  # Original names
+    plugin_names_lowercase = set()  # Lowercase names
     plugin_name_ns_map = {}  # Lets us map lowercase name to namespace
+    plugin_ns_name_map = {}  # Lets us map namespace to name
     for plugin in plugins:
         p = plugin()
         plugin_instances.append(p)
@@ -150,9 +152,11 @@ class RUNCMD(Cmd):
 
         plugin_name = p.metadata.get("name")
         if plugin_name:
-            plugin_names.add(plugin_name.lower())
+            plugin_names.add(plugin_name)
+            plugin_names_lowercase.add(plugin_name.lower())
             if not plugin_name in plugin_name_ns_map:
                 plugin_name_ns_map[plugin_name.lower()] = plugin_namespace
+                plugin_ns_name_map[plugin_namespace] = plugin_name
 
     # # Instantiate memory class # Trash
     # memory = Memory()
@@ -380,25 +384,26 @@ class RUNCMD(Cmd):
                     # Print
                     return output_text("".join(output), pad=1, edge=True)
 
-        # `<plugin_name_or_namespace> ?` or `? <plugin_name_or_namespace>` --> Display plugin overview.
-        if inp.lower() in self.plugin_names:
-            plugin_name, plugin_commands_organized = get_case_insensitive_key(all_plugin_commands_organized, inp)
-            plugin_namespace = self.plugin_name_ns_map.get(plugin_name.lower(), "")
-            return display_plugin_overview(self.plugins_metadata[plugin_namespace])
-        elif inp.lower() in self.plugin_namespaces:
-            plugin_namespace = inp.lower()
-            return display_plugin_overview(self.plugins_metadata[plugin_namespace])
+        if not disable_category_match:
+            # `<plugin_name_or_namespace> ?` or `? <plugin_name_or_namespace>` --> Display plugin overview.
+            if inp.lower() in self.plugin_names_lowercase:
+                plugin_name, plugin_commands_organized = get_case_insensitive_key(all_plugin_commands_organized, inp)
+                plugin_namespace = self.plugin_name_ns_map.get(plugin_name.lower(), "")
+                return display_plugin_overview(self.plugins_metadata[plugin_namespace])
+            elif inp.lower() in self.plugin_namespaces:
+                plugin_namespace = inp.lower()
+                return display_plugin_overview(self.plugins_metadata[plugin_namespace])
 
-        # `<toolkit_name> ?` --> Display all toolkit commands.
-        if inp.upper() in _all_toolkits:
-            toolkit_name = inp.upper()
-            ok, toolkit = load_toolkit(toolkit_name)
-            toolkit_commands_organized = openad_help.organize_commands(toolkit.methods_help)
-            return output_text(
-                openad_help.all_commands(toolkit_commands_organized, toolkit_name=toolkit_name, cmd_pointer=self),
-                pad=2,
-                edge=True,
-            )
+            # `<toolkit_name> ?` --> Display all toolkit commands.
+            if inp.upper() in _all_toolkits:
+                toolkit_name = inp.upper()
+                ok, toolkit = load_toolkit(toolkit_name)
+                toolkit_commands_organized = openad_help.organize_commands(toolkit.methods_help)
+                return output_text(
+                    openad_help.all_commands(toolkit_commands_organized, toolkit_name=toolkit_name, cmd_pointer=self),
+                    pad=2,
+                    edge=True,
+                )
 
         # Add the current toolkit's commands to the main list of commands.
         try:
@@ -908,7 +913,22 @@ class RUNCMD(Cmd):
                     # Display error.
                     output_error(msg("err_invalid_cmd", error_msg), return_val=False)
 
-                    if show_suggestions:
+                    # Check if the recognized part of the command is matching a plugin namespace.
+                    # If so, we want to point the user towards the plugin help.
+                    possible_plugin_namespace = help_ref.lower().strip() if help_ref else None
+                    if possible_plugin_namespace and possible_plugin_namespace in self.plugin_namespaces:
+                        plugin_name = self.plugin_ns_name_map.get(possible_plugin_namespace)
+                        output_text(
+                            [
+                                f"<yellow><reverse> PLUGIN </reverse></yellow><reset><reverse> {plugin_name} </reverse></reset>",
+                                f"To see all available commands for the {plugin_name} plugin, run <cmd>{possible_plugin_namespace} ?</cmd>",
+                            ],
+                            return_val=False,
+                            pad=1,
+                        )
+
+                    # For all other scenarios, display a list of suggestions.
+                    elif show_suggestions:
                         if not multiple_suggestions:
                             output_text("<yellow>You may want to try:</yellow>", return_val=False)
                             pad_top = 1  # Single command should get a linebreak before and after.
@@ -916,7 +936,6 @@ class RUNCMD(Cmd):
                             pad_top = 0  # List of commands should not get padded.
 
                         # Example to trigger this: `list xxx`
-
                         self.do_help(
                             help_ref + " ?",
                             starts_with_only=True,
@@ -926,6 +945,7 @@ class RUNCMD(Cmd):
                         )
                         note = msg("run_?")
                         output_text(f"<soft>{note}</soft>", return_val=False, pad=1)
+
                     return
 
             else:
